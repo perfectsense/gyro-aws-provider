@@ -1,34 +1,21 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
+import com.psddev.dari.util.ObjectUtils;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
+import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
+import software.amazon.awssdk.services.waf.model.GetRateBasedRuleResponse;
+import software.amazon.awssdk.services.waf.model.RateBasedRule;
 
 import java.util.Set;
-import java.util.UUID;
 
-public class RateRuleResource extends AwsResource {
-    private String name;
-    private String metricName;
+@ResourceName("rate-rule")
+public class RateRuleResource extends RuleBaseResource {
     private String rateKey;
     private Long rateLimit;
-    private String ruleId;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public void setMetricName(String metricName) {
-        this.metricName = metricName;
-    }
 
     public String getRateKey() {
         return rateKey;
@@ -38,6 +25,7 @@ public class RateRuleResource extends AwsResource {
         this.rateKey = rateKey;
     }
 
+    @ResourceDiffProperty(updatable = true, nullable = true)
     public Long getRateLimit() {
         return rateLimit;
     }
@@ -46,55 +34,67 @@ public class RateRuleResource extends AwsResource {
         this.rateLimit = rateLimit;
     }
 
-    public String getRuleId() {
-        return ruleId;
-    }
-
-    public void setRuleId(String ruleId) {
-        this.ruleId = ruleId;
-    }
-
     @Override
     public boolean refresh() {
-        return false;
+        if (ObjectUtils.isBlank(getRuleId())) {
+            return false;
+        }
+
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+
+        GetRateBasedRuleResponse response = client.getRateBasedRule(
+            r -> r.ruleId(getRuleId())
+        );
+
+        RateBasedRule rule = response.rule();
+        setName(rule.name());
+        setMetricName(rule.metricName());
+        setRateKey(rule.rateKeyAsString());
+        setRateLimit(rule.rateLimit());
+        loadPredicates(rule.matchPredicates());
+
+        return true;
     }
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
-        client.createRateBasedRule(
+        CreateRateBasedRuleResponse response = client.createRateBasedRule(
             r -> r.name(getName())
                 .metricName(getMetricName())
-                .changeToken(UUID.randomUUID().toString())
+                .changeToken(client.getChangeToken().changeToken())
                 .rateKey(getRateKey())
                 .rateLimit(getRateLimit())
         );
+
+        RateBasedRule rule = response.rule();
+        setRuleId(rule.ruleId());
     }
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateRateBasedRule(
             r -> r.ruleId(getRuleId())
-                .changeToken(UUID.randomUUID().toString())
+                .changeToken(client.getChangeToken().changeToken())
                 .rateLimit(getRateLimit())
         );
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteRateBasedRule(
-            r -> r.changeToken(UUID.randomUUID().toString())
+            r -> r.changeToken(client.getChangeToken().changeToken())
                 .ruleId(getRuleId())
         );
     }
 
     @Override
-    public String toDisplayString() {
-        return null;
+    boolean isRateRule() {
+        return true;
     }
 }
