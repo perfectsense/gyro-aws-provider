@@ -1,48 +1,25 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
+import com.psddev.dari.util.ObjectUtils;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
+import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRuleResponse;
-import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.Rule;
 
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
-public class RuleResource extends AwsResource {
-    private String name;
-    private String metricName;
-    private String ruleId;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public void setMetricName(String metricName) {
-        this.metricName = metricName;
-    }
-
-    public String getRuleId() {
-        return ruleId;
-    }
-
-    public void setRuleId(String ruleId) {
-        this.ruleId = ruleId;
-    }
-
+@ResourceName("rule")
+public class RuleResource extends RuleBaseResource {
     @Override
     public boolean refresh() {
-        WafClient client = createClient(WafClient.class);
+        if (ObjectUtils.isBlank(getRuleId())) {
+            return false;
+        }
+
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         GetRuleResponse response = client.getRule(
             r -> r.ruleId(getRuleId())
@@ -51,20 +28,23 @@ public class RuleResource extends AwsResource {
         Rule rule = response.rule();
         setMetricName(rule.metricName());
         setName(rule.name());
-        List<Predicate> predicates = rule.predicates();
+        loadPredicates(rule.predicates());
 
         return true;
     }
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
-        client.createRule(
-            r -> r.changeToken(UUID.randomUUID().toString())
+        CreateRuleResponse response = client.createRule(
+            r -> r.changeToken(client.getChangeToken().changeToken())
                 .name(getName())
                 .metricName(getMetricName())
         );
+
+        Rule rule = response.rule();
+        setRuleId(rule.ruleId());
     }
 
     @Override
@@ -74,16 +54,16 @@ public class RuleResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteRule(
-            r -> r.changeToken(UUID.randomUUID().toString())
+            r -> r.changeToken(client.getChangeToken().changeToken())
                 .ruleId(getRuleId())
         );
     }
 
     @Override
-    public String toDisplayString() {
-        return null;
+    boolean isRateRule() {
+        return false;
     }
 }
