@@ -1,25 +1,26 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
+import com.psddev.dari.util.ObjectUtils;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
-import software.amazon.awssdk.services.waf.model.WafAction;
 import software.amazon.awssdk.services.waf.model.WebACLUpdate;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+@ResourceName(parent = "waf-acl", value = "activated-rule")
 public class ActivatedRuleResource extends AwsResource {
-
     private String ruleId;
     private String action;
-    private String overrideAction;
-    private String defaultAction;
     private String type;
     private Integer priority;
     private List<String> excludedRules;
@@ -40,22 +41,6 @@ public class ActivatedRuleResource extends AwsResource {
         this.action = action;
     }
 
-    public String getOverrideAction() {
-        return overrideAction;
-    }
-
-    public void setOverrideAction(String overrideAction) {
-        this.overrideAction = overrideAction;
-    }
-
-    public String getDefaultAction() {
-        return defaultAction;
-    }
-
-    public void setDefaultAction(String defaultAction) {
-        this.defaultAction = defaultAction;
-    }
-
     public String getType() {
         return type;
     }
@@ -73,6 +58,10 @@ public class ActivatedRuleResource extends AwsResource {
     }
 
     public List<String> getExcludedRules() {
+        if (excludedRules == null) {
+            excludedRules = new ArrayList<>();
+        }
+
         return excludedRules;
     }
 
@@ -85,7 +74,6 @@ public class ActivatedRuleResource extends AwsResource {
     }
 
     public ActivatedRuleResource(ActivatedRule activatedRule) {
-        setOverrideAction(activatedRule.overrideAction().typeAsString());
         setAction(activatedRule.action().typeAsString());
         setPriority(activatedRule.priority());
         setRuleId(activatedRule.ruleId());
@@ -100,54 +88,59 @@ public class ActivatedRuleResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
-        WebAclResource parent = (WebAclResource) parent();
-
-        WebACLUpdate webACLUpdate = WebACLUpdate.builder().action(ChangeAction.INSERT)
-            .activatedRule(getActivatedRule())
-            .build();
-
-        client.updateWebACL(
-            r -> r.webACLId(parent.getWebAclId())
-                .defaultAction(da -> da.type(parent.getDefaultAction()))
-                .changeToken(UUID.randomUUID().toString())
-                .updates(webACLUpdate)
-        );
+        saveActivatedRule(client, getActivatedRule(), false);
     }
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
+        //Remove old activated rule
+        saveActivatedRule(client, ((ActivatedRuleResource) current).getActivatedRule(), true);
+
+        //Add updated activated rule
+        saveActivatedRule(client, getActivatedRule(), false);
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class);
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
-        WebAclResource parent = (WebAclResource) parent();
-
-        WebACLUpdate webACLUpdate = WebACLUpdate.builder().action(ChangeAction.DELETE)
-            .activatedRule(getActivatedRule())
-            .build();
-
-        client.updateWebACL(
-            r -> r.webACLId(parent.getWebAclId())
-                .defaultAction(da -> da.type(parent.getDefaultAction()))
-                .changeToken(UUID.randomUUID().toString())
-                .updates(webACLUpdate)
-        );
+        saveActivatedRule(client, getActivatedRule(), true);
     }
 
     @Override
     public String toDisplayString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("activated rule");
+
+        if (!ObjectUtils.isBlank(getRuleId())) {
+            sb.append(" - ").append(getRuleId());
+        }
+
+        if (!ObjectUtils.isBlank(getType())) {
+            sb.append(" - ").append(getType());
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s %s", getRuleId(), getType());
+    }
+
+    @Override
+    public String resourceIdentifier() {
         return null;
     }
 
     private ActivatedRule getActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
-            .overrideAction(oa -> oa.type(getOverrideAction()))
             .priority(getPriority())
             .type(getType())
             .ruleId(getRuleId())
@@ -159,5 +152,21 @@ public class ActivatedRuleResource extends AwsResource {
                     .collect(Collectors.toList())
             )
             .build();
+    }
+
+    private void saveActivatedRule(WafClient client,ActivatedRule activatedRule, boolean isDelete) {
+        WebAclResource parent = (WebAclResource) parent();
+
+        WebACLUpdate webAclUpdate = WebACLUpdate.builder()
+            .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
+            .activatedRule(activatedRule)
+            .build();
+
+        client.updateWebACL(
+            r -> r.webACLId(parent.getWebAclId())
+                .defaultAction(da -> da.type(parent.getDefaultAction()))
+                .changeToken(client.getChangeToken().changeToken())
+                .updates(Collections.singleton(webAclUpdate))
+        );
     }
 }
