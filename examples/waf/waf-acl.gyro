@@ -1,0 +1,19 @@
+import ../init as _
+
+aws::waf-acl waf-acl-example
+    name: "waf-acl-example"
+    metric-name: "wafAclExample"
+    default-action: "ALLOW"
+
+    activated-rule
+        action: "ALLOW"
+        type: "REGULAR"
+        priority: 1
+        rule-id: $(aws::rule rule-example | rule-id)
+    end
+end
+
+aws::rule rule-example
+    name: "rule-example"
+    metric-name: "ruleExample"
+end
