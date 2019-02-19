@@ -17,3 +17,41 @@ aws::rule rule-example
     name: "rule-example"
     metric-name: "ruleExample"
 end
+
+aws::geo-match-set geo-match-set-example
+    name: "geo-match-set-example"
+
+    geo-match-constraint
+        type: "Country"
+        value: "TL"
+    end
+end
+
+aws::xss-match-set xss-match-set-example
+    name: "xss-match-set-example"
+
+    xss-match-tuple
+        type: "METHOD"
+        text-transformation: "NONE"
+    end
+end
+
+aws::size-constraint-set size-constraint-set-example
+    name: "size-constraint-set-example"
+
+    size-constraint
+        type: "METHOD"
+        text-transformation: "NONE"
+        comparison-operator: "EQ"
+        size: 10
+    end
+end
+
+aws::ip-set ip-set-example
+    name: "ip-set-example"
+
+    ip-set-descriptor
+        type: "IPV4"
+        value: "190.0.0.26/32"
+    end
+end
