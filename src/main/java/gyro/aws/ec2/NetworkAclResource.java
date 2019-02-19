@@ -8,7 +8,9 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -33,8 +35,8 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
     private String vpcId;
     private String networkAclId;
-    private List<NetworkAclIngressRuleResource> ingress;
-    private List<NetworkAclEgressRuleResource> egress;
+    private List<NetworkAclRuleResource> rule;
+    private Boolean egressRule;
 
     /**
      * The ID of the VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_. (Required)
@@ -47,6 +49,9 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
         this.vpcId = vpcId;
     }
 
+    /**
+     * The ID of the network ACL.
+     */
     @ResourceOutput
     public String getNetworkAclId() {
         return networkAclId;
@@ -61,29 +66,33 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
         return getNetworkAclId();
     }
 
+    /**
+     * Rule entries for this resource
+     *
+     * @subresource beam.aws.ec2.NetworkAclRuleResource
+     */
     @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<NetworkAclEgressRuleResource> getEgress() {
-        if (egress == null) {
-            egress = new ArrayList<>();
+    public List<NetworkAclRuleResource> getRule() {
+        if (rule == null) {
+            rule = new ArrayList<>();
         }
-        return egress;
+        return rule;
     }
 
-    public void setEgress(List<NetworkAclEgressRuleResource> egress) {
-        this.egress = egress;
+    public void setRule(List<NetworkAclRuleResource> ruleEntries) {
+        this.rule = ruleEntries;
     }
 
-
-    @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<NetworkAclIngressRuleResource> getIngress() {
-        if (ingress == null) {
-            ingress = new ArrayList<>();
-        }
-        return ingress;
+    /**
+     * Indicates whether this is an egress rule or ingress rule.
+     */
+    @ResourceDiffProperty
+    public Boolean getEgressRule() {
+        return egressRule;
     }
 
-    public void setIngress(List<NetworkAclIngressRuleResource> ingress) {
-        this.ingress = ingress;
+    public void setEgressRule(Boolean egressRule) {
+        this.egressRule = egressRule;
     }
 
     @Override
@@ -94,6 +103,29 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
         if (!response.networkAcls().isEmpty()) {
             NetworkAcl networkAcl = response.networkAcls().get(0);
+
+            for (NetworkAclEntry e: networkAcl.entries()) {
+
+                if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
+                    && e.portRange() == null
+                    && e.cidrBlock().equals("0.0.0.0/0")) {
+                    continue;
+                }
+
+                if (e.egress().equals(true)) {
+                    setEgressRule(true);
+                    NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
+                    getRule().add(rule);
+                    rule.parent(this);
+                    rule.setResourceCredentials(getResourceCredentials());
+                } else {
+                    setEgressRule(false);
+                    NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
+                    getRule().add(rule);
+                    rule.parent(this);
+                    rule.setResourceCredentials(getResourceCredentials());
+                }
+            }
             setVpcId(networkAcl.vpcId());
 
             return true;
