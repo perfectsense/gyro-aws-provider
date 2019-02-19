@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -11,6 +12,7 @@ import software.amazon.awssdk.services.waf.model.GeoMatchSetUpdate;
 
 import java.util.Set;
 
+@ResourceName(parent = "geo-match-set", value = "geo-match-constraint")
 public class GeoMatchConstraintResource extends AwsResource {
 
     private String value;
@@ -38,7 +40,7 @@ public class GeoMatchConstraintResource extends AwsResource {
 
     public GeoMatchConstraintResource(GeoMatchConstraint geoMatchConstraint) {
         setType(geoMatchConstraint.typeAsString());
-        setType(geoMatchConstraint.valueAsString());
+        setValue(geoMatchConstraint.valueAsString());
     }
 
     @Override
@@ -55,13 +57,7 @@ public class GeoMatchConstraintResource extends AwsResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
-        //Remove old geo match constraint
-        saveGeoMatchConstraint(client, ((GeoMatchConstraintResource) current).getGeoMatchConstraint(), true);
-
-        //Add updated geo match constraint
-        saveGeoMatchConstraint(client, getGeoMatchConstraint(), false);
     }
 
     @Override
@@ -88,6 +84,16 @@ public class GeoMatchConstraintResource extends AwsResource {
         return sb.toString();
     }
 
+    @Override
+    public String primaryKey() {
+        return String.format("%s %s", getValue(), getType());
+    }
+
+    @Override
+    public String resourceIdentifier() {
+        return null;
+    }
+
     private GeoMatchConstraint getGeoMatchConstraint() {
         return GeoMatchConstraint.builder()
             .type(getType())
@@ -99,7 +105,7 @@ public class GeoMatchConstraintResource extends AwsResource {
         GeoMatchSetResource parent = (GeoMatchSetResource) parent();
 
         GeoMatchSetUpdate geoMatchSetUpdate = GeoMatchSetUpdate.builder()
-            .action(ChangeAction.INSERT)
+            .action(!isDelte ? ChangeAction.INSERT : ChangeAction.DELETE)
             .geoMatchConstraint(geoMatchConstraint)
             .build();
 
