@@ -55,6 +55,29 @@ public class NetworkAclRuleResource extends AwsResource {
     private Integer icmpType;
     private Integer icmpCode;
 
+    public NetworkAclRuleResource() {
+    }
+
+    public NetworkAclRuleResource(NetworkAclEntry e) {
+        setCidrBlock(e.cidrBlock());
+        setEgressRule(e.egress());
+        setIpv6CidrBlock(e.ipv6CidrBlock());
+        setProtocol(e.protocol());
+
+        if (e.portRange() != null) {
+            setFromPort(e.portRange().from());
+            setToPort(e.portRange().to());
+        }
+
+        if (e.icmpTypeCode() != null) {
+            setIcmpCode(e.icmpTypeCode().code());
+            setIcmpType(e.icmpTypeCode().type());
+        }
+
+        setRuleAction(e.ruleActionAsString());
+        setRuleNumber(e.ruleNumber());
+    }
+
     /**
      * Rule number for this rule entry
      */
@@ -195,30 +218,6 @@ public class NetworkAclRuleResource extends AwsResource {
             return parent.getId();
         }
         return null;
-    }
-
-    public NetworkAclRuleResource() {
-    }
-
-    public NetworkAclRuleResource(NetworkAclEntry e) {
-
-        setCidrBlock(e.cidrBlock());
-        setEgressRule(e.egress());
-        setIpv6CidrBlock(e.ipv6CidrBlock());
-        setProtocol(e.protocol());
-
-        if (e.portRange() != null) {
-            setFromPort(e.portRange().from());
-            setToPort(e.portRange().to());
-        }
-
-        if (e.icmpTypeCode() != null) {
-            setIcmpCode(e.icmpTypeCode().code());
-            setIcmpType(e.icmpTypeCode().type());
-        }
-
-        setRuleAction(e.ruleActionAsString());
-        setRuleNumber(e.ruleNumber());
     }
 
     @Override
