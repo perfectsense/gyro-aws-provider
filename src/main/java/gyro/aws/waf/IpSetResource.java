@@ -93,7 +93,8 @@ public class IpSetResource extends AwsResource {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteIPSet(
-            r -> r.ipSetId(getIpSetId())
+            r -> r.changeToken(client.getChangeToken().changeToken())
+                .ipSetId(getIpSetId())
         );
     }
 
