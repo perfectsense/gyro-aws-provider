@@ -51,6 +51,10 @@ public class IpSetResource extends AwsResource {
 
     @Override
     public boolean refresh() {
+        if (ObjectUtils.isBlank(getIpSetId())) {
+            return false;
+        }
+
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         GetIpSetResponse response = client.getIPSet(

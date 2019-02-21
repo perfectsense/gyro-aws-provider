@@ -51,11 +51,11 @@ public class GeoMatchSetResource extends AwsResource {
 
     @Override
     public boolean refresh() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
         if (ObjectUtils.isBlank(getGeoMatchSetId())) {
             return false;
         }
+
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         GetGeoMatchSetResponse response = client.getGeoMatchSet(
             r -> r.geoMatchSetId(getGeoMatchSetId())
