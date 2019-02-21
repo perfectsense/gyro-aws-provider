@@ -5,6 +5,10 @@ import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
+import gyro.lang.query.EqualsQueryFilter;
+import gyro.lang.query.OrQueryFilter;
+import gyro.lang.query.QueryFilter;
+import gyro.lang.query.ResourceQuery;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -18,7 +22,12 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifySubnetAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Create a subnet in a VPC.
@@ -35,13 +44,25 @@ import java.util.Set;
  *     end
  */
 @ResourceName("subnet")
-public class SubnetResource extends Ec2TaggableResource<Subnet> {
+public class SubnetResource extends Ec2TaggableResource<Subnet> implements ResourceQuery<SubnetResource> {
 
     private String vpcId;
     private String cidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private String subnetId;
+
+    public SubnetResource() {
+
+    }
+
+    public SubnetResource(Subnet subnet) {
+        setSubnetId(subnet.subnetId());
+        setCidrBlock(subnet.cidrBlock());
+        setAvailabilityZone(subnet.availabilityZone());
+        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
+        setVpcId(subnet.vpcId());
+    }
 
     /**
      * The ID of the VPC to create the subnet in. (Required)
@@ -100,6 +121,74 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     public String getId() {
         return getSubnetId();
+    }
+
+    private static List<String> FilterableAttributes = Arrays.asList(
+        "availability-zone", "availability-zone-id", "available-ip-address-count", "cidr-block", "default-for-az",
+        "ipv6-cidr-block-association.ipv6-cidr-block", "ipv6-cidr-block-association.association-id", "ipv6-cidr-block-association.state",
+        "owner-id", "state", "subnet-arn", "subnet-id", "tag:*", "tag-key", "vpc-id"
+    );
+
+    private Filter handleEqualsQueryFilters(EqualsQueryFilter queryFilter) {
+        if (!FilterableAttributes.contains(queryFilter.getField())) {
+            return null;
+        }
+
+        return Filter.builder().name(queryFilter.getField()).values(queryFilter.getValue()).build();
+    }
+
+    @Override
+    public List<SubnetResource> query(List<QueryFilter> filters) {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        List<Filter> subnetFilters = new ArrayList<>();
+        for (Iterator<QueryFilter> i = filters.iterator(); i.hasNext();) {
+            QueryFilter filter = i.next();
+
+            if (filter instanceof EqualsQueryFilter) {
+                Filter apiFilter = handleEqualsQueryFilters((EqualsQueryFilter) filter);
+
+                if (apiFilter != null) {
+                    subnetFilters.add(apiFilter);
+                    i.remove();
+                }
+            } else if (filter instanceof OrQueryFilter) {
+                OrQueryFilter queryFilter = (OrQueryFilter) filter;
+
+                if (queryFilter.getLeftFilter() instanceof EqualsQueryFilter) {
+                    Filter apiFilter = handleEqualsQueryFilters((EqualsQueryFilter) queryFilter.getLeftFilter());
+
+                    if (apiFilter != null) {
+                        subnetFilters.add(apiFilter);
+                    }
+                }
+
+                if (queryFilter.getRightFilter() instanceof EqualsQueryFilter) {
+                    Filter apiFilter = handleEqualsQueryFilters((EqualsQueryFilter) queryFilter.getRightFilter());
+
+                    if (apiFilter != null) {
+                        subnetFilters.add(apiFilter);
+                    }
+                }
+
+
+            }
+        }
+
+        if (subnetFilters.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        DescribeSubnetsRequest request = DescribeSubnetsRequest.builder()
+            .filters(subnetFilters)
+            .build();
+
+        List<SubnetResource> resources = client.describeSubnets(request).subnets()
+            .stream()
+            .map(s -> new SubnetResource(s))
+            .collect(Collectors.toList());
+
+        return resources;
     }
 
     @Override
@@ -227,4 +316,5 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
         return sb.toString();
     }
+
 }

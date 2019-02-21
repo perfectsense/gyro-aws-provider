@@ -1,0 +1,3 @@
+import ../init as _
+
+subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone == 'us-east-2a' or availability-zone == 'us-east-2b' | subnet-id)
