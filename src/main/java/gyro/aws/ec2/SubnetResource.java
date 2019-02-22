@@ -6,6 +6,7 @@ import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
 import gyro.lang.ResourceQuery;
+import com.google.common.collect.Sets;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -48,6 +49,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Resou
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private String subnetId;
+
+    private static final Set<String> FILTERABLE_ATTRIBUTES = Sets.newHashSet(
+        "availability-zone", "availability-zone-id", "available-ip-address-count", "cidr-block", "default-for-az",
+        "ipv6-cidr-block-association.ipv6-cidr-block", "ipv6-cidr-block-association.association-id", "ipv6-cidr-block-association.state",
+        "owner-id", "state", "subnet-arn", "subnet-id", "tag:*", "tag-key", "vpc-id"
+    );
 
     public SubnetResource() {
 
@@ -120,53 +127,29 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Resou
         return getSubnetId();
     }
 
-    private static List<String> FilterableAttributes = Arrays.asList(
-        "availability-zone", "availability-zone-id", "available-ip-address-count", "cidr-block", "default-for-az",
-        "ipv6-cidr-block-association.ipv6-cidr-block", "ipv6-cidr-block-association.association-id", "ipv6-cidr-block-association.state",
-        "owner-id", "state", "subnet-arn", "subnet-id", "tag:*", "tag-key", "vpc-id"
-    );
-
     @Override
     public List<SubnetResource> query(Map<String, String> filters) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        List<Filter> subnetFilters = new ArrayList<>();
-        for (String key : filters.keySet()) {
-            if (!FilterableAttributes.contains(key)) {
-                // Unable to filter using this key.
-                return null;
-            }
-
-            Filter filter = Filter.builder()
-                .name(key)
-                .values(filters.get(key))
-                .build();
-
-            subnetFilters.add(filter);
+        List<Filter> queryFilters = queryFilters(FILTERABLE_ATTRIBUTES, filters);
+        if (queryFilters == null) {
+            return queryAll();
         }
 
-        DescribeSubnetsRequest request = DescribeSubnetsRequest.builder()
-            .filters(subnetFilters)
-            .build();
-
-        List<SubnetResource> resources = client.describeSubnets(request).subnets()
+        return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
             .stream()
             .map(s -> new SubnetResource(s))
             .collect(Collectors.toList());
-
-        return resources;
     }
 
     @Override
     public List<SubnetResource> queryAll() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        List<SubnetResource> resources = client.describeSubnets().subnets()
+        return client.describeSubnets().subnets()
             .stream()
             .map(s -> new SubnetResource(s))
             .collect(Collectors.toList());
-
-        return resources;
     }
 
     @Override

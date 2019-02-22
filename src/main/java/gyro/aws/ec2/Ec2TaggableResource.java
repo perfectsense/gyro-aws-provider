@@ -7,6 +7,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Tag;
 import software.amazon.awssdk.services.ec2.model.TagDescription;
 import software.amazon.awssdk.services.ec2.paginators.DescribeTagsIterable;
@@ -103,6 +104,25 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
     public final void update(Resource current, Set<String> changedProperties) {
         doUpdate((AwsResource) current, changedProperties);
         createTags();
+    }
+
+    protected List<Filter> queryFilters(Set<String> filterableFields, Map<String, String> query) {
+        List<Filter> apiFilters = new ArrayList<>();
+        for (String key : query.keySet()) {
+            if (!filterableFields.contains(key)) {
+                // Unable to filter using this key.
+                return null;
+            }
+
+            Filter filter = Filter.builder()
+                .name(key)
+                .values(query.get(key))
+                .build();
+
+            apiFilters.add(filter);
+        }
+
+        return apiFilters;
     }
 
     private void createTags() {
