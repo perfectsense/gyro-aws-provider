@@ -12,27 +12,39 @@ aws::network-acl network-acl-example
     vpc-id: $(aws::vpc vpc-example-for-network-acl | vpc-id)
 
     rule
-            description: "allow inbound traffic, ipv4 only"
             cidr-block: ["0.0.0.0/0"]
-            protocol : "1"
-            icmp-type : 1
-            icmp-code : 1
+            protocol : "6"
             rule-action : "allow"
             rule-number : 103
             egress-rule : false
-            from-port: 443
-            to-port: 443
+            from-port: 80
+            to-port: 80
     end
 
     rule
-            description: "deny outbound http traffic, ipv6 only"
-            ipv6-cidr-block: ["::/0"]
-            egress-rule : true
+            cidr-block: ["0.0.0.0/0"]
+            protocol : "23"
+            rule-action : "deny"
+            rule-number : 105
+            egress-rule : false
+    end
+
+    rule
+            cidr-block: ["0.0.0.0/32"]
+            protocol : "1"
+            icmp-type : 1
+            icmp-code : 0
             rule-action : "allow"
             rule-number : 107
-            protocol: "16"
-            from-port: 80
-            to-port: 80
+            egress-rule : true
+    end
+
+    rule
+             cidr-block: ["0.0.0.0/0"]
+             protocol : "123"
+             rule-action : "deny"
+             rule-number : 109
+             egress-rule : true
     end
 
     tags: {
