@@ -113,12 +113,10 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
                 }
 
                 if (e.egress().equals(true)) {
-                    setEgressRule(true);
                     NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
                     getRule().add(rule);
                     rule.parent(this);
                 } else {
-                    setEgressRule(false);
                     NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
                     getRule().add(rule);
                     rule.parent(this);

@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -26,11 +27,8 @@ import java.util.Set;
  *       }
 
  *       rule
- *           description: "allow inbound traffic, ipv4 only"
  *           cidr-block: ["0.0.0.0/0"]
- *           protocol : "1"
- *           icmp-type : 1
- *           icmp-code : 0
+ *           protocol : "6"
  *           rule-action : "allow"
  *           rule-number : 103
  *           egress-rule : false
@@ -45,7 +43,6 @@ public class NetworkAclRuleResource extends AwsResource {
 
     private Integer ruleNumber;
     private String ruleAction;
-    private String description;
     private String protocol;
     private Integer fromPort;
     private Integer toPort;
@@ -60,8 +57,8 @@ public class NetworkAclRuleResource extends AwsResource {
 
     public NetworkAclRuleResource(NetworkAclEntry e) {
         setCidrBlock(e.cidrBlock());
-        setEgressRule(e.egress());
         setIpv6CidrBlock(e.ipv6CidrBlock());
+        setEgressRule(e.egress());
         setProtocol(e.protocol());
 
         if (e.portRange() != null) {
@@ -102,18 +99,6 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Description for this rule entry, specifies to be an inbound or an outbound rule.
-     */
-    @ResourceDiffProperty(updatable = true)
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
      * Protocol for this rule. `-1` is equivalent to "all". Required if specifying protocol 6 (TCP) or 17 (UDP).
      */
     @ResourceDiffProperty(updatable = true)
@@ -145,8 +130,8 @@ public class NetworkAclRuleResource extends AwsResource {
         return cidrBlock;
     }
 
-    public void setCidrBlock(String cidrBlocks) {
-        this.cidrBlock = cidrBlocks;
+    public void setCidrBlock(String cidrBlock) {
+        this.cidrBlock = cidrBlock;
     }
 
     /**
@@ -157,9 +142,10 @@ public class NetworkAclRuleResource extends AwsResource {
         return ipv6CidrBlock;
     }
 
-    public void setIpv6CidrBlock(String ipv6CidrBlocks) {
+    public void setIpv6CidrBlock(String ipv6CidrBlock) {
         this.ipv6CidrBlock = ipv6CidrBlock;
     }
+
 
     /**
      * Starting port for this rule.
@@ -228,16 +214,34 @@ public class NetworkAclRuleResource extends AwsResource {
     @Override
     public void create() {
         Ec2Client client = createClient(Ec2Client.class);
-        client.createNetworkAclEntry(r -> r.networkAclId(getId())
-            .cidrBlock(getCidrBlock())
-            .ipv6CidrBlock(getIpv6CidrBlock())
-            .ruleNumber(getRuleNumber())
-            .ruleAction(getRuleAction())
-            .egress(getEgressRule())
-            .protocol(getProtocol())
-            .icmpTypeCode(c -> c.type(getIcmpType())
-                .code(getIcmpCode()))
-            .portRange(r1 -> r1.from(getFromPort()).to(getToPort())));
+
+
+        if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
+            if ((getToPort() != null && getFromPort() != null) || (getIcmpType() != null && getIcmpCode() != null)) {
+                client.createNetworkAclEntry(r -> r.networkAclId(getId())
+                    .cidrBlock(getCidrBlock())
+                    .ipv6CidrBlock(getIpv6CidrBlock())
+                    .ruleNumber(getRuleNumber())
+                    .ruleAction(getRuleAction())
+                    .egress(getEgressRule())
+                    .protocol(getProtocol())
+                    .icmpTypeCode(c -> c.type(getIcmpType())
+                        .code(getIcmpCode()))
+                    .portRange(r1 -> r1.from(getFromPort()).to(getToPort())));
+            }
+        } else {
+            if (getToPort() != null && getFromPort() != null) {
+                throw new BeamException("Traffic on all ports are allowed for this protocol");
+            } else {
+                client.createNetworkAclEntry(r -> r.networkAclId(getId())
+                    .cidrBlock(getCidrBlock())
+                    .ipv6CidrBlock(getIpv6CidrBlock())
+                    .ruleNumber(getRuleNumber())
+                    .ruleAction(getRuleAction())
+                    .egress(getEgressRule())
+                    .protocol(getProtocol()));
+            }
+        }
     }
 
     @Override
@@ -279,32 +283,40 @@ public class NetworkAclRuleResource extends AwsResource {
         StringBuilder sb = new StringBuilder();
 
         if (getEgressRule().equals(true)) {
-            sb.append("Outbound entry with");
+            sb.append("Outbound entry");
         } else {
-            sb.append("Inbound entry with");
+            sb.append("Inbound entry");
         }
 
         sb.append(" rule #" + getRuleNumber());
 
-        sb.append(" for network acl -");
-        sb.append(" [");
-        sb.append(getFromPort());
-        sb.append(" to ");
-        sb.append(getToPort());
-        sb.append("]");
+        if (getProtocol().equals("6") || getProtocol().equals("17")) {
+            sb.append(" TCP/UDP on ports ");
+            sb.append("[");
+            sb.append(getFromPort());
+            sb.append(" to ");
+            sb.append(getToPort());
+            sb.append("] for block range");
+        } else if (getProtocol().equals("1")) {
+            sb.append(" traffic on ICMP type and code allowed for block range");
+
+        } else {
+            sb.append(" traffic on all ports allowed for block range");
+        }
 
         if (!ObjectUtils.isBlank(getCidrBlock())) {
-            sb.append(" ");
+            sb.append(" [");
             sb.append(getCidrBlock());
+            sb.append("]");
         }
 
         if (!ObjectUtils.isBlank(getIpv6CidrBlock())) {
-            sb.append(" ");
+            sb.append(" [");
             sb.append(getIpv6CidrBlock());
+            sb.append("]");
         }
 
         sb.append(" ");
-        sb.append(getDescription());
 
         return sb.toString();
     }
