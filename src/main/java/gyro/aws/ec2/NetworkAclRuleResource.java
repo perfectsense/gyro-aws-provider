@@ -146,7 +146,6 @@ public class NetworkAclRuleResource extends AwsResource {
         this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
-
     /**
      * Starting port for this rule.
      */
@@ -214,8 +213,7 @@ public class NetworkAclRuleResource extends AwsResource {
     @Override
     public void create() {
         Ec2Client client = createClient(Ec2Client.class);
-
-
+        
         if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
             if ((getToPort() != null && getFromPort() != null) || (getIcmpType() != null && getIcmpCode() != null)) {
                 client.createNetworkAclEntry(r -> r.networkAclId(getId())
