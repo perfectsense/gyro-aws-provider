@@ -1,0 +1,10 @@
+import ../init as _
+
+aws::xss-match-set xss-match-set-example
+    name: "xss-match-set-example"
+
+    xss-match-tuple
+        type: "METHOD"
+        text-transformation: "NONE"
+    end
+end
