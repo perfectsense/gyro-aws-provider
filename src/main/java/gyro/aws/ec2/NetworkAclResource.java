@@ -36,7 +36,6 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
     private String vpcId;
     private String networkAclId;
     private List<NetworkAclRuleResource> rule;
-    private Boolean egressRule;
 
     /**
      * The ID of the VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_. (Required)
@@ -81,18 +80,6 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
     public void setRule(List<NetworkAclRuleResource> ruleEntries) {
         this.rule = ruleEntries;
-    }
-
-    /**
-     * Indicates whether this is an egress rule or ingress rule.
-     */
-    @ResourceDiffProperty
-    public Boolean getEgressRule() {
-        return egressRule;
-    }
-
-    public void setEgressRule(Boolean egressRule) {
-        this.egressRule = egressRule;
     }
 
     @Override

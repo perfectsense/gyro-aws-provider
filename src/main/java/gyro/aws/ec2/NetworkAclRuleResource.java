@@ -88,7 +88,7 @@ public class NetworkAclRuleResource extends AwsResource {
 
     /**
      * Enables or disables inbound/outbound traffic based on this value.
-     * Required values : "allow", "deny".
+     * Required values : "allow" or "deny".
      */
     @ResourceDiffProperty(updatable = true)
     public String getRuleAction() {
