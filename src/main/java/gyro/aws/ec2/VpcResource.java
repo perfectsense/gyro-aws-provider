@@ -5,6 +5,8 @@ import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
+import gyro.lang.ResourceQuery;
+import com.google.common.collect.Sets;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -17,13 +19,19 @@ import software.amazon.awssdk.services.ec2.model.DescribeVpcClassicLinkDnsSuppor
 import software.amazon.awssdk.services.ec2.model.DescribeVpcClassicLinkResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcsRequest;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
 import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
 import software.amazon.awssdk.services.ec2.model.VpcIpv6CidrBlockAssociation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a VPC with the specified IPv4 CIDR block.
@@ -41,7 +49,7 @@ import java.util.Set;
  *     end
  */
 @ResourceName("vpc")
-public class VpcResource extends Ec2TaggableResource<Vpc> {
+public class VpcResource extends Ec2TaggableResource<Vpc> implements ResourceQuery<VpcResource> {
 
     private String vpcId;
     private String cidrBlock;
@@ -56,6 +64,32 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     // Read-only
     private String ownerId;
     private Boolean defaultVpc;
+
+    private static final Set<String> FILTERABLE_ATTRIBUTES = Sets.newHashSet(
+        "cidr", "cidr-block-association.cidr-block", "cidr-block-association.association-id", "cidr-block-association.state",
+        "dhcp-options-id", "ipv6-cidr-block-association.ipv6-cidr-block", "ipv6-cidr-block-association.association-id",
+        "ipv6-cidr-block-association.state", "isDefault", "owner-id", "state", "tag-key", "vpc-id"
+    );
+
+    public VpcResource() {
+
+    }
+
+    public VpcResource(Ec2Client client, Vpc vpc) {
+        setVpcId(vpc.vpcId());
+        setCidrBlock(vpc.cidrBlock());
+        setInstanceTenancy(vpc.instanceTenancyAsString());
+        setDhcpOptionsId(vpc.dhcpOptionsId());
+        setOwnerId(vpc.ownerId());
+        setDefaultVpc(vpc.isDefault());
+
+        for (VpcIpv6CidrBlockAssociation association : vpc.ipv6CidrBlockAssociationSet()) {
+            setProvideIpv6CidrBlock(true);
+            break;
+        }
+
+        loadSettings(client);
+    }
 
     public String getId() {
         return getVpcId();
@@ -198,6 +232,31 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
 
     public void setProvideIpv6CidrBlock(Boolean provideIpv6CidrBlock) {
         this.provideIpv6CidrBlock = provideIpv6CidrBlock;
+    }
+
+    @Override
+    public List<VpcResource> query(Map<String, String> filters) {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        List<Filter> queryFilters = queryFilters(FILTERABLE_ATTRIBUTES, filters);
+        if (queryFilters == null) {
+            return null;
+        }
+
+        return client.describeVpcs(r -> r.filters(queryFilters)).vpcs()
+            .stream()
+            .map(v -> new VpcResource(client, v))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VpcResource> queryAll() {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        return client.describeVpcs().vpcs()
+            .stream()
+            .map(v -> new VpcResource(client, v))
+            .collect(Collectors.toList());
     }
 
     @Override

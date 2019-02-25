@@ -133,7 +133,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Resou
 
         List<Filter> queryFilters = queryFilters(FILTERABLE_ATTRIBUTES, filters);
         if (queryFilters == null) {
-            return queryAll();
+            return null;
         }
 
         return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
