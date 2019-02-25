@@ -76,7 +76,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Rule number for this rule entry
+     * Rule number for this rule entry, evaluates the order of rule actions based on the rule number.
      */
     public Integer getRuleNumber() {
         return ruleNumber;
@@ -87,7 +87,8 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Indicates whether to allow or deny the traffic that matches the rule.
+     * Enables or disables inbound/outbound traffic based on this value.
+     * Required values : "allow", "deny".
      */
     @ResourceDiffProperty(updatable = true)
     public String getRuleAction() {
@@ -99,7 +100,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Protocol for this rule. `-1` is equivalent to "all". Required if specifying protocol 6 (TCP) or 17 (UDP).
+     * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "1" (ICMP), "6" (TCP) or "17" (UDP).
      */
     @ResourceDiffProperty(updatable = true)
     public String getProtocol() {
@@ -111,7 +112,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Create egress rule entry if set to true and ingress rule entry if set to false.
+     * Creates egress rule entry if set to true, and ingress rule entry if set to false.
      */
     @ResourceDiffProperty(updatable = true)
     public Boolean getEgressRule() {
@@ -123,7 +124,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * The IPv4 network range to allow or deny.
+     * IPv4 cidr block to apply this Inbound/Outbound rule to.
      */
     @ResourceDiffProperty(updatable = true)
     public String getCidrBlock() {
@@ -135,7 +136,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * The IPv6 network range to allow or deny.
+     * IPv6 cidr block to apply this Inbound/Outbound rule to.
      */
     @ResourceDiffProperty(updatable = true)
     public String getIpv6CidrBlock() {
@@ -171,7 +172,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * The ICMP or ICMPv6 type. Required if specifying protocol 1 (ICMP) or protocol 58 (ICMPv6) with an IPv6 CIDR
+     * Type required for an ICMP request
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getIcmpType() {
@@ -183,7 +184,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * The ICMP or ICMPv6 code. Required if specifying protocol 1 (ICMP) or protocol 58 (ICMPv6) with an IPv6 CIDR
+     * Code required for an ICMP request
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getIcmpCode() {
