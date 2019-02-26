@@ -1,0 +1,156 @@
+package gyro.aws.ec2;
+
+import gyro.core.diff.ResourceName;
+import gyro.lang.ResourceQuery;
+import com.google.common.collect.Sets;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+@ResourceName("subnet")
+public class SubnetResourceQuery extends ResourceQuery<SubnetResource> {
+
+    private String availabilityZone;
+    private String availabilityZoneId;
+    private String availableIpAddressCount;
+    private String cidrBlock;
+    private String defaultForAz;
+    private String ipV6CidrBlock;
+    private String ipV6CiderBlockAssociationId;
+    private String ipV6CiderBlockAssociationState;
+    private String ownerId;
+    private String state;
+    private String subnetArn;
+    private String subnetId;
+    // private Strign tag*;
+    private String tagKey;
+    private String vpcId;
+
+    public String getAvailabilityZone() {
+        return availabilityZone;
+    }
+
+    public void setAvailabilityZone(String availabilityZone) {
+        this.availabilityZone = availabilityZone;
+    }
+
+    public String getAvailabilityZoneId() {
+        return availabilityZoneId;
+    }
+
+    public void setAvailabilityZoneId(String availabilityZoneId) {
+        this.availabilityZoneId = availabilityZoneId;
+    }
+
+    public String getAvailableIpAddressCount() {
+        return availableIpAddressCount;
+    }
+
+    public void setAvailableIpAddressCount(String availableIpAddressCount) {
+        this.availableIpAddressCount = availableIpAddressCount;
+    }
+
+    public String getCidrBlock() {
+        return cidrBlock;
+    }
+
+    public void setCidrBlock(String cidrBlock) {
+        this.cidrBlock = cidrBlock;
+    }
+
+    public String getDefaultForAz() {
+        return defaultForAz;
+    }
+
+    public void setDefaultForAz(String defaultForAz) {
+        this.defaultForAz = defaultForAz;
+    }
+
+    public String getIpV6CidrBlock() {
+        return ipV6CidrBlock;
+    }
+
+    public void setIpV6CidrBlock(String ipV6CidrBlock) {
+        this.ipV6CidrBlock = ipV6CidrBlock;
+    }
+
+    public String getIpV6CiderBlockAssociationId() {
+        return ipV6CiderBlockAssociationId;
+    }
+
+    public void setIpV6CiderBlockAssociationId(String ipV6CiderBlockAssociationId) {
+        this.ipV6CiderBlockAssociationId = ipV6CiderBlockAssociationId;
+    }
+
+    public String getIpV6CiderBlockAssociationState() {
+        return ipV6CiderBlockAssociationState;
+    }
+
+    public void setIpV6CiderBlockAssociationState(String ipV6CiderBlockAssociationState) {
+        this.ipV6CiderBlockAssociationState = ipV6CiderBlockAssociationState;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getSubnetArn() {
+        return subnetArn;
+    }
+
+    public void setSubnetArn(String subnetArn) {
+        this.subnetArn = subnetArn;
+    }
+
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
+    }
+
+    public String getTagKey() {
+        return tagKey;
+    }
+
+    public void setTagKey(String tagKey) {
+        this.tagKey = tagKey;
+    }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
+    }
+
+    @Override
+    public List<SubnetResource> query(Map<String, String> filter) {
+        return null;
+    }
+
+    @Override
+    public List<SubnetResource> queryAll() {
+        return null;
+    }
+
+    @Override
+    public String toDisplayString() {
+        return getAvailabilityZone();
+    }
+}
