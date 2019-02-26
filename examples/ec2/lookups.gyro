@@ -1,5 +1,5 @@
 import ../init as _
 
-#subnet-ids: $(aws::vpc EXTERNAL/* | availability-zone = 'us-east-2a' and map-public-ip-on-launch = true | subnet-id)
+subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' or availability-zone = 'us-east-2b' | map-public-ip-on-launch = true | subnet-id)
 
-vpc-ids: $(aws::vpc EXTERNAL/* | dhcp-options-id = 'dopt-028d8363dfb0a95b0' or cidr-block = '172.31.0.0/16')
+#vpc-ids: $(aws::vpc EXTERNAL/* | dhcp-options-id = 'dopt-028d8363dfb0a95b0' or cidr-block = '172.31.0.0/16')
