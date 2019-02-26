@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("vpc")
-public class VpcResource extends Ec2TaggableResource<Vpc> implements ResourceQuery<VpcResource> {
+public class VpcResource extends Ec2TaggableResource<Vpc> {
 
     private String vpcId;
     private String cidrBlock;
@@ -234,7 +234,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements ResourceQue
         this.provideIpv6CidrBlock = provideIpv6CidrBlock;
     }
 
-    @Override
+    //@Override
     public List<VpcResource> query(Map<String, String> filters) {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -249,7 +249,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements ResourceQue
             .collect(Collectors.toList());
     }
 
-    @Override
+    //@Override
     public List<VpcResource> queryAll() {
         Ec2Client client = createClient(Ec2Client.class);
 

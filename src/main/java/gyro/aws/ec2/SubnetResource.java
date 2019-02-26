@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("subnet")
-public class SubnetResource extends Ec2TaggableResource<Subnet> implements ResourceQuery<SubnetResource> {
+public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     private String vpcId;
     private String cidrBlock;
@@ -127,7 +127,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Resou
         return getSubnetId();
     }
 
-    @Override
+    //@Override
     public List<SubnetResource> query(Map<String, String> filters) {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -142,7 +142,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Resou
             .collect(Collectors.toList());
     }
 
-    @Override
+    //@Override
     public List<SubnetResource> queryAll() {
         Ec2Client client = createClient(Ec2Client.class);
 
