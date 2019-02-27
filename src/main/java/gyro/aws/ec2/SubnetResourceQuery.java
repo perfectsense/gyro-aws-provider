@@ -172,6 +172,11 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
 
     @Override
     public List<SubnetResource> queryAll() {
-        return null;
+        Ec2Client client = createClient(Ec2Client.class);
+
+        return client.describeSubnets().subnets()
+            .stream()
+            .map(s -> new SubnetResource(s))
+            .collect(Collectors.toList());
     }
 }
