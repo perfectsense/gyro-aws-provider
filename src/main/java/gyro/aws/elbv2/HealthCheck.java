@@ -1,5 +1,7 @@
 package gyro.aws.elbv2;
 
+import gyro.core.diff.Diff;
+import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
@@ -23,8 +25,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
  *     end
  */
 
-@ResourceName(parent = "target-group", value = "health-check")
-public class HealthCheckResource {
+public class HealthCheck extends Diffable {
 
     private Integer healthCheckInterval;
     private String healthCheckPath;
@@ -35,11 +36,9 @@ public class HealthCheckResource {
     private String matcher;
     private Integer unhealthyThreshold;
 
-    public HealthCheckResource() {
+    public HealthCheck() {}
 
-    }
-
-    public HealthCheckResource(TargetGroup targetGroup) {
+    public HealthCheck(TargetGroup targetGroup) {
         setHealthCheckInterval(targetGroup.healthCheckIntervalSeconds());
         setHealthCheckPath(targetGroup.healthCheckPath());
         setHealthCheckPort(targetGroup.healthCheckPort());
@@ -146,5 +145,13 @@ public class HealthCheckResource {
 
     public void setUnhealthyThreshold(Integer unhealthyThreshold) {
         this.unhealthyThreshold = unhealthyThreshold;
+    }
+
+    public String toDisplayString() {
+        return "health check";
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getHealthCheckInterval(), getHealthCheckPort(), getHealthCheckProtocol());
     }
 }
