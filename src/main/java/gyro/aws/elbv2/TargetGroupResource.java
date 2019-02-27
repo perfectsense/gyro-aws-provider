@@ -70,7 +70,7 @@ import java.util.Set;
 @ResourceName("target-group")
 public class TargetGroupResource extends AwsResource {
 
-    private HealthCheckResource healthCheck;
+    private HealthCheck healthCheck;
     private Boolean healthCheckEnabled;
     private Integer port;
     private String protocol;
@@ -84,11 +84,11 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  The health check associated with the target group (Optional)
      */
-    public HealthCheckResource getHealthCheck() {
+    public HealthCheck getHealthCheck() {
         return healthCheck;
     }
 
-    public void setHealthCheck(HealthCheckResource healthCheck) {
+    public void setHealthCheck(HealthCheck healthCheck) {
         this.healthCheck = healthCheck;
     }
 
@@ -205,7 +205,7 @@ public class TargetGroupResource extends AwsResource {
 
         if (tgResponse != null) {
             TargetGroup tg = tgResponse.targetGroups().get(0);
-            setHealthCheck(new HealthCheckResource(tg));
+            setHealthCheck(new HealthCheck(tg));
             setHealthCheckEnabled(tg.healthCheckEnabled());
             setPort(tg.port());
             setProtocol(tg.healthCheckProtocolAsString());
