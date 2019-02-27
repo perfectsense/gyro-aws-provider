@@ -1,0 +1,9 @@
+import ../init as _
+
+aws::customer-gateway customer-gateway-example
+    public-ip: "38.140.23.146"
+
+    tags: {
+        Name: "customer-gateway-example"
+    }
+end
