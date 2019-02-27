@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResourceQuery;
 import gyro.core.diff.ResourceName;
+import gyro.lang.ast.query.ApiFilterable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
@@ -28,6 +29,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
     private String tagKey;
     private String vpcId;
 
+    @ApiFilterable(filter = "availability-zone")
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -36,6 +38,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.availabilityZone = availabilityZone;
     }
 
+    @ApiFilterable(filter = "availability-zone-id")
     public String getAvailabilityZoneId() {
         return availabilityZoneId;
     }
@@ -44,6 +47,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.availabilityZoneId = availabilityZoneId;
     }
 
+    @ApiFilterable(filter = "available-ip-address-count")
     public String getAvailableIpAddressCount() {
         return availableIpAddressCount;
     }
@@ -52,6 +56,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.availableIpAddressCount = availableIpAddressCount;
     }
 
+    @ApiFilterable(filter = "cidr-block")
     public String getCidrBlock() {
         return cidrBlock;
     }
@@ -60,6 +65,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.cidrBlock = cidrBlock;
     }
 
+    @ApiFilterable(filter = "default-for-az")
     public String getDefaultForAz() {
         return defaultForAz;
     }
@@ -68,6 +74,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.defaultForAz = defaultForAz;
     }
 
+    @ApiFilterable(filter = "ipv6-cidr-block-association.ipv6-cidr-block")
     public String getIpV6CidrBlock() {
         return ipV6CidrBlock;
     }
@@ -76,6 +83,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.ipV6CidrBlock = ipV6CidrBlock;
     }
 
+    @ApiFilterable(filter = "ipv6-cidr-block-association.association-id")
     public String getIpV6CiderBlockAssociationId() {
         return ipV6CiderBlockAssociationId;
     }
@@ -84,6 +92,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.ipV6CiderBlockAssociationId = ipV6CiderBlockAssociationId;
     }
 
+    @ApiFilterable(filter = "ipv6-cidr-block-association.state")
     public String getIpV6CiderBlockAssociationState() {
         return ipV6CiderBlockAssociationState;
     }
@@ -92,6 +101,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.ipV6CiderBlockAssociationState = ipV6CiderBlockAssociationState;
     }
 
+    @ApiFilterable(filter = "owner-id")
     public String getOwnerId() {
         return ownerId;
     }
@@ -100,6 +110,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.ownerId = ownerId;
     }
 
+    @ApiFilterable(filter = "state")
     public String getState() {
         return state;
     }
@@ -108,6 +119,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.state = state;
     }
 
+    @ApiFilterable(filter = "subnet-arn")
     public String getSubnetArn() {
         return subnetArn;
     }
@@ -116,6 +128,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.subnetArn = subnetArn;
     }
 
+    @ApiFilterable(filter = "subnet-id")
     public String getSubnetId() {
         return subnetId;
     }
@@ -124,6 +137,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.subnetId = subnetId;
     }
 
+    @ApiFilterable(filter = "tag-key")
     public String getTagKey() {
         return tagKey;
     }
@@ -132,6 +146,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
         this.tagKey = tagKey;
     }
 
+    @ApiFilterable(filter = "vpc-id")
     public String getVpcId() {
         return vpcId;
     }
