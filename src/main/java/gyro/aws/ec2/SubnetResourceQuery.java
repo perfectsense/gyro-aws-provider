@@ -174,9 +174,4 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
     public List<SubnetResource> queryAll() {
         return null;
     }
-
-    @Override
-    public String toDisplayString() {
-        return getAvailabilityZone();
-    }
 }
