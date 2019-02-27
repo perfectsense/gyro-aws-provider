@@ -1,15 +1,16 @@
 package gyro.aws.ec2;
 
+import gyro.aws.AwsResourceQuery;
 import gyro.core.diff.ResourceName;
-import gyro.lang.ResourceQuery;
-import com.google.common.collect.Sets;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Filter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @ResourceName("subnet")
-public class SubnetResourceQuery extends ResourceQuery<SubnetResource> {
+public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
 
     private String availabilityZone;
     private String availabilityZoneId;
@@ -140,8 +141,18 @@ public class SubnetResourceQuery extends ResourceQuery<SubnetResource> {
     }
 
     @Override
-    public List<SubnetResource> query(Map<String, String> filter) {
-        return null;
+    public List<SubnetResource> query(Map<String, String> filters) {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        List<Filter> queryFilters = queryFilters(filters);
+        if (queryFilters == null) {
+            return null;
+        }
+
+        return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
+            .stream()
+            .map(s -> new SubnetResource(s))
+            .collect(Collectors.toList());
     }
 
     @Override
