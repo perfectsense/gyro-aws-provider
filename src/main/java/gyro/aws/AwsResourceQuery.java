@@ -17,8 +17,6 @@ import java.util.Map;
 
 public class AwsResourceQuery<R extends AwsResource> extends ResourceQuery<R> {
 
-
-
     @Override
     public List<R> query(Map<String, String> filter) {
         return null;
@@ -78,9 +76,5 @@ public class AwsResourceQuery<R extends AwsResource> extends ResourceQuery<R> {
         }
 
         return (T) client;
-    }
-
-    public Class resourceCredentialsClass() {
-        return AwsCredentials.class;
     }
 }
