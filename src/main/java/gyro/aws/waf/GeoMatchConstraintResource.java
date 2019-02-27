@@ -18,14 +18,20 @@ public class GeoMatchConstraintResource extends AwsResource {
     private String value;
     private String type;
 
+    /**
+     * The value filter. Uses two letter country codes (i.e. US) when type selected as ```COUNTRY```.
+     */
     public String getValue() {
-        return value;
+        return value != null ? value.toUpperCase() : null;
     }
 
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     * The type of geo match filter. Allowed values ```Country```
+     */
     public String getType() {
         return type;
     }

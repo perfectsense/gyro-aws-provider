@@ -20,6 +20,9 @@ public class SizeConstraintResource extends AwsResource {
     private String textTransformation;
     private Long size;
 
+    /**
+     * If type selected as ```HEADER``` or ```SINGLE_QUERY_ARG```, the value needs to be provided.
+     */
     public String getData() {
         return data;
     }
@@ -28,30 +31,42 @@ public class SizeConstraintResource extends AwsResource {
         this.data = data;
     }
 
+    /**
+     * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
+     */
     public String getType() {
-        return type;
+        return type != null ? type.toUpperCase() : null;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * The comparison to be done on the filter. Valid values ```EQ```, ```NE```, ```LE```, ```LT```, ```GE```, ```GT```. (Required)
+     */
     public String getComparisonOperator() {
-        return comparisonOperator;
+        return comparisonOperator != null ? comparisonOperator.toUpperCase() : null;
     }
 
     public void setComparisonOperator(String comparisonOperator) {
         this.comparisonOperator = comparisonOperator;
     }
 
+    /**
+     * Text transformation on the data provided before doing the check. Valid values ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``, ``CMD_LINE``, ``URL_DECODE``. (Required)
+     */
     public String getTextTransformation() {
-        return textTransformation;
+        return textTransformation != null ? textTransformation.toUpperCase() : null;
     }
 
     public void setTextTransformation(String textTransformation) {
         this.textTransformation = textTransformation;
     }
 
+    /**
+     * Size of the request in integers.
+     */
     public Long getSize() {
         return size;
     }

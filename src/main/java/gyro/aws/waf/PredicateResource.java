@@ -12,14 +12,17 @@ import software.amazon.awssdk.services.waf.model.RuleUpdate;
 
 import java.util.Set;
 
-@ResourceName(parent = "rule", value = "predicate")
-@ResourceName(parent = "rate-rule", value = "predicate")
+@ResourceName(parent = "rule", value = "predicate-regular")
+@ResourceName(parent = "rate-rule", value = "predicate-rate-based")
 public class PredicateResource extends AwsResource {
     private String dataId;
     private Boolean negated;
     private String type;
     private Boolean rateRule;
 
+    /**
+     * The id of the condition to be attached with the rule. (Required)
+     */
     public String getDataId() {
         return dataId;
     }
@@ -28,6 +31,9 @@ public class PredicateResource extends AwsResource {
         this.dataId = dataId;
     }
 
+    /**
+     * Set if the condition is checked to be false. (Required)
+     */
     public Boolean getNegated() {
         return negated;
     }
@@ -36,6 +42,9 @@ public class PredicateResource extends AwsResource {
         this.negated = negated;
     }
 
+    /**
+     * The type of condition being attached. Valid values ```XssMatch```, ```GeoMatch```, ```SqlInjectionMatch```, ```ByteMatch```, ```RegexMatch```, ```SizeConstraint```, ```IPMatch```. (Required)
+     */
     public String getType() {
         return type;
     }
@@ -44,6 +53,9 @@ public class PredicateResource extends AwsResource {
         this.type = type;
     }
 
+    /**
+     * Flag to mark the rule as a regular or a rate based.
+     */
     public Boolean getRateRule() {
         return rateRule;
     }
@@ -118,7 +130,7 @@ public class PredicateResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s", getDataId(), getType(), getRateRule() ? "Rate based" : "Regular");
+        return String.format("%s %s %s", getDataId(), getType(), (getRateRule() ? "Rate based" : "Regular"));
     }
 
     @Override
@@ -146,6 +158,7 @@ public class PredicateResource extends AwsResource {
             client.updateRule(
                 r -> r.ruleId(parent.getRuleId())
                     .updates(ruleUpdate)
+                    .changeToken(client.getChangeToken().changeToken())
             );
         } else {
             RateRuleResource parent = (RateRuleResource) parent();
@@ -154,6 +167,7 @@ public class PredicateResource extends AwsResource {
                 r -> r.ruleId(parent.getRuleId())
                     .rateLimit(parent.getRateLimit())
                     .updates(ruleUpdate)
+                    .changeToken(client.getChangeToken().changeToken())
             );
         }
     }

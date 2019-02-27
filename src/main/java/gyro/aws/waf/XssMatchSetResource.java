@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -15,12 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a xss match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::xss-match-set xss-match-set-example
+ *         name: "xss-match-set-example"
+ *
+ *         xss-match-tuple
+ *             type: "METHOD"
+ *             text-transformation: "NONE"
+ *         end
+ *     end
+ */
 @ResourceName("xss-match-set")
 public class XssMatchSetResource extends AwsResource {
     private String name;
     private String xssMatchSetId;
     private List<XssMatchTupleResource> xssMatchTuple;
 
+    /**
+     * The name of the xss match condition. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -37,6 +58,12 @@ public class XssMatchSetResource extends AwsResource {
         this.xssMatchSetId = xssMatchSetId;
     }
 
+    /**
+     * List of xss match tuple data defining the condition. (Required)
+     *
+     * @subresorce beam.aws.waf.XssMatchTupleResource
+     */
+    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<XssMatchTupleResource> getXssMatchTuple() {
         if (xssMatchTuple == null) {
             xssMatchTuple = new ArrayList<>();

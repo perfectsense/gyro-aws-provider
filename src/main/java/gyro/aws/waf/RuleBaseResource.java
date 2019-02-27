@@ -12,8 +12,10 @@ public abstract class RuleBaseResource extends AwsResource {
     private String name;
     private String metricName;
     private String ruleId;
-    private List<PredicateResource> predicate;
 
+    /**
+     * The name of the rule. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -22,6 +24,9 @@ public abstract class RuleBaseResource extends AwsResource {
         this.name = name;
     }
 
+    /**
+     * The name of the rule. Can only contain letters and numbers. (Required)
+     */
     public String getMetricName() {
         return metricName;
     }
@@ -38,20 +43,9 @@ public abstract class RuleBaseResource extends AwsResource {
         this.ruleId = ruleId;
     }
 
-    @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<PredicateResource> getPredicate() {
-        if (predicate == null) {
-            predicate = new ArrayList<>();
-        }
-
-        return predicate;
-    }
-
-    public void setPredicate(List<PredicateResource> predicate) {
-        this.predicate = predicate;
-    }
-
     abstract boolean isRateRule();
+
+    abstract List<PredicateResource> getPredicate();
 
     protected void loadPredicates(List<Predicate> predicates) {
         getPredicate().clear();

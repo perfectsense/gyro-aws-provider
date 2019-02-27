@@ -17,6 +17,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a waf acl.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::waf-acl waf-acl-example
+ *         name: "waf-acl-example"
+ *         metric-name: "wafAclExample"
+ *         default-action: "ALLOW"
+ *
+ *         activated-rule
+ *             action: "ALLOW"
+ *             type: "REGULAR"
+ *             priority: 1
+ *             rule-id: $(aws::rule rule-example | rule-id)
+ *         end
+ *     end
+ */
 @ResourceName("waf-acl")
 public class WebAclResource extends AwsResource {
     private String name;
@@ -26,6 +47,9 @@ public class WebAclResource extends AwsResource {
     private String arn;
     private List<ActivatedRuleResource> activatedRule;
 
+    /**
+     * The name of the waf acl. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -34,6 +58,9 @@ public class WebAclResource extends AwsResource {
         this.name = name;
     }
 
+    /**
+     * The metric name of the waf acl. Can only contain letters and numbers. (Required)
+     */
     public String getMetricName() {
         return metricName;
     }
@@ -42,9 +69,12 @@ public class WebAclResource extends AwsResource {
         this.metricName = metricName;
     }
 
+    /**
+     * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
+     */
     @ResourceDiffProperty(updatable = true, nullable = true)
     public String getDefaultAction() {
-        return defaultAction;
+        return defaultAction != null ? defaultAction.toUpperCase() : null;
     }
 
     public void setDefaultAction(String defaultAction) {
@@ -67,6 +97,11 @@ public class WebAclResource extends AwsResource {
         this.arn = arn;
     }
 
+    /**
+     * A list of activated rules specifying the connection between waf acl and rule.
+     *
+     * @subresources beam.aws.waf.ActivatedRuleResource
+     */
     @ResourceDiffProperty(nullable = true, subresource = true)
     public List<ActivatedRuleResource> getActivatedRule() {
         if (activatedRule == null) {

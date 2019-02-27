@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -15,12 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a ip set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::ip-set ip-set-example
+ *         name: "ip-set-example"
+ *
+ *         ip-set-descriptor
+ *             type: "IPV4"
+ *             value: "190.0.0.26/32"
+ *         end
+ *     end
+ */
 @ResourceName("ip-set")
 public class IpSetResource extends AwsResource {
     private String name;
     private String ipSetId;
     private List<IpSetDescriptorResource> ipSetDescriptor;
 
+    /**
+     * The name of the ip set condition. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -37,6 +58,12 @@ public class IpSetResource extends AwsResource {
         this.ipSetId = ipSetId;
     }
 
+    /**
+     * List of ip set descriptor data defining the condition. (Required)
+     *
+     * @subresorce beam.aws.waf.IpSetDescriptorResource
+     */
+    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<IpSetDescriptorResource> getIpSetDescriptor() {
         if (ipSetDescriptor == null) {
             ipSetDescriptor = new ArrayList<>();

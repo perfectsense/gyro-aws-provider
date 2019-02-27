@@ -25,6 +25,9 @@ public class ActivatedRuleResource extends AwsResource {
     private Integer priority;
     private List<String> excludedRules;
 
+    /**
+     * The id of the rule. (Required)
+     */
     public String getRuleId() {
         return ruleId;
     }
@@ -33,22 +36,31 @@ public class ActivatedRuleResource extends AwsResource {
         this.ruleId = ruleId;
     }
 
+    /**
+     * The default action for the rule under this waf. valid values ```ALLOW``` or ```BLOCK```. (Required)
+     */
     public String getAction() {
-        return action;
+        return action != null ? action.toUpperCase() : null;
     }
 
     public void setAction(String action) {
         this.action = action;
     }
 
+    /**
+     * The type of rule being attached. Valid values ```REGULAR```` or ```RATE_BASED```. (Required)
+     */
     public String getType() {
-        return type;
+        return type != null ? type.toUpperCase() : null;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * The priority of the rule when attached to the acl. Valid values inter 1 through 10 without skipping. (Required)
+     */
     public Integer getPriority() {
         return priority;
     }

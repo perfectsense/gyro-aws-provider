@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -11,15 +12,38 @@ import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a size constraint set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::size-constraint-set size-constraint-set-example
+ *         name: "size-constraint-set-example"
+ *
+ *         size-constraint
+ *             type: "METHOD"
+ *             text-transformation: "NONE"
+ *             comparison-operator: "EQ"
+ *             size: 10
+ *         end
+ *     end
+ */
 @ResourceName("size-constraint-set")
 public class SizeConstraintSetResource extends AwsResource {
     private String name;
     private String sizeConstraintSetId;
     private List<SizeConstraintResource> sizeConstraint;
 
+    /**
+     * The name of the size constraint condition. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -36,7 +60,16 @@ public class SizeConstraintSetResource extends AwsResource {
         this.sizeConstraintSetId = sizeConstraintSetId;
     }
 
+    /**
+     * List of size constraint data defining the condition. (Required)
+     *
+     * @subresorce beam.aws.waf.SizeConstraintResource
+     */
+    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SizeConstraintResource> getSizeConstraint() {
+        if (sizeConstraint == null) {
+            sizeConstraint = new ArrayList<>();
+        }
         return sizeConstraint;
     }
 

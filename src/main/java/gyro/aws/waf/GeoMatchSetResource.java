@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -15,12 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a geo match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::geo-match-set geo-match-set-example
+ *         name: "geo-match-set-example"
+ *
+ *         geo-match-constraint
+ *             type: "Country"
+ *             value: "TL"
+ *         end
+ *     end
+ */
 @ResourceName("geo-match-set")
 public class GeoMatchSetResource extends AwsResource {
     private String name;
     private String geoMatchSetId;
     private List<GeoMatchConstraintResource> geoMatchConstraint;
 
+    /**
+     * The name of the geo match condition. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -37,6 +58,12 @@ public class GeoMatchSetResource extends AwsResource {
         this.geoMatchSetId = geoMatchSetId;
     }
 
+    /**
+     * List of geo match constraint data defining the condition. (Required)
+     *
+     * @subresorce beam.aws.waf.GeoMatchConstraintResource
+     */
+    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<GeoMatchConstraintResource> getGeoMatchConstraint() {
         if (geoMatchConstraint == null) {
             geoMatchConstraint = new ArrayList<>();

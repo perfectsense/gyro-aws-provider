@@ -30,14 +30,20 @@ public class RegexMatchTupleResource extends AwsResource {
         setTextTransformation(regexMatchTuple.textTransformationAsString());
     }
 
+    /**
+     * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
+     */
     public String getType() {
-        return type;
+        return type != null ? type.toUpperCase() : null;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * If type selected as ```HEADER``` or ```SINGLE_QUERY_ARG```, the value needs to be provided.
+     */
     public String getData() {
         return data;
     }
@@ -46,14 +52,20 @@ public class RegexMatchTupleResource extends AwsResource {
         this.data = data;
     }
 
+    /**
+     * Text transformation on the data provided before doing the check. Valid values ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``, ``CMD_LINE``, ``URL_DECODE``. (Required)
+     */
     public String getTextTransformation() {
-        return textTransformation;
+        return textTransformation != null ? textTransformation.toUpperCase() : null;
     }
 
     public void setTextTransformation(String textTransformation) {
         this.textTransformation = textTransformation;
     }
 
+    /**
+     * The id of a regex pattern set, having the regex patterns to filter the request.
+     */
     public String getRegexPatternSetId() {
         return regexPatternSetId;
     }

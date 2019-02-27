@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -15,12 +16,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a byte match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::byte-match-set byte-match-set-example
+ *         name: "byte-match-set-example"
+ *
+ *         byte-match-tuple
+ *             type: "METHOD"
+ *             text-transformation: "NONE"
+ *             positional-constraint: "CONTAINS"
+ *             target-string: "target-string"
+ *         end
+ *     end
+ */
 @ResourceName("byte-match-set")
 public class ByteMatchSetResource extends AwsResource {
     private String name;
     private String byteMatchSetId;
     private List<ByteMatchTupleResource> byteMatchTuple;
 
+    /**
+     * The name of the byte match condition. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -37,6 +60,12 @@ public class ByteMatchSetResource extends AwsResource {
         this.byteMatchSetId = byteMatchSetId;
     }
 
+    /**
+     * List of byte match tuple data defining the condition. (Required)
+     *
+     * @subresorce beam.aws.waf.ByteMatchTupleResource
+     */
+    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<ByteMatchTupleResource> getByteMatchTuple() {
         if (byteMatchTuple == null) {
             byteMatchTuple = new ArrayList<>();

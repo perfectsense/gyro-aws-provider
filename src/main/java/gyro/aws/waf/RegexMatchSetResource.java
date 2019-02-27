@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -15,12 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a regex match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::regex-match-set regex-match-set-example
+ *         name: "regex-match-set-example"
+ *         regex-match-tuple
+ *             type: "METHOD"
+ *             text-transformation: "NONE"
+ *             regex-pattern-set-id: $(aws::regex-pattern-set regex-pattern-set-match-set-example | regex-pattern-set-id)
+ *         end
+ *     end
+ */
 @ResourceName("regex-match-set")
 public class RegexMatchSetResource extends AwsResource {
     private String name;
     private String regexMatchSetId;
     private List<RegexMatchTupleResource> regexMatchTuple;
 
+    /**
+     * The name of the regex match condition. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -37,6 +58,12 @@ public class RegexMatchSetResource extends AwsResource {
         this.regexMatchSetId = regexMatchSetId;
     }
 
+    /**
+     * List of regex match tuple data defining the condition. (Required)
+     *
+     * @subresorce beam.aws.waf.RegexMatchTupleResource
+     */
+    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<RegexMatchTupleResource> getRegexMatchTuple() {
         if (regexMatchTuple == null) {
             regexMatchTuple = new ArrayList<>();

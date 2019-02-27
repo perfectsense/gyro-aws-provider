@@ -25,12 +25,32 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a regex pattern set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::regex-pattern-set regex-pattern-set-example
+ *         name: "regex-pattern-set-example"
+ *
+ *         patterns: [
+ *             "pattern1",
+ *             "pattern2"
+ *         ]
+ *     end
+ */
 @ResourceName("regex-pattern-set")
 public class RegexPatternSetResource extends AwsResource {
     private String name;
     private String regexPatternSetId;
     private List<String> patterns;
 
+    /**
+     * The name of the regex pattern set. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -47,6 +67,9 @@ public class RegexPatternSetResource extends AwsResource {
         this.regexPatternSetId = regexPatternSetId;
     }
 
+    /**
+     * A list of regular expression patterns to filter request on. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getPatterns() {
         if (patterns == null) {
@@ -152,7 +175,8 @@ public class RegexPatternSetResource extends AwsResource {
                 throw new BeamException(String.format("Cannot delete regex pattern set - %s, as it has patterns.",getRegexPatternSetId()));
             }
         } else {
-            throw new BeamException(String.format("Cannot delete regex pattern set - %s, as it is referenced by regex match set - %s",getRegexPatternSetId(),referenceId));
+            throw new BeamException(String
+                .format("Cannot delete regex pattern set - %s, as it is referenced by regex match set - %s",getRegexPatternSetId(),referenceId));
         }
     }
 

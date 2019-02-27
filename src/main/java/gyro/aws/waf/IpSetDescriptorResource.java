@@ -17,6 +17,9 @@ public class IpSetDescriptorResource extends AwsResource {
     private String value;
     private String type;
 
+    /**
+     * The ip to be filtered on. (Required)
+     */
     public String getValue() {
         return value;
     }
@@ -25,8 +28,11 @@ public class IpSetDescriptorResource extends AwsResource {
         this.value = value;
     }
 
+    /**
+     * The type of ip provided. Valid values ```IPV4``` or ```IPV6```. (Required)
+     */
     public String getType() {
-        return type;
+        return type != null ? type.toUpperCase() : null;
     }
 
     public void setType(String type) {

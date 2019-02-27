@@ -10,21 +10,45 @@ import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a rate rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     aws::rate-rule rate-rule-example
+ *         name: "rate-rule-example"
+ *         metric-name: "rateRuleExample"
+ *         rate-key: "IP"
+ *         rate-limit: 10
+ *     end
+ */
 @ResourceName("rate-rule")
 public class RateRuleResource extends RuleBaseResource {
     private String rateKey;
     private Long rateLimit;
+    private List<PredicateResource> predicateRateBased;
 
+    /**
+     * The rate key based on which the rate would be checked. (Required)
+     */
     public String getRateKey() {
-        return rateKey;
+        return rateKey != null ? rateKey.toUpperCase() : null;
     }
 
     public void setRateKey(String rateKey) {
         this.rateKey = rateKey;
     }
 
+    /**
+     * The rate limit at which the action would be taken. Valid values integer 1 and above. (Required)
+     */
     @ResourceDiffProperty(updatable = true, nullable = true)
     public Long getRateLimit() {
         return rateLimit;
@@ -32,6 +56,24 @@ public class RateRuleResource extends RuleBaseResource {
 
     public void setRateLimit(Long rateLimit) {
         this.rateLimit = rateLimit;
+    }
+
+    /**
+     * A list of predicates specifying the connection between rule and conditions.
+     *
+     * @Subresource beam.aws.waf.PredicateResource
+     */
+    @ResourceDiffProperty(nullable = true, subresource = true)
+    public List<PredicateResource> getPredicateRateBased() {
+        if (predicateRateBased == null) {
+            predicateRateBased = new ArrayList<>();
+        }
+
+        return predicateRateBased;
+    }
+
+    public void setPredicateRateBased(List<PredicateResource> predicateRateBased) {
+        this.predicateRateBased = predicateRateBased;
     }
 
     @Override
@@ -96,5 +138,10 @@ public class RateRuleResource extends RuleBaseResource {
     @Override
     boolean isRateRule() {
         return true;
+    }
+
+    @Override
+    List<PredicateResource> getPredicate() {
+        return getPredicateRateBased();
     }
 }
