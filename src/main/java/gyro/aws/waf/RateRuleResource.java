@@ -10,8 +10,6 @@ import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,7 +31,6 @@ import java.util.Set;
 public class RateRuleResource extends RuleBaseResource {
     private String rateKey;
     private Long rateLimit;
-    private List<PredicateResource> predicateRateBased;
 
     /**
      * The rate key based on which the rate would be checked. (Required)
@@ -47,7 +44,7 @@ public class RateRuleResource extends RuleBaseResource {
     }
 
     /**
-     * The rate limit at which the action would be taken. Valid values integer 1 and above. (Required)
+     * The rate limit at which the action would be taken. Valid values integer 2000 and above. (Required)
      */
     @ResourceDiffProperty(updatable = true, nullable = true)
     public Long getRateLimit() {
@@ -56,24 +53,6 @@ public class RateRuleResource extends RuleBaseResource {
 
     public void setRateLimit(Long rateLimit) {
         this.rateLimit = rateLimit;
-    }
-
-    /**
-     * A list of predicates specifying the connection between rule and conditions.
-     *
-     * @Subresource beam.aws.waf.PredicateResource
-     */
-    @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<PredicateResource> getPredicateRateBased() {
-        if (predicateRateBased == null) {
-            predicateRateBased = new ArrayList<>();
-        }
-
-        return predicateRateBased;
-    }
-
-    public void setPredicateRateBased(List<PredicateResource> predicateRateBased) {
-        this.predicateRateBased = predicateRateBased;
     }
 
     @Override
@@ -138,10 +117,5 @@ public class RateRuleResource extends RuleBaseResource {
     @Override
     boolean isRateRule() {
         return true;
-    }
-
-    @Override
-    List<PredicateResource> getPredicate() {
-        return getPredicateRateBased();
     }
 }

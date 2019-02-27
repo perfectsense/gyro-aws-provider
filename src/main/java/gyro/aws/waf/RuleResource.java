@@ -1,6 +1,5 @@
 package gyro.aws.waf;
 
-import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -10,8 +9,6 @@ import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRuleResponse;
 import software.amazon.awssdk.services.waf.model.Rule;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,26 +26,6 @@ import java.util.Set;
  */
 @ResourceName("rule")
 public class RuleResource extends RuleBaseResource {
-    private List<PredicateResource> predicateRegular;
-
-    /**
-     * A list of predicates specifying the connection between rule and conditions.
-     *
-     * @Subresource beam.aws.waf.PredicateResource
-     */
-    @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<PredicateResource> getPredicateRegular() {
-        if (predicateRegular == null) {
-            predicateRegular = new ArrayList<>();
-        }
-
-        return predicateRegular;
-    }
-
-    public void setPredicateRegular(List<PredicateResource> predicateRegular) {
-        this.predicateRegular = predicateRegular;
-    }
-
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getRuleId())) {
@@ -101,10 +78,5 @@ public class RuleResource extends RuleBaseResource {
     @Override
     boolean isRateRule() {
         return false;
-    }
-
-    @Override
-    List<PredicateResource> getPredicate() {
-        return getPredicateRegular();
     }
 }

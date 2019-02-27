@@ -12,6 +12,25 @@ public abstract class RuleBaseResource extends AwsResource {
     private String name;
     private String metricName;
     private String ruleId;
+    private List<PredicateResource> predicate;
+
+    /**
+     * A list of predicates specifying the connection between rule and conditions.
+     *
+     * @Subresource beam.aws.waf.PredicateResource
+     */
+    @ResourceDiffProperty(nullable = true, subresource = true)
+    public List<PredicateResource> getPredicate() {
+        if (predicate == null) {
+            predicate = new ArrayList<>();
+        }
+
+        return predicate;
+    }
+
+    public void setPredicate(List<PredicateResource> predicate) {
+        this.predicate = predicate;
+    }
 
     /**
      * The name of the rule. (Required)
@@ -44,8 +63,6 @@ public abstract class RuleBaseResource extends AwsResource {
     }
 
     abstract boolean isRateRule();
-
-    abstract List<PredicateResource> getPredicate();
 
     protected void loadPredicates(List<Predicate> predicates) {
         getPredicate().clear();
