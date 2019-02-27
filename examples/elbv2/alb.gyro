@@ -46,6 +46,17 @@ aws::target-group target-group-example
         port: "443"
     end
 
+    health-check
+        health-check-interval: "90"
+        health-check-path: "/"
+        health-check-port: "traffic-port"
+        health-check-protocol: "HTTP"
+        health-check-timeout: "30"
+        healthy-threshold: "2"
+        matcher: "200"
+        unhealthy-threshold: "2"
+    end
+
     tags: {
         Name: "alb-example-target-group"
     }
