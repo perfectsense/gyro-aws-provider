@@ -6,7 +6,6 @@ import gyro.lang.ast.query.ApiFilterable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -159,11 +158,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
     @Override
     public List<SubnetResource> query(Map<String, String> filters) {
         Ec2Client client = createClient(Ec2Client.class);
-
         List<Filter> queryFilters = queryFilters(filters);
-        if (queryFilters == null) {
-            return new ArrayList<>();
-        }
 
         return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
             .stream()
