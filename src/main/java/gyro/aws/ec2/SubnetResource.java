@@ -5,8 +5,6 @@ import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
-import gyro.lang.ResourceQuery;
-import com.google.common.collect.Sets;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -20,12 +18,7 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifySubnetAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create a subnet in a VPC.
@@ -49,12 +42,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private String subnetId;
-
-    private static final Set<String> FILTERABLE_ATTRIBUTES = Sets.newHashSet(
-        "availability-zone", "availability-zone-id", "available-ip-address-count", "cidr-block", "default-for-az",
-        "ipv6-cidr-block-association.ipv6-cidr-block", "ipv6-cidr-block-association.association-id", "ipv6-cidr-block-association.state",
-        "owner-id", "state", "subnet-arn", "subnet-id", "tag:*", "tag-key", "vpc-id"
-    );
 
     public SubnetResource() {
 
@@ -125,31 +112,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     public String getId() {
         return getSubnetId();
-    }
-
-    //@Override
-    public List<SubnetResource> query(Map<String, String> filters) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        List<Filter> queryFilters = queryFilters(FILTERABLE_ATTRIBUTES, filters);
-        if (queryFilters == null) {
-            return null;
-        }
-
-        return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
-            .stream()
-            .map(s -> new SubnetResource(s))
-            .collect(Collectors.toList());
-    }
-
-    //@Override
-    public List<SubnetResource> queryAll() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        return client.describeSubnets().subnets()
-            .stream()
-            .map(s -> new SubnetResource(s))
-            .collect(Collectors.toList());
     }
 
     @Override
