@@ -15,17 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class AwsResourceQuery<R extends AwsResource> extends ResourceQuery<R> {
-
-    @Override
-    public List<R> query(Map<String, String> filter) {
-        return null;
-    }
-
-    @Override
-    public List<R> queryAll() {
-        return null;
-    }
+public abstract class AwsResourceQuery<R extends AwsResource> extends ResourceQuery<R> {
 
     protected List<Filter> queryFilters(Map<String, String> query) {
         List<Filter> apiFilters = new ArrayList<>();
