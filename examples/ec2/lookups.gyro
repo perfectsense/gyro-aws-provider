@@ -1,8 +1,50 @@
 import ../init as _
 
-subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' or availability-zone = 'us-east-2b' | vpc-id != 'vpc-09b9493a3d5db31b6' | subnet-id)
+# External query
+vpc-ids: $(aws::vpc EXTERNAL/* | dhcp-options-id = 'dopt-028d8363dfb0a95b0' or cidr-block = '172.31.0.0/16' | vpc-id)
+
+aws::vpc foobar-dev
+    cidr-block: "10.7.0.0/16"
+
+    tags: {
+        Name: "foobar-dev"
+    }
+end
+
+aws::vpc foobar-qa
+    cidr-block: "10.8.0.0/16"
+
+    tags: {
+        Name: "foobar-qa"
+    }
+end
+
+aws::vpc foobar-prod
+    cidr-block: "10.9.0.0/16"
+
+    tags: {
+        Name: "foobar-prod"
+    }
+end
+
+aws::vpc non-foobar
+    cidr-block: "10.6.0.0/16"
+
+    tags: {
+        Name: "non-foobar"
+    }
+end
+
+# Internal query with resource name wild card
+foobar-ids: $(aws::vpc STATE/foobar-* | vpc-id)
+
+# Internal query with filters
+foobar-filtered-ids: $(aws::vpc STATE/foobar-* | cidr-block = '10.8.0.0/16' | vpc-id)
+
+
+# subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' or availability-zone = 'us-east-2b' | vpc-id != 'vpc-09b9493a3d5db31b6' | subnet-id)
 
 # no queries defined, return all subnet-ids
 # subnet-ids: $(aws::subnet EXTERNAL/* | subnet-id)
 
-#vpc-ids: $(aws::vpc EXTERNAL/* | dhcp-options-id = 'dopt-028d8363dfb0a95b0' or cidr-block = '172.31.0.0/16')
+
