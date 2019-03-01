@@ -41,6 +41,11 @@ foobar-ids: $(aws::vpc STATE/foobar-* | vpc-id)
 # Internal query with filters
 foobar-filtered-ids: $(aws::vpc STATE/foobar-* | cidr-block = '10.8.0.0/16' | vpc-id)
 
+# Internal query with resource name wild card
+foobar-ids: $(aws::vpc foobar-* | vpc-id)
+
+# Internal query with resource name wild card
+foobar-ids: $(aws::vpc nope-* | vpc-id)
 
 # subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' or availability-zone = 'us-east-2b' | vpc-id != 'vpc-09b9493a3d5db31b6' | subnet-id)
 
