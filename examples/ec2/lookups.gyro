@@ -3,6 +3,15 @@ import ../init as _
 # External query
 vpc-ids: $(aws::vpc EXTERNAL/* | dhcp-options-id = 'dopt-028d8363dfb0a95b0' or cidr-block = '172.31.0.0/16' | vpc-id)
 
+aws::vpc non-foobar
+    cidr-block: "10.6.0.0/16"
+    #vpc-cidrs: $(aws::vpc foobar-* | cidr-block)
+    vpc-cidrs: $(foobar-pending-ids)
+    tags: {
+        Name: "non-foobar"
+    }
+end
+
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"
 
@@ -27,22 +36,14 @@ aws::vpc foobar-prod
     }
 end
 
-aws::vpc non-foobar
-    cidr-block: "10.6.0.0/16"
 
-    tags: {
-        Name: "non-foobar"
-    }
-end
 
 # Internal query with resource name wild card
-foobar-ids: $(aws::vpc STATE/foobar-* | vpc-id)
+foobar-pending-ids: $(aws::vpc foobar-* | cidr-block)
 
-# Internal query with filters
-foobar-filtered-ids: $(aws::vpc STATE/foobar-* | cidr-block = '10.8.0.0/16' | vpc-id)
 
-# Internal query with resource name wild card
-foobar-ids: $(aws::vpc foobar-* | vpc-id)
+
+
 
 # Internal query with resource name wild card
 foobar-ids: $(aws::vpc nope-* | vpc-id)
