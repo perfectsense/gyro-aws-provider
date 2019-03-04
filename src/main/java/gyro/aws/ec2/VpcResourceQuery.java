@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResourceQuery;
 import gyro.core.diff.ResourceName;
-import gyro.lang.ast.query.ApiFilterable;
+import gyro.lang.ast.query.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
@@ -27,7 +27,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
     private String tagKey;
     private String vpcId;
 
-    @ApiFilterable(filter = "cidr")
+    @ResourceFilter("cidr")
     public String getCidrBlock() {
         return cidrBlock;
     }
@@ -36,7 +36,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.cidrBlock = cidrBlock;
     }
 
-    @ApiFilterable(filter = "cidr-block-association.cidr-block")
+    @ResourceFilter("cidr-block-association.cidr-block")
     public String getIpv4CidrBlock() {
         return ipv4CidrBlock;
     }
@@ -45,7 +45,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.ipv4CidrBlock = ipv4CidrBlock;
     }
 
-    @ApiFilterable(filter = "cidr-block-association.association-id")
+    @ResourceFilter("cidr-block-association.association-id")
     public String getCidrBlockAssociationId() {
         return cidrBlockAssociationId;
     }
@@ -54,7 +54,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.cidrBlockAssociationId = cidrBlockAssociationId;
     }
 
-    @ApiFilterable(filter = "cidr-block-association.state")
+    @ResourceFilter("cidr-block-association.state")
     public String getCidrBlockAssociationState() {
         return cidrBlockAssociationState;
     }
@@ -63,7 +63,6 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.cidrBlockAssociationState = cidrBlockAssociationState;
     }
 
-    @ApiFilterable(filter = "dhcp-options-id")
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
     }
@@ -72,7 +71,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.dhcpOptionsId = dhcpOptionsId;
     }
 
-    @ApiFilterable(filter = "ipv6-cidr-block-association.ipv6-cidr-block")
+    @ResourceFilter("ipv6-cidr-block-association.ipv6-cidr-block")
     public String getIpv6CidrBlock() {
         return ipv6CidrBlock;
     }
@@ -81,7 +80,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
-    @ApiFilterable(filter = "ipv6-cidr-block-association.association-id")
+    @ResourceFilter("ipv6-cidr-block-association.association-id")
     public String getIpv6CidrBlockAssociationId() {
         return ipv6CidrBlockAssociationId;
     }
@@ -90,7 +89,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.ipv6CidrBlockAssociationId = ipv6CidrBlockAssociationId;
     }
 
-    @ApiFilterable(filter = "ipv6-cidr-block-association.state")
+    @ResourceFilter("ipv6-cidr-block-association.state")
     public String getIpv6CidrBlockAssociationState() {
         return ipv6CidrBlockAssociationState;
     }
@@ -99,7 +98,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.ipv6CidrBlockAssociationState = ipv6CidrBlockAssociationState;
     }
 
-    @ApiFilterable(filter = "isDefault")
+    @ResourceFilter("isDefault")
     public String getIsDefault() {
         return isDefault;
     }
@@ -108,7 +107,6 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.isDefault = isDefault;
     }
 
-    @ApiFilterable(filter = "owner-id")
     public String getOwnerId() {
         return ownerId;
     }
@@ -117,7 +115,6 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.ownerId = ownerId;
     }
 
-    @ApiFilterable(filter = "state")
     public String getState() {
         return state;
     }
@@ -126,7 +123,6 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.state = state;
     }
 
-    @ApiFilterable(filter = "tag-key")
     public String getTagKey() {
         return tagKey;
     }
@@ -135,7 +131,6 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.tagKey = tagKey;
     }
 
-    @ApiFilterable(filter = "vpc-id")
     public String getVpcId() {
         return vpcId;
     }
