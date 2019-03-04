@@ -1,16 +1,7 @@
 import ../init as _
 
-# External query
+subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' or availability-zone = 'us-east-2b' | vpc-id != 'vpc-09b9493a3d5db31b6' | map-public-ip-on-launch != true | subnet-id)
 vpc-ids: $(aws::vpc EXTERNAL/* | dhcp-options-id = 'dopt-028d8363dfb0a95b0' or cidr-block = '172.31.0.0/16' | vpc-id)
-
-aws::vpc non-foobar
-    cidr-block: "10.6.0.0/16"
-    #vpc-cidrs: $(aws::vpc foobar-* | cidr-block)
-    vpc-cidrs: $(foobar-pending-ids)
-    tags: {
-        Name: "non-foobar"
-    }
-end
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"
@@ -36,21 +27,8 @@ aws::vpc foobar-prod
     }
 end
 
-
-
 # Internal query with resource name wild card
 foobar-pending-ids: $(aws::vpc foobar-* | cidr-block)
 
-
-
-
-
-# Internal query with resource name wild card
-foobar-ids: $(aws::vpc nope-* | vpc-id)
-
-# subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' or availability-zone = 'us-east-2b' | vpc-id != 'vpc-09b9493a3d5db31b6' | subnet-id)
-
-# no queries defined, return all subnet-ids
-# subnet-ids: $(aws::subnet EXTERNAL/* | subnet-id)
 
 
