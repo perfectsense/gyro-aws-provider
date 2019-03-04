@@ -1,7 +1,7 @@
 package gyro.aws;
 
 import gyro.core.BeamException;
-import gyro.lang.ResourceQuery;
+import gyro.lang.ExternalResourceQuery;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AwsResourceQuery<R extends AwsResource> extends ResourceQuery<R> {
+public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalResourceQuery<R> {
 
     protected List<Filter> queryFilters(Map<String, String> query) {
         List<Filter> apiFilters = new ArrayList<>();
