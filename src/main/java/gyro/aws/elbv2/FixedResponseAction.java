@@ -1,20 +1,20 @@
 package gyro.aws.elbv2;
 
+import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceName;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedResponseActionConfig;
 
-@ResourceName(parent = "action", value = "fixed-response")
-public class FixedResponseActionConfigResource {
+public class FixedResponseAction extends Diffable {
 
     private String contentType;
     private String messageBody;
     private String statusCode;
 
-    public FixedResponseActionConfigResource() {
+    public FixedResponseAction() {
 
     }
 
-    public FixedResponseActionConfigResource(FixedResponseActionConfig fixed) {
+    public FixedResponseAction(FixedResponseActionConfig fixed) {
         setContentType(fixed.contentType());
         setMessageBody(fixed.messageBody());
         setStatusCode(fixed.statusCode());
@@ -42,6 +42,14 @@ public class FixedResponseActionConfigResource {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getContentType(), getMessageBody(), getStatusCode());
+    }
+
+    public String toDisplayString() {
+        return "fixed response action";
     }
 
     public FixedResponseActionConfig toFixedAction() {

@@ -1,10 +1,10 @@
 package gyro.aws.elbv2;
 
+import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceName;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;
 
-@ResourceName(parent = "action", value = "redirect")
-public class RedirectActionConfigResource {
+public class RedirectAction extends Diffable {
     private String host;
     private String path;
     private String port;
@@ -12,11 +12,11 @@ public class RedirectActionConfigResource {
     private String query;
     private String statusCode;
 
-    public RedirectActionConfigResource() {
+    public RedirectAction() {
 
     }
 
-    public RedirectActionConfigResource(RedirectActionConfig redirect) {
+    public RedirectAction(RedirectActionConfig redirect) {
         setHost(redirect.host());
         setPath(redirect.path());
         setPort(redirect.port());
@@ -71,6 +71,14 @@ public class RedirectActionConfigResource {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getPort(), getProtocol(), getStatusCode());
+    }
+
+    public String toDisplayString() {
+        return "redirect action";
     }
 
     public RedirectActionConfig toRedirect() {

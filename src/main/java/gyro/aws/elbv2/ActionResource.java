@@ -31,11 +31,11 @@ import java.util.Set;
 @ResourceName(parent = "alb-listener-rule", value = "action")
 public class ActionResource extends NetworkActionResource {
 
-    private AuthenticateCognitoActionConfigResource cognitoAction;
-    private AuthenticateOidcActionConfigResource oidc;
-    private FixedResponseActionConfigResource fixedResponse;
+    private AuthenticateCognitoAction cognitoAction;
+    private AuthenticateOidcAction oidc;
+    private FixedResponseAction fixedResponseAction;
     private Integer order;
-    private RedirectActionConfigResource redirect;
+    private RedirectAction redirectAction;
     private String targetGroupArn;
     private String type;
 
@@ -47,25 +47,25 @@ public class ActionResource extends NetworkActionResource {
 
         AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
         if (cognitoConfig != null) {
-            AuthenticateCognitoActionConfigResource cognito = new AuthenticateCognitoActionConfigResource(cognitoConfig);
+            AuthenticateCognitoAction cognito = new AuthenticateCognitoAction(cognitoConfig);
             setCognitoAction(cognito);
         }
 
         AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
         if (oidcConfig != null) {
-            AuthenticateOidcActionConfigResource oidc = new AuthenticateOidcActionConfigResource(oidcConfig);
+            AuthenticateOidcAction oidc = new AuthenticateOidcAction(oidcConfig);
             setOidc(oidc);
         }
 
         FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
         if (fixedConfig != null) {
-            FixedResponseActionConfigResource fixed = new FixedResponseActionConfigResource(fixedConfig);
+            FixedResponseAction fixed = new FixedResponseAction(fixedConfig);
             setFixedResponse(fixed);
         }
 
         RedirectActionConfig redirectConfig = action.redirectConfig();
         if (redirectConfig != null) {
-            RedirectActionConfigResource redirect = new RedirectActionConfigResource(redirectConfig);
+            RedirectAction redirect = new RedirectAction(redirectConfig);
             setRedirect(redirect);
         }
 
@@ -78,11 +78,11 @@ public class ActionResource extends NetworkActionResource {
      *  Authentication through user pools supported by Amazon Cognito (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public AuthenticateCognitoActionConfigResource getCognitoAction() {
+    public AuthenticateCognitoAction getCognitoAction() {
         return cognitoAction;
     }
 
-    public void setCognitoAction(AuthenticateCognitoActionConfigResource cognitoAction) {
+    public void setCognitoAction(AuthenticateCognitoAction cognitoAction) {
         this.cognitoAction = cognitoAction;
     }
 
@@ -90,11 +90,11 @@ public class ActionResource extends NetworkActionResource {
      *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public AuthenticateOidcActionConfigResource getOidc() {
+    public AuthenticateOidcAction getOidc() {
         return oidc;
     }
 
-    public void setOidc(AuthenticateOidcActionConfigResource oidc) {
+    public void setOidc(AuthenticateOidcAction oidc) {
         this.oidc = oidc;
     }
 
@@ -102,12 +102,12 @@ public class ActionResource extends NetworkActionResource {
      *  Used to specify a custom response for an action  (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public FixedResponseActionConfigResource getFixedResponse() {
-        return fixedResponse;
+    public FixedResponseAction getFixedResponse() {
+        return fixedResponseAction;
     }
 
-    public void setFixedResponse(FixedResponseActionConfigResource fixedResponse) {
-        this.fixedResponse = fixedResponse;
+    public void setFixedResponse(FixedResponseAction fixedResponseAction) {
+        this.fixedResponseAction = fixedResponseAction;
     }
 
     /**
@@ -126,12 +126,12 @@ public class ActionResource extends NetworkActionResource {
      *  Redirect requests from one URL to another (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public RedirectActionConfigResource getRedirect() {
-        return redirect;
+    public RedirectAction getRedirect() {
+        return redirectAction;
     }
 
-    public void setRedirect(RedirectActionConfigResource redirect) {
-        this.redirect = redirect;
+    public void setRedirect(RedirectAction redirectAction) {
+        this.redirectAction = redirectAction;
     }
 
     /**

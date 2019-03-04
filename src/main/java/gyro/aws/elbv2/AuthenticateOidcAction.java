@@ -1,12 +1,12 @@
 package gyro.aws.elbv2;
 
+import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceName;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
 
 import java.util.Map;
 
-@ResourceName(parent = "action", value = "oidc")
-public class AuthenticateOidcActionConfigResource {
+public class AuthenticateOidcAction extends Diffable {
     private Map<String, String> extraParams;
     private String authorizationEndpoint;
     private String clientId;
@@ -19,11 +19,11 @@ public class AuthenticateOidcActionConfigResource {
     private String tokenEndpoint;
     private String userInfoEndpoint;
 
-    public AuthenticateOidcActionConfigResource() {
+    public AuthenticateOidcAction() {
 
     }
 
-    public AuthenticateOidcActionConfigResource(AuthenticateOidcActionConfig oidc) {
+    public AuthenticateOidcAction(AuthenticateOidcActionConfig oidc) {
         setExtraParams(oidc.authenticationRequestExtraParams());
         setAuthorizationEndpoint(oidc.authorizationEndpoint());
         setClientId(oidc.clientId());
@@ -123,6 +123,14 @@ public class AuthenticateOidcActionConfigResource {
 
     public void setUserInfoEndpoint(String userInfoEndpoint) {
         this.userInfoEndpoint = userInfoEndpoint;
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getClientId(), getUserInfoEndpoint(), getTokenEndpoint());
+    }
+
+    public String toDisplayString() {
+        return "authenticate oidc action";
     }
 
     public AuthenticateOidcActionConfig toOidc() {
