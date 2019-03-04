@@ -43,7 +43,7 @@ public abstract class AwsResourceQuery<R extends AwsResource> extends ResourceQu
         }
 
         try {
-            AwsCredentials credentials = (AwsCredentials) resourceCredentials();
+            AwsCredentials credentials = (AwsCredentials) credentials();
             if (credentials == null) {
                 throw new BeamException("No credentials associated with the resource.");
             }
