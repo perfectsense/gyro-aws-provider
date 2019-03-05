@@ -45,7 +45,7 @@ public class PredicateResource extends AwsResource {
     }
 
     /**
-     * The type of condition being attached. Valid values ```XssMatch```, ```GeoMatch```, ```SqlInjectionMatch```, ```ByteMatch```, ```RegexMatch```, ```SizeConstraint```, ```IPMatch```. (Required)
+     * The type of condition being attached. Valid values are ``XssMatch`` or ``GeoMatch`` or ``SqlInjectionMatch`` or ``ByteMatch`` or ``RegexMatch`` or ``SizeConstraint`` or ``IPMatch``. (Required)
      */
     public String getType() {
         return type;
