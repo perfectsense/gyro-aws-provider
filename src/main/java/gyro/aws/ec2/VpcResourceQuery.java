@@ -6,6 +6,7 @@ import gyro.lang.ast.query.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
     private String isDefault;
     private String ownerId;
     private String state;
+    private Map<String, String> tag;
     private String tagKey;
     private String vpcId;
 
@@ -121,6 +123,18 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
+        return tag;
+    }
+
+    public void setTag(Map<String, String> tag) {
+        this.tag = tag;
     }
 
     public String getTagKey() {

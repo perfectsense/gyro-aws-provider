@@ -6,6 +6,7 @@ import gyro.lang.ast.query.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
     private String state;
     private String subnetArn;
     private String subnetId;
-    // private Strign tag*;
+    private Map<String, String> tag;
     private String tagKey;
     private String vpcId;
 
@@ -126,6 +127,18 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
 
     public void setSubnetId(String subnetId) {
         this.subnetId = subnetId;
+    }
+
+    public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
+        return tag;
+    }
+
+    public void setTag(Map<String, String> tag) {
+        this.tag = tag;
     }
 
     public String getTagKey() {

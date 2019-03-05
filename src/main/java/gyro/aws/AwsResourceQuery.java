@@ -1,6 +1,8 @@
 package gyro.aws;
 
 import gyro.core.BeamException;
+import gyro.core.query.QueryField;
+import gyro.core.query.QueryType;
 import gyro.lang.ExternalResourceQuery;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
@@ -12,6 +14,7 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,5 +69,25 @@ public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalRe
         }
 
         return (T) client;
+    }
+
+    @Override
+    public final List<R> query() {
+        Map<String, String> filters = new HashMap<>();
+        for (QueryField field : QueryType.getInstance(getClass()).getFields()) {
+            Object value = field.getValue(this);
+            String filterName = field.getFilterName();
+            if (value instanceof Map) {
+                Map valueMap = (Map) value;
+                for (Object key : valueMap.keySet()) {
+                    filters.put(String.format("%s:%s", filterName, key), valueMap.get(key).toString());
+                }
+
+            } else if (value != null) {
+                filters.put(filterName, value.toString());
+            }
+        }
+
+        return filters.isEmpty() ? queryAll() : query(filters);
     }
 }
