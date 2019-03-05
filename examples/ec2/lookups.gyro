@@ -2,6 +2,7 @@ import ../init as _
 
 # External query
 subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' | vpc-id = 'vpc-09b9493a3d5db31b6' or vpc-id = 'vpc-7365661b' | map-public-ip-on-launch != true and cidr-block = '10.0.0.0/24')
+vpc-ids: $(aws::vpc EXTERNAL/* | tag.Name = "vpc-example-for-network-acl")
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"
