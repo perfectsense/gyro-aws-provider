@@ -9,7 +9,6 @@ import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
-import software.amazon.awssdk.services.waf.model.RuleUpdate;
 
 import java.util.ArrayList;
 import java.util.Set;

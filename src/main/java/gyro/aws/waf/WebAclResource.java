@@ -125,17 +125,12 @@ public class WebAclResource extends AwsResource {
 
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getWebAclId())) {
+        WebACL webAcl = getWebAcl();
+
+        if (webAcl == null) {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        GetWebAclResponse response = client.getWebACL(
-            r -> r.webACLId(getWebAclId())
-        );
-
-        WebACL webAcl = response.webACL();
         setArn(webAcl.webACLArn());
         setDefaultAction(webAcl.defaultAction().typeAsString());
         setMetricName(webAcl.metricName());
@@ -216,11 +211,45 @@ public class WebAclResource extends AwsResource {
             if (priority != start || start > 10) {
                 invalidPriority = true;
             }
-            start ++;
+            start++;
         }
 
         if (invalidPriority) {
             throw new BeamException("Activated Rule priority exception. Priority value starts from 1 to 10 without skipping any number.");
         }
+    }
+
+    private WebACL getWebAcl() {
+        if (ObjectUtils.isBlank(getWebAclId())) {
+            return null;
+        }
+
+        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+
+        GetWebAclResponse response = client.getWebACL(
+            r -> r.webACLId(getWebAclId())
+        );
+
+        return response.webACL();
+    }
+
+    ActivatedRule getActivatedRuleWithPriority(int priority) {
+        WebACL webAcl = getWebAcl();
+
+        if (webAcl != null) {
+            return webAcl.rules().stream().filter(o -> o.priority() == priority).findFirst().orElse(null);
+        }
+
+        return null;
+    }
+
+    boolean isActivatedRulePresent(ActivatedRule activatedRule) {
+        WebACL webAcl = getWebAcl();
+
+        if (webAcl != null) {
+            return webAcl.rules().stream().anyMatch(o -> o.ruleId().equals(activatedRule.ruleId()) && o.typeAsString().equals(activatedRule.typeAsString()));
+        }
+
+        return false;
     }
 }
