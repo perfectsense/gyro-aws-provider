@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -15,8 +16,10 @@ import software.amazon.awssdk.services.waf.model.WafAction;
 import software.amazon.awssdk.services.waf.model.WebACL;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a waf acl.
@@ -116,6 +119,8 @@ public class WebAclResource extends AwsResource {
 
     public void setActivatedRule(List<ActivatedRuleResource> activatedRule) {
         this.activatedRule = activatedRule;
+
+        validateActivatedRule();
     }
 
     @Override
@@ -197,5 +202,25 @@ public class WebAclResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+    
+    private void validateActivatedRule() {
+        List<Integer> priorityList = getActivatedRule().stream()
+            .sorted(Comparator.comparing(ActivatedRuleResource::getPriority))
+            .map(ActivatedRuleResource::getPriority).collect(Collectors.toList());
+
+        boolean invalidPriority = false;
+        int start = 1;
+
+        for (int priority: priorityList) {
+            if (priority != start || start > 10) {
+                invalidPriority = true;
+            }
+            start ++;
+        }
+
+        if (invalidPriority) {
+            throw new BeamException("Activated Rule priority exception. Priority value starts from 1 to 10 without skipping any number.");
+        }
     }
 }
