@@ -5,6 +5,7 @@ import gyro.core.BeamCore;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -59,6 +60,7 @@ public class RegexPatternSetResource extends AwsResource {
         this.name = name;
     }
 
+    @ResourceOutput
     public String getRegexPatternSetId() {
         return regexPatternSetId;
     }

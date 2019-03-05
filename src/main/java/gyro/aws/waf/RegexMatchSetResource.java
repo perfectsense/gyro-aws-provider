@@ -3,6 +3,7 @@ package gyro.aws.waf;
 import gyro.aws.AwsResource;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -50,6 +51,7 @@ public class RegexMatchSetResource extends AwsResource {
         this.name = name;
     }
 
+    @ResourceOutput
     public String getRegexMatchSetId() {
         return regexMatchSetId;
     }
