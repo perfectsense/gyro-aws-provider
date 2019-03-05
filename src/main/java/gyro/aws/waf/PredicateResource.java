@@ -1,6 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -34,6 +35,7 @@ public class PredicateResource extends AwsResource {
     /**
      * Set if the condition is checked to be false. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public Boolean getNegated() {
         return negated;
     }
