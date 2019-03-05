@@ -1,16 +1,22 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
+import gyro.core.BeamException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
 import software.amazon.awssdk.services.waf.model.IPSetUpdate;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @ResourceName(parent = "ip-set", value = "ip-set-descriptor")
 public class IpSetDescriptorResource extends AwsResource {
@@ -21,7 +27,7 @@ public class IpSetDescriptorResource extends AwsResource {
      * The ip to be filtered on. (Required)
      */
     public String getValue() {
-        return value;
+        return getCidrValue();
     }
 
     public void setValue(String value) {
@@ -29,7 +35,7 @@ public class IpSetDescriptorResource extends AwsResource {
     }
 
     /**
-     * The type of ip provided. Valid values ```IPV4``` or ```IPV6```. (Required)
+     * The type of ip provided. Valid values are ``IPV4`` or ``IPV6``. (Required)
      */
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -119,5 +125,51 @@ public class IpSetDescriptorResource extends AwsResource {
                 .ipSetId(parent.getIpSetId())
                 .updates(ipSetUpdate)
         );
+    }
+
+    private String getCidrValue() {
+        String cidr = value;
+
+        boolean isValid = false;
+
+        if (!ObjectUtils.isBlank(cidr) && cidr.split("/").length == 2) {
+            isValid = true;
+        }
+
+        if (isValid) {
+            isValid = false;
+            String ip = cidr.split("/")[0];
+            String range = cidr.split("/")[1];
+
+            if (getType().equals("IPV4")) {
+                isValid = (range.equals("8") || range.equals("16") || range.equals("24") || range.equals("32"));
+            } else if (getType().equals("IPV6")) {
+                isValid = (range.equals("24") || range.equals("32")
+                    || range.equals("48") || range.equals("56") || range.equals("64") || range.equals("128"));
+            }
+
+            if (isValid) {
+                try {
+                    InetAddress byName = InetAddress.getByName(ip);
+                    String hostAddress = byName.getHostAddress();
+                    if (getType().equals("IPV6")) {
+                        isValid = !ip.contains(".") && ip.contains(":");
+                        ip = Arrays.stream(hostAddress.split(":")).map(o -> StringUtils.leftPad(o, 4, "0")).collect(Collectors.joining(":"));
+                    } else if (getType().equals("IPV4")) {
+                        isValid = ip.contains(".") && !ip.contains(":");
+                    }
+
+                    cidr = ip + "/" + range;
+                } catch (UnknownHostException ex) {
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                throw new BeamException(String.format("Invalid cidr - %s of type %s.", value, getType()));
+            }
+        }
+
+        return cidr;
     }
 }
