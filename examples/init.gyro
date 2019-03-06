@@ -1,11 +1,17 @@
 plugin
-    artifact: 'gyro.provider:aws:0.5'
-    repositories: ['https://artifactory.psdops.com/public']
+    artifact: 'gyro.provider:aws:0.14-SNAPSHOT'
+    repositories: [
+        'https://artifactory.psdops.com/public',
+        'https://artifactory.psdops.com/gyro-snapshots'
+    ]
 end
 
 plugin
-    artifact: 'gyro.plugin:beam-enterprise:0.5'
-    repositories: ['https://artifactory.psdops.com/public']
+    artifact: 'gyro.plugin:beam-enterprise:0.14-SNAPSHOT'
+    repositories: [
+        'https://artifactory.psdops.com/public',
+        'https://artifactory.psdops.com/gyro-snapshots'
+    ]
 end
 
 project: "beam-sandbox"
