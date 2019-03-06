@@ -57,7 +57,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     /**
      *  List of actions associated with the rule (Required)
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
+    @ResourceDiffProperty(updatable = true)
     public List<ActionResource> getAction() {
         if (action == null) {
             action = new ArrayList<>();
@@ -73,7 +73,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     /**
      *  List of conditions associated with the rule (Required)
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
+    @ResourceDiffProperty(updatable = true)
     public List<ConditionResource> getCondition() {
         if (condition == null) {
             condition = new ArrayList<>();
