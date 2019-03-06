@@ -1,7 +1,6 @@
 package gyro.aws.elbv2;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceName;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
 
 import java.util.Map;
