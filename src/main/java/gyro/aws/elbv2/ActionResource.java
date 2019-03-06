@@ -31,8 +31,8 @@ import java.util.Set;
 @ResourceName(parent = "alb-listener-rule", value = "action")
 public class ActionResource extends NetworkActionResource {
 
-    private AuthenticateCognitoAction cognitoAction;
-    private AuthenticateOidcAction oidc;
+    private AuthenticateCognitoAction authenticateCognitoAction;
+    private AuthenticateOidcAction authenticateOidcAction;
     private FixedResponseAction fixedResponseAction;
     private Integer order;
     private RedirectAction redirectAction;
@@ -48,25 +48,25 @@ public class ActionResource extends NetworkActionResource {
         AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
         if (cognitoConfig != null) {
             AuthenticateCognitoAction cognito = new AuthenticateCognitoAction(cognitoConfig);
-            setCognitoAction(cognito);
+            setAuthenticateCognitoAction(cognito);
         }
 
         AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
         if (oidcConfig != null) {
             AuthenticateOidcAction oidc = new AuthenticateOidcAction(oidcConfig);
-            setOidc(oidc);
+            setAuthenticateOidcAction(oidc);
         }
 
         FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
         if (fixedConfig != null) {
             FixedResponseAction fixed = new FixedResponseAction(fixedConfig);
-            setFixedResponse(fixed);
+            setFixedResponseAction(fixed);
         }
 
         RedirectActionConfig redirectConfig = action.redirectConfig();
         if (redirectConfig != null) {
             RedirectAction redirect = new RedirectAction(redirectConfig);
-            setRedirect(redirect);
+            setRedirectAction(redirect);
         }
 
         setOrder(action.order());
@@ -74,39 +74,40 @@ public class ActionResource extends NetworkActionResource {
         setType(action.typeAsString());
     }
 
+
     /**
      *  Authentication through user pools supported by Amazon Cognito (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public AuthenticateCognitoAction getCognitoAction() {
-        return cognitoAction;
+    public AuthenticateCognitoAction getAuthenticateCognitoAction() {
+        return authenticateCognitoAction;
     }
 
-    public void setCognitoAction(AuthenticateCognitoAction cognitoAction) {
-        this.cognitoAction = cognitoAction;
+    public void setAuthenticateCognitoAction(AuthenticateCognitoAction authenticateCognitoAction) {
+        this.authenticateCognitoAction = authenticateCognitoAction;
     }
 
     /**
      *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public AuthenticateOidcAction getOidc() {
-        return oidc;
+    public AuthenticateOidcAction getAuthenticateOidcAction() {
+        return authenticateOidcAction;
     }
 
-    public void setOidc(AuthenticateOidcAction oidc) {
-        this.oidc = oidc;
+    public void setAuthenticateOidcAction(AuthenticateOidcAction authenticateOidcAction) {
+        this.authenticateOidcAction = authenticateOidcAction;
     }
 
     /**
      *  Used to specify a custom response for an action  (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public FixedResponseAction getFixedResponse() {
+    public FixedResponseAction getFixedResponseAction() {
         return fixedResponseAction;
     }
 
-    public void setFixedResponse(FixedResponseAction fixedResponseAction) {
+    public void setFixedResponseAction(FixedResponseAction fixedResponseAction) {
         this.fixedResponseAction = fixedResponseAction;
     }
 
@@ -126,11 +127,11 @@ public class ActionResource extends NetworkActionResource {
      *  Redirect requests from one URL to another (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public RedirectAction getRedirect() {
+    public RedirectAction getRedirectAction() {
         return redirectAction;
     }
 
-    public void setRedirect(RedirectAction redirectAction) {
+    public void setRedirectAction(RedirectAction redirectAction) {
         this.redirectAction = redirectAction;
     }
 
@@ -227,10 +228,10 @@ public class ActionResource extends NetworkActionResource {
 
     public Action toAction() {
         return Action.builder()
-                .authenticateCognitoConfig(getCognitoAction() != null ? getCognitoAction().toCognito() : null)
-                .authenticateOidcConfig(getOidc() != null ? getOidc().toOidc() : null)
-                .fixedResponseConfig(getFixedResponse() != null ? getFixedResponse().toFixedAction() : null)
-                .redirectConfig(getRedirect() != null ? getRedirect().toRedirect() : null)
+                .authenticateCognitoConfig(getAuthenticateCognitoAction() != null ? getAuthenticateCognitoAction().toCognito() : null)
+                .authenticateOidcConfig(getAuthenticateOidcAction() != null ? getAuthenticateOidcAction().toOidc() : null)
+                .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
+                .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
                 .order(getOrder())
                 .targetGroupArn(getTargetGroupArn())
                 .type(getType())
