@@ -48,7 +48,7 @@ dependencies {
 
     compile 'com.psddev:dari-util:3.3.607-xe0f27a'
     compile "com.google.guava:guava:23.0"
-    compile "gyro:core:0.14-SNAPSHOT"
+    compile "gyro:gyro-core:0.14-SNAPSHOT"
 
     checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
 }
@@ -56,8 +56,8 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'gyro.provider'
-            artifactId = 'aws'
+            groupId = 'gyro'
+            artifactId = 'gyro-aws-provider'
             version = version
 
             from components.java
