@@ -5,6 +5,7 @@ plugins {
     id 'checkstyle'
 }
 
+version = '0.14-SNAPSHOT'
 sourceCompatibility = 1.8
 
 def aws_sdk2_version = '2.4.4'
@@ -57,7 +58,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'gyro.provider'
             artifactId = 'aws'
-            version = '0.14-SNAPSHOT'
+            version = version
 
             from components.java
         }
