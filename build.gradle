@@ -2,13 +2,28 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'checkstyle'
 }
 
 sourceCompatibility = 1.8
 
 def aws_sdk2_version = '2.4.4'
 
-defaultTasks 'build', 'publish', 'publishToMavenLocal'
+defaultTasks 'build', 'check'
+
+if (System.getenv("TRAVIS_BRANCH") == null) {
+    check.dependsOn 'publishToMavenLocal'
+} else {
+    check.dependsOn 'publish'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://artifactory.psdops.com/public"
+    }
+}
 
 dependencies {
     compile "software.amazon.awssdk:apache-client:${aws_sdk2_version}"
@@ -29,7 +44,9 @@ dependencies {
 
     compile 'com.psddev:dari-util:3.3.607-xe0f27a'
     compile "com.google.guava:guava:23.0"
-    compile "gyro:gyro-core:${version}"
+    compile "gyro:core:0.14-SNAPSHOT"
+
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
 }
 
 publishing {
@@ -37,9 +54,24 @@ publishing {
         maven(MavenPublication) {
             groupId = 'gyro.provider'
             artifactId = 'aws'
-            version = '0.5'
+            version = '0.14-SNAPSHOT'
 
             from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username System.getenv("GRADLE_DEPLOY_USER")
+                password System.getenv("GRADLE_DEPLOY_PASSWORD")
+            }
+
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url "https://artifactory.psdops.com/gyro-snapshots"
+            } else {
+                url "https://artifactory.psdops.com/gyro-releases"
+            }
         }
     }
 }
@@ -50,4 +82,20 @@ task referenceDocs(type: Javadoc) {
     classpath = configurations.compile
     options.doclet = "gyro.doclet.GyroDoclet"
     options.docletpath = [file("../../doclet/build/libs/gyro-doclet-0.5.jar")]
+}
+
+checkstyle {
+    toolVersion = '6.13'
+    configFile rootProject.file('config/checkstyle.xml')
+    checkstyleMain.enabled = false
+    checkstyleTest.enabled = false
+}
+
+task checkstyle(type: Checkstyle) {
+    configFile rootProject.file('config/checkstyle.xml')
+    source 'src'
+    include '**/*.java'
+    exclude '**/generated-src/**'
+
+    classpath = files()
 }
