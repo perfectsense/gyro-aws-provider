@@ -1,11 +1,32 @@
 package gyro.aws.elbv2;
 
 import gyro.core.diff.Diffable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 
 import java.util.Map;
 
+/**
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     action
+ *         type: "authenticate-cognito"
+ *
+ *         authenticate-cognito-action
+ *             user-pool-arn: $(aws::authenticate-cognito-user-pool cognito | user-pool-arn)
+ *             user-pool-client-id: $(aws::authenticate-cognito-user-pool-client client | user-pool-client-id)
+ *             user-pool-domain: $(aws::authenticate-cognito-user-pool-domain domain | domain)
+ *         end
+ *     end
+ *
+ *
+ */
 public class AuthenticateCognitoAction extends Diffable {
+
     private Map<String, String> extraParams;
     private String onUnauthenticatedRequest;
     private String scope;
@@ -95,7 +116,7 @@ public class AuthenticateCognitoAction extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getSessionCookieName(), getUserPoolArn(), getUserPoolClientId());
+        return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClientId(), getUserPoolDomain());
     }
 
     public String toDisplayString() {

@@ -1,11 +1,34 @@
 package gyro.aws.elbv2;
 
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
 
 import java.util.Map;
 
+/**
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     action
+ *         type: "authenticate-oidc"
+ *
+ *         authenticate-oidc-action
+ *             authorization-endpoint: "https://example.com/authorization_endpoint"
+ *             client-id: "client_id"
+ *             client-secret: "client_secret"
+ *             issuer: "https://example.com"
+ *             token-endpoint: "https://example.com/token_endpoint"
+ *             user-info-endpoint: "https://example.com/user_info_endpoint"
+ *         end
+ *     end
+ */
 public class AuthenticateOidcAction extends Diffable {
+
     private Map<String, String> extraParams;
     private String authorizationEndpoint;
     private String clientId;
@@ -36,6 +59,7 @@ public class AuthenticateOidcAction extends Diffable {
         setUserInfoEndpoint(oidc.userInfoEndpoint());
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getExtraParams() {
         return extraParams;
     }
@@ -44,6 +68,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.extraParams = extraParams;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getAuthorizationEndpoint() {
         return authorizationEndpoint;
     }
@@ -52,6 +77,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.authorizationEndpoint = authorizationEndpoint;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getClientId() {
         return clientId;
     }
@@ -60,6 +86,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.clientId = clientId;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getClientSecret() {
         return clientSecret;
     }
@@ -68,6 +95,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.clientSecret = clientSecret;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getIssuer() {
         return issuer;
     }
@@ -76,6 +104,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.issuer = issuer;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getOnAuthenticatedRequest() {
         return onAuthenticatedRequest;
     }
@@ -84,6 +113,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.onAuthenticatedRequest = onAuthenticatedRequest;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getScope() {
         return scope;
     }
@@ -92,6 +122,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.scope = scope;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getSessionCookieName() {
         return sessionCookieName;
     }
@@ -100,6 +131,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.sessionCookieName = sessionCookieName;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Long getSessionTimeout() {
         return sessionTimeout;
     }
@@ -108,6 +140,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.sessionTimeout = sessionTimeout;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getTokenEndpoint() {
         return tokenEndpoint;
     }
@@ -116,6 +149,7 @@ public class AuthenticateOidcAction extends Diffable {
         this.tokenEndpoint = tokenEndpoint;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getUserInfoEndpoint() {
         return userInfoEndpoint;
     }
