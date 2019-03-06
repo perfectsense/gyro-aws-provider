@@ -33,7 +33,6 @@ import java.util.Set;
  *         end
  *     end
  */
-
 @ResourceName("alb-listener")
 public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
