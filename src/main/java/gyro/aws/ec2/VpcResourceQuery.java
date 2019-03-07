@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
 
     private String cidr;
-    private String ipv4CidrBlock;
-    private String cidrBlockAssociationId;
-    private String cidrBlockAssociationState;
     private String dhcpOptionsId;
+    private String ipv4CidrBlock;
+    private String ipv4CidrBlockAssociationId;
+    private String ipv4CidrBlockAssociationState;
     private String ipv6CidrBlock;
     private String ipv6CidrBlockAssociationId;
     private String ipv6CidrBlockAssociationState;
@@ -37,6 +37,14 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
         this.cidr = cidr;
     }
 
+    public String getDhcpOptionsId() {
+        return dhcpOptionsId;
+    }
+
+    public void setDhcpOptionsId(String dhcpOptionsId) {
+        this.dhcpOptionsId = dhcpOptionsId;
+    }
+
     @ResourceFilter("cidr-block-association.cidr-block")
     public String getIpv4CidrBlock() {
         return ipv4CidrBlock;
@@ -47,29 +55,21 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
     }
 
     @ResourceFilter("cidr-block-association.association-id")
-    public String getCidrBlockAssociationId() {
-        return cidrBlockAssociationId;
+    public String getIpv4CidrBlockAssociationId() {
+        return ipv4CidrBlockAssociationId;
     }
 
-    public void setCidrBlockAssociationId(String cidrBlockAssociationId) {
-        this.cidrBlockAssociationId = cidrBlockAssociationId;
+    public void setIpv4CidrBlockAssociationId(String ipv4CidrBlockAssociationId) {
+        this.ipv4CidrBlockAssociationId = ipv4CidrBlockAssociationId;
     }
 
     @ResourceFilter("cidr-block-association.state")
-    public String getCidrBlockAssociationState() {
-        return cidrBlockAssociationState;
+    public String getIpv4CidrBlockAssociationState() {
+        return ipv4CidrBlockAssociationState;
     }
 
-    public void setCidrBlockAssociationState(String cidrBlockAssociationState) {
-        this.cidrBlockAssociationState = cidrBlockAssociationState;
-    }
-
-    public String getDhcpOptionsId() {
-        return dhcpOptionsId;
-    }
-
-    public void setDhcpOptionsId(String dhcpOptionsId) {
-        this.dhcpOptionsId = dhcpOptionsId;
+    public void setIpv4CidrBlockAssociationState(String ipv4CidrBlockAssociationState) {
+        this.ipv4CidrBlockAssociationState = ipv4CidrBlockAssociationState;
     }
 
     @ResourceFilter("ipv6-cidr-block-association.ipv6-cidr-block")
