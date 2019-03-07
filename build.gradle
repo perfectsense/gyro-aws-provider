@@ -18,6 +18,10 @@ if (System.getenv("TRAVIS_BRANCH") == null) {
     check.dependsOn 'publish'
 }
 
+configurations {
+    gyroDoclet
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -52,6 +56,8 @@ dependencies {
     compile "gyro:gyro-core:0.14-SNAPSHOT"
 
     checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
+
+    gyroDoclet "gyro:gyro-doclet:0.14-SNAPSHOT"
 }
 
 publishing {
@@ -86,7 +92,7 @@ task referenceDocs(type: Javadoc) {
     source = sourceSets.main.allJava
     classpath = configurations.compile
     options.doclet = "gyro.doclet.GyroDoclet"
-    options.docletpath = [file("../../doclet/build/libs/gyro-doclet-0.5.jar")]
+    options.docletpath = configurations.gyroDoclet.files.asType(List)
 }
 
 checkstyle {
