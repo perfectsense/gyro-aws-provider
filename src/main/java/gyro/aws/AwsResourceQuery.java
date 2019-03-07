@@ -13,25 +13,17 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalResourceQuery<R> {
 
     protected List<Filter> createFilters(Map<String, String> query) {
-        List<Filter> apiFilters = new ArrayList<>();
-        for (Map.Entry<String, String> entry : query.entrySet()) {
-            Filter filter = Filter.builder()
-                .name(entry.getKey())
-                .values(entry.getValue())
-                .build();
-
-            apiFilters.add(filter);
-        }
-
-        return apiFilters;
+        return query.entrySet().stream()
+            .map(e -> Filter.builder().name(e.getKey()).values(e.getValue()).build())
+            .collect(Collectors.toList());
     }
 
     private SdkClient client;
