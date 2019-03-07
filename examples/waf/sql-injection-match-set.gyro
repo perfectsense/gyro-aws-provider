@@ -1,0 +1,10 @@
+import ../init as _
+
+aws::sql-injection-match-set sql-injection-match-set-example
+    name: "sql-injection-match-set-example"
+
+    sql-injection-match-tuple
+        type: "METHOD"
+        text-transformation: "NONE"
+    end
+end
