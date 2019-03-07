@@ -4,15 +4,14 @@ import gyro.aws.AwsResourceQuery;
 import gyro.core.diff.ResourceName;
 import gyro.lang.ast.query.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.Vpc;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ResourceName("vpc")
-public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
+public class VpcResourceQuery extends AwsResourceQuery<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;
     private String dhcpOptionsId;
@@ -153,23 +152,12 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
     }
 
     @Override
-    public List query(Map<String, String> filters) {
-        Ec2Client client = createClient(Ec2Client.class);
-        List<Filter> queryFilters = createFilters(filters);
-
-        return client.describeVpcs(r -> r.filters(queryFilters)).vpcs()
-            .stream()
-            .map(v -> new VpcResource(client, v))
-            .collect(Collectors.toList());
+    public List<Vpc> queryAws(Ec2Client client, Map<String, String> filters) {
+        return client.describeVpcs(r -> r.filters(createFilters(filters))).vpcs();
     }
 
     @Override
-    public List queryAll() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        return client.describeVpcs().vpcs()
-            .stream()
-            .map(v -> new VpcResource(client, v))
-            .collect(Collectors.toList());
+    public List<Vpc> queryAllAws(Ec2Client client) {
+        return client.describeVpcs().vpcs();
     }
 }

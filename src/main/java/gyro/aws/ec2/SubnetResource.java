@@ -47,7 +47,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     }
 
-    public SubnetResource(Subnet subnet) {
+    public SubnetResource(Ec2Client client, Subnet subnet) {
         setSubnetId(subnet.subnetId());
         setCidrBlock(subnet.cidrBlock());
         setAvailabilityZone(subnet.availabilityZone());

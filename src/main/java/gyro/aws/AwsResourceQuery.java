@@ -1,5 +1,6 @@
 package gyro.aws;
 
+import com.psddev.dari.util.TypeDefinition;
 import gyro.core.BeamException;
 import gyro.core.query.QueryField;
 import gyro.core.query.QueryType;
@@ -11,6 +12,7 @@ import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalResourceQuery<R> {
+public abstract class AwsResourceQuery<C extends SdkClient, A, R extends AwsResource> extends ExternalResourceQuery<R> {
 
     protected List<Filter> createFilters(Map<String, String> query) {
         return query.entrySet().stream()
@@ -81,5 +83,39 @@ public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalRe
         }
 
         return filters.isEmpty() ? queryAll() : query(filters);
+    }
+
+    protected abstract List<A> queryAws(C client, Map<String, String> filters);
+
+    @Override
+    public final List<R> query(Map<String, String> filters) {
+        TypeDefinition td = TypeDefinition.getInstance(getClass());
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 0);
+        return queryAws(createClient(clientClass), filters).stream().map(this::createResource).collect(Collectors.toList());
+    }
+
+    protected abstract List<A> queryAllAws(C client);
+
+    @Override
+    public final List<R> queryAll() {
+        TypeDefinition td = TypeDefinition.getInstance(getClass());
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 0);
+        return queryAllAws(createClient(clientClass)).stream().map(this::createResource).collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    private R createResource(A model) {
+        TypeDefinition td = TypeDefinition.getInstance(getClass());
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 0);
+        Class<A> modelClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 1);
+        Class<R> resourceClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 2);
+
+        try {
+            return resourceClass.getConstructor(clientClass, modelClass).newInstance(createClient(clientClass), model);
+        } catch (NoSuchMethodException nme) {
+            throw new BeamException(String.format("No constructor %s(%s, %s) is defined!", resourceClass, clientClass, modelClass));
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new BeamException(String.format("Unable to create resource of [%s]", resourceClass), e);
+        }
     }
 }

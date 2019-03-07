@@ -4,15 +4,14 @@ import gyro.aws.AwsResourceQuery;
 import gyro.core.diff.ResourceName;
 import gyro.lang.ast.query.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.Subnet;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ResourceName("subnet")
-public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
+public class SubnetResourceQuery extends AwsResourceQuery<Ec2Client, Subnet, SubnetResource> {
 
     private String availabilityZone;
     private String availabilityZoneId;
@@ -158,23 +157,12 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
     }
 
     @Override
-    public List<SubnetResource> query(Map<String, String> filters) {
-        Ec2Client client = createClient(Ec2Client.class);
-        List<Filter> queryFilters = createFilters(filters);
-
-        return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
-            .stream()
-            .map(s -> new SubnetResource(s))
-            .collect(Collectors.toList());
+    public List<Subnet> queryAws(Ec2Client client, Map<String, String> filters) {
+        return client.describeSubnets(r -> r.filters(createFilters(filters))).subnets();
     }
 
     @Override
-    public List<SubnetResource> queryAll() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        return client.describeSubnets().subnets()
-            .stream()
-            .map(s -> new SubnetResource(s))
-            .collect(Collectors.toList());
+    public List<Subnet> queryAllAws(Ec2Client client) {
+        return client.describeSubnets().subnets();
     }
 }
