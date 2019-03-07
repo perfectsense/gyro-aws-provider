@@ -71,8 +71,8 @@ public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalRe
             Object value = field.getValue(this);
             if (value instanceof Map) {
                 Map<?, ?> valueMap = (Map<?, ?>) value;
-                for (Object key : valueMap.keySet()) {
-                    filters.put(String.format("%s:%s", filterName, key), valueMap.get(key).toString());
+                for (Map.Entry<?, ?> entry : valueMap.entrySet()) {
+                    filters.put(String.format("%s:%s", filterName, entry.getKey()), entry.getValue().toString());
                 }
 
             } else if (value != null) {
