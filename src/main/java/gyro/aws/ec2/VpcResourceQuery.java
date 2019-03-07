@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @ResourceName("vpc")
 public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
 
-    private String cidrBlock;
+    private String cidr;
     private String ipv4CidrBlock;
     private String cidrBlockAssociationId;
     private String cidrBlockAssociationState;
@@ -29,13 +29,12 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
     private String tagKey;
     private String vpcId;
 
-    @ResourceFilter("cidr")
-    public String getCidrBlock() {
-        return cidrBlock;
+    public String getCidr() {
+        return cidr;
     }
 
-    public void setCidrBlock(String cidrBlock) {
-        this.cidrBlock = cidrBlock;
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
     }
 
     @ResourceFilter("cidr-block-association.cidr-block")
