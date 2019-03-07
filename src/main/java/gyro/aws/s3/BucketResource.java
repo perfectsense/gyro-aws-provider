@@ -12,9 +12,11 @@ import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
+import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.Payer;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -72,6 +74,40 @@ import java.util.stream.Collectors;
  *         end
  *     end
  *
+ * Example with life cycle rule
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::bucket bucket
+ *         name: bucket-example-with-lifecycle
+ *         enable-object-lock: true
+ *         tags:
+ *             Name: bucket-example-update
+ *         end
+ *         enable-accelerate-config: true
+ *         enable-version: true
+ *         enable-pay: false
+ *
+ *         lifecycle-rule
+ *             lifecycle-rule-name: "lifecycle-rule-name"
+ *             expired-object-delete-marker: false
+ *             status: "Disabled"
+ *
+ *             transition
+ *                 days: 40
+ *                 storage-class: "STANDARD_IA"
+ *             end
+ *
+ *             non-current-transition
+ *                 days: 40
+ *                 storage-class: "STANDARD_IA"
+ *             end
+ *
+ *             non-current-version-expiration-days: 403
+ *             incomplete-multipart-upload-days: 5
+ *         end
+ *     end
  */
 @ResourceName("bucket")
 public class BucketResource extends AwsResource {
@@ -83,6 +119,7 @@ public class BucketResource extends AwsResource {
     private Boolean enableVersion;
     private Boolean enablePay;
     private List<S3CorsRule> corsRule;
+    private List<S3LifecycleRule> lifecycleRule;
 
     public String getName() {
         return name;
@@ -187,6 +224,24 @@ public class BucketResource extends AwsResource {
         this.corsRule = corsRule;
     }
 
+    /**
+     * Configure the cross origin request policy for the bucket.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRule
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<S3LifecycleRule> getLifecycleRule() {
+        if (lifecycleRule == null) {
+            lifecycleRule = new ArrayList<>();
+        }
+
+        return lifecycleRule;
+    }
+
+    public void setLifecycleRule(List<S3LifecycleRule> lifecycleRule) {
+        this.lifecycleRule = lifecycleRule;
+    }
+
     @Override
     public boolean refresh() {
         S3Client client = createClient(S3Client.class);
@@ -206,6 +261,7 @@ public class BucketResource extends AwsResource {
             loadEnableVersion(client);
             loadEnablePay(client);
             loadCorsRules(client);
+            loadLifecycleRules(client);
 
             return true;
         }
@@ -241,6 +297,9 @@ public class BucketResource extends AwsResource {
             saveCorsRules(client);
         }
 
+        if (!getLifecycleRule().isEmpty()) {
+            saveLifecycleRules(client);
+        }
     }
 
     @Override
@@ -265,6 +324,7 @@ public class BucketResource extends AwsResource {
 
         saveCorsRules(client);
 
+        saveLifecycleRules(client);
     }
 
     @Override
@@ -412,4 +472,35 @@ public class BucketResource extends AwsResource {
         }
     }
 
+    private void loadLifecycleRules(S3Client client) {
+        try {
+            GetBucketLifecycleConfigurationResponse response = client.getBucketLifecycleConfiguration(
+                r -> r.bucket(getName())
+            );
+
+            getLifecycleRule().clear();
+            for (LifecycleRule lifecycleRule : response.rules()) {
+                getLifecycleRule().add(new S3LifecycleRule(lifecycleRule));
+            }
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("NoSuchLifecycleConfiguration")) {
+                throw ex;
+            }
+        }
+    }
+
+    private void saveLifecycleRules(S3Client client) {
+        if (getLifecycleRule().isEmpty()) {
+            client.deleteBucketLifecycle(
+                r -> r.bucket(getName())
+            );
+        } else {
+            client.putBucketLifecycleConfiguration(
+                r -> r.bucket(getName())
+                    .lifecycleConfiguration(
+                        l -> l.rules(getLifecycleRule().stream().map(S3LifecycleRule::toLifecycleRule).collect(Collectors.toList()))
+                    )
+            );
+        }
+    }
 }
