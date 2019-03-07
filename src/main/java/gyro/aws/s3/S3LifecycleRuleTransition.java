@@ -8,6 +8,15 @@ public class S3LifecycleRuleTransition extends Diffable {
     private Integer days;
     private String storageClass;
 
+    public S3LifecycleRuleTransition() {
+
+    }
+
+    public S3LifecycleRuleTransition(Transition transition) {
+        setDays(transition.days());
+        setStorageClass(transition.storageClassAsString());
+    }
+
     /**
      * Days after creation that versioning would start. Min value 30. (Required)
      */
@@ -29,15 +38,6 @@ public class S3LifecycleRuleTransition extends Diffable {
 
     public void setStorageClass(String storageClass) {
         this.storageClass = storageClass;
-    }
-
-    public S3LifecycleRuleTransition() {
-
-    }
-
-    public S3LifecycleRuleTransition(Transition transition) {
-        setDays(transition.days());
-        setStorageClass(transition.storageClassAsString());
     }
 
     @Override

@@ -8,6 +8,15 @@ public class S3LifecycleRuleNonCurrentTransition extends Diffable {
     private Integer days;
     private String storageClass;
 
+    public S3LifecycleRuleNonCurrentTransition() {
+
+    }
+
+    public S3LifecycleRuleNonCurrentTransition(NoncurrentVersionTransition noncurrentVersionTransition) {
+        setDays(noncurrentVersionTransition.noncurrentDays());
+        setStorageClass(noncurrentVersionTransition.storageClassAsString());
+    }
+
     /**
      * Days after creation that versioning would start. Min value 30. (Required)
      */
@@ -29,15 +38,6 @@ public class S3LifecycleRuleNonCurrentTransition extends Diffable {
 
     public void setStorageClass(String storageClass) {
         this.storageClass = storageClass;
-    }
-
-    public S3LifecycleRuleNonCurrentTransition() {
-
-    }
-
-    public S3LifecycleRuleNonCurrentTransition(NoncurrentVersionTransition noncurrentVersionTransition) {
-        setDays(noncurrentVersionTransition.noncurrentDays());
-        setStorageClass(noncurrentVersionTransition.storageClassAsString());
     }
 
     @Override

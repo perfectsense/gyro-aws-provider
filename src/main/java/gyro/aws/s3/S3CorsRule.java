@@ -13,6 +13,18 @@ public class S3CorsRule extends Diffable {
     private List<String> exposeHeaders;
     private Integer maxAgeSeconds;
 
+    public S3CorsRule() {
+
+    }
+
+    public S3CorsRule(CORSRule corsRule) {
+        setAllowedHeaders(corsRule.allowedHeaders());
+        setAllowedMethods(corsRule.allowedMethods());
+        setAllowedOrigins(corsRule.allowedOrigins());
+        setExposeHeaders(corsRule.exposeHeaders());
+        setMaxAgeSeconds(corsRule.maxAgeSeconds());
+    }
+
     /**
      * Allowed headers for the rule.
      */
@@ -71,18 +83,6 @@ public class S3CorsRule extends Diffable {
 
     public void setMaxAgeSeconds(Integer maxAgeSeconds) {
         this.maxAgeSeconds = maxAgeSeconds;
-    }
-
-    public S3CorsRule() {
-
-    }
-
-    public S3CorsRule(CORSRule corsRule) {
-        setAllowedHeaders(corsRule.allowedHeaders());
-        setAllowedMethods(corsRule.allowedMethods());
-        setAllowedOrigins(corsRule.allowedOrigins());
-        setExposeHeaders(corsRule.exposeHeaders());
-        setMaxAgeSeconds(corsRule.maxAgeSeconds());
     }
 
     @Override
