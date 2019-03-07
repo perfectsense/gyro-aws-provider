@@ -20,7 +20,7 @@ import java.util.Map;
 
 public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalResourceQuery<R> {
 
-    protected List<Filter> queryFilters(Map<String, String> query) {
+    protected List<Filter> createFilters(Map<String, String> query) {
         List<Filter> apiFilters = new ArrayList<>();
         for (String key : query.keySet()) {
             Filter filter = Filter.builder()

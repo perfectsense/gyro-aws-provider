@@ -160,7 +160,7 @@ public class SubnetResourceQuery extends AwsResourceQuery<SubnetResource> {
     @Override
     public List<SubnetResource> query(Map<String, String> filters) {
         Ec2Client client = createClient(Ec2Client.class);
-        List<Filter> queryFilters = queryFilters(filters);
+        List<Filter> queryFilters = createFilters(filters);
 
         return client.describeSubnets(r -> r.filters(queryFilters)).subnets()
             .stream()

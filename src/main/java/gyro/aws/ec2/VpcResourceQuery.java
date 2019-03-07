@@ -155,7 +155,7 @@ public class VpcResourceQuery extends AwsResourceQuery<VpcResource> {
     @Override
     public List query(Map<String, String> filters) {
         Ec2Client client = createClient(Ec2Client.class);
-        List<Filter> queryFilters = queryFilters(filters);
+        List<Filter> queryFilters = createFilters(filters);
 
         return client.describeVpcs(r -> r.filters(queryFilters)).vpcs()
             .stream()
