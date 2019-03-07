@@ -67,8 +67,8 @@ public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalRe
     public final List<R> query() {
         Map<String, String> filters = new HashMap<>();
         for (QueryField field : QueryType.getInstance(getClass()).getFields()) {
-            Object value = field.getValue(this);
             String filterName = field.getFilterName();
+            Object value = field.getValue(this);
             if (value instanceof Map) {
                 Map<?, ?> valueMap = (Map<?, ?>) value;
                 for (Object key : valueMap.keySet()) {
