@@ -1,0 +1,142 @@
+import ../init as _
+
+aws::bucket bucket-example
+    name: "gyro-bucket-example-with-lifecycle"
+    enable-object-lock: true
+    tags: {
+        Name: "bucket-example",
+        Name2: "something"
+    }
+    enable-accelerate-config: true
+    enable-version: true
+    enable-pay: false
+
+    lifecycle-rule
+        lifecycle-rule-name: "rule no prefix and no tag"
+        expired-object-delete-marker: false
+        status: "Disabled"
+
+        transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        non-current-transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        #version-expiration-days: 403
+        non-current-version-expiration-days: 403
+        incomplete-multipart-upload-days: 5
+    end
+
+    lifecycle-rule
+        lifecycle-rule-name: "rule prefix and Single tag"
+        prefix: "rule_prefix"
+        tags: {
+            Name: "single_tag"
+        }
+        status: "Disabled"
+
+        transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        non-current-transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        version-expiration-days: 403
+        non-current-version-expiration-days: 403
+    end
+
+    lifecycle-rule
+        lifecycle-rule-name: "rule prefix and Multiple tag"
+        prefix: "rule_prefix"
+        tags: {
+            Name1: "single_tag1",
+            Name2: "single_tag2"
+        }
+        status: "Disabled"
+
+        transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        non-current-transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        version-expiration-days: 403
+        non-current-version-expiration-days: 403
+    end
+
+    lifecycle-rule
+        lifecycle-rule-name: "rule prefix and No tag"
+        prefix: "rule_prefix"
+        status: "Disabled"
+
+        transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        non-current-transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        version-expiration-days: 403
+        non-current-version-expiration-days: 403
+        incomplete-multipart-upload-days: 6
+    end
+
+    lifecycle-rule
+        lifecycle-rule-name: "rule no prefix and Single tag"
+        tags: {
+            Name: "single_tag"
+        }
+        status: "Disabled"
+
+        transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        non-current-transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        version-expiration-days: 403
+        non-current-version-expiration-days: 403
+    end
+
+    lifecycle-rule
+        lifecycle-rule-name: "rule no prefix and Multiple tag"
+        tags: {
+            Name1: "single_tag1",
+            Name2: "single_tag2"
+        }
+        status: "Disabled"
+
+        transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        non-current-transition
+            days: 40
+            storage-class: "STANDARD_IA"
+        end
+
+        version-expiration-days: 403
+        non-current-version-expiration-days: 403
+    end
+
+end
