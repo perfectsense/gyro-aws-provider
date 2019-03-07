@@ -22,10 +22,10 @@ public abstract class AwsResourceQuery<R extends AwsResource> extends ExternalRe
 
     protected List<Filter> createFilters(Map<String, String> query) {
         List<Filter> apiFilters = new ArrayList<>();
-        for (String key : query.keySet()) {
+        for (Map.Entry<String, String> entry : query.entrySet()) {
             Filter filter = Filter.builder()
-                .name(key)
-                .values(query.get(key))
+                .name(entry.getKey())
+                .values(entry.getValue())
                 .build();
 
             apiFilters.add(filter);
