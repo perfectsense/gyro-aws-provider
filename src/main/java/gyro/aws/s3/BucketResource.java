@@ -9,7 +9,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
+import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
@@ -18,9 +20,12 @@ import software.amazon.awssdk.services.s3.model.Payer;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates an S3 bucket with enabled/disabled object lock.
@@ -40,6 +45,33 @@ import java.util.Set;
  *         enable-version: true
  *         enable-pay: false
  *     end
+ *
+ * Example with cors rule
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::bucket bucket
+ *         name: bucket-example-with-cors
+ *         enable-object-lock: true
+ *         tags:
+ *             Name: bucket-example-update
+ *         end
+ *         enable-accelerate-config: true
+ *         enable-version: true
+ *         enable-pay: false
+ *
+ *         cors-rule
+ *             allowed-origins: [
+ *                 "*"
+ *             ]
+ *             allowed-methods: [
+ *                 "PUT"
+ *             ]
+ *             max-age-seconds: 300
+ *         end
+ *     end
+ *
  */
 @ResourceName("bucket")
 public class BucketResource extends AwsResource {
@@ -50,6 +82,7 @@ public class BucketResource extends AwsResource {
     private Boolean enableAccelerateConfig;
     private Boolean enableVersion;
     private Boolean enablePay;
+    private List<S3CorsRule> corsRule;
 
     public String getName() {
         return name;
@@ -136,6 +169,24 @@ public class BucketResource extends AwsResource {
         this.enablePay = enablePay;
     }
 
+    /**
+     * Configure the cross origin request policy for the bucket.
+     *
+     * @subresource gyro.aws.s3.S3CorsRule
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<S3CorsRule> getCorsRule() {
+        if (corsRule == null) {
+            corsRule = new ArrayList<>();
+        }
+
+        return corsRule;
+    }
+
+    public void setCorsRule(List<S3CorsRule> corsRule) {
+        this.corsRule = corsRule;
+    }
+
     @Override
     public boolean refresh() {
         S3Client client = createClient(S3Client.class);
@@ -154,6 +205,7 @@ public class BucketResource extends AwsResource {
             loadAccelerateConfig(client);
             loadEnableVersion(client);
             loadEnablePay(client);
+            loadCorsRules(client);
 
             return true;
         }
@@ -184,6 +236,11 @@ public class BucketResource extends AwsResource {
         if (getEnablePay()) {
             saveEnablePay(client);
         }
+
+        if (!getCorsRule().isEmpty()) {
+            saveCorsRules(client);
+        }
+
     }
 
     @Override
@@ -194,17 +251,20 @@ public class BucketResource extends AwsResource {
             saveTags(client);
         }
 
-        if (changedProperties.contains("enableAccelerateConfig")) {
+        if (changedProperties.contains("enable-accelerate-config")) {
             saveAccelerateConfig(client);
         }
 
-        if (changedProperties.contains("enableVersion")) {
+        if (changedProperties.contains("enable-version")) {
             saveEnableVersion(client);
         }
 
-        if (changedProperties.contains("enablePay")) {
+        if (changedProperties.contains("enable-pay")) {
             saveEnablePay(client);
         }
+
+        saveCorsRules(client);
+
     }
 
     @Override
@@ -319,4 +379,37 @@ public class BucketResource extends AwsResource {
             .build()
         );
     }
+
+    private void loadCorsRules(S3Client client) {
+        try {
+            GetBucketCorsResponse response = client.getBucketCors(
+                r -> r.bucket(getName())
+            );
+
+            getCorsRule().clear();
+            for (CORSRule corsRule : response.corsRules()) {
+                getCorsRule().add(new S3CorsRule(corsRule));
+            }
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("NoSuchCORSConfiguration")) {
+                throw ex;
+            }
+        }
+    }
+
+    private void saveCorsRules(S3Client client) {
+        if (getCorsRule().isEmpty()) {
+            client.deleteBucketCors(
+                r -> r.bucket(getName())
+            );
+        } else {
+            client.putBucketCors(
+                r -> r.bucket(getName())
+                    .corsConfiguration(c -> c.corsRules(
+                        getCorsRule().stream().map(S3CorsRule::toCorsRule).collect(Collectors.toList())
+                    ))
+            );
+        }
+    }
+
 }
