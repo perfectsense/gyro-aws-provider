@@ -22,7 +22,7 @@ aws::network-acl network-acl
     end
 
     tags: {
-            Name: "network-acl-exampler"
+            Name: "network-acl-example"
     }
 end
 
