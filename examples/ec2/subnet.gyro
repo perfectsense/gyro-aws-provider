@@ -1,15 +1,15 @@
 import ../init as _
 
-aws::vpc vpc-123
+aws::vpc vpc
     cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: "vpc-123"
+        Name: "vpc-example"
     }
 end
 
-aws::network-acl network-acl-1234
-    vpc-id: $(aws::vpc vpc-123 | vpc-id)
+aws::network-acl network-acl
+    vpc-id: $(aws::vpc vpc | vpc-id)
 
     rule
             cidr-block: ["0.0.0.0/0"]
@@ -22,14 +22,14 @@ aws::network-acl network-acl-1234
     end
 
     tags: {
-            Name: "network-acl-1234"
+            Name: "network-acl-exampler"
     }
 end
 
 for zone, cidr in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
     aws::subnet "subnet-$(zone)"
-        vpc-id: $(aws::vpc vpc-123 | vpc-id)
-        acl-id: $aws::network-acl network-acl-1234
+        vpc-id: $(aws::vpc vpc | vpc-id)
+        acl-id: $(aws::network-acl network-acl | network-acl-id)
         availability-zone: $(zone)
         cidr-block: $(cidr)
 

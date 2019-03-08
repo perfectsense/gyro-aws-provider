@@ -33,6 +33,7 @@ import java.util.Set;
  *
  *     aws::subnet example-subnet
  *         vpc-id: $(aws::vpc example-vpc | vpc-id)
+ *         acl-id: $(aws::network-acl example-network-acl | network-acl-id)
  *         availability-zone: us-east-1a
  *         cidr-block: 10.0.0.0/24
  *     end
@@ -144,7 +145,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     }
 
     /**
-     * The Association ID of the Network ACL associated to the subnet.
+     * The Association ID of the Network ACL currently associated to the subnet.
      */
     public String getAclAssociationId() {
         return aclAssociationId;
@@ -153,7 +154,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     public void setAclAssociationId(String aclAssociationId) {
         this.aclAssociationId = aclAssociationId;
     }
-
 
     @Override
     public boolean doRefresh() {
@@ -253,15 +253,11 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
             client.modifySubnetAttribute(request);
         }
 
-        if (getAclId() != null && getAclAssociationId() != null) {
-            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
+        try {
+            client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
                 .networkAclId(getAclId()));
-            setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        } catch (Ec2Exception ex) {
+            throw new BeamException("Please update again to associate the second subnet");
         }
     }
 
