@@ -20,10 +20,28 @@ public abstract class AwsResource extends Resource {
     }
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass, String region, String endpoint) {
+        if (client != null) {
+            return (T) client;
+        }
+
+        AwsCredentials credentials = (AwsCredentials) resourceCredentials();
+        if (credentials == null) {
+            throw new BeamException("No credentials associated with the resource.");
+        }
+
+        client = createClient(clientClass, credentials, region, endpoint);
+        return (T) client;
+    }
+
+    public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials) {
+        return createClient(clientClass, credentials, null, null);
+    }
+
+    public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
+
         try {
-            AwsCredentials credentials = (AwsCredentials) resourceCredentials();
             if (credentials == null) {
-                throw new BeamException("No credentials associated with the resource.");
+                throw new BeamException(String.format("Unable to create %s, no credentials specified!", clientClass));
             }
 
             AwsCredentialsProvider provider = credentials.provider();
@@ -38,12 +56,10 @@ public abstract class AwsResource extends Resource {
                 builder.endpointOverride(URI.create(endpoint));
             }
 
-            client = (T) builder.build();
+            return (T) builder.build();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new BeamException(String.format("Unable to create %s !", clientClass), ex);
         }
-
-        return (T) client;
     }
 
     public Class resourceCredentialsClass() {
