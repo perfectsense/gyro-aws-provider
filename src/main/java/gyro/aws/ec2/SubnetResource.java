@@ -253,11 +253,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
             client.modifySubnetAttribute(request);
         }
 
+        // After updating the first subnet with the new nacl, need to gyro up again to load the new association ID.
         try {
             client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
                 .networkAclId(getAclId()));
         } catch (Ec2Exception ex) {
-            throw new BeamException("Please update again to associate the second subnet");
+            throw new BeamException("Please gyro up again to associate this subnet");
         }
     }
 
