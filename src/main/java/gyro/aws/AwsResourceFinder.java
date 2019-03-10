@@ -51,22 +51,22 @@ public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsRes
         return filters.isEmpty() ? findAll() : find(filters);
     }
 
-    protected abstract List<A> queryAws(C client, Map<String, String> filters);
+    protected abstract List<A> findAws(C client, Map<String, String> filters);
 
     @Override
     public final List<R> find(Map<String, String> filters) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
         Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        return queryAws(createClient(clientClass), filters).stream().map(this::createResource).collect(Collectors.toList());
+        return findAws(createClient(clientClass), filters).stream().map(this::createResource).collect(Collectors.toList());
     }
 
-    protected abstract List<A> queryAllAws(C client);
+    protected abstract List<A> findAllAws(C client);
 
     @Override
     public final List<R> findAll() {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
         Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        return queryAllAws(createClient(clientClass)).stream().map(this::createResource).collect(Collectors.toList());
+        return findAllAws(createClient(clientClass)).stream().map(this::createResource).collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")

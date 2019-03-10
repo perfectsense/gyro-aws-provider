@@ -157,12 +157,12 @@ public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, S
     }
 
     @Override
-    public List<Subnet> queryAws(Ec2Client client, Map<String, String> filters) {
+    public List<Subnet> findAws(Ec2Client client, Map<String, String> filters) {
         return client.describeSubnets(r -> r.filters(createFilters(filters))).subnets();
     }
 
     @Override
-    public List<Subnet> queryAllAws(Ec2Client client) {
+    public List<Subnet> findAllAws(Ec2Client client) {
         return client.describeSubnets().subnets();
     }
 }

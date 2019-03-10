@@ -152,12 +152,12 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
     }
 
     @Override
-    public List<Vpc> queryAws(Ec2Client client, Map<String, String> filters) {
+    public List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
         return client.describeVpcs(r -> r.filters(createFilters(filters))).vpcs();
     }
 
     @Override
-    public List<Vpc> queryAllAws(Ec2Client client) {
+    public List<Vpc> findAllAws(Ec2Client client) {
         return client.describeVpcs().vpcs();
     }
 }
