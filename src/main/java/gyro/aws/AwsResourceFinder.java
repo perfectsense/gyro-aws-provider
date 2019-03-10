@@ -4,7 +4,7 @@ import com.psddev.dari.util.TypeDefinition;
 import gyro.core.BeamException;
 import gyro.core.query.QueryField;
 import gyro.core.query.QueryType;
-import gyro.lang.ExternalResourceQuery;
+import gyro.lang.ResourceFinder;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AwsResourceQuery<C extends SdkClient, A, R extends AwsResource> extends ExternalResourceQuery<R> {
+public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsResource> extends ResourceFinder<R> {
 
     private SdkClient client;
 
@@ -32,7 +32,6 @@ public abstract class AwsResourceQuery<C extends SdkClient, A, R extends AwsReso
             .collect(Collectors.toList());
     }
 
-    @Override
     public final List<R> query() {
         Map<String, String> filters = new HashMap<>();
         for (QueryField field : QueryType.getInstance(getClass()).getFields()) {
@@ -49,33 +48,33 @@ public abstract class AwsResourceQuery<C extends SdkClient, A, R extends AwsReso
             }
         }
 
-        return filters.isEmpty() ? queryAll() : query(filters);
+        return filters.isEmpty() ? findAll() : find(filters);
     }
 
     protected abstract List<A> queryAws(C client, Map<String, String> filters);
 
     @Override
-    public final List<R> query(Map<String, String> filters) {
+    public final List<R> find(Map<String, String> filters) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
-        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 0);
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
         return queryAws(createClient(clientClass), filters).stream().map(this::createResource).collect(Collectors.toList());
     }
 
     protected abstract List<A> queryAllAws(C client);
 
     @Override
-    public final List<R> queryAll() {
+    public final List<R> findAll() {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
-        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 0);
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
         return queryAllAws(createClient(clientClass)).stream().map(this::createResource).collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
     private R createResource(A model) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
-        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 0);
-        Class<A> modelClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 1);
-        Class<R> resourceClass = td.getInferredGenericTypeArgumentClass(AwsResourceQuery.class, 2);
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
+        Class<A> modelClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 1);
+        Class<R> resourceClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 2);
 
         try {
             return resourceClass.getConstructor(clientClass, modelClass).newInstance(createClient(clientClass), model);

@@ -1,6 +1,6 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsResourceQuery;
+import gyro.aws.AwsResourceFinder;
 import gyro.core.diff.ResourceName;
 import gyro.lang.ast.query.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @ResourceName("vpc")
-public class VpcResourceQuery extends AwsResourceQuery<Ec2Client, Vpc, VpcResource> {
+public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;
     private String dhcpOptionsId;
