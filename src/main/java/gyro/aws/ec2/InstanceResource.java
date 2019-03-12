@@ -95,6 +95,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
     private String instanceState;
     private Date launchDate;
 
+    public InstanceResource() {
+
+    }
+
+    public InstanceResource(Instance instance) {
+        init(instance);
+    }
+
     /**
      * Instance ID of this instance.
      *
@@ -463,27 +471,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
                 }
 
                 for (Instance instance : instances) {
-                    setAmiId(instance.imageId());
-                    setCoreCount(instance.cpuOptions().coreCount());
-                    setThreadPerCore(instance.cpuOptions().threadsPerCore());
-                    setEbsOptimized(instance.ebsOptimized());
-                    setConfigureHibernateOption(instance.hibernationOptions().configured());
-                    setInstanceType(instance.instanceType().toString());
-                    setKeyName(instance.keyName());
-                    setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-                    setSecurityGroupIds(instance.securityGroups().stream().map(GroupIdentifier::groupId).collect(Collectors.toList()));
-                    setSubnetId(instance.subnetId());
-                    setEnableEnaSupport(instance.enaSupport());
-                    setPublicDnsName(instance.publicDnsName());
-                    setPublicIpAddress(instance.publicIpAddress());
-                    setPrivateIpAddress(instance.privateIpAddress());
-                    setInstanceState(instance.state().nameAsString());
-                    setInstanceLaunchDate(Date.from(instance.launchTime()));
-                    setCapacityReservation(
-                        instance.capacityReservationSpecification().capacityReservationTarget() != null
-                            ? instance.capacityReservationSpecification().capacityReservationTarget().capacityReservationId()
-                            : instance.capacityReservationSpecification().capacityReservationPreferenceAsString()
-                    );
+                    init(instance);
 
                     if (instance.state().name() == InstanceStateName.TERMINATED) {
                         return false;
@@ -685,6 +673,33 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
         }
 
         return sb.toString();
+    }
+
+    private void init(Instance instance) {
+        setAmiId(instance.imageId());
+        setCoreCount(instance.cpuOptions().coreCount());
+        setThreadPerCore(instance.cpuOptions().threadsPerCore());
+        setEbsOptimized(instance.ebsOptimized());
+        setConfigureHibernateOption(instance.hibernationOptions().configured());
+        setInstanceType(instance.instanceType().toString());
+        setKeyName(instance.keyName());
+        setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
+        setSecurityGroupIds(instance.securityGroups().stream().map(GroupIdentifier::groupId).collect(Collectors.toList()));
+        setSubnetId(instance.subnetId());
+        setEnableEnaSupport(instance.enaSupport());
+        setPublicDnsName(instance.publicDnsName());
+        setPublicIpAddress(instance.publicIpAddress());
+        setPrivateIpAddress(instance.privateIpAddress());
+        setInstanceState(instance.state().nameAsString());
+        setInstanceLaunchDate(Date.from(instance.launchTime()));
+
+        if (instance.capacityReservationSpecification() != null) {
+            setCapacityReservation(
+                instance.capacityReservationSpecification().capacityReservationTarget() != null
+                    ? instance.capacityReservationSpecification().capacityReservationTarget().capacityReservationId()
+                    : instance.capacityReservationSpecification().capacityReservationPreferenceAsString()
+            );
+        }
     }
 
     private void validate(Ec2Client client, boolean isCreate) {

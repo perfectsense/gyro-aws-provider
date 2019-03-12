@@ -1,7 +1,10 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.ec2.InstanceResource;
 import gyro.core.BeamException;
+import gyro.core.BeamInstance;
+import gyro.core.BeamInstances;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -22,7 +25,11 @@ import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.ScheduledUpdateGroupAction;
 import software.amazon.awssdk.services.autoscaling.model.Tag;
 import software.amazon.awssdk.services.autoscaling.model.TagDescription;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Instance;
+import software.amazon.awssdk.services.ec2.model.Reservation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,7 +97,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("auto-scaling-group")
-public class AutoScalingGroupResource extends AwsResource {
+public class AutoScalingGroupResource extends AwsResource implements BeamInstances {
 
     private String autoScalingGroupName;
     private String launchTemplateId;
@@ -691,6 +698,35 @@ public class AutoScalingGroupResource extends AwsResource {
         return sb.toString();
     }
 
+    @Override
+    public List<BeamInstance> getInstances() {
+        AutoScalingClient client = createClient(AutoScalingClient.class);
+
+        DescribeAutoScalingGroupsResponse response = client.describeAutoScalingGroups(r -> r.autoScalingGroupNames(getAutoScalingGroupName()));
+        AutoScalingGroup group = response.autoScalingGroups().size() == 1 ? response.autoScalingGroups().get(0) : null;
+        if (group == null) {
+            throw new BeamException("Unable to load autoscaling group: " + getAutoScalingGroupName());
+        }
+
+        List<String> instanceIds = group.instances()
+            .stream()
+            .map(i -> i.instanceId())
+            .collect(Collectors.toList());
+
+        Ec2Client ec2Client = createClient(Ec2Client.class);
+        DescribeInstancesResponse instancesResponse = ec2Client.describeInstances(r -> r.instanceIds(instanceIds));
+
+        List<BeamInstance> instances = new ArrayList<>();
+        for (Reservation reservation : instancesResponse.reservations()) {
+            instances.addAll(reservation.instances()
+                .stream()
+                .map(i -> new InstanceResource(i))
+                .collect(Collectors.toList()));
+        }
+
+        return instances;
+    }
+
     private List<Tag> getAutoScaleGroupTags(Map<String, String> localTags, List<String> passToInstanceTags) {
         HashSet<String> passToInstanceTagSet = new HashSet<>(passToInstanceTags);
 
@@ -940,4 +976,5 @@ public class AutoScalingGroupResource extends AwsResource {
             );
         }
     }
+
 }
