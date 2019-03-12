@@ -43,6 +43,18 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     private Boolean mapPublicIpOnLaunch;
     private String subnetId;
 
+    public SubnetResource() {
+
+    }
+
+    public SubnetResource(Ec2Client client, Subnet subnet) {
+        setSubnetId(subnet.subnetId());
+        setCidrBlock(subnet.cidrBlock());
+        setAvailabilityZone(subnet.availabilityZone());
+        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
+        setVpcId(subnet.vpcId());
+    }
+
     /**
      * The ID of the VPC to create the subnet in. (Required)
      */
@@ -227,4 +239,5 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
         return sb.toString();
     }
+
 }

@@ -1,11 +1,11 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
-import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -56,6 +56,26 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     // Read-only
     private String ownerId;
     private Boolean defaultVpc;
+
+    public VpcResource() {
+
+    }
+
+    public VpcResource(Ec2Client client, Vpc vpc) {
+        setVpcId(vpc.vpcId());
+        setCidrBlock(vpc.cidrBlock());
+        setInstanceTenancy(vpc.instanceTenancyAsString());
+        setDhcpOptionsId(vpc.dhcpOptionsId());
+        setOwnerId(vpc.ownerId());
+        setDefaultVpc(vpc.isDefault());
+
+        for (VpcIpv6CidrBlockAssociation association : vpc.ipv6CidrBlockAssociationSet()) {
+            setProvideIpv6CidrBlock(true);
+            break;
+        }
+
+        loadSettings(client);
+    }
 
     public String getId() {
         return getVpcId();
