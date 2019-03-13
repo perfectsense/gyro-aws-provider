@@ -22,14 +22,10 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *         target
- *             id: $(aws::instance instance-us-east-2a | instance-id)
- *             port: "80"
- *         end
- *
- *         target
- *             id: $(aws::instance instance-us-east-2b | instance-id)
- *             port: "443"
+ *         aws::target target
+ *             id: "i-5543455454435"
+ *             port: 81
+ *             target-group-arn: $(aws::target-group webserver-rta-1 | arn)
  *         end
  */
 

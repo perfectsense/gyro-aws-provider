@@ -22,7 +22,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::nlb nlb-example
- *         load-balancer-name: "nlb-example"
+ *         name: "nlb-example"
  *         ip-address-type: "ipv4"
  *         scheme: "internet-facing"
  *

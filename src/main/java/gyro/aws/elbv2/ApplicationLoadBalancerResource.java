@@ -21,7 +21,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::alb alb-example
- *         load-balancer-name: "alb-example"
+ *         name: "alb-example"
  *         ip-address-type: "ipv4"
  *         scheme: "internal"
  *         security-groups: [
