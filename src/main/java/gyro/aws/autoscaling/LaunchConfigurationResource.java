@@ -290,7 +290,7 @@ public class LaunchConfigurationResource extends AwsResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Launch Configuration");
+        sb.append("launch configuration");
 
         if (!ObjectUtils.isBlank(getLaunchConfigurationName())) {
             sb.append(" - ").append(getLaunchConfigurationName());
