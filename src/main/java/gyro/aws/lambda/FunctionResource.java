@@ -8,12 +8,15 @@ import gyro.core.BeamCore;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
+import software.amazon.awssdk.services.lambda.model.GetAliasResponse;
+import software.amazon.awssdk.services.lambda.model.GetFunctionConfigurationResponse;
 import software.amazon.awssdk.services.lambda.model.GetFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.Layer;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
@@ -33,6 +36,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a lambda function.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::lambda-function lambda-function-example
+ *         function-name: "testFunction"
+ *         handler: "index.handler"
+ *         runtime: "nodejs8.10"
+ *         role-arn: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
+ *         content-zip-path: "example-function.zip"
+ *
+ *         tags: {
+ *             Name: "lambda-function-example"
+ *         }
+ *     end
+ */
 @ResourceName("lambda-function")
 public class FunctionResource extends AwsResource {
     private String functionName;
@@ -53,7 +76,6 @@ public class FunctionResource extends AwsResource {
     private Map<String, String> tags;
     private List<String> securityGroupIds;
     private List<String> subnetIds;
-    private Boolean publish;
     private List<String> lambdaLayers;
     private Boolean updateCode;
     private Integer reservedConcurrentExecutions;
@@ -67,6 +89,9 @@ public class FunctionResource extends AwsResource {
     private String lastModified;
     private String version;
 
+    /**
+     * The name of the function. (Required)
+     */
     public String getFunctionName() {
         return functionName;
     }
@@ -75,15 +100,21 @@ public class FunctionResource extends AwsResource {
         this.functionName = functionName;
     }
 
+    /**
+     * The description of the function.
+     */
+    @ResourceDiffProperty(updatable = true)
     public String getDescription() {
         return description;
     }
 
-    @ResourceDiffProperty(updatable = true)
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     * The s3 bucket name where the function code resides. Required if field 'content-zip-path' not set.
+     */
     public String getS3Bucket() {
         return s3Bucket;
     }
@@ -92,6 +123,9 @@ public class FunctionResource extends AwsResource {
         this.s3Bucket = s3Bucket;
     }
 
+    /**
+     * The s3 object key where the function code resides. Required if field 'content-zip-path' not set.
+     */
     public String getS3Key() {
         return s3Key;
     }
@@ -100,6 +134,9 @@ public class FunctionResource extends AwsResource {
         this.s3Key = s3Key;
     }
 
+    /**
+     * The s3 object version where the function code resides. Required if field 'content-zip-path' not set.
+     */
     public String getS3ObjectVersion() {
         return s3ObjectVersion;
     }
@@ -108,6 +145,9 @@ public class FunctionResource extends AwsResource {
         this.s3ObjectVersion = s3ObjectVersion;
     }
 
+    /**
+     * The zip file location where the function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
+     */
     public String getContentZipPath() {
         return contentZipPath;
     }
@@ -116,6 +156,9 @@ public class FunctionResource extends AwsResource {
         this.contentZipPath = contentZipPath;
     }
 
+    /**
+     * The role arn to be associated with this function. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getRoleArn() {
         return roleArn;
@@ -125,6 +168,9 @@ public class FunctionResource extends AwsResource {
         this.roleArn = roleArn;
     }
 
+    /**
+     * The runtime language for this function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getRuntime() {
         return runtime;
@@ -134,6 +180,9 @@ public class FunctionResource extends AwsResource {
         this.runtime = runtime;
     }
 
+    /**
+     * The name of the method within your code that Lambda calls to execute the function. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getHandler() {
         return handler;
@@ -143,8 +192,15 @@ public class FunctionResource extends AwsResource {
         this.handler = handler;
     }
 
+    /**
+     * The amount of time that Lambda allows a function to run before stopping it. Defaults to 3. Valid values between ``3`` and ``900``.
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getTimeout() {
+        if (timeout == null) {
+            timeout = 3;
+        }
+
         return timeout;
     }
 
@@ -152,8 +208,15 @@ public class FunctionResource extends AwsResource {
         this.timeout = timeout;
     }
 
+    /**
+     * The amount of memory that the function has access to. Defaults to 128. valid values are multiple of ``64``.
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getMemorySize() {
+        if (memorySize == null) {
+            memorySize = 128;
+        }
+
         return memorySize;
     }
 
@@ -161,8 +224,15 @@ public class FunctionResource extends AwsResource {
         this.memorySize = memorySize;
     }
 
+    /**
+     * The tracking mode of the function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
+     */
     @ResourceDiffProperty(updatable = true)
     public String getTrackingConfig() {
+        if (trackingConfig == null) {
+            trackingConfig = "PassThrough";
+        }
+
         return trackingConfig;
     }
 
@@ -170,6 +240,9 @@ public class FunctionResource extends AwsResource {
         this.trackingConfig = trackingConfig;
     }
 
+    /**
+     * The arn of SQS queue or an SNS topic to be associated with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDeadLetterConfigArn() {
         if (deadLetterConfigArn == null) {
@@ -183,6 +256,9 @@ public class FunctionResource extends AwsResource {
         this.deadLetterConfigArn = deadLetterConfigArn;
     }
 
+    /**
+     * The arn of KMS key to be associated with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getKmsKeyArn() {
         return kmsKeyArn;
@@ -192,6 +268,9 @@ public class FunctionResource extends AwsResource {
         this.kmsKeyArn = kmsKeyArn;
     }
 
+    /**
+     * A map of key value pair acting as variables accessible from the code of with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getEnvironment() {
         if (environment == null) {
@@ -205,6 +284,9 @@ public class FunctionResource extends AwsResource {
         this.environment = environment;
     }
 
+    /**
+     * The set of tags be associated with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -218,6 +300,9 @@ public class FunctionResource extends AwsResource {
         this.tags = tags;
     }
 
+    /**
+     * The set of security group be associated with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
@@ -233,6 +318,9 @@ public class FunctionResource extends AwsResource {
         this.securityGroupIds = securityGroupIds;
     }
 
+    /**
+     * The set of subnet be associated with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
@@ -248,18 +336,9 @@ public class FunctionResource extends AwsResource {
         this.subnetIds = subnetIds;
     }
 
-    public Boolean getPublish() {
-        if (publish == null) {
-            publish = false;
-        }
-
-        return publish;
-    }
-
-    public void setPublish(Boolean publish) {
-        this.publish = publish;
-    }
-
+    /**
+     * The set of lambda layers be associated with the function.
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getLambdaLayers() {
         if (lambdaLayers == null) {
@@ -275,6 +354,10 @@ public class FunctionResource extends AwsResource {
         this.lambdaLayers = lambdaLayers;
     }
 
+    /**
+     * The flag to update the code of the function. Defaults to false.
+     */
+    @ResourceDiffProperty(updatable = true)
     public Boolean getUpdateCode() {
         if (updateCode == null) {
             updateCode = false;
@@ -287,6 +370,9 @@ public class FunctionResource extends AwsResource {
         this.updateCode = updateCode;
     }
 
+    /**
+     * The number of simultaneous executions to reserve for the function..
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getReservedConcurrentExecutions() {
         return reservedConcurrentExecutions;
@@ -296,6 +382,7 @@ public class FunctionResource extends AwsResource {
         this.reservedConcurrentExecutions = reservedConcurrentExecutions;
     }
 
+    @ResourceOutput
     public String getFunctionArn() {
         return functionArn;
     }
@@ -304,6 +391,7 @@ public class FunctionResource extends AwsResource {
         this.functionArn = functionArn;
     }
 
+    @ResourceOutput
     public String getFunctionArnNoVersion() {
         return functionArnNoVersion;
     }
@@ -312,6 +400,7 @@ public class FunctionResource extends AwsResource {
         this.functionArnNoVersion = functionArnNoVersion;
     }
 
+    @ResourceOutput
     public String getRevisionId() {
         return revisionId;
     }
@@ -320,6 +409,7 @@ public class FunctionResource extends AwsResource {
         this.revisionId = revisionId;
     }
 
+    @ResourceOutput
     public String getMasterArn() {
         return masterArn;
     }
@@ -328,6 +418,7 @@ public class FunctionResource extends AwsResource {
         this.masterArn = masterArn;
     }
 
+    @ResourceOutput
     public String getLastModified() {
         return lastModified;
     }
@@ -336,6 +427,7 @@ public class FunctionResource extends AwsResource {
         this.lastModified = lastModified;
     }
 
+    @ResourceOutput
     public String getVersion() {
         return version;
     }
@@ -351,7 +443,7 @@ public class FunctionResource extends AwsResource {
         try {
 
             GetFunctionResponse response = client.getFunction(
-                r -> r.functionName(getFunctionName()).qualifier(getVersion())
+                r -> r.functionName(getFunctionName()).qualifier("$LATEST")
             );
 
             setUpdateCode(false);
@@ -372,7 +464,7 @@ public class FunctionResource extends AwsResource {
             setSecurityGroupIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().securityGroupIds()) : null);
             setSubnetIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().subnetIds()) : null);
             setFunctionArn(configuration.functionArn());
-            setFunctionArnNoVersion(getFunctionArn().replace(":" + getVersion(), ""));
+            setFunctionArnNoVersion(getFunctionArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
             setLastModified(configuration.lastModified());
             setMasterArn(configuration.masterArn());
             setRevisionId(configuration.revisionId());
@@ -407,7 +499,7 @@ public class FunctionResource extends AwsResource {
             .tracingConfig(t -> t.mode(getTrackingConfig()))
             .kmsKeyArn(getKmsKeyArn())
             .tags(getTags())
-            .publish(getPublish())
+            .publish(true)
             .layers(getLambdaLayers());
 
         if (!ObjectUtils.isBlank(getContentZipPath())) {
@@ -471,18 +563,21 @@ public class FunctionResource extends AwsResource {
         }
 
         if (changeSet.contains("update-code")) {
-            UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
-                .functionName(getFunctionName())
-                .publish(getPublish())
-                .revisionId(getRevisionId());
+            if (getUpdateCode()) {
+                UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
+                    .functionName(getFunctionName())
+                    .publish(false)
+                    .revisionId(getRevisionId());
 
-            if (!ObjectUtils.isBlank(getContentZipPath())) {
-                builder = builder.zipFile(getZipFile());
-            } else {
-                builder = builder.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion());
+                if (!ObjectUtils.isBlank(getContentZipPath())) {
+                    builder = builder.zipFile(getZipFile());
+                } else {
+                    builder = builder.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion());
+                }
+
+                client.updateFunctionCode(builder.build());
+                setUpdateCode(false);
             }
-
-            client.updateFunctionCode(builder.build());
 
             changeSet.remove("update-code");
         }
@@ -526,8 +621,6 @@ public class FunctionResource extends AwsResource {
                     .deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()))
             );
         }
-
-
     }
 
     @Override
