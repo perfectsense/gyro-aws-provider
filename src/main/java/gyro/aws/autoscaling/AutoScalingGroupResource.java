@@ -311,7 +311,11 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
         }
-        return subnetIds;
+
+        List<String> sorted = new ArrayList<>(subnetIds);
+        Collections.sort(sorted);
+
+        return sorted;
     }
 
     public void setSubnetIds(List<String> subnetIds) {
@@ -748,6 +752,9 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
     }
 
     private void loadTags(List<TagDescription> tags) {
+        getTags().clear();
+        getPropagateAtLaunchTags().clear();
+
         for (TagDescription tag : tags) {
             getTags().put(tag.key(), tag.value());
 
