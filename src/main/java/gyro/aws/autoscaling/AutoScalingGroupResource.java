@@ -748,6 +748,9 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
     }
 
     private void loadTags(List<TagDescription> tags) {
+        getTags().clear();
+        getPropagateAtLaunchTags().clear();
+
         for (TagDescription tag : tags) {
             getTags().put(tag.key(), tag.value());
 
