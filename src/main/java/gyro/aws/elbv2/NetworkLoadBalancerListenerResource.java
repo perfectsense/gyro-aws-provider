@@ -39,6 +39,8 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
 
     /**
      *  List of default actions associated with the listener (Optional)
+     *
+     *  @subresource gyro.aws.elbv2.ActionResource
      */
     @ResourceDiffProperty(subresource = true, updatable = true)
     public NetworkActionResource getDefaultAction() {

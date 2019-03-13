@@ -56,6 +56,8 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
     /**
      *  List of actions associated with the rule (Required)
+     *
+     *  @subresource gyro.aws.elbv2.ActionResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<ActionResource> getAction() {
@@ -72,6 +74,8 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
     /**
      *  List of conditions associated with the rule (Required)
+     *
+     *  @subresource gyro.aws.elbv2.ConditionResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<ConditionResource> getCondition() {
