@@ -232,6 +232,10 @@ public class LaunchConfigurationResource extends AwsResource {
                 r -> r.launchConfigurationNames(getLaunchConfigurationName())
             );
 
+            if (response.launchConfigurations().size() == 0) {
+                return false;
+            }
+
             for (LaunchConfiguration launchConfiguration : response.launchConfigurations()) {
 
                 setArn(launchConfiguration.launchConfigurationARN());
