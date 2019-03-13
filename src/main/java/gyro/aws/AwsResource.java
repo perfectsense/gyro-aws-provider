@@ -80,7 +80,7 @@ public abstract class AwsResource extends Resource {
                 counter--;
 
                 if (counter < 0) {
-                    throw new BeamException("AWS service request failed!\n" + error.getMessage());
+                    throw new BeamException("AWS service request failed!\n" + error.getMessage(), error);
                 }
 
                 try {
