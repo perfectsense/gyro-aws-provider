@@ -28,7 +28,6 @@ import java.util.Set;
  *         end
  */
 
-@ResourceName(parent = "target-group", value = "target")
 public class TargetResource extends AwsResource {
 
     private String availabilityZone;
@@ -37,12 +36,6 @@ public class TargetResource extends AwsResource {
 
     public TargetResource() {
 
-    }
-
-    public TargetResource(TargetDescription description) {
-        setAvailabilityZone(description.availabilityZone());
-        setId(description.id());
-        setPort(description.port());
     }
 
     /**
@@ -85,19 +78,13 @@ public class TargetResource extends AwsResource {
 
     @Override
     public boolean refresh() {
-        return true;
     }
 
     @Override
     public void create() {
-        if (parentResource().change() instanceof Create) {
-            return;
-        }
-
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.registerTargets(r -> r.targets(toTarget())
                                     .targetGroupArn(getTargetGroupArn()));
-
     }
 
     @Override
@@ -105,14 +92,9 @@ public class TargetResource extends AwsResource {
 
     @Override
     public void delete() {
-        if (parentResource().change() instanceof Delete) {
-            return;
-        }
-
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deregisterTargets(r -> r.targets(toTarget())
                                         .targetGroupArn(getTargetGroupArn()));
-
     }
 
     @Override
@@ -135,15 +117,5 @@ public class TargetResource extends AwsResource {
                 .id(getId())
                 .port(getPort())
                 .build();
-    }
-
-    public String getTargetGroupArn() {
-        TargetGroupResource parent = (TargetGroupResource) parentResource();
-
-        if (parent != null) {
-            return parent.getTargetGroupArn();
-        }
-
-        return null;
     }
 }
