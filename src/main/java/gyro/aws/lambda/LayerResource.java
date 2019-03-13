@@ -1,0 +1,238 @@
+package gyro.aws.lambda;
+
+import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.AwsResource;
+import gyro.core.BeamException;
+import gyro.core.diff.ResourceName;
+import gyro.lang.Resource;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
+import software.amazon.awssdk.services.lambda.model.PublishLayerVersionRequest;
+import software.amazon.awssdk.services.lambda.model.PublishLayerVersionResponse;
+import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.lambda.model.Runtime;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@ResourceName("lambda-layer")
+public class LayerResource extends AwsResource {
+    private String layerName;
+    private String description;
+    private String licenseInfo;
+    private List<String> compatibleRuntimes;
+
+    private String s3Bucket;
+    private String s3Key;
+    private String s3ObjectVersion;
+    private String contentZipPath;
+
+    private String layerArn;
+    private String layerVersionArn;
+    private Long version;
+    private String createdDate;
+
+    public String getLayerName() {
+        return layerName;
+    }
+
+    public void setLayerName(String layerName) {
+        this.layerName = layerName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLicenseInfo() {
+        return licenseInfo;
+    }
+
+    public void setLicenseInfo(String licenseInfo) {
+        this.licenseInfo = licenseInfo;
+    }
+
+    public List<String> getCompatibleRuntimes() {
+        return compatibleRuntimes;
+    }
+
+    public void setCompatibleRuntimes(List<String> compatibleRuntimes) {
+        if (compatibleRuntimes == null) {
+            compatibleRuntimes = new ArrayList<>();
+        }
+
+        this.compatibleRuntimes = compatibleRuntimes;
+    }
+
+    public String getS3Bucket() {
+        return s3Bucket;
+    }
+
+    public void setS3Bucket(String s3Bucket) {
+        this.s3Bucket = s3Bucket;
+    }
+
+    public String getS3Key() {
+        return s3Key;
+    }
+
+    public void setS3Key(String s3Key) {
+        this.s3Key = s3Key;
+    }
+
+    public String getS3ObjectVersion() {
+        return s3ObjectVersion;
+    }
+
+    public void setS3ObjectVersion(String s3ObjectVersion) {
+        this.s3ObjectVersion = s3ObjectVersion;
+    }
+
+    public String getContentZipPath() {
+        return contentZipPath;
+    }
+
+    public void setContentZipPath(String contentZipPath) {
+        this.contentZipPath = contentZipPath;
+    }
+
+    public String getLayerArn() {
+        return layerArn;
+    }
+
+    public void setLayerArn(String layerArn) {
+        this.layerArn = layerArn;
+    }
+
+    public String getLayerVersionArn() {
+        return layerVersionArn;
+    }
+
+    public void setLayerVersionArn(String layerVersionArn) {
+        this.layerVersionArn = layerVersionArn;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public String getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getLayerName()) || getVersion() == null) {
+            throw new BeamException("layer-name and/or version is missing, unable to load lambda layer.");
+        }
+
+        LambdaClient client = createClient(LambdaClient.class);
+
+        try {
+            GetLayerVersionResponse response = client.getLayerVersion(
+                r -> r.layerName(getLayerName())
+                    .versionNumber(getVersion())
+            );
+
+            setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
+            setCreatedDate(response.createdDate());
+            setDescription(response.description());
+            setLayerArn(response.layerArn());
+            setLayerVersionArn(response.layerVersionArn());
+            setLicenseInfo(response.licenseInfo());
+        } catch (ResourceNotFoundException ex) {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    @Override
+    public void create() {
+        LambdaClient client = createClient(LambdaClient.class);
+
+        PublishLayerVersionRequest.Builder builder = PublishLayerVersionRequest.builder()
+            .compatibleRuntimes(getCompatibleRuntimes().stream().map(Runtime::fromValue).collect(Collectors.toList()))
+            .layerName(getLayerName())
+            .description(getDescription())
+            .licenseInfo(getLicenseInfo());
+
+        if (!ObjectUtils.isBlank(getContentZipPath())) {
+            builder = builder.content(c -> c.zipFile(getZipFile()));
+
+        } else {
+            builder = builder.content(c -> c.s3Bucket(getS3Bucket())
+                .s3Key(getS3Key())
+                .s3ObjectVersion(getS3ObjectVersion())
+            );
+        }
+
+        PublishLayerVersionResponse response = client.publishLayerVersion(builder.build());
+
+        setLayerArn(response.layerArn());
+        setLayerVersionArn(response.layerVersionArn());
+        setVersion(response.version());
+        setCreatedDate(response.createdDate());
+    }
+
+    @Override
+    public void update(Resource resource, Set<String> set) {
+
+    }
+
+    @Override
+    public void delete() {
+        LambdaClient client = createClient(LambdaClient.class);
+
+        client.deleteLayerVersion(
+            r -> r.layerName(getLayerName())
+                .versionNumber(getVersion())
+        );
+    }
+
+    @Override
+    public String toDisplayString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("lambda layer");
+
+        if (!ObjectUtils.isBlank(getLayerName())) {
+            sb.append(" - ").append(getLayerName());
+        }
+
+        if (!ObjectUtils.isBlank(getVersion())) {
+            sb.append(" version - ").append(getVersion());
+        }
+
+        return sb.toString();
+    }
+
+    private SdkBytes getZipFile() {
+        try {
+            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
+            return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
+        } catch (IOException ex) {
+            throw new BeamException(String.format("File not found - %s",getContentZipPath()));
+        }
+    }
+}
