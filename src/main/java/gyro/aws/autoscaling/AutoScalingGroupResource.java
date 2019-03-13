@@ -313,7 +313,11 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
         }
 
         List<String> sorted = new ArrayList<>(subnetIds);
-        Collections.sort(sorted);
+        try {
+            Collections.sort(sorted);
+        } catch (Exception ex) {
+            // Ignore
+        }
 
         return sorted;
     }
