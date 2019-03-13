@@ -73,7 +73,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));
 
-        setListenerArn(response.listeners().get(0).listenerArn());
+        setArn(response.listeners().get(0).listenerArn());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         if (getDefaultCertificate() == null && getProtocol().equals("TCP")) {
             client.modifyListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                     .defaultActions(toDefaultActions())
-                    .listenerArn(getListenerArn())
+                    .listenerArn(getArn())
                     .port(getPort())
                     .protocol(getProtocol())
                     .sslPolicy(null));
@@ -91,7 +91,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
 
             client.modifyListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                     .defaultActions(toDefaultActions())
-                    .listenerArn(getListenerArn())
+                    .listenerArn(getArn())
                     .port(getPort())
                     .protocol(getProtocol())
                     .sslPolicy(getSslPolicy()));
@@ -107,8 +107,8 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getListenerArn() != null) {
-            sb.append("nlb listener " + getListenerArn());
+        if (getArn() != null) {
+            sb.append("nlb listener " + getArn());
         } else {
             sb.append("nlb listener ");
         }
@@ -138,7 +138,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyListener(r -> r.certificates(toCertificates())
                 .defaultActions(toDefaultActions())
-                .listenerArn(getListenerArn())
+                .listenerArn(getArn())
                 .port(getPort())
                 .protocol(getProtocol())
                 .sslPolicy(getSslPolicy()));

@@ -22,8 +22,8 @@ public abstract class LoadBalancerResource extends AwsResource {
 
     private String dnsName;
     private String ipAddressType;
-    private String loadBalancerArn;
-    private String loadBalancerName;
+    private String arn;
+    private String name;
     private String scheme;
     private Map<String, String> tags;
 
@@ -49,20 +49,23 @@ public abstract class LoadBalancerResource extends AwsResource {
         this.ipAddressType = ipAddressType;
     }
 
-    public String getLoadBalancerArn() {
-        return loadBalancerArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setLoadBalancerArn(String loadBalancerArn) {
-        this.loadBalancerArn = loadBalancerArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
-    public String getLoadBalancerName() {
-        return loadBalancerName;
+    /**
+     *  The name of the load balancer (Required)
+     */
+    public String getName() {
+        return name;
     }
 
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -99,17 +102,17 @@ public abstract class LoadBalancerResource extends AwsResource {
     public LoadBalancer internalRefresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
-            DescribeLoadBalancersResponse lbResponse = client.describeLoadBalancers(r -> r.loadBalancerArns(getLoadBalancerArn()));
+            DescribeLoadBalancersResponse lbResponse = client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
 
             LoadBalancer lb = lbResponse.loadBalancers().get(0);
             setDnsName(lb.dnsName());
             setIpAddressType(lb.ipAddressTypeAsString());
-            setLoadBalancerArn(lb.loadBalancerArn());
-            setLoadBalancerName(lb.loadBalancerName());
+            setArn(lb.loadBalancerArn());
+            setName(lb.loadBalancerName());
             setScheme(lb.schemeAsString());
 
             getTags().clear();
-            DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getLoadBalancerArn()));
+            DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
             if (tagResponse != null) {
                 List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
                 for (Tag tag : tags) {
@@ -133,7 +136,7 @@ public abstract class LoadBalancerResource extends AwsResource {
             List<Tag> tag = new ArrayList<>();
             getTags().forEach((key, value) -> tag.add(Tag.builder().key(key).value(value).build()));
             client.addTags(r -> r.tags(tag)
-                    .resourceArns(getLoadBalancerArn()));
+                    .resourceArns(getArn()));
         }
     }
 
@@ -152,25 +155,25 @@ public abstract class LoadBalancerResource extends AwsResource {
             List<Tag> tag = new ArrayList<>();
             tagAdditions.forEach((key, value) -> tag.add(Tag.builder().key(key).value(value).build()));
             client.addTags(r -> r.tags(tag)
-                    .resourceArns(getLoadBalancerArn()));
+                    .resourceArns(getArn()));
         }
 
         if (!tagSubtractions.isEmpty()) {
             List<String> tag = new ArrayList<>();
             tagSubtractions.forEach((key, value) -> tag.add(key));
             client.removeTags(r -> r.tagKeys(tag)
-                    .resourceArns(getLoadBalancerArn()));
+                    .resourceArns(getArn()));
         }
     }
 
     @Override
     public void delete() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        client.deleteLoadBalancer(r -> r.loadBalancerArn(getLoadBalancerArn()));
+        client.deleteLoadBalancer(r -> r.loadBalancerArn(getArn()));
     }
 
     @Override
     public String toDisplayString() {
-        return "load balancer " + loadBalancerName;
+        return "load balancer " + getName();
     }
 }
