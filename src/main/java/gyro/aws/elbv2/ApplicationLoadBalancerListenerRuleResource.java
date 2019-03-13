@@ -3,6 +3,7 @@ package gyro.aws.elbv2;
 import gyro.aws.AwsResource;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;

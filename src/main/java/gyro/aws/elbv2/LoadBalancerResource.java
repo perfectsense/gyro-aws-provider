@@ -2,6 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 
 import com.psddev.dari.util.CompactMap;
@@ -49,6 +50,7 @@ public abstract class LoadBalancerResource extends AwsResource {
         this.ipAddressType = ipAddressType;
     }
 
+    @ResourceOutput
     public String getArn() {
         return arn;
     }
