@@ -27,7 +27,7 @@ public abstract class ListenerResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.CertificateResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true, nullable = true)
+    @ResourceDiffProperty(updatable = true, nullable = true)
     public List<CertificateResource> getCertificate() {
         if (certificate == null) {
             certificate = new ArrayList<>();

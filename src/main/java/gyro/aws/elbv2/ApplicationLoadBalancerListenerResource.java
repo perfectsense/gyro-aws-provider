@@ -43,7 +43,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(subresource = true, updatable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<ActionResource> getDefaultAction() {
         if (defaultAction == null) {
             defaultAction = new ArrayList<>();
