@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -22,23 +23,44 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a lambda layer.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::lambda-layer lambda-layer-example
+ *         layer-name: "lambda-layer-example"
+ *         description: "lambda-layer-example-desc"
+ *         content-zip-path: "example-function.zip"
+ *         compatible-runtimes: [
+ *             "nodejs8.10"
+ *         ]
+ *     end
+ */
 @ResourceName("lambda-layer")
 public class LayerResource extends AwsResource {
     private String layerName;
     private String description;
     private String licenseInfo;
     private List<String> compatibleRuntimes;
-
     private String s3Bucket;
     private String s3Key;
     private String s3ObjectVersion;
     private String contentZipPath;
+
+    // -- Readonly
 
     private String layerArn;
     private String layerVersionArn;
     private Long version;
     private String createdDate;
 
+    /**
+     * The name of the layer. (Required)
+     */
     public String getLayerName() {
         return layerName;
     }
@@ -47,6 +69,9 @@ public class LayerResource extends AwsResource {
         this.layerName = layerName;
     }
 
+    /**
+     * The description of the layer.
+     */
     public String getDescription() {
         return description;
     }
@@ -55,6 +80,9 @@ public class LayerResource extends AwsResource {
         this.description = description;
     }
 
+    /**
+     * The software license for the layer.
+     */
     public String getLicenseInfo() {
         return licenseInfo;
     }
@@ -63,6 +91,9 @@ public class LayerResource extends AwsResource {
         this.licenseInfo = licenseInfo;
     }
 
+    /**
+     * The list of runtime language for the function using this layer. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     */
     public List<String> getCompatibleRuntimes() {
         return compatibleRuntimes;
     }
@@ -75,6 +106,9 @@ public class LayerResource extends AwsResource {
         this.compatibleRuntimes = compatibleRuntimes;
     }
 
+    /**
+     * The s3 bucket name where the code for the function using this layer resides. Required if field 'content-zip-path' not set.
+     */
     public String getS3Bucket() {
         return s3Bucket;
     }
@@ -83,6 +117,9 @@ public class LayerResource extends AwsResource {
         this.s3Bucket = s3Bucket;
     }
 
+    /**
+     * The s3 object key where the code for the function using this layer resides. Required if field 'content-zip-path' not set.
+     */
     public String getS3Key() {
         return s3Key;
     }
@@ -91,6 +128,9 @@ public class LayerResource extends AwsResource {
         this.s3Key = s3Key;
     }
 
+    /**
+     * The s3 object version where the code for the function using this layer resides. Required if field 'content-zip-path' not set.
+     */
     public String getS3ObjectVersion() {
         return s3ObjectVersion;
     }
@@ -99,6 +139,9 @@ public class LayerResource extends AwsResource {
         this.s3ObjectVersion = s3ObjectVersion;
     }
 
+    /**
+     * The zip file location where the code for the function using this layer resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
+     */
     public String getContentZipPath() {
         return contentZipPath;
     }
@@ -107,6 +150,7 @@ public class LayerResource extends AwsResource {
         this.contentZipPath = contentZipPath;
     }
 
+    @ResourceOutput
     public String getLayerArn() {
         return layerArn;
     }
@@ -115,6 +159,7 @@ public class LayerResource extends AwsResource {
         this.layerArn = layerArn;
     }
 
+    @ResourceOutput
     public String getLayerVersionArn() {
         return layerVersionArn;
     }
@@ -123,6 +168,7 @@ public class LayerResource extends AwsResource {
         this.layerVersionArn = layerVersionArn;
     }
 
+    @ResourceOutput
     public Long getVersion() {
         return version;
     }
@@ -131,6 +177,7 @@ public class LayerResource extends AwsResource {
         this.version = version;
     }
 
+    @ResourceOutput
     public String getCreatedDate() {
         return createdDate;
     }
