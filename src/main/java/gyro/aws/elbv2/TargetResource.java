@@ -78,6 +78,26 @@ public class TargetResource extends AwsResource {
 
     @Override
     public boolean refresh() {
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        try {
+            DescribeTargetHealthResponse response = client.describeTargetHealth(r -> r.targets(toTarget())
+                    .targetGroupArn(getTargetGroupArn()));
+
+            for (TargetHealthDescription targetHealthDescription : response.targetHealthDescriptions()) {
+                TargetHealth health = targetHealthDescription.targetHealth();
+                if (health.state() != TargetHealthStateEnum.DRAINING) {
+                    TargetDescription description = targetHealthDescription.target();
+                    setAvailabilityZone(description.availabilityZone());
+                    setPort(description.port());
+                    setId(description.id());
+                }
+            }
+
+            return true;
+        } catch (InvalidTargetException ex) {
+            return false;
+        }
     }
 
     @Override
