@@ -4,6 +4,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.BeamCore;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -18,14 +19,15 @@ import software.amazon.awssdk.services.lambda.model.Layer;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeRequest;
-import software.amazon.awssdk.services.lambda.model.UpdateFunctionConfigurationRequest;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,19 +37,16 @@ import java.util.stream.Collectors;
 public class FunctionResource extends AwsResource {
     private String functionName;
     private String description;
-
     private String s3Bucket;
     private String s3Key;
     private String s3ObjectVersion;
     private String contentZipPath;
-
     private String roleArn;
     private String runtime;
     private String handler;
     private Integer timeout;
     private Integer memorySize;
     private String trackingConfig;
-
     private String deadLetterConfigArn;
     private String kmsKeyArn;
     private Map<String, String> environment;
@@ -57,8 +56,12 @@ public class FunctionResource extends AwsResource {
     private Boolean publish;
     private List<String> lambdaLayers;
     private Boolean updateCode;
+    private Integer reservedConcurrentExecutions;
+
+    // -- Readonly
 
     private String functionArn;
+    private String functionArnNoVersion;
     private String revisionId;
     private String masterArn;
     private String lastModified;
@@ -76,6 +79,7 @@ public class FunctionResource extends AwsResource {
         return description;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public void setDescription(String description) {
         this.description = description;
     }
@@ -112,6 +116,7 @@ public class FunctionResource extends AwsResource {
         this.contentZipPath = contentZipPath;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getRoleArn() {
         return roleArn;
     }
@@ -120,6 +125,7 @@ public class FunctionResource extends AwsResource {
         this.roleArn = roleArn;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getRuntime() {
         return runtime;
     }
@@ -128,6 +134,7 @@ public class FunctionResource extends AwsResource {
         this.runtime = runtime;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getHandler() {
         return handler;
     }
@@ -136,6 +143,7 @@ public class FunctionResource extends AwsResource {
         this.handler = handler;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Integer getTimeout() {
         return timeout;
     }
@@ -144,6 +152,7 @@ public class FunctionResource extends AwsResource {
         this.timeout = timeout;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Integer getMemorySize() {
         return memorySize;
     }
@@ -152,6 +161,7 @@ public class FunctionResource extends AwsResource {
         this.memorySize = memorySize;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getTrackingConfig() {
         return trackingConfig;
     }
@@ -160,7 +170,12 @@ public class FunctionResource extends AwsResource {
         this.trackingConfig = trackingConfig;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getDeadLetterConfigArn() {
+        if (deadLetterConfigArn == null) {
+            deadLetterConfigArn = "";
+        }
+
         return deadLetterConfigArn;
     }
 
@@ -168,6 +183,7 @@ public class FunctionResource extends AwsResource {
         this.deadLetterConfigArn = deadLetterConfigArn;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getKmsKeyArn() {
         return kmsKeyArn;
     }
@@ -176,6 +192,7 @@ public class FunctionResource extends AwsResource {
         this.kmsKeyArn = kmsKeyArn;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getEnvironment() {
         if (environment == null) {
             environment = new HashMap<>();
@@ -201,9 +218,12 @@ public class FunctionResource extends AwsResource {
         this.tags = tags;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
+        } else {
+            Collections.sort(securityGroupIds);
         }
 
         return securityGroupIds;
@@ -213,9 +233,12 @@ public class FunctionResource extends AwsResource {
         this.securityGroupIds = securityGroupIds;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
+        } else {
+            Collections.sort(subnetIds);
         }
 
         return subnetIds;
@@ -237,9 +260,12 @@ public class FunctionResource extends AwsResource {
         this.publish = publish;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public List<String> getLambdaLayers() {
         if (lambdaLayers == null) {
             lambdaLayers = new ArrayList<>();
+        } else {
+            Collections.sort(lambdaLayers);
         }
 
         return lambdaLayers;
@@ -261,12 +287,29 @@ public class FunctionResource extends AwsResource {
         this.updateCode = updateCode;
     }
 
+    @ResourceDiffProperty(updatable = true)
+    public Integer getReservedConcurrentExecutions() {
+        return reservedConcurrentExecutions;
+    }
+
+    public void setReservedConcurrentExecutions(Integer reservedConcurrentExecutions) {
+        this.reservedConcurrentExecutions = reservedConcurrentExecutions;
+    }
+
     public String getFunctionArn() {
         return functionArn;
     }
 
     public void setFunctionArn(String functionArn) {
         this.functionArn = functionArn;
+    }
+
+    public String getFunctionArnNoVersion() {
+        return functionArnNoVersion;
+    }
+
+    public void setFunctionArnNoVersion(String functionArnNoVersion) {
+        this.functionArnNoVersion = functionArnNoVersion;
     }
 
     public String getRevisionId() {
@@ -312,6 +355,8 @@ public class FunctionResource extends AwsResource {
             );
 
             setUpdateCode(false);
+            setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
+
             FunctionConfiguration configuration = response.configuration();
             setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
             setDescription(configuration.description());
@@ -324,9 +369,10 @@ public class FunctionResource extends AwsResource {
             setKmsKeyArn(configuration.kmsKeyArn());
             setLambdaLayers(configuration.layers().stream().map(Layer::arn).collect(Collectors.toList()));
             setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
-            setSecurityGroupIds(configuration.vpcConfig() != null ? configuration.vpcConfig().securityGroupIds() : null);
-            setSubnetIds(configuration.vpcConfig() != null ? configuration.vpcConfig().subnetIds() : null);
+            setSecurityGroupIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().securityGroupIds()) : null);
+            setSubnetIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().subnetIds()) : null);
             setFunctionArn(configuration.functionArn());
+            setFunctionArnNoVersion(getFunctionArn().replace(":" + getVersion(), ""));
             setLastModified(configuration.lastModified());
             setMasterArn(configuration.masterArn());
             setRevisionId(configuration.revisionId());
@@ -334,7 +380,7 @@ public class FunctionResource extends AwsResource {
             setUpdateCode(false);
 
             ListTagsResponse tagResponse = client.listTags(
-                r -> r.resource(getFunctionArn().replace(":" + getVersion(), ""))
+                r -> r.resource(getFunctionArnNoVersion())
             );
 
             setTags(tagResponse.tags());
@@ -390,13 +436,41 @@ public class FunctionResource extends AwsResource {
         setRevisionId(response.revisionId());
         setVersion(response.version());
         setUpdateCode(false);
+
+        if (getReservedConcurrentExecutions() != null) {
+            try {
+                client.putFunctionConcurrency(
+                    r -> r.functionName(getFunctionName())
+                        .reservedConcurrentExecutions(getReservedConcurrentExecutions())
+                );
+            } catch (Exception ex) {
+                BeamCore.ui().write("\n@|bold,blue Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getFunctionArn(), ex.getMessage());
+            }
+        }
     }
 
     @Override
     public void update(Resource resource, Set<String> set) {
         LambdaClient client = createClient(LambdaClient.class);
 
-        if (set.contains("update-code")) {
+        Set<String> changeSet = new HashSet<>(set);
+
+        if (changeSet.contains("reserved-concurrent-executions")) {
+            if (getReservedConcurrentExecutions() != null) {
+                client.putFunctionConcurrency(
+                    r -> r.functionName(getFunctionName())
+                        .reservedConcurrentExecutions(getReservedConcurrentExecutions())
+                );
+            } else {
+                client.deleteFunctionConcurrency(
+                    r -> r.functionName(getFunctionName())
+                );
+            }
+
+            changeSet.remove("reserved-concurrent-executions");
+        }
+
+        if (changeSet.contains("update-code")) {
             UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
                 .functionName(getFunctionName())
                 .publish(getPublish())
@@ -409,15 +483,18 @@ public class FunctionResource extends AwsResource {
             }
 
             client.updateFunctionCode(builder.build());
+
+            changeSet.remove("update-code");
         }
 
-        if (set.contains("tags")) {
+        if (changeSet.contains("tags")) {
             FunctionResource oldResource = (FunctionResource) resource;
             MapDifference<String, String> mapDifference = Maps.difference(oldResource.getTags(), getTags());
+
             Map<String, String> deleteTags = mapDifference.entriesOnlyOnLeft();
             if (!deleteTags.isEmpty()) {
                 client.untagResource(
-                    r -> r.resource(getFunctionArn().replace(":" + getVersion(),""))
+                    r -> r.resource(getFunctionArnNoVersion())
                         .tagKeys(deleteTags.keySet())
                 );
             }
@@ -425,36 +502,32 @@ public class FunctionResource extends AwsResource {
             Map<String, String> addTags = mapDifference.entriesOnlyOnRight();
             if (!addTags.isEmpty()) {
                 client.tagResource(
-                    r -> r.resource(getFunctionArn().replace(":" + getVersion(), "")).tags(addTags)
+                    r -> r.resource(getFunctionArnNoVersion()).tags(addTags)
                 );
             }
+
+            changeSet.remove("tags");
         }
 
-        UpdateFunctionConfigurationRequest.Builder builder = UpdateFunctionConfigurationRequest.builder();
-        builder = builder.functionName(getFunctionName())
-            .description(getDescription())
-            .runtime(getRuntime())
-            .role(getRoleArn())
-            .handler(getHandler())
-            .timeout(getTimeout())
-            .memorySize(getMemorySize())
-            .tracingConfig(t -> t.mode(getTrackingConfig()))
-            .kmsKeyArn(getKmsKeyArn())
-            .layers(getLambdaLayers());
-
-        if (!ObjectUtils.isBlank(getDeadLetterConfigArn())) {
-            builder = builder.deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()));
+        if (!changeSet.isEmpty()) {
+            client.updateFunctionConfiguration(
+                r -> r.functionName(getFunctionName())
+                    .description(getDescription())
+                    .runtime(getRuntime())
+                    .role(getRoleArn())
+                    .handler(getHandler())
+                    .timeout(getTimeout())
+                    .memorySize(getMemorySize())
+                    .tracingConfig(t -> t.mode(getTrackingConfig()))
+                    .kmsKeyArn(getKmsKeyArn())
+                    .layers(getLambdaLayers())
+                    .environment(e -> e.variables(getEnvironment()))
+                    .vpcConfig(v -> v.securityGroupIds(getSecurityGroupIds()).subnetIds(getSubnetIds()))
+                    .deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()))
+            );
         }
 
-        if (!getEnvironment().isEmpty()) {
-            builder = builder.environment(e -> e.variables(getEnvironment()));
-        }
 
-        if (!getSecurityGroupIds().isEmpty() && !getSubnetIds().isEmpty()) {
-            builder = builder.vpcConfig(v -> v.securityGroupIds(getSecurityGroupIds()).subnetIds(getSubnetIds()));
-        }
-
-        client.updateFunctionConfiguration(builder.build());
     }
 
     @Override
