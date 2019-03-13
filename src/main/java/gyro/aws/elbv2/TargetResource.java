@@ -6,7 +6,12 @@ import gyro.core.diff.Delete;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.InvalidTargetException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetDescription;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealth;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthDescription;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthStateEnum;
 
 import java.util.Set;
 
@@ -33,6 +38,7 @@ public class TargetResource extends AwsResource {
     private String availabilityZone;
     private String id;
     private Integer port;
+    private String targetGroupArn;
 
     public TargetResource() {
 
@@ -69,6 +75,17 @@ public class TargetResource extends AwsResource {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    /**
+     *  The arn of the target group that the target is associated with (Required)
+     */
+    public String getTargetGroupArn() {
+        return targetGroupArn;
+    }
+
+    public void setTargetGroupArn(String targetGroupArn) {
+        this.targetGroupArn = targetGroupArn;
     }
 
     @Override
