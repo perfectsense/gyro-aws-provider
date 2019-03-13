@@ -33,6 +33,7 @@ import java.util.Set;
  *         end
  */
 
+@ResourceName("target")
 public class TargetResource extends AwsResource {
 
     private String availabilityZone;
