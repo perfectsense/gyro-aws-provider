@@ -3,6 +3,7 @@ package gyro.aws.rds;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -93,6 +94,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     private String tdeCredentialPassword;
     private String timezone;
     private List<String> vpcSecurityGroupIds;
+    private String endpointAddress;
 
     /**
      * The amount of storage to allocate in gibibytes. Not applicable for Aurora.
@@ -655,6 +657,18 @@ public class DbInstanceResource extends RdsTaggableResource {
         this.vpcSecurityGroupIds = vpcSecurityGroupIds;
     }
 
+    /**
+     * DNS hostname to access this database at.
+     */
+    @ResourceOutput
+    public String getEndpointAddress() {
+        return endpointAddress;
+    }
+
+    public void setEndpointAddress(String endpointAddress) {
+        this.endpointAddress = endpointAddress;
+    }
+
     @Override
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
@@ -739,6 +753,10 @@ public class DbInstanceResource extends RdsTaggableResource {
                         .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
                         .collect(Collectors.toList()));
                     setArn(i.dbInstanceArn());
+
+                    if (i.endpoint() != null) {
+                        setEndpointAddress(i.endpoint().address());
+                    }
                 }
             );
 
@@ -799,6 +817,24 @@ public class DbInstanceResource extends RdsTaggableResource {
         );
 
         setArn(response.dbInstance().dbInstanceArn());
+
+        DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
+            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+        );
+
+        while (describeResponse.dbInstances().get(0).dbInstanceStatus().equals("creating")) {
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException ex) {
+                return;
+            }
+
+            describeResponse = client.describeDBInstances(
+                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            );
+        }
+
+        setEndpointAddress(describeResponse.dbInstances().get(0).endpoint().address());
     }
 
     @Override
