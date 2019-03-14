@@ -48,6 +48,7 @@ dependencies {
     compile "software.amazon.awssdk:kms:${aws_sdk2_version}"
     compile "software.amazon.awssdk:rds:${aws_sdk2_version}"
     compile "software.amazon.awssdk:sns:${aws_sdk2_version}"
+    compile "software.amazon.awssdk:cognitoidentityprovider:${aws_sdk2_version}"
     compile "software.amazon.awssdk:dlm:${aws_sdk2_version}"
     compile "software.amazon.awssdk:waf:${aws_sdk2_version}"
     compile "software.amazon.awssdk:lambda:${aws_sdk2_version}"

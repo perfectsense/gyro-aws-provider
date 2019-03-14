@@ -232,6 +232,10 @@ public class LaunchConfigurationResource extends AwsResource {
                 r -> r.launchConfigurationNames(getLaunchConfigurationName())
             );
 
+            if (response.launchConfigurations().size() == 0) {
+                return false;
+            }
+
             for (LaunchConfiguration launchConfiguration : response.launchConfigurations()) {
 
                 setArn(launchConfiguration.launchConfigurationARN());
@@ -286,7 +290,7 @@ public class LaunchConfigurationResource extends AwsResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Launch Configuration");
+        sb.append("launch configuration");
 
         if (!ObjectUtils.isBlank(getLaunchConfigurationName())) {
             sb.append(" - ").append(getLaunchConfigurationName());

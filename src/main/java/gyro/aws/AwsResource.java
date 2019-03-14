@@ -20,10 +20,6 @@ public abstract class AwsResource extends Resource {
     }
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass, String region, String endpoint) {
-        if (client != null) {
-            return (T) client;
-        }
-
         AwsCredentials credentials = (AwsCredentials) resourceCredentials();
         if (credentials == null) {
             throw new BeamException("No credentials associated with the resource.");

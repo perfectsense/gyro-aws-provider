@@ -1,7 +1,8 @@
 package gyro.aws.elbv2;
 
+import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
 
 /**
@@ -12,39 +13,36 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
  * .. code-block:: gyro
  *
  *     health-check
- *         health-check-interval: "90"
- *         health-check-path: "/"
- *         health-check-port: "traffic-port"
- *         health-check-protocol: "HTTP"
- *         health-check-timeout: "30"
+ *         interval: "90"
+ *         path: "/"
+ *         port: "traffic-port"
+ *         protocol: "HTTP"
+ *         timeout: "30"
  *         healthy-threshold: "2"
  *         matcher: "200"
  *         unhealthy-threshold: "2"
  *     end
  */
 
-@ResourceName(parent = "target-group", value = "health-check")
-public class HealthCheckResource {
+public class HealthCheck extends Diffable {
 
-    private Integer healthCheckInterval;
-    private String healthCheckPath;
-    private String healthCheckPort;
-    private String healthCheckProtocol;
-    private Integer healthCheckTimeout;
+    private Integer interval;
+    private String path;
+    private String port;
+    private String protocol;
+    private Integer timeout;
     private Integer healthyThreshold;
     private String matcher;
     private Integer unhealthyThreshold;
 
-    public HealthCheckResource() {
+    public HealthCheck() {}
 
-    }
-
-    public HealthCheckResource(TargetGroup targetGroup) {
-        setHealthCheckInterval(targetGroup.healthCheckIntervalSeconds());
-        setHealthCheckPath(targetGroup.healthCheckPath());
-        setHealthCheckPort(targetGroup.healthCheckPort());
-        setHealthCheckProtocol(targetGroup.healthCheckProtocolAsString());
-        setHealthCheckTimeout(targetGroup.healthCheckTimeoutSeconds());
+    public HealthCheck(TargetGroup targetGroup) {
+        setInterval(targetGroup.healthCheckIntervalSeconds());
+        setPath(targetGroup.healthCheckPath());
+        setPort(targetGroup.healthCheckPort());
+        setProtocol(targetGroup.healthCheckProtocolAsString());
+        setTimeout(targetGroup.healthCheckTimeoutSeconds());
         setHealthyThreshold(targetGroup.healthyThresholdCount());
         if (targetGroup.matcher() != null) {
             setMatcher(targetGroup.matcher().httpCode());
@@ -56,60 +54,60 @@ public class HealthCheckResource {
      *  The approximate amount of time between health checks of a target (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public Integer getHealthCheckInterval() {
-        return healthCheckInterval;
+    public Integer getInterval() {
+        return interval;
     }
 
-    public void setHealthCheckInterval(Integer healthCheckInterval) {
-        this.healthCheckInterval = healthCheckInterval;
+    public void setInterval(Integer interval) {
+        this.interval = interval;
     }
 
     /**
      *  The ping path destination on targets for health checks (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public String getHealthCheckPath() {
-        return healthCheckPath;
+    public String getPath() {
+        return path;
     }
 
-    public void setHealthCheckPath(String healthCheckPath) {
-        this.healthCheckPath = healthCheckPath;
-    }
-
-    /**
-     *  The port used when an alb performs health checks on targets (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public String getHealthCheckPort() {
-        return healthCheckPort;
-    }
-
-    public void setHealthCheckPort(String healthCheckPort) {
-        this.healthCheckPort = healthCheckPort;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
      *  The port used when an alb performs health checks on targets (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public String getHealthCheckProtocol() {
-        return healthCheckProtocol;
+    public String getPort() {
+        return port;
     }
 
-    public void setHealthCheckProtocol(String healthCheckProtocol) {
-        this.healthCheckProtocol = healthCheckProtocol;
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    /**
+     *  The port used when an alb performs health checks on targets (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     /**
      *  The amount of time, in seconds, an unresponsive target means a failed health check (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public Integer getHealthCheckTimeout() {
-        return healthCheckTimeout;
+    public Integer getTimeout() {
+        return timeout;
     }
 
-    public void setHealthCheckTimeout(Integer healthCheckTimeout) {
-        this.healthCheckTimeout = healthCheckTimeout;
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
     }
 
     /**
@@ -146,5 +144,13 @@ public class HealthCheckResource {
 
     public void setUnhealthyThreshold(Integer unhealthyThreshold) {
         this.unhealthyThreshold = unhealthyThreshold;
+    }
+
+    public String toDisplayString() {
+        return "health check";
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getInterval(), getPort(), getProtocol());
     }
 }
