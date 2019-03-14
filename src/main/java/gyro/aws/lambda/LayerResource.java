@@ -53,8 +53,8 @@ public class LayerResource extends AwsResource {
 
     // -- Readonly
 
-    private String layerArn;
-    private String layerVersionArn;
+    private String arn;
+    private String versionArn;
     private Long version;
     private String createdDate;
 
@@ -150,24 +150,33 @@ public class LayerResource extends AwsResource {
         this.contentZipPath = contentZipPath;
     }
 
+    /**
+     * The ARN of the lambda layer.
+     */
     @ResourceOutput
-    public String getLayerArn() {
-        return layerArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setLayerArn(String layerArn) {
-        this.layerArn = layerArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
+    /**
+     * The ARN of the lambda layer version specific.
+     */
     @ResourceOutput
-    public String getLayerVersionArn() {
-        return layerVersionArn;
+    public String getVersionArn() {
+        return versionArn;
     }
 
-    public void setLayerVersionArn(String layerVersionArn) {
-        this.layerVersionArn = layerVersionArn;
+    public void setVersionArn(String versionArn) {
+        this.versionArn = versionArn;
     }
 
+    /**
+     * The version of the lambda layer.
+     */
     @ResourceOutput
     public Long getVersion() {
         return version;
@@ -177,6 +186,9 @@ public class LayerResource extends AwsResource {
         this.version = version;
     }
 
+    /**
+     * The date that the layer version was created.
+     */
     @ResourceOutput
     public String getCreatedDate() {
         return createdDate;
@@ -203,8 +215,8 @@ public class LayerResource extends AwsResource {
             setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
             setCreatedDate(response.createdDate());
             setDescription(response.description());
-            setLayerArn(response.layerArn());
-            setLayerVersionArn(response.layerVersionArn());
+            setArn(response.layerArn());
+            setVersionArn(response.layerVersionArn());
             setLicenseInfo(response.licenseInfo());
         } catch (ResourceNotFoundException ex) {
             return false;
@@ -236,8 +248,8 @@ public class LayerResource extends AwsResource {
 
         PublishLayerVersionResponse response = client.publishLayerVersion(builder.build());
 
-        setLayerArn(response.layerArn());
-        setLayerVersionArn(response.layerVersionArn());
+        setArn(response.layerArn());
+        setVersionArn(response.layerVersionArn());
         setVersion(response.version());
         setCreatedDate(response.createdDate());
     }

@@ -15,8 +15,6 @@ import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
-import software.amazon.awssdk.services.lambda.model.GetAliasResponse;
-import software.amazon.awssdk.services.lambda.model.GetFunctionConfigurationResponse;
 import software.amazon.awssdk.services.lambda.model.GetFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.Layer;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
@@ -82,8 +80,8 @@ public class FunctionResource extends AwsResource {
 
     // -- Readonly
 
-    private String functionArn;
-    private String functionArnNoVersion;
+    private String arn;
+    private String arnNoVersion;
     private String revisionId;
     private String masterArn;
     private String lastModified;
@@ -371,7 +369,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The number of simultaneous executions to reserve for the function..
+     * The number of simultaneous executions to reserve for the function.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getReservedConcurrentExecutions() {
@@ -382,24 +380,33 @@ public class FunctionResource extends AwsResource {
         this.reservedConcurrentExecutions = reservedConcurrentExecutions;
     }
 
+    /**
+     * The arn for the lambda function resource including the version.
+     */
     @ResourceOutput
-    public String getFunctionArn() {
-        return functionArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setFunctionArn(String functionArn) {
-        this.functionArn = functionArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
+    /**
+     * The arn for the lambda function resource without the version.
+     */
     @ResourceOutput
-    public String getFunctionArnNoVersion() {
-        return functionArnNoVersion;
+    public String getArnNoVersion() {
+        return arnNoVersion;
     }
 
-    public void setFunctionArnNoVersion(String functionArnNoVersion) {
-        this.functionArnNoVersion = functionArnNoVersion;
+    public void setArnNoVersion(String arnNoVersion) {
+        this.arnNoVersion = arnNoVersion;
     }
 
+    /**
+     * The revision id for the lambda function.
+     */
     @ResourceOutput
     public String getRevisionId() {
         return revisionId;
@@ -409,6 +416,9 @@ public class FunctionResource extends AwsResource {
         this.revisionId = revisionId;
     }
 
+    /**
+     * The arn for the master function of the lambda function.
+     */
     @ResourceOutput
     public String getMasterArn() {
         return masterArn;
@@ -418,6 +428,9 @@ public class FunctionResource extends AwsResource {
         this.masterArn = masterArn;
     }
 
+    /**
+     * The date and time that the function was last updated.
+     */
     @ResourceOutput
     public String getLastModified() {
         return lastModified;
@@ -427,6 +440,9 @@ public class FunctionResource extends AwsResource {
         this.lastModified = lastModified;
     }
 
+    /**
+     * The version of the Lambda function.
+     */
     @ResourceOutput
     public String getVersion() {
         return version;
@@ -441,7 +457,6 @@ public class FunctionResource extends AwsResource {
         LambdaClient client = createClient(LambdaClient.class);
 
         try {
-
             GetFunctionResponse response = client.getFunction(
                 r -> r.functionName(getFunctionName()).qualifier("$LATEST")
             );
@@ -463,8 +478,8 @@ public class FunctionResource extends AwsResource {
             setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
             setSecurityGroupIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().securityGroupIds()) : null);
             setSubnetIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().subnetIds()) : null);
-            setFunctionArn(configuration.functionArn());
-            setFunctionArnNoVersion(getFunctionArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
+            setArn(configuration.functionArn());
+            setArnNoVersion(getArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
             setLastModified(configuration.lastModified());
             setMasterArn(configuration.masterArn());
             setRevisionId(configuration.revisionId());
@@ -472,7 +487,7 @@ public class FunctionResource extends AwsResource {
             setUpdateCode(false);
 
             ListTagsResponse tagResponse = client.listTags(
-                r -> r.resource(getFunctionArnNoVersion())
+                r -> r.resource(getArnNoVersion())
             );
 
             setTags(tagResponse.tags());
@@ -522,7 +537,7 @@ public class FunctionResource extends AwsResource {
 
         CreateFunctionResponse response = client.createFunction(builder.build());
 
-        setFunctionArn(response.functionArn());
+        setArn(response.functionArn());
         setLastModified(response.lastModified());
         setMasterArn(response.masterArn());
         setRevisionId(response.revisionId());
@@ -536,7 +551,7 @@ public class FunctionResource extends AwsResource {
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
             } catch (Exception ex) {
-                BeamCore.ui().write("\n@|bold,blue Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getFunctionArn(), ex.getMessage());
+                BeamCore.ui().write("\n@|bold,blue Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
             }
         }
     }
@@ -589,7 +604,7 @@ public class FunctionResource extends AwsResource {
             Map<String, String> deleteTags = mapDifference.entriesOnlyOnLeft();
             if (!deleteTags.isEmpty()) {
                 client.untagResource(
-                    r -> r.resource(getFunctionArnNoVersion())
+                    r -> r.resource(getArnNoVersion())
                         .tagKeys(deleteTags.keySet())
                 );
             }
@@ -597,7 +612,7 @@ public class FunctionResource extends AwsResource {
             Map<String, String> addTags = mapDifference.entriesOnlyOnRight();
             if (!addTags.isEmpty()) {
                 client.tagResource(
-                    r -> r.resource(getFunctionArnNoVersion()).tags(addTags)
+                    r -> r.resource(getArnNoVersion()).tags(addTags)
                 );
             }
 
