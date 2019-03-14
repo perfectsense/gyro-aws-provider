@@ -3,6 +3,7 @@ package gyro.aws.elbv2;
 import gyro.aws.AwsResource;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -52,12 +53,14 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     private List<ConditionResource> condition;
     private String listenerArn;
     private Integer priority;
-    private String ruleArn;
+    private String arn;
 
     /**
      *  List of actions associated with the rule (Required)
+     *
+     *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
+    @ResourceDiffProperty(updatable = true)
     public List<ActionResource> getAction() {
         if (action == null) {
             action = new ArrayList<>();
@@ -72,8 +75,10 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
     /**
      *  List of conditions associated with the rule (Required)
+     *
+     *  @subresource gyro.aws.elbv2.ConditionResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
+    @ResourceDiffProperty(updatable = true)
     public List<ConditionResource> getCondition() {
         if (condition == null) {
             condition = new ArrayList<>();
@@ -105,25 +110,26 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         this.priority = priority;
     }
 
-    public String getRuleArn() {
-        return ruleArn;
+    @ResourceOutput
+    public String getArn() {
+        return arn;
     }
 
-    public void setRuleArn(String ruleArn) {
-        this.ruleArn = ruleArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     @Override
     public boolean refresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
-            DescribeRulesResponse response = client.describeRules(r -> r.ruleArns(getRuleArn()));
+            DescribeRulesResponse response = client.describeRules(r -> r.ruleArns(getArn()));
 
             Rule rule = response.rules().get(0);
             setAction(fromActions(rule.actions()));
             setCondition(fromCondition(rule.conditions()));
             setPriority(Integer.valueOf(rule.priority()));
-            setRuleArn(rule.ruleArn());
+            setArn(rule.ruleArn());
 
             return true;
 
@@ -140,7 +146,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
                 .listenerArn(getListenerArn())
                 .priority(getPriority()));
 
-        setRuleArn(response.rules().get(0).ruleArn());
+        setArn(response.rules().get(0).ruleArn());
     }
 
     @Override
@@ -148,21 +154,21 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                                 .conditions(toConditions())
-                                .ruleArn(getRuleArn()));
+                                .ruleArn(getArn()));
     }
 
     @Override
     public void delete() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        client.deleteRule(r -> r.ruleArn(getRuleArn()));
+        client.deleteRule(r -> r.ruleArn(getArn()));
     }
 
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getRuleArn() != null) {
-            sb.append("alb listener rule " + getRuleArn());
+        if (getArn() != null) {
+            sb.append("alb listener rule " + getArn());
         } else {
             sb.append("alb listener rule");
         }
@@ -221,14 +227,14 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .ruleArn(getRuleArn()));
+                .ruleArn(getArn()));
     }
 
     public void updateAction() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .ruleArn(getRuleArn()));
+                .ruleArn(getArn()));
     }
 
     public void deleteAction(ActionResource action) {
@@ -237,7 +243,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .ruleArn(getRuleArn()));
+                .ruleArn(getArn()));
     }
 
     public void createCondition(ConditionResource condition) {
@@ -248,14 +254,14 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .ruleArn(getRuleArn()));
+                .ruleArn(getArn()));
     }
 
     public void updateCondition() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .ruleArn(getRuleArn()));
+                .ruleArn(getArn()));
     }
 
     public void deleteCondition(ConditionResource condition) {
@@ -264,6 +270,6 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .ruleArn(getRuleArn()));
+                .ruleArn(getArn()));
     }
 }

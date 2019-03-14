@@ -6,7 +6,12 @@ import gyro.core.diff.Delete;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.InvalidTargetException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetDescription;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealth;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthDescription;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthStateEnum;
 
 import java.util.Set;
 
@@ -17,32 +22,23 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *         target
- *             id: $(aws::instance instance-us-east-2a | instance-id)
- *             port: "80"
- *         end
- *
- *         target
- *             id: $(aws::instance instance-us-east-2b | instance-id)
- *             port: "443"
+ *         aws::target target
+ *             id: "i-5543455454435"
+ *             port: 81
+ *             target-group-arn: $(aws::target-group webserver-rta-1 | arn)
  *         end
  */
 
-@ResourceName(parent = "target-group", value = "target")
+@ResourceName("target")
 public class TargetResource extends AwsResource {
 
     private String availabilityZone;
     private String id;
     private Integer port;
+    private String targetGroupArn;
 
     public TargetResource() {
 
-    }
-
-    public TargetResource(TargetDescription description) {
-        setAvailabilityZone(description.availabilityZone());
-        setId(description.id());
-        setPort(description.port());
     }
 
     /**
@@ -78,6 +74,17 @@ public class TargetResource extends AwsResource {
         this.port = port;
     }
 
+    /**
+     *  The arn of the target group that the target is associated with (Required)
+     */
+    public String getTargetGroupArn() {
+        return targetGroupArn;
+    }
+
+    public void setTargetGroupArn(String targetGroupArn) {
+        this.targetGroupArn = targetGroupArn;
+    }
+
     @Override
     public String primaryKey() {
         return String.format("%s %d", getId(), getPort());
@@ -85,19 +92,33 @@ public class TargetResource extends AwsResource {
 
     @Override
     public boolean refresh() {
-        return true;
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        try {
+            DescribeTargetHealthResponse response = client.describeTargetHealth(r -> r.targets(toTarget())
+                    .targetGroupArn(getTargetGroupArn()));
+
+            for (TargetHealthDescription targetHealthDescription : response.targetHealthDescriptions()) {
+                TargetHealth health = targetHealthDescription.targetHealth();
+                if (health.state() != TargetHealthStateEnum.DRAINING) {
+                    TargetDescription description = targetHealthDescription.target();
+                    setAvailabilityZone(description.availabilityZone());
+                    setPort(description.port());
+                    setId(description.id());
+                }
+            }
+
+            return true;
+        } catch (InvalidTargetException ex) {
+            return false;
+        }
     }
 
     @Override
     public void create() {
-        if (parentResource().change() instanceof Create) {
-            return;
-        }
-
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.registerTargets(r -> r.targets(toTarget())
                                     .targetGroupArn(getTargetGroupArn()));
-
     }
 
     @Override
@@ -105,14 +126,9 @@ public class TargetResource extends AwsResource {
 
     @Override
     public void delete() {
-        if (parentResource().change() instanceof Delete) {
-            return;
-        }
-
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deregisterTargets(r -> r.targets(toTarget())
                                         .targetGroupArn(getTargetGroupArn()));
-
     }
 
     @Override
@@ -135,15 +151,5 @@ public class TargetResource extends AwsResource {
                 .id(getId())
                 .port(getPort())
                 .build();
-    }
-
-    public String getTargetGroupArn() {
-        TargetGroupResource parent = (TargetGroupResource) parentResource();
-
-        if (parent != null) {
-            return parent.getTargetGroupArn();
-        }
-
-        return null;
     }
 }

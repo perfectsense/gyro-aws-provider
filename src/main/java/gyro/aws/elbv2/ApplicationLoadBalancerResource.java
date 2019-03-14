@@ -21,13 +21,13 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::alb alb-example
- *         load-balancer-name: "alb-example"
+ *         name: "alb-example"
  *         ip-address-type: "ipv4"
  *         scheme: "internal"
  *         security-groups: [
  *                 $(aws::security-group security-group | group-id)
  *             ]
- *         subnets: [
+ *         subnet-ids: [
  *                 $(aws::subnet subnet-us-east-2a | subnet-id),
  *                 $(aws::subnet subnet-us-east-2b | subnet-id)
  *             ]
@@ -41,7 +41,7 @@ import java.util.Set;
 public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
     private List<String> securityGroups;
-    private List<String> subnets;
+    private List<String> subnetIds;
 
     /**
      *  List of security groups associated with the alb (Optional)
@@ -61,16 +61,16 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
     /**
      *  List of subnets associated with the alb (Optional)
      */
-    public List<String> getSubnets() {
-        if (subnets == null) {
-            subnets = new ArrayList<>();
+    public List<String> getSubnetIds() {
+        if (subnetIds == null) {
+            subnetIds = new ArrayList<>();
         }
 
-        return subnets;
+        return subnetIds;
     }
 
-    public void setSubnets(List<String> subnets) {
-        this.subnets = subnets;
+    public void setSubnetIds(List<String> subnetIds) {
+        this.subnetIds = subnetIds;
     }
 
     @Override
@@ -80,9 +80,9 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
         if (loadBalancer != null) {
             setSecurityGroups(loadBalancer.securityGroups());
 
-            getSubnets().clear();
+            getSubnetIds().clear();
             for (AvailabilityZone az: loadBalancer.availabilityZones()) {
-                getSubnets().add(az.subnetId());
+                getSubnetIds().add(az.subnetId());
             }
 
             return true;
@@ -96,14 +96,14 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
-                .name(getLoadBalancerName())
+                .name(getName())
                 .scheme(getScheme())
                 .securityGroups(getSecurityGroups())
-                .subnets(getSubnets())
+                .subnets(getSubnetIds())
                 .type(LoadBalancerTypeEnum.APPLICATION)
         );
 
-        setLoadBalancerArn(response.loadBalancers().get(0).loadBalancerArn());
+        setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
         super.create();
@@ -122,7 +122,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("application load balancer - " + getLoadBalancerName());
+        sb.append("application load balancer - " + getName());
         return sb.toString();
     }
 }

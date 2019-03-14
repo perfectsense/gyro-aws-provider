@@ -31,11 +31,11 @@ import java.util.Set;
 @ResourceName(parent = "alb-listener-rule", value = "action")
 public class ActionResource extends NetworkActionResource {
 
-    private AuthenticateCognitoActionConfigResource cognitoAction;
-    private AuthenticateOidcActionConfigResource oidc;
-    private FixedResponseActionConfigResource fixedResponse;
+    private AuthenticateCognitoAction authenticateCognitoAction;
+    private AuthenticateOidcAction authenticateOidcAction;
+    private FixedResponseAction fixedResponseAction;
     private Integer order;
-    private RedirectActionConfigResource redirect;
+    private RedirectAction redirectAction;
     private String targetGroupArn;
     private String type;
 
@@ -47,26 +47,26 @@ public class ActionResource extends NetworkActionResource {
 
         AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
         if (cognitoConfig != null) {
-            AuthenticateCognitoActionConfigResource cognito = new AuthenticateCognitoActionConfigResource(cognitoConfig);
-            setCognitoAction(cognito);
+            AuthenticateCognitoAction cognito = new AuthenticateCognitoAction(cognitoConfig);
+            setAuthenticateCognitoAction(cognito);
         }
 
         AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
         if (oidcConfig != null) {
-            AuthenticateOidcActionConfigResource oidc = new AuthenticateOidcActionConfigResource(oidcConfig);
-            setOidc(oidc);
+            AuthenticateOidcAction oidc = new AuthenticateOidcAction(oidcConfig);
+            setAuthenticateOidcAction(oidc);
         }
 
         FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
         if (fixedConfig != null) {
-            FixedResponseActionConfigResource fixed = new FixedResponseActionConfigResource(fixedConfig);
-            setFixedResponse(fixed);
+            FixedResponseAction fixed = new FixedResponseAction(fixedConfig);
+            setFixedResponseAction(fixed);
         }
 
         RedirectActionConfig redirectConfig = action.redirectConfig();
         if (redirectConfig != null) {
-            RedirectActionConfigResource redirect = new RedirectActionConfigResource(redirectConfig);
-            setRedirect(redirect);
+            RedirectAction redirect = new RedirectAction(redirectConfig);
+            setRedirectAction(redirect);
         }
 
         setOrder(action.order());
@@ -74,40 +74,41 @@ public class ActionResource extends NetworkActionResource {
         setType(action.typeAsString());
     }
 
+
     /**
      *  Authentication through user pools supported by Amazon Cognito (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public AuthenticateCognitoActionConfigResource getCognitoAction() {
-        return cognitoAction;
+    public AuthenticateCognitoAction getAuthenticateCognitoAction() {
+        return authenticateCognitoAction;
     }
 
-    public void setCognitoAction(AuthenticateCognitoActionConfigResource cognitoAction) {
-        this.cognitoAction = cognitoAction;
+    public void setAuthenticateCognitoAction(AuthenticateCognitoAction authenticateCognitoAction) {
+        this.authenticateCognitoAction = authenticateCognitoAction;
     }
 
     /**
      *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public AuthenticateOidcActionConfigResource getOidc() {
-        return oidc;
+    public AuthenticateOidcAction getAuthenticateOidcAction() {
+        return authenticateOidcAction;
     }
 
-    public void setOidc(AuthenticateOidcActionConfigResource oidc) {
-        this.oidc = oidc;
+    public void setAuthenticateOidcAction(AuthenticateOidcAction authenticateOidcAction) {
+        this.authenticateOidcAction = authenticateOidcAction;
     }
 
     /**
      *  Used to specify a custom response for an action  (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public FixedResponseActionConfigResource getFixedResponse() {
-        return fixedResponse;
+    public FixedResponseAction getFixedResponseAction() {
+        return fixedResponseAction;
     }
 
-    public void setFixedResponse(FixedResponseActionConfigResource fixedResponse) {
-        this.fixedResponse = fixedResponse;
+    public void setFixedResponseAction(FixedResponseAction fixedResponseAction) {
+        this.fixedResponseAction = fixedResponseAction;
     }
 
     /**
@@ -126,12 +127,12 @@ public class ActionResource extends NetworkActionResource {
      *  Redirect requests from one URL to another (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public RedirectActionConfigResource getRedirect() {
-        return redirect;
+    public RedirectAction getRedirectAction() {
+        return redirectAction;
     }
 
-    public void setRedirect(RedirectActionConfigResource redirect) {
-        this.redirect = redirect;
+    public void setRedirectAction(RedirectAction redirectAction) {
+        this.redirectAction = redirectAction;
     }
 
     /**
@@ -227,10 +228,10 @@ public class ActionResource extends NetworkActionResource {
 
     public Action toAction() {
         return Action.builder()
-                .authenticateCognitoConfig(getCognitoAction() != null ? getCognitoAction().toCognito() : null)
-                .authenticateOidcConfig(getOidc() != null ? getOidc().toOidc() : null)
-                .fixedResponseConfig(getFixedResponse() != null ? getFixedResponse().toFixedAction() : null)
-                .redirectConfig(getRedirect() != null ? getRedirect().toRedirect() : null)
+                .authenticateCognitoConfig(getAuthenticateCognitoAction() != null ? getAuthenticateCognitoAction().toCognito() : null)
+                .authenticateOidcConfig(getAuthenticateOidcAction() != null ? getAuthenticateOidcAction().toOidc() : null)
+                .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
+                .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
                 .order(getOrder())
                 .targetGroupArn(getTargetGroupArn())
                 .type(getType())

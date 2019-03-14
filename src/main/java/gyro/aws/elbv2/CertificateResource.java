@@ -18,7 +18,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     certificate
- *         certificate-arn: "arn:aws:acm:us-east-2:acct-number:certificate/certificatearn"
+ *         arn: "arn:aws:acm:us-east-2:acct-number:certificate/certificatearn"
  *     end
  */
 
@@ -26,7 +26,7 @@ import java.util.Set;
 @ResourceName(parent = "nlb-listener", value = "certificate")
 public class CertificateResource extends AwsResource {
 
-    private String certificateArn;
+    private String arn;
     private Boolean isDefault;
 
     public CertificateResource() {
@@ -37,12 +37,12 @@ public class CertificateResource extends AwsResource {
      *  ARN of the certificate (Required)
      */
     @ResourceDiffProperty(updatable = true)
-    public String getCertificateArn() {
-        return certificateArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setCertificateArn(String certificateArn) {
-        this.certificateArn = certificateArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     @ResourceDiffProperty(updatable = true)
@@ -64,7 +64,7 @@ public class CertificateResource extends AwsResource {
         }
 
         if (parent != null) {
-            return parent.getListenerArn();
+            return parent.getArn();
         }
 
         return null;
@@ -72,7 +72,7 @@ public class CertificateResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getCertificateArn());
+        return String.format("%s", getArn());
     }
 
     @Override
@@ -104,12 +104,12 @@ public class CertificateResource extends AwsResource {
 
     @Override
     public String toDisplayString() {
-        return "certificate " + getCertificateArn();
+        return "certificate " + getArn();
     }
 
     private Certificate toCertificate() {
         return Certificate.builder()
-                .certificateArn(getCertificateArn())
+                .certificateArn(getArn())
                 .build();
     }
 }

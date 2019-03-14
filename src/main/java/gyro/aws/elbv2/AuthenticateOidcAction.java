@@ -1,12 +1,34 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.ResourceName;
+import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
 
 import java.util.Map;
 
-@ResourceName(parent = "action", value = "oidc")
-public class AuthenticateOidcActionConfigResource {
+/**
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     action
+ *         type: "authenticate-oidc"
+ *
+ *         authenticate-oidc-action
+ *             authorization-endpoint: "https://example.com/authorization_endpoint"
+ *             client-id: "client_id"
+ *             client-secret: "client_secret"
+ *             issuer: "https://example.com"
+ *             token-endpoint: "https://example.com/token_endpoint"
+ *             user-info-endpoint: "https://example.com/user_info_endpoint"
+ *         end
+ *     end
+ */
+public class AuthenticateOidcAction extends Diffable {
+
     private Map<String, String> extraParams;
     private String authorizationEndpoint;
     private String clientId;
@@ -19,11 +41,11 @@ public class AuthenticateOidcActionConfigResource {
     private String tokenEndpoint;
     private String userInfoEndpoint;
 
-    public AuthenticateOidcActionConfigResource() {
+    public AuthenticateOidcAction() {
 
     }
 
-    public AuthenticateOidcActionConfigResource(AuthenticateOidcActionConfig oidc) {
+    public AuthenticateOidcAction(AuthenticateOidcActionConfig oidc) {
         setExtraParams(oidc.authenticationRequestExtraParams());
         setAuthorizationEndpoint(oidc.authorizationEndpoint());
         setClientId(oidc.clientId());
@@ -37,6 +59,7 @@ public class AuthenticateOidcActionConfigResource {
         setUserInfoEndpoint(oidc.userInfoEndpoint());
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getExtraParams() {
         return extraParams;
     }
@@ -45,6 +68,7 @@ public class AuthenticateOidcActionConfigResource {
         this.extraParams = extraParams;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getAuthorizationEndpoint() {
         return authorizationEndpoint;
     }
@@ -53,6 +77,7 @@ public class AuthenticateOidcActionConfigResource {
         this.authorizationEndpoint = authorizationEndpoint;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getClientId() {
         return clientId;
     }
@@ -61,6 +86,7 @@ public class AuthenticateOidcActionConfigResource {
         this.clientId = clientId;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getClientSecret() {
         return clientSecret;
     }
@@ -69,6 +95,7 @@ public class AuthenticateOidcActionConfigResource {
         this.clientSecret = clientSecret;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getIssuer() {
         return issuer;
     }
@@ -77,6 +104,7 @@ public class AuthenticateOidcActionConfigResource {
         this.issuer = issuer;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getOnAuthenticatedRequest() {
         return onAuthenticatedRequest;
     }
@@ -85,6 +113,7 @@ public class AuthenticateOidcActionConfigResource {
         this.onAuthenticatedRequest = onAuthenticatedRequest;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getScope() {
         return scope;
     }
@@ -93,6 +122,7 @@ public class AuthenticateOidcActionConfigResource {
         this.scope = scope;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getSessionCookieName() {
         return sessionCookieName;
     }
@@ -101,6 +131,7 @@ public class AuthenticateOidcActionConfigResource {
         this.sessionCookieName = sessionCookieName;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Long getSessionTimeout() {
         return sessionTimeout;
     }
@@ -109,6 +140,7 @@ public class AuthenticateOidcActionConfigResource {
         this.sessionTimeout = sessionTimeout;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getTokenEndpoint() {
         return tokenEndpoint;
     }
@@ -117,12 +149,21 @@ public class AuthenticateOidcActionConfigResource {
         this.tokenEndpoint = tokenEndpoint;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getUserInfoEndpoint() {
         return userInfoEndpoint;
     }
 
     public void setUserInfoEndpoint(String userInfoEndpoint) {
         this.userInfoEndpoint = userInfoEndpoint;
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getClientId(), getUserInfoEndpoint(), getTokenEndpoint());
+    }
+
+    public String toDisplayString() {
+        return "authenticate oidc action";
     }
 
     public AuthenticateOidcActionConfig toOidc() {

@@ -33,7 +33,6 @@ import java.util.Set;
  *         end
  *     end
  */
-
 @ResourceName("alb-listener")
 public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
@@ -41,8 +40,10 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
     /**
      *  List of default actions associated with the listener (Optional)
+     *
+     *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(subresource = true, updatable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<ActionResource> getDefaultAction() {
         if (defaultAction == null) {
             defaultAction = new ArrayList<>();
@@ -79,7 +80,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));
 
-        setListenerArn(response.listeners().get(0).listenerArn());
+        setArn(response.listeners().get(0).listenerArn());
     }
 
     @Override
@@ -89,7 +90,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         if (toCertificates().isEmpty() && getProtocol().equals("HTTP")) {
             client.modifyListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                     .defaultActions(toDefaultActions())
-                    .listenerArn(getListenerArn())
+                    .listenerArn(getArn())
                     .port(getPort())
                     .protocol(getProtocol())
                     .sslPolicy(null));
@@ -97,7 +98,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
             client.modifyListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                     .defaultActions(toDefaultActions())
-                    .listenerArn(getListenerArn())
+                    .listenerArn(getArn())
                     .port(getPort())
                     .protocol(getProtocol())
                     .sslPolicy(getSslPolicy()));
@@ -113,8 +114,8 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getListenerArn() != null) {
-            sb.append("alb listener " + getListenerArn());
+        if (getArn() != null) {
+            sb.append("alb listener " + getArn());
         } else {
             sb.append("alb listener ");
         }
@@ -151,7 +152,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyListener(r -> r.certificates(toCertificates())
                 .defaultActions(toDefaultActions())
-                .listenerArn(getListenerArn())
+                .listenerArn(getArn())
                 .port(getPort())
                 .protocol(getProtocol())
                 .sslPolicy(getSslPolicy()));
@@ -162,7 +163,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyListener(r -> r.certificates(toCertificates())
                 .defaultActions(toDefaultActions())
-                .listenerArn(getListenerArn())
+                .listenerArn(getArn())
                 .port(getPort())
                 .protocol(getProtocol())
                 .sslPolicy(getSslPolicy()));
@@ -176,7 +177,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyListener(r -> r.certificates(toCertificates())
                 .defaultActions(toDefaultActions())
-                .listenerArn(getListenerArn())
+                .listenerArn(getArn())
                 .port(getPort())
                 .protocol(getProtocol())
                 .sslPolicy(getSslPolicy()));
