@@ -245,7 +245,7 @@ public class NetworkAclRuleResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return getRuleNumber().toString();
+        return String.format("%s, %s", getRuleNumber(), getEgressRule());
     }
 
     @Override
