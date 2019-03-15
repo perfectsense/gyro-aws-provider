@@ -76,7 +76,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Rule number for this rule entry, evaluates the order of rule actions based on the rule number.
+     * The rule number of the rule entry that determines the rule entry processing order. (Required)
      */
     public Integer getRuleNumber() {
         return ruleNumber;
@@ -87,8 +87,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Enables or disables inbound/outbound traffic based on this value.
-     * Required values : "allow" or "deny".
+     * Allow or deny inbound/outbound traffic. (Required)
      */
     @ResourceDiffProperty(updatable = true)
     public String getRuleAction() {
@@ -100,7 +99,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "1" (ICMP), "6" (TCP) or "17" (UDP).
+     * Protocol of this rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP). (Required)
      */
     @ResourceDiffProperty(updatable = true)
     public String getProtocol() {
@@ -112,7 +111,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Creates egress rule entry if set to true, and ingress rule entry if set to false.
+     * Indicate whether the rule entry is an egress rule entry. (Required)
      */
     public Boolean getEgressRule() {
         return egressRule;
@@ -171,7 +170,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Type required for an ICMP request
+     * Type required for an ICMP request.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getIcmpType() {
@@ -183,7 +182,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Code required for an ICMP request
+     * Code required for an ICMP request.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getIcmpCode() {
