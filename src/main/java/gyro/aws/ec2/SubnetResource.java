@@ -270,8 +270,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
             client.modifySubnetAttribute(request);
         }
 
-        client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
+        ReplaceNetworkAclAssociationResponse replaceAclResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
             .networkAclId(getAclId()));
+
+        setAclAssociationId(replaceAclResponse.newAssociationId());
     }
 
     @Override
