@@ -70,7 +70,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
      *
      * @subresource beam.aws.ec2.NetworkAclRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
+    @ResourceDiffProperty(updatable = true)
     public List<NetworkAclRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();
