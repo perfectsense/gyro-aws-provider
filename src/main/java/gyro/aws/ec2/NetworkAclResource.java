@@ -99,16 +99,11 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
                     continue;
                 }
 
-                if (e.egress().equals(true)) {
-                    NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
-                    getRule().add(rule);
-                    rule.parent(this);
-                } else {
-                    NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
-                    getRule().add(rule);
-                    rule.parent(this);
-                }
+                NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
+                getRule().add(rule);
+                rule.parent(this);
             }
+
             setVpcId(networkAcl.vpcId());
 
             return true;
