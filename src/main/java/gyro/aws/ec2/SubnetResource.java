@@ -187,7 +187,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
                 if (!acl.isDefault().equals(true) && acl.networkAclId().equals(getAclId())) {
                     setAclId(acl.networkAclId());
-                    if (acl.associations().size() != 0) {
+                    if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
                             .filter(a -> getSubnetId().equals(a.subnetId()))
                             .map(NetworkAclAssociation::networkAclAssociationId)
@@ -195,7 +195,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                     }
                 } else {
                     setDefaultAclId(acl.networkAclId());
-                    if (acl.associations().size() != 0) {
+                    if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
                             .filter(a -> getSubnetId().equals(a.subnetId()))
                             .map(NetworkAclAssociation::networkAclAssociationId)
@@ -235,7 +235,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         );
 
         for (NetworkAcl acl: aclResponse.networkAcls()) {
-            if (acl.associations().size() != 0) {
+            if (!acl.associations().isEmpty()) {
                 setDefaultAclId(acl.networkAclId());
                 acl.associations().stream()
                     .filter(a -> getSubnetId().equals(a.subnetId()))
