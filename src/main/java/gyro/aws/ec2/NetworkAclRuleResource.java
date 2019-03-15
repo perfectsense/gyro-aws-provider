@@ -196,12 +196,12 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * A unique ID for this subresource.
+     * The Id of the network ACL.
      */
-    public String getId() {
+    public String getNetworkAclId() {
         NetworkAclResource parent = (NetworkAclResource) parentResource();
         if (parent != null) {
-            return parent.getId();
+            return parent.getNetworkAclId();
         }
         return null;
     }
@@ -217,7 +217,7 @@ public class NetworkAclRuleResource extends AwsResource {
         
         if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
             if ((getToPort() != null && getFromPort() != null) || (getIcmpType() != null && getIcmpCode() != null)) {
-                client.createNetworkAclEntry(r -> r.networkAclId(getId())
+                client.createNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
                     .cidrBlock(getCidrBlock())
                     .ipv6CidrBlock(getIpv6CidrBlock())
                     .ruleNumber(getRuleNumber())
@@ -232,7 +232,7 @@ public class NetworkAclRuleResource extends AwsResource {
             if (getToPort() != null && getFromPort() != null) {
                 throw new BeamException("Traffic on all ports are allowed for this protocol");
             } else {
-                client.createNetworkAclEntry(r -> r.networkAclId(getId())
+                client.createNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
                     .cidrBlock(getCidrBlock())
                     .ipv6CidrBlock(getIpv6CidrBlock())
                     .ruleNumber(getRuleNumber())
@@ -257,7 +257,7 @@ public class NetworkAclRuleResource extends AwsResource {
     public void update(Resource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.replaceNetworkAclEntry(r -> r.networkAclId(getId())
+        client.replaceNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
             .ruleNumber(getRuleNumber())
             .ruleAction(getRuleAction())
             .cidrBlock(getCidrBlock())
@@ -272,7 +272,7 @@ public class NetworkAclRuleResource extends AwsResource {
     @Override
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
-        client.deleteNetworkAclEntry(d -> d.networkAclId(getId())
+        client.deleteNetworkAclEntry(d -> d.networkAclId(getNetworkAclId())
             .egress(getEgressRule())
             .ruleNumber(getRuleNumber()));
     }
