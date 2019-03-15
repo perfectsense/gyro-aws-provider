@@ -176,8 +176,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
             }
 
-            DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(r -> r.filters(Filter.builder()
-                .name("vpc-id").values(getVpcId()).build()));
+            DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
+                r -> r.filters(
+                    Filter.builder().name("vpc-id").values(getVpcId()).build(),
+                    Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
+                )
+            );
 
             for (NetworkAcl acl: aclResponse.networkAcls()) {
 
@@ -192,7 +196,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 } else {
                     setDefaultAclId(acl.networkAclId());
                     if (acl.associations().size() != 0) {
-                        setDefaultAclAssociationId(acl.associations().get(0).networkAclAssociationId());
+                        acl.associations().stream()
+                            .filter(a -> getSubnetId().equals(a.subnetId()))
+                            .map(NetworkAclAssociation::networkAclAssociationId)
+                            .forEach(this::setDefaultAclAssociationId);
                     }
                 }
             }
