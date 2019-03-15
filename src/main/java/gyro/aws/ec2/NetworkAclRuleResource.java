@@ -114,7 +114,6 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * Creates egress rule entry if set to true, and ingress rule entry if set to false.
      */
-    @ResourceDiffProperty(updatable = true)
     public Boolean getEgressRule() {
         return egressRule;
     }
