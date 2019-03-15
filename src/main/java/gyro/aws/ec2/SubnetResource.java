@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifySubnetAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+import software.amazon.awssdk.services.ec2.model.NetworkAclAssociation;
 import software.amazon.awssdk.services.ec2.model.ReplaceNetworkAclAssociationResponse;
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
@@ -183,7 +184,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 if (!acl.isDefault().equals(true) && acl.networkAclId().equals(getAclId())) {
                     setAclId(acl.networkAclId());
                     if (acl.associations().size() != 0) {
-                        setAclAssociationId(acl.associations().get(0).networkAclAssociationId());
+                        acl.associations().stream()
+                            .filter(a -> getSubnetId().equals(a.subnetId()))
+                            .map(NetworkAclAssociation::networkAclAssociationId)
+                            .forEach(this::setAclAssociationId);
                     }
                 } else {
                     setDefaultAclId(acl.networkAclId());
