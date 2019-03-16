@@ -66,7 +66,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
     }
 
     /**
-     * Rule entries for the Network ACL.
+     * A list of rules for the Network ACL.
      *
      * @subresource beam.aws.ec2.NetworkAclRuleResource
      */

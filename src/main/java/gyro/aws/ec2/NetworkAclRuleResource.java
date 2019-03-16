@@ -12,12 +12,12 @@ import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 import java.util.Set;
 
 /**
- * Create Network ACL rule entry in the provided VPC.
+ * Create a Network ACL rule.
  *
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *    aws::network-acl network-acl-example
  *       vpc-id: $(aws::vpc vpc-example-for-network-acl | vpc-id)
@@ -76,7 +76,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * The rule number of the rule entry that determines the rule entry processing order. (Required)
+     * A number that determines the rule's processing order. (Required)
      */
     public Integer getRuleNumber() {
         return ruleNumber;
@@ -87,7 +87,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Allow or deny inbound/outbound traffic. (Required)
+     * The action of the rule. Valid values are: ``allow`` or ``deny``. (Required)
      */
     @ResourceDiffProperty(updatable = true)
     public String getRuleAction() {
@@ -99,7 +99,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Protocol of this rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP). (Required)
+     * The protocol of the rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP). (Required)
      */
     @ResourceDiffProperty(updatable = true)
     public String getProtocol() {
@@ -111,7 +111,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Indicate whether the rule entry is an egress rule entry. (Required)
+     * Indicate whether the rule is an egress rule. (Required)
      */
     public Boolean getEgressRule() {
         return egressRule;
@@ -122,7 +122,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * IPv4 cidr block to apply this Inbound/Outbound rule to.
+     * The IPv4 cidr block to apply the rule to.
      */
     @ResourceDiffProperty(updatable = true)
     public String getCidrBlock() {
@@ -134,7 +134,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * IPv6 cidr block to apply this Inbound/Outbound rule to.
+     * The IPv6 cidr block to apply the rule to.
      */
     @ResourceDiffProperty(updatable = true)
     public String getIpv6CidrBlock() {
@@ -146,7 +146,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Starting port for this rule.
+     * The starting port of the rule.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getFromPort() {
@@ -158,7 +158,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Ending port for this rule.
+     * The ending port of the rule.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getToPort() {
@@ -170,7 +170,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Type required for an ICMP request.
+     * The ICMP type used for an ICMP request.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getIcmpType() {
@@ -182,7 +182,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     /**
-     * Code required for an ICMP request.
+     * The ICMP code used for an ICMP request.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getIcmpCode() {
