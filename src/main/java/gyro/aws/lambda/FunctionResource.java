@@ -1,7 +1,5 @@
 package gyro.aws.lambda;
 
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
@@ -52,6 +50,10 @@ import java.util.stream.Collectors;
  *         tags: {
  *             Name: "lambda-function-example"
  *         }
+ *
+ *         lambda-layers: [
+ *             $(aws::lambda-layer lambda-layer-for-function-example-1 | version-arn)
+ *         ]
  *     end
  */
 @ResourceName("lambda-function")
@@ -335,7 +337,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The set of lambda layers be associated with the function.
+     * The set of version arns of lambda layers to be associated with the function.
      */
     @ResourceDiffProperty(updatable = true)
     public List<String> getLambdaLayers() {
@@ -484,7 +486,6 @@ public class FunctionResource extends AwsResource {
             setMasterArn(configuration.masterArn());
             setRevisionId(configuration.revisionId());
             setVersion(configuration.version());
-            setUpdateCode(false);
 
             ListTagsResponse tagResponse = client.listTags(
                 r -> r.resource(getArnNoVersion())
@@ -599,20 +600,17 @@ public class FunctionResource extends AwsResource {
 
         if (changeSet.contains("tags")) {
             FunctionResource oldResource = (FunctionResource) resource;
-            MapDifference<String, String> mapDifference = Maps.difference(oldResource.getTags(), getTags());
 
-            Map<String, String> deleteTags = mapDifference.entriesOnlyOnLeft();
-            if (!deleteTags.isEmpty()) {
+            if (!oldResource.getTags().isEmpty()) {
                 client.untagResource(
                     r -> r.resource(getArnNoVersion())
-                        .tagKeys(deleteTags.keySet())
+                        .tagKeys(oldResource.getTags().keySet())
                 );
             }
 
-            Map<String, String> addTags = mapDifference.entriesOnlyOnRight();
-            if (!addTags.isEmpty()) {
+            if (!getTags().isEmpty()) {
                 client.tagResource(
-                    r -> r.resource(getArnNoVersion()).tags(addTags)
+                    r -> r.resource(getArnNoVersion()).tags(getTags())
                 );
             }
 
