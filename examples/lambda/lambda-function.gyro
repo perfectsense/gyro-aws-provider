@@ -10,4 +10,27 @@ aws::lambda-function lambda-function-example
     tags: {
         Name: "lambda-function-example"
     }
+
+    lambda-layers: [
+        $(aws::lambda-layer lambda-layer-for-function-example-1 | version-arn),
+        $(aws::lambda-layer lambda-layer-for-function-example-2 | version-arn)
+    ]
+end
+
+aws::lambda-layer lambda-layer-for-function-example-1
+    layer-name: "lambda-layer-for-function-example-1"
+    description: "lambda-layer-example-desc"
+    content-zip-path: "example-function.zip"
+    compatible-runtimes: [
+        "nodejs8.10"
+    ]
+end
+
+aws::lambda-layer lambda-layer-for-function-example-2
+    layer-name: "lambda-layer-for-function-example-2"
+    description: "lambda-layer-example-desc"
+    content-zip-path: "example-function.zip"
+    compatible-runtimes: [
+        "nodejs8.10"
+    ]
 end
