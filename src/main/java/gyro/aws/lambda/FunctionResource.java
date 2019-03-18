@@ -552,7 +552,7 @@ public class FunctionResource extends AwsResource {
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
             } catch (Exception ex) {
-                BeamCore.ui().write("\n@|bold,blue Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
+                BeamCore.ui().write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
             }
         }
     }
