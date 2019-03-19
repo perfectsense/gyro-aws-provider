@@ -1,0 +1,14 @@
+plugin
+    artifact: 'gyro:gyro-aws-provider:0.14-SNAPSHOT'
+    repositories: [
+        'https://artifactory.psdops.com/public',
+        'https://artifactory.psdops.com/gyro-snapshots'
+    ]
+end
+plugin
+    artifact: 'gyro:gyro-beam-enterprise-plugin:0.14-SNAPSHOT'
+    repositories: [
+        'https://artifactory.psdops.com/public',
+        'https://artifactory.psdops.com/gyro-snapshots'
+    ]
+end
