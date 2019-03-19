@@ -8,6 +8,7 @@ import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
+import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,8 +79,8 @@ public class FunctionResource extends AwsResource {
     private List<String> securityGroupIds;
     private List<String> subnetIds;
     private List<String> lambdaLayers;
-    private Boolean updateCode;
     private Integer reservedConcurrentExecutions;
+    private String fileHash;
 
     // -- Readonly
 
@@ -148,6 +150,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The zip file location where the function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
      */
+    @ResourceDiffProperty(updatable = true)
     public String getContentZipPath() {
         return contentZipPath;
     }
@@ -308,7 +311,9 @@ public class FunctionResource extends AwsResource {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
         } else {
-            Collections.sort(securityGroupIds);
+            if (!securityGroupIds.contains(null)) {
+                Collections.sort(securityGroupIds);
+            }
         }
 
         return securityGroupIds;
@@ -326,7 +331,9 @@ public class FunctionResource extends AwsResource {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
         } else {
-            Collections.sort(subnetIds);
+            if (!subnetIds.contains(null)) {
+                Collections.sort(subnetIds);
+            }
         }
 
         return subnetIds;
@@ -344,7 +351,9 @@ public class FunctionResource extends AwsResource {
         if (lambdaLayers == null) {
             lambdaLayers = new ArrayList<>();
         } else {
-            Collections.sort(lambdaLayers);
+            if (!lambdaLayers.contains(null)) {
+                Collections.sort(lambdaLayers);
+            }
         }
 
         return lambdaLayers;
@@ -352,22 +361,6 @@ public class FunctionResource extends AwsResource {
 
     public void setLambdaLayers(List<String> lambdaLayers) {
         this.lambdaLayers = lambdaLayers;
-    }
-
-    /**
-     * The flag to update the code of the function. Defaults to false.
-     */
-    @ResourceDiffProperty(updatable = true)
-    public Boolean getUpdateCode() {
-        if (updateCode == null) {
-            updateCode = false;
-        }
-
-        return updateCode;
-    }
-
-    public void setUpdateCode(Boolean updateCode) {
-        this.updateCode = updateCode;
     }
 
     /**
@@ -454,16 +447,28 @@ public class FunctionResource extends AwsResource {
         this.version = version;
     }
 
+    @ResourceDiffProperty(updatable = true, nullable = true)
+    public String getFileHash() {
+        if (fileHash == null) {
+            fileHash = "";
+        }
+
+        return fileHash;
+    }
+
+    public void setFileHash(String fileHash) {
+        this.fileHash = fileHash;
+    }
+
     @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
         try {
             GetFunctionResponse response = client.getFunction(
-                r -> r.functionName(getFunctionName()).qualifier("$LATEST")
+                r -> r.functionName(getFunctionName())
             );
 
-            setUpdateCode(false);
             setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
 
             FunctionConfiguration configuration = response.configuration();
@@ -493,6 +498,10 @@ public class FunctionResource extends AwsResource {
 
             setTags(tagResponse.tags());
 
+            if (!ObjectUtils.isBlank(getContentZipPath())) {
+                getZipFile();
+            }
+
         } catch (ResourceNotFoundException ex) {
             return false;
         }
@@ -502,6 +511,8 @@ public class FunctionResource extends AwsResource {
 
     @Override
     public void create() {
+        validate();
+
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateFunctionRequest.Builder builder = CreateFunctionRequest.builder()
@@ -522,6 +533,7 @@ public class FunctionResource extends AwsResource {
             builder = builder.code(c -> c.zipFile(getZipFile()));
         } else {
             builder = builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion()));
+            setFileHash("");
         }
 
         if (!ObjectUtils.isBlank(getDeadLetterConfigArn())) {
@@ -543,7 +555,6 @@ public class FunctionResource extends AwsResource {
         setMasterArn(response.masterArn());
         setRevisionId(response.revisionId());
         setVersion(response.version());
-        setUpdateCode(false);
 
         if (getReservedConcurrentExecutions() != null) {
             try {
@@ -559,7 +570,11 @@ public class FunctionResource extends AwsResource {
 
     @Override
     public void update(Resource resource, Set<String> set) {
+        validate();
+
         LambdaClient client = createClient(LambdaClient.class);
+
+        FunctionResource oldResource = (FunctionResource) resource;
 
         Set<String> changeSet = new HashSet<>(set);
 
@@ -578,28 +593,41 @@ public class FunctionResource extends AwsResource {
             changeSet.remove("reserved-concurrent-executions");
         }
 
-        if (changeSet.contains("update-code")) {
-            if (getUpdateCode()) {
-                UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
-                    .functionName(getFunctionName())
-                    .publish(false)
-                    .revisionId(getRevisionId());
+        if ((changeSet.contains("s3-bucket") || changeSet.contains("s3-key") || changeSet.contains("s3-object-version")) && !ObjectUtils.isBlank(getS3Bucket())) {
 
-                if (!ObjectUtils.isBlank(getContentZipPath())) {
-                    builder = builder.zipFile(getZipFile());
-                } else {
-                    builder = builder.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion());
-                }
+        }
 
-                client.updateFunctionCode(builder.build());
-                setUpdateCode(false);
+        boolean fileChanged;
+
+        if (!ObjectUtils.isBlank(getContentZipPath())) {
+            getZipFile();
+            fileChanged = !oldResource.getFileHash().equals(getFileHash());
+        } else {
+            fileChanged = (changeSet.contains("s3-bucket") || changeSet.contains("s3-key") || changeSet.contains("s3-object-version"));
+        }
+
+        if (fileChanged) {
+            UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
+                .functionName(getFunctionName())
+                .publish(false)
+                .revisionId(getRevisionId());
+            if (!ObjectUtils.isBlank(getS3Bucket())) {
+                client.updateFunctionCode(
+                    builder.s3Bucket(getS3Bucket())
+                        .s3Key(getS3Key())
+                        .s3ObjectVersion(getS3ObjectVersion())
+                        .build()
+                );
+            } else {
+                client.updateFunctionCode(
+                    builder.zipFile(getZipFile()).build()
+                );
             }
 
-            changeSet.remove("update-code");
+            changeSet.removeAll(Arrays.asList("s3-bucket","s3-key","s3-object-version","content-zip-path"));
         }
 
         if (changeSet.contains("tags")) {
-            FunctionResource oldResource = (FunctionResource) resource;
 
             if (!oldResource.getTags().isEmpty()) {
                 client.untagResource(
@@ -665,9 +693,26 @@ public class FunctionResource extends AwsResource {
     private SdkBytes getZipFile() {
         try {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
+            byte[] bytes = Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath()));
+            setFileHash(DigestUtils.sha256Hex(bytes));
+            return SdkBytes.fromByteArray(bytes);
         } catch (IOException ex) {
             throw new BeamException(String.format("File not found - %s",getContentZipPath()));
+        }
+    }
+
+    private void validate() {
+        int s3FieldCount = 0;
+        s3FieldCount += !ObjectUtils.isBlank(getS3Bucket()) ? 1 : 0;
+        s3FieldCount += !ObjectUtils.isBlank(getS3Key()) ? 1 : 0;
+        s3FieldCount += !ObjectUtils.isBlank(getS3ObjectVersion()) ? 1 : 0;
+
+        if (s3FieldCount > 0 && s3FieldCount < 3 ) {
+            throw new BeamException("Fields s3-bucket, s3-key and s3-object-version are needed to set together or none.");
+        }
+
+        if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPath())) {
+            throw new BeamException("Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set.");
         }
     }
 }
