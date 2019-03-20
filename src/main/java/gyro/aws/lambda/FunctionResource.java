@@ -160,6 +160,10 @@ public class FunctionResource extends AwsResource {
 
     public void setContentZipPath(String contentZipPath) {
         this.contentZipPath = contentZipPath;
+
+        if (!ObjectUtils.isBlank(contentZipPath)) {
+            setFileHashFromPath();
+        }
     }
 
     /**
@@ -450,7 +454,7 @@ public class FunctionResource extends AwsResource {
         this.version = version;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getFileHash() {
         if (fileHash == null) {
             fileHash = "";
@@ -600,16 +604,8 @@ public class FunctionResource extends AwsResource {
 
         }
 
-        boolean fileChanged;
-
-        if (!ObjectUtils.isBlank(getContentZipPath())) {
-            getZipFile();
-            fileChanged = !oldResource.getFileHash().equals(getFileHash());
-        } else {
-            fileChanged = (changeSet.contains("s3-bucket") || changeSet.contains("s3-key") || changeSet.contains("s3-object-version"));
-        }
-
-        if (fileChanged) {
+        if (changeSet.contains("s3-bucket") || changeSet.contains("s3-key") || changeSet.contains("s3-object-version")
+            || changeSet.contains("content-zip-path") || changeSet.contains("file-hash")) {
             UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
                 .functionName(getFunctionName())
                 .publish(false)
@@ -627,7 +623,7 @@ public class FunctionResource extends AwsResource {
                 );
             }
 
-            changeSet.removeAll(Arrays.asList("s3-bucket","s3-key","s3-object-version","content-zip-path"));
+            changeSet.removeAll(Arrays.asList("s3-bucket","s3-key","s3-object-version","content-zip-path", "file-hash"));
         }
 
         if (changeSet.contains("tags")) {
@@ -696,12 +692,20 @@ public class FunctionResource extends AwsResource {
     private SdkBytes getZipFile() {
         try {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            byte[] bytes = Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath()));
-            setFileHash(DigestUtils.sha256Hex(bytes));
-            return SdkBytes.fromByteArray(bytes);
+            return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
         } catch (IOException ex) {
             throw new BeamException(String.format("File not found - %s",getContentZipPath()));
         }
+    }
+
+    private void setFileHashFromPath() {
+        try {
+            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
+            setFileHash(DigestUtils.sha256Hex(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath()))));
+        } catch (IOException ex) {
+            throw new BeamException(String.format("File not found - %s",getContentZipPath()));
+        }
+
     }
 
     private void validate() {
