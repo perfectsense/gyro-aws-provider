@@ -117,6 +117,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 bucket name where the function code resides. Required if field 'content-zip-path' not set.
      */
+    @ResourceDiffProperty(updatable = true)
     public String getS3Bucket() {
         return s3Bucket;
     }
@@ -128,6 +129,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 object key where the function code resides. Required if field 'content-zip-path' not set.
      */
+    @ResourceDiffProperty(updatable = true)
     public String getS3Key() {
         return s3Key;
     }
@@ -139,6 +141,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 object version where the function code resides. Required if field 'content-zip-path' not set.
      */
+    @ResourceDiffProperty(updatable = true)
     public String getS3ObjectVersion() {
         return s3ObjectVersion;
     }
