@@ -17,8 +17,10 @@ import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.lambda.model.GetFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.Layer;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
+import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeRequest;
+import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +83,8 @@ public class FunctionResource extends AwsResource {
     private List<String> lambdaLayers;
     private Integer reservedConcurrentExecutions;
     private String fileHash;
+    private Map<String, String> versionMap;
+    private Boolean publish;
 
     // -- Readonly
 
@@ -90,6 +94,7 @@ public class FunctionResource extends AwsResource {
     private String masterArn;
     private String lastModified;
     private String version;
+    private String codeHash;
 
     /**
      * The name of the function. (Required)
@@ -383,6 +388,36 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
+     * A Map of versions and corresponding arns.
+     */
+    public Map<String, String> getVersionMap() {
+        if (versionMap == null) {
+            versionMap = new HashMap<>();
+        }
+        return versionMap;
+    }
+
+    public void setVersionMap(Map<String, String> versionMap) {
+        this.versionMap = versionMap;
+    }
+
+    /**
+     * A flag that states to publish the code or not.
+     */
+    @ResourceDiffProperty(updatable = true)
+    public Boolean getPublish() {
+        if (publish == null) {
+            publish = false;
+        }
+
+        return publish;
+    }
+
+    public void setPublish(Boolean publish) {
+        this.publish = publish;
+    }
+
+    /**
      * The arn for the lambda function resource including the version.
      */
     @ResourceOutput
@@ -467,6 +502,14 @@ public class FunctionResource extends AwsResource {
         this.fileHash = fileHash;
     }
 
+    public String getCodeHash() {
+        return codeHash;
+    }
+
+    public void setCodeHash(String codeHash) {
+        this.codeHash = codeHash;
+    }
+
     @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
@@ -498,6 +541,7 @@ public class FunctionResource extends AwsResource {
             setMasterArn(configuration.masterArn());
             setRevisionId(configuration.revisionId());
             setVersion(configuration.version());
+            setCodeHash(configuration.codeSha256());
 
             ListTagsResponse tagResponse = client.listTags(
                 r -> r.resource(getArnNoVersion())
@@ -506,8 +550,10 @@ public class FunctionResource extends AwsResource {
             setTags(tagResponse.tags());
 
             if (!ObjectUtils.isBlank(getContentZipPath())) {
-                getZipFile();
+                setFileHashFromPath();
             }
+
+            setVersions(client);
 
         } catch (ResourceNotFoundException ex) {
             return false;
@@ -533,7 +579,7 @@ public class FunctionResource extends AwsResource {
             .tracingConfig(t -> t.mode(getTrackingConfig()))
             .kmsKeyArn(getKmsKeyArn())
             .tags(getTags())
-            .publish(true)
+            .publish(getPublish())
             .layers(getLambdaLayers());
 
         if (!ObjectUtils.isBlank(getContentZipPath())) {
@@ -562,6 +608,7 @@ public class FunctionResource extends AwsResource {
         setMasterArn(response.masterArn());
         setRevisionId(response.revisionId());
         setVersion(response.version());
+        setCodeHash(response.codeSha256());
 
         if (getReservedConcurrentExecutions() != null) {
             try {
@@ -573,6 +620,8 @@ public class FunctionResource extends AwsResource {
                 BeamCore.ui().write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
             }
         }
+
+        setVersions(client);
     }
 
     @Override
@@ -600,28 +649,26 @@ public class FunctionResource extends AwsResource {
             changeSet.remove("reserved-concurrent-executions");
         }
 
-        if ((changeSet.contains("s3-bucket") || changeSet.contains("s3-key") || changeSet.contains("s3-object-version")) && !ObjectUtils.isBlank(getS3Bucket())) {
-
-        }
-
         if (changeSet.contains("s3-bucket") || changeSet.contains("s3-key") || changeSet.contains("s3-object-version")
             || changeSet.contains("content-zip-path") || changeSet.contains("file-hash")) {
+
             UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
                 .functionName(getFunctionName())
-                .publish(false)
+                .publish(getPublish())
                 .revisionId(getRevisionId());
             if (!ObjectUtils.isBlank(getS3Bucket())) {
-                client.updateFunctionCode(
-                    builder.s3Bucket(getS3Bucket())
-                        .s3Key(getS3Key())
-                        .s3ObjectVersion(getS3ObjectVersion())
-                        .build()
-                );
+                builder = builder.s3Bucket(getS3Bucket())
+                    .s3Key(getS3Key())
+                    .s3ObjectVersion(getS3ObjectVersion());
             } else {
-                client.updateFunctionCode(
-                    builder.zipFile(getZipFile()).build()
-                );
+                builder = builder.zipFile(getZipFile());
             }
+
+            UpdateFunctionCodeResponse response = client.updateFunctionCode(builder.build());
+
+            setCodeHash(response.codeSha256());
+
+            setVersions(client);
 
             changeSet.removeAll(Arrays.asList("s3-bucket","s3-key","s3-object-version","content-zip-path", "file-hash"));
         }
@@ -720,6 +767,22 @@ public class FunctionResource extends AwsResource {
 
         if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPath())) {
             throw new BeamException("Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set.");
+        }
+    }
+
+    private void setVersions(LambdaClient client) {
+        ListVersionsByFunctionResponse versionsResponse = client.listVersionsByFunction(
+            r -> r.functionName(getFunctionName())
+        );
+
+        getVersionMap().clear();
+
+        if (versionsResponse != null && !versionsResponse.versions().isEmpty()) {
+            for (FunctionConfiguration functionConfiguration : versionsResponse.versions()) {
+                if (!functionConfiguration.version().equals("$LATEST")) {
+                    getVersionMap().put(functionConfiguration.version(), functionConfiguration.functionArn());
+                }
+            }
         }
     }
 }
