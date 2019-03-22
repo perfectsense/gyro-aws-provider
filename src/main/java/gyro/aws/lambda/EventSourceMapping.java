@@ -2,6 +2,7 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -11,7 +12,6 @@ import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequ
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.GetEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
-
 
 import java.time.Instant;
 import java.util.Date;
@@ -54,8 +54,9 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The name / arn / partial arn of the function to be associated with. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public String getFunctionName() {
-        return functionName;
+        return isFunctionArnSame() ? getFunctionArn() : functionName;
     }
 
     public void setFunctionName(String functionName) {
@@ -65,6 +66,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The batch size for the event to invoke the function. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public Integer getBatchSize() {
         return batchSize;
     }
@@ -222,6 +224,7 @@ public class EventSourceMapping extends AwsResource {
             setState(response.state());
             setStateTransitionReason(response.stateTransitionReason());
             setEnabled(getState().equals("Enabled"));
+            setFunctionArn(response.functionArn());
         } catch (ResourceNotFoundException ex) {
             return false;
         }
@@ -257,15 +260,22 @@ public class EventSourceMapping extends AwsResource {
         setStateTransitionReason(response.stateTransitionReason());
         setFunctionArn(response.functionArn());
         setEventSourceArn(response.eventSourceArn());
+        setFunctionName(getFunctionArn());
     }
 
     @Override
     public void update(Resource resource, Set<String> set) {
+        if (!getState().equals("Enabled") && !getState().equals("Disabled")) {
+            throw new BeamException(String.format("Event source mapping in '%s' state. Please try again.", getState()));
+        }
+
         LambdaClient client = createClient(LambdaClient.class);
 
         client.updateEventSourceMapping(
             r -> r.uuid(getId())
                 .enabled(getEnabled())
+                .batchSize(getBatchSize())
+                .functionName(getFunctionName())
         );
     }
 
@@ -293,5 +303,32 @@ public class EventSourceMapping extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    private boolean isFunctionArnSame() {
+        if (ObjectUtils.isBlank(getFunctionArn())) {
+            return false;
+        } else if (functionName.equals(getFunctionArn())) {
+            return true;
+        } else {
+            if (!functionName.contains(":")) {
+                //Just function name
+                return getFunctionArn().endsWith(functionName);
+            } else if (functionName.startsWith("arn:aws:lambda")) {
+                //Full Arn
+                return functionName.equals(getFunctionArn());
+            } else if (functionName.contains(":function:")) {
+                //Partial
+                String partialName = functionName.split(":function:").length == 2 ? functionName.split(":function:")[1] : null;
+                String partialArn = getFunctionArn().split(":function:").length == 2 ? getFunctionArn().split(":function:")[1] : null;
+                if (partialName == null || !partialName.equals(partialArn)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
