@@ -2,6 +2,7 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.BeamCore;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequ
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.GetEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.lambda.model.UpdateEventSourceMappingResponse;
 
 import java.time.Instant;
 import java.util.Date;
@@ -225,6 +227,7 @@ public class EventSourceMapping extends AwsResource {
             setStateTransitionReason(response.stateTransitionReason());
             setEnabled(getState().equals("Enabled"));
             setFunctionArn(response.functionArn());
+            setFunctionName(getFunctionArn());
         } catch (ResourceNotFoundException ex) {
             return false;
         }
@@ -254,13 +257,8 @@ public class EventSourceMapping extends AwsResource {
         CreateEventSourceMappingResponse response = client.createEventSourceMapping(builder.build());
 
         setId(response.uuid());
-        setLastModified(Date.from(response.lastModified()));
-        setLastProcessingResult(response.lastProcessingResult());
-        setState(response.state());
-        setStateTransitionReason(response.stateTransitionReason());
-        setFunctionArn(response.functionArn());
-        setEventSourceArn(response.eventSourceArn());
-        setFunctionName(getFunctionArn());
+
+        saveEventSourceMapping(client);
     }
 
     @Override
@@ -277,6 +275,8 @@ public class EventSourceMapping extends AwsResource {
                 .batchSize(getBatchSize())
                 .functionName(getFunctionName())
         );
+
+        saveEventSourceMapping(client);
     }
 
     @Override
@@ -312,13 +312,13 @@ public class EventSourceMapping extends AwsResource {
             return true;
         } else {
             if (!functionName.contains(":")) {
-                //Just function name
+                // Just function name
                 return getFunctionArn().endsWith(functionName);
             } else if (functionName.startsWith("arn:aws:lambda")) {
-                //Full Arn
+                // Full Arn
                 return functionName.equals(getFunctionArn());
             } else if (functionName.contains(":function:")) {
-                //Partial
+                // Partial
                 String partialName = functionName.split(":function:").length == 2 ? functionName.split(":function:")[1] : null;
                 String partialArn = getFunctionArn().split(":function:").length == 2 ? getFunctionArn().split(":function:")[1] : null;
                 if (partialName == null || !partialName.equals(partialArn)) {
@@ -330,5 +330,29 @@ public class EventSourceMapping extends AwsResource {
 
             return true;
         }
+    }
+
+    private void saveEventSourceMapping(LambdaClient client) {
+        int count = 20;
+        long time = 3000;
+        GetEventSourceMappingResponse response;
+        do {
+            response = client.getEventSourceMapping(r -> r.uuid(getId()));
+            count--;
+            try {
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                break;
+            }
+            BeamCore.ui().write("\n@|bold,blue Waiting for completion ...|@");
+        } while (count > 0 && !response.state().equals(getEnabled() ? "Enabled" : "Disabled"));
+
+        setLastModified(Date.from(response.lastModified()));
+        setLastProcessingResult(response.lastProcessingResult());
+        setState(response.state());
+        setStateTransitionReason(response.stateTransitionReason());
+        setFunctionArn(response.functionArn());
+        setEventSourceArn(response.eventSourceArn());
+        setFunctionName(getFunctionArn());
     }
 }
