@@ -17,6 +17,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an function alias.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::lambda-alias lambda-alias-example
+ *         alias-name: "lambda-alias-example"
+ *         function-name: "testFunction"
+ *         function-version: "10"
+ *         description: "lambda-alias-example"
+ *         additional-version: "9"
+ *         weight: 0.4
+ *     end
+ */
 @ResourceName("lambda-alias")
 public class FunctionAlias extends AwsResource {
     private String aliasName;
