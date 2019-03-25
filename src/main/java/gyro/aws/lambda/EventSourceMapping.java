@@ -333,19 +333,28 @@ public class EventSourceMapping extends AwsResource {
     }
 
     private void saveEventSourceMapping(LambdaClient client) {
-        int count = 20;
-        long time = 3000;
-        GetEventSourceMappingResponse response;
-        do {
+        long time = 20000;
+        int count = 0;
+        boolean wait = true;
+        GetEventSourceMappingResponse response = null;
+
+        while(wait && count < 20) {
+            count++;
             response = client.getEventSourceMapping(r -> r.uuid(getId()));
-            count--;
+            if (response.state().equals(getEnabled() ? "Enabled" : "Disabled")) {
+                break;
+            }
+
             try {
                 Thread.sleep(time);
             } catch (InterruptedException e) {
                 break;
             }
-            BeamCore.ui().write("\n@|bold,blue Waiting for completion ...|@");
-        } while (count > 0 && !response.state().equals(getEnabled() ? "Enabled" : "Disabled"));
+
+            if (count % 5 == 0) {
+                wait = BeamCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+            }
+        }
 
         setLastModified(Date.from(response.lastModified()));
         setLastProcessingResult(response.lastProcessingResult());
