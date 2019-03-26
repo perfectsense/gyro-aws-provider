@@ -548,8 +548,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
                 setInstanceLaunchDate(Date.from(instance.launchTime()));
             }
 
-            waitForRunningInstances(client);
-
         } catch (Ec2Exception ex) {
             throw ex;
         }
@@ -641,25 +639,50 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
         Ec2Client client = createClient(Ec2Client.class);
 
         client.terminateInstances(r -> r.instanceIds(Collections.singletonList(getInstanceId())));
+    }
 
-        // Wait for the instance to be really terminated.
-        boolean terminated = false;
-        while (!terminated) {
+    @Override
+    public boolean isCreated() {
+        Ec2Client client = createClient(Ec2Client.class);
+        boolean running = false;
+        try {
             for (Reservation reservation : client.describeInstances(r -> r.instanceIds(getInstanceId())).reservations()) {
                 for (Instance instance : reservation.instances()) {
-                    if ("terminated".equals(instance.state().nameAsString())) {
-                        terminated = true;
+                    if ("running".equals(instance.state().nameAsString())) {
+                        running = true;
                     }
+
+                    setPublicDnsName(instance.publicDnsName());
+                    setPublicIpAddress(instance.publicIpAddress());
+                    setPrivateIpAddress(instance.privateIpAddress());
+                    setInstanceState(instance.state().nameAsString());
+                    setInstanceLaunchDate(Date.from(instance.launchTime()));
                 }
             }
-
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException error) {
-                return;
+        } catch (Ec2Exception error) {
+            // Amazon sometimes doesn't make the instances available
+            // immediately for API requests.
+            if (!"InvalidInstanceID.NotFound".equals(error.awsErrorDetails().errorCode())) {
+                throw error;
             }
         }
+
+        return running;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        Ec2Client client = createClient(Ec2Client.class);
+        boolean terminated = false;
+        for (Reservation reservation : client.describeInstances(r -> r.instanceIds(getInstanceId())).reservations()) {
+            for (Instance instance : reservation.instances()) {
+                if ("terminated".equals(instance.state().nameAsString())) {
+                    terminated = true;
+                }
+            }
+        }
+
+        return terminated;
     }
 
     @Override
@@ -759,41 +782,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
             }
 
             throw ex;
-        }
-    }
-
-    private void waitForRunningInstances(Ec2Client client) {
-        // Wait for the instance to be not pending.
-        boolean running = false;
-        while (!running) {
-            try {
-                for (Reservation reservation : client.describeInstances(r -> r.instanceIds(getInstanceId())).reservations()) {
-                    for (Instance instance : reservation.instances()) {
-                        if ("running".equals(instance.state().nameAsString())) {
-                            running = true;
-                        }
-
-                        setPublicDnsName(instance.publicDnsName());
-                        setPublicIpAddress(instance.publicIpAddress());
-                        setPrivateIpAddress(instance.privateIpAddress());
-                        setInstanceState(instance.state().nameAsString());
-                        setInstanceLaunchDate(Date.from(instance.launchTime()));
-                    }
-                }
-            } catch (Ec2Exception error) {
-                // Amazon sometimes doesn't make the instances available
-                // immediately for API requests.
-                if (!"InvalidInstanceID.NotFound".equals(error.awsErrorDetails().errorCode())) {
-                    throw error;
-                }
-            }
-
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException error) {
-                return;
-            }
         }
     }
 
