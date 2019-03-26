@@ -2,6 +2,13 @@ sudo: false
 
 language: java
 
+if: type = push
+
+branches:
+  only:
+    - master
+    - /^release\/.*/
+
 jdk:
   - openjdk11
 

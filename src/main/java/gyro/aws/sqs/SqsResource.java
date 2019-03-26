@@ -1,5 +1,6 @@
 package gyro.aws.sqs;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.BeamException;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
 import software.amazon.awssdk.services.sqs.model.ListQueuesResponse;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -249,7 +251,10 @@ public class SqsResource extends AwsResource {
 
     public void setPolicyDocPath(String policyDocPath) {
         this.policyDocPath = policyDocPath;
-        setPolicyFromPath();
+
+        if (!ObjectUtils.isBlank(policyDocPath)) {
+            setPolicyFromPath();
+        }
     }
 
     /**
@@ -420,7 +425,8 @@ public class SqsResource extends AwsResource {
 
     private void setPolicyFromPath() {
         try {
-            setPolicy(new String(Files.readAllBytes(Paths.get(getPolicyDocPath())), StandardCharsets.UTF_8));
+            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
+            setPolicy(new String(Files.readAllBytes(Paths.get(dir + File.separator + getPolicyDocPath())), StandardCharsets.UTF_8));
         } catch (IOException ioex) {
             throw new BeamException(MessageFormat
                 .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), getPolicyDocPath()));

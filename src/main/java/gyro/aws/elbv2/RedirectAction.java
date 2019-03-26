@@ -1,10 +1,28 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.ResourceName;
+import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;
 
-@ResourceName(parent = "action", value = "redirect")
-public class RedirectActionConfigResource {
+/**
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     action
+ *         type: "redirect"
+ *
+ *         redirect-action
+ *             port: 443
+ *             protocol: "HTTPS"
+ *             status-code: "HTTP_301"
+ *         end
+ *     end
+ */
+public class RedirectAction extends Diffable {
     private String host;
     private String path;
     private String port;
@@ -12,11 +30,11 @@ public class RedirectActionConfigResource {
     private String query;
     private String statusCode;
 
-    public RedirectActionConfigResource() {
+    public RedirectAction() {
 
     }
 
-    public RedirectActionConfigResource(RedirectActionConfig redirect) {
+    public RedirectAction(RedirectActionConfig redirect) {
         setHost(redirect.host());
         setPath(redirect.path());
         setPort(redirect.port());
@@ -25,6 +43,7 @@ public class RedirectActionConfigResource {
         setStatusCode(redirect.statusCodeAsString());
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getHost() {
         return host;
     }
@@ -33,6 +52,7 @@ public class RedirectActionConfigResource {
         this.host = host;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getPath() {
         return path;
     }
@@ -41,6 +61,7 @@ public class RedirectActionConfigResource {
         this.path = path;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getPort() {
         return port;
     }
@@ -49,6 +70,7 @@ public class RedirectActionConfigResource {
         this.port = port;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getProtocol() {
         return protocol;
     }
@@ -57,6 +79,7 @@ public class RedirectActionConfigResource {
         this.protocol = protocol;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getQuery() {
         return query;
     }
@@ -65,12 +88,21 @@ public class RedirectActionConfigResource {
         this.query = query;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getStatusCode() {
         return statusCode;
     }
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getPort(), getProtocol(), getStatusCode());
+    }
+
+    public String toDisplayString() {
+        return "redirect action";
     }
 
     public RedirectActionConfig toRedirect() {

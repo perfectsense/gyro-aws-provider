@@ -22,7 +22,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::nlb nlb-example
- *         load-balancer-name: "nlb-example"
+ *         name: "nlb-example"
  *         ip-address-type: "ipv4"
  *         scheme: "internet-facing"
  *
@@ -91,13 +91,13 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
-                .name(getLoadBalancerName())
+                .name(getName())
                 .scheme(getScheme())
                 .subnetMappings(toSubnetMappings())
                 .type(LoadBalancerTypeEnum.NETWORK)
         );
 
-        setLoadBalancerArn(response.loadBalancers().get(0).loadBalancerArn());
+        setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
         super.create();
@@ -116,7 +116,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("network load balancer " + getLoadBalancerName());
+        sb.append("network load balancer " + getName());
         return sb.toString();
     }
 

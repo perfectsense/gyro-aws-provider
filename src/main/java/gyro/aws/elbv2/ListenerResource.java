@@ -16,7 +16,7 @@ public abstract class ListenerResource extends AwsResource {
 
     private List<CertificateResource> certificate;
     private String defaultCertificate;
-    private String listenerArn;
+    private String arn;
     private String loadBalancerArn;
     private Integer port;
     private String protocol;
@@ -24,8 +24,10 @@ public abstract class ListenerResource extends AwsResource {
 
     /**
      *  List of certificates associated with the listener (Optional)
+     *
+     *  @subresource gyro.aws.elbv2.CertificateResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true, nullable = true)
+    @ResourceDiffProperty(updatable = true, nullable = true)
     public List<CertificateResource> getCertificate() {
         if (certificate == null) {
             certificate = new ArrayList<>();
@@ -50,12 +52,12 @@ public abstract class ListenerResource extends AwsResource {
         this.defaultCertificate = defaultCertificate;
     }
 
-    public String getListenerArn() {
-        return listenerArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setListenerArn(String listenerArn) {
-        this.listenerArn = listenerArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     public String getLoadBalancerArn() {
@@ -105,14 +107,14 @@ public abstract class ListenerResource extends AwsResource {
     public Listener internalRefresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
-            DescribeListenersResponse lstResponse = client.describeListeners(r -> r.listenerArns(getListenerArn()));
+            DescribeListenersResponse lstResponse = client.describeListeners(r -> r.listenerArns(getArn()));
 
             Listener listener = lstResponse.listeners().get(0);
 
             if (listener.certificates().size() > 0) {
                 setDefaultCertificate(listener.certificates().get(0).certificateArn());
             }
-            setListenerArn(listener.listenerArn());
+            setArn(listener.listenerArn());
             setLoadBalancerArn(listener.loadBalancerArn());
             setPort(listener.port());
             setProtocol(listener.protocolAsString());
@@ -120,12 +122,12 @@ public abstract class ListenerResource extends AwsResource {
 
             if (this instanceof ApplicationLoadBalancerListenerResource) {
                 getCertificate().clear();
-                DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getListenerArn()));
+                DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
                 if (certResponse != null) {
                     for (Certificate certificate : certResponse.certificates()) {
                         if (!certificate.isDefault()) {
                             CertificateResource cert = new CertificateResource();
-                            cert.setCertificateArn(certificate.certificateArn());
+                            cert.setArn(certificate.certificateArn());
                             cert.setIsDefault(certificate.isDefault());
                             cert.parent(this);
                             getCertificate().add(cert);
@@ -144,13 +146,13 @@ public abstract class ListenerResource extends AwsResource {
     @Override
     public void delete() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        client.deleteListener(r -> r.listenerArn(getListenerArn()));
+        client.deleteListener(r -> r.listenerArn(getArn()));
     }
 
     public List<Certificate> toCertificates() {
         List<Certificate> certificates = new ArrayList<>();
         for (CertificateResource cert : getCertificate()) {
-            certificates.add(Certificate.builder().certificateArn(cert.getCertificateArn()).build());
+            certificates.add(Certificate.builder().certificateArn(cert.getArn()).build());
         }
         return certificates;
     }

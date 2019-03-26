@@ -12,10 +12,14 @@ import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetResponse;
 import software.amazon.awssdk.services.ec2.model.DeleteSubnetRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSubnetsRequest;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifySubnetAttributeRequest;
+import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+import software.amazon.awssdk.services.ec2.model.NetworkAclAssociation;
+import software.amazon.awssdk.services.ec2.model.ReplaceNetworkAclAssociationResponse;
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
 import java.util.Set;
@@ -30,6 +34,7 @@ import java.util.Set;
  *
  *     aws::subnet example-subnet
  *         vpc-id: $(aws::vpc example-vpc | vpc-id)
+ *         acl-id: $(aws::network-acl example-network-acl | network-acl-id)
  *         availability-zone: us-east-1a
  *         cidr-block: 10.0.0.0/24
  *     end
@@ -42,6 +47,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private String subnetId;
+    private String aclId;
+    private String aclAssociationId;
+    private String defaultAclId;
+    private String defaultAclAssociationId;
 
     public SubnetResource() {
 
@@ -114,6 +123,51 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         return getSubnetId();
     }
 
+    /**
+     * The ID of the Default Network ACL associated to the subnet.
+     */
+    public String getDefaultAclId() {
+        return defaultAclId;
+    }
+
+    public void setDefaultAclId(String defaultAclId) {
+        this.defaultAclId = defaultAclId;
+    }
+
+    /**
+     * The Association ID of the Default Network ACL attached to the subnet.
+     */
+    public String getDefaultAclAssociationId() {
+        return defaultAclAssociationId;
+    }
+
+    public void setDefaultAclAssociationId(String defaultAclAssociationId) {
+        this.defaultAclAssociationId = defaultAclAssociationId;
+    }
+
+    /**
+     * The ID of the Network ACL associated to the subnet.
+     */
+    @ResourceDiffProperty(updatable = true)
+    public String getAclId() {
+        return aclId;
+    }
+
+    public void setAclId(String aclId) {
+        this.aclId = aclId;
+    }
+
+    /**
+     * The Association ID of the Network ACL currently associated to the subnet.
+     */
+    public String getAclAssociationId() {
+        return aclAssociationId;
+    }
+
+    public void setAclAssociationId(String aclAssociationId) {
+        this.aclAssociationId = aclAssociationId;
+    }
+
     @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
@@ -132,6 +186,34 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 setAvailabilityZone(subnet.availabilityZone());
                 setCidrBlock(subnet.cidrBlock());
                 setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
+            }
+
+            DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
+                r -> r.filters(
+                    Filter.builder().name("vpc-id").values(getVpcId()).build(),
+                    Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
+                )
+            );
+
+            for (NetworkAcl acl: aclResponse.networkAcls()) {
+
+                if (!acl.isDefault().equals(true) && acl.networkAclId().equals(getAclId())) {
+                    setAclId(acl.networkAclId());
+                    if (!acl.associations().isEmpty()) {
+                        acl.associations().stream()
+                            .filter(a -> getSubnetId().equals(a.subnetId()))
+                            .map(NetworkAclAssociation::networkAclAssociationId)
+                            .forEach(this::setAclAssociationId);
+                    }
+                } else {
+                    setDefaultAclId(acl.networkAclId());
+                    if (!acl.associations().isEmpty()) {
+                        acl.associations().stream()
+                            .filter(a -> getSubnetId().equals(a.subnetId()))
+                            .map(NetworkAclAssociation::networkAclAssociationId)
+                            .forEach(this::setDefaultAclAssociationId);
+                    }
+                }
             }
         } catch (Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
@@ -155,8 +237,30 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 .build();
 
         CreateSubnetResponse response = client.createSubnet(request);
-
         setSubnetId(response.subnet().subnetId());
+
+        DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
+            r -> r.filters(
+                Filter.builder().name("vpc-id").values(getVpcId()).build(),
+                Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
+            )
+        );
+
+        for (NetworkAcl acl: aclResponse.networkAcls()) {
+            if (!acl.associations().isEmpty()) {
+                setDefaultAclId(acl.networkAclId());
+                acl.associations().stream()
+                    .filter(a -> getSubnetId().equals(a.subnetId()))
+                    .map(NetworkAclAssociation::networkAclAssociationId)
+                    .forEach(this::setDefaultAclAssociationId);
+            }
+        }
+
+        if (getAclId() != null) {
+            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getDefaultAclAssociationId())
+                .networkAclId(getAclId()));
+            setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
+        }
 
         modifyAttribute(client);
     }
@@ -177,6 +281,11 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
             client.modifySubnetAttribute(request);
         }
+
+        ReplaceNetworkAclAssociationResponse replaceAclResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
+            .networkAclId(getAclId()));
+
+        setAclAssociationId(replaceAclResponse.newAssociationId());
     }
 
     @Override

@@ -4,13 +4,32 @@ aws::vpc vpc
     cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: "subnet-example"
+        Name: "vpc-example"
+    }
+end
+
+aws::network-acl network-acl
+    vpc-id: $(aws::vpc vpc | vpc-id)
+
+    rule
+            cidr-block: ["0.0.0.0/0"]
+            protocol : "6"
+            rule-action : "allow"
+            rule-number : 103
+            egress-rule : false
+            from-port: 80
+            to-port: 80
+    end
+
+    tags: {
+            Name: "network-acl-example"
     }
 end
 
 for zone, cidr in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
     aws::subnet "subnet-$(zone)"
         vpc-id: $(aws::vpc vpc | vpc-id)
+        acl-id: $(aws::network-acl network-acl | network-acl-id)
         availability-zone: $(zone)
         cidr-block: $(cidr)
 

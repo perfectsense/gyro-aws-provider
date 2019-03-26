@@ -1,12 +1,32 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.ResourceName;
+import gyro.core.diff.Diffable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 
 import java.util.Map;
 
-@ResourceName(parent = "action", value = "cognito")
-public class AuthenticateCognitoActionConfigResource {
+/**
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     action
+ *         type: "authenticate-cognito"
+ *
+ *         authenticate-cognito-action
+ *             user-pool-arn: $(aws::authenticate-cognito-user-pool cognito | user-pool-arn)
+ *             user-pool-client-id: $(aws::authenticate-cognito-user-pool-client client | user-pool-client-id)
+ *             user-pool-domain: $(aws::authenticate-cognito-user-pool-domain domain | domain)
+ *         end
+ *     end
+ *
+ *
+ */
+public class AuthenticateCognitoAction extends Diffable {
+
     private Map<String, String> extraParams;
     private String onUnauthenticatedRequest;
     private String scope;
@@ -16,11 +36,11 @@ public class AuthenticateCognitoActionConfigResource {
     private String userPoolClientId;
     private String userPoolDomain;
 
-    public AuthenticateCognitoActionConfigResource() {
+    public AuthenticateCognitoAction() {
 
     }
 
-    public AuthenticateCognitoActionConfigResource(AuthenticateCognitoActionConfig cognito) {
+    public AuthenticateCognitoAction(AuthenticateCognitoActionConfig cognito) {
         setExtraParams(cognito.authenticationRequestExtraParams());
         setOnUnauthenticatedRequest(cognito.onUnauthenticatedRequestAsString());
         setScope(cognito.scope());
@@ -93,6 +113,14 @@ public class AuthenticateCognitoActionConfigResource {
 
     public void setUserPoolDomain(String userPoolDomain) {
         this.userPoolDomain = userPoolDomain;
+    }
+
+    public String primaryKey() {
+        return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClientId(), getUserPoolDomain());
+    }
+
+    public String toDisplayString() {
+        return "authenticate cognito action";
     }
 
     public AuthenticateCognitoActionConfig toCognito() {
