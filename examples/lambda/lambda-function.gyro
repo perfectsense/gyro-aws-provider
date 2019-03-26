@@ -1,0 +1,38 @@
+import ../init as _
+
+aws::lambda-function lambda-function-example
+    function-name: "testFunction"
+    handler: "index.handler"
+    runtime: "nodejs8.10"
+    role-arn: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
+    content-zip-path: "example-function.zip"
+
+    tags: {
+        Name: "lambda-function-example"
+    }
+
+    lambda-layers: [
+        $(aws::lambda-layer lambda-layer-for-function-example-1 | version-arn),
+        $(aws::lambda-layer lambda-layer-for-function-example-2 | version-arn)
+    ]
+
+    publish: true
+end
+
+aws::lambda-layer lambda-layer-for-function-example-1
+    layer-name: "lambda-layer-for-function-example-1"
+    description: "lambda-layer-example-desc"
+    content-zip-path: "example-function.zip"
+    compatible-runtimes: [
+        "nodejs8.10"
+    ]
+end
+
+aws::lambda-layer lambda-layer-for-function-example-2
+    layer-name: "lambda-layer-for-function-example-2"
+    description: "lambda-layer-example-desc"
+    content-zip-path: "example-function.zip"
+    compatible-runtimes: [
+        "nodejs8.10"
+    ]
+end

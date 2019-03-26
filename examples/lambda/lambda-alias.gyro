@@ -1,0 +1,10 @@
+import ../init as _
+
+aws::lambda-alias lambda-alias-example
+    alias-name: "lambda-alias-example"
+    function-name: "testFunction"
+    function-version: "10"
+    description: "lambda-alias-example"
+    additional-version: "9"
+    weight: 0.4
+end
