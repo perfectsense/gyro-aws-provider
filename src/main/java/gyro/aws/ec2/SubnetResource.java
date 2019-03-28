@@ -246,8 +246,11 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         }
 
         if (getAclId() != null) {
-            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
-                .networkAclId(getAclId()));
+            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
+                r -> r.associationId(getAclAssociationId())
+                        .networkAclId(getAclId())
+            );
+
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
         }
 
@@ -260,8 +263,11 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
         if (changedProperties.contains("acl-id")) {
             String acl = getAclId() != null ? getAclId() : getDefaultAclId();
-            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
-                .networkAclId(acl));
+            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
+                r -> r.associationId(getAclAssociationId())
+                        .networkAclId(acl)
+            );
+
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
         }
 
