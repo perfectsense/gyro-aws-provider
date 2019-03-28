@@ -185,7 +185,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
             for (NetworkAcl acl: aclResponse.networkAcls()) {
 
-                if (!acl.isDefault().equals(true) && acl.networkAclId().equals(getAclId())) {
+                if (!acl.isDefault().equals(true)) {
                     setAclId(acl.networkAclId());
                     if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
@@ -195,6 +195,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                     }
                 } else {
                     setDefaultAclId(acl.networkAclId());
+                    setAclId(null);
                     if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
                             .filter(a -> getSubnetId().equals(a.subnetId()))
@@ -257,9 +258,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     protected void doUpdate(AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getAclId() != null && changedProperties.contains("acl-id")) {
+        if (changedProperties.contains("acl-id")) {
+            String acl = getAclId() != null ? getAclId() : getDefaultAclId();
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(r -> r.associationId(getAclAssociationId())
-                .networkAclId(getAclId()));
+                .networkAclId(acl));
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
         }
 
