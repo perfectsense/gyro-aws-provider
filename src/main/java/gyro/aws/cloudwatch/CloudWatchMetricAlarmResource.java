@@ -331,6 +331,10 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
 
     @ResourceDiffProperty(updatable = true, nullable = true)
     public List<MetricDataQueryResource> getMetrics() {
+        if (metrics == null) {
+            metrics = new ArrayList<>();
+        }
+
         return metrics;
     }
 
@@ -371,7 +375,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
             getDimensions().put(dimension.name(), dimension.value());
         }
 
-        setMetrics(new ArrayList<>());
+        getMetrics().clear();
         for (software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery metricDataQuery : metricAlarm.metrics()) {
             MetricDataQueryResource metricDataQueryResource = new MetricDataQueryResource(metricDataQuery);
             getMetrics().add(metricDataQueryResource);
@@ -459,7 +463,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
                 .dimensions(getDimensions().entrySet().stream().map(m -> Dimension.builder()
                     .name(m.getKey()).value(m.getValue()).build()).collect(Collectors.toList()))
 
-                .metrics(getMetrics() != null
+                .metrics(!getMetrics().isEmpty()
                     ? getMetrics().stream()
                     .map(MetricDataQueryResource::getMetricDataQuery)
                     .collect(Collectors.toList()) : null)

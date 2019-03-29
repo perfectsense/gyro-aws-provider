@@ -1,5 +1,7 @@
 package gyro.aws.cloudwatch;
 
+import com.psddev.dari.util.ObjectUtils;
+import gyro.core.diff.Diffable;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery;
 
@@ -7,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MetricDataQueryResource {
+public class MetricDataQueryResource extends Diffable {
 
     private String id;
     private String expression;
@@ -19,6 +21,32 @@ public class MetricDataQueryResource {
     private String unit;
     private Integer period;
     private Map<String, String> dimensions;
+
+    public MetricDataQueryResource() {
+
+    }
+
+    public MetricDataQueryResource(MetricDataQuery metricDataQuery) {
+        setId(metricDataQuery.id());
+        setExpression(metricDataQuery.expression());
+        setReturnData(metricDataQuery.returnData());
+        setLabel(metricDataQuery.label());
+
+        if (metricDataQuery.metricStat() != null) {
+            if (metricDataQuery.metricStat().metric() != null) {
+                setMetricName(metricDataQuery.metricStat().metric().metricName());
+                setNamespace(metricDataQuery.metricStat().metric().namespace());
+
+                for (Dimension dimension : metricDataQuery.metricStat().metric().dimensions()) {
+                    getDimensions().put(dimension.name(), dimension.value());
+                }
+            }
+
+            setPeriod(metricDataQuery.metricStat().period());
+            setStat(metricDataQuery.metricStat().stat());
+            setUnit(metricDataQuery.metricStat().unitAsString());
+        }
+    }
 
     public String getId() {
         return id;
@@ -108,29 +136,25 @@ public class MetricDataQueryResource {
         this.dimensions = dimensions;
     }
 
-    public MetricDataQueryResource() {
-
+    @Override
+    public String primaryKey() {
+        return getId();
     }
 
-    public MetricDataQueryResource(MetricDataQuery metricDataQuery) {
-        setId(metricDataQuery.id());
-        setExpression(metricDataQuery.expression());
-        setReturnData(metricDataQuery.returnData());
-        setLabel(metricDataQuery.label());
+    @Override
+    public String toDisplayString() {
+        StringBuilder sb = new StringBuilder();
 
-        setMetricName(metricDataQuery.metricStat().metric().metricName());
-        setNamespace(metricDataQuery.metricStat().metric().namespace());
+        sb.append("metric data query");
 
-        setPeriod(metricDataQuery.metricStat().period());
-        setStat(metricDataQuery.metricStat().stat());
-        setUnit(metricDataQuery.metricStat().unitAsString());
-
-        for (Dimension dimension : metricDataQuery.metricStat().metric().dimensions()) {
-            getDimensions().put(dimension.name(), dimension.value());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
+
+        return sb.toString();
     }
 
-    public MetricDataQuery getMetricDataQuery() {
+    MetricDataQuery getMetricDataQuery() {
         return MetricDataQuery.builder()
             .expression(getExpression())
             .id(getId())
