@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::kms kms-example
     aliases: ["alias/kms_example", "alias/kms_example_1"]

@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::db-cluster db-cluster-example
     db-cluster-identifier: "aurora-snapshot-cluster"

@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::ip-set ip-set-example
     name: "ip-set-example"

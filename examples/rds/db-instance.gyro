@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::db-instance db-instance-example
     allocated-storage: 20

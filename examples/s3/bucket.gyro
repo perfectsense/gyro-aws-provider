@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::bucket bucket-example
     name: "bucket-example"

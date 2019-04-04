@@ -1,0 +1,194 @@
+import ../init.gyro.state
+
+aws::vpc "vpc-auto-scaling-group-example"
+    _configured-fields: ["cidr-block", "provide-ipv6-cidr-block", "tags", "Name"]
+    cidr-block: "10.0.0.0/16"
+    default-vpc: false
+    enable-classic-link: false
+    enable-classic-link-dns-support: false
+    enable-dns-hostnames: true
+    enable-dns-support: true
+    instance-tenancy: "default"
+    name: "vpc-auto-scaling-group-example"
+    owner-id: "test-owner-12345"
+    provide-ipv6-cidr-block: true
+    tags: {Name: "vpc-auto-scaling-group-example"}
+    vpc-id: "test-vpc-id-a39c3d6879806d40"
+end
+aws::internet-gateway "internet-gateway-auto-scaling-group-example"
+    _configured-fields: ["vpc-id"]
+    internet-gateway-id: "test-internet-gateway-id-87ba18466a190efd"
+    tags: {}
+    vpc-id: "test-vpc-id-a39c3d6879806d40"
+end
+aws::subnet "subnet-auto-scaling-group-example"
+    _configured-fields: ["cidr-block", "vpc-id", "availability-zone", "tags", "Name"]
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.1.0/26"
+    name: "subnet-auto-scaling-group-example"
+    subnet-id: "test-subnet-id-9bd43c877e89eabf"
+    tags: {Name: "subnet-auto-scaling-group-example"}
+    vpc-id: "test-vpc-id-a39c3d6879806d40"
+end
+aws::subnet "subnet-auto-scaling-group-example-2"
+    _configured-fields: ["cidr-block", "vpc-id", "availability-zone", "tags", "Name"]
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.2.0/26"
+    name: "subnet-auto-scaling-group-example-2"
+    subnet-id: "test-subnet-id-8b31cdea8ade9325"
+    tags: {Name: "subnet-auto-scaling-group-example-2"}
+    vpc-id: "test-vpc-id-a39c3d6879806d40"
+end
+aws::security-group "security-group-auto-scaling-group-example-1"
+    _configured-fields: ["group-name", "description", "vpc-id", "keep-default-egress-rules", "tags", "Name"]
+    description: "security group instance example 1"
+    
+    egress
+        _configured-fields: ["protocol", "from-port", "to-port", "description", "ipv6-cidr-blocks"]
+        cidr-blocks: []
+        description: "allow outbound http traffic, ipv6 only"
+        from-port: 22
+        ipv6-cidr-blocks: ["::/0"]
+        protocol: "tcp"
+        to-port: 22
+    end
+    group-id: "test-group-id-bba18c02e1fdfc6c"
+    group-name: "security-group-auto-scaling-group-example-1"
+    
+    ingress
+        _configured-fields: ["protocol", "cidr-blocks", "from-port", "to-port", "description"]
+        cidr-blocks: ["0.0.0.0/0"]
+        description: "allow inbound http traffic, ipv4 only"
+        from-port: 22
+        ipv6-cidr-blocks: []
+        protocol: "tcp"
+        to-port: 22
+    end
+    keep-default-egress-rules: true
+    name: "security-group-auto-scaling-group-example-1"
+    owner-id: "test-owner-id-bc1b4b45a49ffbac"
+    tags: {Name: "security-group-auto-scaling-group-example-1"}
+    vpc-id: "test-vpc-id-a39c3d6879806d40"
+end
+aws::security-group "security-group-auto-scaling-group-example-2"
+    _configured-fields: ["group-name", "description", "vpc-id", "keep-default-egress-rules", "tags", "Name"]
+    description: "security group instance example 2"
+    
+    egress
+        _configured-fields: ["protocol", "from-port", "to-port", "description", "ipv6-cidr-blocks"]
+        cidr-blocks: []
+        description: "allow outbound http traffic, ipv6 only"
+        from-port: 22
+        ipv6-cidr-blocks: ["::/0"]
+        protocol: "tcp"
+        to-port: 22
+    end
+    group-id: "test-group-id-972874d5948e2c15"
+    group-name: "security-group-auto-scaling-group-example-2"
+    
+    ingress
+        _configured-fields: ["protocol", "cidr-blocks", "from-port", "to-port", "description"]
+        cidr-blocks: ["0.0.0.0/0"]
+        description: "allow inbound http traffic, ipv4 only"
+        from-port: 22
+        ipv6-cidr-blocks: []
+        protocol: "tcp"
+        to-port: 22
+    end
+    keep-default-egress-rules: true
+    name: "security-group-auto-scaling-group-example-2"
+    owner-id: "test-owner-id-a0437adec6fd63ee"
+    tags: {Name: "security-group-auto-scaling-group-example-2"}
+    vpc-id: "test-vpc-id-a39c3d6879806d40"
+end
+aws::instance "instance-auto-scaling-group-example"
+    _configured-fields: ["key-name", "security-group-ids", "ami-name", "subnet-id", "shutdown-behavior", "ebs-optimized", "source-dest-check", "instance-type", "enable-ena-support", "disable-api-termination", "tags", "Name"]
+    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    capacity-reservation: "none"
+    configure-hibernate-option: false
+    core-count: 0
+    disable-api-termination: false
+    ebs-optimized: false
+    enable-ena-support: true
+    enable-monitoring: false
+    instance-id: "test-instance-id-83905a99db87f469"
+    instance-type: "t2.micro"
+    key-name: "instance-static"
+    name: "instance-auto-scaling-group-example"
+    security-group-ids: ["test-group-id-bba18c02e1fdfc6c", "test-group-id-972874d5948e2c15"]
+    shutdown-behavior: "stop"
+    source-dest-check: true
+    subnet-id: "test-subnet-id-9bd43c877e89eabf"
+    tags: {Name: "instance-auto-scaling-group-example"}
+    thread-per-core: 0
+    user-data: ""
+end
+aws::launch-configuration "launch-configuration-auto-scaling-group-example"
+    _configured-fields: ["launch-configuration-name", "instance-id"]
+    associate-public-ip: false
+    ebs-optimized: false
+    enable-monitoring: false
+    instance-id: "test-instance-id-83905a99db87f469"
+    launch-configuration-name: "launch-configuration-gyro-test-instance-id-83905a99db87f469"
+    security-group-ids: []
+    user-data: ""
+end
+aws::auto-scaling-group "auto-scaling-group-example"
+    _configured-fields: ["launch-configuration-name", "enable-metrics-collection", "termination-policies", "AutoTag", "propagate-at-launch-tags", "auto-scaling-group-name", "availability-zones", "subnet-ids", "tags", "Name"]
+    auto-scaling-group-name: "auto-scaling-group-gyro-test-instance-id-83905a99db87f469"
+    
+    auto-scaling-notification
+        _configured-fields: ["notification-types", "topic-arn"]
+        notification-types: ["autoscaling:EC2_INSTANCE_LAUNCH_ERROR11", "autoscaling:EC2_INSTANCE_LAUNCH_ERROR"]
+        topic-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
+    end
+    availability-zones: ["us-east-2a"]
+    default-cooldown: 300
+    desired-capacity: 0
+    disabled-metrics: []
+    enable-metrics-collection: false
+    health-check-grace-period: 0
+    health-check-type: "EC2"
+    launch-configuration-name: "launch-configuration-gyro-test-instance-id-83905a99db87f469"
+    
+    lifecycle-hook
+        _configured-fields: ["lifecycle-transition", "lifecycle-hook-name", "heartbeat-timeout", "default-result"]
+        default-result: "CONTINUE"
+        heartbeat-timeout: 300
+        lifecycle-hook-name: "Lifecycle-Hook-1"
+        lifecycle-transition: "autoscaling:EC2_INSTANCE_LAUNCHING"
+    end
+    load-balancer-names: []
+    max-size: 0
+    min-size: 0
+    new-instances-protected-from-scale-in: false
+    propagate-at-launch-tags: ["AutoTag"]
+    
+    scaling-policy
+        _configured-fields: ["policy-type", "policy-name", "cooldown", "scaling-adjustment", "adjustment-type"]
+        adjustment-type: "ExactCapacity"
+        cooldown: 3000
+        disable-scale-in: false
+        metric-aggregation-type: "Average"
+        policy-name: "Simple-Policy-1"
+        policy-type: "SimpleScaling"
+        scaling-adjustment: 5
+        step-adjustment: []
+    end
+    
+    scaling-policy
+        _configured-fields: ["policy-type", "target-value", "policy-name", "predefined-metric-type", "disable-scale-in", "estimated-instance-warmup"]
+        disable-scale-in: false
+        estimated-instance-warmup: 50
+        metric-aggregation-type: "Average"
+        policy-name: "Target-Tracking-Scaling-Policy-1"
+        policy-type: "TargetTrackingScaling"
+        predefined-metric-type: "ASGAverageNetworkIn"
+        step-adjustment: []
+        target-value: 25.0
+    end
+    subnet-ids: ["test-subnet-id-8b31cdea8ade9325", "test-subnet-id-9bd43c877e89eabf"]
+    tags: {Name: "auto-scaling-group-example", AutoTag: "propagated from auto-scaling-group-gyro-1"}
+    target-group-arns: []
+    termination-policies: ["Default"]
+end

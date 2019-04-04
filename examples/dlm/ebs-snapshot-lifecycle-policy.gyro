@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::ebs-snapshot-lifecycle-policy ebs-snapshot-lifecycle-policy-example
     description: "ebs-snapshot-lifecycle-policy-example"
