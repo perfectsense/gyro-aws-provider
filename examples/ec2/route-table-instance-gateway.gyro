@@ -39,9 +39,11 @@ aws::security-group security-group
     }
 end
 
-workflow 'replace-gateway' for-type: 'aws::instance'
+workflow 'replace-gateway'
+    for-type: 'aws::instance'
+
     stage 'create-temp-gateway'
-        create parser-error: 'workaround'
+        create
             aws::instance "$(NAME)-temp"
                 _extends: $(PENDING)
             end
@@ -89,7 +91,9 @@ aws::route-table route-table-example
     }
 end
 
-workflow 'replace-route' for-type: 'aws::route'
+workflow 'replace-route'
+    for-type: 'aws::route'
+
     stage 'delete-existing-route'
         confirm-diff: true
 
@@ -100,7 +104,7 @@ workflow 'replace-route' for-type: 'aws::route'
     end
 
     stage 'create-new-route'
-        create parser-error: 'workaround'
+        create
             aws::route "$(NAME)"
                 _extends: $(PENDING)
             end
