@@ -20,7 +20,8 @@ workflow 'replace-vpc'
 
         transition-prompt: 'What next?'
 
-        transition 'swap' to: 'swap-vpcs'
+        transition 'swap'
+            to: 'swap-vpcs'
             description: 'Swap the VPCs'
         end
     end
