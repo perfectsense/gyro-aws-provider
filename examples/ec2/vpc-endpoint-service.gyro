@@ -65,7 +65,7 @@ end
 aws::iam-role example-role
     role-name: "example-role-vpc-endpoint"
     description: "example-role description"
-    assume-role-policy-document-file: "gyro-providers/gyro-aws-provider/examples/iam/role_example.json"
+    assume-role-policy-document-file: "examples/iam/role_example.json"
 end
 
 aws::endpoint endpoint-example-interface
