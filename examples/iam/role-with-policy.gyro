@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::iam-role example-role
     role-name: "example-role"

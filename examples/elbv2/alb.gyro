@@ -1,4 +1,4 @@
-import ../init.bcl as _
+@import ../init.bcl as _
 
 aws::alb alb-example
     load-balancer-name: "alb-example"
