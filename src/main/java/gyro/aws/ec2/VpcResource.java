@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.BeamException;
+import gyro.core.ResourceId;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -81,6 +82,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         return getVpcId();
     }
 
+    @ResourceId
     @ResourceOutput
     public String getVpcId() {
         return vpcId;

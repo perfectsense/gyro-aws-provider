@@ -33,7 +33,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::subnet example-subnet
- *         vpc-id: $(aws::vpc example-vpc | vpc-id)
+ *         vpc-id: $(aws::vpc example-vpc)
  *         acl-id: $(aws::network-acl example-network-acl | network-acl-id)
  *         availability-zone: us-east-1a
  *         cidr-block: 10.0.0.0/24
