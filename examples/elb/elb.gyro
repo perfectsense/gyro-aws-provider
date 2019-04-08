@@ -35,7 +35,7 @@ aws::load-balancer elb
     end
 
     listener
-        instance-port: "80"
+        instance-port: "8180"
         instance-protocol: "HTTP"
         load-balancer-port: "80"
         protocol: "HTTP"
