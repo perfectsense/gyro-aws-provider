@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::db-cluster-parameter-group cluster-parameter-group
     name: "cluster-parameter-group-example"

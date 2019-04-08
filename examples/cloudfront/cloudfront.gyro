@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::cloudfront cloudfront-example
     name: "static asset cache"

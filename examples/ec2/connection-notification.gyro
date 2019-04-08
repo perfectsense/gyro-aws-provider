@@ -1,4 +1,4 @@
-import endpoint as _
+@import endpoint as _
 
 aws::connection-notification connection-notification-example
     vpc-endpoint-id: $(aws::endpoint endpoint-example-interface | endpoint-id)

@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::vpc vpc
     cidr-block: "10.0.0.0/16"
@@ -8,9 +8,11 @@ aws::vpc vpc
     }
 end
 
-workflow 'replace-vpc' for-type: 'aws::vpc'
+workflow 'replace-vpc'
+    for-type: 'aws::vpc'
+
     stage 'create-temp-vpc'
-        create parser-error: 'workaround'
+        create
             aws::vpc "$(NAME)-temp"
                 _extends: $(PENDING)
             end
@@ -18,7 +20,8 @@ workflow 'replace-vpc' for-type: 'aws::vpc'
 
         transition-prompt: 'What next?'
 
-        transition 'swap' to: 'swap-vpcs'
+        transition 'swap'
+            to: 'swap-vpcs'
             description: 'Swap the VPCs'
         end
     end

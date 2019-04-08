@@ -1,4 +1,4 @@
-import ../init.gyro as _
+@import ../init.gyro as _
 
 aws::authenticate-cognito-user-pool cognito
     user-pool-name: "user pool name"

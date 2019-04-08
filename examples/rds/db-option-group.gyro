@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::db-option-group db-option-group-example
     name: "option-group-example"

@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::key-pair key-pair-example
     key-name: "key-pair-example"
