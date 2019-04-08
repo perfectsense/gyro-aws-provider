@@ -33,7 +33,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::subnet example-subnet
- *         vpc-id: $(aws::vpc example-vpc)
+ *         vpc: $(aws::vpc example-vpc)
  *         acl-id: $(aws::network-acl example-network-acl | network-acl-id)
  *         availability-zone: us-east-1a
  *         cidr-block: 10.0.0.0/24
@@ -42,7 +42,7 @@ import java.util.Set;
 @ResourceName("subnet")
 public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
-    private String vpcId;
+    private VpcResource vpc;
     private String cidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
@@ -60,18 +60,18 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         setCidrBlock(subnet.cidrBlock());
         setAvailabilityZone(subnet.availabilityZone());
         setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
-        setVpcId(subnet.vpcId());
+        setVpc(findById(VpcResource.class, subnet.vpcId()));
     }
 
     /**
-     * The ID of the VPC to create the subnet in. (Required)
+     * The VPC to create the subnet in. (Required)
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     /**
@@ -178,7 +178,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
             DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
                 r -> r.filters(
-                    Filter.builder().name("vpc-id").values(getVpcId()).build(),
+                    Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
                     Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
                 )
             );
@@ -222,7 +222,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         CreateSubnetRequest request = CreateSubnetRequest.builder()
                 .availabilityZone(getAvailabilityZone())
                 .cidrBlock(getCidrBlock())
-                .vpcId(getVpcId())
+                .vpcId(getVpc().getId())
                 .build();
 
         CreateSubnetResponse response = client.createSubnet(request);
@@ -230,7 +230,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
         DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
             r -> r.filters(
-                Filter.builder().name("vpc-id").values(getVpcId()).build(),
+                Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
                 Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
             )
         );
