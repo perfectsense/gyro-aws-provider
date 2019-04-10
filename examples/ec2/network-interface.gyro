@@ -1,0 +1,20 @@
+import ../init as _
+
+aws::network-interface test-1
+     description: "test-nic-update-test"
+     subnet-id: "subnet-00f0f1663cd890167"
+
+     tags: {
+        Name: "nic-example"
+     }
+end
+
+aws::network-interface test-2
+     description: "test-nic-with-IP-test-update"
+     subnet-id: "subnet-00f0f1663cd890167"
+     ipv4 : "10.0.1.32"
+
+     tags: {
+        Name: "nic-example-with-IP"
+     }
+end
