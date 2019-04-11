@@ -28,7 +28,7 @@ end
 
 for zone, cidr in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
     aws::subnet "subnet-$(zone)"
-        vpc-id: $(aws::vpc vpc | vpc-id)
+        vpc: $(aws::vpc vpc)
         acl-id: $(aws::network-acl network-acl | network-acl-id)
         availability-zone: $(zone)
         cidr-block: $(cidr)
