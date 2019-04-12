@@ -1,11 +1,11 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
@@ -171,7 +171,7 @@ public class ConnectionNotificationResource extends AwsResource {
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else {
-            throw new BeamException("Neither endpoint id nor service id found.");
+            throw new GyroException("Neither endpoint id nor service id found.");
         }
 
         setConnectionNotificationId(response.connectionNotification().connectionNotificationId());
@@ -216,7 +216,7 @@ public class ConnectionNotificationResource extends AwsResource {
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {
         if (ObjectUtils.isBlank(getConnectionNotificationId())) {
-            throw new BeamException("connection-notification-id is missing, unable to load connection notification.");
+            throw new GyroException("connection-notification-id is missing, unable to load connection notification.");
         }
 
         try {
@@ -241,11 +241,11 @@ public class ConnectionNotificationResource extends AwsResource {
     private void validate() {
         if ((ObjectUtils.isBlank(getVpcEndpointId()) && ObjectUtils.isBlank(getServiceId()))
             || (!ObjectUtils.isBlank(getVpcEndpointId()) && !ObjectUtils.isBlank(getServiceId()))) {
-            throw new BeamException("Either 'vpc-endpoint-id' or 'service-id' needs to be set. Not both at a time.");
+            throw new GyroException("Either 'vpc-endpoint-id' or 'service-id' needs to be set. Not both at a time.");
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {
-            throw new BeamException("The values - (" + String.join(" , ", getConnectionEvents())
+            throw new GyroException("The values - (" + String.join(" , ", getConnectionEvents())
                 + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '") + "' ].");
         }
     }

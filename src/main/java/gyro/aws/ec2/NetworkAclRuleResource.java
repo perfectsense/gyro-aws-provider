@@ -1,10 +1,10 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
@@ -228,7 +228,7 @@ public class NetworkAclRuleResource extends AwsResource {
             }
         } else {
             if (getToPort() != null && getFromPort() != null) {
-                throw new BeamException("Traffic on all ports are allowed for this protocol");
+                throw new GyroException("Traffic on all ports are allowed for this protocol");
             } else {
                 client.createNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
                     .cidrBlock(getCidrBlock())

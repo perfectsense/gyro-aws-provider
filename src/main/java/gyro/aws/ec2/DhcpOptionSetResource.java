@@ -1,10 +1,10 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
 import software.amazon.awssdk.services.ec2.model.CreateDhcpOptionsResponse;
@@ -205,7 +205,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
             client.deleteDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()));
 
         } catch (Ec2Exception err) {
-            throw new BeamException("This option set has dependencies and cannot be deleted.");
+            throw new GyroException("This option set has dependencies and cannot be deleted.");
         }
     }
 

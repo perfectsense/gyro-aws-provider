@@ -1,7 +1,7 @@
 package gyro.aws.s3;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 import software.amazon.awssdk.services.s3.model.Transition;
 
 public class S3LifecycleRuleTransition extends Diffable {

@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 public class DbParameter extends Diffable {
 

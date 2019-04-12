@@ -1,9 +1,9 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
@@ -68,7 +68,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
     /**
      * A list of rules for the Network ACL.
      *
-     * @subresource beam.aws.ec2.NetworkAclRuleResource
+     * @subresource gyro.aws.ec2.NetworkAclRuleResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<NetworkAclRuleResource> getRule() {

@@ -2,12 +2,12 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -617,7 +617,7 @@ public class FunctionResource extends AwsResource {
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
             } catch (Exception ex) {
-                BeamCore.ui().write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
+                GyroCore.ui().write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
             }
         }
 
@@ -741,7 +741,7 @@ public class FunctionResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
         } catch (IOException ex) {
-            throw new BeamException(String.format("File not found - %s",getContentZipPath()));
+            throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
     }
 
@@ -750,7 +750,7 @@ public class FunctionResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             setFileHash(DigestUtils.sha256Hex(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath()))));
         } catch (IOException ex) {
-            throw new BeamException(String.format("File not found - %s",getContentZipPath()));
+            throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
 
     }
@@ -762,11 +762,11 @@ public class FunctionResource extends AwsResource {
         s3FieldCount += !ObjectUtils.isBlank(getS3ObjectVersion()) ? 1 : 0;
 
         if (s3FieldCount > 0 && s3FieldCount < 3 ) {
-            throw new BeamException("Fields s3-bucket, s3-key and s3-object-version are needed to set together or none.");
+            throw new GyroException("Fields s3-bucket, s3-key and s3-object-version are needed to set together or none.");
         }
 
         if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPath())) {
-            throw new BeamException("Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set.");
+            throw new GyroException("Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set.");
         }
     }
 

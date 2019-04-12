@@ -2,11 +2,11 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.ResourceId;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceId;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -227,7 +227,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getVpcId())) {
-            throw new BeamException("vpc-id is missing, unable to load vpc.");
+            throw new GyroException("vpc-id is missing, unable to load vpc.");
         }
 
         try {

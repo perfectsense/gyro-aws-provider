@@ -1,10 +1,10 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
@@ -369,7 +369,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {
-            throw new BeamException("Parent Auto Scale Group resource not found.");
+            throw new GyroException("Parent Auto Scale Group resource not found.");
         }
         return parent.getAutoScalingGroupName();
     }
@@ -379,19 +379,19 @@ public class AutoScalingPolicyResource extends AwsResource {
         if (!getPolicyType().equals("SimpleScaling")
             && !getPolicyType().equals("StepScaling")
             && !getPolicyType().equals("TargetTrackingScaling")) {
-            throw new BeamException("Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
+            throw new GyroException("Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
                 + " Valid options ['SimpleScaling', 'StepScaling', 'TargetTrackingScaling'].");
         }
 
         // Attribute validation when not SimpleScaling
         if (!getPolicyType().equals("SimpleScaling")) {
             if (getCooldown() != null) {
-                throw new BeamException("The param 'cooldown' is only allowed when"
+                throw new GyroException("The param 'cooldown' is only allowed when"
                     + " 'policy-type' is 'SimpleScaling'.");
             }
 
             if (getScalingAdjustment() != null) {
-                throw new BeamException("The param 'scaling-adjustment' is only allowed when"
+                throw new GyroException("The param 'scaling-adjustment' is only allowed when"
                     + " 'policy-type' is 'SimpleScaling'.");
             }
         }
@@ -399,12 +399,12 @@ public class AutoScalingPolicyResource extends AwsResource {
         // Attribute validation when not StepScaling
         if (!getPolicyType().equals("StepScaling")) {
             if (getMetricAggregationType() != null && !getMetricAggregationType().equalsIgnoreCase("average")) {
-                throw new BeamException("The param 'metric-aggregation-type' is only allowed when"
+                throw new GyroException("The param 'metric-aggregation-type' is only allowed when"
                     + " 'policy-type' is 'StepScaling'.");
             }
 
             if (!getStepAdjustment().isEmpty()) {
-                throw new BeamException("The param 'step-adjustment' is only allowed when"
+                throw new GyroException("The param 'step-adjustment' is only allowed when"
                     + " 'policy-type' is 'StepScaling'.");
             }
         }
@@ -412,22 +412,22 @@ public class AutoScalingPolicyResource extends AwsResource {
         // Attribute validation when not TargetTrackingScaling
         if (!getPolicyType().equals("TargetTrackingScaling")) {
             if (getTargetValue() != null) {
-                throw new BeamException("The param 'target-value' is only allowed when"
+                throw new GyroException("The param 'target-value' is only allowed when"
                     + " 'policy-type' is 'TargetTrackingScaling'.");
             }
 
             if (getPredefinedMetricType() != null) {
-                throw new BeamException("The param 'predefined-metric-type' is only allowed when"
+                throw new GyroException("The param 'predefined-metric-type' is only allowed when"
                     + " 'policy-type' is 'TargetTrackingScaling'.");
             }
 
             if (getPredefinedMetricResourceLabel() != null) {
-                throw new BeamException("The param 'predefined-metric-resource-label' is only allowed when"
+                throw new GyroException("The param 'predefined-metric-resource-label' is only allowed when"
                     + " 'policy-type' is 'TargetTrackingScaling'.");
             }
 
             if (getDisableScaleIn()) {
-                throw new BeamException("The param 'disable-scale-in' is only allowed when"
+                throw new GyroException("The param 'disable-scale-in' is only allowed when"
                     + " 'policy-type' is 'TargetTrackingScaling'.");
             }
 
@@ -436,35 +436,35 @@ public class AutoScalingPolicyResource extends AwsResource {
                 || (getAdjustmentType().equals("ChangeInCapacity")
                 && getAdjustmentType().equals("ExactCapacity")
                 && getAdjustmentType().equals("PercentChangeInCapacity"))) {
-                throw new BeamException("Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
+                throw new GyroException("Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
                     + " Valid options ['ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity'].");
             } else if (!getAdjustmentType().equals("PercentChangeInCapacity") && getMinAdjustmentMagnitude() != null) {
-                throw new BeamException("The param 'min-adjustment-magnitude' is only allowed when 'adjustment-type' is 'PercentChangeInCapacity'.");
+                throw new GyroException("The param 'min-adjustment-magnitude' is only allowed when 'adjustment-type' is 'PercentChangeInCapacity'.");
             }
         }
 
         // Attribute validation when SimpleScaling
         if (getPolicyType().equals("SimpleScaling")) {
             if (getEstimatedInstanceWarmup() != null) {
-                throw new BeamException("The param 'estimated-instance-warmup' is only allowed when"
+                throw new GyroException("The param 'estimated-instance-warmup' is only allowed when"
                     + " 'policy-type' is either 'StepScaling' or 'TargetTrackingScaling'.");
             }
 
             if (getCooldown() < 0) {
-                throw new BeamException("Invalid value '" + getCooldown() + "' for the param 'cooldown'. Needs to be a positive integer.");
+                throw new GyroException("Invalid value '" + getCooldown() + "' for the param 'cooldown'. Needs to be a positive integer.");
             }
         }
 
         // Attribute validation when StepScaling
         if (getPolicyType().equals("StepScaling")) {
             if (getStepAdjustment().isEmpty()) {
-                throw new BeamException("the param 'step-adjustment' needs to have at least one step.");
+                throw new GyroException("the param 'step-adjustment' needs to have at least one step.");
             }
 
             if (!getMetricAggregationType().equals("Minimum")
                 && !getMetricAggregationType().equals("Maximum")
                 && !getMetricAggregationType().equals("Average")) {
-                throw new BeamException("Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
+                throw new GyroException("Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
                     + " Valid options ['Minimum', 'Maximum', 'Average'].");
             }
         }
@@ -472,12 +472,12 @@ public class AutoScalingPolicyResource extends AwsResource {
         // Attribute validation when TargetTrackingScaling
         if (getPolicyType().equals("TargetTrackingScaling")) {
             if (getMinAdjustmentMagnitude() != null) {
-                throw new BeamException("The param 'min-adjustment-magnitude' is only allowed when"
+                throw new GyroException("The param 'min-adjustment-magnitude' is only allowed when"
                     + " 'policy-type' is either 'StepScaling' or 'SimpleScaling'.");
             }
 
             if (getAdjustmentType() != null) {
-                throw new BeamException("The param 'adjustment-type' is only allowed when"
+                throw new GyroException("The param 'adjustment-type' is only allowed when"
                     + " 'policy-type' is either 'StepScaling' or 'SimpleScaling'.");
             }
         }

@@ -1,9 +1,9 @@
 package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -338,17 +338,17 @@ public class S3LifecycleRule extends Diffable {
 
     private void validateLifecycleRule() {
         if (getExpiredObjectDeleteMarker() != null && getVersionExpirationDays() != null) {
-            throw new BeamException("Field: 'expired-object-delete-marker' and Field: 'version-expiration-days' cannot both be set.");
+            throw new GyroException("Field: 'expired-object-delete-marker' and Field: 'version-expiration-days' cannot both be set.");
         }
 
         // When tags present
         if (!getTags().isEmpty()) {
             if (getExpiredObjectDeleteMarker() != null) {
-                throw new BeamException("Field: 'expired-object-delete-marker' cannot be set when Field: 'tags' is set.");
+                throw new GyroException("Field: 'expired-object-delete-marker' cannot be set when Field: 'tags' is set.");
             }
 
             if (getIncompleteMultipartUploadDays() != null) {
-                throw new BeamException("Field: 'incomplete-multipart-upload-days' cannot be set when Field: 'tags' is set.");
+                throw new GyroException("Field: 'incomplete-multipart-upload-days' cannot be set when Field: 'tags' is set.");
             }
         }
     }

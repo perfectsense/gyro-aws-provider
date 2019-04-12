@@ -1,9 +1,9 @@
 package gyro.aws.rds;
 
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSnapshotResponse;
@@ -85,7 +85,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getDbSnapshotIdentifier())) {
-            throw new BeamException("db-snapshot-identifier is missing, unable to load db snapshot.");
+            throw new GyroException("db-snapshot-identifier is missing, unable to load db snapshot.");
         }
 
         try {
@@ -120,7 +120,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
 
             setArn(response.dbSnapshot().dbSnapshotArn());
         } catch (InvalidDbInstanceStateException ex) {
-            throw new BeamException(ex.getLocalizedMessage());
+            throw new GyroException(ex.getLocalizedMessage());
         }
     }
 

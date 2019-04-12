@@ -1,9 +1,9 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
@@ -230,7 +230,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
 
     private Snapshot getSnapshot(Ec2Client client) {
         if (ObjectUtils.isBlank(getSnapshotId())) {
-            throw new BeamException("ebs snapshot-id is missing, unable to load snapshot.");
+            throw new GyroException("ebs snapshot-id is missing, unable to load snapshot.");
         }
 
         try {

@@ -1,10 +1,10 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::xss-match-set xss-match-set-example
  *         name: "xss-match-set-example"
@@ -63,7 +63,7 @@ public class XssMatchSetResource extends AwsResource {
     /**
      * List of xss match tuple data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.XssMatchTupleResource
+     * @subresource gyro.aws.waf.XssMatchTupleResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<XssMatchTupleResource> getXssMatchTuple() {

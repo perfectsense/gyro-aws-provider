@@ -3,10 +3,10 @@ package gyro.aws.elb;
 import gyro.aws.AwsResource;
 import gyro.core.diff.Create;
 import gyro.core.diff.Delete;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
 
-import gyro.lang.Resource;
+import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 

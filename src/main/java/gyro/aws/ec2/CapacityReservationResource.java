@@ -1,10 +1,10 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
@@ -202,7 +202,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getCapacityReservationId())) {
-            throw new BeamException("capacity-reservation-id is missing, unable to load capacity reservation.");
+            throw new GyroException("capacity-reservation-id is missing, unable to load capacity reservation.");
         }
 
         try {
@@ -300,27 +300,27 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
 
     private void validate() {
         if (getEndDateType() == null || (!getEndDateType().equals("unlimited") && !getEndDateType().equals("limited"))) {
-            throw new BeamException("The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."
+            throw new GyroException("The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."
                 + "Valid values [ 'unlimited', 'limited' ]");
         }
 
         if (getEndDateType().equals("unlimited") && !ObjectUtils.isBlank(getEndDate())) {
-            throw new BeamException("The value - (" + getEndDate() + ") is invalid for parameter 'end-date' "
+            throw new GyroException("The value - (" + getEndDate() + ") is invalid for parameter 'end-date' "
                 + "when param 'end-date-type' is set to 'unlimited'.");
         }
 
         if (getEndDateType().equals("limited") && !ObjectUtils.isBlank(getEndDate())) {
-            throw new BeamException("The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
+            throw new GyroException("The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
                 + "when param 'end-date-type' is set to 'limited'.");
         }
 
         if (getInstanceMatchCriteria() == null || (!getInstanceMatchCriteria().equals("open") && !getInstanceMatchCriteria().equals("targeted"))) {
-            throw new BeamException("The value - (" + getInstanceMatchCriteria() + ") is invalid for parameter 'instance-match-criteria'."
+            throw new GyroException("The value - (" + getInstanceMatchCriteria() + ") is invalid for parameter 'instance-match-criteria'."
                 + "Valid values [ 'open', 'targeted' ]");
         }
 
         if (getTenancy() == null || (!getTenancy().equals("default") && !getTenancy().equals("dedicated"))) {
-            throw new BeamException("The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
+            throw new GyroException("The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
                 + "Valid values [ 'default', 'dedicated' ]");
         }
     }

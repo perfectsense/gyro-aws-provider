@@ -1,11 +1,11 @@
 package gyro.aws.kms;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -251,7 +251,7 @@ public class KmsResource extends AwsResource {
                     String encode = new String(Files.readAllBytes(Paths.get(getPolicy())), "UTF-8");
                     return formatPolicy(encode);
                 } catch (Exception err) {
-                    throw new BeamException(err.getMessage());
+                    throw new GyroException(err.getMessage());
                 }
             } else {
                 return null;
@@ -356,7 +356,7 @@ public class KmsResource extends AwsResource {
 
             } catch (AlreadyExistsException ex) {
                 delete();
-                throw new BeamException(ex.getMessage());
+                throw new GyroException(ex.getMessage());
             }
 
             if (getKeyRotation() != null && getKeyRotation() == true) {
@@ -367,7 +367,7 @@ public class KmsResource extends AwsResource {
                 client.disableKey(r -> r.keyId(getKeyId()));
             }
         } else {
-            throw new BeamException("Duplicate aliases are not allowed in the same region");
+            throw new GyroException("Duplicate aliases are not allowed in the same region");
         }
     }
 
@@ -383,7 +383,7 @@ public class KmsResource extends AwsResource {
                 client.disableKey(r -> r.keyId(getKeyId()));
             }
         } catch (KmsInvalidStateException ex) {
-            throw new BeamException("This key is either pending import or pending deletion. It must be "
+            throw new GyroException("This key is either pending import or pending deletion. It must be "
                     + "disabled or enabled to perform this operation");
         }
 
@@ -394,7 +394,7 @@ public class KmsResource extends AwsResource {
                 client.disableKeyRotation(r -> r.keyId(getKeyId()));
             }
         } catch (KmsException ex) {
-            throw new BeamException("This key must be enabled to update key rotation.");
+            throw new GyroException("This key must be enabled to update key rotation.");
         }
 
         try {
@@ -407,7 +407,7 @@ public class KmsResource extends AwsResource {
                 }
 
             } catch (AlreadyExistsException ex) {
-                throw new BeamException(ex.getMessage());
+                throw new GyroException(ex.getMessage());
             }
 
             client.tagResource(r -> r.tags(toTag())
@@ -417,7 +417,7 @@ public class KmsResource extends AwsResource {
             client.updateKeyDescription(r -> r.description(getDescription())
                     .keyId(getKeyId()));
         } catch (KmsInvalidStateException ex) {
-            throw new BeamException("This key is pending deletion. This operation is not supported in this state");
+            throw new GyroException("This key is pending deletion. This operation is not supported in this state");
         }
 
         List<String> aliasSubtractions = new ArrayList<>(currentResource.getAliases());
