@@ -1,11 +1,11 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::waf-acl waf-acl-example
  *         name: "waf-acl-example"
@@ -106,7 +106,7 @@ public class WebAclResource extends AwsResource {
     /**
      * A list of activated rules specifying the connection between waf acl and rule.
      *
-     * @subresources beam.aws.waf.ActivatedRuleResource
+     * @subresource gyro.aws.waf.ActivatedRuleResource
      */
     @ResourceDiffProperty(nullable = true, subresource = true)
     public List<ActivatedRuleResource> getActivatedRule() {
@@ -215,7 +215,7 @@ public class WebAclResource extends AwsResource {
         }
 
         if (invalidPriority) {
-            throw new BeamException("Activated Rule priority exception. Priority value starts from 1 to 10 without skipping any number.");
+            throw new GyroException("Activated Rule priority exception. Priority value starts from 1 to 10 without skipping any number.");
         }
     }
 

@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;

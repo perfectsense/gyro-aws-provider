@@ -1,9 +1,9 @@
 package gyro.aws.rds;
 
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterParameterGroupResponse;
@@ -105,7 +105,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getName())) {
-            throw new BeamException("name is missing, unable to load cluster parameter group.");
+            throw new GyroException("name is missing, unable to load cluster parameter group.");
         }
 
         try {

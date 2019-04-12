@@ -1,7 +1,7 @@
 package gyro.aws;
 
-import gyro.core.BeamException;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.Resource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
@@ -22,7 +22,7 @@ public abstract class AwsResource extends Resource {
     protected <T extends SdkClient> T createClient(Class<T> clientClass, String region, String endpoint) {
         AwsCredentials credentials = (AwsCredentials) resourceCredentials();
         if (credentials == null) {
-            throw new BeamException("No credentials associated with the resource.");
+            throw new GyroException("No credentials associated with the resource.");
         }
 
         client = createClient(clientClass, credentials, region, endpoint);
@@ -37,7 +37,7 @@ public abstract class AwsResource extends Resource {
 
         try {
             if (credentials == null) {
-                throw new BeamException(String.format("Unable to create %s, no credentials specified!", clientClass));
+                throw new GyroException(String.format("Unable to create %s, no credentials specified!", clientClass));
             }
 
             AwsCredentialsProvider provider = credentials.provider();
@@ -54,7 +54,7 @@ public abstract class AwsResource extends Resource {
 
             return (T) builder.build();
         } catch (Exception ex) {
-            throw new BeamException(String.format("Unable to create %s !", clientClass), ex);
+            throw new GyroException(String.format("Unable to create %s !", clientClass), ex);
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class AwsResource extends Resource {
                 counter--;
 
                 if (counter < 0) {
-                    throw new BeamException("AWS service request failed!\n" + error.getMessage());
+                    throw new GyroException("AWS service request failed!\n" + error.getMessage());
                 }
 
                 try {

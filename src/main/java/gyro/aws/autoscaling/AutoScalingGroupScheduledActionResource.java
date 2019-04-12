@@ -1,10 +1,10 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
@@ -213,7 +213,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {
-            throw new BeamException("Parent Auto Scale Group resource not found.");
+            throw new GyroException("Parent Auto Scale Group resource not found.");
         }
         return parent.getAutoScalingGroupName();
     }
@@ -233,26 +233,26 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
 
     private void validate() {
         if (getMaxSize() == null && getMinSize() == null && getDesiredCapacity() == null) {
-            throw new BeamException("At least one of the params 'max-size' or 'min-size' or 'desired-capacity' needs to be provided.");
+            throw new GyroException("At least one of the params 'max-size' or 'min-size' or 'desired-capacity' needs to be provided.");
         }
 
         if (getMinSize() != null && getMinSize() < 0) {
-            throw new BeamException("The value - (" + getMinSize()
+            throw new GyroException("The value - (" + getMinSize()
                 + ") is invalid for parameter 'min-size'. Valid values [ Integer value grater or equal to 0 ].");
         }
 
         if (getMaxSize() != null && getMaxSize() < 0) {
-            throw new BeamException("The value - (" + getMaxSize()
+            throw new GyroException("The value - (" + getMaxSize()
                 + ") is invalid for parameter 'max-size'. Valid values [ Integer value grater or equal to 0 ].");
         }
 
         if (getDesiredCapacity() != null && getDesiredCapacity() < 0) {
-            throw new BeamException("The value - (" + getDesiredCapacity()
+            throw new GyroException("The value - (" + getDesiredCapacity()
                 + ") is invalid for parameter 'desired-capacity'. Valid values [ Integer value grater or equal to 0 ].");
         }
 
         if (getMinSize() != null && getMaxSize() != null && (getMaxSize() < getMinSize())) {
-            throw new BeamException("The value - (" + getMinSize()
+            throw new GyroException("The value - (" + getMinSize()
                 + ") for parameter 'min-size' needs to be equal or smaller than the value - (" + getMaxSize()
                 + ") for parameter 'max-size'.");
         }

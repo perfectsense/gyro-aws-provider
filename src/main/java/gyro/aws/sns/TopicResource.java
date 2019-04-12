@@ -1,11 +1,11 @@
 package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -65,7 +65,7 @@ public class TopicResource extends AwsResource {
                 String encode = new String(Files.readAllBytes(Paths.get(attributes.get("Policy"))), "UTF-8");
                 attributes.put("Policy", formatPolicy(encode));
             } catch (Exception err) {
-                throw new BeamException(err.getMessage());
+                throw new GyroException(err.getMessage());
             }
         }
 
@@ -74,7 +74,7 @@ public class TopicResource extends AwsResource {
                 String encode = new String(Files.readAllBytes(Paths.get(attributes.get("DeliveryPolicy"))), "UTF-8");
                 attributes.put("DeliveryPolicy", formatPolicy(encode));
             } catch (Exception err) {
-                throw new BeamException(err.getMessage());
+                throw new GyroException(err.getMessage());
             }
         }
 
@@ -135,7 +135,7 @@ public class TopicResource extends AwsResource {
             return true;
 
         } catch (AuthorizationErrorException | InvalidParameterException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         } catch (NotFoundException ex) {
             return false;
         }

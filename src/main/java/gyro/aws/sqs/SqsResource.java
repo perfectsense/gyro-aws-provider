@@ -3,11 +3,11 @@ package gyro.aws.sqs;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Credentials;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.Credentials;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -341,7 +341,7 @@ public class SqsResource extends AwsResource {
         if (listName.queueUrls().isEmpty()) {
             createQueue(client);
         } else {
-            throw new BeamException("A queue with the name " + getName() + " already exists.");
+            throw new GyroException("A queue with the name " + getName() + " already exists.");
         }
     }
 
@@ -428,7 +428,7 @@ public class SqsResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             setPolicy(new String(Files.readAllBytes(Paths.get(dir + File.separator + getPolicyDocPath())), StandardCharsets.UTF_8));
         } catch (IOException ioex) {
-            throw new BeamException(MessageFormat
+            throw new GyroException(MessageFormat
                 .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), getPolicyDocPath()));
         }
     }

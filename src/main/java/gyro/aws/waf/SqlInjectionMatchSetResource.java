@@ -1,10 +1,10 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -46,7 +46,7 @@ public class SqlInjectionMatchSetResource extends AwsResource {
     /**
      * List of sql injection match tuple data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.SqlInjectionMatchTupleResource
+     * @subresource gyro.aws.waf.SqlInjectionMatchTupleResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {

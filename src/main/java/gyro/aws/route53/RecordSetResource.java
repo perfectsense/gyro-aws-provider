@@ -1,10 +1,10 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -508,14 +508,14 @@ public class RecordSetResource extends AwsResource {
 
     private void validate() {
         if (! RoutingPolicySet.contains(getRoutingPolicy())) {
-            throw new BeamException(String.format("The value - (%s) is invalid for parameter 'routing-policy'."
+            throw new GyroException(String.format("The value - (%s) is invalid for parameter 'routing-policy'."
                 + " Valid values [ '%s' ].",getRoutingPolicy(),String.join("', '",RoutingPolicySet)));
         }
 
         if (ObjectUtils.isBlank(getType())
             || RRType.fromValue(getType())
             .equals(RRType.UNKNOWN_TO_SDK_VERSION)) {
-            throw new BeamException(String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
+            throw new GyroException(String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
                     + " Valid values [ '%s' ]", getType(),
                 Stream.of(RRType.values())
                     .filter(o -> !o.equals(RRType.UNKNOWN_TO_SDK_VERSION))
@@ -524,99 +524,99 @@ public class RecordSetResource extends AwsResource {
 
         if (getEnableAlias()) {
             if (!ObjectUtils.isBlank(getTtl())) {
-                throw new BeamException("The param 'ttl' is not allowed when 'enable-alias' is set to 'true'.");
+                throw new GyroException("The param 'ttl' is not allowed when 'enable-alias' is set to 'true'.");
             }
 
             if (!getRecords().isEmpty()) {
-                throw new BeamException("The param 'records' is not allowed when 'enable-alias' is set to 'true'.");
+                throw new GyroException("The param 'records' is not allowed when 'enable-alias' is set to 'true'.");
             }
 
             if (getEvaluateTargetHealth() == null) {
-                throw new BeamException("The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'.");
+                throw new GyroException("The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'.");
             }
 
             if (ObjectUtils.isBlank(getDnsName())) {
-                throw new BeamException("The param 'dns-name' is required when 'enable-alias' is set to 'true'.");
+                throw new GyroException("The param 'dns-name' is required when 'enable-alias' is set to 'true'.");
             }
 
             if (ObjectUtils.isBlank(getAliasHostedZoneId())) {
-                throw new BeamException("The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'.");
+                throw new GyroException("The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'.");
             }
         } else {
             if (getEvaluateTargetHealth() != null) {
-                throw new BeamException("The param 'evaluate-target-health' is not allowed when 'enable-alias' is set to 'false' or not set.");
+                throw new GyroException("The param 'evaluate-target-health' is not allowed when 'enable-alias' is set to 'false' or not set.");
             }
 
             if (getDnsName() != null) {
-                throw new BeamException("The param 'dns-name' is not allowed when 'enable-alias' is set to 'false' or not set.");
+                throw new GyroException("The param 'dns-name' is not allowed when 'enable-alias' is set to 'false' or not set.");
             }
 
             if (getAliasHostedZoneId() != null) {
-                throw new BeamException("The param 'alias-hosted-zone-id' is not allowed when 'enable-alias' is set to 'false' or not set.");
+                throw new GyroException("The param 'alias-hosted-zone-id' is not allowed when 'enable-alias' is set to 'false' or not set.");
             }
 
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
-                throw new BeamException("The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
+                throw new GyroException("The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
                     + " Valid values [ Long 0 - 172800 ].");
             }
 
             if (getRecords().isEmpty()) {
-                throw new BeamException("The param 'records' is required when 'enable-alias' is set to 'false' or not set.");
+                throw new GyroException("The param 'records' is required when 'enable-alias' is set to 'false' or not set.");
             }
         }
 
         if (!getRoutingPolicy().equals("geolocation")) {
             if (!ObjectUtils.isBlank(getContinentCode())) {
-                throw new BeamException("The param 'continent-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
+                throw new GyroException("The param 'continent-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
             }
 
             if (!ObjectUtils.isBlank(getCountryCode())) {
-                throw new BeamException("The param 'country-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
+                throw new GyroException("The param 'country-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
             }
 
             if (!ObjectUtils.isBlank(getSubdivisionCode())) {
-                throw new BeamException("The param 'subdivision-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
+                throw new GyroException("The param 'subdivision-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
             }
         } else {
             if (ObjectUtils.isBlank(getContinentCode()) && ObjectUtils.isBlank(getCountryCode()) && ObjectUtils.isBlank(getSubdivisionCode())) {
-                throw new BeamException("At least one of the param [ 'continent-code', 'country-code', 'subdivision-code']"
+                throw new GyroException("At least one of the param [ 'continent-code', 'country-code', 'subdivision-code']"
                     + " is required when 'routing-policy' is set to 'geolocation'.");
             }
         }
 
         if (!getRoutingPolicy().equals("failover") && getFailover() != null) {
-            throw new BeamException("The param 'failover' is not allowed when 'routing-policy' is not set to 'failover'.");
+            throw new GyroException("The param 'failover' is not allowed when 'routing-policy' is not set to 'failover'.");
         } else if (getRoutingPolicy().equals("failover")
             && (ObjectUtils.isBlank(getFailover()) || (!getFailover().equals("PRIMARY") && !getFailover().equals("SECONDARY")))) {
-            throw new BeamException("The param 'failover' is required when 'routing-policy' is set to 'failover'."
+            throw new GyroException("The param 'failover' is required when 'routing-policy' is set to 'failover'."
                 + " Valid values [ PRIMARY, SECONDARY ].");
         }
 
         if (!getRoutingPolicy().equals("multivalue") && getMultiValueAnswer() != null) {
-            throw new BeamException("The param 'multi-value-answer' is not allowed when 'routing-policy' is not set to 'multivalue'.");
+            throw new GyroException("The param 'multi-value-answer' is not allowed when 'routing-policy' is not set to 'multivalue'.");
         } else if (getRoutingPolicy().equals("multivalue")) {
             if (getMultiValueAnswer() == null) {
-                throw new BeamException("The param 'multi-value-answer' is required when 'routing-policy' is set to 'multivalue'.");
+                throw new GyroException("The param 'multi-value-answer' is required when 'routing-policy' is set to 'multivalue'.");
             }
 
             if (getRecords().size() > 1) {
-                throw new BeamException("The param 'records' can only have one value when 'routing-policy' is set to 'multivalue'.");
+                throw new GyroException("The param 'records' can only have one value when 'routing-policy' is set to 'multivalue'.");
             }
         }
 
         if (!getRoutingPolicy().equals("weighted") && getWeight() != null) {
-            throw new BeamException("The param 'weight' is not allowed when 'routing-policy' is not set to 'weighted'.");
+            throw new GyroException("The param 'weight' is not allowed when 'routing-policy' is not set to 'weighted'.");
         } else if (getRoutingPolicy().equals("weighted")) {
             if ((getWeight() == null) || getWeight() < 0 || getWeight() > 255) {
-                throw new BeamException("The param 'weight' is required when 'routing-policy' is set to 'weighted'."
+                throw new GyroException("The param 'weight' is required when 'routing-policy' is set to 'weighted'."
                     + " Valid values [ Long 0 - 255 ].");
             }
         }
 
         if (!getRoutingPolicy().equals("latency") && getRegion() != null) {
-            throw new BeamException("The param 'region' is not allowed when 'routing-policy' is not set to 'latency'.");
+            throw new GyroException("The param 'region' is not allowed when 'routing-policy' is not set to 'latency'.");
         } else if (getRoutingPolicy().equals("latency") && ObjectUtils.isBlank(getRegion())) {
-            throw new BeamException("The param 'region' is required when 'routing-policy' is set to 'latency'.");
+            throw new GyroException("The param 'region' is required when 'routing-policy' is set to 'latency'.");
         }
     }
 }

@@ -1,8 +1,8 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.waf.model.Predicate;
 
@@ -18,7 +18,7 @@ public abstract class RuleBaseResource extends AwsResource {
     /**
      * A list of predicates specifying the connection between rule and conditions.
      *
-     * @Subresource beam.aws.waf.PredicateResource
+     * @subresource gyro.aws.waf.PredicateResource
      */
     @ResourceDiffProperty(nullable = true, subresource = true)
     public List<PredicateResource> getPredicate() {

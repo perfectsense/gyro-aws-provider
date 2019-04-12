@@ -1,10 +1,10 @@
 package gyro.aws.rds;
 
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
@@ -674,7 +674,7 @@ public class DbInstanceResource extends RdsTaggableResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getDbInstanceIdentifier())) {
-            throw new BeamException("db-instance-identifier is missing, unable to load db instance.");
+            throw new GyroException("db-instance-identifier is missing, unable to load db instance.");
         }
 
         try {
@@ -894,7 +894,7 @@ public class DbInstanceResource extends RdsTaggableResource {
                         ? null : getVpcSecurityGroupIds())
             );
         } catch (InvalidDbInstanceStateException ex) {
-            throw new BeamException(ex.getLocalizedMessage());
+            throw new GyroException(ex.getLocalizedMessage());
         }
     }
 

@@ -1,10 +1,10 @@
 package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreateInstanceProfileResponse;
@@ -103,7 +103,7 @@ public class IamInstanceProfileResource extends AwsResource {
             }
         } catch (Exception err) {
             delete();
-            throw new BeamException(err.getMessage());
+            throw new GyroException(err.getMessage());
         }
     }
 

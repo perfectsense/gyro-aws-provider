@@ -1,6 +1,6 @@
 package gyro.aws;
 
-import gyro.lang.plugins.Provider;
+import gyro.core.plugin.Provider;
 
 public class AwsProvider extends Provider {
 

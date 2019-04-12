@@ -1,12 +1,12 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::regex-pattern-set regex-pattern-set-example
  *         name: "regex-pattern-set-example"
@@ -123,7 +123,7 @@ public class RegexPatternSetResource extends AwsResource {
         try {
             savePatterns(client, new ArrayList<>(), getPatterns());
         } catch (Exception ex) {
-            BeamCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
+            GyroCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
                 + " Please retry to update the patterns|@", getName(), getRegexPatternSetId());
             ex.printStackTrace();
         }
@@ -174,10 +174,10 @@ public class RegexPatternSetResource extends AwsResource {
                         .regexPatternSetId(getRegexPatternSetId())
                 );
             } else {
-                throw new BeamException(String.format("Cannot delete regex pattern set - %s, as it has patterns.",getRegexPatternSetId()));
+                throw new GyroException(String.format("Cannot delete regex pattern set - %s, as it has patterns.",getRegexPatternSetId()));
             }
         } else {
-            throw new BeamException(String
+            throw new GyroException(String
                 .format("Cannot delete regex pattern set - %s, as it is referenced by regex match set - %s",getRegexPatternSetId(),referenceId));
         }
     }

@@ -1,9 +1,9 @@
 package gyro.aws;
 
 import com.psddev.dari.util.TypeDefinition;
-import gyro.core.BeamException;
-import gyro.lang.Credentials;
-import gyro.lang.ResourceFinder;
+import gyro.core.GyroException;
+import gyro.core.Credentials;
+import gyro.core.resource.ResourceFinder;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
@@ -58,9 +58,9 @@ public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsRes
         try {
             return resourceClass.getConstructor(clientClass, modelClass).newInstance(client, model);
         } catch (NoSuchMethodException nme) {
-            throw new BeamException(String.format("No constructor %s(%s, %s) is defined!", resourceClass, clientClass, modelClass));
+            throw new GyroException(String.format("No constructor %s(%s, %s) is defined!", resourceClass, clientClass, modelClass));
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new BeamException(String.format("Unable to create resource of [%s]", resourceClass), e);
+            throw new GyroException(String.format("Unable to create resource of [%s]", resourceClass), e);
         }
     }
 }
