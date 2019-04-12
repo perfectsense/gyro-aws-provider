@@ -3,8 +3,8 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.aws.ec2.InstanceResource;
 import gyro.core.GyroException;
-import gyro.core.BeamInstance;
-import gyro.core.BeamInstances;
+import gyro.core.GyroInstance;
+import gyro.core.GyroInstances;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -96,7 +96,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("auto-scaling-group")
-public class AutoScalingGroupResource extends AwsResource implements BeamInstances {
+public class AutoScalingGroupResource extends AwsResource implements GyroInstances {
 
     private String autoScalingGroupName;
     private String launchTemplateId;
@@ -706,7 +706,7 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
     }
 
     @Override
-    public List<BeamInstance> getInstances() {
+    public List<GyroInstance> getInstances() {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         DescribeAutoScalingGroupsResponse response = client.describeAutoScalingGroups(r -> r.autoScalingGroupNames(getAutoScalingGroupName()));
@@ -723,7 +723,7 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
         Ec2Client ec2Client = createClient(Ec2Client.class);
         DescribeInstancesResponse instancesResponse = ec2Client.describeInstances(r -> r.instanceIds(instanceIds));
 
-        List<BeamInstance> instances = new ArrayList<>();
+        List<GyroInstance> instances = new ArrayList<>();
         for (Reservation reservation : instancesResponse.reservations()) {
             instances.addAll(reservation.instances()
                 .stream()

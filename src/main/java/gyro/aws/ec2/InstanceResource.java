@@ -3,7 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
 import gyro.core.GyroException;
-import gyro.core.BeamInstance;
+import gyro.core.GyroInstance;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("instance")
-public class InstanceResource extends Ec2TaggableResource<Instance> implements BeamInstance {
+public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance {
 
     private String amiId;
     private String amiName;
@@ -416,7 +416,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
         this.capacityReservation = capacityReservation;
     }
 
-    // -- BeamInstance Implementation
+    // -- GyroInstance Implementation
 
     @Override
     public String getState() {
