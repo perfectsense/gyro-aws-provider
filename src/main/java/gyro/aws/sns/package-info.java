@@ -2,4 +2,4 @@
 
 package gyro.aws.sns;
 
-import gyro.core.docs.DocGroup;
+import gyro.core.resource.DocGroup;

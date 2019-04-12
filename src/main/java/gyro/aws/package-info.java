@@ -5,4 +5,4 @@
 @DocNamespace("aws")
 package gyro.aws;
 
-import gyro.core.docs.DocNamespace;
+import gyro.core.resource.DocNamespace;
