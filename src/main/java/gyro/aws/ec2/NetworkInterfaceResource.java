@@ -1,9 +1,10 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -102,7 +103,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      * The list of Security Group ID being associated with the Network Interface. (Optional)
      * If no security id is given, the default security group attached to the subnet will be assigned to the network interface.
      */
-    @ResourceDiffProperty(updatable = true,nullable = true)
+    @ResourceDiffProperty(updatable = true, nullable = true)
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
