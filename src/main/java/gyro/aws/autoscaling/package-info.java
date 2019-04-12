@@ -1,4 +1,4 @@
 @DocGroup("Autoscaling Groups")
 package gyro.aws.autoscaling;
 
-import gyro.core.docs.DocGroup;
+import gyro.core.resource.DocGroup;
