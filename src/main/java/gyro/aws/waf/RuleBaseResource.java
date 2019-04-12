@@ -18,7 +18,7 @@ public abstract class RuleBaseResource extends AwsResource {
     /**
      * A list of predicates specifying the connection between rule and conditions.
      *
-     * @Subresource beam.aws.waf.PredicateResource
+     * @subresource gyro.aws.waf.PredicateResource
      */
     @ResourceDiffProperty(nullable = true, subresource = true)
     public List<PredicateResource> getPredicate() {

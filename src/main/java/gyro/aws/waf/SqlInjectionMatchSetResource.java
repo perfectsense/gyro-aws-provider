@@ -46,7 +46,7 @@ public class SqlInjectionMatchSetResource extends AwsResource {
     /**
      * List of sql injection match tuple data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.SqlInjectionMatchTupleResource
+     * @subresource gyro.aws.waf.SqlInjectionMatchTupleResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {

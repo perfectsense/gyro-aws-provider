@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::regex-match-set regex-match-set-example
  *         name: "regex-match-set-example"
@@ -63,7 +63,7 @@ public class RegexMatchSetResource extends AwsResource {
     /**
      * List of regex match tuple data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.RegexMatchTupleResource
+     * @subresource gyro.aws.waf.RegexMatchTupleResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<RegexMatchTupleResource> getRegexMatchTuple() {

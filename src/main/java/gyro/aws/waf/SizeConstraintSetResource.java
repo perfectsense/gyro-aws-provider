@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::size-constraint-set size-constraint-set-example
  *         name: "size-constraint-set-example"
@@ -65,7 +65,7 @@ public class SizeConstraintSetResource extends AwsResource {
     /**
      * List of size constraint data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.SizeConstraintResource
+     * @subresource gyro.aws.waf.SizeConstraintResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SizeConstraintResource> getSizeConstraint() {

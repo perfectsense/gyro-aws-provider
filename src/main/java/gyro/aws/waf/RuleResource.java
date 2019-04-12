@@ -17,7 +17,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::rule rule-example
  *         name: "rule-example"

@@ -19,7 +19,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::rate-rule rate-rule-example
  *         name: "rate-rule-example"

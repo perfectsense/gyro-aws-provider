@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::xss-match-set xss-match-set-example
  *         name: "xss-match-set-example"
@@ -63,7 +63,7 @@ public class XssMatchSetResource extends AwsResource {
     /**
      * List of xss match tuple data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.XssMatchTupleResource
+     * @subresource gyro.aws.waf.XssMatchTupleResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<XssMatchTupleResource> getXssMatchTuple() {

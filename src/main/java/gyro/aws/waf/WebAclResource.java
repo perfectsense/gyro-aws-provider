@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::waf-acl waf-acl-example
  *         name: "waf-acl-example"
@@ -106,7 +106,7 @@ public class WebAclResource extends AwsResource {
     /**
      * A list of activated rules specifying the connection between waf acl and rule.
      *
-     * @subresources beam.aws.waf.ActivatedRuleResource
+     * @subresource gyro.aws.waf.ActivatedRuleResource
      */
     @ResourceDiffProperty(nullable = true, subresource = true)
     public List<ActivatedRuleResource> getActivatedRule() {

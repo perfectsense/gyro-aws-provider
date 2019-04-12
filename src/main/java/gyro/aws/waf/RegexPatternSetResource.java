@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::regex-pattern-set regex-pattern-set-example
  *         name: "regex-pattern-set-example"

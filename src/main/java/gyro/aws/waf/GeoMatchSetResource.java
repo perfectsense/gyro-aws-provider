@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::geo-match-set geo-match-set-example
  *         name: "geo-match-set-example"
@@ -63,7 +63,7 @@ public class GeoMatchSetResource extends AwsResource {
     /**
      * List of geo match constraint data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.GeoMatchConstraintResource
+     * @subresource gyro.aws.waf.GeoMatchConstraintResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<GeoMatchConstraintResource> getGeoMatchConstraint() {

@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::ip-set ip-set-example
  *         name: "ip-set-example"
@@ -63,7 +63,7 @@ public class IpSetResource extends AwsResource {
     /**
      * List of ip set descriptor data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.IpSetDescriptorResource
+     * @subresource gyro.aws.waf.IpSetDescriptorResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<IpSetDescriptorResource> getIpSetDescriptor() {

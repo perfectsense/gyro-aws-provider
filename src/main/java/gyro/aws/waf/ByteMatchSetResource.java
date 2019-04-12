@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     aws::byte-match-set byte-match-set-example
  *         name: "byte-match-set-example"
@@ -65,7 +65,7 @@ public class ByteMatchSetResource extends AwsResource {
     /**
      * List of byte match tuple data defining the condition. (Required)
      *
-     * @subresorce beam.aws.waf.ByteMatchTupleResource
+     * @subresource gyro.aws.waf.ByteMatchTupleResource
      */
     @ResourceDiffProperty(updatable = true, subresource = true)
     public List<ByteMatchTupleResource> getByteMatchTuple() {

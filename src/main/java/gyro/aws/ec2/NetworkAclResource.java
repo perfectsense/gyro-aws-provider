@@ -68,7 +68,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
     /**
      * A list of rules for the Network ACL.
      *
-     * @subresource beam.aws.ec2.NetworkAclRuleResource
+     * @subresource gyro.aws.ec2.NetworkAclRuleResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<NetworkAclRuleResource> getRule() {
