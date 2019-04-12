@@ -5,10 +5,13 @@ import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
+import software.amazon.awssdk.services.ec2.model.SecurityGroupIdentifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @ResourceName("network-interface")
 public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterface> {
@@ -16,14 +19,15 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private String description;
     private String subnetId;
     private String networkInterfaceId;
-    private  String ipv4;
-    private String instanceId; // Instance Id req
-    private String assocationId; // when EIP is attached it gets allocation id (optional)
-    private String allocationId; // when eip is allocated to this NIF it gets association id (optional)
+    private  String ipv4Address;
+    private String ipv6Address;
+    private String instanceId;
+    private String associationId;
+    private String allocationId;
     private Integer deviceIndex;
     private String attachmentId;
     private Boolean isDeleteOnTermination;
-    private List<String> securityGroups;
+    private List<String> securityGroupIds;
 
     @ResourceDiffProperty(updatable = true)
     public Boolean getDeleteOnTermination() {
@@ -77,21 +81,13 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         this.description = description;
     }
 
-    public String getIpv4() {
-        return ipv4;
+
+    public String getAssociationId() {
+        return associationId;
     }
 
-    public void setIpv4(String ipv4) {
-        this.ipv4 = ipv4;
-    }
-
-
-    public String getAssocationId() {
-        return assocationId;
-    }
-
-    public void setAssocationId(String assocationId) {
-        this.assocationId = assocationId;
+    public void setAssociationId(String associationId) {
+        this.associationId = associationId;
     }
 
     public String getAllocationId() {
@@ -110,17 +106,37 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         this.instanceId = instanceId;
     }
 
-    public List<String> getSecurityGroups() {
-        if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
+    /**
+     * The list of Security Group ID being associated with the Network Interface. (Required if typeInterface set to false.)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<String> getSecurityGroupIds() {
+        if (securityGroupIds == null) {
+            securityGroupIds = new ArrayList<>();
         }
-        return securityGroups;
+        Collections.sort(securityGroupIds);
+        return securityGroupIds;
     }
 
-    public void setSecurityGroups(List<String> securityGroups) {
-        this.securityGroups = securityGroups;
+    public String getIpv4Address() {
+        return ipv4Address;
     }
 
+    public void setIpv4Address(String ipv4Address) {
+        this.ipv4Address = ipv4Address;
+    }
+
+    public String getIpv6Address() {
+        return ipv6Address;
+    }
+
+    public void setIpv6Address(String ipv6Address) {
+        this.ipv6Address = ipv6Address;
+    }
+
+    public void setSecurityGroupIds(List<String> securityGroupIds) {
+        this.securityGroupIds = securityGroupIds;
+    }
 
     @Override
     protected String getId() {
@@ -132,29 +148,32 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         Ec2Client client = createClient(Ec2Client.class);
 
         try {
-        DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
+
+            DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
 
             if (response.networkInterfaces() != null) {
                 for (NetworkInterface nm : response.networkInterfaces()) {
-                    System.out.println("NIC ID --- " + nm.networkInterfaceId());
 
                     setNetworkInterfaceId(nm.networkInterfaceId());
                     setDescription(nm.description());
 
+                    setSecurityGroupIds(new ArrayList<>(nm.groups()
+                            .stream()
+                            .map(GroupIdentifier::groupId)
+                            .collect(Collectors.toList()))
+                    );
 
                     NetworkInterfaceAttachment attachment = nm.attachment();
-
-                    if ( attachment != null) {
-
-                        setInstanceId(attachment.instanceId() != null ? attachment.instanceId() : null);
-                        setDeviceIndex(attachment.deviceIndex() != null ? attachment.deviceIndex() : null);
+                    if (attachment != null) {
+                        setInstanceId(attachment.instanceId());
+                        setDeviceIndex(attachment.deviceIndex());
                         setAttachmentId(attachment.attachmentId());
                         setDeleteOnTermination(attachment.deleteOnTermination());
                     }
 
                     if (nm.association() != null) {
-                        setAssocationId(nm.association().associationId() != null ? nm.association().associationId() : null);
-                        setAllocationId(nm.association().allocationId() != null ? nm.association().allocationId() : null);
+                        setAssociationId(nm.association().associationId());
+                        setAllocationId(nm.association().allocationId());
                     }
                 }
             }
@@ -173,31 +192,40 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     public void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
 
+        CreateNetworkInterfaceRequest.Builder builder = CreateNetworkInterfaceRequest.builder();
 
-        CreateNetworkInterfaceResponse response = client.createNetworkInterface(r -> r.description(getDescription())
-                .privateIpAddresses(d -> d.privateIpAddress(getIpv4()))
-                .subnetId(getSubnetId())
-                .groups(getSecurityGroups().toString())
-        );
+        builder.subnetId(getSubnetId());
+        builder.description(getDescription());
+        builder.groups(getSecurityGroupIds() != null ? getSecurityGroupIds() : null);
+        builder.privateIpAddress(getIpv4Address() != null ? getIpv4Address() : null);
 
-        setNetworkInterfaceId(response.networkInterface().networkInterfaceId());
+        CreateNetworkInterfaceResponse response = client.createNetworkInterface(builder.build());
+
+        NetworkInterface networkInterface = response.networkInterface();
+
+        setNetworkInterfaceId(networkInterface.networkInterfaceId());
 
         if (getInstanceId() != null) {
             AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
                     .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
-                    .instanceId(getInstanceId()).deviceIndex(getDeviceIndex()));
+                    .instanceId(getInstanceId())
+                    .deviceIndex(getDeviceIndex())
+                    );
 
             setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
 
             if (getDeleteOnTermination() != null) {
-                NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder().deleteOnTermination(getDeleteOnTermination())
+
+                NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder()
+                        .deleteOnTermination(getDeleteOnTermination())
                         .attachmentId(getAttachmentId())
                         .build();
-                client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId()).attachment(changes));
 
+                client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
+                        .attachment(changes)
+                );
             }
         }
-
     }
 
     @Override
@@ -205,11 +233,21 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getDeleteOnTermination() != null) {
-            NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder().deleteOnTermination(getDeleteOnTermination())
+            NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder()
+                    .deleteOnTermination(getDeleteOnTermination())
                     .attachmentId(getAttachmentId())
                     .build();
-            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId()).attachment(changes));
 
+            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
+                    .attachment(changes));
+
+        }
+
+        if (changedProperties.contains("security-group-ids")) {
+            client.modifyNetworkInterfaceAttribute(
+                    r -> r.networkInterfaceId(getNetworkInterfaceId())
+                            .groups(getSecurityGroupIds())
+            );
         }
         client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
                 .description(d -> d.value(getDescription())));
@@ -220,11 +258,15 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         Ec2Client client = createClient(Ec2Client.class);
 
         DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.filters(Filter.builder()
-                .name("network-interface-id").values(getNetworkInterfaceId()).build()
+                .name("network-interface-id")
+                .values(getNetworkInterfaceId())
+                .build()
         ));
 
         for (NetworkInterface nm : response.networkInterfaces()) {
+
             NetworkInterfaceAttachment attachment = nm.attachment();
+
             if (attachment != null) {
                 executeService(() -> {
                     client.detachNetworkInterface(r -> r.attachmentId(attachment.attachmentId()));
