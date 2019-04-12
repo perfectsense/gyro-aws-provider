@@ -2,7 +2,7 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -351,7 +351,7 @@ public class EventSourceMapping extends AwsResource {
             }
 
             if (count % 5 == 0) {
-                wait = BeamCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
             }
         }
 

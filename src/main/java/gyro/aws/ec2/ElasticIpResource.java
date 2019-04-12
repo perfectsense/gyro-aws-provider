@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -181,7 +181,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
             setAllocationId(response.allocationId());
             setPublicIp(response.publicIp());
             if (getInstanceId() != null || getNetworkInterfaceId() != null) {
-                BeamCore.ui().write("\n@|bold,blue Skipping association of elastic IP"
+                GyroCore.ui().write("\n@|bold,blue Skipping association of elastic IP"
                     + ", must be updated to associate with a resource|@");
             }
         } catch (Ec2Exception eex) {

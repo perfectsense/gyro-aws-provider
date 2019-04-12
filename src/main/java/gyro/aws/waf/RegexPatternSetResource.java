@@ -1,7 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -123,7 +123,7 @@ public class RegexPatternSetResource extends AwsResource {
         try {
             savePatterns(client, new ArrayList<>(), getPatterns());
         } catch (Exception ex) {
-            BeamCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
+            GyroCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
                 + " Please retry to update the patterns|@", getName(), getRegexPatternSetId());
             ex.printStackTrace();
         }

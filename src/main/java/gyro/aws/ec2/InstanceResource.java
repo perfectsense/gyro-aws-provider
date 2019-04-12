@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.diff.ResourceDiffProperty;
@@ -799,7 +799,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     private boolean validateInstanceStop(boolean instanceStopped, String param, String value) {
         if (!instanceStopped) {
-            BeamCore.ui().write("\n@|bold,blue Skipping update of %s since instance"
+            GyroCore.ui().write("\n@|bold,blue Skipping update of %s since instance"
                 + " must be stopped to change parameter %s to %s|@", param, param, value);
             return false;
         }

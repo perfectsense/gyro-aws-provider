@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -243,10 +243,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                         .autoEnableIO(a -> a.value(getAutoEnableIo()))
                 );
             } catch (Exception ex) {
-                BeamCore.ui().write("\n@|bold,blue EBS Volume resource - error enabling "
+                GyroCore.ui().write("\n@|bold,blue EBS Volume resource - error enabling "
                     + "'auto enable io' to volume with Id - %s. |@", getVolumeId());
-                BeamCore.ui().write("\n@|bold,blue Error message - %s |@", ex.getMessage());
-                BeamCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
+                GyroCore.ui().write("\n@|bold,blue Error message - %s |@", ex.getMessage());
+                GyroCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
             }
         }
     }
