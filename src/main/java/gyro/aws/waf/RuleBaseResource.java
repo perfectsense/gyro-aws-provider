@@ -1,8 +1,8 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.waf.model.Predicate;
 

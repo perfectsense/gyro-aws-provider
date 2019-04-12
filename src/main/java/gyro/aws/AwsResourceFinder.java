@@ -3,7 +3,7 @@ package gyro.aws;
 import com.psddev.dari.util.TypeDefinition;
 import gyro.core.GyroException;
 import gyro.lang.Credentials;
-import gyro.lang.ResourceFinder;
+import gyro.core.resource.ResourceFinder;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.ec2.model.Filter;
 

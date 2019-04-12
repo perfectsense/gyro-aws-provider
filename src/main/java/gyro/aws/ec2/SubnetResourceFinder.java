@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResourceFinder;
-import gyro.core.diff.ResourceName;
-import gyro.lang.ast.query.ResourceFilter;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Subnet;
 

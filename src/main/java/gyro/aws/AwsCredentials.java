@@ -1,6 +1,6 @@
 package gyro.aws;
 
-import gyro.core.diff.ResourceName;
+import gyro.core.resource.ResourceName;
 import gyro.lang.Credentials;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;

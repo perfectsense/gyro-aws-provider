@@ -1,7 +1,7 @@
 package gyro.aws;
 
 import gyro.core.GyroException;
-import gyro.lang.Resource;
+import gyro.core.resource.Resource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
