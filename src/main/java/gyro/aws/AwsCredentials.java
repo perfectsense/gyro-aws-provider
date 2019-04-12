@@ -1,7 +1,7 @@
 package gyro.aws;
 
 import gyro.core.resource.ResourceName;
-import gyro.lang.Credentials;
+import gyro.core.Credentials;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;

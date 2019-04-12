@@ -6,7 +6,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
-import gyro.lang.Credentials;
+import gyro.core.Credentials;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
