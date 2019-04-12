@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -161,7 +161,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getSubnetId())) {
-            throw new BeamException("subnet-id is missing, unable to load subnet.");
+            throw new GyroException("subnet-id is missing, unable to load subnet.");
         }
 
         try {

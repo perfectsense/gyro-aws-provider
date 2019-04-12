@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -508,7 +508,7 @@ public class CloudFrontResource extends AwsResource {
                     try {
                         Thread.sleep(60000);
                     } catch (InterruptedException ie) {
-                        throw new BeamException(ie.getMessage());
+                        throw new GyroException(ie.getMessage());
                     }
                 }
             } while (deploying);

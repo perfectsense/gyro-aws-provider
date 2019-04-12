@@ -1,7 +1,7 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -130,7 +130,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {
-            throw new BeamException("Parent Auto Scale Group resource not found.");
+            throw new GyroException("Parent Auto Scale Group resource not found.");
         }
         return parent.getAutoScalingGroupName();
     }
@@ -154,7 +154,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
         );
 
         if (getNotificationTypes().isEmpty() || getNotificationTypes().size() > 1 || !validNotificationSet.contains(getNotificationTypes().get(0))) {
-            throw new BeamException("The param 'notification-types' needs one value."
+            throw new GyroException("The param 'notification-types' needs one value."
                 + " Valid values [ '" + String.join("', '", validNotificationSet) + "' ].");
         }
     }

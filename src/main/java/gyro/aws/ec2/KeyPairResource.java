@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -96,7 +96,7 @@ public class KeyPairResource extends AwsResource {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getKeyName())) {
-            throw new BeamException("key-name is missing, unable to load key pair.");
+            throw new GyroException("key-name is missing, unable to load key pair.");
         }
 
         try {
@@ -159,7 +159,7 @@ public class KeyPairResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             return new String(Files.readAllBytes(Paths.get(dir + File.separator + getPublicKeyPath())), StandardCharsets.UTF_8);
         } catch (IOException ioex) {
-            throw new BeamException("Unable to read public key from file.");
+            throw new GyroException("Unable to read public key from file.");
         }
     }
 }

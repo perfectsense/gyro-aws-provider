@@ -1,7 +1,7 @@
 package gyro.aws.cloudwatch;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -420,7 +420,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
 
     private MetricAlarm getMetricAlarm(CloudWatchClient client) {
         if (ObjectUtils.isBlank(getAlarmName())) {
-            throw new BeamException("alarm-name is missing, unable to load metric alarm.");
+            throw new GyroException("alarm-name is missing, unable to load metric alarm.");
         }
 
         try {

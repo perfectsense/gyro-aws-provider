@@ -2,7 +2,7 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
@@ -201,7 +201,7 @@ public class LayerResource extends AwsResource {
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getLayerName()) || getVersion() == null) {
-            throw new BeamException("layer-name and/or version is missing, unable to load lambda layer.");
+            throw new GyroException("layer-name and/or version is missing, unable to load lambda layer.");
         }
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -291,7 +291,7 @@ public class LayerResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
         } catch (IOException ex) {
-            throw new BeamException(String.format("File not found - %s",getContentZipPath()));
+            throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
     }
 }

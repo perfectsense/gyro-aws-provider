@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -362,7 +362,7 @@ public class EndpointResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             setPolicy(new String(Files.readAllBytes(Paths.get(dir + File.separator + getPolicyDocPath())), StandardCharsets.UTF_8));
         } catch (IOException ioex) {
-            throw new BeamException(MessageFormat
+            throw new GyroException(MessageFormat
                 .format("Endpoint - {0} policy error. Unable to read policy from path [{1}]", getServiceName(), getPolicyDocPath()));
         }
     }
@@ -370,15 +370,15 @@ public class EndpointResource extends AwsResource {
     private void validate() {
         if (getTypeInterface()) {
             if (!getRouteTableIds().isEmpty()) {
-                throw new BeamException("The param 'route-table-ids' cannot be set when the param 'type-interface' is set to 'True'");
+                throw new GyroException("The param 'route-table-ids' cannot be set when the param 'type-interface' is set to 'True'");
             }
         } else {
             if (!getSecurityGroupIds().isEmpty()) {
-                throw new BeamException("The param 'security-group-ids' cannot be set when the param 'type-interface' is set to 'False'");
+                throw new GyroException("The param 'security-group-ids' cannot be set when the param 'type-interface' is set to 'False'");
             }
 
             if (!getSubnetIds().isEmpty()) {
-                throw new BeamException("The param 'subnet-ids' cannot be set when the param 'type-interface' is set to 'False'");
+                throw new GyroException("The param 'subnet-ids' cannot be set when the param 'type-interface' is set to 'False'");
             }
         }
     }

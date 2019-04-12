@@ -1,6 +1,6 @@
 package gyro.aws.rds;
 
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -58,7 +58,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getDbClusterSnapshotIdentifier())) {
-            throw new BeamException("db-cluster-snapshot-identifier is missing, unable to load db cluster snapshot.");
+            throw new GyroException("db-cluster-snapshot-identifier is missing, unable to load db cluster snapshot.");
         }
 
         try {
@@ -91,7 +91,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource {
 
             setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
         } catch (InvalidDbClusterStateException ex) {
-            throw new BeamException(ex.getLocalizedMessage());
+            throw new GyroException(ex.getLocalizedMessage());
         }
     }
 

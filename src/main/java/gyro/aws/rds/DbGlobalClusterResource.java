@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -116,7 +116,7 @@ public class DbGlobalClusterResource extends AwsResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getGlobalClusterIdentifier())) {
-            throw new BeamException("global-cluster-identifier is missing, unable to load db global cluster.");
+            throw new GyroException("global-cluster-identifier is missing, unable to load db global cluster.");
         }
 
         try {

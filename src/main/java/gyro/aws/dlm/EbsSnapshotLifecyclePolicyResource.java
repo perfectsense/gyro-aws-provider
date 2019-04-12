@@ -1,7 +1,7 @@
 package gyro.aws.dlm;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -396,7 +396,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
 
     private LifecyclePolicy getPolicy(DlmClient client) {
         if (ObjectUtils.isBlank(getPolicyId())) {
-            throw new BeamException("policy-id is missing, unable to load ebs snapshot policy.");
+            throw new GyroException("policy-id is missing, unable to load ebs snapshot policy.");
         }
 
         GetLifecyclePolicyResponse response = client.getLifecyclePolicy(

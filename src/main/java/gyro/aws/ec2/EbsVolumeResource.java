@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -303,7 +303,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
 
     private Volume getVolume(Ec2Client client) {
         if (ObjectUtils.isBlank(getVolumeId())) {
-            throw new BeamException("ebs volume-id is missing, unable to load volume.");
+            throw new GyroException("ebs volume-id is missing, unable to load volume.");
         }
 
         try {
@@ -327,7 +327,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
 
     private void validate(boolean isCreate) {
         if (!getVolumeType().equals("io1") && isCreate && getIops() != null) {
-            throw new BeamException("The param 'iops' can only be set when param 'volume-type' is set to 'io1'.");
+            throw new GyroException("The param 'iops' can only be set when param 'volume-type' is set to 'io1'.");
         }
     }
 }

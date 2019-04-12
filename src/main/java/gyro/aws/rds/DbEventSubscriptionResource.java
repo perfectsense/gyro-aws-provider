@@ -1,6 +1,6 @@
 package gyro.aws.rds;
 
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -127,7 +127,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getSubscriptionName())) {
-            throw new BeamException("subscription-name is missing, unable to load db event subscription.");
+            throw new GyroException("subscription-name is missing, unable to load db event subscription.");
         }
 
         try {

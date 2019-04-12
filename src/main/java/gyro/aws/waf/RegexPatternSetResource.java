@@ -2,7 +2,7 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -174,10 +174,10 @@ public class RegexPatternSetResource extends AwsResource {
                         .regexPatternSetId(getRegexPatternSetId())
                 );
             } else {
-                throw new BeamException(String.format("Cannot delete regex pattern set - %s, as it has patterns.",getRegexPatternSetId()));
+                throw new GyroException(String.format("Cannot delete regex pattern set - %s, as it has patterns.",getRegexPatternSetId()));
             }
         } else {
-            throw new BeamException(String
+            throw new GyroException(String
                 .format("Cannot delete regex pattern set - %s, as it is referenced by regex match set - %s",getRegexPatternSetId(),referenceId));
         }
     }

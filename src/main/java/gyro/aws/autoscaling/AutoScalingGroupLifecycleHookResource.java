@@ -1,7 +1,7 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -214,7 +214,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {
-            throw new BeamException("Parent Auto Scale Group resource not found.");
+            throw new GyroException("Parent Auto Scale Group resource not found.");
         }
         return parent.getAutoScalingGroupName();
     }
@@ -235,17 +235,17 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     private void validate() {
         if (!getLifecycleTransition().equals("autoscaling:EC2_INSTANCE_LAUNCHING")
             && !getLifecycleTransition().equals("autoscaling:EC2_INSTANCE_TERMINATING")) {
-            throw new BeamException("Invalid value '" + getLifecycleTransition() + "' for the param 'lifecycle-transition'."
+            throw new GyroException("Invalid value '" + getLifecycleTransition() + "' for the param 'lifecycle-transition'."
                 + " Valid options ['autoscaling:EC2_INSTANCE_LAUNCHING', 'autoscaling:EC2_INSTANCE_TERMINATING'].");
         }
 
         if (getHeartbeatTimeout() < 30 || getHeartbeatTimeout() > 7200) {
-            throw new BeamException("The value - (" + getHeartbeatTimeout()
+            throw new GyroException("The value - (" + getHeartbeatTimeout()
                 + ") is invalid for param 'heartbeat-timeout'. Valid values [ Integer value between 30 and 7200 ].");
         }
 
         if (!getDefaultResult().equals("CONTINUE") && !getDefaultResult().equals("ABANDON")) {
-            throw new BeamException("Invalid value '" + getDefaultResult() + "' for the param 'default-result'."
+            throw new GyroException("Invalid value '" + getDefaultResult() + "' for the param 'default-result'."
                 + " Valid options ['CONTINUE', 'ABANDON'].");
         }
     }

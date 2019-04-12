@@ -3,7 +3,7 @@ package gyro.aws.lambda;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequ
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.GetEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
-import software.amazon.awssdk.services.lambda.model.UpdateEventSourceMappingResponse;
 
 import java.time.Instant;
 import java.util.Date;
@@ -264,7 +263,7 @@ public class EventSourceMapping extends AwsResource {
     @Override
     public void update(Resource resource, Set<String> set) {
         if (!getState().equals("Enabled") && !getState().equals("Disabled")) {
-            throw new BeamException(String.format("Event source mapping in '%s' state. Please try again.", getState()));
+            throw new GyroException(String.format("Event source mapping in '%s' state. Please try again.", getState()));
         }
 
         LambdaClient client = createClient(LambdaClient.class);

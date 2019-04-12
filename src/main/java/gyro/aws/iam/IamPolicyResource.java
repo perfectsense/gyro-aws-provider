@@ -1,7 +1,7 @@
 package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -85,7 +85,7 @@ public class IamPolicyResource extends AwsResource {
                     String encode = new String(Files.readAllBytes(Paths.get(getPolicyDocumentFile())), "UTF-8");
                     return formatPolicy(encode);
                 } catch (Exception err) {
-                    throw new BeamException(err.getMessage());
+                    throw new GyroException(err.getMessage());
                 }
             } else {
                 return null;

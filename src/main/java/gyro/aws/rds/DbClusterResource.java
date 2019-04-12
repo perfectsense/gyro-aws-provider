@@ -1,6 +1,6 @@
 package gyro.aws.rds;
 
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -456,7 +456,7 @@ public class DbClusterResource extends RdsTaggableResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            throw new BeamException("db-cluster-identifier is missing, unable to load db cluster.");
+            throw new GyroException("db-cluster-identifier is missing, unable to load db cluster.");
         }
 
         try {
@@ -608,7 +608,7 @@ public class DbClusterResource extends RdsTaggableResource {
                         ? null : getVpcSecurityGroupIds())
             );
         } catch (InvalidDbClusterStateException ex) {
-            throw new BeamException(ex.getLocalizedMessage());
+            throw new GyroException(ex.getLocalizedMessage());
         }
     }
 

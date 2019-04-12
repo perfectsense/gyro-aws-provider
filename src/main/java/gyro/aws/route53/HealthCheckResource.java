@@ -1,7 +1,7 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -582,7 +582,7 @@ public class HealthCheckResource extends AwsResource {
         //Type validation
         if (ObjectUtils.isBlank(getType())
             || HealthCheckType.fromValue(getType()).equals(HealthCheckType.UNKNOWN_TO_SDK_VERSION)) {
-            throw new BeamException(String.format("Invalid value '%s' for param 'type'. Valid values [ '%s' ]", getType(),
+            throw new GyroException(String.format("Invalid value '%s' for param 'type'. Valid values [ '%s' ]", getType(),
                 Stream.of(HealthCheckType.values())
                     .filter(o -> !o.equals(HealthCheckType.UNKNOWN_TO_SDK_VERSION))
                     .map(Enum::toString).collect(Collectors.joining("', '"))));
@@ -591,12 +591,12 @@ public class HealthCheckResource extends AwsResource {
         //Attribute validation when type not CALCULATED
         if (!getType().equals("CALCULATED")) {
             if (!ObjectUtils.isBlank(getHealthThreshold())) {
-                throw new BeamException("The param 'health-threshold' is only allowed when"
+                throw new GyroException("The param 'health-threshold' is only allowed when"
                     + " 'type' is 'CALCULATED'.");
             }
 
             if (!getChildHealthChecks().isEmpty()) {
-                throw new BeamException("The param 'child-health-checks' is only allowed when"
+                throw new GyroException("The param 'child-health-checks' is only allowed when"
                     + " 'type' is 'CALCULATED'.");
             }
         }
@@ -604,17 +604,17 @@ public class HealthCheckResource extends AwsResource {
         //Attribute validation when type not CLOUDWATCH_METRIC
         if (!getType().equals("CLOUDWATCH_METRIC")) {
             if (!ObjectUtils.isBlank(getInsufficientDataHealthStatus())) {
-                throw new BeamException("The param 'insufficient-data-health-status' is only allowed when"
+                throw new GyroException("The param 'insufficient-data-health-status' is only allowed when"
                     + " 'type' is 'CLOUDWATCH_METRIC'.");
             }
 
             if (!ObjectUtils.isBlank(getAlarmName())) {
-                throw new BeamException("The param 'alarm-name' is only allowed when"
+                throw new GyroException("The param 'alarm-name' is only allowed when"
                     + " 'type' is 'CLOUDWATCH_METRIC'.");
             }
 
             if (!ObjectUtils.isBlank(getAlarmRegion())) {
-                throw new BeamException("The param 'alarm-region' is only allowed when"
+                throw new GyroException("The param 'alarm-region' is only allowed when"
                     + " 'type' is 'CLOUDWATCH_METRIC'.");
             }
         }
@@ -622,7 +622,7 @@ public class HealthCheckResource extends AwsResource {
         //Attribute validation when type CALCULATED
         if (getType().equals("CALCULATED")) {
             if (ObjectUtils.isBlank(getHealthThreshold()) || getHealthThreshold() < 0) {
-                throw new BeamException("The value - (" + getHealthThreshold()
+                throw new GyroException("The value - (" + getHealthThreshold()
                     + ") is invalid for parameter 'health-threshold'. Valid values [ Integer value grater or equal to 0. ]");
             }
         }
@@ -632,7 +632,7 @@ public class HealthCheckResource extends AwsResource {
             if (ObjectUtils.isBlank(getInsufficientDataHealthStatus())
                 || InsufficientDataHealthStatus.fromValue(getInsufficientDataHealthStatus())
                 .equals(InsufficientDataHealthStatus.UNKNOWN_TO_SDK_VERSION)) {
-                throw new BeamException(String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
+                throw new GyroException(String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
                         + " Valid values [ '%s' ]", getInsufficientDataHealthStatus(),
                     Stream.of(InsufficientDataHealthStatus.values())
                         .filter(o -> !o.equals(InsufficientDataHealthStatus.UNKNOWN_TO_SDK_VERSION))
@@ -643,42 +643,42 @@ public class HealthCheckResource extends AwsResource {
         //Attribute validation when type is CALCULATED or CLOUDWATCH_METRIC
         if (getType().equals("CALCULATED") && getType().equals("CLOUDWATCH_METRIC")) {
             if (!getRegions().isEmpty()) {
-                throw new BeamException("The param 'regions' is not allowed when"
+                throw new GyroException("The param 'regions' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (!ObjectUtils.isBlank(getRequestInterval())) {
-                throw new BeamException("The param 'request-interval' is not allowed when"
+                throw new GyroException("The param 'request-interval' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (!ObjectUtils.isBlank(getResourcePath())) {
-                throw new BeamException("The param 'resource-path' is not allowed when"
+                throw new GyroException("The param 'resource-path' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (!ObjectUtils.isBlank(getIpAddress())) {
-                throw new BeamException("The param 'ip-address' is not allowed when"
+                throw new GyroException("The param 'ip-address' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (!ObjectUtils.isBlank(getDomainName())) {
-                throw new BeamException("The param 'domain-name' is not allowed when"
+                throw new GyroException("The param 'domain-name' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (getMeasureLatency() != null) {
-                throw new BeamException("The param 'measure-latency' is not allowed when"
+                throw new GyroException("The param 'measure-latency' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (getPort() != null) {
-                throw new BeamException("The param 'port' is not allowed when"
+                throw new GyroException("The param 'port' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
 
             if (getFailureThreshold() != null) {
-                throw new BeamException("The param 'failure-threshold' is not allowed when"
+                throw new GyroException("The param 'failure-threshold' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
             }
         }
@@ -686,7 +686,7 @@ public class HealthCheckResource extends AwsResource {
         //Attribute validation when type is HTTP_STR_MATCH or HTTPS_STR_MATCH
         if (!getType().equals("HTTP_STR_MATCH") && !getType().equals("HTTPS_STR_MATCH")) {
             if (getSearchString() != null) {
-                throw new BeamException("The param 'search-string' is only allowed when"
+                throw new GyroException("The param 'search-string' is only allowed when"
                     + " 'type' is 'HTTP_STR_MATCH' or 'HTTPS_STR_MATCH'.");
             }
         }
@@ -694,7 +694,7 @@ public class HealthCheckResource extends AwsResource {
         //Attribute validation when type is HTTPS or HTTPS_STR_MATCH
         if (!getType().equals("HTTPS") && !getType().equals("HTTPS_STR_MATCH")) {
             if (getEnableSni() != null) {
-                throw new BeamException("The param 'enable-sni' is only allowed when"
+                throw new GyroException("The param 'enable-sni' is only allowed when"
                     + " 'type' is 'HTTPS' or 'HTTPS_STR_MATCH'.");
             }
         }
@@ -703,12 +703,12 @@ public class HealthCheckResource extends AwsResource {
         if (!getType().equals("CALCULATED") && !getType().equals("CLOUDWATCH_METRIC")) {
             if (ObjectUtils.isBlank(getRequestInterval())
                 || (getRequestInterval() != 10 && getRequestInterval() != 30)) {
-                throw new BeamException("The value - (" + getRequestInterval()
+                throw new GyroException("The value - (" + getRequestInterval()
                     + ") is invalid for parameter 'request-interval'. Valid values [ 10, 30 ].");
             }
 
             if (!getRegions().isEmpty() && !regionSet.containsAll(getRegions())) {
-                throw new BeamException(String.format("Invalid values [ '%s' ] for param 'regions'."
+                throw new GyroException(String.format("Invalid values [ '%s' ] for param 'regions'."
                         + " Valid values [ '%s' ]",
                     getRegions().stream().filter(o -> !regionSet.contains(o)).collect(Collectors.joining("', '")),
                     String.join("', '", regionSet)));
@@ -719,7 +719,7 @@ public class HealthCheckResource extends AwsResource {
         if (getType().equals("TCP")) {
             if ((!ObjectUtils.isBlank(getIpAddress()) && !ObjectUtils.isBlank(getDomainName()))
                 || (ObjectUtils.isBlank(getIpAddress()) && ObjectUtils.isBlank(getDomainName()))) {
-                throw new BeamException("When parameter 'type' is 'TCP' either param 'ip-address' or 'domain-name' needs to be specified.");
+                throw new GyroException("When parameter 'type' is 'TCP' either param 'ip-address' or 'domain-name' needs to be specified.");
             }
         }
     }

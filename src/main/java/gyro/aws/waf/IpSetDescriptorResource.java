@@ -1,7 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -166,7 +166,7 @@ public class IpSetDescriptorResource extends AwsResource {
             }
 
             if (!isValid) {
-                throw new BeamException(String.format("Invalid cidr - %s of type %s.", value, getType()));
+                throw new GyroException(String.format("Invalid cidr - %s of type %s.", value, getType()));
             }
         }
 

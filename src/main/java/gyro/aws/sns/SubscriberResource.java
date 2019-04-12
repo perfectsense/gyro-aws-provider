@@ -1,7 +1,7 @@
 package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -71,7 +71,7 @@ public class SubscriberResource extends AwsResource {
                 String encode = new String(Files.readAllBytes(Paths.get(attributes.get("DeliveryPolicy"))), "UTF-8");
                 attributes.put("DeliveryPolicy", formatPolicy(encode));
             } catch (Exception err) {
-                throw new BeamException(err.getMessage());
+                throw new GyroException(err.getMessage());
             }
         }
 
@@ -80,7 +80,7 @@ public class SubscriberResource extends AwsResource {
                 String encode = new String(Files.readAllBytes(Paths.get(attributes.get("FilterPolicy"))), "UTF-8");
                 attributes.put("FilterPolicy", formatPolicy(encode));
             } catch (Exception err) {
-                throw new BeamException(err.getMessage());
+                throw new GyroException(err.getMessage());
             }
         }
 
@@ -162,7 +162,7 @@ public class SubscriberResource extends AwsResource {
                 setTopicArn(response.attributes().get("TopicArn"));
             }
         } catch (AuthorizationErrorException | InvalidParameterException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         } catch (NotFoundException ex) {
             return false;
         }

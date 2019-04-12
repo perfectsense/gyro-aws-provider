@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.BeamInstance;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
@@ -457,7 +457,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getInstanceId())) {
-            throw new BeamException("instance-id is missing, unable to load instance.");
+            throw new GyroException("instance-id is missing, unable to load instance.");
         }
 
         try {
@@ -635,7 +635,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
     @Override
     public void delete() {
         if (getDisableApiTermination()) {
-            throw new BeamException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
+            throw new GyroException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }
 
         Ec2Client client = createClient(Ec2Client.class);
@@ -705,30 +705,30 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
     private void validate(Ec2Client client, boolean isCreate) {
         if (ObjectUtils.isBlank(getShutdownBehavior())
             || ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION)) {
-            throw new BeamException("The value - (" + getShutdownBehavior() + ") is invalid for parameter Shutdown Behavior.");
+            throw new GyroException("The value - (" + getShutdownBehavior() + ") is invalid for parameter Shutdown Behavior.");
         }
 
         if (ObjectUtils.isBlank(getInstanceType())
             || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-            throw new BeamException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+            throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
         }
 
         if (!getEnableEnaSupport() && isCreate) {
-            throw new BeamException("enableEnaSupport cannot be set to False at the time of instance creation. Update the instance to set it.");
+            throw new GyroException("enableEnaSupport cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
         if (!getSourceDestCheck() && isCreate) {
-            throw new BeamException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
+            throw new GyroException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
         if (getSecurityGroupIds().isEmpty()) {
-            throw new BeamException("At least one security group is required.");
+            throw new GyroException("At least one security group is required.");
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")
             && !getCapacityReservation().equalsIgnoreCase("open")
             && !getCapacityReservation().startsWith("cr-")) {
-            throw new BeamException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
+            throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
@@ -736,7 +736,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
 
         if (ObjectUtils.isBlank(getAmiId())) {
             if (ObjectUtils.isBlank(getAmiName())) {
-                throw new BeamException("AMI name cannot be blank when AMI Id is not provided.");
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
             }
 
             amiRequest = DescribeImagesRequest.builder().filters(
@@ -750,12 +750,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements B
         try {
             DescribeImagesResponse response = client.describeImages(amiRequest);
             if (response.images().isEmpty()) {
-                throw new BeamException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
+                throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
             }
             setAmiId(response.images().get(0).imageId());
         } catch (Ec2Exception ex) {
             if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
-                throw new BeamException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
+                throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
             }
 
             throw ex;

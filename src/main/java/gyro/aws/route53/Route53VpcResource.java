@@ -1,7 +1,7 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -111,7 +111,7 @@ public class Route53VpcResource extends AwsResource {
     private HostedZoneResource getParent() {
         HostedZoneResource parent = (HostedZoneResource) parentResource();
         if (parent == null) {
-            throw new BeamException("Parent hosted zone resource not found.");
+            throw new GyroException("Parent hosted zone resource not found.");
         }
         return parent;
     }

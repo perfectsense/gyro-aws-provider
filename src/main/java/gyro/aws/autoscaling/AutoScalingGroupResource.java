@@ -2,7 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.aws.ec2.InstanceResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.BeamInstance;
 import gyro.core.BeamInstances;
 import gyro.core.diff.ResourceDiffProperty;
@@ -28,7 +28,6 @@ import software.amazon.awssdk.services.autoscaling.model.TagDescription;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Reservation;
 
 import java.util.ArrayList;
@@ -713,7 +712,7 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
         DescribeAutoScalingGroupsResponse response = client.describeAutoScalingGroups(r -> r.autoScalingGroupNames(getAutoScalingGroupName()));
         AutoScalingGroup group = response.autoScalingGroups().size() == 1 ? response.autoScalingGroups().get(0) : null;
         if (group == null) {
-            throw new BeamException("Unable to load autoscaling group: " + getAutoScalingGroupName());
+            throw new GyroException("Unable to load autoscaling group: " + getAutoScalingGroupName());
         }
 
         List<String> instanceIds = group.instances()
@@ -787,7 +786,7 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
 
     private AutoScalingGroup getAutoScalingGroup(AutoScalingClient client) {
         if (ObjectUtils.isBlank(getAutoScalingGroupName())) {
-            throw new BeamException("auto-scale-group-name is missing, unable to load auto scale group.");
+            throw new GyroException("auto-scale-group-name is missing, unable to load auto scale group.");
         }
 
         try {
@@ -822,49 +821,49 @@ public class AutoScalingGroupResource extends AwsResource implements BeamInstanc
 
     private void validate() {
         if (ObjectUtils.isBlank(getLaunchTemplateId()) && ObjectUtils.isBlank(getLaunchConfigurationName())) {
-            throw new BeamException("Either Launch template id or a launch configuration name is required.");
+            throw new GyroException("Either Launch template id or a launch configuration name is required.");
         }
 
         if (!getHealthCheckType().equals("ELB") && !getHealthCheckType().equals("EC2")) {
-            throw new BeamException("The value - (" + getHealthCheckType()
+            throw new GyroException("The value - (" + getHealthCheckType()
                 + ") is invalid for parameter Health Check Type.");
         }
 
         if (getHealthCheckGracePeriod() < 0) {
-            throw new BeamException("The value - (" + getHealthCheckGracePeriod()
+            throw new GyroException("The value - (" + getHealthCheckGracePeriod()
                 + ") is invalid for parameter Health Check Grace period. Integer value grater or equal to 0.");
         }
 
         if (getMaxSize() < 0) {
-            throw new BeamException("The value - (" + getMaxSize()
+            throw new GyroException("The value - (" + getMaxSize()
                 + ") is invalid for parameter Max size. Integer value grater or equal to 0.");
         }
 
         if (getMinSize() < 0) {
-            throw new BeamException("The value - (" + getMinSize()
+            throw new GyroException("The value - (" + getMinSize()
                 + ") is invalid for parameter Min size. Integer value grater or equal to 0.");
         }
 
         if (getDefaultCooldown() < 0) {
-            throw new BeamException("The value - (" + getDefaultCooldown()
+            throw new GyroException("The value - (" + getDefaultCooldown()
                 + ") is invalid for parameter Default cool down. Integer value grater or equal to 0.");
         }
 
         if (getDesiredCapacity() < 0) {
-            throw new BeamException("The value - (" + getDesiredCapacity()
+            throw new GyroException("The value - (" + getDesiredCapacity()
                 + ") is invalid for parameter Desired capacity. Integer value grater or equal to 0.");
         }
 
         if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
-            throw new BeamException("When Enabled Metrics Collection is set to false, disabled metrics can't have items in it.");
+            throw new GyroException("When Enabled Metrics Collection is set to false, disabled metrics can't have items in it.");
         }
 
         if (!masterMetricSet.containsAll(getDisabledMetrics())) {
-            throw new BeamException("Invalid values for parameter Disabled Metrics.");
+            throw new GyroException("Invalid values for parameter Disabled Metrics.");
         }
 
         if (!new HashSet<>(getTags().keySet()).containsAll(getPropagateAtLaunchTags())) {
-            throw new BeamException("Propagate at launch tags cannot contain keys not mentioned under tags.");
+            throw new GyroException("Propagate at launch tags cannot contain keys not mentioned under tags.");
         }
     }
 

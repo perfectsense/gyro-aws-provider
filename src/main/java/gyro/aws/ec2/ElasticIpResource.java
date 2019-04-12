@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.BeamCore;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 
@@ -162,7 +162,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
             return true;
         } catch (Ec2Exception eex) {
             if (eex.awsErrorDetails().errorCode().equals("InvalidAllocationID.NotFound")) {
-                throw new BeamException(MessageFormat.format("Elastic Ip - {0} not found.", getPublicIp()));
+                throw new GyroException(MessageFormat.format("Elastic Ip - {0} not found.", getPublicIp()));
             } else {
                 throw eex;
             }
@@ -186,9 +186,9 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
             }
         } catch (Ec2Exception eex) {
             if (eex.awsErrorDetails().errorCode().equals("InvalidAddress.NotFound")) {
-                throw new BeamException(MessageFormat.format("Elastic Ip - {0} Unavailable/Not found.", getPublicIp()));
+                throw new GyroException(MessageFormat.format("Elastic Ip - {0} Unavailable/Not found.", getPublicIp()));
             } else if (eex.awsErrorDetails().errorCode().equals("AddressLimitExceeded")) {
-                throw new BeamException("The maximum number of addresses has been reached.");
+                throw new GyroException("The maximum number of addresses has been reached.");
             }
         }
     }
@@ -203,13 +203,13 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
                 setAllocationId(response.allocationId());
                 setIsStandardDomain(false);
             } else {
-                throw new BeamException(MessageFormat.format("Elastic Ip - {0}, VPC domain to Standard domain not feasible. ", getPublicIp()));
+                throw new GyroException(MessageFormat.format("Elastic Ip - {0}, VPC domain to Standard domain not feasible. ", getPublicIp()));
             }
         }
 
         if (changedProperties.contains("instance-id") || changedProperties.contains("network-interface-id")) {
             if (!getAllowReassociation()) {
-                throw new BeamException("Please set the allow re-association to true in order for any associations.");
+                throw new GyroException("Please set the allow re-association to true in order for any associations.");
             }
 
             if (changedProperties.contains("instance-id")) {
@@ -256,14 +256,14 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
                 client.disassociateAddress(r -> r.associationId(getAssociationId()));
             }
         } catch (Ec2Exception e) {
-            throw new BeamException("Non managed associated resource");
+            throw new GyroException("Non managed associated resource");
         }
 
         try {
             client.releaseAddress(r -> r.allocationId(getAllocationId()));
         } catch (Ec2Exception eex) {
             if (eex.awsErrorDetails().errorCode().equals("InvalidAllocationID.NotFound")) {
-                throw new BeamException(MessageFormat.format("Elastic Ip - {0} not found.", getPublicIp()));
+                throw new GyroException(MessageFormat.format("Elastic Ip - {0} not found.", getPublicIp()));
             } else {
                 throw eex;
             }

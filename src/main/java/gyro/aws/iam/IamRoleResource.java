@@ -1,7 +1,7 @@
 package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 
@@ -59,7 +59,7 @@ public class IamRoleResource extends AwsResource {
                     String encode = new String(Files.readAllBytes(Paths.get(getAssumeRolePolicyDocumentFile())), "UTF-8");
                     return formatPolicy(encode);
                 } catch (Exception err) {
-                    throw new BeamException(err.getMessage());
+                    throw new GyroException(err.getMessage());
                 }
             } else {
                 return null;
@@ -164,7 +164,7 @@ public class IamRoleResource extends AwsResource {
             }
         } catch (Exception err) {
             delete();
-            throw new BeamException(err.getMessage());
+            throw new GyroException(err.getMessage());
         }
 
     }

@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -107,7 +107,7 @@ public class DbClusterEndpointResource extends AwsResource {
         RdsClient client = createClient(RdsClient.class);
 
         if (ObjectUtils.isBlank(getClusterEndpointIdentifier()) || ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            throw new BeamException("cluster-endpoint-identifier or db-cluster-identifier is missing, unable to load db cluster endpoint.");
+            throw new GyroException("cluster-endpoint-identifier or db-cluster-identifier is missing, unable to load db cluster endpoint.");
         }
 
         try {

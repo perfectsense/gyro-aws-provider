@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
@@ -299,7 +299,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getLaunchTemplateId())) {
-            throw new BeamException("launch-template-id is missing, unable to load instance.");
+            throw new GyroException("launch-template-id is missing, unable to load instance.");
         }
 
         try {
@@ -396,18 +396,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         if (ObjectUtils.isBlank(getInstanceId())) {
 
             if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                throw new BeamException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+                throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
             }
 
             if (getSecurityGroupIds().isEmpty()) {
-                throw new BeamException("At least one security group is required.");
+                throw new GyroException("At least one security group is required.");
             }
 
             DescribeImagesRequest amiRequest;
 
             if (ObjectUtils.isBlank(getAmiId())) {
                 if (ObjectUtils.isBlank(getAmiName())) {
-                    throw new BeamException("AMI name cannot be blank when AMI Id is not provided.");
+                    throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
                 }
 
                 amiRequest = DescribeImagesRequest.builder().filters(
@@ -421,12 +421,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             try {
                 DescribeImagesResponse response = client.describeImages(amiRequest);
                 if (response.images().isEmpty()) {
-                    throw new BeamException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
+                    throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
                 }
                 setAmiId(response.images().get(0).imageId());
             } catch (Ec2Exception ex) {
                 if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
-                    throw new BeamException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
+                    throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
                 }
 
                 throw ex;

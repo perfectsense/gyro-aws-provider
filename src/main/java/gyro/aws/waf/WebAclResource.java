@@ -1,7 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -215,7 +215,7 @@ public class WebAclResource extends AwsResource {
         }
 
         if (invalidPriority) {
-            throw new BeamException("Activated Rule priority exception. Priority value starts from 1 to 10 without skipping any number.");
+            throw new GyroException("Activated Rule priority exception. Priority value starts from 1 to 10 without skipping any number.");
         }
     }
 
