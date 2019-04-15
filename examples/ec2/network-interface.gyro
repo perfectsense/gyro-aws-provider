@@ -10,7 +10,7 @@ aws::vpc vpc
 end
 
 aws::subnet  subnet-example-nic
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.0.0/16"
     map-public-ip-on-launch: true
@@ -57,7 +57,7 @@ end
 aws::network-interface nic-example-with-ip
      description: "test-nic-with-IP-test-update"
      subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
-     ipv4 : "10.0.0.32"
+     ipv4-address : "10.0.0.32"
      security-group-ids: [
          $(aws::security-group nic-security-group-example| group-id)
      ]

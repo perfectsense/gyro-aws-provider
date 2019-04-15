@@ -62,7 +62,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private Boolean isDeleteOnTermination;
     private List<String> securityGroupIds;
 
-
     /**
      * The description of the network interface card that is being created.
      */
@@ -100,7 +99,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The list of Security Group ID being associated with the Network Interface. (Optional)
+     * The list of Security Group ID's that are getting associated to the Network Interface. (Optional)
      * If no security id is given, the default security group attached to the subnet will be assigned to the network interface.
      */
     @ResourceDiffProperty(updatable = true, nullable = true)
@@ -152,7 +151,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The value of attachment order to the instance, this would be `1` since the default network interface index value is `0`, when an instance is created.
+     * The value of attachment order to the instance, this would be `1` since the default network interface index value is `0` when an instance is created.
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getDeviceIndex() {
@@ -245,6 +244,10 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         if (getSecurityGroupIds().size() != 0) {
             builder.groups(getSecurityGroupIds());
+        }
+
+        if (getIpv6Address() != null) {
+            builder.ipv6Addresses(r -> r.ipv6Address(getIpv6Address()));
         }
 
         builder.privateIpAddress(getIpv4Address() != null ? getIpv4Address() : null);
