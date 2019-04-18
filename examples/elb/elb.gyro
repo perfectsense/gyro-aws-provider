@@ -1,7 +1,4 @@
-aws::credentials default
-    profile-name: "psd-gyro-sandbox"
-    region: "us-east-2"
-end
+@import ../init as _
 
 aws::load-balancer elb
     load-balancer-name: "elb"
@@ -50,7 +47,7 @@ aws::vpc vpc
 end
 
 aws::subnet subnet-us-east-2a
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2a'
     cidr-block: '10.0.0.0/24'
 
@@ -79,7 +76,7 @@ aws::instance instance-us-east-2a
 end
 
 aws::subnet subnet-us-east-2b
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2b'
     cidr-block: '10.0.1.0/24'
 
