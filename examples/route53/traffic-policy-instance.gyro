@@ -24,7 +24,6 @@ end
 
 aws::traffic-policy-instance traffic-policy-instance-example
     name: "tp."
-    comment: "traffic-policy-instance-example Comment"
     ttl: 100
     hosted-zone-id: $(aws::hosted-zone hosted-zone-traffic-policy-instance-example | hosted-zone-id)
     hosted-zone-name: $(aws::hosted-zone hosted-zone-traffic-policy-instance-example | hosted-zone-name)
