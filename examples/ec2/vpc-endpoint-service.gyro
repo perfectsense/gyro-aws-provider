@@ -1,5 +1,5 @@
 aws::nlb nlb-example
-    load-balancer-name: "nlb-example"
+    name: "nlb-example"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
@@ -19,7 +19,7 @@ end
 aws::nlb-listener listener-example
     port: "80"
     protocol: "TCP"
-    load-balancer-arn: $(aws::nlb nlb-example | load-balancer-arn)
+    load-balancer-arn: $(aws::nlb nlb-example | arn)
 
     default-action
         target-group-arn: $(aws::target-group target-group-example | target-group-arn)
@@ -53,7 +53,7 @@ end
 aws::vpc-endpoint-service vpc-endpoint-service-example
     acceptance-required: "false"
     network-load-balancer-arns: [
-        $(aws::nlb nlb-example | load-balancer-arn)
+        $(aws::nlb nlb-example | arn)
     ]
     principals: [
         $(aws::iam-role example-role | role-arn)
