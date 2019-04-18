@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::ebs-snapshot-lifecycle-policy ebs-snapshot-lifecycle-policy-example
     description: "ebs-snapshot-lifecycle-policy-example"
     execution-role-arn: "arn:aws:iam::242040583208:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"

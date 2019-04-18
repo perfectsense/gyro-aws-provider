@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::capacity-reservation capacity-reservation-example
     availability-zone: "us-east-2a"
     ebs-optimized: false

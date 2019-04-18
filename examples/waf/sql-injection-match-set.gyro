@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::sql-injection-match-set sql-injection-match-set-example
     name: "sql-injection-match-set-example"
 

@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::ebs-snapshot ebs-snapshot-example
     description: "ebs-snapshot-example"
     volume-id: "vol-0bda07cf6a43384e9"

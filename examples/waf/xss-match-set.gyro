@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::xss-match-set xss-match-set-example
     name: "xss-match-set-example"
 

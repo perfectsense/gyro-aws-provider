@@ -1,5 +1,3 @@
-import ../init as _
-
 aws::sqs sqs-event-source-mapping-example
      name : "event-source-mapping-example"
      visibility-timeout : 400

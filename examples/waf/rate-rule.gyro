@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::rate-rule rate-rule-example
     name: "rate-rule-example"
     metric-name: "rateRuleExample"

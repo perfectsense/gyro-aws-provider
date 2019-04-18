@@ -1,5 +1,3 @@
-import ../init as _
-
 aws::lambda-function lambda-function-example
     function-name: "testFunction"
     handler: "index.handler"

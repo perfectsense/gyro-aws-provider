@@ -1,5 +1,3 @@
-import ../init as _
-
 aws::lambda-alias lambda-alias-example
     alias-name: "lambda-alias-example"
     function-name: "testFunction"

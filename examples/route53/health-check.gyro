@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::health-check health-check-example-calculated
     type: "CALCULATED"
     inverted: false

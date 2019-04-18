@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::metric-alarm metric-alarm-example
     alarm-name: "metric-alarm-example"
     alarm-description: "metric-alarm-example-update"

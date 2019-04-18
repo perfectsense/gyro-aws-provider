@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::regex-pattern-set regex-pattern-set-example
     name: "regex-pattern-set-example"
 

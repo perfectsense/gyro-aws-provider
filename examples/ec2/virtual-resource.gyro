@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::subnet "outside-subnet"
     vpc-id: $(aws::vpc network.vpc | vpc-id)
     availability-zone: 'us-east-2c'
