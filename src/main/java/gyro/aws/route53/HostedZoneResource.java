@@ -1,10 +1,10 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
@@ -274,11 +274,11 @@ public class HostedZoneResource extends AwsResource {
 
     private void validate() {
         if (getPrivateZone() && getVpc().isEmpty()) {
-            throw new BeamException("if param 'private-zone' is set to 'true' at least one vpc needs to be provided.");
+            throw new GyroException("if param 'private-zone' is set to 'true' at least one vpc needs to be provided.");
         }
 
         if (!getPrivateZone() && !getVpc().isEmpty()) {
-            throw new BeamException("if param 'private-zone' is set to 'false' vpc's cannot be set.");
+            throw new GyroException("if param 'private-zone' is set to 'false' vpc's cannot be set.");
         }
     }
 }

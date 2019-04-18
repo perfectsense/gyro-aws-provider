@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::kms kms-example
     aliases: ["alias/kms_example", "alias/kms_example_1"]
@@ -10,7 +10,7 @@ aws::kms kms-example
     key-usage: "ENCRYPT_DECRYPT"
     origin: "AWS_KMS"
     pending-window: "7"
-    policy: "gyro-providers/gyro-aws-provider/examples/kms/kms-policy.json"
+    policy: "examples/kms/kms-policy.json"
     tags: {
         Name: "kms-example"
     }

@@ -1,10 +1,10 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
@@ -208,7 +208,7 @@ public class TrafficPolicyResource extends AwsResource {
             String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
             setDocument(new String(Files.readAllBytes(Paths.get(dir + File.separator + getDocumentPath())), StandardCharsets.UTF_8));
         } catch (IOException ioex) {
-            throw new BeamException(String.format("traffic policy - %s document error."
+            throw new GyroException(String.format("traffic policy - %s document error."
                 + " Unable to read document from path [%s]", getName(), getDocument()));
         }
     }
@@ -216,7 +216,7 @@ public class TrafficPolicyResource extends AwsResource {
     private void validate(boolean isCreate) {
         if ((ObjectUtils.isBlank(getName()) && ObjectUtils.isBlank(getTrafficPolicyId()))
             || (isCreate && !ObjectUtils.isBlank(getName()) && !ObjectUtils.isBlank(getTrafficPolicyId()))) {
-            throw new BeamException("Either param 'name' or 'traffic-policy-id' need to be provided, but not both.");
+            throw new GyroException("Either param 'name' or 'traffic-policy-id' need to be provided, but not both.");
         }
     }
 }

@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::ebs-snapshot ebs-snapshot-example
     description: "ebs-snapshot-example"

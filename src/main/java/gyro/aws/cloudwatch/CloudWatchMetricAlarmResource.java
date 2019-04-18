@@ -1,10 +1,10 @@
 package gyro.aws.cloudwatch;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.CloudWatchException;
@@ -331,6 +331,10 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
 
     @ResourceDiffProperty(updatable = true, nullable = true)
     public List<MetricDataQueryResource> getMetrics() {
+        if (metrics == null) {
+            metrics = new ArrayList<>();
+        }
+
         return metrics;
     }
 
@@ -371,7 +375,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
             getDimensions().put(dimension.name(), dimension.value());
         }
 
-        setMetrics(new ArrayList<>());
+        getMetrics().clear();
         for (software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery metricDataQuery : metricAlarm.metrics()) {
             MetricDataQueryResource metricDataQueryResource = new MetricDataQueryResource(metricDataQuery);
             getMetrics().add(metricDataQueryResource);
@@ -416,7 +420,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
 
     private MetricAlarm getMetricAlarm(CloudWatchClient client) {
         if (ObjectUtils.isBlank(getAlarmName())) {
-            throw new BeamException("alarm-name is missing, unable to load metric alarm.");
+            throw new GyroException("alarm-name is missing, unable to load metric alarm.");
         }
 
         try {
@@ -459,7 +463,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
                 .dimensions(getDimensions().entrySet().stream().map(m -> Dimension.builder()
                     .name(m.getKey()).value(m.getValue()).build()).collect(Collectors.toList()))
 
-                .metrics(getMetrics() != null
+                .metrics(!getMetrics().isEmpty()
                     ? getMetrics().stream()
                     .map(MetricDataQueryResource::getMetricDataQuery)
                     .collect(Collectors.toList()) : null)

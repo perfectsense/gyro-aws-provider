@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 import software.amazon.awssdk.services.cloudfront.model.ViewerCertificate;
 
 public class CloudFrontViewerCertificate extends Diffable {

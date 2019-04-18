@@ -1,4 +1,4 @@
-import ../init.bcl as _
+@import ../init.bcl as _
 
 aws::nlb nlb-example
     load-balancer-name: "nlb-example"

@@ -1,9 +1,9 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -224,7 +224,7 @@ public class LaunchConfigurationResource extends AwsResource {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         if (ObjectUtils.isBlank(getLaunchConfigurationName())) {
-            throw new BeamException("launch-template-name is missing, unable to load instance.");
+            throw new GyroException("launch-template-name is missing, unable to load instance.");
         }
 
         try {
@@ -304,11 +304,11 @@ public class LaunchConfigurationResource extends AwsResource {
         if (ObjectUtils.isBlank(getInstanceId())) {
 
             if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                throw new BeamException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+                throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
             }
 
             if (getSecurityGroupIds().isEmpty()) {
-                throw new BeamException("At least one security group is required.");
+                throw new GyroException("At least one security group is required.");
             }
         }
     }

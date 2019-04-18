@@ -2,10 +2,10 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.diff.Create;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
 import gyro.core.diff.Update;
-import gyro.lang.Resource;
+import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 
 import java.util.Set;

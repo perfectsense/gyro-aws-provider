@@ -1,13 +1,17 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
+import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,6 +35,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
     private String vpcId;
     private String networkAclId;
+    private List<NetworkAclRuleResource> rule;
 
     /**
      * The ID of the VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_. (Required)
@@ -43,6 +48,9 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
         this.vpcId = vpcId;
     }
 
+    /**
+     * The ID of the network ACL.
+     */
     @ResourceOutput
     public String getNetworkAclId() {
         return networkAclId;
@@ -57,6 +65,23 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
         return getNetworkAclId();
     }
 
+    /**
+     * A list of rules for the Network ACL.
+     *
+     * @subresource gyro.aws.ec2.NetworkAclRuleResource
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<NetworkAclRuleResource> getRule() {
+        if (rule == null) {
+            rule = new ArrayList<>();
+        }
+        return rule;
+    }
+
+    public void setRule(List<NetworkAclRuleResource> ruleEntries) {
+        this.rule = ruleEntries;
+    }
+
     @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
@@ -65,6 +90,20 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
         if (!response.networkAcls().isEmpty()) {
             NetworkAcl networkAcl = response.networkAcls().get(0);
+
+            for (NetworkAclEntry e: networkAcl.entries()) {
+
+                if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
+                    && e.portRange() == null
+                    && e.cidrBlock().equals("0.0.0.0/0")) {
+                    continue;
+                }
+
+                NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
+                getRule().add(rule);
+                rule.parent(this);
+            }
+
             setVpcId(networkAcl.vpcId());
 
             return true;

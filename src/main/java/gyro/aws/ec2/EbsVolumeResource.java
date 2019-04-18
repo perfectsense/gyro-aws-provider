@@ -1,11 +1,11 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.BeamCore;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
+import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
@@ -243,10 +243,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                         .autoEnableIO(a -> a.value(getAutoEnableIo()))
                 );
             } catch (Exception ex) {
-                BeamCore.ui().write("\n@|bold,blue EBS Volume resource - error enabling "
+                GyroCore.ui().write("\n@|bold,blue EBS Volume resource - error enabling "
                     + "'auto enable io' to volume with Id - %s. |@", getVolumeId());
-                BeamCore.ui().write("\n@|bold,blue Error message - %s |@", ex.getMessage());
-                BeamCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
+                GyroCore.ui().write("\n@|bold,blue Error message - %s |@", ex.getMessage());
+                GyroCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
             }
         }
     }
@@ -303,7 +303,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
 
     private Volume getVolume(Ec2Client client) {
         if (ObjectUtils.isBlank(getVolumeId())) {
-            throw new BeamException("ebs volume-id is missing, unable to load volume.");
+            throw new GyroException("ebs volume-id is missing, unable to load volume.");
         }
 
         try {
@@ -327,7 +327,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
 
     private void validate(boolean isCreate) {
         if (!getVolumeType().equals("io1") && isCreate && getIops() != null) {
-            throw new BeamException("The param 'iops' can only be set when param 'volume-type' is set to 'io1'.");
+            throw new GyroException("The param 'iops' can only be set when param 'volume-type' is set to 'io1'.");
         }
     }
 }

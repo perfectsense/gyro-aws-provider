@@ -1,8 +1,8 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;

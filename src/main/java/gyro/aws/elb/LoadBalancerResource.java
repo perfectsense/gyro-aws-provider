@@ -1,10 +1,10 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescri
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerDescription;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,12 +40,12 @@ public class LoadBalancerResource extends AwsResource {
 
     private String dnsName;
     private HealthCheckResource healthCheck;
-    private List<String> instances;
-    private List<ListenerResource> listener;
+    private Set<String> instances;
+    private Set<ListenerResource> listener;
     private String loadBalancerName;
     private String scheme;
-    private List<String> securityGroups;
-    private List<String> subnets;
+    private Set<String> securityGroups;
+    private Set<String> subnets;
 
     /**
      * The public DNS name of this load balancer.
@@ -74,15 +75,15 @@ public class LoadBalancerResource extends AwsResource {
      * The instances to associate with this load balancer. (Required)
      */
     @ResourceDiffProperty(updatable = true)
-    public List<String> getInstances() {
+    public Set<String> getInstances() {
         if (instances == null) {
-            instances = new ArrayList<>();
+            instances = new LinkedHashSet<>();
         }
 
         return instances;
     }
 
-    public void setInstances(List<String> instances) {
+    public void setInstances(Set<String> instances) {
         this.instances = instances;
     }
 
@@ -90,15 +91,15 @@ public class LoadBalancerResource extends AwsResource {
      * The listeners to associate with this load balancer. (Required)
      */
     @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<ListenerResource> getListener() {
+    public Set<ListenerResource> getListener() {
         if (listener == null) {
-            listener = new ArrayList<>();
+            listener = new LinkedHashSet<>();
         }
 
         return listener;
     }
 
-    public void setListener(List<ListenerResource> listener) {
+    public void setListener(Set<ListenerResource> listener) {
         this.listener = listener;
     }
 
@@ -128,15 +129,15 @@ public class LoadBalancerResource extends AwsResource {
      * The security groups to associate with this load balancer. (Required)
      */
     @ResourceDiffProperty(updatable = true)
-    public List<String> getSecurityGroups() {
+    public Set<String> getSecurityGroups() {
         if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
+            securityGroups = new LinkedHashSet<>();
         }
 
         return securityGroups;
     }
 
-    public void setSecurityGroups(List<String> securityGroups) {
+    public void setSecurityGroups(Set<String> securityGroups) {
         this.securityGroups = securityGroups;
     }
 
@@ -144,15 +145,15 @@ public class LoadBalancerResource extends AwsResource {
      * Subnet IDs to associate with this load balancer. (Required)
      */
     @ResourceDiffProperty(updatable = true)
-    public List<String> getSubnets() {
+    public Set<String> getSubnets() {
         if (subnets == null) {
-            subnets = new ArrayList<>();
+            subnets = new LinkedHashSet<>();
         }
 
         return subnets;
     }
 
-    public void setSubnets(List<String> subnets) {
+    public void setSubnets(Set<String> subnets) {
         this.subnets = subnets;
     }
 
@@ -165,8 +166,8 @@ public class LoadBalancerResource extends AwsResource {
             for (LoadBalancerDescription description : response.loadBalancerDescriptions()) {
                 setLoadBalancerName(description.loadBalancerName());
                 setInstances(fromInstances(description.instances()));
-                setSecurityGroups(description.securityGroups());
-                setSubnets(description.subnets());
+                setSecurityGroups(new LinkedHashSet<>(description.securityGroups()));
+                setSubnets(new LinkedHashSet<>(description.subnets()));
                 setDnsName(description.dnsName());
                 setScheme(description.scheme());
 
@@ -280,16 +281,16 @@ public class LoadBalancerResource extends AwsResource {
         return sb.toString();
     }
 
-    private List<Instance> toInstances() {
-        List<Instance> instance = new ArrayList<>();
+    private Set<Instance> toInstances() {
+        Set<Instance> instance = new LinkedHashSet<>();
         for (String resource : getInstances()) {
             instance.add(Instance.builder().instanceId(resource).build());
         }
         return instance;
     }
 
-    private List<String> fromInstances(List<Instance> instances) {
-        List<String> stringInstances = new ArrayList<>();
+    private Set<String> fromInstances(List<Instance> instances) {
+        Set<String> stringInstances = new LinkedHashSet<>();
         for (Instance inst : instances) {
             stringInstances.add(inst.instanceId());
         }

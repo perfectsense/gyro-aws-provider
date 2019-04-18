@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::size-constraint-set size-constraint-set-example
     name: "size-constraint-set-example"

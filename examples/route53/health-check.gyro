@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 aws::health-check health-check-example-calculated
     type: "CALCULATED"
