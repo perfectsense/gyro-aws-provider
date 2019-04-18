@@ -7,7 +7,6 @@ aws::db-cluster db-cluster-example
     master-user-password: "password"
     backup-retention-period: 5
     preferred-backup-window: "07:00-09:00"
-    delete-automated-backups: true
     skip-final-snapshot: true
     tags: {
         Name: "aurora-snapshot-cluster"
