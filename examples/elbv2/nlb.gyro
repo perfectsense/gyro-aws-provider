@@ -1,13 +1,13 @@
 aws::nlb nlb-example
-    load-balancer-name: "nlb-example"
+    name: "nlb-example"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
-    subnet-mapping
+    subnet-mappings
         subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
     end
 
-    subnet-mapping
+    subnet-mappings
         subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
     end
 
@@ -19,31 +19,21 @@ end
 aws::nlb-listener listener-example
     port: "80"
     protocol: "TCP"
-    load-balancer-arn: $(aws::nlb nlb-example | load-balancer-arn)
+    load-balancer-arn: $(aws::nlb nlb-example | arn)
 
     default-action
-        target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+        target-group-arn: $(aws::target-group target-group-example | arn)
         type: "forward"
     end
 end
 
 aws::target-group target-group-example
-    target-group-name: "test-target-group"
+    name: "test-target-group"
     health-check-enabled: "true"
     port: "80"
     protocol: "TCP"
     target-type: "instance"
     vpc-id: $(aws::vpc vpc | vpc-id)
-
-    target
-        id: $(aws::instance instance-us-east-2a | instance-id)
-        port: "80"
-    end
-
-    target
-        id: $(aws::instance instance-us-east-2b | instance-id)
-        port: "443"
-    end
 
     tags: {
         Name: "nlb-example-target-group"
@@ -60,7 +50,7 @@ aws::vpc vpc
 end
 
 aws::subnet subnet-us-east-2a
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2a'
     cidr-block: '10.0.0.0/24'
 
@@ -89,7 +79,7 @@ aws::instance instance-us-east-2a
 end
 
 aws::subnet subnet-us-east-2b
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2b'
     cidr-block: '10.0.1.0/24'
 
