@@ -3,7 +3,7 @@ aws::authenticate-cognito-user-pool cognito
 end
 
 aws::authenticate-cognito-user-pool-client client
-    client-name: "clientname"
+    user-pool-client-name: "clientname"
     user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
 end
 
