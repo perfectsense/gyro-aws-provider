@@ -1,11 +1,11 @@
 aws::alb alb-example
-    load-balancer-name: "alb-example"
+    name: "alb-example"
     ip-address-type: "ipv4"
     scheme: "internal"
     security-groups: [
             $(aws::security-group security-group | group-id)
         ]
-    subnets: [
+    subnet-ids: [
             $(aws::subnet subnet-us-east-2a | subnet-id),
             $(aws::subnet subnet-us-east-2b | subnet-id)
         ]
@@ -39,12 +39,12 @@ end
 aws::alb-listener listener-example
     port: "80"
     protocol: "HTTPS"
-    load-balancer-arn: $(aws::alb alb-example | load-balancer-arn)
+    load-balancer-arn: $(aws::alb alb-example | arn)
     default-certificate: "arn:aws:acm:us-east-2:242040583208:certificate/d3ca878d-fc0c-49ab-bdfa-a93dc2bcbda8"
 
     default-action
         type: "forward"
-        target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+        target-group-arn: $(aws::target-group target-group-example | arn)
         order: 2
     end
 
@@ -64,7 +64,7 @@ aws::alb-listener listener-example
 end
 
 aws::alb-listener-rule listener-rule-example
-    listener-arn: $(aws::alb-listener listener-example | listener-arn)
+    listener-arn: $(aws::alb-listener listener-example | arn)
     priority: "1"
 
     action
@@ -102,22 +102,12 @@ end
 
 
 aws::target-group target-group-example
-    target-group-name: "test-target-group"
+    name: "test-target-group"
     health-check-enabled: "true"
     port: "80"
     protocol: "HTTP"
     target-type: "instance"
     vpc-id: $(aws::vpc vpc | vpc-id)
-
-    target
-        id: $(aws::instance instance-us-east-2a | instance-id)
-        port: "80"
-    end
-
-    target
-        id: $(aws::instance instance-us-east-2b | instance-id)
-        port: "443"
-    end
 
     health-check
         health-check-interval: "90"
