@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::cloudfront cloudfront-example
- *        name: "static asset cache"
  *        enabled: true
  *        ipv6-enabled: false
  *
