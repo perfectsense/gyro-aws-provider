@@ -10,7 +10,7 @@ aws::vpc vpc
 end
 
 aws::subnet subnet
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.0.0/16"
     map-public-ip-on-launch: true
@@ -43,7 +43,7 @@ aws::instance instance-example
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "foo"
+    key-name: "example"
     subnet-id: $(aws::subnet subnet | subnet-id)
     security-group-ids: [
         $(aws::security-group security-group| group-id)
@@ -56,6 +56,12 @@ aws::instance instance-example
     tags: {
         Name: "instance-example"
     }
+
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
+    end
 
     capacity-reservation: "none"
 end
