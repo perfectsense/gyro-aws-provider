@@ -12,28 +12,35 @@ import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
+import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationSpecification;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstanceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
+import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
 import software.amazon.awssdk.services.ec2.model.Reservation;
+import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
+import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,7 +92,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
-
+    private List<BlockDeviceMappingResource> blockDeviceMapping;
+    private BlockDeviceMappingResource rootBlockDeviceMapping;
     // -- Readonly
 
     private String instanceId;
@@ -99,8 +107,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     }
 
-    public InstanceResource(Instance instance) {
-        init(instance);
+    public InstanceResource(Instance instance, Ec2Client client) {
+        init(instance, client);
     }
 
     /**
@@ -416,6 +424,28 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         this.capacityReservation = capacityReservation;
     }
 
+    @ResourceDiffProperty(updatable = true)
+    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new ArrayList<>();
+        }
+
+        return blockDeviceMapping;
+    }
+
+    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+        this.blockDeviceMapping = blockDeviceMapping;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public BlockDeviceMappingResource getRootBlockDeviceMapping() {
+        return rootBlockDeviceMapping;
+    }
+
+    public void setRootBlockDeviceMapping(BlockDeviceMappingResource rootBlockDeviceMapping) {
+        this.rootBlockDeviceMapping = rootBlockDeviceMapping;
+    }
+
     // -- GyroInstance Implementation
 
     @Override
@@ -471,7 +501,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 }
 
                 for (Instance instance : instances) {
-                    init(instance);
+                    init(instance, client);
 
                     if (instance.state().name() == InstanceStateName.TERMINATED) {
                         return false;
@@ -521,23 +551,32 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         validate(client, true);
 
         try {
-            RunInstancesResponse response = client.runInstances(
-                r -> r.imageId(getAmiId())
-                    .ebsOptimized(getEbsOptimized())
-                    .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                    .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                    .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
-                    .instanceType(getInstanceType())
-                    .keyName(getKeyName())
-                    .maxCount(1)
-                    .minCount(1)
-                    .monitoring(o -> o.enabled(getEnableMonitoring()))
-                    .securityGroupIds(getSecurityGroupIds())
-                    .subnetId(getSubnetId())
-                    .disableApiTermination(getDisableApiTermination())
-                    .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                    .capacityReservationSpecification(getCapacityReservationSpecification())
-            );
+            RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
+            builder = builder.imageId(getAmiId())
+                .ebsOptimized(getEbsOptimized())
+                .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+                .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+                .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
+                .instanceType(getInstanceType())
+                .keyName(getKeyName())
+                .maxCount(1)
+                .minCount(1)
+                .monitoring(o -> o.enabled(getEnableMonitoring()))
+                .securityGroupIds(getSecurityGroupIds())
+                .subnetId(getSubnetId())
+                .disableApiTermination(getDisableApiTermination())
+                .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+                .capacityReservationSpecification(getCapacityReservationSpecification());
+
+            if (!getBlockDeviceMapping().isEmpty()) {
+                builder = builder.blockDeviceMappings(
+                    getBlockDeviceMapping().stream()
+                        .map(BlockDeviceMappingResource::getBlockDeviceMapping)
+                        .collect(Collectors.toList())
+                );
+            }
+
+            RunInstancesResponse response = client.runInstances(builder.build());
 
             for (Instance instance : response.instances()) {
                 setInstanceId(instance.instanceId());
@@ -675,7 +714,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return sb.toString();
     }
 
-    private void init(Instance instance) {
+    private void init(Instance instance, Ec2Client client) {
         setAmiId(instance.imageId());
         setCoreCount(instance.cpuOptions().coreCount());
         setThreadPerCore(instance.cpuOptions().threadsPerCore());
@@ -699,6 +738,32 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                     ? instance.capacityReservationSpecification().capacityReservationTarget().capacityReservationId()
                     : instance.capacityReservationSpecification().capacityReservationPreferenceAsString()
             );
+        }
+
+        getBlockDeviceMapping().clear();
+
+        DescribeVolumesResponse volumesResponse = client.describeVolumes(
+            r -> r.volumeIds(
+                instance.blockDeviceMappings().stream()
+                    .map(m -> m.ebs().volumeId())
+                    .collect(Collectors.toList())
+            )
+        );
+
+        Map<String, Volume> volumeMap = volumesResponse.volumes().stream().collect(Collectors.toMap(Volume::volumeId, volume -> volume));
+        for (InstanceBlockDeviceMapping blockDeviceMapping : instance.blockDeviceMappings()) {
+            BlockDeviceMappingResource blockDeviceMappingResource = new BlockDeviceMappingResource(
+                blockDeviceMapping,
+                volumeMap.get(blockDeviceMapping.ebs().volumeId()),
+                instance.rootDeviceName().equals(blockDeviceMapping.deviceName())
+            );
+            blockDeviceMappingResource.parent(this);
+
+            if (!instance.rootDeviceName().equals(blockDeviceMapping.deviceName())) {
+                getBlockDeviceMapping().add(blockDeviceMappingResource);
+            } else {
+                //setRootBlockDeviceMapping(blockDeviceMappingResource);
+            }
         }
     }
 

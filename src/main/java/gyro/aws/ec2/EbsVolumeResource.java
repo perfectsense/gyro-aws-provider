@@ -52,7 +52,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     private Boolean autoEnableIo;
 
     /**
-     * The availability zone for thew volume being created. (Required)
+     * The availability zone for the volume being created. (Required)
      */
     public String getAvailabilityZone() {
         return availabilityZone;
@@ -174,6 +174,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
         if (autoEnableIo == null) {
             autoEnableIo = false;
         }
+
         return autoEnableIo;
     }
 
