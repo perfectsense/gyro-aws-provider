@@ -283,6 +283,29 @@ public class DbClusterResource extends DocDbTaggableResource {
 
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
+
+        checkAvailableStatus(client);
+    }
+
+    private void checkAvailableStatus(DocDbClient client) {
+        boolean available = false;
+        int count = 0;
+        while (!available && count < 6) {
+            if (count > 0) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            DescribeDbClustersResponse response = client.describeDBClusters(
+                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            );
+
+            available = response.dbClusters().get(0).status().equals("available");
+            count++;
+        }
     }
 
     @Override
