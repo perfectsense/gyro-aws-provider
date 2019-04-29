@@ -45,7 +45,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
-        } else {
+        }
+
+        if (!subnetIds.isEmpty() && !subnetIds.contains(null)) {
             Collections.sort(subnetIds);
         }
 
