@@ -59,6 +59,7 @@ dependencies {
     implementation 'software.amazon.awssdk:sns'
     implementation 'software.amazon.awssdk:sqs'
     implementation 'software.amazon.awssdk:waf'
+    implementation 'software.amazon.awssdk:docdb:2.5.31'
 
     gyroDoclet "gyro:gyro-doclet:0.14-SNAPSHOT"
 }
