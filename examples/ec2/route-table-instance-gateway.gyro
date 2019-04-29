@@ -10,7 +10,7 @@ aws::vpc vpc
 end
 
 aws::subnet subnet
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.0.0/16"
     map-public-ip-on-launch: true
