@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
@@ -15,6 +16,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates an Document db cluster parameter group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::db-cluster-param-group db-cluster-param-group-example
+ *         db-cluster-param-group-name: "db-cluster-param-group-example"
+ *         db-param-group-family: "docdb3.6"
+ *         description: "db-cluster-param-group-desc"
+ *
+ *         tags: {
+ *             Name: "db-cluster-param-group-example"
+ *         }
+ *     end
+ */
 @ResourceName("db-cluster-param-group")
 public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     private String dbClusterParamGroupName;
@@ -26,6 +45,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
 
     private String arn;
 
+    /**
+     * Name of the db cluster parameter group. (Required)
+     */
     public String getDbClusterParamGroupName() {
         return dbClusterParamGroupName;
     }
@@ -34,6 +56,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         this.dbClusterParamGroupName = dbClusterParamGroupName;
     }
 
+    /**
+     * Name of the db cluster parameter family. (Required)
+     */
     public String getDbParamGroupFamily() {
         return dbParamGroupFamily;
     }
@@ -42,6 +67,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         this.dbParamGroupFamily = dbParamGroupFamily;
     }
 
+    /**
+     * Description for the db cluster parameter family.
+     */
     public String getDescription() {
         return description;
     }
@@ -50,6 +78,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         this.description = description;
     }
 
+    /**
+     * Enable audit logs. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getEnableAuditLogs() {
         if (enableAuditLogs == null) {
@@ -63,6 +94,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         this.enableAuditLogs = enableAuditLogs;
     }
 
+    /**
+     * Enable tls. Defaults to true.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getEnableTls() {
         if (enableTls == null) {
@@ -76,6 +110,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         this.enableTls = enableTls;
     }
 
+    /**
+     * Enable ttl monitor. Defaults to true.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getEnableTtlMonitor() {
         if (enableTtlMonitor == null) {
@@ -89,6 +126,10 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         this.enableTtlMonitor = enableTtlMonitor;
     }
 
+    /**
+     * The arn of the db cluster parameter group.
+     */
+    @ResourceOutput
     public String getArn() {
         return arn;
     }

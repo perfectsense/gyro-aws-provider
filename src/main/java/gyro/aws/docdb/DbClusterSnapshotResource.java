@@ -3,6 +3,7 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
@@ -10,6 +11,23 @@ import software.amazon.awssdk.services.docdb.model.DescribeDbClusterSnapshotsRes
 
 import java.util.Set;
 
+/**
+ * Creates an Document db cluster snapshot.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::db-cluster-snapshot db-cluster-snapshot-example
+ *         db-cluster-identifier: $(aws::db-cluster db-cluster-db-cluster-snapshot-example | db-cluster-identifier)
+ *         db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
+ *
+ *         tags: {
+ *             Name: "db-cluster-snapshot-example"
+ *         }
+ *     end
+ */
 @ResourceName("db-cluster-snapshot")
 public class DbClusterSnapshotResource extends DocDbTaggableResource {
     private String dbClusterIdentifier;
@@ -17,6 +35,9 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
 
     private String arn;
 
+    /**
+     * Associated db cluster name. (Required)
+     */
     public String getDbClusterIdentifier() {
         return dbClusterIdentifier;
     }
@@ -25,6 +46,9 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
         this.dbClusterIdentifier = dbClusterIdentifier;
     }
 
+    /**
+     * The name of the db cluster snapshot. (Required)
+     */
     public String getDbClusterSnapshotIdentifier() {
         return dbClusterSnapshotIdentifier;
     }
@@ -33,6 +57,10 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
         this.dbClusterSnapshotIdentifier = dbClusterSnapshotIdentifier;
     }
 
+    /**
+     * The arn of the db cluster snapshot.
+     */
+    @ResourceOutput
     public String getArn() {
         return arn;
     }

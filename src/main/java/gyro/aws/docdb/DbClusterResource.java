@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -18,6 +19,37 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates an Document db cluster.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::db-cluster db-cluster-example
+ *         db-cluster-identifier: "db-cluster-example"
+ *         db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
+ *         engine: "docdb"
+ *         engine-version: "3.6.0"
+ *         db-cluster-param-group-name: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-example | db-cluster-param-group-name)
+ *         master-username: "master"
+ *         master-user-password: "masterpassword"
+ *         port: 27017
+ *         preferred-backup-window: "00:00-00:30"
+ *         preferred-maintenance-window: "wed:03:28-wed:03:58"
+ *         vpc-security-group-ids: [
+ *             $(aws::security-group security-group-db-cluster-example-1 | group-id),
+ *             $(aws::security-group security-group-db-cluster-example-2 | group-id)
+ *         ]
+ *         storage-encrypted: false
+ *         backup-retention-period: 1
+ *         tags: {
+ *             Name: "db-cluster-example"
+ *         }
+ *         post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
+ *     end
+ */
 @ResourceName("db-cluster")
 public class DbClusterResource extends DocDbTaggableResource {
     private Integer backupRetentionPeriod;
@@ -41,6 +73,9 @@ public class DbClusterResource extends DocDbTaggableResource {
     private String status;
     private String arn;
 
+    /**
+     * Set backup retention period. Minimum 1. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
@@ -50,6 +85,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.backupRetentionPeriod = backupRetentionPeriod;
     }
 
+    /**
+     * Name of the cluster. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDbClusterIdentifier() {
         return dbClusterIdentifier;
@@ -59,6 +97,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.dbClusterIdentifier = dbClusterIdentifier;
     }
 
+    /**
+     * Associated db subnet group. (Required)
+     */
     public String getDbSubnetGroupName() {
         return dbSubnetGroupName;
     }
@@ -67,6 +108,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.dbSubnetGroupName = dbSubnetGroupName;
     }
 
+    /**
+     * Engine for the cluster. (Required)
+     */
     public String getEngine() {
         return engine;
     }
@@ -75,6 +119,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.engine = engine;
     }
 
+    /**
+     * Engine version for the cluster. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getEngineVersion() {
         return engineVersion;
@@ -84,6 +131,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.engineVersion = engineVersion;
     }
 
+    /**
+     * Associated db cluster parameter group. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDbClusterParamGroupName() {
         return dbClusterParamGroupName;
@@ -93,6 +143,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.dbClusterParamGroupName = dbClusterParamGroupName;
     }
 
+    /**
+     * Associated kms key id.
+     */
     public String getKmsKeyId() {
         return kmsKeyId;
     }
@@ -101,6 +154,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.kmsKeyId = kmsKeyId;
     }
 
+    /**
+     * Master username. (Required)
+     */
     public String getMasterUsername() {
         return masterUsername;
     }
@@ -109,6 +165,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.masterUsername = masterUsername;
     }
 
+    /**
+     * Master user password. (Required)
+     */
     public String getMasterUserPassword() {
         return masterUserPassword;
     }
@@ -117,6 +176,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.masterUserPassword = masterUserPassword;
     }
 
+    /**
+     * Set the access port. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getPort() {
         return port;
@@ -126,6 +188,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.port = port;
     }
 
+    /**
+     * Set preferred backup window. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getPreferredBackupWindow() {
         return preferredBackupWindow;
@@ -135,6 +200,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.preferredBackupWindow = preferredBackupWindow;
     }
 
+    /**
+     * Set preferred maintenance window. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
@@ -144,6 +212,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.preferredMaintenanceWindow = preferredMaintenanceWindow;
     }
 
+    /**
+     * Associated vpc security group ids. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getVpcSecurityGroupIds() {
         if (vpcSecurityGroupIds == null) {
@@ -161,6 +232,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.vpcSecurityGroupIds = vpcSecurityGroupIds;
     }
 
+    /**
+     * Encrypt storage.
+     */
     public Boolean getStorageEncrypted() {
         return storageEncrypted;
     }
@@ -169,6 +243,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.storageEncrypted = storageEncrypted;
     }
 
+    /**
+     * Enabled cloud watch log exports.
+     */
     public List<String> getEnableCloudwatchLogsExports() {
         if (enableCloudwatchLogsExports == null) {
             enableCloudwatchLogsExports = new ArrayList<>();
@@ -185,6 +262,9 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.enableCloudwatchLogsExports = enableCloudwatchLogsExports;
     }
 
+    /**
+     * snapshot name to be created post cluster delete.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getPostDeleteSnapshotIdentifier() {
         return postDeleteSnapshotIdentifier;
@@ -194,6 +274,10 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.postDeleteSnapshotIdentifier = postDeleteSnapshotIdentifier;
     }
 
+    /**
+     * The id for the db cluster.
+     */
+    @ResourceOutput
     public String getDbClusterResourceId() {
         return DbClusterResourceId;
     }
@@ -202,6 +286,10 @@ public class DbClusterResource extends DocDbTaggableResource {
         DbClusterResourceId = dbClusterResourceId;
     }
 
+    /**
+     * The status for the db cluster.
+     */
+    @ResourceOutput
     public String getStatus() {
         return status;
     }
@@ -210,6 +298,10 @@ public class DbClusterResource extends DocDbTaggableResource {
         this.status = status;
     }
 
+    /**
+     * The arn for the db cluster.
+     */
+    @ResourceOutput
     public String getArn() {
         return arn;
     }

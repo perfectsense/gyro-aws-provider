@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -16,6 +17,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates an Document db subnet group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::db-subnet-group db-subnet-group-example
+ *         db-subnet-group-name: "db-subnet-group-example"
+ *         db-subnet-group-description: "db-subnet-group-example-description"
+ *         subnet-ids: [
+ *             $(aws::subnet subnet-db-subnet-group-example-1 | subnet-id),
+ *             $(aws::subnet subnet-db-subnet-group-example-2 | subnet-id)
+ *         ]
+ *
+ *         tags: {
+ *             Name: "db-subnet-group-example"
+ *         }
+ *     end
+ */
 @ResourceName("db-subnet-group")
 public class DbSubnetGroupResource extends DocDbTaggableResource {
     private String dbSubnetGroupDescription;
@@ -24,6 +46,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
 
     private String arn;
 
+    /**
+     * Description of the db subnet group.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDbSubnetGroupDescription() {
         return dbSubnetGroupDescription;
@@ -33,6 +58,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
         this.dbSubnetGroupDescription = dbSubnetGroupDescription;
     }
 
+    /**
+     * Name of the db subnet group. (Required)
+     */
     public String getDbSubnetGroupName() {
         return dbSubnetGroupName;
     }
@@ -41,6 +69,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
         this.dbSubnetGroupName = dbSubnetGroupName;
     }
 
+    /**
+     * A list of associated subnet id's. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
@@ -58,6 +89,10 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
         this.subnetIds = subnetIds;
     }
 
+    /**
+     * The arn of the db subnet group.
+     */
+    @ResourceOutput
     public String getArn() {
         return arn;
     }
