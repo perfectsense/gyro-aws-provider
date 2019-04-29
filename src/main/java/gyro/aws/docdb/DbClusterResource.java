@@ -284,28 +284,8 @@ public class DbClusterResource extends DocDbTaggableResource {
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
-        checkAvailableStatus(client);
-    }
-
-    private void checkAvailableStatus(DocDbClient client) {
-        boolean available = false;
-        int count = 0;
-        while (!available && count < 6) {
-            if (count > 0) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            DescribeDbClustersResponse response = client.describeDBClusters(
-                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
-            );
-
-            available = response.dbClusters().get(0).status().equals("available");
-            count++;
-        }
+        waitForAvailability(client);
+        refresh();
     }
 
     @Override
@@ -330,6 +310,7 @@ public class DbClusterResource extends DocDbTaggableResource {
         }
 
         client.modifyDBCluster(builder.build());
+        waitForAvailability(client);
 
         refresh();
     }
@@ -350,6 +331,8 @@ public class DbClusterResource extends DocDbTaggableResource {
         }
 
         client.deleteDBCluster(builder.build());
+
+        waitForDelete(client);
     }
 
     @Override
@@ -363,5 +346,41 @@ public class DbClusterResource extends DocDbTaggableResource {
         }
 
         return sb.toString();
+    }
+
+    private void waitForAvailability(DocDbClient client) {
+        boolean available = false;
+        int count = 0;
+        while (!available && count < 6) {
+            DescribeDbClustersResponse response = waitHelper(count, client, 10000);
+
+            available = response.dbClusters().get(0).status().equals("available");
+            count++;
+        }
+    }
+
+    private void waitForDelete(DocDbClient client) {
+        boolean deleted = false;
+        int count = 0;
+        while (!deleted && count < 6) {
+            DescribeDbClustersResponse response = waitHelper(count, client, 20000);
+
+            deleted = response.dbClusters().isEmpty();
+            count++;
+        }
+    }
+
+    private DescribeDbClustersResponse waitHelper(int count, DocDbClient client, long interval) {
+        if (count > 0) {
+            try {
+                Thread.sleep(interval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return client.describeDBClusters(
+            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+        );
     }
 }
