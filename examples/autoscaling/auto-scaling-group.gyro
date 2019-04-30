@@ -12,7 +12,7 @@ aws::internet-gateway internet-gateway-auto-scaling-group-example
 end
 
 aws::subnet subnet-auto-scaling-group-example
-    vpc-id: $(aws::vpc vpc-auto-scaling-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.1.0/26"
 
@@ -22,7 +22,7 @@ aws::subnet subnet-auto-scaling-group-example
 end
 
 aws::subnet subnet-auto-scaling-group-example-2
-    vpc-id: $(aws::vpc vpc-auto-scaling-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.2.0/26"
 
