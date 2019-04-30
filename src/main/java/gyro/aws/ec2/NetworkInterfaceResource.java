@@ -1,5 +1,6 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 
 import gyro.core.resource.ResourceDiffProperty;
@@ -191,35 +192,41 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         return getNetworkInterfaceId();
     }
 
-    @Override
-    public boolean doRefresh() {
+    private List<NetworkInterface> getNetworkInterfaces() {
+
+        if (ObjectUtils.isBlank(getNetworkInterfaceId())) {
+            return null;
+        }
+
         Ec2Client client = createClient(Ec2Client.class);
 
+        DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
+
+        return response.networkInterfaces();
+    }
+
+    @Override
+    public boolean doRefresh() {
+
         try {
+            for (NetworkInterface nm: getNetworkInterfaces() ) {
+                setNetworkInterfaceId(nm.networkInterfaceId());
+                setDescription(nm.description());
 
-            DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
+                if (nm.groups() != null) {
+                    setSecurityGroupIds(new ArrayList<>(nm.groups()
+                            .stream()
+                            .map(GroupIdentifier::groupId)
+                            .collect(Collectors.toList()))
+                    );
+                }
 
-            if (response.networkInterfaces() != null) {
-                for (NetworkInterface nm : response.networkInterfaces()) {
-
-                    setNetworkInterfaceId(nm.networkInterfaceId());
-                    setDescription(nm.description());
-
-                    if (nm.groups() != null) {
-                        setSecurityGroupIds(new ArrayList<>(nm.groups()
-                                .stream()
-                                .map(GroupIdentifier::groupId)
-                                .collect(Collectors.toList()))
-                        );
-                    }
-
-                    NetworkInterfaceAttachment attachment = nm.attachment();
-                    if (attachment != null) {
-                        setInstanceId(attachment.instanceId());
-                        setDeviceIndex(attachment.deviceIndex());
-                        setAttachmentId(attachment.attachmentId());
-                        setDeleteOnTermination(attachment.deleteOnTermination());
-                    }
+                NetworkInterfaceAttachment attachment = nm.attachment();
+                if (attachment != null) {
+                    setInstanceId(attachment.instanceId());
+                    setDeviceIndex(attachment.deviceIndex());
+                    setAttachmentId(attachment.attachmentId());
+                    setDeleteOnTermination(attachment.deleteOnTermination());
                 }
             }
         } catch (Ec2Exception ex) {
@@ -263,7 +270,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
                     .instanceId(getInstanceId())
                     .deviceIndex(getDeviceIndex())
-                    );
+            );
 
             setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
 
@@ -307,10 +314,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                 setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
 
             } else {
-                executeService(() -> {
-                    client.detachNetworkInterface(r -> r.attachmentId(getAttachmentId()));
-                    return null;
-                });
+                client.detachNetworkInterface(r -> r.attachmentId(getAttachmentId()));
             }
         }
 
@@ -328,21 +332,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.filters(Filter.builder()
-                .name("network-interface-id")
-                .values(getNetworkInterfaceId())
-                .build()
-        ));
-
-        for (NetworkInterface nm : response.networkInterfaces()) {
-
+        for ( NetworkInterface nm: getNetworkInterfaces()) {
             NetworkInterfaceAttachment attachment = nm.attachment();
 
             if (attachment != null) {
-                executeService(() -> {
-                    client.detachNetworkInterface(r -> r.attachmentId(attachment.attachmentId()));
-                    return null;
-                });
+                client.detachNetworkInterface(r -> r.attachmentId(attachment.attachmentId()));
             }
         }
 
@@ -352,14 +346,8 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             e.printStackTrace();
         }
 
-        try {
-                executeService(() -> {
-                    client.deleteNetworkInterface(d -> d.networkInterfaceId(getNetworkInterfaceId()));
-                    return null;
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-        }
+        client.deleteNetworkInterface(d -> d.networkInterfaceId(getNetworkInterfaceId()));
+
     }
 
     @Override
