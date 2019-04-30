@@ -1,0 +1,12 @@
+@import ../init as _
+
+aws::cache-param-group cache-param-group-example
+    cache-param-group-name: "cache-param-group-example"
+    cache-param-group-family: "redis2.8"
+    description: "cache-param-group-desc"
+
+    parameters
+        name: "appendfsync"
+        value: "always"
+    end
+end
