@@ -1,5 +1,3 @@
-@import ../init as _
-
 example-name: "record-from-instance"
 
 aws::vpc vpc

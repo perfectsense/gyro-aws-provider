@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::bucket bucket-example
     name: "gyro-bucket-example-with-lifecycle"
     enable-object-lock: true

@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::iam-policy example-policy
     policy-name: "example-policy"
     description: "example policy description"
