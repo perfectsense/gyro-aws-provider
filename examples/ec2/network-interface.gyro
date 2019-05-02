@@ -54,16 +54,17 @@ aws::network-interface nic-example-1
      }
 end
 
-aws::network-interface nic-example-with-ip
-     description: "test-nic-with-IP-test-update"
+aws::network-interface nic-example-2
+     description: "test-nic-with-secondary-ips"
      subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
-     ipv4-address : "10.0.0.32"
-     security-group-ids: [
-         $(aws::security-group nic-security-group-example| group-id)
+     primary-ipv4-address: "10.0.0.32"
+     ipv4-addresses: [
+         "10.0.0.36",
+         "10.0.0.14"
      ]
-
      tags: {
-        Name: "nic-example-with-IP"
+        Name: "nic-example-with-secondary-ip"
      }
 end
+
 

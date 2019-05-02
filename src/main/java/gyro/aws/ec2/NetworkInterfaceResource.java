@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 
+import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
@@ -12,16 +13,18 @@ import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachment;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachmentChanges;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfacePrivateIpAddress;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
+
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +45,11 @@ import java.util.stream.Collectors;
  *                  $(aws::security-group security-group-nic-2| group-id),
  *                  $(aws::security-group security-group-nic-3| group-id)
  *                  ]
+ *          primary-ipv4-address: "10.0.0.32"
+ *          ipv4-addresses: [
+ *              "10.0.0.55",
+ *              "10.0.0.36"
+ *          ]
  *          tags: {
  *              Name: "network-interface-example"
  *          }
@@ -55,13 +63,13 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private String description;
     private String subnetId;
     private String networkInterfaceId;
-    private  String ipv4Address;
-    private String ipv6Address;
     private String instanceId;
     private Integer deviceIndex;
     private String attachmentId;
     private Boolean isDeleteOnTermination;
     private List<String> securityGroupIds;
+    private String primaryIpv4Address;
+    private List<String> ipv4Addresses;
 
     /**
      * The description of the network interface card that is being created.
@@ -118,28 +126,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The IPV4 address which gets assigned to the Network Interface. (Optional)
-     */
-    public String getIpv4Address() {
-        return ipv4Address;
-    }
-
-    public void setIpv4Address(String ipv4Address) {
-        this.ipv4Address = ipv4Address;
-    }
-
-    /**
-     * The IPV6 address which gets assigned to the Network Interface. (Optional)
-     */
-    public String getIpv6Address() {
-        return ipv6Address;
-    }
-
-    public void setIpv6Address(String ipv6Address) {
-        this.ipv6Address = ipv6Address;
-    }
-
-    /**
      * The id of the instance to which the network interface card will be attached.(Optional)
      */
     @ResourceDiffProperty(updatable = true, nullable = true)
@@ -187,57 +173,99 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         this.attachmentId = attachmentId;
     }
 
+    /**
+     * The Primary IPV4 address which gets assigned to the Network Interface. (Optional)
+     */
+    @ResourceDiffProperty(nullable = true)
+    public String getPrimaryIpv4Address() {
+        return primaryIpv4Address;
+    }
+
+    public void setPrimaryIpv4Address(String primaryIpAddress) {
+        this.primaryIpv4Address = primaryIpAddress;
+    }
+
+    /**
+     * The list of Secondary IPV4 addresses which gets assigned to the Network Interface. If specified
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<String> getIpv4Addresses() {
+        if (ipv4Addresses == null) {
+            ipv4Addresses = new ArrayList<>();
+        }
+
+        Collections.sort(ipv4Addresses);
+        return ipv4Addresses;
+    }
+
+    public void setIpv4Addresses(List<String> ipv4Addresses) {
+        this.ipv4Addresses = ipv4Addresses;
+    }
+
+
     @Override
     protected String getId() {
         return getNetworkInterfaceId();
     }
 
-    private List<NetworkInterface> getNetworkInterfaces() {
-
-        if (ObjectUtils.isBlank(getNetworkInterfaceId())) {
-            return null;
-        }
+    private NetworkInterface getNetworkInterface() {
 
         Ec2Client client = createClient(Ec2Client.class);
 
+        if (ObjectUtils.isBlank(getNetworkInterfaceId())) {
+            throw new GyroException("network-interface-id is missing, unable to load network interface.");
+        }
+
         DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
 
-        return response.networkInterfaces();
+        if (!response.networkInterfaces().isEmpty()) {
+            return response.networkInterfaces().get(0);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean doRefresh() {
+        NetworkInterface networkInterface = getNetworkInterface();
 
-        try {
-            for (NetworkInterface nm: getNetworkInterfaces() ) {
-                setNetworkInterfaceId(nm.networkInterfaceId());
-                setDescription(nm.description());
+        if (networkInterface != null) {
+            setNetworkInterfaceId(networkInterface.networkInterfaceId());
+            setDescription(networkInterface.description());
 
-                if (nm.groups() != null) {
-                    setSecurityGroupIds(new ArrayList<>(nm.groups()
-                            .stream()
-                            .map(GroupIdentifier::groupId)
-                            .collect(Collectors.toList()))
-                    );
-                }
-
-                NetworkInterfaceAttachment attachment = nm.attachment();
-                if (attachment != null) {
-                    setInstanceId(attachment.instanceId());
-                    setDeviceIndex(attachment.deviceIndex());
-                    setAttachmentId(attachment.attachmentId());
-                    setDeleteOnTermination(attachment.deleteOnTermination());
-                }
-            }
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
+            if (networkInterface.groups() != null) {
+                setSecurityGroupIds(new ArrayList<>(networkInterface.groups()
+                        .stream()
+                        .map(GroupIdentifier::groupId)
+                        .collect(Collectors.toList()))
+                );
             }
 
-            throw ex;
+            if (networkInterface.privateIpAddresses() != null) {
+                ArrayList<String> ipAddresses = new ArrayList<>();
+
+                for (NetworkInterfacePrivateIpAddress address : networkInterface.privateIpAddresses()) {
+                    if (address.primary()) {
+                        setPrimaryIpv4Address(address.privateIpAddress());
+                    } else {
+                        ipAddresses.add(address.privateIpAddress());
+                    }
+                }
+                setIpv4Addresses(ipAddresses);
+            }
+
+            NetworkInterfaceAttachment attachment = networkInterface.attachment();
+            if (attachment != null) {
+                setInstanceId(attachment.instanceId());
+                setDeviceIndex(attachment.deviceIndex());
+                setAttachmentId(attachment.attachmentId());
+                setDeleteOnTermination(attachment.deleteOnTermination());
+            }
+
+            return true;
         }
 
-        return true;
+       return false;
     }
 
     @Override
@@ -253,17 +281,22 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             builder.groups(getSecurityGroupIds());
         }
 
-        if (getIpv6Address() != null) {
-            builder.ipv6Addresses(r -> r.ipv6Address(getIpv6Address()));
+        if (getPrimaryIpv4Address() != null) {
+            builder.privateIpAddresses(s -> s.privateIpAddress(getPrimaryIpv4Address()).primary(true));
         }
-
-        builder.privateIpAddress(getIpv4Address() != null ? getIpv4Address() : null);
 
         CreateNetworkInterfaceResponse response = client.createNetworkInterface(builder.build());
 
         NetworkInterface networkInterface = response.networkInterface();
 
         setNetworkInterfaceId(networkInterface.networkInterfaceId());
+
+        if (getIpv4Addresses().size() != 0) {
+            client.assignPrivateIpAddresses(r -> r.allowReassignment(true)
+                    .networkInterfaceId(getNetworkInterfaceId())
+                    .privateIpAddresses(getIpv4Addresses())
+            );
+        }
 
         if (getInstanceId() != null) {
             AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
@@ -302,20 +335,59 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     .attachment(changes));
 
         }
+        
+        NetworkInterface networkInterface = getNetworkInterface();
 
         if (changedProperties.contains("instance-id")) {
+
             if (getInstanceId() != null) {
-                AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
-                        .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
-                        .instanceId(getInstanceId())
-                        .deviceIndex(getDeviceIndex())
-                );
-
-                setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
-
+                if (networkInterface.attachment() == null) {
+                    AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
+                            .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
+                                    .instanceId(getInstanceId())
+                                    .deviceIndex(getDeviceIndex())
+                    );
+                    setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
+                } else {
+                    try {
+                        AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
+                                .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
+                                        .instanceId(getInstanceId())
+                                        .deviceIndex(getDeviceIndex())
+                                );
+                        setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
+                    } catch (Ec2Exception e) {
+                        delete();
+                        throw new GyroException("Instance ID update exception. Gyro up to recreate network interface with the updated instance.");
+                    }
+                }
             } else {
-                client.detachNetworkInterface(r -> r.attachmentId(getAttachmentId()));
+                detachInstance(client);
             }
+        }
+
+        if (changedProperties.contains("ipv4-addresses") ) {
+
+            NetworkInterfaceResource currentNetworkInterfaceResource = (NetworkInterfaceResource) config;
+
+            HashSet<String> current = new HashSet<>(currentNetworkInterfaceResource.getIpv4Addresses());
+            HashSet<String> pending = new HashSet<>(getIpv4Addresses());
+
+            List<String> deleteIpv4Addresses = current.stream().filter(o -> !pending.contains(o)).collect(Collectors.toList());
+            if (!deleteIpv4Addresses.isEmpty()) {
+                client.unassignPrivateIpAddresses(
+                        r -> r.networkInterfaceId(getNetworkInterfaceId())
+                                .privateIpAddresses(deleteIpv4Addresses)
+                );
+            }
+
+            List<String> addIpv4Addresses = pending.stream().filter(o -> !current.contains(o)).collect(Collectors.toList());
+            if (!addIpv4Addresses.isEmpty()) {
+                client.assignPrivateIpAddresses(r -> r.allowReassignment(true)
+                        .networkInterfaceId(getNetworkInterfaceId())
+                        .privateIpAddresses(addIpv4Addresses));
+            }
+
         }
 
         if (changedProperties.contains("security-group-ids")) {
@@ -324,6 +396,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                             .groups(getSecurityGroupIds())
             );
         }
+
         client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
                 .description(d -> d.value(getDescription())));
     }
@@ -332,22 +405,33 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        for ( NetworkInterface nm: getNetworkInterfaces()) {
-            NetworkInterfaceAttachment attachment = nm.attachment();
+        detachInstance(client);
+        client.deleteNetworkInterface(d -> d.networkInterfaceId(getNetworkInterfaceId()));
+    }
 
-            if (attachment != null) {
-                client.detachNetworkInterface(r -> r.attachmentId(attachment.attachmentId()));
+
+    public void detachInstance(Ec2Client client) {
+        NetworkInterface networkInterface = getNetworkInterface();
+
+        if (networkInterface != null) {
+            if (networkInterface.attachment() != null) {
+                String attachmentId = networkInterface.attachment().attachmentId();
+                client.detachNetworkInterface(r -> r.attachmentId(attachmentId));
+            }
+
+            int count = 0;
+
+            while (networkInterface.attachment() != null && count < 10) {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                networkInterface = getNetworkInterface();
+                count++;
             }
         }
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        client.deleteNetworkInterface(d -> d.networkInterfaceId(getNetworkInterfaceId()));
-
     }
 
     @Override
