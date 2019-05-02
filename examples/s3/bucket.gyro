@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::bucket bucket-example
     name: "bucket-example"
     enable-object-lock: true

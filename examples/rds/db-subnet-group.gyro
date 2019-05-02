@@ -1,6 +1,3 @@
-@import ../init as _
-
-
 aws::vpc vpc
     cidr-block: "10.0.0.0/16"
 

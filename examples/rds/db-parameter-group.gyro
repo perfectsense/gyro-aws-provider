@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::db-parameter-group parameter-group
     name: "parameter-group-example"
     description: "some description"
