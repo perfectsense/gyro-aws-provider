@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::byte-match-set byte-match-set-example
     name: "byte-match-set-example"
 
