@@ -8,7 +8,17 @@ import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
+import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
+import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
+import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
+import software.amazon.awssdk.services.ec2.model.NetworkInterface;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachment;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachmentChanges;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfacePrivateIpAddress;
+import software.amazon.awssdk.services.ec2.model.PrivateIpAddressSpecification;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -147,6 +157,10 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      */
     @ResourceDiffProperty(updatable = true)
     public Boolean getDeleteOnTermination() {
+        if (isDeleteOnTermination == null) {
+            isDeleteOnTermination = false;
+        }
+
         return isDeleteOnTermination;
     }
 
@@ -202,6 +216,9 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      */
     @ResourceDiffProperty(updatable = true)
     public Boolean getSourceDestCheck() {
+        if (sourceDestCheck == null) {
+            sourceDestCheck = true;
+        }
         return sourceDestCheck;
     }
 
@@ -212,23 +229,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     @Override
     protected String getId() {
         return getNetworkInterfaceId();
-    }
-
-    private NetworkInterface getNetworkInterface() {
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (ObjectUtils.isBlank(getNetworkInterfaceId())) {
-            throw new GyroException("network-interface-id is missing, unable to load network interface.");
-        }
-
-        DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
-
-        if (!response.networkInterfaces().isEmpty()) {
-            return response.networkInterfaces().get(0);
-        } else {
-            return null;
-        }
     }
 
     @Override
@@ -314,30 +314,39 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         setNetworkInterfaceId(networkInterface.networkInterfaceId());
 
-        if (getInstanceId() != null) {
-            AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
-                    .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
-                    .instanceId(getInstanceId())
-                    .deviceIndex(getDeviceIndex())
-            );
+        try {
 
-            setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
-
-            if (getDeleteOnTermination() != null) {
-
-                NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder()
-                        .deleteOnTermination(getDeleteOnTermination())
-                        .attachmentId(getAttachmentId())
-                        .build();
-
-                client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
-                        .attachment(changes)
+            if (!ObjectUtils.isBlank(getInstanceId())) {
+                AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
+                        .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
+                                .instanceId(getInstanceId())
+                                .deviceIndex(getDeviceIndex())
                 );
-            }
 
-            if (getSourceDestCheck() != null) {
-                client.modifyNetworkInterfaceAttribute(r->r.networkInterfaceId(getNetworkInterfaceId())
-                        .sourceDestCheck(a -> a.value(getSourceDestCheck())));
+                setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
+
+                if (getDeleteOnTermination().equals(true)) {
+
+                    NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder()
+                            .deleteOnTermination(getDeleteOnTermination())
+                            .attachmentId(getAttachmentId())
+                            .build();
+
+                    client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
+                            .attachment(changes)
+                    );
+                }
+
+                if (!getSourceDestCheck()) {
+                    client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
+                            .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                    );
+                }
+            }
+        } catch(Ec2Exception ex) {
+            if (ex.getLocalizedMessage().contains("does not exist")) {
+                delete();
+                throw new GyroException("The instance (" + getInstanceId() + ") attachment failed, Gyro up to recreate network interface");
             }
         }
     }
@@ -355,34 +364,16 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
                     .attachment(changes)
             );
-
         }
 
-        NetworkInterface networkInterface = getNetworkInterface();
-
         if (changedProperties.contains("instance-id")) {
-
             if (getInstanceId() != null) {
-                if (networkInterface.attachment() == null) {
-                    AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
-                            .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
-                                    .instanceId(getInstanceId())
-                                    .deviceIndex(getDeviceIndex())
-                    );
-                    setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
-                } else {
-                    try {
-                        AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
-                                .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
-                                        .instanceId(getInstanceId())
-                                        .deviceIndex(getDeviceIndex())
-                                );
-                        setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
-                    } catch (Ec2Exception e) {
-                        delete();
-                        throw new GyroException("Instance ID update exception. Gyro up to recreate network interface with the updated instance.");
-                    }
-                }
+                AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
+                        .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
+                                .instanceId(getInstanceId())
+                                .deviceIndex(getDeviceIndex())
+                        );
+                setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
             } else {
                 detachInstance(client);
             }
@@ -407,7 +398,8 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             if (!addIpv4Addresses.isEmpty()) {
                 client.assignPrivateIpAddresses(r -> r.allowReassignment(true)
                         .networkInterfaceId(getNetworkInterfaceId())
-                        .privateIpAddresses(addIpv4Addresses));
+                        .privateIpAddresses(addIpv4Addresses)
+                );
             }
         }
 
@@ -419,7 +411,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         }
 
         if (changedProperties.contains("source-dest-check")) {
-            client.modifyNetworkInterfaceAttribute(r->r.networkInterfaceId(getNetworkInterfaceId())
+            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
                     .sourceDestCheck(a -> a.value(getSourceDestCheck()))
             );
         }
@@ -437,6 +429,22 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         client.deleteNetworkInterface(d -> d.networkInterfaceId(getNetworkInterfaceId()));
     }
 
+    private NetworkInterface getNetworkInterface() {
+
+        Ec2Client client = createClient(Ec2Client.class);
+
+        if (ObjectUtils.isBlank(getNetworkInterfaceId())) {
+            throw new GyroException("network-interface-id is missing, unable to load network interface.");
+        }
+
+        DescribeNetworkInterfacesResponse response = client.describeNetworkInterfaces(d -> d.networkInterfaceIds(getNetworkInterfaceId()));
+
+        if (!response.networkInterfaces().isEmpty()) {
+            return response.networkInterfaces().get(0);
+        } else {
+            return null;
+        }
+    }
 
     public void detachInstance(Ec2Client client) {
         NetworkInterface networkInterface = getNetworkInterface();
@@ -464,6 +472,12 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
     @Override
     public String toDisplayString() {
-        return "network interface " + getDescription();
+        StringBuilder sb = new StringBuilder();
+        sb.append("network interface " + getDescription());
+
+        if (getNetworkInterfaceId() != null) {
+            sb.append(" " + getNetworkInterfaceId());
+        }
+        return sb.toString();
     }
 }
