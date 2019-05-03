@@ -473,10 +473,15 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("network interface " + getDescription());
+
+        sb.append("network interface ");
+
+        if (ObjectUtils.isBlank(getDescription())) {
+            sb.append(getDescription());
+        }
 
         if (getNetworkInterfaceId() != null) {
-            sb.append(" " + getNetworkInterfaceId());
+            sb.append(" ").append(getNetworkInterfaceId());
         }
         return sb.toString();
     }
