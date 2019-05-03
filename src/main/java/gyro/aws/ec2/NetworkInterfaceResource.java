@@ -8,16 +8,7 @@ import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
-import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
-import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
-import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
-import software.amazon.awssdk.services.ec2.model.NetworkInterface;
-import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachment;
-import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachmentChanges;
-import software.amazon.awssdk.services.ec2.model.NetworkInterfacePrivateIpAddress;
+import software.amazon.awssdk.services.ec2.model.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -297,8 +288,24 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             builder.groups(getSecurityGroupIds());
         }
 
+        List<PrivateIpAddressSpecification> privateIpAddressSpecifications = new ArrayList<>();
+        privateIpAddressSpecifications.add(
+                PrivateIpAddressSpecification.builder()
+                        .privateIpAddress(getPrimaryIpv4Address())
+                        .primary(true)
+                        .build()
+        );
+
+        if (!getIpv4Addresses().isEmpty()) {
+            privateIpAddressSpecifications.addAll(
+                    getIpv4Addresses().stream().map(o -> PrivateIpAddressSpecification.builder()
+                            .privateIpAddress(o)
+                            .build()).collect(Collectors.toList())
+            );
+        }
+
         if (getPrimaryIpv4Address() != null) {
-            builder.privateIpAddresses(s -> s.privateIpAddress(getPrimaryIpv4Address()).primary(true));
+            builder.privateIpAddresses(privateIpAddressSpecifications);
         }
 
         CreateNetworkInterfaceResponse response = client.createNetworkInterface(builder.build());
@@ -306,13 +313,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         NetworkInterface networkInterface = response.networkInterface();
 
         setNetworkInterfaceId(networkInterface.networkInterfaceId());
-
-        if (getIpv4Addresses().size() != 0) {
-            client.assignPrivateIpAddresses(r -> r.allowReassignment(true)
-                    .networkInterfaceId(getNetworkInterfaceId())
-                    .privateIpAddresses(getIpv4Addresses())
-            );
-        }
 
         if (getInstanceId() != null) {
             AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
@@ -353,7 +353,8 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     .build();
 
             client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
-                    .attachment(changes));
+                    .attachment(changes)
+            );
 
         }
 
@@ -419,11 +420,13 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         if (changedProperties.contains("source-dest-check")) {
             client.modifyNetworkInterfaceAttribute(r->r.networkInterfaceId(getNetworkInterfaceId())
-                    .sourceDestCheck(a -> a.value(getSourceDestCheck())));
+                    .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+            );
         }
 
         client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
-                .description(d -> d.value(getDescription())));
+                .description(d -> d.value(getDescription()))
+        );
     }
 
     @Override
