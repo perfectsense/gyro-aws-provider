@@ -284,7 +284,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         builder.subnetId(getSubnetId());
         builder.description(getDescription());
 
-        if (getSecurityGroupIds().size() != 0) {
+        if (!getSecurityGroupIds().isEmpty()) {
             builder.groups(getSecurityGroupIds());
         }
 
