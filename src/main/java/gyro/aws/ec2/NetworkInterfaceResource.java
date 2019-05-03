@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
  *          instance-id: $(aws::instance instance-example-nic | instance-id)
  *          device-index: 1
  *          delete-on-termination: false
+ *          source-dest-check: false
  *          security-group-ids: [
  *                  $(aws::security-group security-group-nic-1| group-id),
  *                  $(aws::security-group security-group-nic-2| group-id),
@@ -70,6 +71,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private List<String> securityGroupIds;
     private String primaryIpv4Address;
     private List<String> ipv4Addresses;
+    private Boolean sourceDestCheck;
 
     /**
      * The description of the network interface card that is being created.
@@ -186,7 +188,8 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The list of Secondary IPV4 addresses which gets assigned to the Network Interface. If specified
+     * The list of Secondary IPV4 addresses which gets assigned to the Network Interface. The limit of setting secondary instance depends on the instance type.
+     * See `IP Address per Instance Type <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI>`_.
      */
     @ResourceDiffProperty(updatable = true)
     public List<String> getIpv4Addresses() {
@@ -202,6 +205,18 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         this.ipv4Addresses = ipv4Addresses;
     }
 
+    /**
+     * Boolean value to enable/disable network traffic on instance that isn't specifically destined for the instance.
+     * Default is `true`
+     */
+    @ResourceDiffProperty(updatable = true)
+    public Boolean getSourceDestCheck() {
+        return sourceDestCheck;
+    }
+
+    public void setSourceDestCheck(Boolean sourceDestCheck) {
+        this.sourceDestCheck = sourceDestCheck;
+    }
 
     @Override
     protected String getId() {
@@ -232,6 +247,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         if (networkInterface != null) {
             setNetworkInterfaceId(networkInterface.networkInterfaceId());
             setDescription(networkInterface.description());
+            setSourceDestCheck(networkInterface.sourceDestCheck());
 
             if (networkInterface.groups() != null) {
                 setSecurityGroupIds(new ArrayList<>(networkInterface.groups()
@@ -318,6 +334,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                         .attachment(changes)
                 );
             }
+
+            if (getSourceDestCheck() != null) {
+                client.modifyNetworkInterfaceAttribute(r->r.networkInterfaceId(getNetworkInterfaceId())
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck())));
+            }
         }
     }
 
@@ -335,7 +356,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     .attachment(changes));
 
         }
-        
+
         NetworkInterface networkInterface = getNetworkInterface();
 
         if (changedProperties.contains("instance-id")) {
@@ -387,7 +408,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                         .networkInterfaceId(getNetworkInterfaceId())
                         .privateIpAddresses(addIpv4Addresses));
             }
-
         }
 
         if (changedProperties.contains("security-group-ids")) {
@@ -395,6 +415,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     r -> r.networkInterfaceId(getNetworkInterfaceId())
                             .groups(getSecurityGroupIds())
             );
+        }
+
+        if (changedProperties.contains("source-dest-check")) {
+            client.modifyNetworkInterfaceAttribute(r->r.networkInterfaceId(getNetworkInterfaceId())
+                    .sourceDestCheck(a -> a.value(getSourceDestCheck())));
         }
 
         client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())

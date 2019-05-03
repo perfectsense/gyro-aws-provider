@@ -1,12 +1,9 @@
-@import ../init as _
-
 aws::vpc vpc
     cidr-block: "10.0.0.0/16"
-    provide-ipv6-cidr-block: true
 
     tags: {
-        Name: "network-interface-vpc-example"
-     }
+        Name: "vpc-example-nic"
+    }
 end
 
 aws::subnet  subnet-example-nic
@@ -54,17 +51,15 @@ aws::network-interface nic-example-1
      }
 end
 
-aws::network-interface nic-example-2
+aws::network-interface nic-example-with-instance
      description: "test-nic-with-secondary-ips"
      subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
-     primary-ipv4-address: "10.0.0.32"
+     primary-ipv4-address: "10.0.0.22"
      ipv4-addresses: [
-         "10.0.0.36",
-         "10.0.0.14"
+         "10.0.0.18",
+         "10.0.0.10"
      ]
      tags: {
         Name: "nic-example-with-secondary-ip"
      }
 end
-
-
