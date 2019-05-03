@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::geo-match-set geo-match-set-example
     name: "geo-match-set-example"
 

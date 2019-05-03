@@ -1,5 +1,3 @@
-@import ../init.bcl as _
-
 aws::alb alb-example
     load-balancer-name: "alb-example"
     ip-address-type: "ipv4"

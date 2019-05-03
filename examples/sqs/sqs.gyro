@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::sqs sqs-example1
      name : "testStandard"
      visibility-timeout : 400
