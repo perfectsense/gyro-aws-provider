@@ -5,12 +5,17 @@ import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
+import software.amazon.awssdk.services.elasticache.model.CacheNode;
 import software.amazon.awssdk.services.elasticache.model.CacheSecurityGroupMembership;
+import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
-import software.amazon.awssdk.services.elasticache.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.elasticache.model.ModifyCacheClusterRequest;
+import software.amazon.awssdk.services.elasticache.model.RebootCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.SecurityGroupMembership;
 import software.amazon.awssdk.services.elasticache.model.Tag;
 
@@ -21,12 +26,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@ResourceName("cache-cluster")
 public class CacheClusterResource extends AwsResource {
     private Boolean autoMinorVersionUpgrade;
     private String azMode;
     private String cacheClusterId;
     private String cacheNodeType;
-    private String cacheParameterGroupName;
+    private String cacheParamGroupName;
     private List<String> cacheSecurityGroupNames;
     private String cacheSubnetGroupName;
     private String engine;
@@ -44,8 +50,14 @@ public class CacheClusterResource extends AwsResource {
     private Map<String, String> tags;
 
     private String status;
+    private List<String> nodes;
 
+    @ResourceDiffProperty(updatable = true)
     public Boolean getAutoMinorVersionUpgrade() {
+        if (autoMinorVersionUpgrade == null) {
+            autoMinorVersionUpgrade = true;
+        }
+
         return autoMinorVersionUpgrade;
     }
 
@@ -53,6 +65,7 @@ public class CacheClusterResource extends AwsResource {
         this.autoMinorVersionUpgrade = autoMinorVersionUpgrade;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getAzMode() {
         return azMode;
     }
@@ -69,6 +82,7 @@ public class CacheClusterResource extends AwsResource {
         this.cacheClusterId = cacheClusterId;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getCacheNodeType() {
         return cacheNodeType;
     }
@@ -77,15 +91,21 @@ public class CacheClusterResource extends AwsResource {
         this.cacheNodeType = cacheNodeType;
     }
 
-    public String getCacheParameterGroupName() {
-        return cacheParameterGroupName;
+    @ResourceDiffProperty(updatable = true)
+    public String getCacheParamGroupName() {
+        return cacheParamGroupName;
     }
 
-    public void setCacheParameterGroupName(String cacheParameterGroupName) {
-        this.cacheParameterGroupName = cacheParameterGroupName;
+    public void setCacheParamGroupName(String cacheParamGroupName) {
+        this.cacheParamGroupName = cacheParamGroupName;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public List<String> getCacheSecurityGroupNames() {
+        if (cacheSecurityGroupNames == null) {
+            cacheSecurityGroupNames = new ArrayList<>();
+        }
+
         return cacheSecurityGroupNames;
     }
 
@@ -109,6 +129,7 @@ public class CacheClusterResource extends AwsResource {
         this.engine = engine;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -117,6 +138,7 @@ public class CacheClusterResource extends AwsResource {
         this.engineVersion = engineVersion;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getNotificationTopicArn() {
         return notificationTopicArn;
     }
@@ -125,6 +147,7 @@ public class CacheClusterResource extends AwsResource {
         this.notificationTopicArn = notificationTopicArn;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Integer getNumCacheNodes() {
         return numCacheNodes;
     }
@@ -141,6 +164,7 @@ public class CacheClusterResource extends AwsResource {
         this.port = port;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getPreferredAvailabilityZone() {
         return preferredAvailabilityZone;
     }
@@ -149,6 +173,7 @@ public class CacheClusterResource extends AwsResource {
         this.preferredAvailabilityZone = preferredAvailabilityZone;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -165,7 +190,12 @@ public class CacheClusterResource extends AwsResource {
         this.replicationGroupId = replicationGroupId;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public List<String> getSecurityGroupIds() {
+        if (securityGroupIds == null) {
+            securityGroupIds = new ArrayList<>();
+        }
+
         return securityGroupIds;
     }
 
@@ -174,6 +204,10 @@ public class CacheClusterResource extends AwsResource {
     }
 
     public List<String> getSnapshotArns() {
+        if (snapshotArns == null) {
+            snapshotArns = new ArrayList<>();
+        }
+
         return snapshotArns;
     }
 
@@ -181,6 +215,7 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotArns = snapshotArns;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Integer getSnapshotRetentionLimit() {
         return snapshotRetentionLimit;
     }
@@ -189,6 +224,7 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotRetentionLimit = snapshotRetentionLimit;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getSnapshotWindow() {
         return snapshotWindow;
     }
@@ -198,6 +234,10 @@ public class CacheClusterResource extends AwsResource {
     }
 
     public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
         return tags;
     }
 
@@ -213,12 +253,25 @@ public class CacheClusterResource extends AwsResource {
         this.status = status;
     }
 
+    public List<String> getNodes() {
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+
+        return nodes;
+    }
+
+    public void setNodes(List<String> nodes) {
+        this.nodes = nodes;
+    }
+
     @Override
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         DescribeCacheClustersResponse response = client.describeCacheClusters(
             r -> r.cacheClusterId(getCacheClusterId())
+                .showCacheNodeInfo(true)
         );
 
         if (!response.cacheClusters().isEmpty()) {
@@ -227,10 +280,26 @@ public class CacheClusterResource extends AwsResource {
             setAutoMinorVersionUpgrade(cacheCluster.autoMinorVersionUpgrade());
 
             //cacheCluster.azMode();
+            /*System.out.println("\n --> " + cacheCluster.cacheClusterId());
+            System.out.println("\n --> " + cacheCluster.cacheNodeType());
+            System.out.println("\n --> " + cacheCluster.cacheParameterGroup().cacheParameterGroupName());
+            System.out.println("\n --> " + cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
+            System.out.println("\n --> " + cacheCluster.cacheSubnetGroupName());
+            System.out.println("\n --> " + cacheCluster.engine());
+            System.out.println("\n --> " + cacheCluster.engineVersion());
+            System.out.println("\n --> " + (cacheCluster.notificationConfiguration() != null ? cacheCluster.notificationConfiguration().topicArn() : null));
+            System.out.println("\n --> " + cacheCluster.numCacheNodes());
+            System.out.println("\n --> " + cacheCluster.configurationEndpoint().port());
+            System.out.println("\n --> " + cacheCluster.preferredAvailabilityZone());
+            System.out.println("\n --> " + cacheCluster.preferredMaintenanceWindow());
+            System.out.println("\n --> " + cacheCluster.replicationGroupId());
+            System.out.println("\n --> " + cacheCluster.securityGroups().stream().map(SecurityGroupMembership::securityGroupId).collect(Collectors.toList()));
+            System.out.println("\n --> " + cacheCluster.snapshotRetentionLimit());
+            System.out.println("\n --> " + cacheCluster.snapshotWindow());*/
 
             setCacheClusterId(cacheCluster.cacheClusterId());
             setCacheNodeType(cacheCluster.cacheNodeType());
-            setCacheParameterGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
+            setCacheParamGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
             setCacheSecurityGroupNames(cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
             setCacheSubnetGroupName(cacheCluster.cacheSubnetGroupName());
             setEngine(cacheCluster.engine());
@@ -244,12 +313,13 @@ public class CacheClusterResource extends AwsResource {
             setSecurityGroupIds(cacheCluster.securityGroups().stream().map(SecurityGroupMembership::securityGroupId).collect(Collectors.toList()));
             setSnapshotRetentionLimit(cacheCluster.snapshotRetentionLimit());
             setSnapshotWindow(cacheCluster.snapshotWindow());
+            setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
 
-            ListTagsForResourceResponse tagResponse = client.listTagsForResource(
+            /*ListTagsForResourceResponse tagResponse = client.listTagsForResource(
                 r -> r.resourceName(getCacheClusterId())
             );
 
-            loadTags(tagResponse.tagList());
+            loadTags(tagResponse.tagList());*/
 
             return true;
         } else {
@@ -261,56 +331,90 @@ public class CacheClusterResource extends AwsResource {
     public void create() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
-        CreateCacheClusterResponse response = client.createCacheCluster(
-            r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-                .azMode(getAzMode())
-                .cacheClusterId(getCacheClusterId())
-                .cacheNodeType(getCacheNodeType())
-                .cacheParameterGroupName(getCacheParameterGroupName())
-                .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-                .cacheSubnetGroupName(getCacheSubnetGroupName())
-                .engine(getEngine())
-                .engineVersion(getEngineVersion())
-                .notificationTopicArn(getNotificationTopicArn())
-                .numCacheNodes(getNumCacheNodes())
-                .port(getPort())
-                .preferredAvailabilityZone(getPreferredAvailabilityZone())
-                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .replicationGroupId(getReplicationGroupId())
-                .securityGroupIds(getSecurityGroupIds())
+        CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
+            .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+            .azMode(getAzMode())
+            .cacheClusterId(getCacheClusterId())
+            .cacheNodeType(getCacheNodeType())
+            .cacheParameterGroupName(getCacheParamGroupName())
+            .cacheSecurityGroupNames(getCacheSecurityGroupNames())
+            .cacheSubnetGroupName(getCacheSubnetGroupName())
+            .engine(getEngine())
+            .engineVersion(getEngineVersion())
+            .notificationTopicArn(getNotificationTopicArn())
+            .numCacheNodes(getNumCacheNodes())
+            .port(getPort())
+            .preferredAvailabilityZone(getPreferredAvailabilityZone())
+            .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
+            .securityGroupIds(getSecurityGroupIds());
+
+        if (getEngine().equalsIgnoreCase("redis")) {
+            builder.replicationGroupId(getReplicationGroupId())
                 .snapshotArns(getSnapshotArns())
                 .snapshotRetentionLimit(getSnapshotRetentionLimit())
-                .snapshotWindow(getSnapshotWindow())
-                .tags(toCacheTags(getTags()))
-        );
+                .snapshotWindow(getSnapshotWindow());
+        }
+
+        CreateCacheClusterResponse response = client.createCacheCluster(builder.build());
 
         setStatus(response.cacheCluster().cacheClusterStatus());
-
     }
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
-        client.modifyCacheCluster(
-            r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-                .azMode(getAzMode())
-                .cacheClusterId(getCacheClusterId())
-                .cacheNodeType(getCacheNodeType())
-                .cacheParameterGroupName(getCacheParameterGroupName())
-                .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-                .engineVersion(getEngineVersion())
-                .notificationTopicArn(getNotificationTopicArn())
-                .numCacheNodes(getNumCacheNodes())
-                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .securityGroupIds(getSecurityGroupIds())
-                .snapshotRetentionLimit(getSnapshotRetentionLimit())
-                .snapshotWindow(getSnapshotWindow())
+        CacheClusterResource currentCacheClusterResource = (CacheClusterResource) current;
+
+        //Can only specify new availability zones or AZ mode when adding cache nodes. (Condition)
+
+        ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
+            .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+            .azMode("cross-az")
+            .cacheClusterId(getCacheClusterId())
+            .cacheNodeType(getCacheNodeType())
+            .cacheParameterGroupName(getCacheParamGroupName())
+            .cacheSecurityGroupNames(getCacheSecurityGroupNames())
+            .engineVersion(getEngineVersion())
+            .notificationTopicArn(getNotificationTopicArn())
+            .numCacheNodes(getNumCacheNodes())
+            .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
+            .newAvailabilityZones("us-east-2a", "us-east-2b", "us-east-2c")
+            .securityGroupIds(getSecurityGroupIds());
+
+        if (engine.equalsIgnoreCase("redis")) {
+            builder.snapshotRetentionLimit(getSnapshotRetentionLimit())
+                .snapshotWindow(getSnapshotWindow());
+        }
+
+        /*DescribeCacheClustersResponse response = client.describeCacheClusters(
+            r -> r.cacheClusterId(getCacheClusterId())
         );
+
+        List<String> nodeIds = new ArrayList<>();
+
+        if (!response.cacheClusters().isEmpty()) {
+            nodeIds = response.cacheClusters().get(0).cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList());
+        }*/
+
+        client.modifyCacheCluster(builder.applyImmediately(true).build());
+
+        waitForAvailability(client);
+
+        //reboot
+
+        RebootCacheClusterRequest rebootCacheClusterRequest = RebootCacheClusterRequest.builder()
+            .cacheNodeIdsToReboot(getNodes())
+            .cacheClusterId(getCacheClusterId()).build();
+
+        client.rebootCacheCluster(rebootCacheClusterRequest);
+
+        waitForAvailability(client);
+
 
         if (changedProperties.contains("tags")) {
             Map<String, String> pendingTags = getTags();
-            Map<String, String> currentTags = ((CacheClusterResource) current).getTags();
+            Map<String, String> currentTags = currentCacheClusterResource.getTags();
 
             saveTags(pendingTags, currentTags, client);
         }
@@ -386,5 +490,30 @@ public class CacheClusterResource extends AwsResource {
                     .tags(toCacheTags(addTags))
             );
         }
+    }
+
+    private void waitForAvailability(ElastiCacheClient client) {
+        boolean available = false;
+        int count = 0;
+        while (!available && count < 10) {
+            DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
+
+            available = response.cacheClusters().get(0).cacheClusterStatus().equals("available");
+            count++;
+        }
+    }
+
+    private DescribeCacheClustersResponse waitHelper(int count, ElastiCacheClient client, long interval) {
+        if (count > 0) {
+            try {
+                Thread.sleep(interval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return client.describeCacheClusters(
+            r -> r.cacheClusterId(getCacheClusterId())
+        );
     }
 }
