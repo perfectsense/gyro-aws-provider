@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
-
 import java.util.stream.Collectors;
 
 /**
@@ -346,7 +345,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         } catch(Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
                 delete();
-                throw new GyroException("The instance (" + getInstanceId() + ") attachment failed, Gyro up to recreate network interface");
+                throw new GyroException("The instance (" + getInstanceId() + ") attachment failed, invalid instance-id.");
             }
         }
     }
@@ -367,7 +366,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         }
 
         if (changedProperties.contains("instance-id")) {
-            if (getInstanceId() != null) {
+            if (!ObjectUtils.isBlank(getInstanceId())) {
                 AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
                         .attachNetworkInterface(n -> n.networkInterfaceId(getNetworkInterfaceId())
                                 .instanceId(getInstanceId())
@@ -481,7 +480,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         }
 
         if (getNetworkInterfaceId() != null) {
-            sb.append(" ").append(getNetworkInterfaceId());
+            sb.append(getNetworkInterfaceId());
         }
         return sb.toString();
     }
