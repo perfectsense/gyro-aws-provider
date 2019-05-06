@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::vpc vpc-cache-cluster-example
     cidr-block: "10.0.0.0/16"
     provide-ipv6-cidr-block: true
@@ -126,7 +124,7 @@ aws::cache-param-group cache-param-group-group-cache-cluster-example-2
 end
 
 aws::cache-cluster cache-cluster-example
-    az-mode: "single-az"
+    az-mode: "cross-az"
     auto-minor-version-upgrade: false
     cache-cluster-id: "cache-cluster-ex-1"
     cache-node-type: "cache.r5.large"
@@ -134,11 +132,21 @@ aws::cache-cluster cache-cluster-example
     cache-subnet-group-name: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example | cache-subnet-group-name)
     engine: "memcached"
     engine-version: "1.5.10"
-    num-cache-nodes: 3
+    num-cache-nodes: 10
+    node-availability-zone: [
+        "us-east-2a",
+        "us-east-2b",
+        "us-east-2a"
+    ]
     port: 11211
-    preferred-availability-zone: "us-east-2b"
+    preferred-availability-zone: "us-east-2a"
     preferred-maintenance-window: "thu:01:00-thu:02:00"
     security-group-ids: [
         $(aws::security-group security-group-cache-cluster-example-1 | group-id)
     ]
+    account-number: "242040583208"
+
+    tags: {
+        Name: "cache-cluster-example"
+    }
 end

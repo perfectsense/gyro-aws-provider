@@ -4,6 +4,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.elasticache.model.CacheSecurityGroupMembe
 import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
+import software.amazon.awssdk.services.elasticache.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.elasticache.model.ModifyCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.RebootCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.SecurityGroupMembership;
@@ -48,6 +50,10 @@ public class CacheClusterResource extends AwsResource {
     private Integer snapshotRetentionLimit;
     private String snapshotWindow;
     private Map<String, String> tags;
+    private List<String> nodeAvailabilityZone;
+    private String accountNumber;
+    private String arn;
+    private Boolean applyImmediately;
 
     private String status;
     private List<String> nodes;
@@ -164,7 +170,6 @@ public class CacheClusterResource extends AwsResource {
         this.port = port;
     }
 
-    @ResourceDiffProperty(updatable = true)
     public String getPreferredAvailabilityZone() {
         return preferredAvailabilityZone;
     }
@@ -233,6 +238,7 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotWindow = snapshotWindow;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -243,6 +249,51 @@ public class CacheClusterResource extends AwsResource {
 
     public void setTags(Map<String, String> tags) {
         this.tags = tags;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public List<String> getNodeAvailabilityZone() {
+        if (nodeAvailabilityZone == null) {
+            nodeAvailabilityZone = new ArrayList<>();
+        }
+
+        return nodeAvailabilityZone;
+    }
+
+    public void setNodeAvailabilityZone(List<String> nodeAvailabilityZone) {
+        this.nodeAvailabilityZone = nodeAvailabilityZone;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getArn() {
+        if (arn == null) {
+            arn = "arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId();
+        }
+
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
+    public Boolean getApplyImmediately() {
+        if (applyImmediately == null) {
+            applyImmediately = true;
+        }
+
+        return applyImmediately;
+    }
+
+    public void setApplyImmediately(Boolean applyImmediately) {
+        this.applyImmediately = applyImmediately;
     }
 
     public String getStatus() {
@@ -279,24 +330,6 @@ public class CacheClusterResource extends AwsResource {
 
             setAutoMinorVersionUpgrade(cacheCluster.autoMinorVersionUpgrade());
 
-            //cacheCluster.azMode();
-            /*System.out.println("\n --> " + cacheCluster.cacheClusterId());
-            System.out.println("\n --> " + cacheCluster.cacheNodeType());
-            System.out.println("\n --> " + cacheCluster.cacheParameterGroup().cacheParameterGroupName());
-            System.out.println("\n --> " + cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
-            System.out.println("\n --> " + cacheCluster.cacheSubnetGroupName());
-            System.out.println("\n --> " + cacheCluster.engine());
-            System.out.println("\n --> " + cacheCluster.engineVersion());
-            System.out.println("\n --> " + (cacheCluster.notificationConfiguration() != null ? cacheCluster.notificationConfiguration().topicArn() : null));
-            System.out.println("\n --> " + cacheCluster.numCacheNodes());
-            System.out.println("\n --> " + cacheCluster.configurationEndpoint().port());
-            System.out.println("\n --> " + cacheCluster.preferredAvailabilityZone());
-            System.out.println("\n --> " + cacheCluster.preferredMaintenanceWindow());
-            System.out.println("\n --> " + cacheCluster.replicationGroupId());
-            System.out.println("\n --> " + cacheCluster.securityGroups().stream().map(SecurityGroupMembership::securityGroupId).collect(Collectors.toList()));
-            System.out.println("\n --> " + cacheCluster.snapshotRetentionLimit());
-            System.out.println("\n --> " + cacheCluster.snapshotWindow());*/
-
             setCacheClusterId(cacheCluster.cacheClusterId());
             setCacheNodeType(cacheCluster.cacheNodeType());
             setCacheParamGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
@@ -315,11 +348,11 @@ public class CacheClusterResource extends AwsResource {
             setSnapshotWindow(cacheCluster.snapshotWindow());
             setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
 
-            /*ListTagsForResourceResponse tagResponse = client.listTagsForResource(
-                r -> r.resourceName(getCacheClusterId())
+            ListTagsForResourceResponse tagResponse = client.listTagsForResource(
+                r -> r.resourceName(getArn())
             );
 
-            loadTags(tagResponse.tagList());*/
+            loadTags(tagResponse.tagList());
 
             return true;
         } else {
@@ -346,7 +379,8 @@ public class CacheClusterResource extends AwsResource {
             .port(getPort())
             .preferredAvailabilityZone(getPreferredAvailabilityZone())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroupIds());
+            .securityGroupIds(getSecurityGroupIds())
+            .tags(toCacheTags(getTags()));
 
         if (getEngine().equalsIgnoreCase("redis")) {
             builder.replicationGroupId(getReplicationGroupId())
@@ -358,6 +392,8 @@ public class CacheClusterResource extends AwsResource {
         CreateCacheClusterResponse response = client.createCacheCluster(builder.build());
 
         setStatus(response.cacheCluster().cacheClusterStatus());
+
+        waitForAvailability(client, false);
     }
 
     @Override
@@ -366,57 +402,56 @@ public class CacheClusterResource extends AwsResource {
 
         CacheClusterResource currentCacheClusterResource = (CacheClusterResource) current;
 
-        //Can only specify new availability zones or AZ mode when adding cache nodes. (Condition)
-
-        ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
-            .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-            .azMode("cross-az")
-            .cacheClusterId(getCacheClusterId())
-            .cacheNodeType(getCacheNodeType())
-            .cacheParameterGroupName(getCacheParamGroupName())
-            .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-            .engineVersion(getEngineVersion())
-            .notificationTopicArn(getNotificationTopicArn())
-            .numCacheNodes(getNumCacheNodes())
-            .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .newAvailabilityZones("us-east-2a", "us-east-2b", "us-east-2c")
-            .securityGroupIds(getSecurityGroupIds());
-
-        if (engine.equalsIgnoreCase("redis")) {
-            builder.snapshotRetentionLimit(getSnapshotRetentionLimit())
-                .snapshotWindow(getSnapshotWindow());
-        }
-
-        /*DescribeCacheClustersResponse response = client.describeCacheClusters(
-            r -> r.cacheClusterId(getCacheClusterId())
-        );
-
-        List<String> nodeIds = new ArrayList<>();
-
-        if (!response.cacheClusters().isEmpty()) {
-            nodeIds = response.cacheClusters().get(0).cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList());
-        }*/
-
-        client.modifyCacheCluster(builder.applyImmediately(true).build());
-
-        waitForAvailability(client);
-
-        //reboot
-
-        RebootCacheClusterRequest rebootCacheClusterRequest = RebootCacheClusterRequest.builder()
-            .cacheNodeIdsToReboot(getNodes())
-            .cacheClusterId(getCacheClusterId()).build();
-
-        client.rebootCacheCluster(rebootCacheClusterRequest);
-
-        waitForAvailability(client);
-
-
         if (changedProperties.contains("tags")) {
             Map<String, String> pendingTags = getTags();
             Map<String, String> currentTags = currentCacheClusterResource.getTags();
 
             saveTags(pendingTags, currentTags, client);
+        }
+
+        if ((changedProperties.contains("tags") && changedProperties.size() > 1) || !changedProperties.isEmpty()) {
+
+            //Can only specify new availability zones or AZ mode when adding cache nodes. (Condition)
+
+            ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
+                .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+                .cacheClusterId(getCacheClusterId())
+                .cacheNodeType(getCacheNodeType())
+                .cacheParameterGroupName(getCacheParamGroupName())
+                .cacheSecurityGroupNames(getCacheSecurityGroupNames())
+                .engineVersion(getEngineVersion())
+                .notificationTopicArn(getNotificationTopicArn())
+                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
+                .securityGroupIds(getSecurityGroupIds());
+
+            if (changedProperties.contains("num-cache-nodes")) {
+                builder = builder.azMode(getAzMode())
+                    .numCacheNodes(getNumCacheNodes())
+                    .newAvailabilityZones(getNodeAvailabilityZone());
+            }
+
+            if (engine.equalsIgnoreCase("redis")) {
+                builder.snapshotRetentionLimit(getSnapshotRetentionLimit())
+                    .snapshotWindow(getSnapshotWindow());
+            }
+
+            ModifyCacheClusterRequest modifyCacheClusterRequest = builder.applyImmediately(getApplyImmediately()).build();
+
+            if (getApplyImmediately()) {
+                client.modifyCacheCluster(modifyCacheClusterRequest);
+
+                waitForAvailability(client, false);
+            } else {
+                waitForAvailability(client, true);
+
+                RebootCacheClusterRequest rebootCacheClusterRequest = RebootCacheClusterRequest.builder()
+                    .cacheNodeIdsToReboot(getNodes())
+                    .cacheClusterId(getCacheClusterId()).build();
+
+                client.rebootCacheCluster(rebootCacheClusterRequest);
+
+                waitForAvailability(client, false);
+            }
         }
     }
 
@@ -427,6 +462,8 @@ public class CacheClusterResource extends AwsResource {
         client.deleteCacheCluster(
             r -> r.cacheClusterId(getCacheClusterId())
         );
+
+        waitForDelete(client);
     }
 
     @Override
@@ -462,7 +499,7 @@ public class CacheClusterResource extends AwsResource {
         // Old tags
         if (!diff.entriesOnlyOnLeft().isEmpty()) {
             client.removeTagsFromResource(
-                r -> r.resourceName(getCacheClusterId())
+                r -> r.resourceName(getArn())
                     .tagKeys(diff.entriesOnlyOnLeft().keySet())
             );
         }
@@ -470,7 +507,7 @@ public class CacheClusterResource extends AwsResource {
         // New tags
         if (!diff.entriesOnlyOnRight().isEmpty()) {
             client.addTagsToResource(
-                r -> r.resourceName(getCacheClusterId())
+                r -> r.resourceName(getArn())
                     .tags(toCacheTags(diff.entriesOnlyOnRight()))
             );
         }
@@ -478,7 +515,7 @@ public class CacheClusterResource extends AwsResource {
         // Old but modified tags
         if (!diff.entriesDiffering().isEmpty()) {
             client.removeTagsFromResource(
-                r -> r.resourceName(getCacheClusterId())
+                r -> r.resourceName(getArn())
                     .tagKeys(diff.entriesDiffering().keySet())
             );
 
@@ -486,20 +523,47 @@ public class CacheClusterResource extends AwsResource {
             diff.entriesDiffering().keySet().forEach(o -> addTags.put(o, diff.entriesDiffering().get(o).rightValue()));
 
             client.addTagsToResource(
-                r -> r.resourceName(getCacheClusterId())
+                r -> r.resourceName(getArn())
                     .tags(toCacheTags(addTags))
             );
         }
     }
 
-    private void waitForAvailability(ElastiCacheClient client) {
+    private void waitForAvailability(ElastiCacheClient client, boolean waitWithoutCount) {
         boolean available = false;
         int count = 0;
-        while (!available && count < 10) {
+        while (!available && count < 20) {
             DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
 
             available = response.cacheClusters().get(0).cacheClusterStatus().equals("available");
             count++;
+
+            if (waitWithoutCount) {
+                count = 0;
+            } else if (!available && count == 20) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
+        }
+    }
+
+    private void waitForDelete(ElastiCacheClient client) {
+        boolean available = true;
+        int count = 0;
+        while (available && count < 20) {
+            DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
+
+            available = !response.cacheClusters().isEmpty();
+            count++;
+
+            if (available && count == 20) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
         }
     }
 
