@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.elasticache.model.AutomaticFailoverStatus
 import software.amazon.awssdk.services.elasticache.model.CreateReplicationGroupResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeReplicationGroupsResponse;
 import software.amazon.awssdk.services.elasticache.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.elasticache.model.NodeGroup;
 import software.amazon.awssdk.services.elasticache.model.ReplicationGroup;
 import software.amazon.awssdk.services.elasticache.model.Tag;
 
@@ -48,7 +49,9 @@ public class ReplicationGroupResource extends AwsResource {
     private String replicationGroupDescription;
     private Boolean enableTransitEncryption;
     private Map<String, String> tags;
+    private String accountNumber;
 
+    private String arn;
     private String status;
 
     public Boolean getEnableRestEncrytion() {
@@ -275,6 +278,26 @@ public class ReplicationGroupResource extends AwsResource {
         this.status = status;
     }
 
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getArn() {
+        if (arn == null) {
+            arn = "arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":replicationgroup:" + getReplicationGroupId();
+        }
+
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
@@ -284,38 +307,31 @@ public class ReplicationGroupResource extends AwsResource {
         );
 
         if (!response.replicationGroups().isEmpty()) {
-            /*ReplicationGroup replicationGroup = response.replicationGroups().get(0);
+            ReplicationGroup replicationGroup = response.replicationGroups().get(0);
 
-            replicationGroup.atRestEncryptionEnabled();
-            replicationGroup.automaticFailover().equals(AutomaticFailoverStatus.ENABLED);
-            replicationGroup.autoMinorVersionUpgrade();
-            replicationGroup.cacheNodeType();
-            replicationGroup.cacheParameterGroupName();
-            replicationGroup.cacheSecurityGroupNames();
-            replicationGroup.engine();
-            replicationGroup.engineVersion();
-            replicationGroup.cacheSubnetGroupName();
-            replicationGroup.nodeGroupConfiguration();
-            replicationGroup.notificationTopicArn();
-            replicationGroup.memberClusters().size();
-            replicationGroup.configurationEndpoint().port();
-            replicationGroup.preferredCacheClusterAZs();
-            replicationGroup.preferredMaintenanceWindow();
+
+            replicationGroup.memberClusters();
+            setPort(replicationGroup.configurationEndpoint().port());
             replicationGroup.snapshottingClusterId();
-            replicationGroup.nodeGroups().size();
-            //replicationGroup.replicasPerNodeGroup();
-            replicationGroup.replicationGroupId();
-            //replicationGroup.securityGroupIds();
-            //replicationGroup.snapshotArns();
-            //replicationGroup.snapshotName();
-            replicationGroup.snapshotRetentionLimit();
-            replicationGroup.snapshotWindow();
-            replicationGroup.description();
-            replicationGroup.transitEncryptionEnabled();
+            setReplicationGroupDescription(replicationGroup.description());
+            setStatus(replicationGroup.status());
+            setEnableRestEncrytion(replicationGroup.atRestEncryptionEnabled());
+            setCacheNodeType(replicationGroup.cacheNodeType());
+            setReplicationGroupId(replicationGroup.replicationGroupId());
+            setSnapshotRetentionLimit(replicationGroup.snapshotRetentionLimit());
+            replicationGroup.configurationEndpoint();
+            setSnapshotWindow(replicationGroup.snapshotWindow());
+            setEnableTransitEncryption(replicationGroup.transitEncryptionEnabled());
+            replicationGroup.authTokenEnabled();
+            setEnableAutomaticFailOver(replicationGroup.automaticFailover().equals(AutomaticFailoverStatus.ENABLED));
+            replicationGroup.clusterEnabled();
 
-            replicationGroup.nodeGroups().get(0).nodeGroupId();
+            for (NodeGroup nodeGroup : replicationGroup.nodeGroups()) {
+                NodeGroupConfigurationResource nodeGroupConfigurationResource = new NodeGroupConfigurationResource(nodeGroup);
+                nodeGroupConfigurationResource.parent(this);
+            }
 
-            client.decreaseReplicaCount(
+            /*client.decreaseReplicaCount(
                 r -> r.newReplicaCount()
                     .replicationGroupId()
                     .replicaConfiguration(
@@ -335,7 +351,7 @@ public class ReplicationGroupResource extends AwsResource {
             );*/
 
             ListTagsForResourceResponse tagResponse = client.listTagsForResource(
-                r -> r.resourceName(getReplicationGroupId())
+                r -> r.resourceName(getArn())
             );
 
             loadTags(tagResponse.tagList());
@@ -392,14 +408,14 @@ public class ReplicationGroupResource extends AwsResource {
             r -> r.automaticFailoverEnabled(getEnableAutomaticFailOver())
                 .autoMinorVersionUpgrade(getEnableAutoMinorVersionUpgrade())
                 .cacheNodeType(getCacheNodeType())
-                .cacheParameterGroupName(getCacheParameterGroupName())
-                .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-                .engineVersion(getEngineVersion())
-                .notificationTopicArn(getNotificationTopicArn())
+                //.cacheParameterGroupName(getCacheParameterGroupName())
+                //.cacheSecurityGroupNames(getCacheSecurityGroupNames())
+                //.engineVersion(getEngineVersion())
+                //.notificationTopicArn(getNotificationTopicArn())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .primaryClusterId(getPrimaryClusterId())
+                //.primaryClusterId(getPrimaryClusterId())
                 .replicationGroupId(getReplicationGroupId())
-                .securityGroupIds(getSecurityGroupIds())
+                //.securityGroupIds(getSecurityGroupIds())
                 .snapshotRetentionLimit(getSnapshotRetentionLimit())
                 .snapshotWindow(getSnapshotWindow())
                 .replicationGroupDescription(getReplicationGroupDescription())
@@ -457,7 +473,7 @@ public class ReplicationGroupResource extends AwsResource {
         // Old tags
         if (!diff.entriesOnlyOnLeft().isEmpty()) {
             client.removeTagsFromResource(
-                r -> r.resourceName(getReplicationGroupId())
+                r -> r.resourceName(getArn())
                     .tagKeys(diff.entriesOnlyOnLeft().keySet())
             );
         }
@@ -465,7 +481,7 @@ public class ReplicationGroupResource extends AwsResource {
         // New tags
         if (!diff.entriesOnlyOnRight().isEmpty()) {
             client.addTagsToResource(
-                r -> r.resourceName(getReplicationGroupId())
+                r -> r.resourceName(getArn())
                     .tags(toCacheTags(diff.entriesOnlyOnRight()))
             );
         }
@@ -473,7 +489,7 @@ public class ReplicationGroupResource extends AwsResource {
         // Old but modified tags
         if (!diff.entriesDiffering().isEmpty()) {
             client.removeTagsFromResource(
-                r -> r.resourceName(getReplicationGroupId())
+                r -> r.resourceName(getArn())
                     .tagKeys(diff.entriesDiffering().keySet())
             );
 
@@ -481,7 +497,7 @@ public class ReplicationGroupResource extends AwsResource {
             diff.entriesDiffering().keySet().forEach(o -> addTags.put(o, diff.entriesDiffering().get(o).rightValue()));
 
             client.addTagsToResource(
-                r -> r.resourceName(getReplicationGroupId())
+                r -> r.resourceName(getArn())
                     .tags(toCacheTags(addTags))
             );
         }
