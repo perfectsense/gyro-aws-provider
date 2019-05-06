@@ -415,9 +415,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             );
         }
 
-        client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
-                .description(d -> d.value(getDescription()))
-        );
+        if (changedProperties.contains("description")) {
+            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
+                    .description(d -> d.value(getDescription()))
+            );
+        }
     }
 
     @Override
