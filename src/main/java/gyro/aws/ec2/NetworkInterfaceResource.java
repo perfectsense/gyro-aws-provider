@@ -335,12 +335,12 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                             .attachment(changes)
                     );
                 }
+            }
 
-                if (!getSourceDestCheck()) {
-                    client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
-                            .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-                    );
-                }
+            if (!getSourceDestCheck()) {
+                client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getNetworkInterfaceId())
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                );
             }
         } catch(Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
