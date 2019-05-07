@@ -1,21 +1,22 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
+import software.amazon.awssdk.services.waf.model.UpdateRateBasedRuleRequest;
+import software.amazon.awssdk.services.waf.model.UpdateRuleRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
 @ResourceName(parent = "rule", value = "predicate-regular")
 @ResourceName(parent = "rate-rule", value = "predicate-rate-based")
-public class PredicateResource extends AwsResource {
+public class PredicateResource extends AbstractWafResource {
     private String dataId;
     private Boolean negated;
     private String type;
@@ -84,27 +85,37 @@ public class PredicateResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        savePredicate(client, getPredicate(), false);
+        if (getRegionalWaf()) {
+            savePredicate(getRegionalClient(), getPredicate(), false);
+        } else {
+            savePredicate(getGlobalClient(), getPredicate(), false);
+        }
     }
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            //Remove old predicate
+            savePredicate(getRegionalClient(),((PredicateResource) current).getPredicate(), true);
 
-        //Remove old predicate
-        savePredicate(client,((PredicateResource) current).getPredicate(), true);
+            //Add updates predicate
+            savePredicate(getRegionalClient(), getPredicate(), false);
+        } else {
+            //Remove old predicate
+            savePredicate(getGlobalClient(),((PredicateResource) current).getPredicate(), true);
 
-        //Add updates predicate
-        savePredicate(client, getPredicate(), false);
+            //Add updates predicate
+            savePredicate(getGlobalClient(), getPredicate(), false);
+        }
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        savePredicate(client, getPredicate(), true);
+        if (getRegionalWaf()) {
+            savePredicate(getRegionalClient(), getPredicate(), true);
+        } else {
+            savePredicate(getGlobalClient(), getPredicate(), true);
+        }
     }
 
     @Override
@@ -149,28 +160,54 @@ public class PredicateResource extends AwsResource {
     }
 
     private void savePredicate(WafClient client, Predicate predicate, boolean isDelete) {
-        RuleUpdate ruleUpdate = RuleUpdate.builder()
+        if (!getRateRule()) {
+            client.updateRule(getUpdateRuleRequest(predicate, isDelete)
+                .changeToken(client.getChangeToken().changeToken())
+                .build()
+            );
+        } else {
+            client.updateRateBasedRule(getUpdateRateBasedRuleRequest(predicate, isDelete)
+                .changeToken(client.getChangeToken().changeToken())
+                .build()
+            );
+        }
+    }
+
+    private void savePredicate(WafRegionalClient client, Predicate predicate, boolean isDelete) {
+        if (!getRateRule()) {
+            client.updateRule(getUpdateRuleRequest(predicate, isDelete)
+                .changeToken(client.getChangeToken().changeToken())
+                .build()
+            );
+        } else {
+            client.updateRateBasedRule(getUpdateRateBasedRuleRequest(predicate, isDelete)
+                .changeToken(client.getChangeToken().changeToken())
+                .build()
+            );
+        }
+    }
+
+    private RuleUpdate getRuleUpdate(Predicate predicate, boolean isDelete) {
+        return RuleUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
             .predicate(predicate)
             .build();
+    }
 
-        if (!getRateRule()) {
-            RuleResource parent = (RuleResource) parent();
+    private UpdateRuleRequest.Builder getUpdateRuleRequest(Predicate predicate, boolean isDelete) {
+        RuleResource parent = (RuleResource) parent();
 
-            client.updateRule(
-                r -> r.ruleId(parent.getRuleId())
-                    .updates(ruleUpdate)
-                    .changeToken(client.getChangeToken().changeToken())
-            );
-        } else {
-            RateRuleResource parent = (RateRuleResource) parent();
+        return UpdateRuleRequest.builder()
+            .ruleId(parent.getRuleId())
+            .updates(getRuleUpdate(predicate, isDelete));
+    }
 
-            client.updateRateBasedRule(
-                r -> r.ruleId(parent.getRuleId())
-                    .rateLimit(parent.getRateLimit())
-                    .updates(ruleUpdate)
-                    .changeToken(client.getChangeToken().changeToken())
-            );
-        }
+    private UpdateRateBasedRuleRequest.Builder getUpdateRateBasedRuleRequest(Predicate predicate, boolean isDelete) {
+        RateRuleResource parent = (RateRuleResource) parent();
+
+        return UpdateRateBasedRuleRequest.builder()
+            .ruleId(parent.getRuleId())
+            .rateLimit(parent.getRateLimit())
+            .updates(getRuleUpdate(predicate, isDelete));
     }
 }

@@ -1,16 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
+import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.WebACLUpdate;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @ResourceName(parent = "waf-acl", value = "activated-rule")
-public class ActivatedRuleResource extends AwsResource {
+public class ActivatedRuleResource extends AbstractWafResource {
     private String ruleId;
     private String action;
     private String type;
@@ -103,39 +103,69 @@ public class ActivatedRuleResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
         WebAclResource parent = (WebAclResource) parent();
 
-        // Priority check
-        handlePriority(client, parent);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        saveActivatedRule(client, parent, getActivatedRule(), false);
+            // Priority check
+            handlePriority(client, parent);
+
+            saveActivatedRule(client, parent, getActivatedRule(), false);
+        } else {
+            WafClient client = getGlobalClient();
+
+            // Priority check
+            handlePriority(client, parent);
+
+            saveActivatedRule(client, parent, getActivatedRule(), false);
+        }
     }
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         WebAclResource parent = (WebAclResource) parent();
 
-        // Priority check
-        handlePriority(client, parent);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        // Remove old activated rule
-        saveActivatedRule(client, parent, ((ActivatedRuleResource) current).getActivatedRule(), true);
+            // Priority check
+            handlePriority(client, parent);
 
-        // Add updated activated rule
-        saveActivatedRule(client, parent, getActivatedRule(), false);
+            // Remove old activated rule
+            saveActivatedRule(client, parent, ((ActivatedRuleResource) current).getActivatedRule(), true);
+
+            // Add updated activated rule
+            saveActivatedRule(client, parent, getActivatedRule(), false);
+        } else {
+            WafClient client = getGlobalClient();
+
+            // Priority check
+            handlePriority(client, parent);
+
+            // Remove old activated rule
+            saveActivatedRule(client, parent, ((ActivatedRuleResource) current).getActivatedRule(), true);
+
+            // Add updated activated rule
+            saveActivatedRule(client, parent, getActivatedRule(), false);
+        }
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
         WebAclResource parent = (WebAclResource) parent();
 
-        saveActivatedRule(client, parent, getActivatedRule(), true);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            saveActivatedRule(client, parent, getActivatedRule(), true);
+        } else {
+            WafClient client = getGlobalClient();
+
+            saveActivatedRule(client, parent, getActivatedRule(), true);
+        }
+
     }
 
     @Override
@@ -184,16 +214,10 @@ public class ActivatedRuleResource extends AwsResource {
     private void saveActivatedRule(WafClient client, WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
         if (!isDelete || parent.isActivatedRulePresent(activatedRule)) {
 
-            WebACLUpdate webAclUpdate = WebACLUpdate.builder()
-                .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
-                .activatedRule(activatedRule)
-                .build();
-
             client.updateWebACL(
-                r -> r.webACLId(parent.getWebAclId())
-                    .defaultAction(da -> da.type(parent.getDefaultAction()))
+                getUpdateWebAclRequest(parent, activatedRule, isDelete)
                     .changeToken(client.getChangeToken().changeToken())
-                    .updates(Collections.singleton(webAclUpdate))
+                    .build()
             );
         }
     }
@@ -204,5 +228,36 @@ public class ActivatedRuleResource extends AwsResource {
             //delete conflicting activated rule with same priority
             saveActivatedRule(client, parent, activatedRule, true);
         }
+    }
+
+    private void saveActivatedRule(WafRegionalClient client, WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
+        if (!isDelete || parent.isActivatedRulePresent(activatedRule)) {
+
+            client.updateWebACL(
+                getUpdateWebAclRequest(parent, activatedRule, isDelete)
+                    .changeToken(client.getChangeToken().changeToken())
+                    .build()
+            );
+        }
+    }
+
+    private void handlePriority(WafRegionalClient client, WebAclResource parent) {
+        ActivatedRule activatedRule = parent.getActivatedRuleWithPriority(getPriority());
+        if (activatedRule != null) {
+            //delete conflicting activated rule with same priority
+            saveActivatedRule(client, parent, activatedRule, true);
+        }
+    }
+
+    private UpdateWebAclRequest.Builder getUpdateWebAclRequest(WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
+        WebACLUpdate webAclUpdate = WebACLUpdate.builder()
+            .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
+            .activatedRule(activatedRule)
+            .build();
+
+        return UpdateWebAclRequest.builder()
+            .webACLId(parent.getWebAclId())
+            .defaultAction(da -> da.type(parent.getDefaultAction()))
+            .updates(Collections.singleton(webAclUpdate));
     }
 }

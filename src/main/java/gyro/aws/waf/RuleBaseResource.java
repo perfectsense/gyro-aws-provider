@@ -1,6 +1,5 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
@@ -9,7 +8,7 @@ import software.amazon.awssdk.services.waf.model.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RuleBaseResource extends AwsResource {
+public abstract class RuleBaseResource extends AbstractWafResource {
     private String name;
     private String metricName;
     private String ruleId;

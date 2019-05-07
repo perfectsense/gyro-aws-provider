@@ -1,17 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ import java.util.Set;
  *     end
  */
 @ResourceName("size-constraint-set")
-public class SizeConstraintSetResource extends AwsResource {
+public class SizeConstraintSetResource extends AbstractWafResource {
     private String name;
     private String sizeConstraintSetId;
     private List<SizeConstraintResource> sizeConstraint;
@@ -85,11 +84,17 @@ public class SizeConstraintSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetSizeConstraintSetResponse response;
 
-        GetSizeConstraintSetResponse response = client.getSizeConstraintSet(
-            r -> r.sizeConstraintSetId(getSizeConstraintSetId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getSizeConstraintSet(
+                r -> r.sizeConstraintSetId(getSizeConstraintSetId())
+            );
+        } else {
+            response = getGlobalClient().getSizeConstraintSet(
+                r -> r.sizeConstraintSetId(getSizeConstraintSetId())
+            );
+        }
 
         SizeConstraintSet sizeConstraintSet = response.sizeConstraintSet();
         setName(sizeConstraintSet.name());
@@ -106,12 +111,23 @@ public class SizeConstraintSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateSizeConstraintSetResponse response;
 
-        CreateSizeConstraintSetResponse response = client.createSizeConstraintSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createSizeConstraintSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createSizeConstraintSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         SizeConstraintSet sizeConstraintSet = response.sizeConstraintSet();
         setSizeConstraintSetId(sizeConstraintSet.sizeConstraintSetId());
@@ -124,12 +140,21 @@ public class SizeConstraintSetResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteSizeConstraintSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .sizeConstraintSetId(getSizeConstraintSetId())
-        );
+            client.deleteSizeConstraintSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .sizeConstraintSetId(getSizeConstraintSetId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteSizeConstraintSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .sizeConstraintSetId(getSizeConstraintSetId())
+            );
+        }
     }
 
     @Override

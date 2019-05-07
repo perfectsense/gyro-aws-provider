@@ -1,17 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.XssMatchSet;
 import software.amazon.awssdk.services.waf.model.XssMatchTuple;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.Set;
  *     end
  */
 @ResourceName("xss-match-set")
-public class XssMatchSetResource extends AwsResource {
+public class XssMatchSetResource extends AbstractWafResource {
     private String name;
     private String xssMatchSetId;
     private List<XssMatchTupleResource> xssMatchTuple;
@@ -84,11 +83,17 @@ public class XssMatchSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetXssMatchSetResponse response;
 
-        GetXssMatchSetResponse response = client.getXssMatchSet(
-            r -> r.xssMatchSetId(getXssMatchSetId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getXssMatchSet(
+                r -> r.xssMatchSetId(getXssMatchSetId())
+            );
+        } else {
+            response = getGlobalClient().getXssMatchSet(
+                r -> r.xssMatchSetId(getXssMatchSetId())
+            );
+        }
 
         XssMatchSet xssMatchSet = response.xssMatchSet();
         setName(xssMatchSet.name());
@@ -105,12 +110,23 @@ public class XssMatchSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateXssMatchSetResponse response;
 
-        CreateXssMatchSetResponse response = client.createXssMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createXssMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createXssMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         XssMatchSet xssMatchSet = response.xssMatchSet();
         setXssMatchSetId(xssMatchSet.xssMatchSetId());
@@ -123,12 +139,21 @@ public class XssMatchSetResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteXssMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .xssMatchSetId(getXssMatchSetId())
-        );
+            client.deleteXssMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .xssMatchSetId(getXssMatchSetId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteXssMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .xssMatchSetId(getXssMatchSetId())
+            );
+        }
     }
 
     @Override

@@ -1,17 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.CreateByteMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetByteMatchSetResponse;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ import java.util.Set;
  *     end
  */
 @ResourceName("byte-match-set")
-public class ByteMatchSetResource extends AwsResource {
+public class ByteMatchSetResource extends AbstractWafResource {
     private String name;
     private String byteMatchSetId;
     private List<ByteMatchTupleResource> byteMatchTuple;
@@ -86,11 +85,17 @@ public class ByteMatchSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetByteMatchSetResponse response;
 
-        GetByteMatchSetResponse response = client.getByteMatchSet(
-            r -> r.byteMatchSetId(getByteMatchSetId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getByteMatchSet(
+                r -> r.byteMatchSetId(getByteMatchSetId())
+            );
+        } else {
+            response = getGlobalClient().getByteMatchSet(
+                r -> r.byteMatchSetId(getByteMatchSetId())
+            );
+        }
 
         ByteMatchSet byteMatchSet = response.byteMatchSet();
 
@@ -109,12 +114,23 @@ public class ByteMatchSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateByteMatchSetResponse response;
 
-        CreateByteMatchSetResponse response = client.createByteMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createByteMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createByteMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         ByteMatchSet byteMatchSet = response.byteMatchSet();
 
@@ -128,12 +144,21 @@ public class ByteMatchSetResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteByteMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .byteMatchSetId(getByteMatchSetId())
-        );
+            client.deleteByteMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .byteMatchSetId(getByteMatchSetId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteByteMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .byteMatchSetId(getByteMatchSetId())
+            );
+        }
     }
 
     @Override

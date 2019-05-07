@@ -1,21 +1,21 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
+import software.amazon.awssdk.services.waf.model.UpdateByteMatchSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 @ResourceName(parent = "byte-match-set", value = "byte-match-tuple")
-public class ByteMatchTupleResource extends AwsResource {
+public class ByteMatchTupleResource extends AbstractWafResource {
     private String type;
     private String data;
     private String positionalConstraint;
@@ -96,9 +96,11 @@ public class ByteMatchTupleResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveByteMatchTuple(client, getByteMatchTuple(), false);
+        if (getRegionalWaf()) {
+            saveByteMatchTuple(getRegionalClient(), getByteMatchTuple(), false);
+        } else {
+            saveByteMatchTuple(getGlobalClient(), getByteMatchTuple(), false);
+        }
     }
 
     @Override
@@ -108,9 +110,11 @@ public class ByteMatchTupleResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveByteMatchTuple(client, getByteMatchTuple(), true);
+        if (getRegionalWaf()) {
+            saveByteMatchTuple(getRegionalClient(), getByteMatchTuple(), true);
+        } else {
+            saveByteMatchTuple(getGlobalClient(), getByteMatchTuple(), true);
+        }
     }
 
     @Override
@@ -162,6 +166,23 @@ public class ByteMatchTupleResource extends AwsResource {
     }
 
     private void saveByteMatchTuple(WafClient client, ByteMatchTuple byteMatchTuple, boolean isDelete) {
+        client.updateByteMatchSet(
+            getByteMatchSetUpdateRequest(byteMatchTuple, isDelete)
+                .changeToken(client.getChangeToken().changeToken())
+                .build()
+        );
+    }
+
+
+    private void saveByteMatchTuple(WafRegionalClient client, ByteMatchTuple byteMatchTuple, boolean isDelete) {
+        client.updateByteMatchSet(
+            getByteMatchSetUpdateRequest(byteMatchTuple, isDelete)
+                .changeToken(client.getChangeToken().changeToken())
+                .build()
+        );
+    }
+
+    private UpdateByteMatchSetRequest.Builder getByteMatchSetUpdateRequest(ByteMatchTuple byteMatchTuple, boolean isDelete) {
         ByteMatchSetResource parent = (ByteMatchSetResource) parent();
 
         ByteMatchSetUpdate byteMatchSetUpdate = ByteMatchSetUpdate.builder()
@@ -169,10 +190,8 @@ public class ByteMatchTupleResource extends AwsResource {
             .byteMatchTuple(byteMatchTuple)
             .build();
 
-        client.updateByteMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .byteMatchSetId(parent.getByteMatchSetId())
-                .updates(byteMatchSetUpdate)
-        );
+        return UpdateByteMatchSetRequest.builder()
+            .byteMatchSetId(parent.getByteMatchSetId())
+            .updates(byteMatchSetUpdate);
     }
 }

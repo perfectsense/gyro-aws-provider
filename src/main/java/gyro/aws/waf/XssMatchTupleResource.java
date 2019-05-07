@@ -1,19 +1,19 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
+import software.amazon.awssdk.services.waf.model.UpdateXssMatchSetRequest;
 import software.amazon.awssdk.services.waf.model.XssMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.XssMatchTuple;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
 @ResourceName(parent = "xss-match-set", value = "xss-match-tuple")
-public class XssMatchTupleResource extends AwsResource {
+public class XssMatchTupleResource extends AbstractWafResource {
     private String data;
     private String type;
     private String textTransformation;
@@ -68,9 +68,11 @@ public class XssMatchTupleResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveXssMatchTuple(client, getXssMatchTuple(), false);
+        if (getRegionalWaf()) {
+            saveXssMatchTuple(getRegionalClient(), getXssMatchTuple(), false);
+        } else {
+            saveXssMatchTuple(getGlobalClient(), getXssMatchTuple(), false);
+        }
     }
 
     @Override
@@ -80,9 +82,11 @@ public class XssMatchTupleResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveXssMatchTuple(client, getXssMatchTuple(), true);
+        if (getRegionalWaf()) {
+            saveXssMatchTuple(getRegionalClient(), getXssMatchTuple(), true);
+        } else {
+            saveXssMatchTuple(getGlobalClient(), getXssMatchTuple(), true);
+        }
     }
 
     @Override
@@ -124,6 +128,20 @@ public class XssMatchTupleResource extends AwsResource {
     }
 
     private void saveXssMatchTuple(WafClient client, XssMatchTuple xssMatchTuple, boolean isDelete) {
+        client.updateXssMatchSet(getUpdateXssMatchSetRequest(xssMatchTuple, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private void saveXssMatchTuple(WafRegionalClient client, XssMatchTuple xssMatchTuple, boolean isDelete) {
+        client.updateXssMatchSet(getUpdateXssMatchSetRequest(xssMatchTuple, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private UpdateXssMatchSetRequest.Builder getUpdateXssMatchSetRequest(XssMatchTuple xssMatchTuple, boolean isDelete) {
         XssMatchSetResource parent = (XssMatchSetResource) parent();
 
         XssMatchSetUpdate xssMatchSetUpdate = XssMatchSetUpdate.builder()
@@ -131,10 +149,8 @@ public class XssMatchTupleResource extends AwsResource {
             .xssMatchTuple(xssMatchTuple)
             .build();
 
-        client.updateXssMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .xssMatchSetId(parent.getXssMatchSetId())
-                .updates(xssMatchSetUpdate)
-        );
+        return UpdateXssMatchSetRequest.builder()
+            .xssMatchSetId(parent.getXssMatchSetId())
+            .updates(xssMatchSetUpdate);
     }
 }

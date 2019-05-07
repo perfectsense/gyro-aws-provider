@@ -1,19 +1,19 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSetUpdate;
+import software.amazon.awssdk.services.waf.model.UpdateSizeConstraintSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
 @ResourceName(parent = "size-constraint-set", value = "size-constraint")
-public class SizeConstraintResource extends AwsResource {
+public class SizeConstraintResource extends AbstractWafResource {
     private String data;
     private String type;
     private String comparisonOperator;
@@ -94,9 +94,11 @@ public class SizeConstraintResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveSizeConstraint(client, getSizeConstraint(), false);
+        if (getRegionalWaf()) {
+            saveSizeConstraint(getRegionalClient(), getSizeConstraint(), false);
+        } else {
+            saveSizeConstraint(getGlobalClient(), getSizeConstraint(), false);
+        }
     }
 
     @Override
@@ -106,9 +108,11 @@ public class SizeConstraintResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveSizeConstraint(client, getSizeConstraint(), true);
+        if (getRegionalWaf()) {
+            saveSizeConstraint(getRegionalClient(), getSizeConstraint(), true);
+        } else {
+            saveSizeConstraint(getGlobalClient(), getSizeConstraint(), true);
+        }
     }
 
     @Override
@@ -160,6 +164,20 @@ public class SizeConstraintResource extends AwsResource {
     }
 
     private void saveSizeConstraint(WafClient client, SizeConstraint sizeConstraint, boolean isDelete) {
+        client.updateSizeConstraintSet(getUpdateSizeConstraintSetRequest(sizeConstraint, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private void saveSizeConstraint(WafRegionalClient client, SizeConstraint sizeConstraint, boolean isDelete) {
+        client.updateSizeConstraintSet(getUpdateSizeConstraintSetRequest(sizeConstraint, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private UpdateSizeConstraintSetRequest.Builder getUpdateSizeConstraintSetRequest(SizeConstraint sizeConstraint, boolean isDelete) {
         SizeConstraintSetResource parent = (SizeConstraintSetResource) parent();
 
         SizeConstraintSetUpdate sizeConstraintSetUpdate = SizeConstraintSetUpdate.builder()
@@ -167,10 +185,8 @@ public class SizeConstraintResource extends AwsResource {
             .sizeConstraint(sizeConstraint)
             .build();
 
-        client.updateSizeConstraintSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .sizeConstraintSetId(parent.getSizeConstraintSetId())
-                .updates(sizeConstraintSetUpdate)
-        );
+        return UpdateSizeConstraintSetRequest.builder()
+            .sizeConstraintSetId(parent.getSizeConstraintSetId())
+            .updates(sizeConstraintSetUpdate);
     }
 }

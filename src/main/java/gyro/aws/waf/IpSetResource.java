@@ -1,17 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateIpSetResponse;
 import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
 import software.amazon.awssdk.services.waf.model.IPSet;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.Set;
  *     end
  */
 @ResourceName("ip-set")
-public class IpSetResource extends AwsResource {
+public class IpSetResource extends AbstractWafResource {
     private String name;
     private String ipSetId;
     private List<IpSetDescriptorResource> ipSetDescriptor;
@@ -84,11 +83,17 @@ public class IpSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetIpSetResponse response;
 
-        GetIpSetResponse response = client.getIPSet(
-            r -> r.ipSetId(getIpSetId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getIPSet(
+                r -> r.ipSetId(getIpSetId())
+            );
+        } else {
+            response = getGlobalClient().getIPSet(
+                r -> r.ipSetId(getIpSetId())
+            );
+        }
 
         IPSet ipSet = response.ipSet();
         setName(ipSet.name());
@@ -105,12 +110,23 @@ public class IpSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateIpSetResponse response;
 
-        CreateIpSetResponse response = client.createIPSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createIPSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createIPSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         IPSet ipSet = response.ipSet();
         setIpSetId(ipSet.ipSetId());
@@ -123,12 +139,21 @@ public class IpSetResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteIPSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .ipSetId(getIpSetId())
-        );
+            client.deleteIPSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .ipSetId(getIpSetId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteIPSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .ipSetId(getIpSetId())
+            );
+        }
     }
 
     @Override

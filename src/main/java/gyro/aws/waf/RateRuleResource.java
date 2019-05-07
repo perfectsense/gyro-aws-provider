@@ -4,11 +4,11 @@ import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -62,11 +62,17 @@ public class RateRuleResource extends RuleBaseResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetRateBasedRuleResponse response;
 
-        GetRateBasedRuleResponse response = client.getRateBasedRule(
-            r -> r.ruleId(getRuleId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getRateBasedRule(
+                r -> r.ruleId(getRuleId())
+            );
+        } else {
+            response = getGlobalClient().getRateBasedRule(
+                r -> r.ruleId(getRuleId())
+            );
+        }
 
         RateBasedRule rule = response.rule();
         setName(rule.name());
@@ -80,15 +86,29 @@ public class RateRuleResource extends RuleBaseResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateRateBasedRuleResponse response;
 
-        CreateRateBasedRuleResponse response = client.createRateBasedRule(
-            r -> r.name(getName())
-                .metricName(getMetricName())
-                .changeToken(client.getChangeToken().changeToken())
-                .rateKey(getRateKey())
-                .rateLimit(getRateLimit())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createRateBasedRule(
+                r -> r.name(getName())
+                    .metricName(getMetricName())
+                    .changeToken(client.getChangeToken().changeToken())
+                    .rateKey(getRateKey())
+                    .rateLimit(getRateLimit())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createRateBasedRule(
+                r -> r.name(getName())
+                    .metricName(getMetricName())
+                    .changeToken(client.getChangeToken().changeToken())
+                    .rateKey(getRateKey())
+                    .rateLimit(getRateLimit())
+            );
+        }
 
         RateBasedRule rule = response.rule();
         setRuleId(rule.ruleId());
@@ -96,24 +116,44 @@ public class RateRuleResource extends RuleBaseResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.updateRateBasedRule(
-            r -> r.ruleId(getRuleId())
-                .changeToken(client.getChangeToken().changeToken())
-                .rateLimit(getRateLimit())
-                .updates(new ArrayList<>())
-        );
+            client.updateRateBasedRule(
+                r -> r.ruleId(getRuleId())
+                    .changeToken(client.getChangeToken().changeToken())
+                    .rateLimit(getRateLimit())
+                    .updates(new ArrayList<>())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.updateRateBasedRule(
+                r -> r.ruleId(getRuleId())
+                    .changeToken(client.getChangeToken().changeToken())
+                    .rateLimit(getRateLimit())
+                    .updates(new ArrayList<>())
+            );
+        }
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteRateBasedRule(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .ruleId(getRuleId())
-        );
+            client.deleteRateBasedRule(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .ruleId(getRuleId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteRateBasedRule(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .ruleId(getRuleId())
+            );
+        }
     }
 
     @Override

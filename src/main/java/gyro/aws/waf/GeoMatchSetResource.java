@@ -1,17 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateGeoMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
 import software.amazon.awssdk.services.waf.model.GeoMatchSet;
 import software.amazon.awssdk.services.waf.model.GetGeoMatchSetResponse;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.Set;
  *     end
  */
 @ResourceName("geo-match-set")
-public class GeoMatchSetResource extends AwsResource {
+public class GeoMatchSetResource extends AbstractWafResource {
     private String name;
     private String geoMatchSetId;
     private List<GeoMatchConstraintResource> geoMatchConstraint;
@@ -84,11 +83,17 @@ public class GeoMatchSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetGeoMatchSetResponse response;
 
-        GetGeoMatchSetResponse response = client.getGeoMatchSet(
-            r -> r.geoMatchSetId(getGeoMatchSetId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getGeoMatchSet(
+                r -> r.geoMatchSetId(getGeoMatchSetId())
+            );
+        } else {
+            response = getGlobalClient().getGeoMatchSet(
+                r -> r.geoMatchSetId(getGeoMatchSetId())
+            );
+        }
 
         GeoMatchSet geoMatchSet = response.geoMatchSet();
         setName(geoMatchSet.name());
@@ -105,12 +110,23 @@ public class GeoMatchSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateGeoMatchSetResponse response;
 
-        CreateGeoMatchSetResponse response = client.createGeoMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createGeoMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createGeoMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         GeoMatchSet geoMatchSet = response.geoMatchSet();
         setGeoMatchSetId(geoMatchSet.geoMatchSetId());
@@ -123,12 +139,21 @@ public class GeoMatchSetResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteGeoMatchSet(
-            r -> r.geoMatchSetId(getGeoMatchSetId())
-                .changeToken(client.getChangeToken().changeToken())
-        );
+            client.deleteGeoMatchSet(
+                r -> r.geoMatchSetId(getGeoMatchSetId())
+                    .changeToken(client.getChangeToken().changeToken())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteGeoMatchSet(
+                r -> r.geoMatchSetId(getGeoMatchSetId())
+                    .changeToken(client.getChangeToken().changeToken())
+            );
+        }
     }
 
     @Override

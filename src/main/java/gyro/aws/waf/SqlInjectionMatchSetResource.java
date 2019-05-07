@@ -1,24 +1,23 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @ResourceName("sql-injection-match-set")
-public class SqlInjectionMatchSetResource extends AwsResource {
+public class SqlInjectionMatchSetResource extends AbstractWafResource {
     private String name;
     private String sqlInjectionMatchSetId;
     private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
@@ -67,11 +66,17 @@ public class SqlInjectionMatchSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetSqlInjectionMatchSetResponse response;
 
-        GetSqlInjectionMatchSetResponse response = client.getSqlInjectionMatchSet(
-            r -> r.sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getSqlInjectionMatchSet(
+                r -> r.sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
+            );
+        } else {
+            response = getGlobalClient().getSqlInjectionMatchSet(
+                r -> r.sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
+            );
+        }
 
         SqlInjectionMatchSet sqlInjectionMatchSet = response.sqlInjectionMatchSet();
         setName(sqlInjectionMatchSet.name());
@@ -87,12 +92,23 @@ public class SqlInjectionMatchSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateSqlInjectionMatchSetResponse response;
 
-        CreateSqlInjectionMatchSetResponse response = client.createSqlInjectionMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createSqlInjectionMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createSqlInjectionMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         SqlInjectionMatchSet sqlInjectionMatchSet = response.sqlInjectionMatchSet();
         setSqlInjectionMatchSetId(sqlInjectionMatchSet.sqlInjectionMatchSetId());
@@ -105,12 +121,21 @@ public class SqlInjectionMatchSetResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteSqlInjectionMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
-        );
+            client.deleteSqlInjectionMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteSqlInjectionMatchSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
+            );
+        }
     }
 
     @Override

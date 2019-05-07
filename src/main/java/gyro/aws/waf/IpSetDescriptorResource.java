@@ -1,16 +1,16 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
 import software.amazon.awssdk.services.waf.model.IPSetUpdate;
+import software.amazon.awssdk.services.waf.model.UpdateIpSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @ResourceName(parent = "ip-set", value = "ip-set-descriptor")
-public class IpSetDescriptorResource extends AwsResource {
+public class IpSetDescriptorResource extends AbstractWafResource {
     private String value;
     private String type;
 
@@ -61,9 +61,11 @@ public class IpSetDescriptorResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveIpSetDescriptor(client, getIpSetDescriptor(), false);
+        if (getRegionalWaf()) {
+            saveIpSetDescriptor(getRegionalClient(), getIpSetDescriptor(), false);
+        } else {
+            saveIpSetDescriptor(getGlobalClient(), getIpSetDescriptor(), false);
+        }
     }
 
     @Override
@@ -73,9 +75,11 @@ public class IpSetDescriptorResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveIpSetDescriptor(client, getIpSetDescriptor(), true);
+        if (getRegionalWaf()) {
+            saveIpSetDescriptor(getRegionalClient(), getIpSetDescriptor(), true);
+        } else {
+            saveIpSetDescriptor(getGlobalClient(), getIpSetDescriptor(), true);
+        }
     }
 
     @Override
@@ -113,6 +117,20 @@ public class IpSetDescriptorResource extends AwsResource {
     }
 
     private void saveIpSetDescriptor(WafClient client, IPSetDescriptor ipSetDescriptor, boolean isDelete) {
+        client.updateIPSet(getUpdateIpSetRequest(ipSetDescriptor, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private void saveIpSetDescriptor(WafRegionalClient client, IPSetDescriptor ipSetDescriptor, boolean isDelete) {
+        client.updateIPSet(getUpdateIpSetRequest(ipSetDescriptor, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private UpdateIpSetRequest.Builder getUpdateIpSetRequest(IPSetDescriptor ipSetDescriptor, boolean isDelete) {
         IpSetResource parent = (IpSetResource) parent();
 
         IPSetUpdate ipSetUpdate = IPSetUpdate.builder()
@@ -120,11 +138,9 @@ public class IpSetDescriptorResource extends AwsResource {
             .ipSetDescriptor(ipSetDescriptor)
             .build();
 
-        client.updateIPSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .ipSetId(parent.getIpSetId())
-                .updates(ipSetUpdate)
-        );
+        return UpdateIpSetRequest.builder()
+            .ipSetId(parent.getIpSetId())
+            .updates(ipSetUpdate);
     }
 
     private String getCidrValue() {

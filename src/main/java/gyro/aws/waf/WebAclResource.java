@@ -1,6 +1,5 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -10,10 +9,13 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
+import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
 import software.amazon.awssdk.services.waf.model.GetWebAclResponse;
+import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.WafAction;
 import software.amazon.awssdk.services.waf.model.WebACL;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -43,7 +45,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("waf-acl")
-public class WebAclResource extends AwsResource {
+public class WebAclResource extends AbstractWafResource {
     private String name;
     private String metricName;
     private String defaultAction;
@@ -148,13 +150,26 @@ public class WebAclResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-        CreateWebAclResponse response = client.createWebACL(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-                .metricName(getMetricName())
-                .defaultAction(WafAction.builder().type(getDefaultAction()).build())
-        );
+        CreateWebAclResponse response;
+
+        CreateWebAclRequest.Builder builder = CreateWebAclRequest.builder()
+            .name(getName())
+            .metricName(getMetricName())
+            .defaultAction(
+                WafAction.builder()
+                    .type(getDefaultAction())
+                    .build()
+            );
+
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
+        }
 
         WebACL webAcl = response.webACL();
         setArn(webAcl.webACLArn());
@@ -163,23 +178,43 @@ public class WebAclResource extends AwsResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        UpdateWebAclRequest.Builder builder = UpdateWebAclRequest.builder()
+            .webACLId(getWebAclId())
+            .defaultAction(
+                WafAction.builder()
+                    .type(getDefaultAction())
+                    .build()
+            );
 
-        client.updateWebACL(
-            r -> r.webACLId(getWebAclId())
-                .changeToken(client.getChangeToken().changeToken())
-                .defaultAction(WafAction.builder().type(getDefaultAction()).build())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            client.updateWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.updateWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
+        }
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = createClient(WafRegionalClient.class);
 
-        client.deleteWebACL(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .webACLId(getWebAclId())
-        );
+            client.deleteWebACL(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .webACLId(getWebAclId())
+            );
+        } else {
+
+            WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+
+            client.deleteWebACL(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .webACLId(getWebAclId())
+            );
+        }
     }
 
     @Override
@@ -224,11 +259,21 @@ public class WebAclResource extends AwsResource {
             return null;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetWebAclResponse response;
 
-        GetWebAclResponse response = client.getWebACL(
-            r -> r.webACLId(getWebAclId())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.getWebACL(
+                r -> r.webACLId(getWebAclId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.getWebACL(
+                r -> r.webACLId(getWebAclId())
+            );
+        }
 
         return response.webACL();
     }

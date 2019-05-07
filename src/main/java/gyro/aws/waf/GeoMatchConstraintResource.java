@@ -1,19 +1,19 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
 import software.amazon.awssdk.services.waf.model.GeoMatchSetUpdate;
+import software.amazon.awssdk.services.waf.model.UpdateGeoMatchSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
 @ResourceName(parent = "geo-match-set", value = "geo-match-constraint")
-public class GeoMatchConstraintResource extends AwsResource {
+public class GeoMatchConstraintResource extends AbstractWafResource {
 
     private String value;
     private String type;
@@ -56,9 +56,11 @@ public class GeoMatchConstraintResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveGeoMatchConstraint(client, getGeoMatchConstraint(), false);
+        if (getRegionalWaf()) {
+            saveGeoMatchConstraint(getRegionalClient(), getGeoMatchConstraint(), false);
+        } else {
+            saveGeoMatchConstraint(getGlobalClient(), getGeoMatchConstraint(), false);
+        }
     }
 
     @Override
@@ -68,9 +70,11 @@ public class GeoMatchConstraintResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveGeoMatchConstraint(client, getGeoMatchConstraint(), true);
+        if (getRegionalWaf()) {
+            saveGeoMatchConstraint(getRegionalClient(), getGeoMatchConstraint(), true);
+        } else {
+            saveGeoMatchConstraint(getGlobalClient(), getGeoMatchConstraint(), true);
+        }
     }
 
     @Override
@@ -107,18 +111,30 @@ public class GeoMatchConstraintResource extends AwsResource {
             .build();
     }
 
-    private void saveGeoMatchConstraint(WafClient client, GeoMatchConstraint geoMatchConstraint, boolean isDelte) {
+    private void saveGeoMatchConstraint(WafClient client, GeoMatchConstraint geoMatchConstraint, boolean isDelete) {
+        client.updateGeoMatchSet(getUpdateGeoMatchSetRequest(geoMatchConstraint, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private void saveGeoMatchConstraint(WafRegionalClient client, GeoMatchConstraint geoMatchConstraint, boolean isDelete) {
+        client.updateGeoMatchSet(getUpdateGeoMatchSetRequest(geoMatchConstraint, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private UpdateGeoMatchSetRequest.Builder getUpdateGeoMatchSetRequest(GeoMatchConstraint geoMatchConstraint, boolean isDelete) {
         GeoMatchSetResource parent = (GeoMatchSetResource) parent();
 
         GeoMatchSetUpdate geoMatchSetUpdate = GeoMatchSetUpdate.builder()
-            .action(!isDelte ? ChangeAction.INSERT : ChangeAction.DELETE)
+            .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
             .geoMatchConstraint(geoMatchConstraint)
             .build();
 
-        client.updateGeoMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .geoMatchSetId(parent.getGeoMatchSetId())
-                .updates(geoMatchSetUpdate)
-        );
+        return UpdateGeoMatchSetRequest.builder()
+            .geoMatchSetId(parent.getGeoMatchSetId())
+            .updates(geoMatchSetUpdate);
     }
 }

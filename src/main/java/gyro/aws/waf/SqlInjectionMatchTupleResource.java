@@ -1,19 +1,19 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
+import software.amazon.awssdk.services.waf.model.UpdateSqlInjectionMatchSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
 @ResourceName(parent = "sql-injection-match-set", value = "sql-injection-match-tuple")
-public class SqlInjectionMatchTupleResource extends AwsResource {
+public class SqlInjectionMatchTupleResource extends AbstractWafResource {
     private String data;
     private String type;
     private String textTransformation;
@@ -68,9 +68,11 @@ public class SqlInjectionMatchTupleResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveSqlInjectionMatchTuple(client, getSqlInjectionMatchTuple(), false);
+        if (getRegionalWaf()) {
+            saveSqlInjectionMatchTuple(getRegionalClient(), getSqlInjectionMatchTuple(), false);
+        } else {
+            saveSqlInjectionMatchTuple(getGlobalClient(), getSqlInjectionMatchTuple(), false);
+        }
     }
 
     @Override
@@ -80,9 +82,11 @@ public class SqlInjectionMatchTupleResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveSqlInjectionMatchTuple(client, getSqlInjectionMatchTuple(), true);
+        if (getRegionalWaf()) {
+            saveSqlInjectionMatchTuple(getRegionalClient(), getSqlInjectionMatchTuple(), true);
+        } else {
+            saveSqlInjectionMatchTuple(getGlobalClient(), getSqlInjectionMatchTuple(), true);
+        }
     }
 
     @Override
@@ -124,6 +128,20 @@ public class SqlInjectionMatchTupleResource extends AwsResource {
     }
 
     private void saveSqlInjectionMatchTuple(WafClient client, SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
+        client.updateSqlInjectionMatchSet(getUpdateSqlInjectionMatchSetRequest(sqlInjectionMatchTuple, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private void saveSqlInjectionMatchTuple(WafRegionalClient client, SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
+        client.updateSqlInjectionMatchSet(getUpdateSqlInjectionMatchSetRequest(sqlInjectionMatchTuple, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private UpdateSqlInjectionMatchSetRequest.Builder getUpdateSqlInjectionMatchSetRequest(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
         SqlInjectionMatchSetResource parent = (SqlInjectionMatchSetResource) parent();
 
         SqlInjectionMatchSetUpdate sqlInjectionMatchSetUpdate = SqlInjectionMatchSetUpdate.builder()
@@ -131,10 +149,8 @@ public class SqlInjectionMatchTupleResource extends AwsResource {
             .sqlInjectionMatchTuple(sqlInjectionMatchTuple)
             .build();
 
-        client.updateSqlInjectionMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .sqlInjectionMatchSetId(parent.getSqlInjectionMatchSetId())
-                .updates(sqlInjectionMatchSetUpdate)
-        );
+        return UpdateSqlInjectionMatchSetRequest.builder()
+            .sqlInjectionMatchSetId(parent.getSqlInjectionMatchSetId())
+            .updates(sqlInjectionMatchSetUpdate);
     }
 }

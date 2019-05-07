@@ -3,11 +3,11 @@ package gyro.aws.waf;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.GetRuleResponse;
 import software.amazon.awssdk.services.waf.model.Rule;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
@@ -32,11 +32,17 @@ public class RuleResource extends RuleBaseResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        GetRuleResponse response;
 
-        GetRuleResponse response = client.getRule(
-            r -> r.ruleId(getRuleId())
-        );
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getRule(
+                r -> r.ruleId(getRuleId())
+            );
+        } else {
+            response = getGlobalClient().getRule(
+                r -> r.ruleId(getRuleId())
+            );
+        }
 
         Rule rule = response.rule();
         setMetricName(rule.metricName());
@@ -48,13 +54,25 @@ public class RuleResource extends RuleBaseResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateRuleResponse response;
 
-        CreateRuleResponse response = client.createRule(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-                .metricName(getMetricName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createRule(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+                    .metricName(getMetricName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createRule(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+                    .metricName(getMetricName())
+            );
+        }
 
         Rule rule = response.rule();
         setRuleId(rule.ruleId());
@@ -67,12 +85,21 @@ public class RuleResource extends RuleBaseResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
 
-        client.deleteRule(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .ruleId(getRuleId())
-        );
+            client.deleteRule(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .ruleId(getRuleId())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            client.deleteRule(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .ruleId(getRuleId())
+            );
+        }
     }
 
     @Override

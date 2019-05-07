@@ -1,19 +1,19 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
+import software.amazon.awssdk.services.waf.model.UpdateRegexMatchSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.Set;
 
 @ResourceName(parent = "regex-match-set", value = "regex-match-tuple")
-public class RegexMatchTupleResource extends AwsResource {
+public class RegexMatchTupleResource extends AbstractWafResource {
     private String type;
     private String data;
     private String textTransformation;
@@ -81,9 +81,11 @@ public class RegexMatchTupleResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveRegexMatchTuple(client, getRegexMatchTuple(), false);
+        if (getRegionalWaf()) {
+            saveRegexMatchTuple(getRegionalClient(), getRegexMatchTuple(), false);
+        } else {
+            saveRegexMatchTuple(getGlobalClient(), getRegexMatchTuple(), false);
+        }
     }
 
     @Override
@@ -93,9 +95,11 @@ public class RegexMatchTupleResource extends AwsResource {
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        saveRegexMatchTuple(client, getRegexMatchTuple(), true);
+        if (getRegionalWaf()) {
+            saveRegexMatchTuple(getRegionalClient(), getRegexMatchTuple(), true);
+        } else {
+            saveRegexMatchTuple(getGlobalClient(), getRegexMatchTuple(), true);
+        }
     }
 
     @Override
@@ -142,6 +146,20 @@ public class RegexMatchTupleResource extends AwsResource {
     }
 
     private void saveRegexMatchTuple(WafClient client, RegexMatchTuple regexMatchTuple, boolean isDelete) {
+        client.updateRegexMatchSet(getUpdateRegexMatchSetRequest(regexMatchTuple, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private void saveRegexMatchTuple(WafRegionalClient client, RegexMatchTuple regexMatchTuple, boolean isDelete) {
+        client.updateRegexMatchSet(getUpdateRegexMatchSetRequest(regexMatchTuple, isDelete)
+            .changeToken(client.getChangeToken().changeToken())
+            .build()
+        );
+    }
+
+    private UpdateRegexMatchSetRequest.Builder getUpdateRegexMatchSetRequest(RegexMatchTuple regexMatchTuple, boolean isDelete) {
         RegexMatchSetResource parent = (RegexMatchSetResource) parent();
 
         RegexMatchSetUpdate regexMatchSetUpdate = RegexMatchSetUpdate.builder()
@@ -149,10 +167,8 @@ public class RegexMatchTupleResource extends AwsResource {
             .regexMatchTuple(regexMatchTuple)
             .build();
 
-        client.updateRegexMatchSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .regexMatchSetId(parent.getRegexMatchSetId())
-                .updates(regexMatchSetUpdate)
-        );
+        return UpdateRegexMatchSetRequest.builder()
+            .regexMatchSetId(parent.getRegexMatchSetId())
+            .updates(regexMatchSetUpdate);
     }
 }

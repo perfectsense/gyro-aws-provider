@@ -1,6 +1,5 @@
 package gyro.aws.waf;
 
-import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
@@ -8,7 +7,6 @@ import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.CreateRegexPatternSetResponse;
@@ -18,6 +16,8 @@ import software.amazon.awssdk.services.waf.model.ListRegexMatchSetsResponse;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
 import software.amazon.awssdk.services.waf.model.RegexPatternSet;
 import software.amazon.awssdk.services.waf.model.RegexPatternSetUpdate;
+import software.amazon.awssdk.services.waf.model.UpdateRegexPatternSetRequest;
+import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @ResourceName("regex-pattern-set")
-public class RegexPatternSetResource extends AwsResource {
+public class RegexPatternSetResource extends AbstractWafResource {
     private String name;
     private String regexPatternSetId;
     private List<String> patterns;
@@ -93,13 +93,7 @@ public class RegexPatternSetResource extends AwsResource {
             return false;
         }
 
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        GetRegexPatternSetResponse response = client.getRegexPatternSet(
-            r -> r.regexPatternSetId(getRegexPatternSetId())
-        );
-
-        RegexPatternSet regexPatternSet = response.regexPatternSet();
+        RegexPatternSet regexPatternSet = getRegexPatternSet();
 
         setName(regexPatternSet.name());
         setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
@@ -109,19 +103,34 @@ public class RegexPatternSetResource extends AwsResource {
 
     @Override
     public void create() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
+        CreateRegexPatternSetResponse response;
 
-        CreateRegexPatternSetResponse response = client.createRegexPatternSet(
-            r -> r.changeToken(client.getChangeToken().changeToken())
-                .name(getName())
-        );
+        if (getRegionalWaf()) {
+            WafRegionalClient client = getRegionalClient();
+
+            response = client.createRegexPatternSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        } else {
+            WafClient client = getGlobalClient();
+
+            response = client.createRegexPatternSet(
+                r -> r.changeToken(client.getChangeToken().changeToken())
+                    .name(getName())
+            );
+        }
 
         RegexPatternSet regexPatternSet = response.regexPatternSet();
 
         setRegexPatternSetId(regexPatternSet.regexPatternSetId());
 
         try {
-            savePatterns(client, new ArrayList<>(), getPatterns());
+            if (getRegionalWaf()) {
+                savePatterns(getRegionalClient(), new ArrayList<>(), getPatterns());
+            } else {
+                savePatterns(getGlobalClient(), new ArrayList<>(), getPatterns());
+            }
         } catch (Exception ex) {
             GyroCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
                 + " Please retry to update the patterns|@", getName(), getRegexPatternSetId());
@@ -131,24 +140,33 @@ public class RegexPatternSetResource extends AwsResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
-
-        savePatterns(client, ((RegexPatternSetResource) current).getPatterns(), getPatterns());
+        if (getRegionalWaf()) {
+            savePatterns(getRegionalClient(), ((RegexPatternSetResource) current).getPatterns(), getPatterns());
+        } else {
+            savePatterns(getGlobalClient(), ((RegexPatternSetResource) current).getPatterns(), getPatterns());
+        }
     }
 
     @Override
     public void delete() {
-        WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         boolean isReferenced = false;
         String referenceId = "";
 
-        ListRegexMatchSetsResponse response = client.listRegexMatchSets();
+        ListRegexMatchSetsResponse response = getRegionalWaf() ? getRegionalClient().listRegexMatchSets() : getGlobalClient().listRegexMatchSets();
 
         for (RegexMatchSetSummary regexMatchSetSummary : response.regexMatchSets()) {
-            GetRegexMatchSetResponse regexMatchSetResponse = client.getRegexMatchSet(
-                r -> r.regexMatchSetId(regexMatchSetSummary.regexMatchSetId())
-            );
+            GetRegexMatchSetResponse regexMatchSetResponse;
+
+            if (getRegionalWaf()) {
+                regexMatchSetResponse = getRegionalClient().getRegexMatchSet(
+                    r -> r.regexMatchSetId(regexMatchSetSummary.regexMatchSetId())
+                );
+            } else {
+                regexMatchSetResponse = getGlobalClient().getRegexMatchSet(
+                    r -> r.regexMatchSetId(regexMatchSetSummary.regexMatchSetId())
+                );
+            }
 
             isReferenced = regexMatchSetResponse
                 .regexMatchSet()
@@ -164,15 +182,31 @@ public class RegexPatternSetResource extends AwsResource {
 
         if (!isReferenced) {
             if (!getPatterns().isEmpty()) {
-                savePatterns(client, getPatterns(), new ArrayList<>());
+                if (getRegionalWaf()) {
+                    savePatterns(getRegionalClient(), getPatterns(), new ArrayList<>());
+                } else {
+                    savePatterns(getGlobalClient(), getPatterns(), new ArrayList<>());
+                }
             }
 
-            GetRegexPatternSetResponse patternSetResponse = client.getRegexPatternSet(r -> r.regexPatternSetId(getRegexPatternSetId()));
-            if (patternSetResponse.regexPatternSet().regexPatternStrings().isEmpty()) {
-                client.deleteRegexPatternSet(
-                    r -> r.changeToken(client.getChangeToken().changeToken())
-                        .regexPatternSetId(getRegexPatternSetId())
-                );
+            RegexPatternSet regexPatternSet = getRegexPatternSet();
+
+            if (regexPatternSet.regexPatternStrings().isEmpty()) {
+                if (getRegionalWaf()) {
+                    WafRegionalClient client = getRegionalClient();
+
+                    client.deleteRegexPatternSet(
+                        r -> r.changeToken(client.getChangeToken().changeToken())
+                            .regexPatternSetId(getRegexPatternSetId())
+                    );
+                } else {
+                    WafClient client = getGlobalClient();
+
+                    client.deleteRegexPatternSet(
+                        r -> r.changeToken(client.getChangeToken().changeToken())
+                            .regexPatternSetId(getRegexPatternSetId())
+                    );
+                }
             } else {
                 throw new GyroException(String.format("Cannot delete regex pattern set - %s, as it has patterns.",getRegexPatternSetId()));
             }
@@ -200,6 +234,29 @@ public class RegexPatternSetResource extends AwsResource {
     }
 
     private void savePatterns(WafClient client, List<String> oldPatterns, List<String> newPatterns) {
+        UpdateRegexPatternSetRequest regexPatternSetRequest = getUpdateRegexPatternSetRequest(oldPatterns, newPatterns)
+            .changeToken(client.getChangeToken().changeToken())
+            .build();
+
+
+        if (!regexPatternSetRequest.updates().isEmpty()) {
+            client.updateRegexPatternSet(regexPatternSetRequest);
+        }
+    }
+
+    private void savePatterns(WafRegionalClient client, List<String> oldPatterns, List<String> newPatterns) {
+        UpdateRegexPatternSetRequest regexPatternSetRequest = getUpdateRegexPatternSetRequest(oldPatterns, newPatterns)
+            .changeToken(client.getChangeToken().changeToken())
+            .build();
+
+
+        if (!regexPatternSetRequest.updates().isEmpty()) {
+            client.updateRegexPatternSet(regexPatternSetRequest);
+        }
+    }
+
+
+    private UpdateRegexPatternSetRequest.Builder getUpdateRegexPatternSetRequest(List<String> oldPatterns, List<String> newPatterns) {
         List<RegexPatternSetUpdate> regexPatternSetUpdates = new ArrayList<>();
 
         List<String> deletePatterns = oldPatterns.stream()
@@ -228,12 +285,24 @@ public class RegexPatternSetResource extends AwsResource {
             );
         }
 
-        if (!regexPatternSetUpdates.isEmpty()) {
-            client.updateRegexPatternSet(
-                r -> r.changeToken(client.getChangeToken().changeToken())
-                    .regexPatternSetId(getRegexPatternSetId())
-                    .updates(regexPatternSetUpdates)
+        return UpdateRegexPatternSetRequest.builder()
+            .regexPatternSetId(getRegexPatternSetId())
+            .updates(regexPatternSetUpdates);
+    }
+
+    private RegexPatternSet getRegexPatternSet() {
+        GetRegexPatternSetResponse response;
+
+        if (getRegionalWaf()) {
+            response = getRegionalClient().getRegexPatternSet(
+                r -> r.regexPatternSetId(getRegexPatternSetId())
+            );
+        } else {
+            response = getGlobalClient().getRegexPatternSet(
+                r -> r.regexPatternSetId(getRegexPatternSetId())
             );
         }
+
+        return response.regexPatternSet();
     }
 }
