@@ -378,7 +378,6 @@ public class DbClusterResource extends DocDbTaggableResource {
         setArn(response.dbCluster().dbClusterArn());
 
         waitForAvailability(client);
-        refresh();
     }
 
     @Override
