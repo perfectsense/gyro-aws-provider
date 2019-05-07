@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::db-cluster-param-group db-cluster-param-group-example
     db-cluster-param-group-name: "db-cluster-param-group-example"
     db-param-group-family: "docdb3.6"
