@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::db-global-cluster db-global-cluster-example
     global-cluster-identifier: "aurora-global-cluster"
     engine: "aurora"

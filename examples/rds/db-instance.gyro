@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::db-instance db-instance-example
     allocated-storage: 20
     db-instance-identifier: "db-instance-example"

@@ -67,7 +67,7 @@ dependencies {
 task referenceDocs(type: Javadoc) {
     title = null // Prevents -doctitle and -windowtitle from being passed to GyroDoclet
     source = sourceSets.main.allJava
-    classpath = configurations.compile
+    classpath = configurations.runtimeClasspath
     options.doclet = "gyro.doclet.GyroDoclet"
     options.docletpath = configurations.gyroDoclet.files.asType(List)
 }

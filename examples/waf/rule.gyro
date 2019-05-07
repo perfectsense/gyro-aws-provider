@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::rule rule-example
     name: "rule-example"
     metric-name: "ruleExample"

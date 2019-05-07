@@ -1,0 +1,65 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-example-nic"
+    }
+end
+
+aws::subnet  subnet-example-nic
+    vpc: $(aws::vpc vpc)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.0.0/16"
+    map-public-ip-on-launch: true
+
+    tags: {
+        Name: "network-interface-example"
+    }
+end
+
+aws::security-group nic-security-group-example
+    group-name: "$(project) $(environment) - Allow web traffic only"
+    vpc-id: $(aws::vpc vpc| vpc-id)
+    description: "Allow web traffic only"
+    keep-default-egress-rules: true
+
+    for port, type in [80, 'http', 443, 'https']
+        ingress
+            description: "allow inbound $(type) traffic, ipv4 only"
+            cidr-blocks: ["0.0.0.0/0"]
+            protocol: "TCP"
+            from-port: $(port)
+            to-port: $(port)
+        end
+    end
+
+    egress
+        description: "allow outbound http traffic, ipv6 only"
+        ipv6-cidr-blocks: ["::/0"]
+        protocol: "TCP"
+        from-port: 80
+        to-port: 80
+    end
+end
+
+aws::network-interface nic-example-1
+     description: "test-nic"
+     subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
+
+     tags: {
+        Name: "nic-example"
+     }
+end
+
+aws::network-interface nic-example-with-instance
+     description: "test-nic-with-secondary-ips"
+     subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
+     primary-ipv4-address: "10.0.0.22"
+     ipv4-addresses: [
+         "10.0.0.18",
+         "10.0.0.10"
+     ]
+     tags: {
+        Name: "nic-example-with-secondary-ip"
+     }
+end

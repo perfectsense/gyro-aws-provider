@@ -1,5 +1,3 @@
-@import ../init.bcl as _
-
 aws::nlb nlb-example
     load-balancer-name: "nlb-example"
     ip-address-type: "ipv4"
