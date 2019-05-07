@@ -153,7 +153,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(resourceType());
+        sb.append(getParentFieldName());
         sb.append(" security rule - ");
         sb.append(getProtocol());
         sb.append(" [");
