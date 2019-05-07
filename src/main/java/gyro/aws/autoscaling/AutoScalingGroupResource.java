@@ -305,7 +305,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * A list of subnet identifiers. If Availability Zone is provided, subnet's need to be part of that. See `Launching Auto Scaling Instances in a VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -352,7 +352,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * One or more names of cloud watch metrics you want to disable. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics/>`_.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getDisabledMetrics() {
         if (disabledMetrics == null || disabledMetrics.isEmpty()) {
             disabledMetrics = new ArrayList<>();
@@ -368,7 +368,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * Tags for auto scaling groups. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -383,7 +383,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * Tags in auto scaling groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getPropagateAtLaunchTags() {
         if (propagateAtLaunchTags == null) {
             propagateAtLaunchTags = new ArrayList<>();
@@ -419,7 +419,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         this.instanceId = instanceId;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getLoadBalancerNames() {
         if (loadBalancerNames == null) {
             loadBalancerNames = new ArrayList<>();
@@ -432,7 +432,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         this.loadBalancerNames = loadBalancerNames;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getTargetGroupArns() {
         if (targetGroupArns == null) {
             targetGroupArns = new ArrayList<>();
@@ -445,7 +445,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         this.targetGroupArns = targetGroupArns;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getTerminationPolicies() {
         if (terminationPolicies == null || terminationPolicies.isEmpty()) {
             terminationPolicies = new ArrayList<>();
@@ -480,7 +480,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      *
      * @subresource gyro.aws.autoscaling.AutoScalingPolicyResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<AutoScalingPolicyResource> getScalingPolicy() {
         if (scalingPolicy == null) {
             scalingPolicy = new ArrayList<>();
@@ -497,7 +496,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      *
      * @subresource gyro.aws.autoscaling.AutoScalingGroupLifecycleHookResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<AutoScalingGroupLifecycleHookResource> getLifecycleHook() {
         if (lifecycleHook == null) {
             lifecycleHook = new ArrayList<>();
@@ -514,7 +512,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      *
      * @subresource gyro.aws.autoscaling.AutoScalingGroupScheduledActionResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<AutoScalingGroupScheduledActionResource> getScheduledAction() {
         if (scheduledAction == null) {
             scheduledAction = new ArrayList<>();
@@ -531,7 +528,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      *
      * @subresource gyro.aws.autoscaling.AutoScalingGroupNotificationResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<AutoScalingGroupNotificationResource> getAutoScalingNotification() {
         if (autoScalingNotification == null) {
             autoScalingNotification = new ArrayList<>();

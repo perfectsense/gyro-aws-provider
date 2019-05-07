@@ -92,7 +92,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * A list of children health check ids.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getChildHealthChecks() {
         if (childHealthChecks == null) {
             childHealthChecks = new ArrayList<>();
@@ -319,7 +319,7 @@ public class HealthCheckResource extends AwsResource {
         this.alarmRegion = alarmRegion;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

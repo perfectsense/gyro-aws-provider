@@ -241,7 +241,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The Web ACL (WAF) ID to associate with this distribution.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getWebAclId() {
         if (webAclId == null) {
             return "";
@@ -366,7 +366,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCustomErrorResponse
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
         if (customErrorResponse == null) {
             customErrorResponse = new ArrayList<>();
@@ -384,7 +384,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontGeoRestriction
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public CloudFrontGeoRestriction getGeoRestriction() {
         if (geoRestriction == null) {
             return new CloudFrontGeoRestriction();

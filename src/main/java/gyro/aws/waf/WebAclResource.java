@@ -76,7 +76,7 @@ public class WebAclResource extends AwsResource {
     /**
      * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getDefaultAction() {
         return defaultAction != null ? defaultAction.toUpperCase() : null;
     }
@@ -108,7 +108,6 @@ public class WebAclResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.ActivatedRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<ActivatedRuleResource> getActivatedRule() {
         if (activatedRule == null) {
             activatedRule = new ArrayList<>();

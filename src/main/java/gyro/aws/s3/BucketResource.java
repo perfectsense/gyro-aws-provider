@@ -145,7 +145,7 @@ public class BucketResource extends AwsResource {
         this.enableObjectLock = enableObjectLock;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();

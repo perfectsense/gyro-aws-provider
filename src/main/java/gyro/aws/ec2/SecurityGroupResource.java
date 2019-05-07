@@ -52,7 +52,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The name of the security group.
      */
-    @ResourceDiffProperty
     public String getGroupName() {
         return groupName;
     }
@@ -76,7 +75,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The description of this security group.
      */
-    @ResourceDiffProperty
     public String getDescription() {
         return description;
     }
@@ -90,7 +88,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
      *
      * @subresource gyro.aws.ec2.SecurityGroupIngressRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<SecurityGroupIngressRuleResource> getIngress() {
         if (ingress == null) {
             ingress = new ArrayList<>();
@@ -108,7 +105,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
      *
      * @subresource gyro.aws.ec2.SecurityGroupEgressRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<SecurityGroupEgressRuleResource> getEgress() {
         if (egress == null) {
             egress = new ArrayList<>();

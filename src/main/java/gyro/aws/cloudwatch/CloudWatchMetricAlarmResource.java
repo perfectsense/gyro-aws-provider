@@ -94,7 +94,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * A set of actions to be executed when this alarm transitions to the ALARM state. Each action is a resource ARN.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getAlarmActions() {
         if (alarmActions == null) {
             alarmActions = new ArrayList<>();
@@ -110,7 +110,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * A description for the alarm.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getAlarmDescription() {
         return alarmDescription;
     }
@@ -124,7 +124,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
      *
      * Valid values are ``GreaterThanOrEqualToThreshold``, ``GreaterThanThreshold``, ``LessThanThreshold``, ``LessThanOrEqualToThreshold``.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getComparisonOperator() {
         return comparisonOperator;
     }
@@ -136,7 +136,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * Number of data points to breach to trigger this alarm. Valid values [ Integer greater than 0 ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getDatapointsToAlarm() {
         return datapointsToAlarm;
     }
@@ -148,7 +148,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * Key Value pair to specify what the metric is as specified in the metric name. Max limit of 10.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getDimensions() {
         if (dimensions == null) {
             dimensions = new HashMap<>();
@@ -165,7 +165,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
      * This value indicates if less data points are present to evaluate a trigger, should it ignore or evaluate.
      * Setting 'ignore' would ignore the data at that point. Valid values [ 'evaluate', 'ignore' ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getEvaluateLowSampleCountPercentile() {
         return evaluateLowSampleCountPercentile;
     }
@@ -177,7 +177,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * The number of period over which the data point's are evaluated. Valid values [ Integer greater than 0 ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getEvaluationPeriods() {
         return evaluationPeriods;
     }
@@ -189,7 +189,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * The percentile statistic for the metric specified in MetricName. Valid values [ Between p0.0 and p100 ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getExtendedStatistic() {
         return extendedStatistic;
     }
@@ -201,7 +201,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * A set of actions to execute when this alarm transitions to the INSUFFICIENT_DATA state. ach action is a resource ARN.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getInsufficientDataActions() {
         if (insufficientDataActions == null) {
             insufficientDataActions = new ArrayList<>();
@@ -210,7 +210,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
         return insufficientDataActions;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public void setInsufficientDataActions(List<String> insufficientDataActions) {
         this.insufficientDataActions = insufficientDataActions;
     }
@@ -219,7 +219,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
      * The name of the metric associated with the alarm.
      * See `AWS Services That Publish CloudWatch Metrics <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/aws-services-cloudwatch-metrics.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getMetricName() {
         return metricName;
     }
@@ -231,7 +231,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * The namespace associated with the metric specified in 'metric-name' provided.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getNamespace() {
         return namespace;
     }
@@ -243,7 +243,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * A set of actions to execute when this alarm transitions to the OK state. ach action is a resource ARN.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getOkActions() {
         if (okActions == null) {
             okActions = new ArrayList<>();
@@ -259,7 +259,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * The length, in seconds, used each time the metric specified in 'metric-name' is evaluated.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getPeriod() {
         return period;
     }
@@ -272,7 +272,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
      * The namespace associated with the metric specified in 'metric-name' provided.
      * Valid values [ 'SampleCount', 'Average', 'Sum', 'Minimum', 'Maximum' ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getStatistic() {
         return statistic;
     }
@@ -284,7 +284,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * The value against which the specified statistic is compared.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Double getThreshold() {
         return threshold;
     }
@@ -312,7 +312,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     /**
      * The unit of measure for the statistic.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getUnit() {
         return unit;
     }
@@ -329,7 +329,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
         this.arn = arn;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<MetricDataQueryResource> getMetrics() {
         if (metrics == null) {
             metrics = new ArrayList<>();

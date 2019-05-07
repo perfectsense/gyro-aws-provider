@@ -80,7 +80,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The ARN of the SNS topic. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getConnectionNotificationArn() {
         return connectionNotificationArn;
     }
@@ -92,7 +92,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getConnectionEvents() {
         if (connectionEvents == null) {
             connectionEvents = new ArrayList<>(masterEventSet);

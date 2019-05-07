@@ -113,7 +113,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      * The list of Security Group ID's that are getting associated to the Network Interface. (Optional)
      * If no security id is given, the default security group attached to the subnet will be assigned to the network interface.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -130,7 +130,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The id of the instance to which the network interface card will be attached.(Optional)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getInstanceId() {
         return instanceId;
     }
@@ -182,7 +182,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The Primary IPV4 address which gets assigned to the Network Interface. (Optional)
      */
-    @ResourceDiffProperty(nullable = true)
     public String getPrimaryIpv4Address() {
         return primaryIpv4Address;
     }

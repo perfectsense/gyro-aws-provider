@@ -50,7 +50,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The desired capacity of instances this scheduled action to scale to.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getDesiredCapacity() {
         return desiredCapacity;
     }
@@ -62,7 +62,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The maximum number of instances this scheduled action to scale to.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getMaxSize() {
         return maxSize;
     }
@@ -74,7 +74,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The minimum number of instances this scheduled action to scale to.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getMinSize() {
         return minSize;
     }
@@ -86,7 +86,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The recurring schedule for this action, in Unix cron syntax format
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getRecurrence() {
         return recurrence;
     }
@@ -110,7 +110,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The time for this action to start
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Date getEndTime() {
         return endTime;
     }

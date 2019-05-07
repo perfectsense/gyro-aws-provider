@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -48,7 +47,6 @@ public class SqlInjectionMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.SqlInjectionMatchTupleResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
         if (sqlInjectionMatchTuple == null) {
             sqlInjectionMatchTuple = new ArrayList<>();

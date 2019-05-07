@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -65,7 +64,6 @@ public class IpSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.IpSetDescriptorResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<IpSetDescriptorResource> getIpSetDescriptor() {
         if (ipSetDescriptor == null) {
             ipSetDescriptor = new ArrayList<>();

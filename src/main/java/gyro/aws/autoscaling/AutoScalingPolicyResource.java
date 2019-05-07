@@ -111,7 +111,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The minimum number of instances to scale.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Integer getMinAdjustmentMagnitude() {
         return minAdjustmentMagnitude;
     }

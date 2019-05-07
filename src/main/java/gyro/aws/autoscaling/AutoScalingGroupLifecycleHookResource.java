@@ -97,7 +97,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * Additional information to be included in the notification to the notification target.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getNotificationMetadata() {
         return notificationMetadata;
     }
@@ -109,7 +109,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * The ARN of the notification target. Can be SQS or SNS.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getNotificationTargetArn() {
         return notificationTargetArn;
     }
@@ -121,7 +121,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * The ARN of an IAM role that allows publication to the specified notification target.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getRoleArn() {
         return roleArn;
     }

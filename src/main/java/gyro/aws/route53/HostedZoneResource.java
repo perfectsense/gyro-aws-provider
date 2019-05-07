@@ -64,7 +64,7 @@ public class HostedZoneResource extends AwsResource {
     /**
      * Comment for the hosted Zone.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getComment() {
         return comment;
     }
@@ -136,7 +136,6 @@ public class HostedZoneResource extends AwsResource {
      *
      * @subresource gyro.aws.route53.Route53VpcResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<Route53VpcResource> getVpc() {
         if (vpc == null) {
             vpc = new ArrayList<>();

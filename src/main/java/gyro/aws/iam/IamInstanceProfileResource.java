@@ -51,7 +51,7 @@ public class IamInstanceProfileResource extends AwsResource {
         this.instanceProfileName = instanceProfileName;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getRoles() {
         if (roles == null) {
             roles = new ArrayList<>();

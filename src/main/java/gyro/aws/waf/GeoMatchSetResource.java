@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -65,7 +64,6 @@ public class GeoMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.GeoMatchConstraintResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<GeoMatchConstraintResource> getGeoMatchConstraint() {
         if (geoMatchConstraint == null) {
             geoMatchConstraint = new ArrayList<>();

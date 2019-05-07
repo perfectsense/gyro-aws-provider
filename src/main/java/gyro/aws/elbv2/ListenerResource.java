@@ -27,7 +27,7 @@ public abstract class ListenerResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.CertificateResource
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<CertificateResource> getCertificate() {
         if (certificate == null) {
             certificate = new ArrayList<>();
@@ -43,7 +43,7 @@ public abstract class ListenerResource extends AwsResource {
     /**
      *  The default certificate ARN associated with the listener (Optional)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getDefaultCertificate() {
         return defaultCertificate;
     }

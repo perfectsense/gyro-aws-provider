@@ -89,7 +89,7 @@ public class IamRoleResource extends AwsResource {
         this.description = description;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getPolicyArns() {
         if (this.policyArns == null) {
             this.policyArns = new ArrayList<>();

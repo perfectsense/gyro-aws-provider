@@ -1,7 +1,6 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -62,7 +61,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The HealthCheck subresource for this load balancer.
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public HealthCheckResource getHealthCheck() {
         return healthCheck;
     }
@@ -74,7 +72,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The instances to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public Set<String> getInstances() {
         if (instances == null) {
             instances = new LinkedHashSet<>();
@@ -90,7 +87,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The listeners to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public Set<ListenerResource> getListener() {
         if (listener == null) {
             listener = new LinkedHashSet<>();
@@ -128,7 +124,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The security groups to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public Set<String> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new LinkedHashSet<>();
@@ -144,7 +139,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * Subnet IDs to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public Set<String> getSubnets() {
         if (subnets == null) {
             subnets = new LinkedHashSet<>();

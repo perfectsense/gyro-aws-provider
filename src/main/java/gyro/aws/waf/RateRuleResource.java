@@ -47,7 +47,7 @@ public class RateRuleResource extends RuleBaseResource {
     /**
      * The rate limit at which the action would be taken. Valid values integer 2000 and above. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Long getRateLimit() {
         return rateLimit;
     }

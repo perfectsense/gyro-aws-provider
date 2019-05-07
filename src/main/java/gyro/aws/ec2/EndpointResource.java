@@ -124,7 +124,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Route Table ID being associated with the Endpoint. (Required if typeInterface set to true.)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getRouteTableIds() {
         if (routeTableIds == null) {
             routeTableIds = new ArrayList<>();
@@ -140,7 +140,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Subnet ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();

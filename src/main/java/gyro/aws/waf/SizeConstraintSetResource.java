@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -67,7 +66,6 @@ public class SizeConstraintSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.SizeConstraintResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
             sizeConstraint = new ArrayList<>();

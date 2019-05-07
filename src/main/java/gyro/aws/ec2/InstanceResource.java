@@ -403,7 +403,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return launchDate;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public String getCapacityReservation() {
         if (capacityReservation == null) {
             capacityReservation = "none";

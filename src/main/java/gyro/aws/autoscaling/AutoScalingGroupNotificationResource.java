@@ -47,7 +47,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
      * The event on which to notify. Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR'
      * 'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR' ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public List<String> getNotificationTypes() {
         if (notificationTypes == null) {
             notificationTypes = new ArrayList<>();

@@ -84,7 +84,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     /**
      *  List of tags associated with the alb (Optional)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
