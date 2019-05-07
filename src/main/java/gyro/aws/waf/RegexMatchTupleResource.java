@@ -126,11 +126,6 @@ public class RegexMatchTupleResource extends AwsResource {
         return String.format("%s %s %s %s", getData(), getType(), getTextTransformation(), getRegexPatternSetId());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private RegexMatchTuple getRegexMatchTuple() {
         return RegexMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))

@@ -143,11 +143,6 @@ public class SizeConstraintResource extends AwsResource {
         return String.format("%s %s %s %s %s", getData(), getType(), getComparisonOperator(), getTextTransformation(), getSize());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private SizeConstraint getSizeConstraint() {
         return SizeConstraint.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))

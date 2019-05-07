@@ -132,11 +132,6 @@ public class PredicateResource extends AwsResource {
         return String.format("%s %s %s", getDataId(), getType(), (getRateRule() ? "Rate based" : "Regular"));
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private Predicate getPredicate() {
         return Predicate.builder()
             .dataId(getDataId())

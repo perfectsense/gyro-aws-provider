@@ -120,11 +120,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
         return String.format("%s", getTopicArn());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {

@@ -204,11 +204,6 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
         return String.format("%s", getLifecycleHookName());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {

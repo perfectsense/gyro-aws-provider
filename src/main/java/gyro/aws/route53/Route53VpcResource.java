@@ -101,11 +101,6 @@ public class Route53VpcResource extends AwsResource {
         return String.format("%s %s", getVpcId(), getVpcRegion());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private HostedZoneResource getParent() {
         HostedZoneResource parent = (HostedZoneResource) parentResource();
         if (parent == null) {

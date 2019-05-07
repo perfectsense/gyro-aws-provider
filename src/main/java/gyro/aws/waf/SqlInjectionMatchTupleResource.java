@@ -109,11 +109,6 @@ public class SqlInjectionMatchTupleResource extends AwsResource {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private SqlInjectionMatchTuple getSqlInjectionMatchTuple() {
         return SqlInjectionMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))

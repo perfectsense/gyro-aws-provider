@@ -158,11 +158,6 @@ public class ActivatedRuleResource extends AwsResource {
         return String.format("%s %s", getRuleId(), getType());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private ActivatedRule getActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))

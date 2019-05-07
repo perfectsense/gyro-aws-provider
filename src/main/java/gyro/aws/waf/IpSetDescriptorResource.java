@@ -98,11 +98,6 @@ public class IpSetDescriptorResource extends AwsResource {
         return String.format("%s %s", getType(), getValue());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private IPSetDescriptor getIpSetDescriptor() {
         return IPSetDescriptor.builder()
             .type(getType())

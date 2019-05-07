@@ -245,11 +245,6 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
-    @Override
     public void update(Resource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 

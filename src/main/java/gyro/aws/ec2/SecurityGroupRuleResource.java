@@ -145,11 +145,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
-    @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 

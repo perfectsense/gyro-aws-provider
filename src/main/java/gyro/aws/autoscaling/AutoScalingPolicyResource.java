@@ -314,11 +314,6 @@ public class AutoScalingPolicyResource extends AwsResource {
         return String.format("%s %s", getPolicyName(), getPolicyType());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private void savePolicy(AutoScalingClient client) {
         PutScalingPolicyResponse response = null;
 

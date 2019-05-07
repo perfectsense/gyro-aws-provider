@@ -109,11 +109,6 @@ public class XssMatchTupleResource extends AwsResource {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private XssMatchTuple getXssMatchTuple() {
         return XssMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))

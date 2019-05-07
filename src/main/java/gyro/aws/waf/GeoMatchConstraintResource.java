@@ -93,11 +93,6 @@ public class GeoMatchConstraintResource extends AwsResource {
         return String.format("%s %s", getValue(), getType());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private GeoMatchConstraint getGeoMatchConstraint() {
         return GeoMatchConstraint.builder()
             .type(getType())

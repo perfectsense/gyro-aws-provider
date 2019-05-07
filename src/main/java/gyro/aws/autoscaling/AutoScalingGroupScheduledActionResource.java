@@ -203,11 +203,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
         return String.format("%s", getScheduledActionName());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
         if (parent == null) {

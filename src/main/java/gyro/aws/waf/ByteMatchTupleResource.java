@@ -145,11 +145,6 @@ public class ByteMatchTupleResource extends AwsResource {
         return String.format("%s %s %s %s %s", getData(), getType(), getTextTransformation(), getPositionalConstraint(), getTargetString());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private ByteMatchTuple getByteMatchTuple() {
         return ByteMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))
