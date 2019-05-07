@@ -3,7 +3,6 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -11,7 +10,6 @@ import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
 
 import java.util.Set;
 
-@ResourceName(parent = "auto-scaling-group", value = "lifecycle-hook")
 public class AutoScalingGroupLifecycleHookResource extends AwsResource {
 
     private String lifecycleHookName;

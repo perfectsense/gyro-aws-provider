@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -14,7 +13,6 @@ import software.amazon.awssdk.services.waf.model.ChangeAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-@ResourceName(parent = "byte-match-set", value = "byte-match-tuple")
 public class ByteMatchTupleResource extends AwsResource {
     private String type;
     private String data;

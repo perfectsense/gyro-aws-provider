@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -12,7 +11,6 @@ import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
 
 import java.util.Set;
 
-@ResourceName(parent = "regex-match-set", value = "regex-match-tuple")
 public class RegexMatchTupleResource extends AwsResource {
     private String type;
     private String data;

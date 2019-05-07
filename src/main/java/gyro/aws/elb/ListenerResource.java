@@ -4,7 +4,6 @@ import gyro.aws.AwsResource;
 import gyro.core.diff.Create;
 import gyro.core.diff.Delete;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
@@ -26,8 +25,6 @@ import java.util.Set;
  *        protocol: "HTTPS"
  *     end
  */
-
-@ResourceName(parent = "load-balancer", value = "listener")
 public class ListenerResource extends AwsResource {
 
     private Integer instancePort;

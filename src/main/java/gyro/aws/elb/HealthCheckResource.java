@@ -2,7 +2,6 @@ package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.HealthCheck;
@@ -25,8 +24,6 @@ import java.util.Set;
  *        unhealthy-threshold: "2"
  *     end
  */
-
-@ResourceName(parent = "load-balancer", value = "health-check")
 public class HealthCheckResource extends AwsResource {
 
     private Integer healthyThreshold;

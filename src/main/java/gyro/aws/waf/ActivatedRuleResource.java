@@ -2,7 +2,6 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName(parent = "waf-acl", value = "activated-rule")
 public class ActivatedRuleResource extends AwsResource {
     private String ruleId;
     private String action;

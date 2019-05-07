@@ -3,7 +3,6 @@ package gyro.aws.elbv2;
 import gyro.aws.AwsResource;
 import gyro.core.diff.Delete;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -21,9 +20,6 @@ import java.util.Set;
  *         arn: "arn:aws:acm:us-east-2:acct-number:certificate/certificatearn"
  *     end
  */
-
-@ResourceName(parent = "alb-listener", value = "certificate")
-@ResourceName(parent = "nlb-listener", value = "certificate")
 public class CertificateResource extends AwsResource {
 
     private String arn;

@@ -2,7 +2,6 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName(parent = "ip-set", value = "ip-set-descriptor")
 public class IpSetDescriptorResource extends AwsResource {
     private String value;
     private String type;

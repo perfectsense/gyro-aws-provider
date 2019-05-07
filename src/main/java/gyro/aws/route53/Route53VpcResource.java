@@ -2,14 +2,12 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.route53.model.Route53Exception;
 
 import java.util.Set;
 
-@ResourceName(parent = "hosted-zone", value = "vpc")
 public class Route53VpcResource extends AwsResource {
     private String vpcId;
     private String vpcRegion;

@@ -2,7 +2,6 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -13,8 +12,6 @@ import software.amazon.awssdk.services.waf.model.RuleUpdate;
 
 import java.util.Set;
 
-@ResourceName(parent = "rule", value = "predicate-regular")
-@ResourceName(parent = "rate-rule", value = "predicate-rate-based")
 public class PredicateResource extends AwsResource {
     private String dataId;
     private Boolean negated;

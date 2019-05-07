@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -12,7 +11,6 @@ import software.amazon.awssdk.services.waf.model.SizeConstraintSetUpdate;
 
 import java.util.Set;
 
-@ResourceName(parent = "size-constraint-set", value = "size-constraint")
 public class SizeConstraintResource extends AwsResource {
     private String data;
     private String type;

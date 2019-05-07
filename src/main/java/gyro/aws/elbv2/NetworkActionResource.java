@@ -3,7 +3,6 @@ package gyro.aws.elbv2;
 import gyro.aws.AwsResource;
 import gyro.core.diff.Create;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.diff.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
@@ -22,8 +21,6 @@ import java.util.Set;
  *        type: "forward"
  *     end
  */
-
-@ResourceName(parent = "nlb-listener", value = "default-action")
 public class NetworkActionResource extends AwsResource {
 
     private String targetGroupArn;

@@ -3,7 +3,6 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName(parent = "auto-scaling-group", value = "scaling-policy")
 public class AutoScalingPolicyResource extends AwsResource {
 
     private String policyName;

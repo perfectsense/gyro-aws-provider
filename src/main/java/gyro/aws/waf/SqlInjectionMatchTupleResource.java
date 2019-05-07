@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -12,7 +11,6 @@ import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
 
 import java.util.Set;
 
-@ResourceName(parent = "sql-injection-match-set", value = "sql-injection-match-tuple")
 public class SqlInjectionMatchTupleResource extends AwsResource {
     private String data;
     private String type;

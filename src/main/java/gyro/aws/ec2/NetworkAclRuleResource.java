@@ -3,7 +3,6 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -38,7 +37,6 @@ import java.util.Set;
  *    end
  *
  */
-@ResourceName(parent = "network-acl", value = "rule")
 public class NetworkAclRuleResource extends AwsResource {
 
     private Integer ruleNumber;
