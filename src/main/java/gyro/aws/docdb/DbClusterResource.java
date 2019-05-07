@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::db-cluster db-cluster-example
+ *     aws::docdb-cluster db-cluster-example
  *         db-cluster-identifier: "db-cluster-example"
  *         db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
  *         engine: "docdb"
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
  *         post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
  *     end
  */
-@ResourceName("db-cluster")
+@ResourceName("docdb-cluster")
 public class DbClusterResource extends DocDbTaggableResource {
     private Integer backupRetentionPeriod;
     private String dbClusterIdentifier;
@@ -402,8 +403,6 @@ public class DbClusterResource extends DocDbTaggableResource {
 
         client.modifyDBCluster(builder.build());
         waitForAvailability(client);
-
-        refresh();
     }
 
     @Override
@@ -447,6 +446,13 @@ public class DbClusterResource extends DocDbTaggableResource {
 
             available = response.dbClusters().get(0).status().equals("available");
             count++;
+
+            if (!available && count == 6) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
         }
     }
 
@@ -462,6 +468,13 @@ public class DbClusterResource extends DocDbTaggableResource {
                 deleted = true;
             }
             count++;
+
+            if (!deleted && count == 10) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
         }
     }
 

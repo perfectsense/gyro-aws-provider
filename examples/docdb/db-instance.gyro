@@ -65,7 +65,7 @@ aws::subnet subnet-db-instance-example-2
     }
 end
 
-aws::db-subnet-group db-subnet-group-db-instance-example
+aws::docdb-subnet-group db-subnet-group-db-instance-example
     db-subnet-group-name: "db-subnet-group-db-instance-example"
     db-subnet-group-description: "db-subnet-group-db-instance-example-description"
     subnet-ids: [
@@ -78,7 +78,7 @@ aws::db-subnet-group db-subnet-group-db-instance-example
     }
 end
 
-aws::db-cluster-param-group db-cluster-param-group-db-instance-example
+aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example
     db-cluster-param-group-name: "db-cluster-param-group-db-instance-example"
     db-param-group-family: "docdb3.6"
     description: "db-cluster-param-group-db-instance-example-desc"
@@ -88,12 +88,12 @@ aws::db-cluster-param-group db-cluster-param-group-db-instance-example
     }
 end
 
-aws::db-cluster db-cluster-db-instance-example
+aws::docdb-cluster db-cluster-db-instance-example
     db-cluster-identifier: "db-cluster-db-instance-example"
-    db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-instance-example | db-subnet-group-name)
+    db-subnet-group-name: $(aws::docdb-subnet-group db-subnet-group-db-instance-example | db-subnet-group-name)
     engine: "docdb"
     engine-version: "3.6.0"
-    db-cluster-param-group-name: $(aws::db-cluster-param-group db-cluster-param-group-db-instance-example | db-cluster-param-group-name)
+    db-cluster-param-group-name: $(aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example | db-cluster-param-group-name)
     master-username: "master"
     master-user-password: "masterpassword"
     port: 27017
@@ -111,14 +111,14 @@ aws::db-cluster db-cluster-db-instance-example
     }
 end
 
-aws::db-instance db-instance-example
+aws::docdb-instance db-instance-example
     availability-zone: "us-east-2a"
     db-instance-class: "db.r4.large"
     db-instance-identifier: "db-instance-example"
     engine: "docdb"
     preferred-maintenance-window: "wed:03:28-wed:04:58"
     promotion-tier: 1
-    db-cluster-identifier: $(aws::db-cluster db-cluster-db-instance-example | db-cluster-identifier)
+    db-cluster-identifier: $(aws::docdb-cluster db-cluster-db-instance-example | db-cluster-identifier)
 
     tags: {
         Name: "db-instance-example"

@@ -24,7 +24,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::db-cluster-snapshot db-cluster-snapshot-example
+ *     aws::docdb-cluster-snapshot db-cluster-snapshot-example
  *         db-cluster-identifier: $(aws::db-cluster db-cluster-db-cluster-snapshot-example | db-cluster-identifier)
  *         db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
  *
@@ -33,7 +33,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("db-cluster-snapshot")
+@ResourceName("docdb-cluster-snapshot")
 public class DbClusterSnapshotResource extends DocDbTaggableResource {
     private String dbClusterIdentifier;
     private String dbClusterSnapshotIdentifier;
@@ -172,6 +172,13 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
                 deleted = true;
             }
             count++;
+
+            if (!deleted && count == 10) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
         }
     }
 

@@ -22,7 +22,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::db-instance db-instance-example
+ *     aws::docdb-instance db-instance-example
  *         availability-zone: "us-east-2a"
  *         db-instance-class: "db.r4.large"
  *         db-instance-identifier: "db-instance-example"
@@ -36,7 +36,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("db-instance")
+@ResourceName("docdb-instance")
 public class DbInstance extends DocDbTaggableResource {
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;

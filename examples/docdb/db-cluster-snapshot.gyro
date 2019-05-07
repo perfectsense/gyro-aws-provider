@@ -65,7 +65,7 @@ aws::subnet subnet-db-cluster-snapshot-example-2
     }
 end
 
-aws::db-subnet-group db-subnet-group-db-cluster-snapshot-example
+aws::docdb-subnet-group db-subnet-group-db-cluster-snapshot-example
     db-subnet-group-name: "db-subnet-group-db-cluster-snapshot-example"
     db-subnet-group-description: "db-subnet-group-db-cluster-snapshot-example-description"
     subnet-ids: [
@@ -78,7 +78,7 @@ aws::db-subnet-group db-subnet-group-db-cluster-snapshot-example
     }
 end
 
-aws::db-cluster-param-group db-cluster-param-group-db-cluster-snapshot-example
+aws::docdb-cluster-param-group db-cluster-param-group-db-cluster-snapshot-example
     db-cluster-param-group-name: "db-cluster-param-group-db-cluster-snapshot-example"
     db-param-group-family: "docdb3.6"
     description: "db-cluster-param-group-db-cluster-snapshot-example-desc"
@@ -88,12 +88,12 @@ aws::db-cluster-param-group db-cluster-param-group-db-cluster-snapshot-example
     }
 end
 
-aws::db-cluster db-cluster-db-cluster-snapshot-example
+aws::docdb-cluster db-cluster-db-cluster-snapshot-example
     db-cluster-identifier: "db-cluster-db-cluster-snapshot-example"
-    db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-cluster-snapshot-example | db-subnet-group-name)
+    db-subnet-group-name: $(aws::docdb-subnet-group db-subnet-group-db-cluster-snapshot-example | db-subnet-group-name)
     engine: "docdb"
     engine-version: "3.6.0"
-    db-cluster-param-group-name: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-snapshot-example | db-cluster-param-group-name)
+    db-cluster-param-group-name: $(aws::docdb-cluster-param-group db-cluster-param-group-db-cluster-snapshot-example | db-cluster-param-group-name)
     master-username: "master"
     master-user-password: "masterpassword"
     port: 27017
@@ -110,8 +110,8 @@ aws::db-cluster db-cluster-db-cluster-snapshot-example
     }
 end
 
-aws::db-cluster-snapshot db-cluster-snapshot-example
-    db-cluster-identifier: $(aws::db-cluster db-cluster-db-cluster-snapshot-example | db-cluster-identifier)
+aws::docdb-cluster-snapshot db-cluster-snapshot-example
+    db-cluster-identifier: $(aws::docdb-cluster db-cluster-db-cluster-snapshot-example | db-cluster-identifier)
     db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
 
     tags: {

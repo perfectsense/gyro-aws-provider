@@ -27,7 +27,7 @@ aws::subnet subnet-db-subnet-group-example-2
     }
 end
 
-aws::db-subnet-group db-subnet-group-example
+aws::docdb-subnet-group db-subnet-group-example
     db-subnet-group-name: "db-subnet-group-example"
     db-subnet-group-description: "db-subnet-group-example-description"
     subnet-ids: [

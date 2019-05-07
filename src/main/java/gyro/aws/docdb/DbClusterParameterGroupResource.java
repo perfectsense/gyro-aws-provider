@@ -24,7 +24,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::db-cluster-param-group db-cluster-param-group-example
+ *     aws::docdb-cluster-param-group db-cluster-param-group-example
  *         db-cluster-param-group-name: "db-cluster-param-group-example"
  *         db-param-group-family: "docdb3.6"
  *         description: "db-cluster-param-group-desc"
@@ -34,7 +34,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("db-cluster-param-group")
+@ResourceName("docdb-cluster-param-group")
 public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     private String dbClusterParamGroupName;
     private String dbParamGroupFamily;

@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceName("db-subnet-group")
+@ResourceName("docdb-subnet-group")
 public class DbSubnetGroupResource extends DocDbTaggableResource {
     private String dbSubnetGroupDescription;
     private String dbSubnetGroupName;

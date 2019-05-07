@@ -65,7 +65,7 @@ aws::subnet subnet-db-cluster-example-2
     }
 end
 
-aws::db-subnet-group db-subnet-group-db-cluster-example
+aws::docdb-subnet-group db-subnet-group-db-cluster-example
     db-subnet-group-name: "db-subnet-group-db-cluster-example"
     db-subnet-group-description: "db-subnet-group-db-cluster-example-description"
     subnet-ids: [
@@ -78,7 +78,7 @@ aws::db-subnet-group db-subnet-group-db-cluster-example
     }
 end
 
-aws::db-cluster-param-group db-cluster-param-group-db-cluster-example
+aws::docdb-cluster-param-group db-cluster-param-group-db-cluster-example
     db-cluster-param-group-name: "db-cluster-param-group-db-cluster-example"
     db-param-group-family: "docdb3.6"
     description: "db-cluster-param-group-db-cluster-example-desc"
@@ -88,12 +88,12 @@ aws::db-cluster-param-group db-cluster-param-group-db-cluster-example
     }
 end
 
-aws::db-cluster db-cluster-example
+aws::docdb-cluster db-cluster-example
     db-cluster-identifier: "db-cluster-example"
-    db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
+    db-subnet-group-name: $(aws::docdb-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
     engine: "docdb"
     engine-version: "3.6.0"
-    db-cluster-param-group-name: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-example | db-cluster-param-group-name)
+    db-cluster-param-group-name: $(aws::docdb-cluster-param-group db-cluster-param-group-db-cluster-example | db-cluster-param-group-name)
     master-username: "master"
     master-user-password: "masterpassword"
     port: 27017
@@ -108,5 +108,5 @@ aws::db-cluster db-cluster-example
     tags: {
         Name: "db-cluster-example"
     }
-    post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
+    #post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
 end
