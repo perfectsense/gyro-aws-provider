@@ -89,7 +89,6 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Name of the cluster. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public String getDbClusterIdentifier() {
         return dbClusterIdentifier;
     }
@@ -390,14 +389,13 @@ public class DbClusterResource extends DocDbTaggableResource {
 
         ModifyDbClusterRequest.Builder builder = ModifyDbClusterRequest.builder()
             .backupRetentionPeriod(getBackupRetentionPeriod())
-            .dbClusterIdentifier(resource.getDbClusterIdentifier())
+            .dbClusterIdentifier(getDbClusterIdentifier())
             .dbClusterParameterGroupName(getDbClusterParamGroupName())
             .masterUserPassword(getMasterUserPassword())
             .port(getPort())
             .preferredBackupWindow(getPreferredBackupWindow())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .vpcSecurityGroupIds(getVpcSecurityGroupIds())
-            .newDBClusterIdentifier(getDbClusterIdentifier());
+            .vpcSecurityGroupIds(getVpcSecurityGroupIds());
 
         if (!resource.getEngineVersion().equals(getEngineVersion())) {
             builder.engineVersion(getEngineVersion());
