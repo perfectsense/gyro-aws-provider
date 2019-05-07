@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
@@ -87,7 +87,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The date and time at which the Capacity Reservation expires. Required if 'end-date-type' set to 'limited'.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Date getEndDate() {
         return endDate;
     }
@@ -99,7 +99,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates the way in which the Capacity Reservation ends. Valid values [ 'unlimited', 'limited' ]. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEndDateType() {
         return endDateType != null ? endDateType.toLowerCase() : null;
     }
@@ -166,7 +166,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The number of instances for which to reserve capacity. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getInstanceCount() {
         return instanceCount;
     }

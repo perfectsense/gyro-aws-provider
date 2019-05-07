@@ -2,7 +2,7 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
@@ -51,7 +51,7 @@ public class IamInstanceProfileResource extends AwsResource {
         this.instanceProfileName = instanceProfileName;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getRoles() {
         if (roles == null) {
             roles = new ArrayList<>();

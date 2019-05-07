@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 
 import gyro.core.resource.ResourceOutput;
@@ -90,7 +90,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  Indicates if health checks are enabled. Required if target type is instance. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getHealthCheckEnabled() {
         return healthCheckEnabled;
     }
@@ -102,7 +102,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  Port on which traffic is received by targets (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getPort() {
         return port;
     }
@@ -114,7 +114,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  Protocol used to route traffic to targets (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }
@@ -126,7 +126,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  List of tags associated with the target group (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -166,7 +166,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  The type of the target. Options include instance, ip, and lambda (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getTargetType() {
         return targetType;
     }

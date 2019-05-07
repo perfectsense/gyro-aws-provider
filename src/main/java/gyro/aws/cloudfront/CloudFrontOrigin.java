@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
 import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomHeaders;
 import software.amazon.awssdk.services.cloudfront.model.Origin;
 import software.amazon.awssdk.services.cloudfront.model.OriginCustomHeader;
@@ -57,7 +57,7 @@ public class CloudFrontOrigin extends Diffable {
     /**
      * The DNS name of the origin.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDomainName() {
         return domainName;
     }
@@ -69,7 +69,7 @@ public class CloudFrontOrigin extends Diffable {
     /**
      * Optional path to request content from a specific directory of the origin.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getOriginPath() {
         if (originPath == null) {
             return "";
@@ -85,7 +85,7 @@ public class CloudFrontOrigin extends Diffable {
     /**
      * A map of custom headers to send the origin on every request.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getCustomHeaders() {
         if (customHeaders == null) {
             return new HashMap<>();
@@ -103,7 +103,7 @@ public class CloudFrontOrigin extends Diffable {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontS3Origin
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public CloudFrontS3Origin getS3Origin() {
         if (s3Origin == null && customOrigin == null) {
             return new CloudFrontS3Origin();
@@ -121,7 +121,7 @@ public class CloudFrontOrigin extends Diffable {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCustomOrigin
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public CloudFrontCustomOrigin getCustomOrigin() {
         return customOrigin;
     }

@@ -2,7 +2,7 @@ package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -60,7 +60,7 @@ public class SubscriberResource extends AwsResource {
      *
      * RawMessageDelivery is a boolean (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getAttributes() {
         if (attributes == null) {
             attributes = new CompactMap<>();

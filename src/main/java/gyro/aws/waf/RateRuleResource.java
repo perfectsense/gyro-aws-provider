@@ -1,6 +1,6 @@
 package gyro.aws.waf;
 
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -47,7 +47,7 @@ public class RateRuleResource extends RuleBaseResource {
     /**
      * The rate limit at which the action would be taken. Valid values integer 2000 and above. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Long getRateLimit() {
         return rateLimit;
     }

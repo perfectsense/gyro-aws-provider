@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -60,7 +60,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<ActionResource> getAction() {
         if (action == null) {
             action = new ArrayList<>();
@@ -78,7 +78,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<ConditionResource> getCondition() {
         if (condition == null) {
             condition = new ArrayList<>();

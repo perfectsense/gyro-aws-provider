@@ -2,7 +2,7 @@ package gyro.aws.cloudfront;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -123,7 +123,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * Enable or disable this distribution without deleting it.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public boolean getEnabled() {
         return enabled;
     }
@@ -135,7 +135,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * A comment for this distribution.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getComment() {
         if (comment == null) {
             return "";
@@ -151,7 +151,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * CNAMES (aliases) for which this distribution will listen for.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getCnames() {
         if (cnames == null) {
             cnames = new ArrayList<>();
@@ -169,7 +169,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The maximum http version that users can request on this distribution. Valid values are ``HTTP1_1`` or ``HTTP2``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getHttpVersion() {
         return httpVersion;
     }
@@ -181,7 +181,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The maximum price you want to pay for CloudFront. Valid values are ``PriceClass_All``, ``PriceClass_200`` and ``PriceClass_100``. For information on pricing see `Price classes <https://aws.amazon.com/cloudfront/pricing/#On-demand_Pricing>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPriceClass() {
         if (priceClass == null) {
             return "PriceClass_All";
@@ -197,7 +197,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The object to request from the origin when a user requests the root URL (i.e. http://www.example.com/).
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDefaultRootObject() {
         if (defaultRootObject == null) {
             return "";
@@ -229,7 +229,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * Enable IPv6 support for this distribution.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public boolean getIpv6Enabled() {
         return isIpv6Enabled;
     }
@@ -241,7 +241,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The Web ACL (WAF) ID to associate with this distribution.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getWebAclId() {
         if (webAclId == null) {
             return "";
@@ -270,7 +270,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * A map of tags to apply to this distribution.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -322,7 +322,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCacheBehavior
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public CloudFrontCacheBehavior getDefaultCacheBehavior() {
         return defaultCacheBehavior;
     }
@@ -338,7 +338,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontViewerCertificate
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public CloudFrontViewerCertificate getViewerCertificate() {
         return viewerCertificate;
     }
@@ -352,7 +352,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontLogging
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public CloudFrontLogging getLogging() {
         return logging;
     }
@@ -366,7 +366,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCustomErrorResponse
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
         if (customErrorResponse == null) {
             customErrorResponse = new ArrayList<>();
@@ -384,7 +384,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontGeoRestriction
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public CloudFrontGeoRestriction getGeoRestriction() {
         if (geoRestriction == null) {
             return new CloudFrontGeoRestriction();

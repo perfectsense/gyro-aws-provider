@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -120,7 +120,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * Whether to keep the default egress rule. If false, the rule will be deleted.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public boolean isKeepDefaultEgressRules() {
         if (keepDefaultEgressRules == null) {
             keepDefaultEgressRules = true;

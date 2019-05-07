@@ -2,7 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -48,7 +48,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
      * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON.
      * Valid values [ 'ABANDON', 'CONTINUE' ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDefaultResult() {
         if (defaultResult == null) {
             defaultResult = "ABANDON";
@@ -64,7 +64,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values [ Integer between 30 and 7200 ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getHeartbeatTimeout() {
         if (heartbeatTimeout == null) {
             heartbeatTimeout = 3600;
@@ -81,7 +81,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
      * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'.
      * Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCHING', 'autoscaling:EC2_INSTANCE_TERMINATING' ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getLifecycleTransition() {
         if (lifecycleTransition == null) {
             lifecycleTransition = "autoscaling:EC2_INSTANCE_LAUNCHING";
@@ -97,7 +97,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * Additional information to be included in the notification to the notification target.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getNotificationMetadata() {
         return notificationMetadata;
     }
@@ -109,7 +109,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * The ARN of the notification target. Can be SQS or SNS.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getNotificationTargetArn() {
         return notificationTargetArn;
     }
@@ -121,7 +121,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     /**
      * The ARN of an IAM role that allows publication to the specified notification target.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRoleArn() {
         return roleArn;
     }

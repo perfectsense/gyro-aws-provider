@@ -2,7 +2,7 @@ package gyro.aws.dlm;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -79,7 +79,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The description of the snapshot policy. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -91,7 +91,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The permission role arn for the snapshot policy. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getExecutionRoleArn() {
         return executionRoleArn;
     }
@@ -103,7 +103,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The resource type of the snapshot policy. Currently only supported value is ``VOLUME``. Defaults to ``VOLUME``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getResourceType() {
         if (resourceType == null) {
             resourceType = "VOLUME";
@@ -119,7 +119,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The target tags for the snapshot policy. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTargetTags() {
         if (targetTags == null) {
             targetTags = new HashMap<>();
@@ -135,7 +135,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The state of the snapshot policy. Valid values are ``ENABLED`` or ``DISABLED``. Defaults to ``ENABLED``
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getState() {
         if (state == null) {
             state = "ENABLED";
@@ -169,7 +169,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * Copy tags to volumes created using this snapshot policy. Defaults to ``false``
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getCopyTags() {
         if (copyTags == null) {
             copyTags = false;
@@ -185,7 +185,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The name of the schedule for the snapshot policy. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getScheduleName() {
         return scheduleName;
     }
@@ -197,7 +197,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The name of the schedule for the snapshot policy. Valid values are ``2``,``3``,``4``,``6``,``8``, ``12`` and ``24``  (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getRuleInterval() {
         return ruleInterval;
     }
@@ -209,7 +209,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The rule interval for the snapshot policy. Valid values are ``HOURS``. Defaults to ``HOURS``
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRuleIntervalUnit() {
         if (ruleIntervalUnit == null) {
             ruleIntervalUnit = "HOURS";
@@ -225,7 +225,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The time format of the interval for the snapshot policy. Currenly only supported value is ``hh:mm``. Defaults to ``hh:mm``
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRuleTime() {
         if (ruleTime == null) {
             ruleTime = "hh:mm";
@@ -241,7 +241,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The number of volumes to retain for the snapshot policy. Valid values are ``1`` to ``1000``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getRetainRuleCount() {
         return retainRuleCount;
     }
@@ -253,7 +253,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     /**
      * The list of tags to add to the volumes for the snapshot policy. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTagsToAdd() {
         if (tagsToAdd == null) {
             tagsToAdd = new HashMap<>();

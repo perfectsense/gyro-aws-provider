@@ -3,7 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
@@ -89,7 +89,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
      * The number of I/O operations per second (IOPS) to provision for the volume.
      * Only allowed when 'volume-type' set to 'iops'.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIops() {
         return iops;
     }
@@ -112,7 +112,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     /**
      * The size of the volume in GiBs.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getSize() {
         return size;
     }
@@ -153,7 +153,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
      * The type of volume being created. Defaults to 'gp2'.
      * Valid options [ 'gp2', 'io1', 'st1', 'sc1', 'standard'].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";
@@ -169,7 +169,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     /**
      * Auto Enable IO. Defaults to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAutoEnableIo() {
         if (autoEnableIo == null) {
             autoEnableIo = false;

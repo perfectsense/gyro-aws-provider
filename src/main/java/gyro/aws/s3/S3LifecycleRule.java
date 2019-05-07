@@ -3,7 +3,7 @@ package gyro.aws.s3;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -110,7 +110,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * Current version expiration days. Depends on the values set in transition.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getVersionExpirationDays() {
         return versionExpirationDays;
     }
@@ -122,7 +122,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * Enable expired object.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getExpiredObjectDeleteMarker() {
         return expiredObjectDeleteMarker;
     }
@@ -134,7 +134,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * Number of days after which incomplete multipart upload data be deleted.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIncompleteMultipartUploadDays() {
         return incompleteMultipartUploadDays;
     }
@@ -146,7 +146,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * Non current version expiration days. Depends on the values set in non current transition.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getNonCurrentVersionExpirationDays() {
         return nonCurrentVersionExpirationDays;
     }
@@ -158,7 +158,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * State of the lifecycle policy. Valid values ``Enabled`` or ``Disabled``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getStatus() {
         return status;
     }
@@ -170,7 +170,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * Apply the rule to objects having this prefix.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPrefix() {
         return prefix;
     }
@@ -182,7 +182,7 @@ public class S3LifecycleRule extends Diffable {
     /**
      * Apply the rule to objects having these tags.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -200,7 +200,7 @@ public class S3LifecycleRule extends Diffable {
      *
      * @subresource gyro.aws.s3.S3LifecycleRuleNonCurrentTransition
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<S3LifecycleRuleNonCurrentTransition> getNonCurrentTransition() {
         if (nonCurrentTransition == null) {
             nonCurrentTransition = new ArrayList<>();
@@ -218,7 +218,7 @@ public class S3LifecycleRule extends Diffable {
      *
      * @subresource gyro.aws.s3.S3LifecycleRuleTransition
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<S3LifecycleRuleTransition> getTransition() {
         if (transition == null) {
             transition = new ArrayList<>();

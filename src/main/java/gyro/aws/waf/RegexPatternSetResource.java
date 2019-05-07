@@ -3,7 +3,7 @@ package gyro.aws.waf;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -72,7 +72,7 @@ public class RegexPatternSetResource extends AwsResource {
     /**
      * A list of regular expression patterns to filter request on. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getPatterns() {
         if (patterns == null) {
             patterns = new ArrayList<>();

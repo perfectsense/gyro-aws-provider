@@ -2,7 +2,7 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -76,7 +76,7 @@ public class WebAclResource extends AwsResource {
     /**
      * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDefaultAction() {
         return defaultAction != null ? defaultAction.toUpperCase() : null;
     }

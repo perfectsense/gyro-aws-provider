@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -59,7 +59,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
     /**
      * The engine version to upgrade the DB snapshot to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -71,7 +71,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
     /**
      * The option group associate with the upgraded DB snapshot. Only applicable when upgrading an Oracle DB snapshot.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getOptionGroupName() {
         return optionGroupName;
     }

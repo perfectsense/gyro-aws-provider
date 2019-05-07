@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.Credentials;
 import gyro.core.resource.Resource;
@@ -109,7 +109,7 @@ public class SqsResource extends AwsResource {
      * receive-message-wait-time-seconds : 0-20 seconds
      */
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getVisibilityTimeout() {
         return visibilityTimeout;
     }
@@ -118,7 +118,7 @@ public class SqsResource extends AwsResource {
         this.visibilityTimeout = visibilityTimeout;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMessageRetentionPeriod() {
         return messageRetentionPeriod;
     }
@@ -127,7 +127,7 @@ public class SqsResource extends AwsResource {
         this.messageRetentionPeriod = messageRetentionPeriod;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getDelaySeconds() {
         return delaySeconds;
     }
@@ -136,7 +136,7 @@ public class SqsResource extends AwsResource {
         this.delaySeconds = delaySeconds;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMaximumMessageSize() {
         return maximumMessageSize;
     }
@@ -145,7 +145,7 @@ public class SqsResource extends AwsResource {
         this.maximumMessageSize = maximumMessageSize;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getReceiveMessageWaitTimeSeconds() {
         return receiveMessageWaitTimeSeconds;
     }
@@ -173,7 +173,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables moving messages to the dead letter queue. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDeadLetterTargetArn() {
         return deadLetterTargetArn;
     }
@@ -182,7 +182,7 @@ public class SqsResource extends AwsResource {
         this.deadLetterTargetArn = deadLetterTargetArn;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMaxReceiveCount() {
         return maxReceiveCount;
     }
@@ -191,7 +191,7 @@ public class SqsResource extends AwsResource {
         this.maxReceiveCount = maxReceiveCount;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDeadLetterQueueName() {
         return deadLetterQueueName;
     }
@@ -203,7 +203,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables content-based deduplication for FIFO Queues. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getContentBasedDeduplication() {
         return contentBasedDeduplication;
     }
@@ -215,7 +215,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables server side encryption on queues. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getKmsMasterKeyId() {
         return kmsMasterKeyId;
     }
@@ -224,7 +224,7 @@ public class SqsResource extends AwsResource {
         this.kmsMasterKeyId = kmsMasterKeyId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getKmsDataKeyReusePeriodSeconds() {
         return kmsDataKeyReusePeriodSeconds;
     }
@@ -244,7 +244,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables setting up the valid IAM policies and permissions for the queue.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyDocPath() {
         return policyDocPath;
     }
@@ -261,7 +261,7 @@ public class SqsResource extends AwsResource {
      * Need to change when code changes
      * This method removes all the spaces from the policy content even from the values, the better way to do it would be by using the Jackson's API
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicy() {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }

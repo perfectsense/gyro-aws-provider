@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -47,7 +47,7 @@ public class DbGlobalClusterResource extends AwsResource {
     /**
      * Enable or disable deletion protection on the global cluster. The default is false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getDeletionProtection() {
         return deletionProtection;
     }

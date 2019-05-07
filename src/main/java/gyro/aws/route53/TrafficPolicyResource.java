@@ -2,7 +2,7 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -58,7 +58,7 @@ public class TrafficPolicyResource extends AwsResource {
     /**
      * The comment you want to put with the policy.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getComment() {
         return comment;
     }

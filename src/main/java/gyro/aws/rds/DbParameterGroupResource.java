@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -87,7 +87,7 @@ public class DbParameterGroupResource extends RdsTaggableResource {
      *
      * @subresource gyro.aws.rds.DbParameter
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<DbParameter> getParameter() {
         if (parameter == null) {
             parameter = new ArrayList<>();

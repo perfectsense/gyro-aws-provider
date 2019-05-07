@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -55,7 +55,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The name / arn / partial arn of the function to be associated with. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getFunctionName() {
         return isFunctionArnSame() ? getFunctionArn() : functionName;
     }
@@ -67,7 +67,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The batch size for the event to invoke the function. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getBatchSize() {
         return batchSize;
     }
@@ -79,7 +79,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * Enable or disable the event mapping. Defaults to ``True``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnabled() {
         if (enabled == null) {
             enabled = true;

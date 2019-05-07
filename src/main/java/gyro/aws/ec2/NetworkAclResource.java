@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -70,7 +70,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
      *
      * @subresource gyro.aws.ec2.NetworkAclRuleResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NetworkAclRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();

@@ -2,7 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -50,7 +50,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The desired capacity of instances this scheduled action to scale to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getDesiredCapacity() {
         return desiredCapacity;
     }
@@ -62,7 +62,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The maximum number of instances this scheduled action to scale to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMaxSize() {
         return maxSize;
     }
@@ -74,7 +74,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The minimum number of instances this scheduled action to scale to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMinSize() {
         return minSize;
     }
@@ -86,7 +86,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The recurring schedule for this action, in Unix cron syntax format
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRecurrence() {
         return recurrence;
     }
@@ -98,7 +98,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The time for this action to start
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Date getStartTime() {
         return startTime;
     }
@@ -110,7 +110,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     /**
      * The time for this action to start
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Date getEndTime() {
         return endTime;
     }

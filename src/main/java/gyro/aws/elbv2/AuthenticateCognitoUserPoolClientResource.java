@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -47,7 +47,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
     private String userPoolId;
     private List<String> writeAttributes;
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAllowedOAuthFlowsClient() {
         return allowedOAuthFlowsClient;
     }
@@ -56,7 +56,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthFlowsClient = allowedOAuthFlowsClient;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAllowedOAuthFlows() {
         if (allowedOAuthFlows == null) {
             allowedOAuthFlows = new ArrayList<>();
@@ -69,7 +69,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthFlows = allowedOAuthFlows;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getCallbackUrls() {
         return callbackUrls;
     }
@@ -78,7 +78,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.callbackUrls = callbackUrls;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDefaultRedirectUri() {
         return defaultRedirectUri;
     }
@@ -87,7 +87,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.defaultRedirectUri = defaultRedirectUri;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getExplicitAuthFlows() {
         return explicitAuthFlows;
     }
@@ -96,7 +96,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.explicitAuthFlows = explicitAuthFlows;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAllowedOAuthScopes() {
         if (allowedOAuthScopes == null) {
             allowedOAuthScopes = new ArrayList<>();
@@ -117,7 +117,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.generateSecret = generateSecret;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getLogoutUrls() {
         return logoutUrls;
     }
@@ -126,7 +126,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.logoutUrls = logoutUrls;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getReadAttributes() {
         return readAttributes;
     }
@@ -135,7 +135,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.readAttributes = readAttributes;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getRefreshTokenValidity() {
         return refreshTokenValidity;
     }
@@ -144,7 +144,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.refreshTokenValidity = refreshTokenValidity;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSupportedIdentityProviders() {
         return supportedIdentityProviders;
     }
@@ -162,7 +162,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.userPoolClientId = userPoolClientId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getUserPoolClientName() {
         return userPoolClientName;
     }
@@ -187,7 +187,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.userPoolId = userPoolId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getWriteAttributes() {
         return writeAttributes;
     }

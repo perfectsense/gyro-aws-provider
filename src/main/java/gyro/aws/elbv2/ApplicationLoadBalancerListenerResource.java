@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
@@ -43,7 +43,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<ActionResource> getDefaultAction() {
         if (defaultAction == null) {
             defaultAction = new ArrayList<>();

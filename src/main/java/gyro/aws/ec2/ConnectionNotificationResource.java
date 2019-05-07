@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -80,7 +80,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The ARN of the SNS topic. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getConnectionNotificationArn() {
         return connectionNotificationArn;
     }
@@ -92,7 +92,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getConnectionEvents() {
         if (connectionEvents == null) {
             connectionEvents = new ArrayList<>(masterEventSet);

@@ -2,7 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -58,7 +58,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The adjustment type. Valid values [ 'ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity' ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAdjustmentType() {
         return adjustmentType;
     }
@@ -70,7 +70,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The amount of time between two scaling events. Valid values [ Integer greater than 0 ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getCooldown() {
         return cooldown;
     }
@@ -83,7 +83,7 @@ public class AutoScalingPolicyResource extends AwsResource {
      * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics.
      * Valid values [ Integer greater than 0 ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getEstimatedInstanceWarmup() {
         return estimatedInstanceWarmup;
     }
@@ -95,7 +95,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * the aggregation type for cloud watch metrics. Valid values [ 'Minimum', 'Maximum', 'Average' ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMetricAggregationType() {
         if (metricAggregationType == null) {
             metricAggregationType = "Average";
@@ -111,7 +111,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The minimum number of instances to scale.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMinAdjustmentMagnitude() {
         return minAdjustmentMagnitude;
     }
@@ -137,7 +137,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The amount by which the scaling would happen.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getScalingAdjustment() {
         return scalingAdjustment;
     }
@@ -149,7 +149,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * Scaling in by the target tracking policy is enabled/disabled. Defaulted to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getDisableScaleIn() {
         if (disableScaleIn == null) {
             disableScaleIn = false;
@@ -165,7 +165,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The target value for the metric.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Double getTargetValue() {
         return targetValue;
     }
@@ -177,7 +177,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * Predefined metric type.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPredefinedMetricType() {
         return predefinedMetricType;
     }
@@ -191,7 +191,7 @@ public class AutoScalingPolicyResource extends AwsResource {
      *
      * Valid values are ``ASGAverageCPUUtilization``, ``ASGAverageNetworkIn``, ``ASGAverageNetworkOut``, ``ALBRequestCountPerTarget``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPredefinedMetricResourceLabel() {
         return predefinedMetricResourceLabel;
     }
@@ -211,7 +211,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * A set of adjustments that enable you to scale based on the size of the alarm breach.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<AutoScalingPolicyStepAdjustment> getStepAdjustment() {
         if (stepAdjustment == null) {
             stepAdjustment = new ArrayList<>();

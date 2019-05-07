@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -124,7 +124,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Route Table ID being associated with the Endpoint. (Required if typeInterface set to true.)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getRouteTableIds() {
         if (routeTableIds == null) {
             routeTableIds = new ArrayList<>();
@@ -140,7 +140,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Subnet ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -156,7 +156,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Security Group ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -171,7 +171,7 @@ public class EndpointResource extends AwsResource {
     /**
      * Enable private DNS on the Endpoint.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnablePrivateDns() {
         return enablePrivateDns;
     }
@@ -183,7 +183,7 @@ public class EndpointResource extends AwsResource {
     /**
      * Path to the file that contains the policy.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyDocPath() {
         return policyDocPath;
     }
@@ -196,7 +196,7 @@ public class EndpointResource extends AwsResource {
         }
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicy() {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
