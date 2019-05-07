@@ -118,7 +118,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
         return tags;
     }
 
-    private List<Tag> toDocDbTags(Map<String, String> tagMap) {
+    List<Tag> toDocDbTags(Map<String, String> tagMap) {
         List<Tag> tags = new ArrayList<>();
         for (String key : tagMap.keySet()) {
             tags.add(
