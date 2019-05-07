@@ -3,7 +3,7 @@ package gyro.aws.dlm;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceName("ebs-snapshot-lifecycle-policy")
+@ResourceType("ebs-snapshot-lifecycle-policy")
 public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
 
     private String policyId;

@@ -3,7 +3,7 @@ package gyro.aws.sns;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
@@ -38,7 +38,7 @@ import java.util.Set;
  *         topic-arn: $(aws::topic sns-topic-example | topic-arn)
  *     end
  */
-@ResourceName("subscriber")
+@ResourceType("subscriber")
 public class SubscriberResource extends AwsResource {
 
     private Map<String, String> attributes;

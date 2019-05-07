@@ -3,7 +3,7 @@ package gyro.aws.cloudfront;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
  *        end
  *    end
  */
-@ResourceName("cloudfront")
+@ResourceType("cloudfront")
 public class CloudFrontResource extends AwsResource {
 
     private boolean enabled;

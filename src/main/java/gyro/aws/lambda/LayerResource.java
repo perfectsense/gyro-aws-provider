@@ -3,7 +3,7 @@ package gyro.aws.lambda;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.core.SdkBytes;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceName("lambda-layer")
+@ResourceType("lambda-layer")
 public class LayerResource extends AwsResource {
     private String layerName;
     private String description;

@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -26,7 +26,7 @@ import java.util.Set;
  *        }
  *    end
  */
-@ResourceName("db-snapshot")
+@ResourceType("db-snapshot")
 public class DbSnapshotResource extends RdsTaggableResource {
 
     private String dbInstanceIdentifier;

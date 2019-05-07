@@ -2,7 +2,7 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -36,7 +36,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("byte-match-set")
+@ResourceType("byte-match-set")
 public class ByteMatchSetResource extends AwsResource {
     private String name;
     private String byteMatchSetId;

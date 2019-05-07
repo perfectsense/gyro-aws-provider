@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -31,7 +31,7 @@ import java.util.Set;
  *        }
  *    end
  */
-@ResourceName("db-event-subscription")
+@ResourceType("db-event-subscription")
 public class DbEventSubscriptionResource extends RdsTaggableResource {
 
     private Boolean enabled;

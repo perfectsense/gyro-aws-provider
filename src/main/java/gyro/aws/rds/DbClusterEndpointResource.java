@@ -3,7 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -27,7 +27,7 @@ import java.util.Set;
  *        static-members: [$(aws::db-instance db-instance-example | db-instance-identifier)]
  *    end
  */
-@ResourceName("db-cluster-endpoint")
+@ResourceType("db-cluster-endpoint")
 public class DbClusterEndpointResource extends AwsResource {
 
     private String clusterEndpointIdentifier;

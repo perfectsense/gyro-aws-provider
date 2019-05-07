@@ -4,7 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -42,7 +42,7 @@ import java.util.Set;
  *         network-interface-id : "eni-0be88bd89466e3841"
  *     end
  */
-@ResourceName("elastic-ip")
+@ResourceType("elastic-ip")
 public class ElasticIpResource extends Ec2TaggableResource<Address> {
 
     private String allocationId;

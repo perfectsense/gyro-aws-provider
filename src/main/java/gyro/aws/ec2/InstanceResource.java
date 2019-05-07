@@ -5,7 +5,7 @@ import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceName("instance")
+@ResourceType("instance")
 public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance {
 
     private String amiId;

@@ -3,7 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -22,7 +22,7 @@ import java.util.Set;
  *        engine: "aurora"
  *    end
  */
-@ResourceName("db-global-cluster")
+@ResourceType("db-global-cluster")
 public class DbGlobalClusterResource extends AwsResource {
 
     private String databaseName;

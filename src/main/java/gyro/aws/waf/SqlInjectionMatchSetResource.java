@@ -2,7 +2,7 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@ResourceName("sql-injection-match-set")
+@ResourceType("sql-injection-match-set")
 public class SqlInjectionMatchSetResource extends AwsResource {
     private String name;
     private String sqlInjectionMatchSetId;

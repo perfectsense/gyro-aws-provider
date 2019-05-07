@@ -1,7 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         rate-limit: 10
  *     end
  */
-@ResourceName("rate-rule")
+@ResourceType("rate-rule")
 public class RateRuleResource extends RuleBaseResource {
     private String rateKey;
     private Long rateLimit;

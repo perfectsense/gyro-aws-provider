@@ -3,7 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -39,7 +39,7 @@ import java.util.Set;
  *         cidr-block: 10.0.0.0/24
  *     end
  */
-@ResourceName("subnet")
+@ResourceType("subnet")
 public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     private VpcResource vpc;

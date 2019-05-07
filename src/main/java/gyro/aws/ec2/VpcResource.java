@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceId;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -41,7 +41,7 @@ import java.util.Set;
  *         enable-dns-support: true
  *     end
  */
-@ResourceName("vpc")
+@ResourceType("vpc")
 public class VpcResource extends Ec2TaggableResource<Vpc> {
 
     private String vpcId;

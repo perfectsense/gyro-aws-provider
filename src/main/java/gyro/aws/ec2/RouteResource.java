@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteResponse;
@@ -26,7 +26,7 @@ import java.util.Set;
  *         gateway-id: $(aws::internet-gateway ig-example | internet-gateway-id)
  *     end
  */
-@ResourceName("route")
+@ResourceType("route")
 public class RouteResource extends AwsResource {
 
     private String routeTableId;

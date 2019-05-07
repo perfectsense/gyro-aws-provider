@@ -4,7 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceName("regex-pattern-set")
+@ResourceType("regex-pattern-set")
 public class RegexPatternSetResource extends AwsResource {
     private String name;
     private String regexPatternSetId;

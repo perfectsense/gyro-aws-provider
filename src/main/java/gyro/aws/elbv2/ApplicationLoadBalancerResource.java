@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("alb")
+@ResourceType("alb")
 public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
     private List<String> securityGroups;

@@ -3,7 +3,7 @@ package gyro.aws.iam;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
@@ -32,7 +32,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("iam-policy")
+@ResourceType("iam-policy")
 public class IamPolicyResource extends AwsResource {
 
     private String policyName;

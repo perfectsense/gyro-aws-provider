@@ -3,7 +3,7 @@ package gyro.aws.lambda;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -34,7 +34,7 @@ import java.util.Set;
  *         weight: 0.4
  *     end
  */
-@ResourceName("lambda-alias")
+@ResourceType("lambda-alias")
 public class FunctionAlias extends AwsResource {
     private String aliasName;
     private String functionName;

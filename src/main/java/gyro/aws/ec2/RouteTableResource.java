@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("route-table")
+@ResourceType("route-table")
 public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
 
     private String vpcId;

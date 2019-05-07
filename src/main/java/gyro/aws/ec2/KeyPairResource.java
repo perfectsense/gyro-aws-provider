@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -42,7 +42,7 @@ import java.util.Set;
  *         public-key: ".."
  *     end
  */
-@ResourceName("key-pair")
+@ResourceType("key-pair")
 public class KeyPairResource extends AwsResource {
 
     private String keyName;

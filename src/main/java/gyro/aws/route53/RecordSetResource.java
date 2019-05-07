@@ -3,7 +3,7 @@ package gyro.aws.route53;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  *         health-check-id: $(aws::health-check health-check-record-set-example-calculated-alpha | health-check-id)
  *     end
  */
-@ResourceName("record-set")
+@ResourceType("record-set")
 public class RecordSetResource extends AwsResource {
     private String comment;
     private String continentCode;
