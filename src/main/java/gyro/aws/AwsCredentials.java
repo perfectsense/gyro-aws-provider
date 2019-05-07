@@ -13,7 +13,7 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import java.util.Map;
 
 @ResourceName("credentials")
-public class AwsCredentials extends Credentials {
+public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.credentials.AwsCredentials> {
 
     private transient AwsCredentialsProvider provider;
 
@@ -64,29 +64,13 @@ public class AwsCredentials extends Credentials {
     }
 
     @Override
-    public Map<String, String> findCredentials(boolean refresh) {
+    public software.amazon.awssdk.auth.credentials.AwsCredentials findCredentials(boolean refresh) {
         return findCredentials(refresh, true);
     }
 
     @Override
-    public Map<String, String> findCredentials(boolean refresh, boolean extended) {
-        ImmutableMap.Builder<String, String> mapBuilder = new ImmutableMap.Builder<>();
-        software.amazon.awssdk.auth.credentials.AwsCredentials creds;
-
-        AwsCredentialsProvider provider = provider();
-        creds = provider.resolveCredentials();
-
-        mapBuilder.put("accessKeyId", creds.accessKeyId());
-        mapBuilder.put("secretKey", creds.secretAccessKey());
-
-        if (creds instanceof AwsSessionCredentials) {
-            mapBuilder.put("sessionToken", ((AwsSessionCredentials) creds).sessionToken());
-        }
-
-        Long expiration = DateTime.now().plusDays(1).getMillis();
-        mapBuilder.put("expiration", Long.toString(expiration));
-
-        return mapBuilder.build();
+    public software.amazon.awssdk.auth.credentials.AwsCredentials findCredentials(boolean refresh, boolean extended) {
+        return provider().resolveCredentials();
     }
 
 }
