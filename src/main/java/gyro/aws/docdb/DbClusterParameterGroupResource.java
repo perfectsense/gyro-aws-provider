@@ -68,7 +68,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     }
 
     /**
-     * Description for the db cluster parameter family.
+     * Description for the db cluster parameter family. (Required)
      */
     public String getDescription() {
         return description;
@@ -196,7 +196,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         if (getEnableAuditLogs() || !getEnableTls() || !getEnableTtlMonitor()) {
             saveParameters(client);
         }
-    }@Override
+    }
+
+    @Override
     protected void doUpdate(Resource current, Set changedProperties) {
         DocDbClient client = createClient(DocDbClient.class);
 

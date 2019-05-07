@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -8,6 +9,7 @@ import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
+import software.amazon.awssdk.services.docdb.model.DbInstanceNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbInstancesResponse;
 
 import java.util.Set;
@@ -263,6 +265,13 @@ public class DbInstance extends DocDbTaggableResource {
 
             available = response.dbInstances().get(0).dbInstanceStatus().equals("available");
             count++;
+
+            if (!available && count == 6) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
         }
     }
 
@@ -270,10 +279,21 @@ public class DbInstance extends DocDbTaggableResource {
         boolean deleted = false;
         int count = 0;
         while (!deleted && count < 10) {
-            DescribeDbInstancesResponse response = waitHelper(count, client, 60000);
+            try {
+                DescribeDbInstancesResponse response = waitHelper(count, client, 10000);
 
-            deleted = response.dbInstances().isEmpty();
+                deleted = response.dbInstances().isEmpty();
+            } catch (DbInstanceNotFoundException ex) {
+                deleted = true;
+            }
             count++;
+
+            if (!deleted && count == 10) {
+                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                if (wait) {
+                    count = 0;
+                }
+            }
         }
     }
 

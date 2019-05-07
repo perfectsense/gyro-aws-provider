@@ -8,6 +8,7 @@ import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
+import software.amazon.awssdk.services.docdb.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DeleteDbClusterRequest;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClustersResponse;
 import software.amazon.awssdk.services.docdb.model.ModifyDbClusterRequest;
@@ -144,7 +145,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     }
 
     /**
-     * Associated kms key id.
+     * Associated kms key id. (Optional)
      */
     public String getKmsKeyId() {
         return kmsKeyId;
@@ -233,7 +234,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     }
 
     /**
-     * Encrypt storage.
+     * Encrypt storage. (Optional)
      */
     public Boolean getStorageEncrypted() {
         return storageEncrypted;
@@ -244,7 +245,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     }
 
     /**
-     * Enabled cloud watch log exports.
+     * Enabled cloud watch log exports. (Optional)
      */
     public List<String> getEnableCloudwatchLogsExports() {
         if (enableCloudwatchLogsExports == null) {
@@ -456,9 +457,13 @@ public class DbClusterResource extends DocDbTaggableResource {
         boolean deleted = false;
         int count = 0;
         while (!deleted && count < 6) {
-            DescribeDbClustersResponse response = waitHelper(count, client, 20000);
+            try {
+                DescribeDbClustersResponse response = waitHelper(count, client, 10000);
 
-            deleted = response.dbClusters().isEmpty();
+                deleted = response.dbClusters().isEmpty();
+            } catch (DbClusterNotFoundException ex) {
+                deleted = true;
+            }
             count++;
         }
     }
