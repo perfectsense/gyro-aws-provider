@@ -1,5 +1,6 @@
 package gyro.aws.waf.global;
 
+import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRegexPatternSetResponse;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateRegexPatternSetRequest;
 
 import java.util.List;
 
-//@ResourceName("regex-pattern-set")
+@ResourceType("regex-pattern-set")
 public class RegexPatternSetResource extends gyro.aws.waf.common.RegexPatternSetResource {
     @Override
     protected void doCreate() {

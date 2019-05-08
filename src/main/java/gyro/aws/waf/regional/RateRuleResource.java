@@ -1,15 +1,39 @@
 package gyro.aws.waf.regional;
 
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
+import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-//@ResourceName("rate-rule")
+@ResourceType("rate-rule-regional")
 public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
+    private List<PredicateResource> predicate;
+
+    /**
+     * A list of predicates specifying the connection between rule and conditions.
+     *
+     * @subresource gyro.aws.waf.PredicateResource
+     */
+    @ResourceUpdatable
+    public List<PredicateResource> getPredicate() {
+        if (predicate == null) {
+            predicate = new ArrayList<>();
+        }
+
+        return predicate;
+    }
+
+    public void setPredicate(List<PredicateResource> predicate) {
+        this.predicate = predicate;
+    }
+
     @Override
     protected RateBasedRule getRule() {
         return getRegionalClient().getRateBasedRule(r -> r.ruleId(getRuleId())).rule();
@@ -50,5 +74,15 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .ruleId(getRuleId())
         );
+    }
+
+    @Override
+    protected void loadPredicates(List<Predicate> predicates, boolean isRateRule) {
+        getPredicate().clear();
+
+        for (Predicate predicate: predicates) {
+            PredicateResource predicateResource = new PredicateResource(predicate, isRateRule);
+            getPredicate().add(predicateResource);
+        }
     }
 }

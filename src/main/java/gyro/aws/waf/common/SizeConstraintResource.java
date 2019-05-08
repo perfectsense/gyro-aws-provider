@@ -71,8 +71,6 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
         this.size = size;
     }
 
-
-
     @Override
     public boolean refresh() {
         return false;
@@ -125,11 +123,6 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s %s %s", getData(), getType(), getComparisonOperator(), getTextTransformation(), getSize());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     protected abstract void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete);

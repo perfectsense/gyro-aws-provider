@@ -2,8 +2,8 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceUpdatable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.Set;
 public abstract class SizeConstraintSetResource extends AbstractWafResource {
     private String name;
     private String sizeConstraintSetId;
-    private List<SizeConstraintResource> sizeConstraint;
 
     /**
      * The name of the size constraint condition. (Required)
@@ -32,23 +31,6 @@ public abstract class SizeConstraintSetResource extends AbstractWafResource {
 
     public void setSizeConstraintSetId(String sizeConstraintSetId) {
         this.sizeConstraintSetId = sizeConstraintSetId;
-    }
-
-    /**
-     * List of size constraint data defining the condition. (Required)
-     *
-     * @subresource gyro.aws.waf.SizeConstraintResource
-     */
-    @ResourceDiffProperty(updatable = true, subresource = true)
-    public List<SizeConstraintResource> getSizeConstraint() {
-        if (sizeConstraint == null) {
-            sizeConstraint = new ArrayList<>();
-        }
-        return sizeConstraint;
-    }
-
-    public void setSizeConstraint(List<SizeConstraintResource> sizeConstraint) {
-        this.sizeConstraint = sizeConstraint;
     }
 
     @Override

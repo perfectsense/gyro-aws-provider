@@ -3,7 +3,6 @@ package gyro.aws.waf.regional;
 import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-//@ResourceName(parent = "regex-match-set", value = "regex-match-tuple")
 public class RegexMatchTupleResource extends gyro.aws.waf.common.RegexMatchTupleResource {
     public RegexMatchTupleResource() {
 

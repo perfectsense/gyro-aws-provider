@@ -3,8 +3,8 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
@@ -24,7 +24,6 @@ public abstract class WebAclResource extends AbstractWafResource {
     private String defaultAction;
     private String webAclId;
     private String arn;
-    private List<ActivatedRuleResource> activatedRule;
 
     /**
      * The name of the waf acl. (Required)
@@ -51,7 +50,7 @@ public abstract class WebAclResource extends AbstractWafResource {
     /**
      * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public String getDefaultAction() {
         return defaultAction != null ? defaultAction.toUpperCase() : null;
     }
@@ -78,29 +77,13 @@ public abstract class WebAclResource extends AbstractWafResource {
         this.arn = arn;
     }
 
-    /**
-     * A list of activated rules specifying the connection between waf acl and rule.
-     *
-     * @subresource gyro.aws.waf.ActivatedRuleResource
-     */
-    @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<ActivatedRuleResource> getActivatedRule() {
-        if (activatedRule == null) {
-            activatedRule = new ArrayList<>();
-        }
-
-        return activatedRule;
-    }
-
-    public void setActivatedRule(List<ActivatedRuleResource> activatedRule) {
-        this.activatedRule = activatedRule;
-
-        validateActivatedRule();
-    }
-
     protected abstract WebACL getWebAcl();
 
     protected abstract void setActivatedRules(ActivatedRule activatedRule);
+
+    protected abstract void clearActivatedRules();
+
+    protected abstract List<Integer> getActivatedRulesPriority();
 
     @Override
     public boolean refresh() {
@@ -115,7 +98,7 @@ public abstract class WebAclResource extends AbstractWafResource {
         setMetricName(webAcl.metricName());
         setName(webAcl.name());
 
-        getActivatedRule().clear();
+        clearActivatedRules();
         for (ActivatedRule activatedRule : webAcl.rules()) {
             setActivatedRules(activatedRule);
         }
@@ -177,15 +160,11 @@ public abstract class WebAclResource extends AbstractWafResource {
         return sb.toString();
     }
 
-    private void validateActivatedRule() {
-        List<Integer> priorityList = getActivatedRule().stream()
-            .sorted(Comparator.comparing(ActivatedRuleResource::getPriority))
-            .map(ActivatedRuleResource::getPriority).collect(Collectors.toList());
-
+    protected void validateActivatedRule() {
         boolean invalidPriority = false;
         int start = 1;
 
-        for (int priority: priorityList) {
+        for (int priority: getActivatedRulesPriority()) {
             if (priority != start || start > 10) {
                 invalidPriority = true;
             }

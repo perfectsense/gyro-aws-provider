@@ -2,7 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
@@ -31,7 +31,7 @@ public abstract class PredicateResource extends AbstractWafResource {
     /**
      * Set if the condition is checked to be false. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getNegated() {
         return negated;
     }
@@ -123,11 +123,6 @@ public abstract class PredicateResource extends AbstractWafResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getDataId(), getType(), (getRateRule() ? "Rate based" : "Regular"));
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);

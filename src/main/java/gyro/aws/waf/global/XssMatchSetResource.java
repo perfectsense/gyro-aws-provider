@@ -1,14 +1,39 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.XssMatchSet;
 import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 
-//@ResourceName("xss-match-set")
+import java.util.ArrayList;
+import java.util.List;
+
+@ResourceType("xss-match-set")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {
+    private List<XssMatchTupleResource> xssMatchTuple;
+
+    /**
+     * List of xss match tuple data defining the condition. (Required)
+     *
+     * @subresource gyro.aws.waf.global.XssMatchTupleResource
+     */
+    @ResourceUpdatable
+    public List<XssMatchTupleResource> getXssMatchTuple() {
+        if (xssMatchTuple == null) {
+            xssMatchTuple = new ArrayList<>();
+        }
+
+        return xssMatchTuple;
+    }
+
+    public void setXssMatchTuple(List<XssMatchTupleResource> xssMatchTuple) {
+        this.xssMatchTuple = xssMatchTuple;
+    }
+
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getXssMatchSetId())) {
@@ -25,7 +50,6 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
         getXssMatchTuple().clear();
         for (XssMatchTuple xssMatchTuple : xssMatchSet.xssMatchTuples()) {
             XssMatchTupleResource xssMatchTupleResource = new XssMatchTupleResource(xssMatchTuple);
-            xssMatchTupleResource.parent(this);
             getXssMatchTuple().add(xssMatchTupleResource);
         }
 

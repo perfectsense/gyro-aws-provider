@@ -2,8 +2,8 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceUpdatable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.Set;
 public abstract class SqlInjectionMatchSetResource extends AbstractWafResource {
     private String name;
     private String sqlInjectionMatchSetId;
-    private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
 
     /**
      * The name of the sql injection match condition. (Required)
@@ -32,24 +31,6 @@ public abstract class SqlInjectionMatchSetResource extends AbstractWafResource {
 
     public void setSqlInjectionMatchSetId(String sqlInjectionMatchSetId) {
         this.sqlInjectionMatchSetId = sqlInjectionMatchSetId;
-    }
-
-    /**
-     * List of sql injection match tuple data defining the condition. (Required)
-     *
-     * @subresource gyro.aws.waf.SqlInjectionMatchTupleResource
-     */
-    @ResourceDiffProperty(updatable = true, subresource = true)
-    public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
-        if (sqlInjectionMatchTuple == null) {
-            sqlInjectionMatchTuple = new ArrayList<>();
-        }
-
-        return sqlInjectionMatchTuple;
-    }
-
-    public void setSqlInjectionMatchTuple(List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
-        this.sqlInjectionMatchTuple = sqlInjectionMatchTuple;
     }
 
     @Override

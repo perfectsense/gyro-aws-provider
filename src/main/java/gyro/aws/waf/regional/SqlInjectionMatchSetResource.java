@@ -1,14 +1,39 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-//@ResourceName("sql-injection-match-set")
+import java.util.ArrayList;
+import java.util.List;
+
+@ResourceType("sql-injection-match-set-regional")
 public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjectionMatchSetResource {
+    private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
+
+    /**
+     * List of sql injection match tuple data defining the condition. (Required)
+     *
+     * @subresource gyro.aws.waf.regional.SqlInjectionMatchTupleResource
+     */
+    @ResourceUpdatable
+    public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
+        if (sqlInjectionMatchTuple == null) {
+            sqlInjectionMatchTuple = new ArrayList<>();
+        }
+
+        return sqlInjectionMatchTuple;
+    }
+
+    public void setSqlInjectionMatchTuple(List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
+        this.sqlInjectionMatchTuple = sqlInjectionMatchTuple;
+    }
+
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getSqlInjectionMatchSetId())) {
@@ -25,7 +50,6 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
         getSqlInjectionMatchTuple().clear();
         for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
             SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = new SqlInjectionMatchTupleResource(sqlInjectionMatchTuple);
-            sqlInjectionMatchTupleResource.parent(this);
             getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
         }
 

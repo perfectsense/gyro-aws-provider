@@ -93,11 +93,6 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     protected abstract void saveSqlInjectionMatchTuple(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete);
 
     private SqlInjectionMatchTuple getSqlInjectionMatchTuple() {

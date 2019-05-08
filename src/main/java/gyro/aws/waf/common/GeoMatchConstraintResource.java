@@ -77,11 +77,6 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource {
         return String.format("%s %s", getValue(), getType());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     protected abstract void saveGeoMatchConstraint(GeoMatchConstraint geoMatchConstraint, boolean isDelete);
 
     private GeoMatchConstraint getGeoMatchConstraint() {

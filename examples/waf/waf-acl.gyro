@@ -120,7 +120,7 @@ aws::rule rule-example-waf
         rate-rule: false
     end
 
-    predicate-regular
+    predicate
         data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
@@ -176,7 +176,7 @@ aws::rate-rule rate-rule-example-waf
         rate-rule: true
     end
 
-    predicate-regular
+    predicate
         data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false

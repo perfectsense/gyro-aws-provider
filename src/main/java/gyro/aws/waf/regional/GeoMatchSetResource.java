@@ -1,15 +1,38 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.waf.global.GeoMatchConstraintResource;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.CreateGeoMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
 import software.amazon.awssdk.services.waf.model.GeoMatchSet;
 import software.amazon.awssdk.services.waf.model.GetGeoMatchSetResponse;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-//@ResourceName("geo-match-set")
+import java.util.ArrayList;
+import java.util.List;
+
+@ResourceType("geo-match-set-regional")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {
+    private List<GeoMatchConstraintResource> geoMatchConstraint;
+
+    /**
+     * List of geo match constraint data defining the condition. (Required)
+     *
+     * @subresource gyro.aws.waf.regional.GeoMatchConstraintResource
+     */
+    @ResourceUpdatable
+    public List<GeoMatchConstraintResource> getGeoMatchConstraint() {
+        if (geoMatchConstraint == null) {
+            geoMatchConstraint = new ArrayList<>();
+        }
+
+        return geoMatchConstraint;
+    }
+
+    public void setGeoMatchConstraint(List<GeoMatchConstraintResource> geoMatchConstraint) {
+        this.geoMatchConstraint = geoMatchConstraint;
+    }
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getGeoMatchSetId())) {
@@ -25,8 +48,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
 
         getGeoMatchConstraint().clear();
         for (GeoMatchConstraint geoMatchConstraint : geoMatchSet.geoMatchConstraints()) {
-            gyro.aws.waf.global.GeoMatchConstraintResource geoMatchConstraintResource = new GeoMatchConstraintResource(geoMatchConstraint);
-            geoMatchConstraintResource.parent(this);
+            GeoMatchConstraintResource geoMatchConstraintResource = new GeoMatchConstraintResource(geoMatchConstraint);
             getGeoMatchConstraint().add(geoMatchConstraintResource);
         }
 

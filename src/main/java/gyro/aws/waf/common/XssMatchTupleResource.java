@@ -93,11 +93,6 @@ public abstract class XssMatchTupleResource extends AbstractWafResource {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     protected abstract void saveXssMatchTuple(XssMatchTuple xssMatchTuple, boolean isDelete);
 
     private XssMatchTuple getXssMatchTuple() {

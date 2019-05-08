@@ -3,7 +3,6 @@ package gyro.aws.waf.regional;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-//@ResourceName(parent = "size-constraint-set", value = "size-constraint")
 public class SizeConstraintResource extends gyro.aws.waf.common.SizeConstraintResource {
     public SizeConstraintResource() {
 

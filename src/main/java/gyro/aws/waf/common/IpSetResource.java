@@ -2,23 +2,12 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceOutput;
-import software.amazon.awssdk.services.waf.WafClient;
-import software.amazon.awssdk.services.waf.model.CreateIpSetResponse;
-import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
-import software.amazon.awssdk.services.waf.model.IPSet;
-import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
-import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 public abstract class IpSetResource extends AbstractWafResource {
     private String name;
     private String ipSetId;
-    private List<IpSetDescriptorResource> ipSetDescriptor;
 
     /**
      * The name of the ip set condition. (Required)
@@ -38,24 +27,6 @@ public abstract class IpSetResource extends AbstractWafResource {
 
     public void setIpSetId(String ipSetId) {
         this.ipSetId = ipSetId;
-    }
-
-    /**
-     * List of ip set descriptor data defining the condition. (Required)
-     *
-     * @subresource gyro.aws.waf.IpSetDescriptorResource
-     */
-    @ResourceDiffProperty(updatable = true, subresource = true)
-    public List<IpSetDescriptorResource> getIpSetDescriptor() {
-        if (ipSetDescriptor == null) {
-            ipSetDescriptor = new ArrayList<>();
-        }
-
-        return ipSetDescriptor;
-    }
-
-    public void setIpSetDescriptor(List<IpSetDescriptorResource> ipSetDescriptor) {
-        this.ipSetDescriptor = ipSetDescriptor;
     }
 
     @Override

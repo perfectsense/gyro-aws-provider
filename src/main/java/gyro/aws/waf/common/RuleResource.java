@@ -18,7 +18,7 @@ public abstract class RuleResource extends AbstractRuleResource {
         Rule rule = getRule();
         setMetricName(rule.metricName());
         setName(rule.name());
-        loadPredicates(rule.predicates());
+        loadPredicates(rule.predicates(), isRateRule());
 
         return true;
     }

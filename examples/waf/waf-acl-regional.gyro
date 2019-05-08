@@ -1,5 +1,4 @@
-aws::regex-pattern-set regex-pattern-set-match-set-example-waf
-    regional-waf: true
+aws::regex-pattern-set-regional regex-pattern-set-match-set-example-waf
     name: "regex-pattern-set-match-set-example-waf"
 
     patterns: [
@@ -8,45 +7,37 @@ aws::regex-pattern-set regex-pattern-set-match-set-example-waf
     ]
 end
 
-aws::regex-match-set regex-match-set-example-waf
-    regional-waf: true
+aws::regex-match-set-regional regex-match-set-example-waf
     name: "regex-match-set-example-waf"
     regex-match-tuple
-        regional-waf: true
         type: "METHOD"
         text-transformation: "NONE"
-        regex-pattern-set-id: $(aws::regex-pattern-set regex-pattern-set-match-set-example-waf | regex-pattern-set-id)
+        regex-pattern-set-id: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example-waf | regex-pattern-set-id)
     end
 end
 
-aws::geo-match-set geo-match-set-example-waf
-    regional-waf: true
+aws::geo-match-set-regional geo-match-set-example-waf
     name: "geo-match-set-example-waf"
 
     geo-match-constraint
-        regional-waf: true
         type: "Country"
         value: "TL"
     end
 end
 
-aws::xss-match-set xss-match-set-example-waf
-    regional-waf: true
+aws::xss-match-set-regional xss-match-set-example-waf
     name: "xss-match-set-example-waf"
 
     xss-match-tuple
-        regional-waf: true
         type: "METHOD"
         text-transformation: "NONE"
     end
 end
 
-aws::size-constraint-set size-constraint-set-example-waf
-    regional-waf: true
+aws::size-constraint-set-regional size-constraint-set-example-waf
     name: "size-constraint-set-example-waf"
 
     size-constraint
-        regional-waf: true
         type: "METHOD"
         text-transformation: "NONE"
         comparison-operator: "EQ"
@@ -54,23 +45,19 @@ aws::size-constraint-set size-constraint-set-example-waf
     end
 end
 
-aws::ip-set ip-set-example-waf
-    regional-waf: true
+aws::ip-set-regional ip-set-example-waf
     name: "ip-set-example-waf"
 
     ip-set-descriptor
-        regional-waf: true
         type: "IPV4"
         value: "190.0.0.26/32"
     end
 end
 
-aws::byte-match-set byte-match-set-example-waf
-    regional-waf: true
+aws::byte-match-set-regional byte-match-set-example-waf
     name: "byte-match-set-example-waf"
 
     byte-match-tuple
-        regional-waf: true
         type: "METHOD"
         text-transformation: "NONE"
         positional-constraint: "CONTAINS"
@@ -78,162 +65,141 @@ aws::byte-match-set byte-match-set-example-waf
     end
 end
 
-aws::sql-injection-match-set sql-injection-match-set-example-waf
-    regional-waf: true
+aws::sql-injection-match-set-regional sql-injection-match-set-example-waf
     name: "sql-injection-match-set-example-waf"
 
     sql-injection-match-tuple
-        regional-waf: true
         type: "METHOD"
         text-transformation: "NONE"
     end
 end
 
-aws::rule rule-example-waf
-    regional-waf: true
+aws::rule-regional rule-example-waf
     name: "rule-example-waf"
     metric-name: "ruleExampleWaf"
 
     predicate
-        regional-waf: true
-        data-id:$(aws::regex-match-set regex-match-set-example-waf | regex-match-set-id)
+        data-id:$(aws::regex-match-set-regional regex-match-set-example-waf | regex-match-set-id)
         type: "RegexMatch"
         negated: false
         rate-rule: false
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::geo-match-set geo-match-set-example-waf | geo-match-set-id)
+        data-id:$(aws::geo-match-set-regional geo-match-set-example-waf | geo-match-set-id)
         type: "GeoMatch"
         negated: false
         rate-rule: false
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::xss-match-set xss-match-set-example-waf | xss-match-set-id)
+        data-id:$(aws::xss-match-set-regional xss-match-set-example-waf | xss-match-set-id)
         type: "XssMatch"
         negated: false
         rate-rule: false
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::size-constraint-set size-constraint-set-example-waf | size-constraint-set-id)
+        data-id:$(aws::size-constraint-set-regional size-constraint-set-example-waf | size-constraint-set-id)
         type: "SizeConstraint"
         negated: false
         rate-rule: false
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::ip-set ip-set-example-waf | ip-set-id)
+        data-id:$(aws::ip-set-regional ip-set-example-waf | ip-set-id)
         type: "IPMatch"
         negated: false
         rate-rule: false
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::byte-match-set byte-match-set-example-waf | byte-match-set-id)
+        data-id:$(aws::byte-match-set-regional byte-match-set-example-waf | byte-match-set-id)
         type: "ByteMatch"
         negated: false
         rate-rule: false
     end
 
     predicate
-        regional-waf: true
-        data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
+        data-id: $(aws::sql-injection-match-set-regional sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
         rate-rule: false
     end
 end
 
-aws::rate-rule rate-rule-example-waf
-    regional-waf: true
+aws::rate-rule-regional rate-rule-example-waf
     name: "rate-rule-example-waf"
     metric-name: "rateRuleExampleWaf"
     rate-key: "IP"
     rate-limit: 2000
 
     predicate
-        regional-waf: true
-        data-id:$(aws::regex-match-set regex-match-set-example-waf | regex-match-set-id)
+        data-id:$(aws::regex-match-set-regional regex-match-set-example-waf | regex-match-set-id)
         type: "RegexMatch"
         negated: false
         rate-rule: true
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::geo-match-set geo-match-set-example-waf | geo-match-set-id)
+        data-id:$(aws::geo-match-set-regional geo-match-set-example-waf | geo-match-set-id)
         type: "GeoMatch"
         negated: false
         rate-rule: true
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::xss-match-set xss-match-set-example-waf | xss-match-set-id)
+        data-id:$(aws::xss-match-set-regional xss-match-set-example-waf | xss-match-set-id)
         type: "XssMatch"
         negated: false
         rate-rule: true
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::size-constraint-set size-constraint-set-example-waf | size-constraint-set-id)
+        data-id:$(aws::size-constraint-set-regional size-constraint-set-example-waf | size-constraint-set-id)
         type: "SizeConstraint"
         negated: false
         rate-rule: true
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::ip-set ip-set-example-waf | ip-set-id)
+        data-id:$(aws::ip-set-regional ip-set-example-waf | ip-set-id)
         type: "IPMatch"
         negated: false
         rate-rule: true
     end
 
     predicate
-        regional-waf: true
-        data-id:$(aws::byte-match-set byte-match-set-example-waf | byte-match-set-id)
+        data-id:$(aws::byte-match-set-regional byte-match-set-example-waf | byte-match-set-id)
         type: "ByteMatch"
         negated: false
         rate-rule: true
     end
 
     predicate
-        regional-waf: true
-        data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
+        data-id: $(aws::sql-injection-match-set-regional sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
         rate-rule: true
     end
 end
 
-aws::waf-acl waf-acl-example
-    regional-waf: true
+aws::waf-acl-regional waf-acl-example
     name: "waf-acl-example"
     metric-name: "wafAclExample"
     default-action: "ALLOW"
 
     activated-rule
-    regional-waf: true
         action: "ALLOW"
         type: "REGULAR"
         priority: 1
-        rule-id: $(aws::rule rule-example-waf | rule-id)
+        rule-id: $(aws::rule-regional rule-example-waf | rule-id)
     end
 
     activated-rule
-    regional-waf: true
         action: "ALLOW"
         type: "RATE_BASED"
         priority: 2
-        rule-id: $(aws::rate-rule rate-rule-example-waf | rule-id)
+        rule-id: $(aws::rate-rule-regional rate-rule-example-waf | rule-id)
     end
 end

@@ -5,7 +5,6 @@ import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 
 import java.nio.charset.StandardCharsets;
 
-//@ResourceName(parent = "byte-match-set", value = "byte-match-tuple")
 public class ByteMatchTupleResource extends gyro.aws.waf.common.ByteMatchTupleResource {
     public ByteMatchTupleResource() {
 

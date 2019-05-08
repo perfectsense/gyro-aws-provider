@@ -84,11 +84,6 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource {
         return String.format("%s %s", getType(), getValue());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     protected abstract void saveIpSetDescriptor(IPSetDescriptor ipSetDescriptor, boolean isDelete);
 
     private IPSetDescriptor getIpSetDescriptor() {

@@ -3,7 +3,6 @@ package gyro.aws.waf.global;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 
-//@ResourceName(parent = "xss-match-set", value = "xss-match-tuple")
 public class XssMatchTupleResource extends gyro.aws.waf.common.XssMatchTupleResource {
     public XssMatchTupleResource() {
 

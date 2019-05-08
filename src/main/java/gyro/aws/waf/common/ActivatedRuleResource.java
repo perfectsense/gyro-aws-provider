@@ -2,7 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -36,7 +36,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
     /**
      * The default action for the rule under this waf. valid values are ``ALLOW`` or ``BLOCK``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAction() {
         return action != null ? action.toUpperCase() : null;
     }
@@ -59,7 +59,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
     /**
      * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getPriority() {
         return priority;
     }
@@ -91,7 +91,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
         // Priority check
         handlePriority();
 
-        saveActivatedRule(false);
+        saveActivatedRule(getActivatedRule(), false);
     }
 
     @Override
@@ -100,15 +100,15 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
         handlePriority();
 
         // Remove old activated rule
-        saveActivatedRule(true);
+        saveActivatedRule(((ActivatedRuleResource) current).getActivatedRule(), true);
 
         // Add updated activated rule
-        saveActivatedRule(false);
+        saveActivatedRule(getActivatedRule(), false);
     }
 
     @Override
     public void delete() {
-        saveActivatedRule(true);
+        saveActivatedRule(getActivatedRule(), true);
     }
 
     @Override
@@ -133,12 +133,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
         return String.format("%s %s", getRuleId(), getType());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
-    private ActivatedRule getActivatedRule() {
+    protected ActivatedRule getActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
             .priority(getPriority())
@@ -154,7 +149,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
             .build();
     }
 
-    protected abstract void saveActivatedRule(boolean isDelete);
+    protected abstract void saveActivatedRule(ActivatedRule activatedRule, boolean isDelete);
 
     protected abstract void handlePriority();
 

@@ -3,7 +3,6 @@ package gyro.aws.waf.regional;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-//@ResourceName(parent = "sql-injection-match-set", value = "sql-injection-match-tuple")
 public class SqlInjectionMatchTupleResource extends gyro.aws.waf.common.SqlInjectionMatchTupleResource {
     public SqlInjectionMatchTupleResource() {
 

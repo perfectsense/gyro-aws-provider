@@ -2,9 +2,8 @@ package gyro.aws.waf.common;
 
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.waf.PredicateResource;
-import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.model.Predicate;
 
 import java.util.ArrayList;
@@ -14,25 +13,6 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
     private String name;
     private String metricName;
     private String ruleId;
-    private List<PredicateResource> predicate;
-
-    /**
-     * A list of predicates specifying the connection between rule and conditions.
-     *
-     * @subresource gyro.aws.waf.PredicateResource
-     */
-    @ResourceDiffProperty(nullable = true, subresource = true)
-    public List<PredicateResource> getPredicate() {
-        if (predicate == null) {
-            predicate = new ArrayList<>();
-        }
-
-        return predicate;
-    }
-
-    public void setPredicate(List<PredicateResource> predicate) {
-        this.predicate = predicate;
-    }
 
     /**
      * The name of the rule. (Required)
@@ -67,15 +47,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
 
     abstract boolean isRateRule();
 
-    protected void loadPredicates(List<Predicate> predicates) {
-        getPredicate().clear();
-
-        for (Predicate predicate: predicates) {
-            PredicateResource predicateResource = new PredicateResource(predicate, isRateRule());
-            predicateResource.parent(this);
-            getPredicate().add(predicateResource);
-        }
-    }
+    protected abstract void loadPredicates(List<Predicate> predicates, boolean isRateRule);
 
     @Override
     public String toDisplayString() {

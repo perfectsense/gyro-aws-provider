@@ -126,11 +126,6 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
         return String.format("%s %s %s %s %s", getData(), getType(), getTextTransformation(), getPositionalConstraint(), getTargetString());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     protected abstract void saveByteMatchTuple(ByteMatchTuple byteMatchTuple, boolean isDelete);
 
     private ByteMatchTuple getByteMatchTuple() {

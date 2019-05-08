@@ -6,7 +6,6 @@ import software.amazon.awssdk.services.waf.model.ExcludedRule;
 
 import java.util.stream.Collectors;
 
-//@ResourceName(parent = "waf-acl", value = "activated-rule")
 public class ActivatedRuleResource extends gyro.aws.waf.common.ActivatedRuleResource {
     public ActivatedRuleResource() {
 
@@ -21,10 +20,8 @@ public class ActivatedRuleResource extends gyro.aws.waf.common.ActivatedRuleReso
     }
 
     @Override
-    protected void saveActivatedRule(boolean isDelete) {
+    protected void saveActivatedRule(ActivatedRule activatedRule, boolean isDelete) {
         WebAclResource parent = (WebAclResource) parent();
-
-        ActivatedRule activatedRule = parent.getActivatedRuleWithPriority(getPriority());
 
         if (!isDelete || parent.isActivatedRulePresent(activatedRule)) {
 
@@ -45,7 +42,7 @@ public class ActivatedRuleResource extends gyro.aws.waf.common.ActivatedRuleReso
         ActivatedRule activatedRule = parent.getActivatedRuleWithPriority(getPriority());
         if (activatedRule != null) {
             //delete conflicting activated rule with same priority
-            saveActivatedRule(true);
+            saveActivatedRule(activatedRule, true);
         }
     }
 }

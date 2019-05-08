@@ -1,14 +1,39 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.CreateByteMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetByteMatchSetResponse;
 
-//@ResourceName("byte-match-set")
+import java.util.ArrayList;
+import java.util.List;
+
+@ResourceType("byte-match-set")
 public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResource {
+    private List<ByteMatchTupleResource> byteMatchTuple;
+
+    /**
+     * List of byte match tuple data defining the condition. (Required)
+     *
+     * @subresource gyro.aws.waf.global.ByteMatchTupleResource
+     */
+    @ResourceUpdatable
+    public List<ByteMatchTupleResource> getByteMatchTuple() {
+        if (byteMatchTuple == null) {
+            byteMatchTuple = new ArrayList<>();
+        }
+
+        return byteMatchTuple;
+    }
+
+    public void setByteMatchTuple(List<ByteMatchTupleResource> byteMatchTuple) {
+        this.byteMatchTuple = byteMatchTuple;
+    }
+
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getByteMatchSetId())) {
@@ -25,7 +50,6 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
         for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
             ByteMatchTupleResource byteMatchTupleResource = new ByteMatchTupleResource(byteMatchTuple);
-            byteMatchTupleResource.parent(this);
             getByteMatchTuple().add(byteMatchTupleResource);
         }
 
