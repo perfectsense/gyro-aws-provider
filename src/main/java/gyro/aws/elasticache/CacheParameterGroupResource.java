@@ -152,7 +152,7 @@ public class CacheParameterGroupResource extends AwsResource {
             r -> r.cacheParameterGroupFamily(getCacheParamGroupFamily())
         );
 
-        Map<String, String> parameterMap = parameters.stream().collect(Collectors.toMap(CacheParameter::getName, CacheParameter::getValue));
+        Map<String, String> parameterMap = parameters.stream().collect(Collectors.toMap(CacheParameter::getName, o -> (o.getValue() == null ? "" : o.getValue())));
 
         Set<String> defaultParameterKeySet = defaultParamResponse.engineDefaults().parameters()
             .stream()
@@ -194,28 +194,30 @@ public class CacheParameterGroupResource extends AwsResource {
 
         Set<String> paramSet = getParametersWithoutReset().stream().map(CacheParameter::getName).collect(Collectors.toSet());
 
-        modifiedParameters.addAll(defaultParamMap.keySet().stream()
-            .filter(o -> !paramSet.contains(o))
-            .map(o -> new CacheParameter(o, defaultParamMap.get(o)))
-            .collect(Collectors.toList()));
+        if (!paramSet.isEmpty()) {
+            modifiedParameters.addAll(defaultParamMap.keySet().stream()
+                .filter(o -> !paramSet.contains(o))
+                .map(o -> new CacheParameter(o, defaultParamMap.get(o)))
+                .collect(Collectors.toList()));
+        }
 
         // divide the list into max 20 item chunks
         // The api can handle max 20 param modification at a time.
-        List<CacheParameter> parameters1 = modifiedParameters.size() > 20 ? modifiedParameters.subList(0,20) : modifiedParameters;
-        List<CacheParameter> parameters2 = modifiedParameters.size() > 20 ? modifiedParameters.subList(20, modifiedParameters.size()) : new ArrayList<>();
-
-        if (!parameters1.isEmpty()) {
-            client.modifyCacheParameterGroup(
-                r -> r.cacheParameterGroupName(getCacheParamGroupName())
-                    .parameterNameValues(parameters1.stream().map(CacheParameter::getParameterNameValue).collect(Collectors.toList()))
-            );
-
-            if (!parameters2.isEmpty()) {
+        int start = 0;
+        int max = 20;
+        boolean done = false;
+        do {
+            int end = modifiedParameters.size() < (start + max) ? modifiedParameters.size() : (start + max);
+            List<CacheParameter> parameters = modifiedParameters.subList(start, end);
+            if (start < modifiedParameters.size() || !parameters.isEmpty()) {
                 client.modifyCacheParameterGroup(
                     r -> r.cacheParameterGroupName(getCacheParamGroupName())
-                        .parameterNameValues(parameters2.stream().map(CacheParameter::getParameterNameValue).collect(Collectors.toList()))
+                        .parameterNameValues(parameters.stream().map(CacheParameter::getParameterNameValue).collect(Collectors.toList()))
                 );
+                start = start + max;
+            } else {
+                done = true;
             }
-        }
+        } while (!done);
     }
 }
