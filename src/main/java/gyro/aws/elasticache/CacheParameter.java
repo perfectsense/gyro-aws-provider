@@ -1,8 +1,7 @@
 package gyro.aws.elasticache;
 
-import com.psddev.dari.util.ObjectUtils;
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.model.ParameterNameValue;
 
 public class CacheParameter extends Diffable {
@@ -26,7 +25,7 @@ public class CacheParameter extends Diffable {
         this.name = name;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getValue() {
         return value;
     }
@@ -50,17 +49,5 @@ public class CacheParameter extends Diffable {
             .parameterName(getName())
             .parameterValue(getValue())
             .build();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj.getClass().equals(CacheParameter.class)) {
-            CacheParameter obj1 = (CacheParameter) obj;
-            return (this.getName().equals(obj1.getName())
-                && (this.getValue().equals(obj1.getValue())
-                || (ObjectUtils.isBlank(this.getValue()) && ObjectUtils.isBlank(obj1.getValue()))));
-        } else {
-            return false;
-        }
     }
 }

@@ -3,8 +3,8 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheSubnetGroupsResponse;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName("cache-subnet-group")
+@ResourceType("cache-subnet-group")
 public class CacheSubnetGroupResource extends AwsResource {
     private String cacheSubnetGroupName;
     private String description;
@@ -30,7 +30,7 @@ public class CacheSubnetGroupResource extends AwsResource {
         this.cacheSubnetGroupName = cacheSubnetGroupName;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -39,7 +39,7 @@ public class CacheSubnetGroupResource extends AwsResource {
         this.description = description;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSubnets() {
         if (subnets == null) {
             subnets = new ArrayList<>();

@@ -6,9 +6,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSecurityGroup;
 import software.amazon.awssdk.services.elasticache.model.CreateCacheSecurityGroupResponse;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName("cache-security-group")
+@ResourceType("cache-security-group")
 public class CacheSecurityGroupResource extends AwsResource {
     private String cacheSecurityGroupName;
     private String description;
@@ -44,7 +44,7 @@ public class CacheSecurityGroupResource extends AwsResource {
         this.description = description;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getEc2SecurityGroups() {
         if (ec2SecurityGroups == null) {
             ec2SecurityGroups = new HashMap<>();

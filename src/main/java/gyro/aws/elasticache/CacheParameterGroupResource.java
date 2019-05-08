@@ -3,8 +3,8 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheParameterGroupsResponse;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName("cache-param-group")
+@ResourceType("cache-param-group")
 public class CacheParameterGroupResource extends AwsResource {
     private String cacheParamGroupName;
     private String cacheParamGroupFamily;
@@ -49,7 +49,7 @@ public class CacheParameterGroupResource extends AwsResource {
         this.description = description;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<CacheParameter> getParameters() {
         if (parameters == null) {
             parameters = new ArrayList<>();
@@ -154,18 +154,16 @@ public class CacheParameterGroupResource extends AwsResource {
 
         Map<String, String> parameterMap = parameters.stream().collect(Collectors.toMap(CacheParameter::getName, CacheParameter::getValue));
 
-        parameters.removeAll(
-            defaultParamResponse.engineDefaults().parameters()
-                .stream()
-                .filter(
-                    f -> f.isModifiable()
-                        && parameterMap.containsKey(f.parameterName())
-                        && (parameterMap.get(f.parameterName()).equals(f.parameterValue())
-                        || (ObjectUtils.isBlank(parameterMap.get(f.parameterName())) && ObjectUtils.isBlank(f.parameterValue())))
-                )
-                .map(o -> new CacheParameter(o.parameterName(), o.parameterValue()))
-                .collect(Collectors.toList())
-        );
+        Set<String> defaultParameterKeySet = defaultParamResponse.engineDefaults().parameters()
+            .stream()
+            .filter(
+                f -> f.isModifiable()
+                    && parameterMap.containsKey(f.parameterName())
+                    && (parameterMap.get(f.parameterName()).equals(f.parameterValue())
+                    || (ObjectUtils.isBlank(parameterMap.get(f.parameterName())) && ObjectUtils.isBlank(f.parameterValue())))
+            ).map(Parameter::parameterName).collect(Collectors.toSet());
+
+        parameters.removeIf(o -> defaultParameterKeySet.contains(o.getName()));
     }
 
     private void saveParameters(ElastiCacheClient client) {

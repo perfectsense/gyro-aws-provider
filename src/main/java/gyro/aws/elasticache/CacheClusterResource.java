@@ -6,8 +6,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheNode;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName("cache-cluster")
+@ResourceType("cache-cluster")
 public class CacheClusterResource extends AwsResource {
     private Boolean autoMinorVersionUpgrade;
     private String azMode;
@@ -58,7 +58,7 @@ public class CacheClusterResource extends AwsResource {
     private String status;
     private List<String> nodes;
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAutoMinorVersionUpgrade() {
         if (autoMinorVersionUpgrade == null) {
             autoMinorVersionUpgrade = true;
@@ -71,7 +71,7 @@ public class CacheClusterResource extends AwsResource {
         this.autoMinorVersionUpgrade = autoMinorVersionUpgrade;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAzMode() {
         return azMode;
     }
@@ -88,7 +88,7 @@ public class CacheClusterResource extends AwsResource {
         this.cacheClusterId = cacheClusterId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCacheNodeType() {
         return cacheNodeType;
     }
@@ -97,7 +97,7 @@ public class CacheClusterResource extends AwsResource {
         this.cacheNodeType = cacheNodeType;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
     }
@@ -106,7 +106,7 @@ public class CacheClusterResource extends AwsResource {
         this.cacheParamGroupName = cacheParamGroupName;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getCacheSecurityGroupNames() {
         if (cacheSecurityGroupNames == null) {
             cacheSecurityGroupNames = new ArrayList<>();
@@ -135,7 +135,7 @@ public class CacheClusterResource extends AwsResource {
         this.engine = engine;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -144,7 +144,7 @@ public class CacheClusterResource extends AwsResource {
         this.engineVersion = engineVersion;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getNotificationTopicArn() {
         return notificationTopicArn;
     }
@@ -153,7 +153,7 @@ public class CacheClusterResource extends AwsResource {
         this.notificationTopicArn = notificationTopicArn;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getNumCacheNodes() {
         return numCacheNodes;
     }
@@ -178,7 +178,7 @@ public class CacheClusterResource extends AwsResource {
         this.preferredAvailabilityZone = preferredAvailabilityZone;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -195,7 +195,7 @@ public class CacheClusterResource extends AwsResource {
         this.replicationGroupId = replicationGroupId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -220,7 +220,7 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotArns = snapshotArns;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getSnapshotRetentionLimit() {
         return snapshotRetentionLimit;
     }
@@ -229,7 +229,7 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotRetentionLimit = snapshotRetentionLimit;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSnapshotWindow() {
         return snapshotWindow;
     }
@@ -238,7 +238,7 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotWindow = snapshotWindow;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -251,7 +251,7 @@ public class CacheClusterResource extends AwsResource {
         this.tags = tags;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getNodeAvailabilityZone() {
         if (nodeAvailabilityZone == null) {
             nodeAvailabilityZone = new ArrayList<>();
