@@ -77,7 +77,6 @@ public class SqlInjectionMatchSetResource extends AwsResource {
         getSqlInjectionMatchTuple().clear();
         for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
             SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = new SqlInjectionMatchTupleResource(sqlInjectionMatchTuple);
-            sqlInjectionMatchTupleResource.parent(this);
             getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
         }
         return true;

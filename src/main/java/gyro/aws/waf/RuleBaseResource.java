@@ -69,7 +69,6 @@ public abstract class RuleBaseResource extends AwsResource {
 
         for (Predicate predicate: predicates) {
             PredicateResource predicateResource = new PredicateResource(predicate, isRateRule());
-            predicateResource.parent(this);
             getPredicate().add(predicateResource);
         }
     }

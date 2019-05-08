@@ -201,7 +201,6 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
         for (Action action : actionList) {
             ActionResource actionResource = new ActionResource(action);
-            actionResource.parent(this);
             actions.add(actionResource);
         }
         return actions;
@@ -212,7 +211,6 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
         for (RuleCondition rc : conditionsList) {
             ConditionResource condition = new ConditionResource(rc);
-            condition.parent(this);
             conditions.add(condition);
         }
 

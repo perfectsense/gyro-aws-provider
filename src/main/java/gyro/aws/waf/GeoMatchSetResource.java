@@ -94,7 +94,6 @@ public class GeoMatchSetResource extends AwsResource {
         getGeoMatchConstraint().clear();
         for (GeoMatchConstraint geoMatchConstraint : geoMatchSet.geoMatchConstraints()) {
             GeoMatchConstraintResource geoMatchConstraintResource = new GeoMatchConstraintResource(geoMatchConstraint);
-            geoMatchConstraintResource.parent(this);
             getGeoMatchConstraint().add(geoMatchConstraintResource);
         }
 

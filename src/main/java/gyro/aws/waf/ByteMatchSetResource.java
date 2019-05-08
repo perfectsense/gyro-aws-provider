@@ -98,7 +98,6 @@ public class ByteMatchSetResource extends AwsResource {
 
         for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
             ByteMatchTupleResource byteMatchTupleResource = new ByteMatchTupleResource(byteMatchTuple);
-            byteMatchTupleResource.parent(this);
             getByteMatchTuple().add(byteMatchTupleResource);
         }
 

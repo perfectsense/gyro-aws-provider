@@ -129,7 +129,6 @@ public abstract class ListenerResource extends AwsResource {
                             CertificateResource cert = new CertificateResource();
                             cert.setArn(certificate.certificateArn());
                             cert.setIsDefault(certificate.isDefault());
-                            cert.parent(this);
                             getCertificate().add(cert);
                         }
                     }

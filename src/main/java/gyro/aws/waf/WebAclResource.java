@@ -138,7 +138,6 @@ public class WebAclResource extends AwsResource {
         getActivatedRule().clear();
         for (ActivatedRule activatedRule : webAcl.rules()) {
             ActivatedRuleResource activatedRuleResource = new ActivatedRuleResource(activatedRule);
-            activatedRuleResource.parent(this);
             getActivatedRule().add(activatedRuleResource);
         }
 

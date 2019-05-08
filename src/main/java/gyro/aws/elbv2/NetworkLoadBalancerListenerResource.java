@@ -130,7 +130,6 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         for (Action action : defaultAction) {
             actionResource.setTargetGroupArn(action.targetGroupArn());
             actionResource.setType(action.typeAsString());
-            actionResource.parent(this);
         }
 
         return actionResource;

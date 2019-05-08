@@ -94,7 +94,6 @@ public class XssMatchSetResource extends AwsResource {
         getXssMatchTuple().clear();
         for (XssMatchTuple xssMatchTuple : xssMatchSet.xssMatchTuples()) {
             XssMatchTupleResource xssMatchTupleResource = new XssMatchTupleResource(xssMatchTuple);
-            xssMatchTupleResource.parent(this);
             getXssMatchTuple().add(xssMatchTupleResource);
         }
 

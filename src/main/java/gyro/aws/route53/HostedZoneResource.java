@@ -244,7 +244,6 @@ public class HostedZoneResource extends AwsResource {
 
         for (VPC vpc :vpcs) {
             Route53VpcResource route53VpcResource = new Route53VpcResource(vpc.vpcId(), vpc.vpcRegionAsString());
-            route53VpcResource.parent(this);
             getVpc().add(route53VpcResource);
         }
     }

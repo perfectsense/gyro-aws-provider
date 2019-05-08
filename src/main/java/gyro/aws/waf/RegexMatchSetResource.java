@@ -96,7 +96,6 @@ public class RegexMatchSetResource extends AwsResource {
 
         for (RegexMatchTuple regexMatchTuple : regexMatchSet.regexMatchTuples()) {
             RegexMatchTupleResource regexMatchTupleResource = new RegexMatchTupleResource(regexMatchTuple);
-            regexMatchTupleResource.parent(this);
             getRegexMatchTuple().add(regexMatchTupleResource);
         }
 

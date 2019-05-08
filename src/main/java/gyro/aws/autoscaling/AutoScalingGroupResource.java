@@ -894,7 +894,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         for (ScalingPolicy scalingPolicy : policyResponse.scalingPolicies()) {
             AutoScalingPolicyResource autoScalingPolicyResource = new AutoScalingPolicyResource(scalingPolicy);
-            autoScalingPolicyResource.parent(this);
             getScalingPolicy().add(autoScalingPolicyResource);
         }
     }
@@ -906,7 +905,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         for (LifecycleHook lifecycleHook : lifecycleHooksResponse.lifecycleHooks()) {
             AutoScalingGroupLifecycleHookResource lifecycleHookResource = new AutoScalingGroupLifecycleHookResource(lifecycleHook);
-            lifecycleHookResource.parent(this);
             getLifecycleHook().add(lifecycleHookResource);
         }
     }
@@ -920,7 +918,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         for (ScheduledUpdateGroupAction scheduledUpdateGroupAction : scheduledActionsResponse.scheduledUpdateGroupActions()) {
             AutoScalingGroupScheduledActionResource scheduledActionResource = new AutoScalingGroupScheduledActionResource(scheduledUpdateGroupAction);
-            scheduledActionResource.parent(this);
             getScheduledAction().add(scheduledActionResource);
         }
     }
@@ -934,7 +931,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         for (NotificationConfiguration notificationConfiguration : notificationResponse.notificationConfigurations()) {
             AutoScalingGroupNotificationResource notificationResource = new AutoScalingGroupNotificationResource(notificationConfiguration);
-            notificationResource.parent(this);
             getAutoScalingNotification().add(notificationResource);
         }
     }

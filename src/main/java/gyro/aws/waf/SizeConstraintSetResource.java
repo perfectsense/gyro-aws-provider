@@ -95,7 +95,6 @@ public class SizeConstraintSetResource extends AwsResource {
         getSizeConstraint().clear();
         for (SizeConstraint sizeConstraint : sizeConstraintSet.sizeConstraints()) {
             SizeConstraintResource sizeConstraintResource = new SizeConstraintResource(sizeConstraint);
-            sizeConstraintResource.parent(this);
             getSizeConstraint().add(sizeConstraintResource);
         }
 

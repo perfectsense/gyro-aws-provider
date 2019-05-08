@@ -137,7 +137,6 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
         for (Action action : actionList) {
             ActionResource actionResource = new ActionResource(action);
-            actionResource.parent(this);
             actions.add(actionResource);
         }
 

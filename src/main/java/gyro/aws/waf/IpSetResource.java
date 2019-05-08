@@ -94,7 +94,6 @@ public class IpSetResource extends AwsResource {
         getIpSetDescriptor().clear();
         for (IPSetDescriptor ipSetDescriptor : ipSet.ipSetDescriptors()) {
             IpSetDescriptorResource ipSetDescriptorResource = new IpSetDescriptorResource(ipSetDescriptor);
-            ipSetDescriptorResource.parent(this);
             getIpSetDescriptor().add(ipSetDescriptorResource);
         }
 
