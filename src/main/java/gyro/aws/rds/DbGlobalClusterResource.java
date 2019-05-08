@@ -162,7 +162,7 @@ public class DbGlobalClusterResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource config, Set<String> changedProperties) {
+    public void update(Resource config, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         DbGlobalClusterResource current = (DbGlobalClusterResource) config;
         // The modify global cluster api currently return a 500

@@ -202,10 +202,10 @@ public class HostedZoneResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        if (changedProperties.contains("comment")) {
+        if (changedFieldNames.contains("comment")) {
             client.updateHostedZoneComment(
                 r -> r.id(getHostedZoneId())
                     .comment(getComment() != null ? getComment() : "")

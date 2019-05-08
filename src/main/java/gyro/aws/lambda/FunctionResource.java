@@ -623,14 +623,14 @@ public class FunctionResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
 
         FunctionResource oldResource = (FunctionResource) resource;
 
-        Set<String> changeSet = new HashSet<>(set);
+        Set<String> changeSet = new HashSet<>(changedFieldNames);
 
         if (changeSet.contains("reserved-concurrent-executions")) {
             if (getReservedConcurrentExecutions() != null) {

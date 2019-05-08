@@ -130,7 +130,7 @@ public class RegexPatternSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         savePatterns(client, ((RegexPatternSetResource) current).getPatterns(), getPatterns());

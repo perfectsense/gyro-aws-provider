@@ -336,7 +336,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         DlmClient client = createClient(DlmClient.class);
 
         client.updateLifecyclePolicy(

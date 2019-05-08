@@ -152,7 +152,7 @@ public class TopicResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
         for (Map.Entry<String, String> entry : getAttributes().entrySet()) {

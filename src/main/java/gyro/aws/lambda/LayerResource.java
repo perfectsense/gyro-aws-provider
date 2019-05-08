@@ -253,7 +253,7 @@ public class LayerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
 
     }
 

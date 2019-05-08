@@ -101,8 +101,8 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
     protected abstract void doUpdate(AwsResource config, Set<String> changedProperties);
 
     @Override
-    public final void update(Resource current, Set<String> changedProperties) {
-        doUpdate((AwsResource) current, changedProperties);
+    public final void update(Resource current, Set<String> changedFieldNames) {
+        doUpdate((AwsResource) current, changedFieldNames);
         createTags();
     }
 

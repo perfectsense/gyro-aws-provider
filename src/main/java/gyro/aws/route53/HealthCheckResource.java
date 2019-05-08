@@ -398,12 +398,12 @@ public class HealthCheckResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         validate();
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             HealthCheckResource oldResource = (HealthCheckResource) current;
             saveTags(client, oldResource.getTags());
         }

@@ -170,7 +170,7 @@ public class IamRoleResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         IamClient client = IamClient.builder()
                 .region(Region.AWS_GLOBAL)
                 .build();

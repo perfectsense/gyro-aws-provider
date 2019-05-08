@@ -190,7 +190,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         LambdaClient client = createClient(LambdaClient.class);
 
         UpdateAliasRequest.Builder builder = UpdateAliasRequest.builder()

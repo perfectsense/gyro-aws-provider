@@ -225,7 +225,7 @@ public class RouteResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())

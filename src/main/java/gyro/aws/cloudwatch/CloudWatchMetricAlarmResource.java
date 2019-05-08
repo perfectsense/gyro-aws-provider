@@ -392,7 +392,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         CloudWatchClient client = createClient(CloudWatchClient.class);
 
         saveMetricAlarm(client);

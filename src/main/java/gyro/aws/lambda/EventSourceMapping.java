@@ -261,7 +261,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         if (!getState().equals("Enabled") && !getState().equals("Disabled")) {
             throw new GyroException(String.format("Event source mapping in '%s' state. Please try again.", getState()));
         }

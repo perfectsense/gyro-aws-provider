@@ -61,7 +61,7 @@ public class RuleResource extends RuleBaseResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

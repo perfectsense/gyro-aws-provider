@@ -474,14 +474,14 @@ public class CloudFrontResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
         client.updateDistribution(r -> r.distributionConfig(distributionConfig())
             .id(getId())
             .ifMatch(getEtag()));
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             applyTags(client);
         }
     }

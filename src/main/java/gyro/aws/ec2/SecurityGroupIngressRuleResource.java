@@ -23,10 +23,10 @@ public class SecurityGroupIngressRuleResource extends SecurityGroupRuleResource 
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (changedProperties.size() == 1 && changedProperties.contains("description")) {
+        if (changedFieldNames.size() == 1 && changedFieldNames.contains("description")) {
             client.updateSecurityGroupRuleDescriptionsIngress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
         } else {
             current.delete();

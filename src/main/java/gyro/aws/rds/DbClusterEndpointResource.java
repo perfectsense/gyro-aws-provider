@@ -144,7 +144,7 @@ public class DbClusterEndpointResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())

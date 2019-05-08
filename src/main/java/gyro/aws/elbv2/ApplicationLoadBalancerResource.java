@@ -110,8 +110,8 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
-        super.update(current, changedProperties);
+    public void update(Resource current, Set<String> changedFieldNames) {
+        super.update(current, changedFieldNames);
     }
 
     @Override

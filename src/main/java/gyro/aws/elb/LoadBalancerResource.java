@@ -212,7 +212,7 @@ public class LoadBalancerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         LoadBalancerResource currentResource = (LoadBalancerResource) current;

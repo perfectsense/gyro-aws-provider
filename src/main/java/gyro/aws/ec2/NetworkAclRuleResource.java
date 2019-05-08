@@ -245,7 +245,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())

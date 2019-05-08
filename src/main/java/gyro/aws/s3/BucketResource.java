@@ -302,22 +302,22 @@ public class BucketResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         S3Client client = createClient(S3Client.class);
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             saveTags(client);
         }
 
-        if (changedProperties.contains("enable-accelerate-config")) {
+        if (changedFieldNames.contains("enable-accelerate-config")) {
             saveAccelerateConfig(client);
         }
 
-        if (changedProperties.contains("enable-version")) {
+        if (changedFieldNames.contains("enable-version")) {
             saveEnableVersion(client);
         }
 
-        if (changedProperties.contains("enable-pay")) {
+        if (changedFieldNames.contains("enable-pay")) {
             saveEnablePay(client);
         }
 

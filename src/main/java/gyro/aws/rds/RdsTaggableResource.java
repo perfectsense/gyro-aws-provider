@@ -71,8 +71,8 @@ public abstract class RdsTaggableResource extends AwsResource {
     protected abstract void doUpdate(Resource config, Set<String> changedProperties);
 
     @Override
-    public final void update(Resource current, Set<String> changedProperties) {
-        doUpdate(current, changedProperties);
+    public final void update(Resource current, Set<String> changedFieldNames) {
+        doUpdate(current, changedFieldNames);
         ((RdsTaggableResource) current).removeTags();
         addTags();
     }

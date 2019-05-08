@@ -257,7 +257,7 @@ public class EndpointResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
         validate();
 
@@ -268,7 +268,7 @@ public class EndpointResource extends AwsResource {
         EndpointResource newEndpoint = this;
 
 
-        if (changedProperties.contains("route-table-ids")) {
+        if (changedFieldNames.contains("route-table-ids")) {
             List<String> removeRouteTableIds = oldEndpoint.getRouteTableIds().stream()
                 .filter(f -> !newEndpoint.getRouteTableIds().contains(f)).collect(Collectors.toList());
             List<String> addRouteTableIds = newEndpoint.getRouteTableIds().stream()
@@ -283,7 +283,7 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedProperties.contains("subnet-ids")) {
+        if (changedFieldNames.contains("subnet-ids")) {
             List<String> removeSubnetIds = oldEndpoint.getSubnetIds().stream()
                 .filter(f -> !newEndpoint.getSubnetIds().contains(f)).collect(Collectors.toList());
             List<String> addSubnetIds = newEndpoint.getSubnetIds().stream()
@@ -298,7 +298,7 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedProperties.contains("security-group-ids")) {
+        if (changedFieldNames.contains("security-group-ids")) {
             List<String> removeSecurityGroupIds = oldEndpoint.getSecurityGroupIds().stream()
                 .filter(f -> !newEndpoint.getSecurityGroupIds().contains(f)).collect(Collectors.toList());
             List<String> addSecurityGroupIds = newEndpoint.getSecurityGroupIds().stream()
@@ -313,12 +313,12 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedProperties.contains("policy-doc-path")) {
+        if (changedFieldNames.contains("policy-doc-path")) {
             setPolicyFromPath();
             builder.policyDocument(getPolicy());
         }
 
-        if (changedProperties.contains("policy")) {
+        if (changedFieldNames.contains("policy")) {
             builder.policyDocument(getPolicy());
         }
 

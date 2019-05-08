@@ -70,7 +70,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         if (parentResource().change() instanceof Update) {
             return;
         }

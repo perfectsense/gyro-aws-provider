@@ -156,7 +156,7 @@ public class TrafficPolicyResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         validate(false);
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);

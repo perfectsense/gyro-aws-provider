@@ -627,7 +627,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -648,7 +648,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .terminationPolicies(getTerminationPolicies())
         );
 
-        if (changedProperties.contains("enable-metrics-collection") || changedProperties.contains("disabled-metrics")) {
+        if (changedFieldNames.contains("enable-metrics-collection") || changedFieldNames.contains("disabled-metrics")) {
             if (getEnableMetricsCollection()) {
                 saveMetrics(client);
             } else {
@@ -660,7 +660,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         AutoScalingGroupResource oldResource = (AutoScalingGroupResource) current;
 
-        if (changedProperties.contains("tags") || changedProperties.contains("propagate-at-launch-tags")) {
+        if (changedFieldNames.contains("tags") || changedFieldNames.contains("propagate-at-launch-tags")) {
             if (!getTags().isEmpty()) {
                 saveTags(client, getTags(), getPropagateAtLaunchTags(), false);
 
@@ -670,11 +670,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             }
         }
 
-        if (changedProperties.contains("load-balancer-names")) {
+        if (changedFieldNames.contains("load-balancer-names")) {
             saveLoadBalancerNames(client, oldResource.getLoadBalancerNames());
         }
 
-        if (changedProperties.contains("target-group-arns")) {
+        if (changedFieldNames.contains("target-group-arns")) {
             saveTargetGroupArns(client, oldResource.getTargetGroupArns());
         }
     }

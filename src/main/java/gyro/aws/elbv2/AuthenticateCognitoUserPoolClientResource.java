@@ -239,7 +239,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         client.updateUserPoolClient(r -> r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
                 .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())

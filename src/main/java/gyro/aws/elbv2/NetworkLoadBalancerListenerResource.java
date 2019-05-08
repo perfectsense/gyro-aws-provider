@@ -79,7 +79,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (getDefaultCertificate() == null && getProtocol().equals("TCP")) {

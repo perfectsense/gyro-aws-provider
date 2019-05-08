@@ -87,7 +87,7 @@ public class PredicateResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         //Remove old predicate

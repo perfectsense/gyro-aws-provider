@@ -389,7 +389,7 @@ public class SqsResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
         Map<QueueAttributeName, String> attributeUpdate = new HashMap<>();
 
