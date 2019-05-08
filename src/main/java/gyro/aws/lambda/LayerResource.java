@@ -14,10 +14,8 @@ import software.amazon.awssdk.services.lambda.model.PublishLayerVersionResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.lambda.model.Runtime;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -287,9 +285,9 @@ public class LayerResource extends AwsResource {
     }
 
     private SdkBytes getZipFile() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
+        try (InputStream input = openInput(getContentZipPath())) {
+            return SdkBytes.fromInputStream(input);
+
         } catch (IOException ex) {
             throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }

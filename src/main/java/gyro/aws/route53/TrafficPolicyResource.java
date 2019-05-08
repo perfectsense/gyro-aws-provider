@@ -12,12 +12,10 @@ import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyResponse
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyVersionResponse;
 import software.amazon.awssdk.services.route53.model.GetTrafficPolicyResponse;
 import software.amazon.awssdk.services.route53.model.TrafficPolicy;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Set;
 
 /**
@@ -204,9 +202,9 @@ public class TrafficPolicyResource extends AwsResource {
     }
 
     private void setDocumentFromPath() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            setDocument(new String(Files.readAllBytes(Paths.get(dir + File.separator + getDocumentPath())), StandardCharsets.UTF_8));
+        try (InputStream input = openInput(getDocumentPath())) {
+            setDocument(IoUtils.toUtf8String(input));
+
         } catch (IOException ioex) {
             throw new GyroException(String.format("traffic policy - %s document error."
                 + " Unable to read document from path [%s]", getName(), getDocument()));

@@ -22,10 +22,8 @@ import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeRequest;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -737,18 +735,18 @@ public class FunctionResource extends AwsResource {
     }
 
     private SdkBytes getZipFile() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
+        try (InputStream input = openInput(getContentZipPath())) {
+            return SdkBytes.fromInputStream(input);
+
         } catch (IOException ex) {
             throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
     }
 
     private void setFileHashFromPath() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            setFileHash(DigestUtils.sha256Hex(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath()))));
+        try (InputStream input = openInput(getContentZipPath())) {
+            setFileHash(DigestUtils.sha256Hex(input));
+
         } catch (IOException ex) {
             throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
