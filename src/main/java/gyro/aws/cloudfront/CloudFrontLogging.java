@@ -1,6 +1,6 @@
 package gyro.aws.cloudfront;
 
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
 public class CloudFrontLogging extends Diffable {

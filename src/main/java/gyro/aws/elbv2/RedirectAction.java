@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.ResourceUpdatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;

@@ -2,7 +2,7 @@ package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
