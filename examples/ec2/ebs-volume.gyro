@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::ebs-volume ebs-volume-example
     availability-zone: "us-east-2a"
     volumeSize: 100

@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
@@ -40,7 +40,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("nlb")
+@ResourceType("nlb")
 public class NetworkLoadBalancerResource extends LoadBalancerResource {
 
     private List<SubnetMappings> subnetMappings;
@@ -71,7 +71,6 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
             getSubnetMappings().clear();
             for (AvailabilityZone zone : loadBalancer.availabilityZones()) {
                 SubnetMappings subnet = new SubnetMappings();
-                subnet.parent(this);
                 subnet.setSubnetId(zone.subnetId());
                 for (LoadBalancerAddress address : zone.loadBalancerAddresses()) {
                     subnet.setAllocationId(address.allocationId());
@@ -104,8 +103,8 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
-        super.update(current, changedProperties);
+    public void update(Resource current, Set<String> changedFieldNames) {
+        super.update(current, changedFieldNames);
     }
 
     @Override

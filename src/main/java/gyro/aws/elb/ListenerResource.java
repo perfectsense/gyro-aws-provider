@@ -1,10 +1,9 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.Create;
-import gyro.core.diff.Delete;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.Create;
+import gyro.core.resource.Delete;
+import gyro.core.resource.ResourceUpdatable;
 
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
@@ -26,8 +25,6 @@ import java.util.Set;
  *        protocol: "HTTPS"
  *     end
  */
-
-@ResourceName(parent = "load-balancer", value = "listener")
 public class ListenerResource extends AwsResource {
 
     private Integer instancePort;
@@ -41,7 +38,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The port on which the instance is listening.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getInstancePort() {
         return instancePort;
     }
@@ -53,7 +50,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The protocol to use for routing traffic to instances : HTTP, HTTPS, TCP, SSL.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getInstanceProtocol() {
         return instanceProtocol;
     }
@@ -65,7 +62,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The port on which the load balancer is listening.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getLoadBalancerPort() {
         return loadBalancerPort;
     }
@@ -77,7 +74,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The load balancer transport protocol to use for routing: HTTP, HTTPS, TCP, or SSL.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }
@@ -89,7 +86,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The Amazon Resource Name(ARN) of the server certificate.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSslCertificateId() {
         return sslCertificateId;
     }
@@ -143,7 +140,7 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         delete();
         create();
     }

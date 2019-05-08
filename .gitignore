@@ -1,5 +1,5 @@
 *.iml
-*.state
+**/.gyro/state/**/*
 *.tokens
 .idea/
 .gradle

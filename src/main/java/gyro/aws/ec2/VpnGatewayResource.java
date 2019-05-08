@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("vpn-gateway")
+@ResourceType("vpn-gateway")
 public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
 
     private String vpnGatewayId;
@@ -54,7 +54,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     /**
      * VPC ID to be attached to the gateway.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getVpcId() {
         return vpcId;
     }

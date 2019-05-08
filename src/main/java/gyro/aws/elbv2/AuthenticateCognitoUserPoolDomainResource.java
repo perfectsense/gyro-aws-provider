@@ -1,8 +1,8 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
@@ -22,14 +22,14 @@ import java.util.Set;
  *         user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
  *     end
  */
-@ResourceName("authenticate-cognito-user-pool-domain")
+@ResourceType("authenticate-cognito-user-pool-domain")
 public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
 
     private String certificateArn;
     private String domain;
     private String userPoolId;
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCertificateArn() {
         return certificateArn;
     }
@@ -38,7 +38,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         this.certificateArn = certificateArn;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDomain() {
         return domain;
     }
@@ -88,7 +88,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.updateUserPoolDomain(r -> r.domain(getDomain())

@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMapping;
 
 /**

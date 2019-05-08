@@ -1,5 +1,3 @@
-@import ../init as _
-
 aws::sqs sqs-example1
      name : "testStandard"
      visibility-timeout : 400
@@ -9,7 +7,7 @@ aws::sqs sqs-example1
      receive-message-wait-time-seconds : 5
      kms-master-key-id : 23
      kms-data-key-reuse-period-seconds : 200
-     policy-doc-path: 'examples/sqs/policy.json'
+     policy-doc-path: 'policy.json'
 end
 
 aws::sqs sqs-example2
@@ -21,6 +19,6 @@ aws::sqs sqs-example2
      receive-message-wait-time-seconds : 5
      kms-master-key-id : 23
      kms-data-key-reuse-period-seconds : 200
-     policy-doc-path: 'examples/sqs/policy.json'
+     policy-doc-path: 'policy.json'
 end
 

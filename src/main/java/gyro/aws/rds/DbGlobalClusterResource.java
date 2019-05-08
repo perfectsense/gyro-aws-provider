@@ -2,8 +2,8 @@ package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -22,7 +22,7 @@ import java.util.Set;
  *        engine: "aurora"
  *    end
  */
-@ResourceName("db-global-cluster")
+@ResourceType("db-global-cluster")
 public class DbGlobalClusterResource extends AwsResource {
 
     private String databaseName;
@@ -47,7 +47,7 @@ public class DbGlobalClusterResource extends AwsResource {
     /**
      * Enable or disable deletion protection on the global cluster. The default is false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getDeletionProtection() {
         return deletionProtection;
     }
@@ -162,7 +162,7 @@ public class DbGlobalClusterResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource config, Set<String> changedProperties) {
+    public void update(Resource config, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         DbGlobalClusterResource current = (DbGlobalClusterResource) config;
         // The modify global cluster api currently return a 500

@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("customer-gateway")
+@ResourceType("customer-gateway")
 public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> {
 
     private String customerGatewayId;

@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
@@ -24,7 +24,7 @@ import java.util.Set;
  *         vpc-id: $(aws::vpc vpc-example | vpc-id)
  *     end
  */
-@ResourceName("internet-gateway")
+@ResourceType("internet-gateway")
 public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway> {
 
     private String internetGatewayId;

@@ -2,8 +2,8 @@ package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -27,7 +27,7 @@ import java.util.Set;
  *        static-members: [$(aws::db-instance db-instance-example | db-instance-identifier)]
  *    end
  */
-@ResourceName("db-cluster-endpoint")
+@ResourceType("db-cluster-endpoint")
 public class DbClusterEndpointResource extends AwsResource {
 
     private String clusterEndpointIdentifier;
@@ -61,7 +61,7 @@ public class DbClusterEndpointResource extends AwsResource {
     /**
      * The type of the endpoint. Valid values are ``READER``, ``ANY``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEndpointType() {
         return endpointType;
     }
@@ -73,7 +73,7 @@ public class DbClusterEndpointResource extends AwsResource {
     /**
      * List of DB instance identifiers to excluded from the custom endpoint group. Only applicable if `static-members` is empty.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getExcludedMembers() {
         if (excludedMembers == null) {
             excludedMembers = new ArrayList<>();
@@ -89,7 +89,7 @@ public class DbClusterEndpointResource extends AwsResource {
     /**
      * List of DB instance identifiers that are part of the custom endpoint group.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getStaticMembers() {
         if (staticMembers == null) {
             staticMembers = new ArrayList<>();
@@ -144,7 +144,7 @@ public class DbClusterEndpointResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())

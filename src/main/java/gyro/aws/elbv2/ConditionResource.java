@@ -1,11 +1,10 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.Create;
-import gyro.core.diff.Delete;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
-import gyro.core.diff.Update;
+import gyro.core.resource.Create;
+import gyro.core.resource.Delete;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
@@ -26,7 +25,6 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName(parent = "alb-listener-rule", value = "condition")
 public class ConditionResource extends AwsResource {
 
     private String field;
@@ -44,7 +42,7 @@ public class ConditionResource extends AwsResource {
     /**
      *  Condition field name  (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getField() {
         return field;
     }
@@ -56,7 +54,7 @@ public class ConditionResource extends AwsResource {
     /**
      *  Condition value (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getValue() {
         if (value == null) {
             value = new ArrayList<>();
@@ -90,7 +88,7 @@ public class ConditionResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         if (parentResource().change() instanceof Update) {
             return;
         }

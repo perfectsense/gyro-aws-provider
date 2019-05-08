@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName(parent = "waf-acl", value = "activated-rule")
 public class ActivatedRuleResource extends AwsResource {
     private String ruleId;
     private String action;
@@ -40,7 +38,7 @@ public class ActivatedRuleResource extends AwsResource {
     /**
      * The default action for the rule under this waf. valid values are ``ALLOW`` or ``BLOCK``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAction() {
         return action != null ? action.toUpperCase() : null;
     }
@@ -63,7 +61,7 @@ public class ActivatedRuleResource extends AwsResource {
     /**
      * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getPriority() {
         return priority;
     }
@@ -114,7 +112,7 @@ public class ActivatedRuleResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         WebAclResource parent = (WebAclResource) parent();
@@ -158,11 +156,6 @@ public class ActivatedRuleResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s", getRuleId(), getType());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private ActivatedRule getActivatedRule() {

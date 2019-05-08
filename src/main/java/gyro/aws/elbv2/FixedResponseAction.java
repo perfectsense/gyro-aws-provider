@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedResponseActionConfig;
 
@@ -37,7 +37,7 @@ public class FixedResponseAction extends Diffable {
         setStatusCode(fixed.statusCode());
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getContentType() {
         return contentType;
     }
@@ -46,7 +46,7 @@ public class FixedResponseAction extends Diffable {
         this.contentType = contentType;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMessageBody() {
         return messageBody;
     }
@@ -55,7 +55,7 @@ public class FixedResponseAction extends Diffable {
         this.messageBody = messageBody;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getStatusCode() {
         return statusCode;
     }

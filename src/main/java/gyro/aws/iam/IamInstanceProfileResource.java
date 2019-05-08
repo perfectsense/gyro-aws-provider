@@ -2,8 +2,8 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
@@ -28,7 +28,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("iam-instance-profile")
+@ResourceType("iam-instance-profile")
 public class IamInstanceProfileResource extends AwsResource {
 
     private String instanceProfileArn;
@@ -51,7 +51,7 @@ public class IamInstanceProfileResource extends AwsResource {
         this.instanceProfileName = instanceProfileName;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public List<String> getRoles() {
         if (roles == null) {
             roles = new ArrayList<>();
@@ -108,7 +108,7 @@ public class IamInstanceProfileResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         IamClient client = IamClient.builder()
                 .region(Region.AWS_GLOBAL)
                 .build();

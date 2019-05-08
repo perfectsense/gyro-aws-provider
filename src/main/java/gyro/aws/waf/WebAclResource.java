@@ -2,8 +2,8 @@ package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@ResourceName("waf-acl")
+@ResourceType("waf-acl")
 public class WebAclResource extends AwsResource {
     private String name;
     private String metricName;
@@ -76,7 +76,7 @@ public class WebAclResource extends AwsResource {
     /**
      * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public String getDefaultAction() {
         return defaultAction != null ? defaultAction.toUpperCase() : null;
     }
@@ -108,7 +108,6 @@ public class WebAclResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.ActivatedRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<ActivatedRuleResource> getActivatedRule() {
         if (activatedRule == null) {
             activatedRule = new ArrayList<>();
@@ -139,7 +138,6 @@ public class WebAclResource extends AwsResource {
         getActivatedRule().clear();
         for (ActivatedRule activatedRule : webAcl.rules()) {
             ActivatedRuleResource activatedRuleResource = new ActivatedRuleResource(activatedRule);
-            activatedRuleResource.parent(this);
             getActivatedRule().add(activatedRuleResource);
         }
 
@@ -162,7 +160,7 @@ public class WebAclResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateWebACL(

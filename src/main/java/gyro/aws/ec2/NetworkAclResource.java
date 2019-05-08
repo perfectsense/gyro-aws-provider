@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("network-acl")
+@ResourceType("network-acl")
 public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
     private String vpcId;
@@ -70,7 +70,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
      *
      * @subresource gyro.aws.ec2.NetworkAclRuleResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NetworkAclRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();
@@ -101,7 +101,6 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
 
                 NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
                 getRule().add(rule);
-                rule.parent(this);
             }
 
             setVpcId(networkAcl.vpcId());
