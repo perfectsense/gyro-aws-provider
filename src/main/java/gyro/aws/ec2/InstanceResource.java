@@ -424,7 +424,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         this.capacityReservation = capacityReservation;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();
@@ -437,7 +437,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public BlockDeviceMappingResource getRootBlockDeviceMapping() {
         return rootBlockDeviceMapping;
     }
@@ -757,7 +757,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 volumeMap.get(blockDeviceMapping.ebs().volumeId()),
                 instance.rootDeviceName().equals(blockDeviceMapping.deviceName())
             );
-            blockDeviceMappingResource.parent(this);
 
             if (!instance.rootDeviceName().equals(blockDeviceMapping.deviceName())) {
                 getBlockDeviceMapping().add(blockDeviceMappingResource);

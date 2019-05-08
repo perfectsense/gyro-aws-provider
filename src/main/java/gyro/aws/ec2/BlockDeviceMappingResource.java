@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
@@ -69,7 +69,7 @@ public class BlockDeviceMappingResource extends Diffable {
         this.kmsKeyId = kmsKeyId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getVolumeSize() {
         return volumeSize;
     }
@@ -102,7 +102,7 @@ public class BlockDeviceMappingResource extends Diffable {
         this.volumeId = volumeId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";
@@ -115,7 +115,7 @@ public class BlockDeviceMappingResource extends Diffable {
         this.volumeType = volumeType;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAutoEnableIo() {
         if (autoEnableIo == null) {
             autoEnableIo = false;
