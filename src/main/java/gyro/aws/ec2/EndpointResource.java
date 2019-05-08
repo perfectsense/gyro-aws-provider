@@ -2,8 +2,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import org.apache.commons.lang.StringUtils;
@@ -16,12 +16,10 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.SecurityGroupIdentifier;
 import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 import software.amazon.awssdk.services.ec2.model.VpcEndpointType;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +63,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceName("endpoint")
+@ResourceType("endpoint")
 public class EndpointResource extends AwsResource {
 
     private String endpointId;
@@ -124,7 +122,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Route Table ID being associated with the Endpoint. (Required if typeInterface set to true.)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public List<String> getRouteTableIds() {
         if (routeTableIds == null) {
             routeTableIds = new ArrayList<>();
@@ -140,7 +138,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Subnet ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -156,7 +154,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Security Group ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -171,7 +169,7 @@ public class EndpointResource extends AwsResource {
     /**
      * Enable private DNS on the Endpoint.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnablePrivateDns() {
         return enablePrivateDns;
     }
@@ -183,7 +181,7 @@ public class EndpointResource extends AwsResource {
     /**
      * Path to the file that contains the policy.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyDocPath() {
         return policyDocPath;
     }
@@ -196,7 +194,7 @@ public class EndpointResource extends AwsResource {
         }
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicy() {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
@@ -259,7 +257,7 @@ public class EndpointResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
         validate();
 
@@ -270,7 +268,7 @@ public class EndpointResource extends AwsResource {
         EndpointResource newEndpoint = this;
 
 
-        if (changedProperties.contains("route-table-ids")) {
+        if (changedFieldNames.contains("route-table-ids")) {
             List<String> removeRouteTableIds = oldEndpoint.getRouteTableIds().stream()
                 .filter(f -> !newEndpoint.getRouteTableIds().contains(f)).collect(Collectors.toList());
             List<String> addRouteTableIds = newEndpoint.getRouteTableIds().stream()
@@ -285,7 +283,7 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedProperties.contains("subnet-ids")) {
+        if (changedFieldNames.contains("subnet-ids")) {
             List<String> removeSubnetIds = oldEndpoint.getSubnetIds().stream()
                 .filter(f -> !newEndpoint.getSubnetIds().contains(f)).collect(Collectors.toList());
             List<String> addSubnetIds = newEndpoint.getSubnetIds().stream()
@@ -300,7 +298,7 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedProperties.contains("security-group-ids")) {
+        if (changedFieldNames.contains("security-group-ids")) {
             List<String> removeSecurityGroupIds = oldEndpoint.getSecurityGroupIds().stream()
                 .filter(f -> !newEndpoint.getSecurityGroupIds().contains(f)).collect(Collectors.toList());
             List<String> addSecurityGroupIds = newEndpoint.getSecurityGroupIds().stream()
@@ -315,12 +313,12 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedProperties.contains("policy-doc-path")) {
+        if (changedFieldNames.contains("policy-doc-path")) {
             setPolicyFromPath();
             builder.policyDocument(getPolicy());
         }
 
-        if (changedProperties.contains("policy")) {
+        if (changedFieldNames.contains("policy")) {
             builder.policyDocument(getPolicy());
         }
 
@@ -358,9 +356,9 @@ public class EndpointResource extends AwsResource {
     }
 
     private void setPolicyFromPath() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            setPolicy(new String(Files.readAllBytes(Paths.get(dir + File.separator + getPolicyDocPath())), StandardCharsets.UTF_8));
+        try (InputStream input = openInput(getPolicyDocPath())) {
+            setPolicy(IoUtils.toUtf8String(input));
+
         } catch (IOException ioex) {
             throw new GyroException(MessageFormat
                 .format("Endpoint - {0} policy error. Unable to read policy from path [{1}]", getServiceName(), getPolicyDocPath()));

@@ -1,7 +1,7 @@
 package gyro.aws.waf;
 
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         rate-limit: 10
  *     end
  */
-@ResourceName("rate-rule")
+@ResourceType("rate-rule")
 public class RateRuleResource extends RuleBaseResource {
     private String rateKey;
     private Long rateLimit;
@@ -47,7 +47,7 @@ public class RateRuleResource extends RuleBaseResource {
     /**
      * The rate limit at which the action would be taken. Valid values integer 2000 and above. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public Long getRateLimit() {
         return rateLimit;
     }
@@ -95,7 +95,7 @@ public class RateRuleResource extends RuleBaseResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateRateBasedRule(

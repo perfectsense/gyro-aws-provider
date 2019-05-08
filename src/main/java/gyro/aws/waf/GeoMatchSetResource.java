@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -34,7 +33,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("geo-match-set")
+@ResourceType("geo-match-set")
 public class GeoMatchSetResource extends AwsResource {
     private String name;
     private String geoMatchSetId;
@@ -65,7 +64,6 @@ public class GeoMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.GeoMatchConstraintResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<GeoMatchConstraintResource> getGeoMatchConstraint() {
         if (geoMatchConstraint == null) {
             geoMatchConstraint = new ArrayList<>();
@@ -96,7 +94,6 @@ public class GeoMatchSetResource extends AwsResource {
         getGeoMatchConstraint().clear();
         for (GeoMatchConstraint geoMatchConstraint : geoMatchSet.geoMatchConstraints()) {
             GeoMatchConstraintResource geoMatchConstraintResource = new GeoMatchConstraintResource(geoMatchConstraint);
-            geoMatchConstraintResource.parent(this);
             getGeoMatchConstraint().add(geoMatchConstraintResource);
         }
 
@@ -117,7 +114,7 @@ public class GeoMatchSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

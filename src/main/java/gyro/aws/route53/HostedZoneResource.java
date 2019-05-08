@@ -2,8 +2,8 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -37,7 +37,7 @@ import java.util.UUID;
  *     end
  *
  */
-@ResourceName("hosted-zone")
+@ResourceType("hosted-zone")
 public class HostedZoneResource extends AwsResource {
 
     private String delegationSetId;
@@ -64,7 +64,7 @@ public class HostedZoneResource extends AwsResource {
     /**
      * Comment for the hosted Zone.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public String getComment() {
         return comment;
     }
@@ -136,7 +136,6 @@ public class HostedZoneResource extends AwsResource {
      *
      * @subresource gyro.aws.route53.Route53VpcResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<Route53VpcResource> getVpc() {
         if (vpc == null) {
             vpc = new ArrayList<>();
@@ -203,10 +202,10 @@ public class HostedZoneResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        if (changedProperties.contains("comment")) {
+        if (changedFieldNames.contains("comment")) {
             client.updateHostedZoneComment(
                 r -> r.id(getHostedZoneId())
                     .comment(getComment() != null ? getComment() : "")
@@ -245,7 +244,6 @@ public class HostedZoneResource extends AwsResource {
 
         for (VPC vpc :vpcs) {
             Route53VpcResource route53VpcResource = new Route53VpcResource(vpc.vpcId(), vpc.vpcRegionAsString());
-            route53VpcResource.parent(this);
             getVpc().add(route53VpcResource);
         }
     }

@@ -2,8 +2,8 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -34,7 +34,7 @@ import java.util.Set;
  *         weight: 0.4
  *     end
  */
-@ResourceName("lambda-alias")
+@ResourceType("lambda-alias")
 public class FunctionAlias extends AwsResource {
     private String aliasName;
     private String functionName;
@@ -71,7 +71,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The function version for the alias. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getFunctionVersion() {
         return functionVersion;
     }
@@ -83,7 +83,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The description for the alias.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -95,7 +95,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * Secondary function for the alias.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAdditionalVersion() {
         return additionalVersion;
     }
@@ -107,7 +107,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The weight to switch between the secondary version. Required if additional version set. Valid values between ``0.0`` to ``1.0``
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Double getWeight() {
         return weight;
     }
@@ -190,7 +190,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         LambdaClient client = createClient(LambdaClient.class);
 
         UpdateAliasRequest.Builder builder = UpdateAliasRequest.builder()

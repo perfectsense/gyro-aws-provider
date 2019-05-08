@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -36,7 +35,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("byte-match-set")
+@ResourceType("byte-match-set")
 public class ByteMatchSetResource extends AwsResource {
     private String name;
     private String byteMatchSetId;
@@ -67,7 +66,6 @@ public class ByteMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.ByteMatchTupleResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<ByteMatchTupleResource> getByteMatchTuple() {
         if (byteMatchTuple == null) {
             byteMatchTuple = new ArrayList<>();
@@ -100,7 +98,6 @@ public class ByteMatchSetResource extends AwsResource {
 
         for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
             ByteMatchTupleResource byteMatchTupleResource = new ByteMatchTupleResource(byteMatchTuple);
-            byteMatchTupleResource.parent(this);
             getByteMatchTuple().add(byteMatchTupleResource);
         }
 
@@ -122,7 +119,7 @@ public class ByteMatchSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@ResourceName("sql-injection-match-set")
+@ResourceType("sql-injection-match-set")
 public class SqlInjectionMatchSetResource extends AwsResource {
     private String name;
     private String sqlInjectionMatchSetId;
@@ -48,7 +47,6 @@ public class SqlInjectionMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.SqlInjectionMatchTupleResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
         if (sqlInjectionMatchTuple == null) {
             sqlInjectionMatchTuple = new ArrayList<>();
@@ -79,7 +77,6 @@ public class SqlInjectionMatchSetResource extends AwsResource {
         getSqlInjectionMatchTuple().clear();
         for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
             SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = new SqlInjectionMatchTupleResource(sqlInjectionMatchTuple);
-            sqlInjectionMatchTupleResource.parent(this);
             getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
         }
         return true;
@@ -99,7 +96,7 @@ public class SqlInjectionMatchSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

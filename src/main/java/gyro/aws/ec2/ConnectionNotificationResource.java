@@ -2,8 +2,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  *
  */
-@ResourceName("connection-notification")
+@ResourceType("connection-notification")
 public class ConnectionNotificationResource extends AwsResource {
 
     private String serviceId;
@@ -80,7 +80,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The ARN of the SNS topic. (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public String getConnectionNotificationArn() {
         return connectionNotificationArn;
     }
@@ -92,7 +92,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public List<String> getConnectionEvents() {
         if (connectionEvents == null) {
             connectionEvents = new ArrayList<>(masterEventSet);
@@ -180,7 +180,7 @@ public class ConnectionNotificationResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();

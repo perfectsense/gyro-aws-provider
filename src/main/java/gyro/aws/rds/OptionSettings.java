@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 
 public class OptionSettings extends Diffable {
 
@@ -22,7 +22,7 @@ public class OptionSettings extends Diffable {
     /**
      * The value of the option settings.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getValue() {
         return value;
     }

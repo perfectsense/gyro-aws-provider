@@ -4,8 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,10 +22,8 @@ import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeRequest;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +58,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceName("lambda-function")
+@ResourceType("lambda-function")
 public class FunctionResource extends AwsResource {
     private String functionName;
     private String description;
@@ -110,7 +108,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The description of the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -122,7 +120,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 bucket name where the function code resides. Required if field 'content-zip-path' not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getS3Bucket() {
         return s3Bucket;
     }
@@ -134,7 +132,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 object key where the function code resides. Required if field 'content-zip-path' not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getS3Key() {
         return s3Key;
     }
@@ -146,7 +144,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 object version where the function code resides. Required if field 'content-zip-path' not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getS3ObjectVersion() {
         return s3ObjectVersion;
     }
@@ -158,7 +156,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The zip file location where the function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getContentZipPath() {
         return contentZipPath;
     }
@@ -174,7 +172,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The role arn to be associated with this function. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRoleArn() {
         return roleArn;
     }
@@ -186,7 +184,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The runtime language for this function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRuntime() {
         return runtime;
     }
@@ -198,7 +196,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The name of the method within your code that Lambda calls to execute the function. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getHandler() {
         return handler;
     }
@@ -210,7 +208,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The amount of time that Lambda allows a function to run before stopping it. Defaults to 3. Valid values between ``3`` and ``900``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getTimeout() {
         if (timeout == null) {
             timeout = 3;
@@ -226,7 +224,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The amount of memory that the function has access to. Defaults to 128. valid values are multiple of ``64``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMemorySize() {
         if (memorySize == null) {
             memorySize = 128;
@@ -242,7 +240,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The tracking mode of the function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getTrackingConfig() {
         if (trackingConfig == null) {
             trackingConfig = "PassThrough";
@@ -258,7 +256,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn of SQS queue or an SNS topic to be associated with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDeadLetterConfigArn() {
         if (deadLetterConfigArn == null) {
             deadLetterConfigArn = "";
@@ -274,7 +272,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn of KMS key to be associated with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getKmsKeyArn() {
         return kmsKeyArn;
     }
@@ -286,7 +284,7 @@ public class FunctionResource extends AwsResource {
     /**
      * A map of key value pair acting as variables accessible from the code of with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getEnvironment() {
         if (environment == null) {
             environment = new HashMap<>();
@@ -302,7 +300,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of tags be associated with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -318,7 +316,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of security group be associated with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -338,7 +336,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of subnet be associated with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -358,7 +356,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of version arns of lambda layers to be associated with the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getLambdaLayers() {
         if (lambdaLayers == null) {
             lambdaLayers = new ArrayList<>();
@@ -378,7 +376,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The number of simultaneous executions to reserve for the function.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getReservedConcurrentExecutions() {
         return reservedConcurrentExecutions;
     }
@@ -404,7 +402,7 @@ public class FunctionResource extends AwsResource {
     /**
      * A flag that states to publish the code or not.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getPublish() {
         if (publish == null) {
             publish = false;
@@ -489,7 +487,7 @@ public class FunctionResource extends AwsResource {
         this.version = version;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getFileHash() {
         if (fileHash == null) {
             fileHash = "";
@@ -625,14 +623,14 @@ public class FunctionResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
 
         FunctionResource oldResource = (FunctionResource) resource;
 
-        Set<String> changeSet = new HashSet<>(set);
+        Set<String> changeSet = new HashSet<>(changedFieldNames);
 
         if (changeSet.contains("reserved-concurrent-executions")) {
             if (getReservedConcurrentExecutions() != null) {
@@ -737,18 +735,18 @@ public class FunctionResource extends AwsResource {
     }
 
     private SdkBytes getZipFile() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            return SdkBytes.fromByteArray(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath())));
+        try (InputStream input = openInput(getContentZipPath())) {
+            return SdkBytes.fromInputStream(input);
+
         } catch (IOException ex) {
             throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
     }
 
     private void setFileHashFromPath() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            setFileHash(DigestUtils.sha256Hex(Files.readAllBytes(Paths.get(dir + File.separator + getContentZipPath()))));
+        try (InputStream input = openInput(getContentZipPath())) {
+            setFileHash(DigestUtils.sha256Hex(input));
+
         } catch (IOException ex) {
             throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }

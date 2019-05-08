@@ -2,8 +2,8 @@ package gyro.aws.kms;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * end
  */
 
-@ResourceName("kms")
+@ResourceType("kms")
 public class KmsResource extends AwsResource {
 
     private List<String> aliases;
@@ -77,7 +77,7 @@ public class KmsResource extends AwsResource {
     /**
      * The list of aliases associated with the key.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAliases() {
         if (aliases == null) {
             aliases = new ArrayList<>();
@@ -93,7 +93,7 @@ public class KmsResource extends AwsResource {
     /**
      * Determines whether to bypass the key policy lockout safety check.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getBypassPolicyLockoutSafetyCheck() {
         return bypassPolicyLockoutSafetyCheck;
     }
@@ -105,7 +105,7 @@ public class KmsResource extends AwsResource {
     /**
      * Creates the key in the specified custom key store.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCustomKeyStoreId() {
         return customKeyStoreId;
     }
@@ -117,7 +117,7 @@ public class KmsResource extends AwsResource {
     /**
      * The description of the key.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -129,7 +129,7 @@ public class KmsResource extends AwsResource {
     /**
      * Determines whether the key is enabled.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnabled() {
         return enabled;
     }
@@ -141,7 +141,7 @@ public class KmsResource extends AwsResource {
     /**
      * Determines whether the backing key is rotated each year.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getKeyRotation() {
         return keyRotation;
     }
@@ -177,7 +177,7 @@ public class KmsResource extends AwsResource {
     /**
      * The manager of the key, either AWS or customer. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getKeyManager() {
         return keyManager;
     }
@@ -197,7 +197,7 @@ public class KmsResource extends AwsResource {
     /**
      * The usage of the key, which is encryption and decryption. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getKeyUsage() {
         return keyUsage;
     }
@@ -209,7 +209,7 @@ public class KmsResource extends AwsResource {
     /**
      * The source of the key material. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getOrigin() {
         return origin;
     }
@@ -232,7 +232,7 @@ public class KmsResource extends AwsResource {
     /**
      * The policy associated with the key. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicy() {
         return policy;
     }
@@ -241,7 +241,7 @@ public class KmsResource extends AwsResource {
         this.policy = policy;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyContents() {
         if (policyContents != null) {
             return this.policyContents;
@@ -266,7 +266,7 @@ public class KmsResource extends AwsResource {
     /**
      * The tags associated with the key. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -372,7 +372,7 @@ public class KmsResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         KmsClient client = createClient(KmsClient.class);
         KmsResource currentResource = (KmsResource) current;
 

@@ -1,10 +1,9 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Create;
-import gyro.core.diff.Delete;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
-import gyro.core.diff.Update;
+import gyro.core.resource.Create;
+import gyro.core.resource.Delete;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -26,9 +25,6 @@ import java.util.Set;
  *         type: "forward"
  *     end
  */
-
-@ResourceName(parent = "alb-listener", value = "default-action")
-@ResourceName(parent = "alb-listener-rule", value = "action")
 public class ActionResource extends NetworkActionResource {
 
     private AuthenticateCognitoAction authenticateCognitoAction;
@@ -78,7 +74,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Authentication through user pools supported by Amazon Cognito (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
         return authenticateCognitoAction;
     }
@@ -90,7 +86,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
         return authenticateOidcAction;
     }
@@ -102,7 +98,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Used to specify a custom response for an action  (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public FixedResponseAction getFixedResponseAction() {
         return fixedResponseAction;
     }
@@ -114,7 +110,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  The order in which the action should take place (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getOrder() {
         return order;
     }
@@ -126,7 +122,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Redirect requests from one URL to another (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public RedirectAction getRedirectAction() {
         return redirectAction;
     }
@@ -149,7 +145,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  The type of action to perform  (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getType() {
         return type;
     }
@@ -184,7 +180,7 @@ public class ActionResource extends NetworkActionResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         if (parentResource().change() instanceof Update) {
             return;
         }

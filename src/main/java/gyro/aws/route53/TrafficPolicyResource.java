@@ -2,8 +2,8 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -12,12 +12,10 @@ import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyResponse
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyVersionResponse;
 import software.amazon.awssdk.services.route53.model.GetTrafficPolicyResponse;
 import software.amazon.awssdk.services.route53.model.TrafficPolicy;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Set;
 
 /**
@@ -35,7 +33,7 @@ import java.util.Set;
  *     end
  *
  */
-@ResourceName("traffic-policy")
+@ResourceType("traffic-policy")
 public class TrafficPolicyResource extends AwsResource {
     private String name;
     private String comment;
@@ -58,7 +56,7 @@ public class TrafficPolicyResource extends AwsResource {
     /**
      * The comment you want to put with the policy.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getComment() {
         return comment;
     }
@@ -158,7 +156,7 @@ public class TrafficPolicyResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         validate(false);
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
@@ -204,9 +202,9 @@ public class TrafficPolicyResource extends AwsResource {
     }
 
     private void setDocumentFromPath() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            setDocument(new String(Files.readAllBytes(Paths.get(dir + File.separator + getDocumentPath())), StandardCharsets.UTF_8));
+        try (InputStream input = openInput(getDocumentPath())) {
+            setDocument(IoUtils.toUtf8String(input));
+
         } catch (IOException ioex) {
             throw new GyroException(String.format("traffic policy - %s document error."
                 + " Unable to read document from path [%s]", getName(), getDocument()));

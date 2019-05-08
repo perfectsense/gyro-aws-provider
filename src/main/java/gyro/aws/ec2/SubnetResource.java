@@ -2,8 +2,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -39,7 +39,7 @@ import java.util.Set;
  *         cidr-block: 10.0.0.0/24
  *     end
  */
-@ResourceName("subnet")
+@ResourceType("subnet")
 public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     private VpcResource vpc;
@@ -88,7 +88,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     /**
      * The name of the availablity zone to create this subnet (ex. ``us-east-1a``).
      */
-    @ResourceDiffProperty
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -100,7 +99,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     /**
      * Assign a public IPv4 address to network interfaces created in this subnet.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getMapPublicIpOnLaunch() {
         return mapPublicIpOnLaunch;
     }
@@ -136,7 +135,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     /**
      * The ID of the Network ACL associated to the subnet.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAclId() {
         return aclId;
     }

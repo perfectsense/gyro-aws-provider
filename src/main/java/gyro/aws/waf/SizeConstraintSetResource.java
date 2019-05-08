@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -36,7 +35,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("size-constraint-set")
+@ResourceType("size-constraint-set")
 public class SizeConstraintSetResource extends AwsResource {
     private String name;
     private String sizeConstraintSetId;
@@ -67,7 +66,6 @@ public class SizeConstraintSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.SizeConstraintResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
             sizeConstraint = new ArrayList<>();
@@ -97,7 +95,6 @@ public class SizeConstraintSetResource extends AwsResource {
         getSizeConstraint().clear();
         for (SizeConstraint sizeConstraint : sizeConstraintSet.sizeConstraints()) {
             SizeConstraintResource sizeConstraintResource = new SizeConstraintResource(sizeConstraint);
-            sizeConstraintResource.parent(this);
             getSizeConstraint().add(sizeConstraintResource);
         }
 
@@ -118,7 +115,7 @@ public class SizeConstraintSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

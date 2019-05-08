@@ -3,8 +3,8 @@ package gyro.aws.waf;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceName("regex-pattern-set")
+@ResourceType("regex-pattern-set")
 public class RegexPatternSetResource extends AwsResource {
     private String name;
     private String regexPatternSetId;
@@ -72,7 +72,7 @@ public class RegexPatternSetResource extends AwsResource {
     /**
      * A list of regular expression patterns to filter request on. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getPatterns() {
         if (patterns == null) {
             patterns = new ArrayList<>();
@@ -130,7 +130,7 @@ public class RegexPatternSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         savePatterns(client, ((RegexPatternSetResource) current).getPatterns(), getPatterns());

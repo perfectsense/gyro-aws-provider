@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -32,7 +32,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("nlb-listener")
+@ResourceType("nlb-listener")
 public class NetworkLoadBalancerListenerResource extends ListenerResource {
 
     private NetworkActionResource defaultAction;
@@ -42,7 +42,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public NetworkActionResource getDefaultAction() {
         return defaultAction;
     }
@@ -79,7 +79,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (getDefaultCertificate() == null && getProtocol().equals("TCP")) {
@@ -130,7 +130,6 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         for (Action action : defaultAction) {
             actionResource.setTargetGroupArn(action.targetGroupArn());
             actionResource.setType(action.typeAsString());
-            actionResource.parent(this);
         }
 
         return actionResource;
