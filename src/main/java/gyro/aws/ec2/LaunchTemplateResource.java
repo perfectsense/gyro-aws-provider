@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -64,7 +64,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("launch-template")
+@ResourceType("launch-template")
 public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> {
 
     private String launchTemplateId;

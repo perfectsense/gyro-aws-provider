@@ -1,8 +1,8 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -26,7 +26,7 @@ import java.util.Set;
  *         user-pool-name: "user pool name"
  *     end
  */
-@ResourceName("authenticate-cognito-user-pool")
+@ResourceType("authenticate-cognito-user-pool")
 public class AuthenticateCognitoUserPoolResource extends AwsResource {
 
     private Map<String, String> tags;
@@ -37,7 +37,7 @@ public class AuthenticateCognitoUserPoolResource extends AwsResource {
     /**
      *  List of tags associated with the alb (Optional)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -111,7 +111,7 @@ public class AuthenticateCognitoUserPoolResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {}
+    public void update(Resource current, Set<String> changedFieldNames) {}
 
     @Override
     public void delete() {

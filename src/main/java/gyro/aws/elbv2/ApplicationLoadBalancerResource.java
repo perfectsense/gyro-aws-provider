@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("alb")
+@ResourceType("alb")
 public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
     private List<String> securityGroups;
@@ -110,8 +110,8 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
-        super.update(current, changedProperties);
+    public void update(Resource current, Set<String> changedFieldNames) {
+        super.update(current, changedFieldNames);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         end
  */
 
-@ResourceName("target")
+@ResourceType("target")
 public class TargetResource extends AwsResource {
 
     private String availabilityZone;
@@ -120,7 +120,7 @@ public class TargetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {}
+    public void update(Resource current, Set<String> changedFieldNames) {}
 
     @Override
     public void delete() {

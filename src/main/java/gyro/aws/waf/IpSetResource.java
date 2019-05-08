@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -34,7 +33,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("ip-set")
+@ResourceType("ip-set")
 public class IpSetResource extends AwsResource {
     private String name;
     private String ipSetId;
@@ -65,7 +64,6 @@ public class IpSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.IpSetDescriptorResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<IpSetDescriptorResource> getIpSetDescriptor() {
         if (ipSetDescriptor == null) {
             ipSetDescriptor = new ArrayList<>();
@@ -96,7 +94,6 @@ public class IpSetResource extends AwsResource {
         getIpSetDescriptor().clear();
         for (IPSetDescriptor ipSetDescriptor : ipSet.ipSetDescriptors()) {
             IpSetDescriptorResource ipSetDescriptorResource = new IpSetDescriptorResource(ipSetDescriptor);
-            ipSetDescriptorResource.parent(this);
             getIpSetDescriptor().add(ipSetDescriptorResource);
         }
 
@@ -117,7 +114,7 @@ public class IpSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResourceFinder;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Vpc;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ResourceName("vpc")
+@ResourceType("vpc")
 public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;

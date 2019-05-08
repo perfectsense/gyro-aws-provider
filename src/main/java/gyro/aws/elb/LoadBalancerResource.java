@@ -1,8 +1,7 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -35,7 +34,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("load-balancer")
+@ResourceType("load-balancer")
 public class LoadBalancerResource extends AwsResource {
 
     private String dnsName;
@@ -62,7 +61,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The HealthCheck subresource for this load balancer.
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public HealthCheckResource getHealthCheck() {
         return healthCheck;
     }
@@ -74,7 +72,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The instances to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public Set<String> getInstances() {
         if (instances == null) {
             instances = new LinkedHashSet<>();
@@ -90,7 +87,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The listeners to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public Set<ListenerResource> getListener() {
         if (listener == null) {
             listener = new LinkedHashSet<>();
@@ -128,7 +124,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The security groups to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public Set<String> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new LinkedHashSet<>();
@@ -144,7 +139,6 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * Subnet IDs to associate with this load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
     public Set<String> getSubnets() {
         if (subnets == null) {
             subnets = new LinkedHashSet<>();
@@ -177,7 +171,6 @@ public class LoadBalancerResource extends AwsResource {
                 healthCheckResource.setTarget(description.healthCheck().target());
                 healthCheckResource.setTimeout(description.healthCheck().timeout());
                 healthCheckResource.setUnhealthyThreshold(description.healthCheck().unhealthyThreshold());
-                healthCheckResource.parent(this);
                 setHealthCheck(healthCheckResource);
 
                 getListener().clear();
@@ -188,7 +181,6 @@ public class LoadBalancerResource extends AwsResource {
                     listenerResource.setInstanceProtocol(listener.instanceProtocol());
                     listenerResource.setLoadBalancerPort(listener.loadBalancerPort());
                     listenerResource.setProtocol(listener.protocol());
-                    listenerResource.parent(this);
                     listenerResource.setSslCertificateId(listener.sslCertificateId());
                     getListener().add(listenerResource);
                 }
@@ -218,7 +210,7 @@ public class LoadBalancerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         LoadBalancerResource currentResource = (LoadBalancerResource) current;

@@ -2,8 +2,8 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
@@ -32,7 +32,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("iam-policy")
+@ResourceType("iam-policy")
 public class IamPolicyResource extends AwsResource {
 
     private String policyName;
@@ -42,7 +42,7 @@ public class IamPolicyResource extends AwsResource {
     private String policyDocumentContents;
     private String policyDocumentFile;
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyName() {
         return this.policyName;
     }
@@ -75,7 +75,7 @@ public class IamPolicyResource extends AwsResource {
         this.policyArn = policyArn;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyDocumentContents() {
         if (policyDocumentContents != null) {
             return this.policyDocumentContents;
@@ -97,7 +97,7 @@ public class IamPolicyResource extends AwsResource {
         this.policyDocumentContents = policyDocumentContents;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPolicyDocumentFile() {
         return this.policyDocumentFile;
     }
@@ -155,7 +155,7 @@ public class IamPolicyResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         IamClient client = IamClient.builder()
                 .region(Region.AWS_GLOBAL)
                 .build();

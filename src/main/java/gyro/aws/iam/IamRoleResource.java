@@ -2,8 +2,8 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("iam-role")
+@ResourceType("iam-role")
 public class IamRoleResource extends AwsResource {
 
     private String assumeRolePolicyContents;
@@ -48,7 +48,7 @@ public class IamRoleResource extends AwsResource {
     private String roleName;
 
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAssumeRolePolicyContents() {
 
         if (assumeRolePolicyContents != null) {
@@ -71,7 +71,7 @@ public class IamRoleResource extends AwsResource {
         this.assumeRolePolicyContents = assumeRolePolicyContents;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAssumeRolePolicyDocumentFile() {
         return this.assumeRolePolicyDocumentFile;
     }
@@ -80,7 +80,7 @@ public class IamRoleResource extends AwsResource {
         this.assumeRolePolicyDocumentFile = assumeRolePolicyDocumentFile;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return this.description;
     }
@@ -89,7 +89,7 @@ public class IamRoleResource extends AwsResource {
         this.description = description;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public List<String> getPolicyArns() {
         if (this.policyArns == null) {
             this.policyArns = new ArrayList<>();
@@ -170,7 +170,7 @@ public class IamRoleResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         IamClient client = IamClient.builder()
                 .region(Region.AWS_GLOBAL)
                 .build();

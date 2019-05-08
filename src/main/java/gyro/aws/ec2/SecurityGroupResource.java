@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
@@ -37,7 +37,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("security-group")
+@ResourceType("security-group")
 public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
 
     private String groupName;
@@ -52,7 +52,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The name of the security group.
      */
-    @ResourceDiffProperty
     public String getGroupName() {
         return groupName;
     }
@@ -76,7 +75,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The description of this security group.
      */
-    @ResourceDiffProperty
     public String getDescription() {
         return description;
     }
@@ -90,7 +88,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
      *
      * @subresource gyro.aws.ec2.SecurityGroupIngressRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<SecurityGroupIngressRuleResource> getIngress() {
         if (ingress == null) {
             ingress = new ArrayList<>();
@@ -108,7 +105,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
      *
      * @subresource gyro.aws.ec2.SecurityGroupEgressRuleResource
      */
-    @ResourceDiffProperty(nullable = true, subresource = true)
     public List<SecurityGroupEgressRuleResource> getEgress() {
         if (egress == null) {
             egress = new ArrayList<>();
@@ -124,7 +120,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * Whether to keep the default egress rule. If false, the rule will be deleted.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public boolean isKeepDefaultEgressRules() {
         if (keepDefaultEgressRules == null) {
             keepDefaultEgressRules = true;
@@ -191,14 +187,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
                 }
 
                 SecurityGroupEgressRuleResource rule = new SecurityGroupEgressRuleResource(permission);
-                rule.parent(this);
                 getEgress().add(rule);
             }
 
             getIngress().clear();
             for (IpPermission permission : group.ipPermissions()) {
                 SecurityGroupIngressRuleResource rule = new SecurityGroupIngressRuleResource(permission);
-                rule.parent(this);
                 getIngress().add(rule);
             }
 

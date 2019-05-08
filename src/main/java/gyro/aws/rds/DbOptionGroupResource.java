@@ -1,8 +1,8 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *        }
  *    end
  */
-@ResourceName("db-option-group")
+@ResourceType("db-option-group")
 public class DbOptionGroupResource extends RdsTaggableResource {
 
     private String name;
@@ -104,7 +104,7 @@ public class DbOptionGroupResource extends RdsTaggableResource {
      *
      * @subresource gyro.aws.rds.OptionConfiguration
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<OptionConfiguration> getOption() {
         if (option == null) {
             option = new ArrayList<>();

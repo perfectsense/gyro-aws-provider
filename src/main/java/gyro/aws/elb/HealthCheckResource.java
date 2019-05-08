@@ -1,8 +1,7 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.HealthCheck;
@@ -25,8 +24,6 @@ import java.util.Set;
  *        unhealthy-threshold: "2"
  *     end
  */
-
-@ResourceName(parent = "load-balancer", value = "health-check")
 public class HealthCheckResource extends AwsResource {
 
     private Integer healthyThreshold;
@@ -40,7 +37,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The number of health check successes required to move an instance to the 'Healthy' state.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getHealthyThreshold() {
         return healthyThreshold;
     }
@@ -52,7 +49,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The interval, in seconds, between health checks of an instance
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getInterval() {
         return interval;
     }
@@ -64,7 +61,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The instance that is being checked
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getTarget() {
         return target;
     }
@@ -76,7 +73,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The amount of time, in seconds, a lack of response means a failed health check
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getTimeout() {
         return timeout;
     }
@@ -88,7 +85,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The number of health check failures required to move an instance to the 'Unhealthy' state.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getUnhealthyThreshold() {
         return unhealthyThreshold;
     }
@@ -133,7 +130,7 @@ public class HealthCheckResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         create();
     }
 

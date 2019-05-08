@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -34,7 +33,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("xss-match-set")
+@ResourceType("xss-match-set")
 public class XssMatchSetResource extends AwsResource {
     private String name;
     private String xssMatchSetId;
@@ -65,7 +64,6 @@ public class XssMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.XssMatchTupleResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<XssMatchTupleResource> getXssMatchTuple() {
         if (xssMatchTuple == null) {
             xssMatchTuple = new ArrayList<>();
@@ -96,7 +94,6 @@ public class XssMatchSetResource extends AwsResource {
         getXssMatchTuple().clear();
         for (XssMatchTuple xssMatchTuple : xssMatchSet.xssMatchTuples()) {
             XssMatchTupleResource xssMatchTupleResource = new XssMatchTupleResource(xssMatchTuple);
-            xssMatchTupleResource.parent(this);
             getXssMatchTuple().add(xssMatchTupleResource);
         }
 
@@ -117,7 +114,7 @@ public class XssMatchSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

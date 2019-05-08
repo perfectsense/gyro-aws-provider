@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;
 
@@ -43,7 +43,7 @@ public class RedirectAction extends Diffable {
         setStatusCode(redirect.statusCodeAsString());
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getHost() {
         return host;
     }
@@ -52,7 +52,7 @@ public class RedirectAction extends Diffable {
         this.host = host;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPath() {
         return path;
     }
@@ -61,7 +61,7 @@ public class RedirectAction extends Diffable {
         this.path = path;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPort() {
         return port;
     }
@@ -70,7 +70,7 @@ public class RedirectAction extends Diffable {
         this.port = port;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }
@@ -79,7 +79,7 @@ public class RedirectAction extends Diffable {
         this.protocol = protocol;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getQuery() {
         return query;
     }
@@ -88,7 +88,7 @@ public class RedirectAction extends Diffable {
         this.query = query;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getStatusCode() {
         return statusCode;
     }
