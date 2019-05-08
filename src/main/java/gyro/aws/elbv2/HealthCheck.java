@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
 
@@ -53,7 +53,7 @@ public class HealthCheck extends Diffable {
     /**
      *  The approximate amount of time between health checks of a target (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getInterval() {
         return interval;
     }
@@ -65,7 +65,7 @@ public class HealthCheck extends Diffable {
     /**
      *  The ping path destination on targets for health checks (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPath() {
         return path;
     }
@@ -77,7 +77,7 @@ public class HealthCheck extends Diffable {
     /**
      *  The port used when an alb performs health checks on targets (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPort() {
         return port;
     }
@@ -89,7 +89,7 @@ public class HealthCheck extends Diffable {
     /**
      *  The port used when an alb performs health checks on targets (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }
@@ -101,7 +101,7 @@ public class HealthCheck extends Diffable {
     /**
      *  The amount of time, in seconds, an unresponsive target means a failed health check (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getTimeout() {
         return timeout;
     }
@@ -113,7 +113,7 @@ public class HealthCheck extends Diffable {
     /**
      *  Health check successes required for an unhealthy target to be considered healthy (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getHealthyThreshold() {
         return healthyThreshold;
     }
@@ -125,7 +125,7 @@ public class HealthCheck extends Diffable {
     /**
      *  HTTP code that signals a successful response from a target (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMatcher() {
         return matcher;
     }
@@ -137,7 +137,7 @@ public class HealthCheck extends Diffable {
     /**
      *  Health check failures required by an unhealthy target to be considered unhealthy (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getUnhealthyThreshold() {
         return unhealthyThreshold;
     }

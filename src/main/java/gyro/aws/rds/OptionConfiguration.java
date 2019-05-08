@@ -1,6 +1,6 @@
 package gyro.aws.rds;
 
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 
 import java.util.ArrayList;
 import java.util.List;

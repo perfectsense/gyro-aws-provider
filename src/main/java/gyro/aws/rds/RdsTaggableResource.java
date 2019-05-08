@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -33,7 +33,7 @@ public abstract class RdsTaggableResource extends AwsResource {
     /**
      * A list of tags.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -71,8 +71,8 @@ public abstract class RdsTaggableResource extends AwsResource {
     protected abstract void doUpdate(Resource config, Set<String> changedProperties);
 
     @Override
-    public final void update(Resource current, Set<String> changedProperties) {
-        doUpdate(current, changedProperties);
+    public final void update(Resource current, Set<String> changedFieldNames) {
+        doUpdate(current, changedFieldNames);
         ((RdsTaggableResource) current).removeTags();
         addTags();
     }

@@ -1,8 +1,8 @@
 package gyro.aws.s3;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -109,7 +109,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@ResourceName("bucket")
+@ResourceType("bucket")
 public class BucketResource extends AwsResource {
 
     private String name;
@@ -132,7 +132,6 @@ public class BucketResource extends AwsResource {
     /**
      * Enable object lock property for the bucket which prevents objects from being deleted. Can only be set during creation. See `S3 Object Lock <https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html/>`_.
      */
-    @ResourceDiffProperty
     public Boolean getEnableObjectLock() {
         if (enableObjectLock == null) {
             enableObjectLock = false;
@@ -145,7 +144,7 @@ public class BucketResource extends AwsResource {
         this.enableObjectLock = enableObjectLock;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -161,7 +160,7 @@ public class BucketResource extends AwsResource {
     /**
      * Enable fast easy and secure transfers of files to and from the bucket. See `S3 Transfer Acceleration <https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableAccelerateConfig() {
         if (enableAccelerateConfig == null) {
             enableAccelerateConfig = false;
@@ -177,7 +176,7 @@ public class BucketResource extends AwsResource {
     /**
      * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableVersion() {
         if (enableVersion == null) {
             enableVersion = false;
@@ -193,7 +192,7 @@ public class BucketResource extends AwsResource {
     /**
      * Enable the requester to pay for requests to the bucket than the owner. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnablePay() {
         if (enablePay == null) {
             enablePay = false;
@@ -211,7 +210,7 @@ public class BucketResource extends AwsResource {
      *
      * @subresource gyro.aws.s3.S3CorsRule
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<S3CorsRule> getCorsRule() {
         if (corsRule == null) {
             corsRule = new ArrayList<>();
@@ -229,7 +228,7 @@ public class BucketResource extends AwsResource {
      *
      * @subresource gyro.aws.s3.S3LifecycleRule
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<S3LifecycleRule> getLifecycleRule() {
         if (lifecycleRule == null) {
             lifecycleRule = new ArrayList<>();
@@ -303,22 +302,22 @@ public class BucketResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         S3Client client = createClient(S3Client.class);
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             saveTags(client);
         }
 
-        if (changedProperties.contains("enable-accelerate-config")) {
+        if (changedFieldNames.contains("enable-accelerate-config")) {
             saveAccelerateConfig(client);
         }
 
-        if (changedProperties.contains("enable-version")) {
+        if (changedFieldNames.contains("enable-version")) {
             saveEnableVersion(client);
         }
 
-        if (changedProperties.contains("enable-pay")) {
+        if (changedFieldNames.contains("enable-pay")) {
             saveEnablePay(client);
         }
 

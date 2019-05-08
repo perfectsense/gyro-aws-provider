@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.cloudfront.model.GeoRestriction;
 import software.amazon.awssdk.services.cloudfront.model.Restrictions;
 
@@ -25,7 +25,7 @@ public class CloudFrontGeoRestriction extends Diffable {
     /**
      * Type of restriction. Valid values are ``Whitelist`` or ``Blacklist``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getType() {
         return type;
     }
@@ -37,7 +37,7 @@ public class CloudFrontGeoRestriction extends Diffable {
     /**
      * List of countries to whitelist or blacklist. Uses two letter country codes (i.e. US).
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getRestrictions() {
         if (restrictions == null) {
             restrictions = new ArrayList<>();

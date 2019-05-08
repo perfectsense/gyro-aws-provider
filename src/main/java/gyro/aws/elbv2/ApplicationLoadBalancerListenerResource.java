@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -33,7 +33,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("alb-listener")
+@ResourceType("alb-listener")
 public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
     private List<ActionResource> defaultAction;
@@ -43,7 +43,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<ActionResource> getDefaultAction() {
         if (defaultAction == null) {
             defaultAction = new ArrayList<>();
@@ -84,7 +84,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (toCertificates().isEmpty() && getProtocol().equals("HTTP")) {
@@ -137,7 +137,6 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
         for (Action action : actionList) {
             ActionResource actionResource = new ActionResource(action);
-            actionResource.parent(this);
             actions.add(actionResource);
         }
 

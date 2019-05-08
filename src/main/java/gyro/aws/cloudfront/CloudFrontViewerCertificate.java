@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.cloudfront.model.ViewerCertificate;
 
 public class CloudFrontViewerCertificate extends Diffable {
@@ -28,7 +28,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * Use the default CloudFront SSL certificate (i.e. ``*.cloudfront.net``).
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public boolean getCloudfrontDefaultCertificate() {
         return cloudfrontDefaultCertificate;
     }
@@ -40,7 +40,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * ARN for an ACM generated certificate.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAcmCertificateArn() {
         return acmCertificateArn;
     }
@@ -52,7 +52,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * ID for certificated uploaded to IAM.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getIamCertificateId() {
         return iamCertificateId;
     }
@@ -64,7 +64,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * Minimum SSL protocol. Valid valies are ``SSLv3``, ``TLSv1``, ``TLSv1_2016``, ``TLSv1.1_2016``, ``TLSv1.2_2018``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMinimumProtocolVersion() {
         return minimumProtocolVersion;
     }
@@ -76,7 +76,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * Whether CloudFront uses a dedicated IP or SNI for serving SSL traffic. Valid values are ``vip`` or ``sni-only``. There is a significant additional monthly charge for ``vip`.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSslSupportMethod() {
         if (getCloudfrontDefaultCertificate())  {
             return null;
