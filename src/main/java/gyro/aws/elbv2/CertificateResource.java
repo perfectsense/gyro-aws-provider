@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.Delete;
+import gyro.core.resource.Delete;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;

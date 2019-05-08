@@ -1,8 +1,8 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.Create;
-import gyro.core.diff.Delete;
+import gyro.core.resource.Create;
+import gyro.core.resource.Delete;
 import gyro.core.resource.ResourceUpdatable;
 
 import gyro.core.resource.Resource;

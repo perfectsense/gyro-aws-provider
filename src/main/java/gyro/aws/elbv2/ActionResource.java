@@ -1,9 +1,9 @@
 package gyro.aws.elbv2;
 
-import gyro.core.diff.Create;
-import gyro.core.diff.Delete;
+import gyro.core.resource.Create;
+import gyro.core.resource.Delete;
 import gyro.core.resource.ResourceUpdatable;
-import gyro.core.diff.Update;
+import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
