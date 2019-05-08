@@ -431,7 +431,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public String getName() {
         if (getTags().isEmpty()) {
-            return resourceIdentifier();
+            return name();
         }
 
         return getTags().get("Name");

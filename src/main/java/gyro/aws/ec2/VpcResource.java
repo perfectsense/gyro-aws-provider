@@ -329,7 +329,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         }
 
         sb.append(" - ");
-        sb.append(resourceIdentifier());
+        sb.append(name());
 
         return sb.toString();
     }
