@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -12,7 +11,6 @@ import software.amazon.awssdk.services.waf.model.GeoMatchSetUpdate;
 
 import java.util.Set;
 
-@ResourceName(parent = "geo-match-set", value = "geo-match-constraint")
 public class GeoMatchConstraintResource extends AwsResource {
 
     private String value;
@@ -62,7 +60,7 @@ public class GeoMatchConstraintResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 
@@ -93,11 +91,6 @@ public class GeoMatchConstraintResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s", getValue(), getType());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private GeoMatchConstraint getGeoMatchConstraint() {

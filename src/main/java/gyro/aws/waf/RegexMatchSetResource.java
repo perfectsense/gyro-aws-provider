@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -34,7 +33,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceName("regex-match-set")
+@ResourceType("regex-match-set")
 public class RegexMatchSetResource extends AwsResource {
     private String name;
     private String regexMatchSetId;
@@ -65,7 +64,6 @@ public class RegexMatchSetResource extends AwsResource {
      *
      * @subresource gyro.aws.waf.RegexMatchTupleResource
      */
-    @ResourceDiffProperty(updatable = true, subresource = true)
     public List<RegexMatchTupleResource> getRegexMatchTuple() {
         if (regexMatchTuple == null) {
             regexMatchTuple = new ArrayList<>();
@@ -98,7 +96,6 @@ public class RegexMatchSetResource extends AwsResource {
 
         for (RegexMatchTuple regexMatchTuple : regexMatchSet.regexMatchTuples()) {
             RegexMatchTupleResource regexMatchTupleResource = new RegexMatchTupleResource(regexMatchTuple);
-            regexMatchTupleResource.parent(this);
             getRegexMatchTuple().add(regexMatchTupleResource);
         }
 
@@ -120,7 +117,7 @@ public class RegexMatchSetResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
     }
 
     @Override

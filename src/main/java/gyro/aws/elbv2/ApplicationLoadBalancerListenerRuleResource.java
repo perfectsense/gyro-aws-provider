@@ -1,8 +1,8 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -46,7 +46,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("alb-listener-rule")
+@ResourceType("alb-listener-rule")
 public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
     private List<ActionResource> action;
@@ -60,7 +60,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<ActionResource> getAction() {
         if (action == null) {
             action = new ArrayList<>();
@@ -78,7 +78,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<ConditionResource> getCondition() {
         if (condition == null) {
             condition = new ArrayList<>();
@@ -150,7 +150,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                                 .conditions(toConditions())
@@ -201,7 +201,6 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
         for (Action action : actionList) {
             ActionResource actionResource = new ActionResource(action);
-            actionResource.parent(this);
             actions.add(actionResource);
         }
         return actions;
@@ -212,7 +211,6 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
         for (RuleCondition rc : conditionsList) {
             ConditionResource condition = new ConditionResource(rc);
-            condition.parent(this);
             conditions.add(condition);
         }
 

@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -24,7 +24,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
 
     private Map<String, String> tags;
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -41,7 +41,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
         }
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getName() {
         return getTags().get(NAME_KEY);
     }
@@ -101,8 +101,8 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
     protected abstract void doUpdate(AwsResource config, Set<String> changedProperties);
 
     @Override
-    public final void update(Resource current, Set<String> changedProperties) {
-        doUpdate((AwsResource) current, changedProperties);
+    public final void update(Resource current, Set<String> changedFieldNames) {
+        doUpdate((AwsResource) current, changedFieldNames);
         createTags();
     }
 

@@ -2,8 +2,8 @@ package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
@@ -36,7 +36,7 @@ import java.util.Set;
  *         name: "sns-topic"
  *     end
  */
-@ResourceName("topic")
+@ResourceType("topic")
 public class TopicResource extends AwsResource {
 
     private Map<String, String> attributes;
@@ -54,7 +54,7 @@ public class TopicResource extends AwsResource {
      *
      * Policy can be a json file path or json blob (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getAttributes() {
         if (attributes == null) {
             attributes = new CompactMap<>();
@@ -152,7 +152,7 @@ public class TopicResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
         for (Map.Entry<String, String> entry : getAttributes().entrySet()) {

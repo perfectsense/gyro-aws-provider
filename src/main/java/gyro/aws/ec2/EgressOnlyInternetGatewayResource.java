@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -24,7 +24,7 @@ import java.util.Set;
  *         vpc-id: $(aws::vpc vpc-example | vpc-id)
  *     end
  */
-@ResourceName("egress-gateway")
+@ResourceType("egress-gateway")
 public class EgressOnlyInternetGatewayResource extends AwsResource {
 
     private String vpcId;
@@ -81,7 +81,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

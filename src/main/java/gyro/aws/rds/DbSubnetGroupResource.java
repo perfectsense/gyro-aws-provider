@@ -1,8 +1,8 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *        }
  *    end
  */
-@ResourceName("db-subnet-group")
+@ResourceType("db-subnet-group")
 public class DbSubnetGroupResource extends RdsTaggableResource {
 
     private String description;
@@ -46,7 +46,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource {
     /**
      * The description for the DB subnet group. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -69,7 +69,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource {
     /**
      * The list of Subnet IDs for the DB subnet group. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSubnetIds() {
         if (subnetIds == null || subnetIds.isEmpty()) {
             return new ArrayList<>();

@@ -1,7 +1,7 @@
 package gyro.aws.cloudwatch;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery;
 

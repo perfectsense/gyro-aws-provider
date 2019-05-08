@@ -4,8 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceId;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -41,7 +41,7 @@ import java.util.Set;
  *         enable-dns-support: true
  *     end
  */
-@ResourceName("vpc")
+@ResourceType("vpc")
 public class VpcResource extends Ec2TaggableResource<Vpc> {
 
     private String vpcId;
@@ -95,7 +95,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * The IPv4 network range for the VPC, in CIDR notation. (Required)
      */
-    @ResourceDiffProperty
     public String getCidrBlock() {
         return cidrBlock;
     }
@@ -107,7 +106,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * Launch instances with public hostnames. Defaults to false. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableDnsHostnames() {
         if (enableDnsHostnames == null) {
             enableDnsHostnames = true;
@@ -123,7 +122,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * Enable Amazon provided DNS server at 169.254.169.253 or base of VPC network range plus two. Default is true. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableDnsSupport() {
         if (enableDnsSupport == null) {
             enableDnsSupport = true;
@@ -139,7 +138,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
     }
@@ -151,7 +150,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getInstanceTenancy() {
         return instanceTenancy;
     }
@@ -184,7 +183,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * Enable ClassLink to allow communication with EC2-Classic instances. Defaults to false. See `ClassicLink Basics <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-classiclink.html/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableClassicLink() {
         if (enableClassicLink == null) {
             enableClassicLink = false;
@@ -200,7 +199,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     /**
      * Enable linked EC2-Classic instance hostnames to resolve to private IP address. Defaults to false. See `Enabling ClassicLink DNS Support <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html?#classiclink-enable-dns-support/>`_.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableClassicLinkDnsSupport() {
         if (enableClassicLinkDnsSupport == null) {
             enableClassicLinkDnsSupport = false;
@@ -209,7 +208,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         return enableClassicLinkDnsSupport;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public void setEnableClassicLinkDnsSupport(Boolean enableClassicLinkDnsSupport) {
         this.enableClassicLinkDnsSupport = enableClassicLinkDnsSupport;
     }
@@ -330,7 +329,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         }
 
         sb.append(" - ");
-        sb.append(resourceIdentifier());
+        sb.append(name());
 
         return sb.toString();
     }

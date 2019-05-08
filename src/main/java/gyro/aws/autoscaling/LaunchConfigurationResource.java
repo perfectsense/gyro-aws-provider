@@ -2,7 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -56,7 +56,7 @@ import java.util.Set;
  *         associate-public-ip: true
  *     end
  */
-@ResourceName("launch-configuration")
+@ResourceType("launch-configuration")
 public class LaunchConfigurationResource extends AwsResource {
 
     private String launchConfigurationName;
@@ -275,7 +275,7 @@ public class LaunchConfigurationResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 

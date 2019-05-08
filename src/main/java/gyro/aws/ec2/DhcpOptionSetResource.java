@@ -2,8 +2,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("dhcp-option")
+@ResourceType("dhcp-option")
 public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
 
     private String dhcpOptionsId;
@@ -50,7 +50,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
     /**
      * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
      */
-    @ResourceDiffProperty
     @ResourceOutput
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
@@ -60,7 +59,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         this.dhcpOptionsId = dhcpOptionsId;
     }
 
-    @ResourceDiffProperty
     public List<String> getDomainName() {
         if (domainName == null) {
             domainName = new ArrayList<>();
@@ -73,7 +71,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         this.domainName = domainName;
     }
 
-    @ResourceDiffProperty
     public List<String> getDomainNameServers() {
         if (domainNameServers == null) {
             domainNameServers = new ArrayList<>();
@@ -86,7 +83,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         this.domainNameServers = domainNameServers;
     }
 
-    @ResourceDiffProperty
     public List<String> getNtpServers() {
         if (ntpServers == null) {
             ntpServers = new ArrayList<>();
@@ -99,7 +95,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         this.ntpServers = ntpServers;
     }
 
-    @ResourceDiffProperty
     public List<String> getNetbiosNameServers() {
         if (netbiosNameServers == null) {
             netbiosNameServers = new ArrayList<>();
@@ -112,7 +107,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         this.netbiosNameServers = netbiosNameServers;
     }
 
-    @ResourceDiffProperty
     public List<String> getNetbiosNodeType() {
         if (netbiosNodeType == null) {
             netbiosNodeType = new ArrayList<>();
@@ -121,7 +115,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         return netbiosNodeType;
     }
 
-    @ResourceDiffProperty
     public void setNetbiosNodeType(List<String> netbiosNodeType) {
         this.netbiosNodeType = netbiosNodeType;
     }

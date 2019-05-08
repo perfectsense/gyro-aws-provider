@@ -2,8 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ResourceName(parent = "auto-scaling-group", value = "scaling-policy")
 public class AutoScalingPolicyResource extends AwsResource {
 
     private String policyName;
@@ -60,7 +58,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The adjustment type. Valid values [ 'ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity' ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAdjustmentType() {
         return adjustmentType;
     }
@@ -72,7 +70,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The amount of time between two scaling events. Valid values [ Integer greater than 0 ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getCooldown() {
         return cooldown;
     }
@@ -85,7 +83,7 @@ public class AutoScalingPolicyResource extends AwsResource {
      * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics.
      * Valid values [ Integer greater than 0 ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getEstimatedInstanceWarmup() {
         return estimatedInstanceWarmup;
     }
@@ -97,7 +95,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * the aggregation type for cloud watch metrics. Valid values [ 'Minimum', 'Maximum', 'Average' ].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMetricAggregationType() {
         if (metricAggregationType == null) {
             metricAggregationType = "Average";
@@ -113,7 +111,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The minimum number of instances to scale.
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public Integer getMinAdjustmentMagnitude() {
         return minAdjustmentMagnitude;
     }
@@ -139,7 +137,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The amount by which the scaling would happen.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getScalingAdjustment() {
         return scalingAdjustment;
     }
@@ -151,7 +149,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * Scaling in by the target tracking policy is enabled/disabled. Defaulted to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getDisableScaleIn() {
         if (disableScaleIn == null) {
             disableScaleIn = false;
@@ -167,7 +165,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * The target value for the metric.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Double getTargetValue() {
         return targetValue;
     }
@@ -179,7 +177,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * Predefined metric type.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPredefinedMetricType() {
         return predefinedMetricType;
     }
@@ -193,7 +191,7 @@ public class AutoScalingPolicyResource extends AwsResource {
      *
      * Valid values are ``ASGAverageCPUUtilization``, ``ASGAverageNetworkIn``, ``ASGAverageNetworkOut``, ``ALBRequestCountPerTarget``.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPredefinedMetricResourceLabel() {
         return predefinedMetricResourceLabel;
     }
@@ -213,7 +211,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * A set of adjustments that enable you to scale based on the size of the alarm breach.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<AutoScalingPolicyStepAdjustment> getStepAdjustment() {
         if (stepAdjustment == null) {
             stepAdjustment = new ArrayList<>();
@@ -277,7 +275,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -314,11 +312,6 @@ public class AutoScalingPolicyResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s", getPolicyName(), getPolicyType());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private void savePolicy(AutoScalingClient client) {

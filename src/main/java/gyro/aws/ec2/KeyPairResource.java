@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -10,12 +10,10 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeKeyPairsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.ImportKeyPairResponse;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
 
@@ -42,7 +40,7 @@ import java.util.Set;
  *         public-key: ".."
  *     end
  */
-@ResourceName("key-pair")
+@ResourceType("key-pair")
 public class KeyPairResource extends AwsResource {
 
     private String keyName;
@@ -130,7 +128,7 @@ public class KeyPairResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 
@@ -155,9 +153,9 @@ public class KeyPairResource extends AwsResource {
     }
 
     private String getPublicKeyFromPath() {
-        try {
-            String dir = scope().getFileScope().getFile().substring(0, scope().getFileScope().getFile().lastIndexOf(File.separator));
-            return new String(Files.readAllBytes(Paths.get(dir + File.separator + getPublicKeyPath())), StandardCharsets.UTF_8);
+        try (InputStream input = openInput(getPublicKeyPath())) {
+            return IoUtils.toUtf8String(input);
+
         } catch (IOException ioex) {
             throw new GyroException("Unable to read public key from file.");
         }

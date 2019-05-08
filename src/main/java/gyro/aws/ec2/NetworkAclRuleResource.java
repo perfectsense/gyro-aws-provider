@@ -2,8 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -38,7 +37,6 @@ import java.util.Set;
  *    end
  *
  */
-@ResourceName(parent = "network-acl", value = "rule")
 public class NetworkAclRuleResource extends AwsResource {
 
     private Integer ruleNumber;
@@ -89,7 +87,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The action of the rule. Valid values are: ``allow`` or ``deny``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRuleAction() {
         return ruleAction;
     }
@@ -101,7 +99,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The protocol of the rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP). (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }
@@ -124,7 +122,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The IPv4 cidr block to apply the rule to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCidrBlock() {
         return cidrBlock;
     }
@@ -136,7 +134,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The IPv6 cidr block to apply the rule to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getIpv6CidrBlock() {
         return ipv6CidrBlock;
     }
@@ -148,7 +146,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The starting port of the rule.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getFromPort() {
         return fromPort;
     }
@@ -160,7 +158,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The ending port of the rule.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getToPort() {
         return toPort;
     }
@@ -172,7 +170,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The ICMP type used for an ICMP request.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIcmpType() {
         return icmpType;
     }
@@ -184,7 +182,7 @@ public class NetworkAclRuleResource extends AwsResource {
     /**
      * The ICMP code used for an ICMP request.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIcmpCode() {
         return icmpCode;
     }
@@ -247,12 +245,7 @@ public class NetworkAclRuleResource extends AwsResource {
     }
 
     @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
-    @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
