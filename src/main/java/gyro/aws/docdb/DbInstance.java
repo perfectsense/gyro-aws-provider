@@ -3,9 +3,9 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -36,7 +36,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("docdb-instance")
+@ResourceType("docdb-instance")
 public class DbInstance extends DocDbTaggableResource {
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
@@ -53,7 +53,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Enable auto minor version upgrade.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAutoMinorVersionUpgrade() {
         return autoMinorVersionUpgrade;
     }
@@ -76,7 +76,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Set the size of the data base instance. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
     }
@@ -110,7 +110,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Set the preferred maintenance window. Valid format ``ddd:hh24:mi-ddd:hh24:mi``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -122,7 +122,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Set the promotion tier. Valid values ``0-15``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getPromotionTier() {
         return promotionTier;
     }

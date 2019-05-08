@@ -2,9 +2,9 @@ package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceName("docdb-subnet-group")
+@ResourceType("docdb-subnet-group")
 public class DbSubnetGroupResource extends DocDbTaggableResource {
     private String dbSubnetGroupDescription;
     private String dbSubnetGroupName;
@@ -49,7 +49,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     /**
      * Description of the db subnet group.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDbSubnetGroupDescription() {
         return dbSubnetGroupDescription;
     }
@@ -72,7 +72,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     /**
      * A list of associated subnet id's. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();

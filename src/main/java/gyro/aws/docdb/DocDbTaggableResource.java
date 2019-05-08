@@ -4,7 +4,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.docdb.model.Tag;
@@ -20,7 +20,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
 
     protected abstract String getId();
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

@@ -3,16 +3,13 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
-import software.amazon.awssdk.services.docdb.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DbClusterSnapshotNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterSnapshotsResponse;
-import software.amazon.awssdk.services.docdb.model.DescribeDbClustersResponse;
-import software.amazon.awssdk.services.docdb.model.DescribeDbInstancesResponse;
 
 import java.util.Set;
 
@@ -33,7 +30,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("docdb-cluster-snapshot")
+@ResourceType("docdb-cluster-snapshot")
 public class DbClusterSnapshotResource extends DocDbTaggableResource {
     private String dbClusterIdentifier;
     private String dbClusterSnapshotIdentifier;

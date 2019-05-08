@@ -2,9 +2,9 @@ package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
@@ -34,7 +34,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("docdb-cluster-param-group")
+@ResourceType("docdb-cluster-param-group")
 public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     private String dbClusterParamGroupName;
     private String dbParamGroupFamily;
@@ -81,7 +81,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * Enable audit logs. Defaults to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableAuditLogs() {
         if (enableAuditLogs == null) {
             enableAuditLogs = false;
@@ -97,7 +97,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * Enable tls. Defaults to true.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableTls() {
         if (enableTls == null) {
             enableTls = true;
@@ -113,7 +113,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * Enable ttl monitor. Defaults to true.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableTtlMonitor() {
         if (enableTtlMonitor == null) {
             enableTtlMonitor = true;
