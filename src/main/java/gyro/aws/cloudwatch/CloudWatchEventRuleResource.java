@@ -144,6 +144,8 @@ public class CloudWatchEventRuleResource extends AwsResource {
      * The list of target resources which can be invoked when an event pattern is matched or scheduled
      *
      * See `AWS Services CloudWatch events <https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html/>`_.
+     *
+     * @subresource gyro.aws.cloudwatch.CloudWatchRuleTargetResource
      */
     @ResourceUpdatable
     public List<CloudWatchRuleTargetResource> getTarget() {
