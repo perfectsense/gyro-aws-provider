@@ -1,11 +1,11 @@
 package gyro.aws.cloudwatch;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
-import software.amazon.awssdk.services.cloudwatchevents.model.RunCommandTarget;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     private Map<String, String> inputTransformerPathMap;
     private String inputTransformerTemplate;
     private String kinesisPartitionKeyPath;
-    private List<RunCommandTarget> runCommandTargets;
+    private List<String> runCommandTargets;
 
     public CloudWatchRuleTargetResource() {}
 
@@ -54,14 +54,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
                 getInputTransformerPathMap().put(entry.getKey(),entry.getValue());
             }
         }
-
-        getRunCommandTargets().clear();
-        if (target.runCommandParameters() != null) {
-            for (RunCommandTarget runTarget : target.runCommandParameters().runCommandTargets()) {
-                getRunCommandTargets().add(runTarget);
-            }
-        }
-
     }
 
     /**
@@ -200,14 +192,14 @@ public class CloudWatchRuleTargetResource extends AwsResource {
      * See `AWS Services CloudWatch Run Command target property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-runcommandparameters.html/>`_.
      */
     @ResourceUpdatable
-    public List<RunCommandTarget> getRunCommandTargets() {
+    public List<String> getRunCommandTargets() {
         if (runCommandTargets == null) {
             runCommandTargets = new ArrayList<>();
         }
         return runCommandTargets;
     }
 
-    public void setRunCommandTargets(List<RunCommandTarget> runCommandTargets) {
+    public void setRunCommandTargets(List<String> runCommandTargets) {
         this.runCommandTargets = runCommandTargets;
     }
 
@@ -281,20 +273,37 @@ public class CloudWatchRuleTargetResource extends AwsResource {
 
     private void saveTarget(CloudWatchEventsClient client) {
 
-        Target target = Target.builder()
-                .arn(getTargetArn())
+        Target.Builder builder = Target.builder();
+
+        builder = builder.arn(getTargetArn())
                 .id(getTargetId())
                 .roleArn(getRoleArn())
                 .sqsParameters(
                         g -> g.messageGroupId(getMessageGroupId())
                 )
                 .input(getInput())
-                .inputPath(getInputPath())
-                .build();
+                .inputPath(getInputPath()
+                );
+
+        if (getEcsTaskCount() != null && getEcsTaskDefinitionArn() != null) {
+                builder = builder.ecsParameters(e -> e.taskCount(getEcsTaskCount())
+                    .taskDefinitionArn(getEcsTaskDefinitionArn())
+                );
+        }
+
+        if (ObjectUtils.isBlank(getKinesisPartitionKeyPath())) {
+            builder = builder.kinesisParameters( k -> k.partitionKeyPath(getKinesisPartitionKeyPath()));
+        }
+
+        if (!(ObjectUtils.isBlank(getInputTransformerPathMap()) && ObjectUtils.isBlank(getInputTransformerTemplate()))) {
+            builder = builder.inputTransformer(i -> i.inputTemplate(getInputTransformerTemplate())
+                            .inputPathsMap(getInputTransformerPathMap())
+                    );
+        }
 
         PutTargetsRequest request = PutTargetsRequest.builder()
                 .rule(getRuleName())
-                .targets(target)
+                .targets(builder.build())
                 .build();
 
         client.putTargets(request);
