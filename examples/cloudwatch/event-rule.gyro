@@ -1,7 +1,6 @@
 aws::event-rule rule-example
        rule-name: "rule-example"
        description: "rule test"
-       schedule-event: true
        schedule-expression: "rate(5 minutes)"
        state: "ENABLED"
 end
@@ -27,7 +26,6 @@ end
 aws::event-rule schedule-pattern-example
        rule-name: "schedule-pattern-test"
        description: "second rule test"
-       schedule-event: true
        schedule-expression: "rate(5 minutes)"
        state: "ENABLED"
 
