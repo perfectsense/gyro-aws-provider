@@ -18,7 +18,7 @@ import java.util.List;
  * Example
  * -------
  *
- *aws::regex-pattern-set-regional regex-pattern-set-match-set-example
+ * aws::regex-pattern-set-regional regex-pattern-set-match-set-example
  *     name: "regex-pattern-set-match-set-example"
  *
  *     patterns: [
