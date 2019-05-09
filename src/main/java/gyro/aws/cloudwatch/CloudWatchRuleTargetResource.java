@@ -274,7 +274,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
             builder = builder.kinesisParameters( k -> k.partitionKeyPath(getKinesisPartitionKeyPath()));
         }
 
-        if (!(ObjectUtils.isBlank(getInputTransformerPathMap()) && ObjectUtils.isBlank(getInputTransformerTemplate()))) {
+        if (!ObjectUtils.isBlank(getInputTransformerTemplate())) {
             builder = builder.inputTransformer(i -> i.inputTemplate(getInputTransformerTemplate())
                             .inputPathsMap(getInputTransformerPathMap())
                     );
