@@ -10,6 +10,19 @@ import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a regional rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::rule-regional rule-example
+ *         name: "rule-example"
+ *         metric-name: "ruleExample"
+ *     end
+ */
 @ResourceType("rule-regional")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
     private List<PredicateResource> predicate;

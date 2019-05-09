@@ -16,6 +16,25 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a byte match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::byte-match-set-regional byte-match-set-example
+ *     name: "byte-match-set-example"
+ *
+ *     byte-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *         positional-constraint: "CONTAINS"
+ *         target-string: "target-string"
+ *     end
+ * end
+ */
 @ResourceType("waf-acl-regional")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     private List<ActivatedRuleResource> activatedRule;

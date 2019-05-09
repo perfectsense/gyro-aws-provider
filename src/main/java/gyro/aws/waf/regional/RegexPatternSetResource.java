@@ -10,6 +10,23 @@ import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.List;
 
+/**
+ * Creates a regex pattern set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::regex-pattern-set-regional regex-pattern-set-example
+ *     name: "regex-pattern-set-example"
+ *
+ *     patterns: [
+ *         "pattern1",
+ *         "pattern2"
+ *     ]
+ * end
+ */
 @ResourceType("regex-pattern-set-regional")
 public class RegexPatternSetResource extends gyro.aws.waf.common.RegexPatternSetResource {
     @Override

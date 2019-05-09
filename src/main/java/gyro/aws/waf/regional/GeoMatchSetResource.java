@@ -12,6 +12,23 @@ import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a regional geo match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::geo-match-set-regional geo-match-set-example
+ *     name: "geo-match-set-example"
+ *
+ *     geo-match-constraint
+ *         type: "Country"
+ *         value: "TL"
+ *     end
+ * en
+ */
 @ResourceType("geo-match-set-regional")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {
     private List<GeoMatchConstraintResource> geoMatchConstraint;

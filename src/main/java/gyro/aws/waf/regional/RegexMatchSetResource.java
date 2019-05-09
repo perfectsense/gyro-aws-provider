@@ -12,6 +12,30 @@ import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a regional regex match set.
+ *
+ * Example
+ * -------
+ *
+ *aws::regex-pattern-set-regional regex-pattern-set-match-set-example
+ *     name: "regex-pattern-set-match-set-example"
+ *
+ *     patterns: [
+ *         "pattern1",
+ *         "pattern2"
+ *     ]
+ * end
+ *
+ * aws::regex-match-set-regional regex-match-set-example
+ *     name: "regex-match-set-example"
+ *     regex-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *         regex-pattern-set-id: $(aws::regex-pattern-set regex-pattern-set-match-set-example | regex-pattern-set-id)
+ *     end
+ * end
+ */
 @ResourceType("regex-match-set-regional")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
     private List<RegexMatchTupleResource> regexMatchTuple;

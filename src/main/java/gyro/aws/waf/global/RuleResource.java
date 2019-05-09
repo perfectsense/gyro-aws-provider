@@ -10,6 +10,19 @@ import software.amazon.awssdk.services.waf.model.Rule;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::rule rule-example
+ *         name: "rule-example"
+ *         metric-name: "ruleExample"
+ *     end
+ */
 @ResourceType("rule")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
     private List<PredicateResource> predicate;

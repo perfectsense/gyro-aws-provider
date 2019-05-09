@@ -12,6 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Creates a regional rate-rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::rate-rule-regional rate-rule-example
+ *         name: "rate-rule-example"
+ *         metric-name: "rateRuleExample"
+ *         rate-key: "IP"
+ *         rate-limit: 2000
+ *    end
+ */
 @ResourceType("rate-rule-regional")
 public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     private List<PredicateResource> predicate;

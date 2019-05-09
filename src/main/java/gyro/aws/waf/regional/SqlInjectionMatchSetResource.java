@@ -12,6 +12,23 @@ import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a size injection match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::sql-injection-match-set-regional sql-injection-match-set-example
+ *     name: "sql-injection-match-set-example"
+ *
+ *     sql-injection-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *     end
+ * end
+ */
 @ResourceType("sql-injection-match-set-regional")
 public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjectionMatchSetResource {
     private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
