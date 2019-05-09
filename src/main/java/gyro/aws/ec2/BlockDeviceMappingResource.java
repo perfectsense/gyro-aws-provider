@@ -129,6 +129,10 @@ public class BlockDeviceMappingResource extends Diffable {
     }
 
     public Boolean getRootDevice() {
+        if (rootDevice == null) {
+            rootDevice = false;
+        }
+
         return rootDevice;
     }
 

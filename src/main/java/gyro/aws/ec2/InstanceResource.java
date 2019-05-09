@@ -669,6 +669,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                     .capacityReservationSpecification(getCapacityReservationSpecification())
             );
         }
+
+        if (changedProperties.contains("block-device-mapping")) {
+            if(!instanceStopped) {
+                // do update
+            } else {
+                GyroCore.ui().write("\n@|bold,blue Skipping update of %s since instance"
+                    + " must be stopped to change parameter %s |@", "block-device-mapping", "block-device-mapping");
+            }
+        }
     }
 
     @Override
