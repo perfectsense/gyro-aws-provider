@@ -4,9 +4,14 @@ import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
-import software.amazon.awssdk.services.cloudwatchevents.model.Target;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
+import software.amazon.awssdk.services.cloudwatchevents.model.RunCommandTarget;
+import software.amazon.awssdk.services.cloudwatchevents.model.Target;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class CloudWatchRuleTargetResource extends AwsResource {
@@ -15,17 +20,55 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     private String targetArn;
     private String roleArn;
     private String messageGroupId;
+    private Integer ecsTaskCount;
+    private String ecsTaskDefinitionArn;
+    private String input;
+    private String inputPath;
+    private Map<String, String> inputTransformerPathMap;
+    private String inputTransformerTemplate;
+    private String kinesisPartitionKeyPath;
+    private List<RunCommandTarget> runCommandTargets;
 
-    public CloudWatchRuleTargetResource() {
-    }
+    public CloudWatchRuleTargetResource() {}
 
     public CloudWatchRuleTargetResource(Target target) {
         setTargetId(target.id());
         setTargetArn(target.arn());
         setRoleArn(target.roleArn());
         setMessageGroupId(target.sqsParameters().messageGroupId());
+        setInput(target.input());
+        setInputPath(target.inputPath());
+
+        setKinesisPartitionKeyPath(target.kinesisParameters() != null ? target.kinesisParameters().partitionKeyPath() : null);
+
+        if (target.ecsParameters() != null) {
+            setEcsTaskCount(target.ecsParameters().taskCount());
+            setEcsTaskDefinitionArn(target.ecsParameters().taskDefinitionArn());
+        }
+
+        if (target.inputTransformer() != null) {
+            setInputTransformerTemplate(target.inputTransformer().inputTemplate());
+            Set<Map.Entry<String, String>> entrySet = target.inputTransformer().inputPathsMap().entrySet();
+
+            for (Map.Entry<String, String> entry: entrySet) {
+                getInputTransformerPathMap().put(entry.getKey(),entry.getValue());
+            }
+        }
+
+        getRunCommandTargets().clear();
+        if (target.runCommandParameters() != null) {
+            for (RunCommandTarget runTarget : target.runCommandParameters().runCommandTargets()) {
+                getRunCommandTargets().add(runTarget);
+            }
+        }
+
     }
 
+    /**
+     * The identifier of the target resource. (Required)
+     *
+     * It can include alphanumeric characters, periods (.), hyphens (-), and underscores (_).
+     */
     public String getTargetId() {
         return targetId;
     }
@@ -34,6 +77,9 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         this.targetId = targetId;
     }
 
+    /**
+     * The arn of the target resource, also served as its identifier and thus unique. (Required)
+     */
     @ResourceUpdatable
     public String getTargetArn() {
         return targetArn;
@@ -43,6 +89,9 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         this.targetArn = targetArn;
     }
 
+    /**
+     * The IAM role arn that gives permission to invoke actions on the target resource. (Optional)
+     */
     @ResourceUpdatable
     public String getRoleArn() {
         return roleArn;
@@ -52,6 +101,35 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         this.roleArn = roleArn;
     }
 
+    /**
+     * The input json text that triggers an action on the target resource. If provided, doesn't consider the matched event conditions. (Optional)
+     */
+    @ResourceUpdatable
+    public String getInput() {
+        return input;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    /**
+     * The input path that passes the part of the event to trigger the target resource. (Optional)
+     */
+    @ResourceUpdatable
+    public String getInputPath() {
+        return inputPath;
+    }
+
+    public void setInputPath(String inputPath) {
+        this.inputPath = inputPath;
+    }
+
+    /**
+     * Thes SQS queue message group id which will be the destination for the target when triggered.
+     *
+     * The SQS queue must be a FIFO type and should have content-based-deduplication enabled.
+     */
     @ResourceUpdatable
     public String getMessageGroupId() {
         return messageGroupId;
@@ -59,6 +137,93 @@ public class CloudWatchRuleTargetResource extends AwsResource {
 
     public void setMessageGroupId(String messageGroupId) {
         this.messageGroupId = messageGroupId;
+    }
+
+    /**
+     * The number of tasks created when the target is an Amazon ECS task. (Default is `1`)
+     */
+    @ResourceUpdatable
+    public Integer getEcsTaskCount() {
+        return ecsTaskCount;
+    }
+
+    public void setEcsTaskCount(Integer ecsTaskCount) {
+        this.ecsTaskCount = ecsTaskCount;
+    }
+
+    /**
+     * The arn of the task that is created when the target is an Amazon ECS task.
+     */
+    @ResourceUpdatable
+    public String getEcsTaskDefinitionArn() {
+        return ecsTaskDefinitionArn;
+    }
+
+    public void setEcsTaskDefinitionArn(String ecsTaskDefinitionArn) {
+        this.ecsTaskDefinitionArn = ecsTaskDefinitionArn;
+    }
+
+    /**
+     * The map of customized inputs that can be used to configure cloudwatch event targets.
+     *
+     * See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
+     */
+    @ResourceUpdatable
+    public Map<String, String> getInputTransformerPathMap() {
+        if (inputTransformerPathMap == null) {
+            inputTransformerPathMap = new HashMap<>();
+        }
+        return inputTransformerPathMap;
+    }
+
+    public void setInputTransformerPathMap(Map<String, String> inputTransformerPathMap) {
+        this.inputTransformerPathMap = inputTransformerPathMap;
+    }
+
+    /**
+     * The input template which contains the values of the keys of the input path maps.
+     *
+     * See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
+     */
+    @ResourceUpdatable
+    public String getInputTransformerTemplate() {
+        return inputTransformerTemplate;
+    }
+
+    public void setInputTransformerTemplate(String inputTransformerTemplate) {
+        this.inputTransformerTemplate = inputTransformerTemplate;
+    }
+
+    /**
+     * The list of parameters that invokes the Amazon Ec2 Run Command target.
+     *
+     * See `AWS Services CloudWatch Run Command target property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-runcommandparameters.html/>`_.
+     */
+    @ResourceUpdatable
+    public List<RunCommandTarget> getRunCommandTargets() {
+        if (runCommandTargets == null) {
+            runCommandTargets = new ArrayList<>();
+        }
+        return runCommandTargets;
+    }
+
+    public void setRunCommandTargets(List<RunCommandTarget> runCommandTargets) {
+        this.runCommandTargets = runCommandTargets;
+    }
+
+    /**
+     * The path of the kinesis data stream target.
+     *
+     * See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html/>`_.
+     *
+     */
+    @ResourceUpdatable
+    public String getKinesisPartitionKeyPath() {
+        return kinesisPartitionKeyPath;
+    }
+
+    public void setKinesisPartitionKeyPath(String kinesisPartitionKeyPath) {
+        this.kinesisPartitionKeyPath = kinesisPartitionKeyPath;
     }
 
     public String getRuleName() {
@@ -85,7 +250,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveTarget(client);
-
     }
 
     @Override
@@ -94,7 +258,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveTarget(client);
-
     }
 
     @Override
@@ -114,10 +277,10 @@ public class CloudWatchRuleTargetResource extends AwsResource {
             sb.append(" ").append(getTargetId());
         }
         return sb.toString();
-
     }
 
     private void saveTarget(CloudWatchEventsClient client) {
+
         Target target = Target.builder()
                 .arn(getTargetArn())
                 .id(getTargetId())
@@ -125,6 +288,8 @@ public class CloudWatchRuleTargetResource extends AwsResource {
                 .sqsParameters(
                         g -> g.messageGroupId(getMessageGroupId())
                 )
+                .input(getInput())
+                .inputPath(getInputPath())
                 .build();
 
         PutTargetsRequest request = PutTargetsRequest.builder()
@@ -133,8 +298,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
                 .build();
 
         client.putTargets(request);
-
     }
-
 }
 
