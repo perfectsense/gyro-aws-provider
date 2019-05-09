@@ -214,6 +214,8 @@ public class CloudWatchEventRuleResource extends AwsResource {
 
         loadRule(rule);
 
+
+
         List<Target> targets = getTarget(client, rule);
 
         getTarget().clear();
@@ -341,10 +343,6 @@ public class CloudWatchEventRuleResource extends AwsResource {
     }
 
     private List<Target> getTarget(CloudWatchEventsClient client, Rule rule) {
-
-        if (getTarget().isEmpty()) {
-            throw new GyroException("No targets presents, unable to load rule target.");
-        }
 
         ListTargetsByRuleResponse listTargetResponse = client.listTargetsByRule(r -> r.rule(rule.name()));
 
