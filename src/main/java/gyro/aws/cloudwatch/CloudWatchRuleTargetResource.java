@@ -229,7 +229,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s, %s", getTargetId(), getTargetArn());
+        return String.format("%s", getTargetId());
     }
 
     @Override
@@ -291,7 +291,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
                 );
         }
 
-        if (ObjectUtils.isBlank(getKinesisPartitionKeyPath())) {
+        if (!ObjectUtils.isBlank(getKinesisPartitionKeyPath())) {
             builder = builder.kinesisParameters( k -> k.partitionKeyPath(getKinesisPartitionKeyPath()));
         }
 
