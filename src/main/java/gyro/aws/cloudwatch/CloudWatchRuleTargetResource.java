@@ -187,23 +187,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * The list of parameters that invokes the Amazon Ec2 Run Command target.
-     *
-     * See `AWS Services CloudWatch Run Command target property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-runcommandparameters.html/>`_.
-     */
-    @ResourceUpdatable
-    public List<String> getRunCommandTargets() {
-        if (runCommandTargets == null) {
-            runCommandTargets = new ArrayList<>();
-        }
-        return runCommandTargets;
-    }
-
-    public void setRunCommandTargets(List<String> runCommandTargets) {
-        this.runCommandTargets = runCommandTargets;
-    }
-
-    /**
      * The path of the kinesis data stream target.
      *
      * See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html/>`_.
@@ -246,7 +229,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveTarget(client);
