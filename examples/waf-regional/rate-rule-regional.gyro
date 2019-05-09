@@ -1,0 +1,6 @@
+aws::rate-rule-regional rate-rule-example
+    name: "rate-rule-example"
+    metric-name: "rateRuleExample"
+    rate-key: "IP"
+    rate-limit: 2000
+end

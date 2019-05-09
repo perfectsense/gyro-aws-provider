@@ -1,0 +1,8 @@
+aws::regex-pattern-set-regional regex-pattern-set-example
+    name: "regex-pattern-set-example"
+
+    patterns: [
+        "pattern1",
+        "pattern2"
+    ]
+end

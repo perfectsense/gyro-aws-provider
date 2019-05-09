@@ -1,0 +1,10 @@
+aws::byte-match-set-regional byte-match-set-example
+    name: "byte-match-set-example"
+
+    byte-match-tuple
+        type: "METHOD"
+        text-transformation: "NONE"
+        positional-constraint: "CONTAINS"
+        target-string: "target-string"
+    end
+end
