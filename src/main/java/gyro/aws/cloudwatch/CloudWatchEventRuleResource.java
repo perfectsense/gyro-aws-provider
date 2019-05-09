@@ -24,6 +24,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Create a CloudWatch rule and targets
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *      aws::event-rule event-pattern-example
+ *        rule-name: "event-pattern-test"
+ *        description: "first rule test"
+ *        event-pattern-path: 'event-pattern.json'
+ *        #schedule-event: true
+ *        #schedule-expression: "rate(5 minutes)"
+ *        state: "ENABLED"
+ *
+ *        target
+ *           target-id: "event-pattern-match-target1"
+ *           target-arn: "arn:aws:sqs:us-east-2:242040583208:cloudwatch-test.fifo"
+ *           message-group-id: "test123"
+ *        end
+ * end
+ *
+ */
 @ResourceType("event-rule")
 public class CloudWatchEventRuleResource extends AwsResource {
 
