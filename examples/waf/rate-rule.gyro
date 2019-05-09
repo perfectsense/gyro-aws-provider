@@ -2,5 +2,5 @@ aws::rate-rule rate-rule-example
     name: "rate-rule-example"
     metric-name: "rateRuleExample"
     rate-key: "IP"
-    rate-limit: 10
+    rate-limit: 2000
 end
