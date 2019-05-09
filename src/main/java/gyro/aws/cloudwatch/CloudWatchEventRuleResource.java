@@ -58,7 +58,6 @@ public class CloudWatchEventRuleResource extends AwsResource {
     private String ruleArn;
     private String ruleName;
     private String scheduleExpression;
-    private Boolean scheduleEvent;
     private String state;
     private List<CloudWatchRuleTargetResource> target;
 
@@ -95,20 +94,6 @@ public class CloudWatchEventRuleResource extends AwsResource {
 
     public void setRoleArn(String roleArn) {
         this.roleArn = roleArn;
-    }
-
-    /**
-     * The Boolean value that indicates if the rule is a scheduled type.
-     */
-    public Boolean getScheduleEvent() {
-        if (scheduleEvent == null) {
-            scheduleEvent = false;
-        }
-        return scheduleEvent;
-    }
-
-    public void setScheduleEvent(Boolean scheduleEvent) {
-        this.scheduleEvent = scheduleEvent;
     }
 
     /**
@@ -259,7 +244,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
         sb.append("rule");
 
         if (!ObjectUtils.isBlank(getRuleName())) {
-            sb.append(" : ").append(getRuleName());
+            sb.append(getRuleName());
         }
 
         return sb.toString();
@@ -298,15 +283,11 @@ public class CloudWatchEventRuleResource extends AwsResource {
         setState(rule.state().toString());
         setRoleArn(rule.roleArn());
         setManagedBy(rule.managedBy());
-
-        if (rule.scheduleExpression() != null) {
-            setScheduleEvent(true);
-        }
     }
 
     private void saveRule(CloudWatchEventsClient client) {
 
-        if (getScheduleEvent()) {
+        if (!ObjectUtils.isBlank(getScheduleExpression())) {
             PutRuleResponse ruleResponse = client.putRule(
                     r -> r.name(getRuleName())
                             .description(getDescription())
