@@ -199,8 +199,6 @@ public class CloudWatchEventRuleResource extends AwsResource {
 
         loadRule(rule);
 
-
-
         List<Target> targets = getTarget(client, rule);
 
         getTarget().clear();
