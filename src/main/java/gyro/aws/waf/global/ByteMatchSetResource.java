@@ -12,6 +12,25 @@ import software.amazon.awssdk.services.waf.model.GetByteMatchSetResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a global byte match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::byte-match-set byte-match-set-example
+ *     name: "byte-match-set-example"
+ *
+ *     byte-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *         positional-constraint: "CONTAINS"
+ *         target-string: "target-string"
+ *     end
+ * end
+ */
 @ResourceType("byte-match-set")
 public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResource {
     private List<ByteMatchTupleResource> byteMatchTuple;

@@ -12,6 +12,23 @@ import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a global sql injection match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::sql-injection-match-set sql-injection-match-set-example
+ *     name: "sql-injection-match-set-example"
+ *
+ *     sql-injection-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *     end
+ * end
+ */
 @ResourceType("sql-injection-match-set")
 public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjectionMatchSetResource {
     private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;

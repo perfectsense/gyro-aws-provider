@@ -12,6 +12,23 @@ import software.amazon.awssdk.services.waf.model.GetGeoMatchSetResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a global geo match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::geo-match-set geo-match-set-example
+ *     name: "geo-match-set-example"
+ *
+ *     geo-match-constraint
+ *         type: "Country"
+ *         value: "TL"
+ *     end
+ * end
+ */
 @ResourceType("geo-match-set")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {
     private List<GeoMatchConstraintResource> geoMatchConstraint;

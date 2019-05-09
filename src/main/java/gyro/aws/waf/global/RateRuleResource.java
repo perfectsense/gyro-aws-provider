@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Creates a rate-rule.
+ * Creates a global rate-rule.
  *
  * Example
  * -------

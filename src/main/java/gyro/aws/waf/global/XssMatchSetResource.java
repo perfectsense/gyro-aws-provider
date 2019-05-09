@@ -12,6 +12,23 @@ import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a global xss match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::xss-match-set xss-match-set-example
+ *     name: "xss-match-set-example"
+ *
+ *     xss-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *     end
+ * end
+ */
 @ResourceType("xss-match-set")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {
     private List<XssMatchTupleResource> xssMatchTuple;

@@ -12,6 +12,32 @@ import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a global regex match set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::regex-pattern-set regex-pattern-set-match-set-example
+ *     name: "regex-pattern-set-match-set-example"
+ *
+ *     patterns: [
+ *         "pattern1",
+ *         "pattern2"
+ *     ]
+ * end
+ *
+ * aws::regex-match-set regex-match-set-example
+ *     name: "regex-match-set-example"
+ *     regex-match-tuple
+ *         type: "METHOD"
+ *         text-transformation: "NONE"
+ *         regex-pattern-set-id: $(aws::regex-pattern-set regex-pattern-set-match-set-example | regex-pattern-set-id)
+ *     end
+ * end
+ */
 @ResourceType("regex-match-set")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
     private List<RegexMatchTupleResource> regexMatchTuple;

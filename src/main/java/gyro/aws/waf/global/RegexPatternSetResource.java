@@ -10,6 +10,23 @@ import software.amazon.awssdk.services.waf.model.UpdateRegexPatternSetRequest;
 
 import java.util.List;
 
+/**
+ * Creates a global regex pattern set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::regex-pattern-set regex-pattern-set-example
+ *     name: "regex-pattern-set-example"
+ *
+ *     patterns: [
+ *         "pattern1",
+ *         "pattern2"
+ *     ]
+ * end
+ */
 @ResourceType("regex-pattern-set")
 public class RegexPatternSetResource extends gyro.aws.waf.common.RegexPatternSetResource {
     @Override

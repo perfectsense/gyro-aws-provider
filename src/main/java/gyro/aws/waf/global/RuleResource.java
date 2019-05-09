@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Creates a rule.
+ * Creates a global rule.
  *
  * Example
  * -------

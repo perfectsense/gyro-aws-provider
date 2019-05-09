@@ -16,6 +16,34 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a global waf acl.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::waf-acl waf-acl-example
+ *     name: "waf-acl-example"
+ *     metric-name: "wafAclExample"
+ *     default-action: "ALLOW"
+ *
+ *     activated-rule
+ *         action: "ALLOW"
+ *         type: "REGULAR"
+ *         priority: 1
+ *         rule-id: $(aws::rule rule-example-waf | rule-id)
+ *     end
+ *
+ *     activated-rule
+ *         action: "ALLOW"
+ *         type: "RATE_BASED"
+ *         priority: 2
+ *         rule-id: $(aws::rate-rule rate-rule-example-waf | rule-id)
+ *     end
+ * end
+ */
 @ResourceType("waf-acl")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     private List<ActivatedRuleResource> activatedRule;

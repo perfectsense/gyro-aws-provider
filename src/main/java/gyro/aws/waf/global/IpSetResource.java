@@ -12,6 +12,23 @@ import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a global ip set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::ip-set ip-set-example
+ *     name: "ip-set-example"
+ *
+ *     ip-set-descriptor
+ *         type: "IPV4"
+ *         value: "190.0.0.26/32"
+ *     end
+ * end
+ */
 @ResourceType("ip-set")
 public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     private List<IpSetDescriptorResource> ipSetDescriptor;

@@ -17,21 +17,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Creates a byte match set.
+ * Creates a regional waf acl.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- * aws::byte-match-set-regional byte-match-set-example
- *     name: "byte-match-set-example"
+ * aws::waf-acl-regional waf-acl-example
+ *     name: "waf-acl-example"
+ *     metric-name: "wafAclExample"
+ *     default-action: "ALLOW"
  *
- *     byte-match-tuple
- *         type: "METHOD"
- *         text-transformation: "NONE"
- *         positional-constraint: "CONTAINS"
- *         target-string: "target-string"
+ *     activated-rule
+ *         action: "ALLOW"
+ *         type: "REGULAR"
+ *         priority: 1
+ *         rule-id: $(aws::rule-regional rule-example-waf | rule-id)
+ *     end
+ *
+ *     activated-rule
+ *         action: "ALLOW"
+ *         type: "RATE_BASED"
+ *         priority: 2
+ *         rule-id: $(aws::rate-rule-regional rate-rule-example-waf | rule-id)
  *     end
  * end
  */
