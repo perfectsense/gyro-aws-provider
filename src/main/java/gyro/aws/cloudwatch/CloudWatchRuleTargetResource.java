@@ -8,9 +8,7 @@ import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +25,6 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     private Map<String, String> inputTransformerPathMap;
     private String inputTransformerTemplate;
     private String kinesisPartitionKeyPath;
-    private List<String> runCommandTargets;
 
     public CloudWatchRuleTargetResource() {}
 
