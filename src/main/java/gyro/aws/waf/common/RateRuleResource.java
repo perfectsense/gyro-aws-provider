@@ -44,13 +44,13 @@ public abstract class RateRuleResource extends AbstractRuleResource {
         setMetricName(rule.metricName());
         setRateKey(rule.rateKeyAsString());
         setRateLimit(rule.rateLimit());
-        loadPredicates(rule.matchPredicates(), isRateRule());
+        loadPredicates(rule.matchPredicates());
 
         return true;
     }
 
     @Override
-    boolean isRateRule() {
+    public boolean isRateRule() {
         return true;
     }
 }

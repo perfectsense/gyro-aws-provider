@@ -76,11 +76,11 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
     }
 
     @Override
-    protected void loadPredicates(List<Predicate> predicates, boolean isRateRule) {
+    protected void loadPredicates(List<Predicate> predicates) {
         getPredicate().clear();
 
         for (Predicate predicate: predicates) {
-            PredicateResource predicateResource = new PredicateResource(predicate, isRateRule);
+            PredicateResource predicateResource = new PredicateResource(predicate );
             getPredicate().add(predicateResource);
         }
     }

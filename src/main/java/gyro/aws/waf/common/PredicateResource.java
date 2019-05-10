@@ -15,7 +15,6 @@ public abstract class PredicateResource extends AbstractWafResource {
     private String dataId;
     private Boolean negated;
     private String type;
-    private Boolean rateRule;
 
     /**
      * The id of the condition to be attached with the rule. (Required)
@@ -49,28 +48,6 @@ public abstract class PredicateResource extends AbstractWafResource {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    /**
-     * Flag to mark the rule as a regular or a rate based.
-     */
-    public Boolean getRateRule() {
-        return rateRule;
-    }
-
-    public void setRateRule(Boolean rateRule) {
-        this.rateRule = rateRule;
-    }
-
-    public PredicateResource() {
-
-    }
-
-    public PredicateResource(Predicate predicate, boolean isRateRule) {
-        setDataId(predicate.dataId());
-        setNegated(predicate.negated());
-        setType(predicate.typeAsString());
-        setRateRule(isRateRule);
     }
 
     @Override
@@ -111,18 +88,12 @@ public abstract class PredicateResource extends AbstractWafResource {
             sb.append(" - ").append(getType());
         }
 
-        if (getRateRule()) {
-            sb.append(" - Rate Based");
-        } else {
-            sb.append(" - Regular");
-        }
-
         return sb.toString();
     }
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s", getDataId(), getType(), (getRateRule() ? "Rate based" : "Regular"));
+        return String.format("%s %s", getDataId(), getType());
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);

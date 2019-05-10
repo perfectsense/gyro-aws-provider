@@ -45,9 +45,9 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
         this.ruleId = ruleId;
     }
 
-    abstract boolean isRateRule();
+    public abstract boolean isRateRule();
 
-    protected abstract void loadPredicates(List<Predicate> predicates, boolean isRateRule);
+    protected abstract void loadPredicates(List<Predicate> predicates);
 
     @Override
     public String toDisplayString() {

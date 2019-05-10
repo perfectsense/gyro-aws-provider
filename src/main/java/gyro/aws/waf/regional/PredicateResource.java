@@ -1,5 +1,6 @@
 package gyro.aws.waf.regional;
 
+import gyro.aws.waf.common.AbstractRuleResource;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
@@ -8,18 +9,18 @@ public class PredicateResource extends gyro.aws.waf.common.PredicateResource {
 
     }
 
-    public PredicateResource(Predicate predicate, boolean isRateRule) {
+    public PredicateResource(Predicate predicate) {
         setDataId(predicate.dataId());
         setNegated(predicate.negated());
         setType(predicate.typeAsString());
-        setRateRule(isRateRule);
     }
 
     @Override
     protected void savePredicate(Predicate predicate, boolean isDelete) {
-        WafRegionalClient client = getRegionalClient();
+        AbstractRuleResource parent = (AbstractRuleResource) parent();
 
-        if (!getRateRule()) {
+        WafRegionalClient client = getRegionalClient();
+        if (!parent.isRateRule()) {
             client.updateRule(getUpdateRuleRequest(predicate, isDelete)
                 .changeToken(client.getChangeToken().changeToken())
                 .build()

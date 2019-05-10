@@ -18,7 +18,7 @@ public abstract class RuleResource extends AbstractRuleResource {
         Rule rule = getRule();
         setMetricName(rule.metricName());
         setName(rule.name());
-        loadPredicates(rule.predicates(), isRateRule());
+        loadPredicates(rule.predicates());
 
         return true;
     }
@@ -29,7 +29,7 @@ public abstract class RuleResource extends AbstractRuleResource {
     }
 
     @Override
-    boolean isRateRule() {
+    public boolean isRateRule() {
         return false;
     }
 }
