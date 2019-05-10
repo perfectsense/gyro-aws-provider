@@ -82,49 +82,42 @@ aws::rule rule-example-waf
         data-id:$(aws::regex-match-set regex-match-set-example-waf | regex-match-set-id)
         type: "RegexMatch"
         negated: false
-        rate-rule: false
     end
 
     predicate
         data-id:$(aws::geo-match-set geo-match-set-example-waf | geo-match-set-id)
         type: "GeoMatch"
         negated: false
-        rate-rule: false
     end
 
     predicate
         data-id:$(aws::xss-match-set xss-match-set-example-waf | xss-match-set-id)
         type: "XssMatch"
         negated: false
-        rate-rule: false
     end
 
     predicate
         data-id:$(aws::size-constraint-set size-constraint-set-example-waf | size-constraint-set-id)
         type: "SizeConstraint"
         negated: false
-        rate-rule: false
     end
 
     predicate
         data-id:$(aws::ip-set ip-set-example-waf | ip-set-id)
         type: "IPMatch"
         negated: false
-        rate-rule: false
     end
 
     predicate
         data-id:$(aws::byte-match-set byte-match-set-example-waf | byte-match-set-id)
         type: "ByteMatch"
         negated: false
-        rate-rule: false
     end
 
     predicate
         data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
-        rate-rule: false
     end
 end
 
@@ -138,49 +131,42 @@ aws::rate-rule rate-rule-example-waf
         data-id:$(aws::regex-match-set regex-match-set-example-waf | regex-match-set-id)
         type: "RegexMatch"
         negated: false
-        rate-rule: true
     end
 
     predicate
         data-id:$(aws::geo-match-set geo-match-set-example-waf | geo-match-set-id)
         type: "GeoMatch"
         negated: false
-        rate-rule: true
     end
 
     predicate
         data-id:$(aws::xss-match-set xss-match-set-example-waf | xss-match-set-id)
         type: "XssMatch"
         negated: false
-        rate-rule: true
     end
 
     predicate
         data-id:$(aws::size-constraint-set size-constraint-set-example-waf | size-constraint-set-id)
         type: "SizeConstraint"
         negated: false
-        rate-rule: true
     end
 
     predicate
         data-id:$(aws::ip-set ip-set-example-waf | ip-set-id)
         type: "IPMatch"
         negated: false
-        rate-rule: true
     end
 
     predicate
         data-id:$(aws::byte-match-set byte-match-set-example-waf | byte-match-set-id)
         type: "ByteMatch"
         negated: false
-        rate-rule: true
     end
 
     predicate
         data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
-        rate-rule: true
     end
 end
 
