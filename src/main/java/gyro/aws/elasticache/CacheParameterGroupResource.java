@@ -194,12 +194,10 @@ public class CacheParameterGroupResource extends AwsResource {
 
         Set<String> paramSet = getParametersWithoutReset().stream().map(CacheParameter::getName).collect(Collectors.toSet());
 
-        if (!paramSet.isEmpty()) {
-            modifiedParameters.addAll(defaultParamMap.keySet().stream()
-                .filter(o -> !paramSet.contains(o))
-                .map(o -> new CacheParameter(o, defaultParamMap.get(o)))
-                .collect(Collectors.toList()));
-        }
+        modifiedParameters.addAll(defaultParamMap.keySet().stream()
+            .filter(o -> paramSet.isEmpty() || !paramSet.contains(o))
+            .map(o -> new CacheParameter(o, defaultParamMap.get(o)))
+            .collect(Collectors.toList()));
 
         // divide the list into max 20 item chunks
         // The api can handle max 20 param modification at a time.
@@ -208,7 +206,7 @@ public class CacheParameterGroupResource extends AwsResource {
         boolean done = false;
         do {
             int end = modifiedParameters.size() < (start + max) ? modifiedParameters.size() : (start + max);
-            List<CacheParameter> parameters = modifiedParameters.subList(start, end);
+            List<CacheParameter> parameters = start > end ? new ArrayList<>() : modifiedParameters.subList(start, end);
             if (start < modifiedParameters.size() || !parameters.isEmpty()) {
                 client.modifyCacheParameterGroup(
                     r -> r.cacheParameterGroupName(getCacheParamGroupName())
