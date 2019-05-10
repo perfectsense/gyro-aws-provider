@@ -6,6 +6,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
@@ -28,9 +29,40 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a cache cluster.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::cache-cluster cache-cluster-example
+ *         az-mode: "cross-az"
+ *         cache-cluster-id: "cache-cluster-ex-1"
+ *         cache-node-type: "cache.r5.large"
+ *         cache-param-group-name: $(aws::cache-param-group cache-param-group-group-cache-cluster-example | cache-param-group-name)
+ *         cache-subnet-group-name: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example | cache-subnet-group-name)
+ *         engine: "memcached"
+ *         engine-version: "1.5.10"
+ *         num-cache-nodes: 1
+ *         preferred-availability-zones: [
+ *             "us-east-2a"
+ *         ]
+ *         port: 11211
+ *         preferred-maintenance-window: "thu:01:00-thu:02:00"
+ *         security-group-ids: [
+ *             $(aws::security-group security-group-cache-cluster-example-1 | group-id)
+ *         ]
+ *         account-number: "242040583208"
+ *
+ *         tags: {
+ *             Name: "cache-cluster-example"
+ *         }
+ *     end
+ */
 @ResourceType("cache-cluster")
 public class CacheClusterResource extends AwsResource {
-    private Boolean autoMinorVersionUpgrade;
     private String azMode;
     private String cacheClusterId;
     private String cacheNodeType;
@@ -42,7 +74,6 @@ public class CacheClusterResource extends AwsResource {
     private String notificationTopicArn;
     private Integer numCacheNodes;
     private Integer port;
-    private String preferredAvailabilityZone;
     private String preferredMaintenanceWindow;
     private String replicationGroupId;
     private List<String> securityGroupIds;
@@ -50,27 +81,18 @@ public class CacheClusterResource extends AwsResource {
     private Integer snapshotRetentionLimit;
     private String snapshotWindow;
     private Map<String, String> tags;
-    private List<String> nodeAvailabilityZone;
+    private List<String> preferredAvailabilityZones;
     private String accountNumber;
     private String arn;
     private Boolean applyImmediately;
 
     private String status;
     private List<String> nodes;
+    private String preferredAvailabilityZone;
 
-    @ResourceUpdatable
-    public Boolean getAutoMinorVersionUpgrade() {
-        if (autoMinorVersionUpgrade == null) {
-            autoMinorVersionUpgrade = true;
-        }
-
-        return autoMinorVersionUpgrade;
-    }
-
-    public void setAutoMinorVersionUpgrade(Boolean autoMinorVersionUpgrade) {
-        this.autoMinorVersionUpgrade = autoMinorVersionUpgrade;
-    }
-
+    /**
+     * The Az mode of the cluster. Valid values ``single-az`` or ``multiple-az`` (Required)
+     */
     @ResourceUpdatable
     public String getAzMode() {
         return azMode;
@@ -80,6 +102,9 @@ public class CacheClusterResource extends AwsResource {
         this.azMode = azMode;
     }
 
+    /**
+     * The name of the cache cluster. (Required)
+     */
     public String getCacheClusterId() {
         return cacheClusterId;
     }
@@ -88,6 +113,9 @@ public class CacheClusterResource extends AwsResource {
         this.cacheClusterId = cacheClusterId;
     }
 
+    /**
+     * The type of the cache cluster. Valid values ``memcached`` or ``redis`` (Required)
+     */
     @ResourceUpdatable
     public String getCacheNodeType() {
         return cacheNodeType;
@@ -97,6 +125,9 @@ public class CacheClusterResource extends AwsResource {
         this.cacheNodeType = cacheNodeType;
     }
 
+    /**
+     * The name of the cache parameter group to be associated. (Required)
+     */
     @ResourceUpdatable
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
@@ -106,6 +137,9 @@ public class CacheClusterResource extends AwsResource {
         this.cacheParamGroupName = cacheParamGroupName;
     }
 
+    /**
+     * The list of cache security groups to be associated.
+     */
     @ResourceUpdatable
     public List<String> getCacheSecurityGroupNames() {
         if (cacheSecurityGroupNames == null) {
@@ -119,6 +153,9 @@ public class CacheClusterResource extends AwsResource {
         this.cacheSecurityGroupNames = cacheSecurityGroupNames;
     }
 
+    /**
+     * The name of the cache parameter group to be associated. (Required)
+     */
     public String getCacheSubnetGroupName() {
         return cacheSubnetGroupName;
     }
@@ -127,6 +164,9 @@ public class CacheClusterResource extends AwsResource {
         this.cacheSubnetGroupName = cacheSubnetGroupName;
     }
 
+    /**
+     * The name of the engine used to create the cluster. (Required)
+     */
     public String getEngine() {
         return engine;
     }
@@ -135,6 +175,9 @@ public class CacheClusterResource extends AwsResource {
         this.engine = engine;
     }
 
+    /**
+     * The version of the engine used to create the cluster. (Required)
+     */
     @ResourceUpdatable
     public String getEngineVersion() {
         return engineVersion;
@@ -144,6 +187,9 @@ public class CacheClusterResource extends AwsResource {
         this.engineVersion = engineVersion;
     }
 
+    /**
+     * The notification arn to be associated with the cluster.
+     */
     @ResourceUpdatable
     public String getNotificationTopicArn() {
         return notificationTopicArn;
@@ -153,6 +199,9 @@ public class CacheClusterResource extends AwsResource {
         this.notificationTopicArn = notificationTopicArn;
     }
 
+    /**
+     * The number of nodes to be created. (Required)
+     */
     @ResourceUpdatable
     public Integer getNumCacheNodes() {
         return numCacheNodes;
@@ -162,6 +211,9 @@ public class CacheClusterResource extends AwsResource {
         this.numCacheNodes = numCacheNodes;
     }
 
+    /**
+     * The port to be used by the cache cluster. (Required)
+     */
     public Integer getPort() {
         return port;
     }
@@ -170,14 +222,9 @@ public class CacheClusterResource extends AwsResource {
         this.port = port;
     }
 
-    public String getPreferredAvailabilityZone() {
-        return preferredAvailabilityZone;
-    }
-
-    public void setPreferredAvailabilityZone(String preferredAvailabilityZone) {
-        this.preferredAvailabilityZone = preferredAvailabilityZone;
-    }
-
+    /**
+     * The preferred maintenance window to be used by the cache cluster. (Required)
+     */
     @ResourceUpdatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
@@ -187,6 +234,9 @@ public class CacheClusterResource extends AwsResource {
         this.preferredMaintenanceWindow = preferredMaintenanceWindow;
     }
 
+    /**
+     * The replication group id to be used for redis cache cluster.
+     */
     public String getReplicationGroupId() {
         return replicationGroupId;
     }
@@ -195,6 +245,9 @@ public class CacheClusterResource extends AwsResource {
         this.replicationGroupId = replicationGroupId;
     }
 
+    /**
+     * The list of ec2 security groups to be associated.
+     */
     @ResourceUpdatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
@@ -208,6 +261,9 @@ public class CacheClusterResource extends AwsResource {
         this.securityGroupIds = securityGroupIds;
     }
 
+    /**
+     * A list of snapshot arn's to be used for redis cache cluster.
+     */
     public List<String> getSnapshotArns() {
         if (snapshotArns == null) {
             snapshotArns = new ArrayList<>();
@@ -220,6 +276,9 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotArns = snapshotArns;
     }
 
+    /**
+     * The snapshot retention limit to be used for redis cache cluster.
+     */
     @ResourceUpdatable
     public Integer getSnapshotRetentionLimit() {
         return snapshotRetentionLimit;
@@ -229,6 +288,9 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotRetentionLimit = snapshotRetentionLimit;
     }
 
+    /**
+     * The snapshot window to be used for redis cache cluster.
+     */
     @ResourceUpdatable
     public String getSnapshotWindow() {
         return snapshotWindow;
@@ -238,6 +300,9 @@ public class CacheClusterResource extends AwsResource {
         this.snapshotWindow = snapshotWindow;
     }
 
+    /**
+     * The tags for the cache cluster. (Required)
+     */
     @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -251,19 +316,25 @@ public class CacheClusterResource extends AwsResource {
         this.tags = tags;
     }
 
+    /**
+     * The preferred availability zone for the cluster. (Required)
+     */
     @ResourceUpdatable
-    public List<String> getNodeAvailabilityZone() {
-        if (nodeAvailabilityZone == null) {
-            nodeAvailabilityZone = new ArrayList<>();
+    public List<String> getPreferredAvailabilityZones() {
+        if (preferredAvailabilityZones == null) {
+            preferredAvailabilityZones = new ArrayList<>();
         }
 
-        return nodeAvailabilityZone;
+        return preferredAvailabilityZones;
     }
 
-    public void setNodeAvailabilityZone(List<String> nodeAvailabilityZone) {
-        this.nodeAvailabilityZone = nodeAvailabilityZone;
+    public void setPreferredAvailabilityZones(List<String> preferredAvailabilityZones) {
+        this.preferredAvailabilityZones = preferredAvailabilityZones;
     }
 
+    /**
+     * The account number for the cluster, required to generate the arn. (Required)
+     */
     public String getAccountNumber() {
         return accountNumber;
     }
@@ -284,6 +355,9 @@ public class CacheClusterResource extends AwsResource {
         this.arn = arn;
     }
 
+    /**
+     * A flag that updates and restarts node immediately rather than waiting for the maintenance window. Defaults to true.
+     */
     public Boolean getApplyImmediately() {
         if (applyImmediately == null) {
             applyImmediately = true;
@@ -296,6 +370,7 @@ public class CacheClusterResource extends AwsResource {
         this.applyImmediately = applyImmediately;
     }
 
+    @ResourceOutput
     public String getStatus() {
         return status;
     }
@@ -304,6 +379,7 @@ public class CacheClusterResource extends AwsResource {
         this.status = status;
     }
 
+    @ResourceOutput
     public List<String> getNodes() {
         if (nodes == null) {
             nodes = new ArrayList<>();
@@ -314,6 +390,15 @@ public class CacheClusterResource extends AwsResource {
 
     public void setNodes(List<String> nodes) {
         this.nodes = nodes;
+    }
+
+    @ResourceOutput
+    public String getPreferredAvailabilityZone() {
+        return preferredAvailabilityZone;
+    }
+
+    public void setPreferredAvailabilityZone(String preferredAvailabilityZone) {
+        this.preferredAvailabilityZone = preferredAvailabilityZone;
     }
 
     @Override
@@ -327,8 +412,6 @@ public class CacheClusterResource extends AwsResource {
 
         if (!response.cacheClusters().isEmpty()) {
             CacheCluster cacheCluster = response.cacheClusters().get(0);
-
-            setAutoMinorVersionUpgrade(cacheCluster.autoMinorVersionUpgrade());
 
             setCacheClusterId(cacheCluster.cacheClusterId());
             setCacheNodeType(cacheCluster.cacheNodeType());
@@ -347,6 +430,7 @@ public class CacheClusterResource extends AwsResource {
             setSnapshotRetentionLimit(cacheCluster.snapshotRetentionLimit());
             setSnapshotWindow(cacheCluster.snapshotWindow());
             setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
+            setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
 
             ListTagsForResourceResponse tagResponse = client.listTagsForResource(
                 r -> r.resourceName(getArn())
@@ -365,7 +449,6 @@ public class CacheClusterResource extends AwsResource {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
-            .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
             .azMode(getAzMode())
             .cacheClusterId(getCacheClusterId())
             .cacheNodeType(getCacheNodeType())
@@ -377,7 +460,7 @@ public class CacheClusterResource extends AwsResource {
             .notificationTopicArn(getNotificationTopicArn())
             .numCacheNodes(getNumCacheNodes())
             .port(getPort())
-            .preferredAvailabilityZone(getPreferredAvailabilityZone())
+            .preferredAvailabilityZones(getPreferredAvailabilityZones())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
             .securityGroupIds(getSecurityGroupIds())
             .tags(toCacheTags(getTags()));
@@ -414,7 +497,6 @@ public class CacheClusterResource extends AwsResource {
             //Can only specify new availability zones or AZ mode when adding cache nodes. (Condition)
 
             ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
-                .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                 .cacheClusterId(getCacheClusterId())
                 .cacheNodeType(getCacheNodeType())
                 .cacheParameterGroupName(getCacheParamGroupName())
@@ -427,10 +509,10 @@ public class CacheClusterResource extends AwsResource {
             if (changedProperties.contains("num-cache-nodes")) {
                 builder = builder.azMode(getAzMode())
                     .numCacheNodes(getNumCacheNodes())
-                    .newAvailabilityZones(getNodeAvailabilityZone());
+                    .newAvailabilityZones(getPreferredAvailabilityZones());
             }
 
-            if (engine.equalsIgnoreCase("redis")) {
+            if (getEngine().equalsIgnoreCase("redis")) {
                 builder.snapshotRetentionLimit(getSnapshotRetentionLimit())
                     .snapshotWindow(getSnapshotWindow());
             }

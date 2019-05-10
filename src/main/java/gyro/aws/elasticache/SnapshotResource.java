@@ -3,6 +3,7 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
@@ -41,6 +42,7 @@ public class SnapshotResource extends AwsResource {
         this.cacheClusterId = cacheClusterId;
     }
 
+    @ResourceOutput
     public String getStatus() {
         return status;
     }

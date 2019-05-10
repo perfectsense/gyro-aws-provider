@@ -18,6 +18,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a cache cluster.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::cache-param-group cache-param-group-example
+ *         cache-param-group-name: "cache-param-group-example"
+ *         cache-param-group-family: "redis5.0"
+ *         description: "cache-param-group-desc"
+ *
+ *         parameters
+ *             name: "activedefrag"
+ *             value: "yes"
+ *         end
+ *     end
+ */
 @ResourceType("cache-param-group")
 public class CacheParameterGroupResource extends AwsResource {
     private String cacheParamGroupName;
@@ -25,6 +44,9 @@ public class CacheParameterGroupResource extends AwsResource {
     private String description;
     private List<CacheParameter> parameters;
 
+    /**
+     * The name of the cache parameter group. (Required)
+     */
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
     }
@@ -33,6 +55,9 @@ public class CacheParameterGroupResource extends AwsResource {
         this.cacheParamGroupName = cacheParamGroupName;
     }
 
+    /**
+     * The name of the cache parameter family. (Required)
+     */
     public String getCacheParamGroupFamily() {
         return cacheParamGroupFamily;
     }
@@ -41,6 +66,9 @@ public class CacheParameterGroupResource extends AwsResource {
         this.cacheParamGroupFamily = cacheParamGroupFamily;
     }
 
+    /**
+     * The description of the cache parameter group.
+     */
     public String getDescription() {
         return description;
     }
@@ -49,6 +77,9 @@ public class CacheParameterGroupResource extends AwsResource {
         this.description = description;
     }
 
+    /**
+     * The list of cache parameter to modify.
+     */
     @ResourceUpdatable
     public List<CacheParameter> getParameters() {
         if (parameters == null) {

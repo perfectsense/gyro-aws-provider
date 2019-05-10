@@ -16,12 +16,33 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a cache subnet group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::cache-subnet-group cache-subnet-group-example
+ *         cache-subnet-group-name: "cache-subnet-group-example"
+ *         description: "cache-subnet-group-desc"
+ *         subnets: [
+ *             $(aws::subnet subnet-cache-subnet-group-example-1 | subnet-id),
+ *             $(aws::subnet subnet-cache-subnet-group-example-2 | subnet-id),
+ *             $(aws::subnet subnet-cache-subnet-group-example-3 | subnet-id)
+ *         ]
+ *     end
+ */
 @ResourceType("cache-subnet-group")
 public class CacheSubnetGroupResource extends AwsResource {
     private String cacheSubnetGroupName;
     private String description;
     private List<String> subnets;
 
+    /**
+     * The name of the cache subnet group. (Required)
+     */
     public String getCacheSubnetGroupName() {
         return cacheSubnetGroupName;
     }
@@ -30,6 +51,9 @@ public class CacheSubnetGroupResource extends AwsResource {
         this.cacheSubnetGroupName = cacheSubnetGroupName;
     }
 
+    /**
+     * The description of the cache subnet group.
+     */
     @ResourceUpdatable
     public String getDescription() {
         return description;
@@ -39,6 +63,9 @@ public class CacheSubnetGroupResource extends AwsResource {
         this.description = description;
     }
 
+    /**
+     * A list of subnet id's. (Required)
+     */
     @ResourceUpdatable
     public List<String> getSubnets() {
         if (subnets == null) {

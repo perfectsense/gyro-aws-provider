@@ -17,6 +17,9 @@ public class CacheParameter extends Diffable {
         this.value = value;
     }
 
+    /**
+     * The name of the cache parameter variable. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -25,6 +28,9 @@ public class CacheParameter extends Diffable {
         this.name = name;
     }
 
+    /**
+     * The value of the cache parameter variable. (Required)
+     */
     @ResourceUpdatable
     public String getValue() {
         return value;
