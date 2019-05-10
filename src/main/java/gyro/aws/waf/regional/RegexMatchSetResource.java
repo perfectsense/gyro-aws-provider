@@ -32,7 +32,7 @@ import java.util.List;
  *     regex-match-tuple
  *         type: "METHOD"
  *         text-transformation: "NONE"
- *         regex-pattern-set-id: $(aws::regex-pattern-set regex-pattern-set-match-set-example | regex-pattern-set-id)
+ *         regex-pattern-set-id: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example | regex-pattern-set-id)
  *     end
  * end
  */
