@@ -903,4 +903,55 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 .build();
         }
     }
+    private void saveBlockDeviceMapping(Ec2Client client, InstanceResource oldResource) {
+        List<BlockDeviceMappingResource> currentBlockDeviceMappingResources = oldResource.getBlockDeviceMapping();
+        List<BlockDeviceMappingResource> pendingBlockDeviceMappingResources = getBlockDeviceMapping();
+
+        //delete
+        Set<String> pendingBlockDeviceNames = pendingBlockDeviceMappingResources.stream().map(BlockDeviceMappingResource::getDeviceName).collect(Collectors.toSet());
+        List<BlockDeviceMappingResource> deleteBlockDevices = currentBlockDeviceMappingResources
+            .stream()
+            .filter(o -> !pendingBlockDeviceNames.contains(o.getDeviceName()))
+            .collect(Collectors.toList());
+
+        //add
+        Set<String> currentBlockDeviceNames = currentBlockDeviceMappingResources.stream().map(BlockDeviceMappingResource::getDeviceName).collect(Collectors.toSet());
+        List<BlockDeviceMappingResource> addBlockDevices = pendingBlockDeviceMappingResources
+            .stream()
+            .filter(o -> !currentBlockDeviceNames.contains(o.getDeviceName()))
+            .collect(Collectors.toList());
+
+        //modify
+        Map<String, BlockDeviceMappingResource> pendingBlockDeviceMap = pendingBlockDeviceMappingResources
+            .stream()
+            .filter(o -> currentBlockDeviceNames.contains(o.getDeviceName()) && pendingBlockDeviceNames.contains(o.getDeviceName()))
+            .collect(Collectors.toMap(BlockDeviceMappingResource::getDeviceName, o -> o));
+
+        Map<String, BlockDeviceMappingResource> currentBlockDeviceMap = currentBlockDeviceMappingResources
+            .stream()
+            .filter(o -> currentBlockDeviceNames.contains(o.getDeviceName()) && pendingBlockDeviceNames.contains(o.getDeviceName()))
+            .collect(Collectors.toMap(BlockDeviceMappingResource::getDeviceName, o -> o));
+
+        List<BlockDeviceMappingResource> tempModifyBlockDevices = pendingBlockDeviceMap.keySet()
+            .stream()
+            .filter(o -> !pendingBlockDeviceMap.get(o).isEqual(currentBlockDeviceMap.get(o)))
+            .map(pendingBlockDeviceMap::get)
+            .collect(Collectors.toList());
+
+        List<BlockDeviceMappingResource> modifyBlockDevices = new ArrayList<>();
+        for (BlockDeviceMappingResource blockDevice : tempModifyBlockDevices) {
+            if (pendingBlockDeviceMap.get(blockDevice.getDeviceName()).getVolumeId().equals(currentBlockDeviceMap.get(blockDevice.getDeviceName()).getVolumeId())) {
+                modifyBlockDevices.add(pendingBlockDeviceMap.get(blockDevice.getDeviceName()));
+            } else {
+                deleteBlockDevices.add(currentBlockDeviceMap.get(blockDevice.getDeviceName()));
+                addBlockDevices.add(pendingBlockDeviceMap.get(blockDevice.getDeviceName()));
+            }
+        }
+
+        deleteBlockDevices.forEach(o -> o.removeDevice(client, getInstanceId()));
+
+        addBlockDevices.forEach(o->o.addDevice(client, getInstanceId()));
+
+        modifyBlockDevices.forEach(o -> o.modifyDevice(client));
+    }
 }

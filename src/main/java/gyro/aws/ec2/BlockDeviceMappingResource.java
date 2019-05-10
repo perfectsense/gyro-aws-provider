@@ -197,7 +197,15 @@ public class BlockDeviceMappingResource extends Diffable {
             .build();
     }
 
-    void modifyVolume(Ec2Client client) {
+    void addDevice(Ec2Client client, String instanceId) {
+        client.attachVolume(
+            r -> r.instanceId(instanceId)
+                .volumeId(getVolumeId())
+                .device(getDeviceName())
+        );
+    }
+
+    void modifyDevice(Ec2Client client) {
         //Do something if this is the root device.
 
         client.modifyVolume(
@@ -213,7 +221,7 @@ public class BlockDeviceMappingResource extends Diffable {
         );
     }
 
-    void removeClient(Ec2Client client, String instanceId) {
+    void removeDevice(Ec2Client client, String instanceId) {
         //Do something if this is the root device.
 
         client.detachVolume(
@@ -227,5 +235,19 @@ public class BlockDeviceMappingResource extends Diffable {
                 o -> o.volumeId(getVolumeId())
             );
         }
+    }
+
+    public boolean isEqual(BlockDeviceMappingResource compare) {
+        boolean isEqual = false;
+        if (compare != null) {
+            isEqual = (this.getDeviceName().equals(compare.getDeviceName())
+                && this.getDeleteOnTermination().equals(compare.getDeleteOnTermination())
+                && this.getIops().equals(compare.getIops())
+                && this.getVolumeSize().equals(compare.getVolumeSize())
+                && this.getVolumeId().equals(compare.getVolumeId())
+                && this.getVolumeType().equals(compare.getVolumeType())
+                && this.getAutoEnableIo().equals(compare.getAutoEnableIo()));
+        }
+        return isEqual;
     }
 }
