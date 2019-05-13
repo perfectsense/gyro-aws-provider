@@ -5,6 +5,8 @@ import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
+import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
+import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
 import software.amazon.awssdk.services.ec2.model.Volume;
 
 public class BlockDeviceMappingResource extends Diffable {
@@ -158,6 +160,17 @@ public class BlockDeviceMappingResource extends Diffable {
         setRootDevice(isRootDevice);
     }
 
+    public BlockDeviceMappingResource(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
+        setDeviceName(blockDeviceMapping.deviceName());
+        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
+        setEncrypted(blockDeviceMapping.ebs().encrypted());
+        setIops(blockDeviceMapping.ebs().iops());
+        setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
+        setVolumeSize(blockDeviceMapping.ebs().volumeSize());
+        setSnapshotId(blockDeviceMapping.ebs().snapshotId());
+        setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
+    }
+
     @Override
     public String primaryKey() {
         return getDeviceName();
@@ -183,8 +196,8 @@ public class BlockDeviceMappingResource extends Diffable {
             .build();
     }
 
-    software.amazon.awssdk.services.autoscaling.model.BlockDeviceMapping getBlockDeviceMappingAutoScale() {
-        return software.amazon.awssdk.services.autoscaling.model.BlockDeviceMapping.builder()
+    LaunchTemplateBlockDeviceMappingRequest getLaunchTemplateBlockDeviceMapping() {
+        return LaunchTemplateBlockDeviceMappingRequest.builder()
             .deviceName(getDeviceName())
             .ebs(
                 e -> e.encrypted(getEncrypted())
