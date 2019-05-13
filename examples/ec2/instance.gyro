@@ -62,4 +62,8 @@ aws::instance instance-example
     end
 
     capacity-reservation: "none"
+
+    volume-map: {
+        //dev//sdf: "vol-0e858bb28d144619c"
+    }
 end

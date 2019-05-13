@@ -94,6 +94,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String capacityReservation;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
     private BlockDeviceMappingResource rootBlockDeviceMapping;
+    private Map<String, String> volumeMap;
     // -- Readonly
 
     private String instanceId;
@@ -439,11 +440,24 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     @ResourceUpdatable
     public BlockDeviceMappingResource getRootBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new ArrayList<>();
+        }
+
         return rootBlockDeviceMapping;
     }
 
-    public void setRootBlockDeviceMapping(BlockDeviceMappingResource rootBlockDeviceMapping) {
-        this.rootBlockDeviceMapping = rootBlockDeviceMapping;
+    @ResourceUpdatable
+    public Map<String, String> getVolumeMap() {
+        if (volumeMap == null) {
+            volumeMap = new HashMap<>();
+        }
+
+        return volumeMap;
+    }
+
+    public void setVolumeMap(Map<String, String> volumeMap) {
+        this.volumeMap = volumeMap;
     }
 
     // -- GyroInstance Implementation
@@ -486,6 +500,18 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         Ec2Client client = createClient(Ec2Client.class);
 
+        Instance instance = getInstance(client);
+
+        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED) {
+            return false;
+        }
+
+        init(instance, client);
+
+        return true;
+    }
+
+    private Instance getInstance(Ec2Client client) {
         if (ObjectUtils.isBlank(getInstanceId())) {
             throw new GyroException("instance-id is missing, unable to load instance.");
         }
@@ -493,55 +519,17 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         try {
             DescribeInstancesResponse response = client.describeInstances(r -> r.instanceIds(getInstanceId()));
 
-            List<Reservation> reservations = response.reservations();
-            for (Reservation reservation : reservations) {
-                List<Instance> instances = reservation.instances();
-                if (instances.isEmpty())  {
-                    return false;
-                }
-
-                for (Instance instance : instances) {
-                    init(instance, client);
-
-                    if (instance.state().name() == InstanceStateName.TERMINATED) {
-                        return false;
-                    }
-
-                    break;
-                }
-                break;
+            if (!response.reservations().isEmpty() && !response.reservations().get(0).instances().isEmpty()) {
+                return response.reservations().get(0).instances().get(0);
             }
-
-            DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
-            );
-            setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
-
-            attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
-            );
-            setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
-
-            attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.SOURCE_DEST_CHECK)
-            );
-            setSourceDestCheck(attributeResponse.sourceDestCheck().equals(AttributeBooleanValue.builder().value(true).build()));
-
-            attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
-            );
-            setUserData(attributeResponse.userData().value() == null
-                ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
 
         } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
-
-            throw ex;
         }
 
-        return true;
+        return null;
     }
 
     @Override
@@ -550,48 +538,54 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         validate(client, true);
 
-        try {
-            RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
-            builder = builder.imageId(getAmiId())
-                .ebsOptimized(getEbsOptimized())
-                .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
-                .instanceType(getInstanceType())
-                .keyName(getKeyName())
-                .maxCount(1)
-                .minCount(1)
-                .monitoring(o -> o.enabled(getEnableMonitoring()))
-                .securityGroupIds(getSecurityGroupIds())
-                .subnetId(getSubnetId())
-                .disableApiTermination(getDisableApiTermination())
-                .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                .capacityReservationSpecification(getCapacityReservationSpecification());
+        RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
+        builder = builder.imageId(getAmiId())
+            .ebsOptimized(getEbsOptimized())
+            .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+            .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+            .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
+            .instanceType(getInstanceType())
+            .keyName(getKeyName())
+            .maxCount(1)
+            .minCount(1)
+            .monitoring(o -> o.enabled(getEnableMonitoring()))
+            .securityGroupIds(getSecurityGroupIds())
+            .subnetId(getSubnetId())
+            .disableApiTermination(getDisableApiTermination())
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .capacityReservationSpecification(getCapacityReservationSpecification());
 
-            if (!getBlockDeviceMapping().isEmpty()) {
-                builder = builder.blockDeviceMappings(
-                    getBlockDeviceMapping().stream()
-                        .map(BlockDeviceMappingResource::getBlockDeviceMapping)
-                        .collect(Collectors.toList())
-                );
-            }
-
-            RunInstancesResponse response = client.runInstances(builder.build());
-
-            for (Instance instance : response.instances()) {
-                setInstanceId(instance.instanceId());
-                setPublicDnsName(instance.publicDnsName());
-                setPublicIpAddress(instance.publicIpAddress());
-                setPrivateIpAddress(instance.privateIpAddress());
-                setInstanceState(instance.state().nameAsString());
-                setInstanceLaunchDate(Date.from(instance.launchTime()));
-            }
-
-            waitForRunningInstances(client);
-
-        } catch (Ec2Exception ex) {
-            throw ex;
+        if (!getBlockDeviceMapping().isEmpty()) {
+            builder = builder.blockDeviceMappings(
+                getBlockDeviceMapping().stream()
+                    .map(BlockDeviceMappingResource::getBlockDeviceMapping)
+                    .collect(Collectors.toList())
+            );
         }
+
+        RunInstancesResponse response = client.runInstances(builder.build());
+
+        for (Instance instance : response.instances()) {
+            setInstanceId(instance.instanceId());
+            setPublicDnsName(instance.publicDnsName());
+            setPublicIpAddress(instance.publicIpAddress());
+            setPrivateIpAddress(instance.privateIpAddress());
+            setInstanceState(instance.state().nameAsString());
+            setInstanceLaunchDate(Date.from(instance.launchTime()));
+
+            /*setVolumeMap(
+                instance.blockDeviceMappings().stream()
+                    .filter(o -> !o.deviceName().equals(instance.rootDeviceName()))
+                    .collect(Collectors.toMap(InstanceBlockDeviceMapping::deviceName, o -> o.ebs().volumeId()))
+            );*/
+
+            break;
+        }
+
+        waitForRunningInstances(client);
+
+        saveVolume(client,getInstance(client),true);
+
     }
 
     @Override
@@ -749,28 +743,89 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        getBlockDeviceMapping().clear();
-
-        DescribeVolumesResponse volumesResponse = client.describeVolumes(
-            r -> r.volumeIds(
-                instance.blockDeviceMappings().stream()
-                    .map(m -> m.ebs().volumeId())
-                    .collect(Collectors.toList())
-            )
+        DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
         );
+        setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
 
-        Map<String, Volume> volumeMap = volumesResponse.volumes().stream().collect(Collectors.toMap(Volume::volumeId, volume -> volume));
-        for (InstanceBlockDeviceMapping blockDeviceMapping : instance.blockDeviceMappings()) {
-            BlockDeviceMappingResource blockDeviceMappingResource = new BlockDeviceMappingResource(
-                blockDeviceMapping,
-                volumeMap.get(blockDeviceMapping.ebs().volumeId()),
-                instance.rootDeviceName().equals(blockDeviceMapping.deviceName())
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
+        );
+        setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
+
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.SOURCE_DEST_CHECK)
+        );
+        setSourceDestCheck(attributeResponse.sourceDestCheck().equals(AttributeBooleanValue.builder().value(true).build()));
+
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
+        );
+        setUserData(attributeResponse.userData().value() == null
+            ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
+
+        saveVolume(client, instance, false);
+
+    }
+
+    private void saveVolume(Ec2Client client, Instance instance, boolean isCreate) {
+        Map<String, InstanceBlockDeviceMapping> currentBlockDeviceMapping;
+
+        if (!isCreate) {
+            // Get Device Name and volume id map for block devices from state.
+            Map<String, String> blockDeviceVolumeMapFromState = getBlockDeviceMapping().stream()
+                .filter(o -> !ObjectUtils.isBlank(o.getVolumeId()))
+                .collect(Collectors.toMap(
+                    BlockDeviceMappingResource::getDeviceName, BlockDeviceMappingResource::getVolumeId
+                ));
+
+            // Set volume map with Device Name and Volume Id associations apart from the ones above.
+            setVolumeMap(
+                instance.blockDeviceMappings().stream()
+                    .filter(o -> !o.deviceName().equals(instance.rootDeviceName())
+                        && (!blockDeviceVolumeMapFromState.containsKey(o.deviceName())
+                        || (blockDeviceVolumeMapFromState.containsKey(o.deviceName())
+                        && !blockDeviceVolumeMapFromState.get(o.deviceName()).equals(o.ebs().volumeId()))))
+                    .collect(Collectors.toMap(InstanceBlockDeviceMapping::deviceName, o -> o.ebs().volumeId()))
             );
 
-            if (!instance.rootDeviceName().equals(blockDeviceMapping.deviceName())) {
-                getBlockDeviceMapping().add(blockDeviceMappingResource);
-            } else {
-                //setRootBlockDeviceMapping(blockDeviceMappingResource);
+            // current device name to block device mapping that matches the state
+            currentBlockDeviceMapping = instance.blockDeviceMappings().stream()
+                .filter(o -> blockDeviceVolumeMapFromState.containsKey(o.deviceName())
+                    && blockDeviceVolumeMapFromState.get(o.deviceName()).equals(o.ebs().volumeId()))
+                .collect(Collectors.toMap(InstanceBlockDeviceMapping::deviceName, o -> o));
+        } else {
+            currentBlockDeviceMapping = instance.blockDeviceMappings().stream()
+                .collect(Collectors.toMap(InstanceBlockDeviceMapping::deviceName, o -> o));
+        }
+
+        // clear the current block device mapping
+        getBlockDeviceMapping().clear();
+
+        if (!currentBlockDeviceMapping.isEmpty()) {
+            // Get volume info for the above devices
+            DescribeVolumesResponse volumesResponse = client.describeVolumes(
+                r -> r.volumeIds(currentBlockDeviceMapping.values().stream().map(o -> o.ebs().volumeId()).collect(Collectors.toList()))
+            );
+
+            // Volume Id to Volume info map for the above
+            Map<String, Volume> volumeMap = volumesResponse.volumes().stream().collect(Collectors.toMap(Volume::volumeId, volume -> volume));
+
+            // Set Block device mapping details.
+            for (String key : currentBlockDeviceMapping.keySet()) {
+                InstanceBlockDeviceMapping blockDeviceMapping = currentBlockDeviceMapping.get(key);
+
+                BlockDeviceMappingResource blockDeviceMappingResource = new BlockDeviceMappingResource(
+                    blockDeviceMapping,
+                    volumeMap.get(blockDeviceMapping.ebs().volumeId()),
+                    instance.rootDeviceName().equals(blockDeviceMapping.deviceName())
+                );
+
+                if (!instance.rootDeviceName().equals(blockDeviceMapping.deviceName())) {
+                    getBlockDeviceMapping().add(blockDeviceMappingResource);
+                } else {
+                    //setRootBlockDeviceMapping(blockDeviceMappingResource);
+                }
             }
         }
     }
