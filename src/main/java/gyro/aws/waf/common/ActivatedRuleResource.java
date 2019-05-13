@@ -68,6 +68,9 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
         this.priority = priority;
     }
 
+    /**
+    * A list of rule id's to be excluded from this activated rule.
+    */
     public List<String> getExcludedRules() {
         if (excludedRules == null) {
             excludedRules = new ArrayList<>();
