@@ -423,6 +423,13 @@ public class DbClusterResource extends DocDbTaggableResource {
         client.deleteDBCluster(builder.build());
 
         waitForDelete(client);
+
+        // Extra wait for param group deletion
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
