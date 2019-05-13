@@ -63,7 +63,8 @@ aws::instance instance-example
 
     capacity-reservation: "none"
 
-    volume-map: {
-        //dev//sdf: "vol-0e858bb28d144619c"
-    }
+    volume
+        device-name: "/dev/sdf"
+        volume-id: "vol-023499aa3f8205c00"
+    end
 end

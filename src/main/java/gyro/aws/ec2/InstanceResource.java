@@ -1,5 +1,7 @@
 package gyro.aws.ec2;
 
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
@@ -94,7 +96,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String capacityReservation;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
     private BlockDeviceMappingResource rootBlockDeviceMapping;
-    private Map<String, String> volumeMap;
+    private List<InstanceVolumeAttachment> volume;
     // -- Readonly
 
     private String instanceId;
@@ -448,17 +450,20 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @ResourceUpdatable
-    public Map<String, String> getVolumeMap() {
-        if (volumeMap == null) {
-            volumeMap = new HashMap<>();
+    public List<InstanceVolumeAttachment> getVolume() {
+        if (volume == null) {
+            volume = new ArrayList<>();
         }
 
-        return volumeMap;
+        return volume;
     }
 
-    public void setVolumeMap(Map<String, String> volumeMap) {
-        this.volumeMap = volumeMap;
+    public void setVolume(List<InstanceVolumeAttachment> volume) {
+        this.volume = volume;
     }
+
+    @ResourceUpdatable
+
 
     // -- GyroInstance Implementation
 
@@ -584,7 +589,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         waitForRunningInstances(client);
 
-        saveVolume(client,getInstance(client),true);
+        saveVolume(client, new InstanceResource());
+
+        loadVolumeAndBlockDevice(client,getInstance(client),true);
 
     }
 
@@ -620,6 +627,10 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 r -> r.instanceId(getInstanceId())
                     .groups(getSecurityGroupIds())
             );
+        }
+
+        if (changedProperties.contains("volume")) {
+            saveVolume(client, (InstanceResource) config);
         }
 
         boolean instanceStopped = isInstanceStopped(client);
@@ -764,11 +775,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setUserData(attributeResponse.userData().value() == null
             ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
 
-        saveVolume(client, instance, false);
+        loadVolumeAndBlockDevice(client, instance, false);
 
     }
 
-    private void saveVolume(Ec2Client client, Instance instance, boolean isCreate) {
+    private void loadVolumeAndBlockDevice(Ec2Client client, Instance instance, boolean isCreate) {
         Map<String, InstanceBlockDeviceMapping> currentBlockDeviceMapping;
 
         if (!isCreate) {
@@ -780,13 +791,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 ));
 
             // Set volume map with Device Name and Volume Id associations apart from the ones above.
-            setVolumeMap(
+            setVolume(
                 instance.blockDeviceMappings().stream()
                     .filter(o -> !o.deviceName().equals(instance.rootDeviceName())
                         && (!blockDeviceVolumeMapFromState.containsKey(o.deviceName())
                         || (blockDeviceVolumeMapFromState.containsKey(o.deviceName())
                         && !blockDeviceVolumeMapFromState.get(o.deviceName()).equals(o.ebs().volumeId()))))
-                    .collect(Collectors.toMap(InstanceBlockDeviceMapping::deviceName, o -> o.ebs().volumeId()))
+                    .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+                    .collect(Collectors.toList())
             );
 
             // current device name to block device mapping that matches the state
@@ -1008,5 +1020,41 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         addBlockDevices.forEach(o->o.addDevice(client, getInstanceId()));
 
         modifyBlockDevices.forEach(o -> o.modifyDevice(client));
+    }
+
+    private void saveVolume(Ec2Client client, InstanceResource oldResource) {
+        Map<String, String> currentVolumeMap = oldResource.getVolume().stream().collect(
+                Collectors.toMap(InstanceVolumeAttachment::getDeviceName, InstanceVolumeAttachment::getVolumeId)
+            );
+        Map<String, String> pendingVolumeMap = getVolume().stream().collect(
+                Collectors.toMap(InstanceVolumeAttachment::getDeviceName, InstanceVolumeAttachment::getVolumeId)
+            );
+
+        MapDifference<String, String> diff = Maps.difference(currentVolumeMap, pendingVolumeMap);
+
+        Map<String, String> deleteVolume = diff.entriesOnlyOnLeft();
+
+        Map<String, String> addVolume = diff.entriesOnlyOnRight();
+
+        for (String key : diff.entriesDiffering().keySet()) {
+            deleteVolume.put(key, diff.entriesDiffering().get(key).leftValue());
+            addVolume.put(key, diff.entriesDiffering().get(key).rightValue());
+        }
+
+        for (String key : deleteVolume.keySet()) {
+            client.detachVolume(
+                r -> r.instanceId(getInstanceId())
+                    .volumeId(deleteVolume.get(key))
+                    .device(key)
+            );
+        }
+
+        for (String key : addVolume.keySet()) {
+            client.attachVolume(
+                r -> r.instanceId(getInstanceId())
+                    .volumeId(addVolume.get(key))
+                    .device(key)
+            );
+        }
     }
 }
