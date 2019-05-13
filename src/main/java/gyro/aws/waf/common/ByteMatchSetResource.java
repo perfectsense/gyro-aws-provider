@@ -3,10 +3,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceUpdatable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 public abstract class ByteMatchSetResource extends AbstractWafResource {

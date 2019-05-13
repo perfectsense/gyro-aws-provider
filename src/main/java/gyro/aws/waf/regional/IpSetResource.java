@@ -50,6 +50,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     public void setIpSetDescriptor(List<IpSetDescriptorResource> ipSetDescriptor) {
         this.ipSetDescriptor = ipSetDescriptor;
     }
+
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getIpSetId())) {
@@ -59,7 +60,6 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
         GetIpSetResponse response = getRegionalClient().getIPSet(
             r -> r.ipSetId(getIpSetId())
         );
-
 
         IPSet ipSet = response.ipSet();
         setName(ipSet.name());

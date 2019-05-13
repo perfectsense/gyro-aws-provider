@@ -12,11 +12,8 @@ import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.WafAction;
 import software.amazon.awssdk.services.waf.model.WebACL;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class WebAclResource extends AbstractWafResource {
     private String name;
