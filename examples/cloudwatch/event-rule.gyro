@@ -1,0 +1,42 @@
+aws::event-rule rule-example
+       rule-name: "rule-example"
+       description: "rule test"
+       schedule-expression: "rate(5 minutes)"
+       state: "ENABLED"
+end
+
+aws::event-rule event-pattern-example
+       rule-name: "event-pattern-test"
+       description: "first rule test"
+       event-pattern-path: 'event-pattern.json'
+       state: "ENABLED"
+
+       target
+          target-id: "event-pattern-match-target1"
+          target-arn: "arn:aws:sqs:us-east-2:242040583208:cloudwatch-test.fifo"
+          message-group-id: "test123"
+       end
+
+       target
+          target-id: "event-pattern-match-target2"
+          target-arn: "arn:aws:sns:us-east-2:242040583208:dynamodb"
+       end
+end
+
+aws::event-rule schedule-pattern-example
+       rule-name: "schedule-pattern-test"
+       description: "second rule test"
+       schedule-expression: "rate(5 minutes)"
+       state: "ENABLED"
+
+       target
+          target-id: "event-pattern-match-target13"
+          target-arn: "arn:aws:sqs:us-east-2:242040583208:cloudwatch-test.fifo"
+          message-group-id: "test-message"
+       end
+
+       target
+          target-id: "event-pattern-match-target1"
+          target-arn: "arn:aws:sns:us-east-2:242040583208:dynamodb"
+       end
+end
