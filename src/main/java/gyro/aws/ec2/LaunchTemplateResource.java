@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a Launch Template from config or an existing Instance Id.
@@ -83,6 +84,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private List<String> securityGroupIds;
     private Boolean disableApiTermination;
     private String userData;
+    private List<BlockDeviceMappingResource> blockDeviceMapping;
 
     private String instanceId;
 
@@ -278,6 +280,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         this.userData = userData;
     }
 
+    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new ArrayList<>();
+        }
+
+        return blockDeviceMapping;
+    }
+
+    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+        this.blockDeviceMapping = blockDeviceMapping;
+    }
+
     /**
      * The id of the instance from which the details of the launch template will be extracted and used to make this one.
      */
@@ -337,6 +351,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             setEnableMonitoring(response.launchTemplateData().monitoring().enabled());
             setSecurityGroupIds(response.launchTemplateData().securityGroupIds());
             setUserData(response.launchTemplateData().userData());
+            setBlockDeviceMapping(
+                response.launchTemplateData().blockDeviceMappings()
+                    .stream()
+                    .map(BlockDeviceMappingResource::new)
+                    .collect(Collectors.toList())
+            );
 
             //temp fix until we resolve a way to verify by instance types.
             //setCoreCount(response.launchTemplateData().cpuOptions().coreCount());
@@ -358,6 +378,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                     .monitoring(o -> o.enabled(getEnableMonitoring()))
                     .securityGroupIds(getSecurityGroupIds())
                     .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+                    .blockDeviceMappings(
+                        getBlockDeviceMapping()
+                            .stream()
+                            .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
+                            .collect(Collectors.toList())
+                    )
             )
         );
 
