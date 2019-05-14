@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.elasticache.model.Subnet;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 public class CacheSubnetGroupResource extends AwsResource {
     private String cacheSubnetGroupName;
     private String description;
-    private List<String> subnets;
+    private Set<String> subnets;
 
     /**
      * The name of the cache subnet group. (Required)
@@ -67,19 +68,15 @@ public class CacheSubnetGroupResource extends AwsResource {
      * A list of subnet id's. (Required)
      */
     @ResourceUpdatable
-    public List<String> getSubnets() {
+    public Set<String> getSubnets() {
         if (subnets == null) {
-            subnets = new ArrayList<>();
-        }
-
-        if (!subnets.isEmpty() && !subnets.contains(null)) {
-            Collections.sort(subnets);
+            subnets = new HashSet<>();
         }
 
         return subnets;
     }
 
-    public void setSubnets(List<String> subnets) {
+    public void setSubnets(Set<String> subnets) {
         this.subnets = subnets;
     }
 
@@ -95,7 +92,7 @@ public class CacheSubnetGroupResource extends AwsResource {
             CacheSubnetGroup cacheSubnetGroup = response.cacheSubnetGroups().get(0);
 
             setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
-            setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
+            setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
 
             return true;
         } else {
