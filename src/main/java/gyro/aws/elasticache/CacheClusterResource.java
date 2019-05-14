@@ -92,7 +92,7 @@ public class CacheClusterResource extends AwsResource {
     private String preferredAvailabilityZone;
 
     /**
-     * The Az mode of the cluster. Valid values ``single-az`` or ``multiple-az`` (Required)
+     * The Az mode of the cluster. Valid values are ``single-az`` or ``cross-az`` (Required)
      */
     @ResourceUpdatable
     public String getAzMode() {
@@ -470,7 +470,7 @@ public class CacheClusterResource extends AwsResource {
             .securityGroupIds(getSecurityGroupIds())
             .tags(toCacheTags(getTags()));
 
-        if (getEngine().equalsIgnoreCase("redis")) {
+        if (("redis").equalsIgnoreCase(getEngine())) {
             builder.replicationGroupId(getReplicationGroupId())
                 .snapshotArns(getSnapshotArns())
                 .snapshotRetentionLimit(getSnapshotRetentionLimit())
@@ -517,7 +517,7 @@ public class CacheClusterResource extends AwsResource {
                     .newAvailabilityZones(getPreferredAvailabilityZones());
             }
 
-            if (getEngine().equalsIgnoreCase("redis")) {
+            if (("redis").equalsIgnoreCase(getEngine())) {
                 builder.snapshotRetentionLimit(getSnapshotRetentionLimit())
                     .snapshotWindow(getSnapshotWindow());
             }
