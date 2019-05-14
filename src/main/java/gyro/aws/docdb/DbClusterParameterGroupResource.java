@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroup
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParametersResponse;
+import software.amazon.awssdk.services.docdb.model.DescribeDbClustersResponse;
 import software.amazon.awssdk.services.docdb.model.Parameter;
 
 import java.util.ArrayList;
@@ -208,6 +209,19 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     @Override
     public void delete() {
         DocDbClient client = createClient(DocDbClient.class);
+
+        //Make sure any pending cluster delete is resolved.
+        DescribeDbClustersResponse response = client.describeDBClusters();
+        int count = 0;
+        while (count < 6 && response.dbClusters().stream().anyMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()))) {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            response = client.describeDBClusters();
+            count++;
+        }
 
         client.deleteDBClusterParameterGroup(
             r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
