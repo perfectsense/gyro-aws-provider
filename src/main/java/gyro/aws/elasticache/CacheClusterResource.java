@@ -509,9 +509,9 @@ public class CacheClusterResource extends AwsResource {
 
             ModifyCacheClusterRequest modifyCacheClusterRequest = builder.applyImmediately(getApplyImmediately()).build();
 
-            if (getApplyImmediately()) {
-                client.modifyCacheCluster(modifyCacheClusterRequest);
+            client.modifyCacheCluster(modifyCacheClusterRequest);
 
+            if (getApplyImmediately()) {
                 waitForAvailability(client, false);
             } else {
                 waitForAvailability(client, true);
