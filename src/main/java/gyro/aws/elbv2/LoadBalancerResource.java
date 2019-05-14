@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -84,7 +84,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     /**
      *  List of tags associated with the alb (Optional)
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -143,7 +143,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         LoadBalancerResource currentResource = (LoadBalancerResource) current;
 

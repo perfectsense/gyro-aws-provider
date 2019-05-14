@@ -1,8 +1,7 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -13,8 +12,6 @@ import software.amazon.awssdk.services.waf.model.RuleUpdate;
 
 import java.util.Set;
 
-@ResourceName(parent = "rule", value = "predicate-regular")
-@ResourceName(parent = "rate-rule", value = "predicate-rate-based")
 public class PredicateResource extends AwsResource {
     private String dataId;
     private Boolean negated;
@@ -35,7 +32,7 @@ public class PredicateResource extends AwsResource {
     /**
      * Set if the condition is checked to be false. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getNegated() {
         return negated;
     }
@@ -90,7 +87,7 @@ public class PredicateResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         WafClient client = createClient(WafClient.class, Region.AWS_GLOBAL.toString(), null);
 
         //Remove old predicate
@@ -133,11 +130,6 @@ public class PredicateResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getDataId(), getType(), (getRateRule() ? "Rate based" : "Regular"));
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private Predicate getPredicate() {

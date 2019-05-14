@@ -1,10 +1,9 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.Create;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
-import gyro.core.diff.Update;
+import gyro.core.resource.Create;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 
@@ -22,8 +21,6 @@ import java.util.Set;
  *        type: "forward"
  *     end
  */
-
-@ResourceName(parent = "nlb-listener", value = "default-action")
 public class NetworkActionResource extends AwsResource {
 
     private String targetGroupArn;
@@ -43,7 +40,7 @@ public class NetworkActionResource extends AwsResource {
     /**
      *  The type of action to perform  (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getType() {
         return type;
     }
@@ -73,7 +70,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         if (parentResource().change() instanceof Update) {
             return;
         }

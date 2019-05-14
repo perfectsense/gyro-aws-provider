@@ -2,8 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -16,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@ResourceName(parent = "auto-scaling-group", value = "auto-scaling-notification")
 public class AutoScalingGroupNotificationResource extends AwsResource {
 
     private String topicArn;
@@ -49,7 +47,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
      * The event on which to notify. Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR'
      * 'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR' ].
      */
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public List<String> getNotificationTypes() {
         if (notificationTypes == null) {
             notificationTypes = new ArrayList<>();
@@ -87,7 +85,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -120,11 +118,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getTopicArn());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private String getParentId() {

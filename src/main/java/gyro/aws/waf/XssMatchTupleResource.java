@@ -1,7 +1,6 @@
 package gyro.aws.waf;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -12,7 +11,6 @@ import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 
 import java.util.Set;
 
-@ResourceName(parent = "xss-match-set", value = "xss-match-tuple")
 public class XssMatchTupleResource extends AwsResource {
     private String data;
     private String type;
@@ -74,7 +72,7 @@ public class XssMatchTupleResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 
@@ -109,11 +107,6 @@ public class XssMatchTupleResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private XssMatchTuple getXssMatchTuple() {

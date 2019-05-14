@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -35,7 +35,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceName("vpc-endpoint-service")
+@ResourceType("vpc-endpoint-service")
 public class VpcEndpointServiceResource extends AwsResource {
 
     private Boolean acceptanceRequired;
@@ -47,7 +47,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     /**
      *  Determines whether requests to create an endpoint to this service must be accepted
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAcceptanceRequired() {
         return acceptanceRequired;
     }
@@ -59,7 +59,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     /**
      *  The load balancer arns connected to the service
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getNetworkLoadBalancerArns() {
         if (networkLoadBalancerArns == null) {
             networkLoadBalancerArns = new ArrayList<>();
@@ -75,7 +75,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     /**
      *  The service consumers connected to the service
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getPrincipals() {
         if (principals == null) {
             principals = new ArrayList<>();
@@ -150,7 +150,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         VpcEndpointServiceResource currentResource = (VpcEndpointServiceResource) current;

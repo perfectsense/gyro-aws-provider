@@ -1,9 +1,8 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.diff.Delete;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.Delete;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -21,9 +20,6 @@ import java.util.Set;
  *         arn: "arn:aws:acm:us-east-2:acct-number:certificate/certificatearn"
  *     end
  */
-
-@ResourceName(parent = "alb-listener", value = "certificate")
-@ResourceName(parent = "nlb-listener", value = "certificate")
 public class CertificateResource extends AwsResource {
 
     private String arn;
@@ -36,7 +32,7 @@ public class CertificateResource extends AwsResource {
     /**
      *  ARN of the certificate (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getArn() {
         return arn;
     }
@@ -45,7 +41,7 @@ public class CertificateResource extends AwsResource {
         this.arn = arn;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getIsDefault() {
         return isDefault;
     }
@@ -89,7 +85,7 @@ public class CertificateResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {}
+    public void update(Resource current, Set<String> changedFieldNames) {}
 
     @Override
     public void delete() {

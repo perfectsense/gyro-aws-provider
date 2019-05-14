@@ -1,8 +1,8 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -32,7 +32,7 @@ import java.util.Set;
  *     end
  *
  */
-@ResourceName("traffic-policy-instance")
+@ResourceType("traffic-policy-instance")
 public class TrafficPolicyInstanceResource extends AwsResource {
     private String name;
     private String message;
@@ -89,7 +89,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * Id of a traffic policy to be associated. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getTrafficPolicyId() {
         return trafficPolicyId;
     }
@@ -109,7 +109,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * The TTL that you want to assign to all of the resource record sets that the policy creates in the specified hosted zone.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Long getTtl() {
         return ttl;
     }
@@ -129,7 +129,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * The version of the traffic policy which will be used to create the resource records.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getVersion() {
         return version;
     }
@@ -183,7 +183,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateTrafficPolicyInstance(

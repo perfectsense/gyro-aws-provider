@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -53,7 +53,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp".
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         if (protocol != null) {
             return protocol.toLowerCase();
@@ -69,7 +69,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Description for this security group rule.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -81,7 +81,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Starting port for this rule.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getFromPort() {
         return fromPort;
     }
@@ -93,7 +93,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Ending port for this rule.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getToPort() {
         return toPort;
     }
@@ -105,7 +105,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * List of IPv4 cidr blocks to apply this rule to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getCidrBlocks() {
         if (cidrBlocks == null) {
             cidrBlocks = new ArrayList<>();
@@ -121,7 +121,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * List of IPv6 cidr blocks to apply this rule to.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getIpv6CidrBlocks() {
         if (ipv6CidrBlocks == null) {
             ipv6CidrBlocks = new ArrayList<>();
@@ -145,15 +145,10 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
-    @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(resourceType());
+        sb.append(name());
         sb.append(" security rule - ");
         sb.append(getProtocol());
         sb.append(" [");

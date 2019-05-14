@@ -1,18 +1,13 @@
 package gyro.aws;
 
-import gyro.core.resource.ResourceName;
 import gyro.core.Credentials;
-import com.google.common.collect.ImmutableMap;
-import org.joda.time.DateTime;
+import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 
-import java.util.Map;
-
-@ResourceName("credentials")
+@ResourceType("credentials")
 public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.credentials.AwsCredentials> {
 
     private transient AwsCredentialsProvider provider;

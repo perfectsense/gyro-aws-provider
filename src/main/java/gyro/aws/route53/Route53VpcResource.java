@@ -2,14 +2,12 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.route53.model.Route53Exception;
 
 import java.util.Set;
 
-@ResourceName(parent = "hosted-zone", value = "vpc")
 public class Route53VpcResource extends AwsResource {
     private String vpcId;
     private String vpcRegion;
@@ -64,7 +62,7 @@ public class Route53VpcResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
 
     }
 
@@ -101,11 +99,6 @@ public class Route53VpcResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s", getVpcId(), getVpcRegion());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private HostedZoneResource getParent() {
