@@ -280,6 +280,9 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         this.userData = userData;
     }
 
+    /**
+     * Set Block device Mapping for the instances being launched using this template.
+     */
     public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();

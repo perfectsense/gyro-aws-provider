@@ -18,6 +18,9 @@ public class InstanceVolumeAttachment extends Diffable {
         this.volumeId = volumeId;
     }
 
+    /**
+     * Device name to attach the volume to. (Required)
+     */
     public String getDeviceName() {
         return deviceName;
     }
@@ -26,6 +29,9 @@ public class InstanceVolumeAttachment extends Diffable {
         this.deviceName = deviceName;
     }
 
+    /**
+     * The volume id fro the volume to be attached. (Required)
+     */
     @ResourceUpdatable
     public String getVolumeId() {
         return volumeId;

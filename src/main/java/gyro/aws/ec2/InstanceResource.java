@@ -348,6 +348,53 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
+     * Capacity reservation for the instance.
+     */
+    @ResourceUpdatable
+    public String getCapacityReservation() {
+        if (capacityReservation == null) {
+            capacityReservation = "none";
+        }
+
+        return capacityReservation;
+    }
+
+    public void setCapacityReservation(String capacityReservation) {
+        this.capacityReservation = capacityReservation;
+    }
+
+    /**
+     * Set Block device Mapping for the instance.
+     */
+    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new ArrayList<>();
+        }
+
+        return blockDeviceMapping;
+    }
+
+    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+        this.blockDeviceMapping = blockDeviceMapping;
+    }
+
+    /**
+     * Attach existing volumes to the instance.
+     */
+    @ResourceUpdatable
+    public List<InstanceVolumeAttachment> getVolume() {
+        if (volume == null) {
+            volume = new ArrayList<>();
+        }
+
+        return volume;
+    }
+
+    public void setVolume(List<InstanceVolumeAttachment> volume) {
+        this.volume = volume;
+    }
+
+    /**
      * The private IP of this instance.
      *
      * @output
@@ -410,44 +457,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      */
     public Date getInstanceLaunchDate() {
         return launchDate;
-    }
-
-    @ResourceUpdatable
-    public String getCapacityReservation() {
-        if (capacityReservation == null) {
-            capacityReservation = "none";
-        }
-
-        return capacityReservation;
-    }
-
-    public void setCapacityReservation(String capacityReservation) {
-        this.capacityReservation = capacityReservation;
-    }
-
-    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
-        if (blockDeviceMapping == null) {
-            blockDeviceMapping = new ArrayList<>();
-        }
-
-        return blockDeviceMapping;
-    }
-
-    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
-        this.blockDeviceMapping = blockDeviceMapping;
-    }
-
-    @ResourceUpdatable
-    public List<InstanceVolumeAttachment> getVolume() {
-        if (volume == null) {
-            volume = new ArrayList<>();
-        }
-
-        return volume;
-    }
-
-    public void setVolume(List<InstanceVolumeAttachment> volume) {
-        this.volume = volume;
     }
 
     // -- GyroInstance Implementation

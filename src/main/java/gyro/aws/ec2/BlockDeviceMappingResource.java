@@ -1,13 +1,11 @@
 package gyro.aws.ec2;
 
 import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceUpdatable;
-import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
-import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
-import software.amazon.awssdk.services.ec2.model.Volume;
 
 public class BlockDeviceMappingResource extends Diffable {
     private String deviceName;
@@ -18,11 +16,12 @@ public class BlockDeviceMappingResource extends Diffable {
     private Integer volumeSize;
     private String snapshotId;
     private String state;
-    private String volumeId;
     private String volumeType;
     private Boolean autoEnableIo;
-    private Boolean rootDevice;
 
+    /**
+     * Name of the drive to attach this volume to. (Required)
+     */
     public String getDeviceName() {
         return deviceName;
     }
@@ -31,6 +30,9 @@ public class BlockDeviceMappingResource extends Diffable {
         this.deviceName = deviceName;
     }
 
+    /**
+     * Delete volume on instance termination. Defaults to true.
+     */
     public Boolean getDeleteOnTermination() {
         if (deleteOnTermination == null) {
             deleteOnTermination = true;
@@ -43,6 +45,9 @@ public class BlockDeviceMappingResource extends Diffable {
         this.deleteOnTermination = deleteOnTermination;
     }
 
+    /**
+     * Should the volume be encrypted. Defaults to false.
+     */
     public Boolean getEncrypted() {
         if (encrypted == null) {
             encrypted = false;
@@ -55,6 +60,10 @@ public class BlockDeviceMappingResource extends Diffable {
         this.encrypted = encrypted;
     }
 
+    /**
+     * The number of I/O operations per second (IOPS) to provision for the volume.
+     * Only allowed when 'volume-type' set to 'iops'.
+     */
     public Integer getIops() {
         return iops;
     }
@@ -63,6 +72,9 @@ public class BlockDeviceMappingResource extends Diffable {
         this.iops = iops;
     }
 
+    /**
+     * The kms key id, when using encrypted volume.
+     */
     public String getKmsKeyId() {
         return kmsKeyId;
     }
@@ -71,6 +83,9 @@ public class BlockDeviceMappingResource extends Diffable {
         this.kmsKeyId = kmsKeyId;
     }
 
+    /**
+     * The size of the volume in GiBs.
+     */
     @ResourceUpdatable
     public Integer getVolumeSize() {
         return volumeSize;
@@ -80,6 +95,9 @@ public class BlockDeviceMappingResource extends Diffable {
         this.volumeSize = volumeSize;
     }
 
+    /**
+     * The snapshot from which to create the volume.
+     */
     public String getSnapshotId() {
         return snapshotId;
     }
@@ -88,6 +106,10 @@ public class BlockDeviceMappingResource extends Diffable {
         this.snapshotId = snapshotId;
     }
 
+    /**
+     * The state of the drive.
+     */
+    @ResourceOutput
     public String getState() {
         return state;
     }
@@ -96,14 +118,10 @@ public class BlockDeviceMappingResource extends Diffable {
         this.state = state;
     }
 
-    public String getVolumeId() {
-        return volumeId;
-    }
-
-    public void setVolumeId(String volumeId) {
-        this.volumeId = volumeId;
-    }
-
+    /**
+     * The type of volume being created. Defaults to 'gp2'.
+     * Valid options [ 'gp2', 'io1', 'st1', 'sc1', 'standard'].
+     */
     @ResourceUpdatable
     public String getVolumeType() {
         if (volumeType == null) {
@@ -117,6 +135,9 @@ public class BlockDeviceMappingResource extends Diffable {
         this.volumeType = volumeType;
     }
 
+    /**
+     * Auto Enable IO. Defaults to false.
+     */
     @ResourceUpdatable
     public Boolean getAutoEnableIo() {
         if (autoEnableIo == null) {
@@ -130,34 +151,8 @@ public class BlockDeviceMappingResource extends Diffable {
         this.autoEnableIo = autoEnableIo;
     }
 
-    public Boolean getRootDevice() {
-        if (rootDevice == null) {
-            rootDevice = false;
-        }
-
-        return rootDevice;
-    }
-
-    public void setRootDevice(Boolean rootDevice) {
-        this.rootDevice = rootDevice;
-    }
-
     public BlockDeviceMappingResource() {
 
-    }
-
-    public BlockDeviceMappingResource(InstanceBlockDeviceMapping blockDeviceMapping, Volume volume, boolean isRootDevice) {
-        setDeviceName(blockDeviceMapping.deviceName());
-        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
-        setVolumeId(volume.volumeId());
-        setEncrypted(volume.encrypted());
-        setIops(volume.iops());
-        setKmsKeyId(volume.kmsKeyId());
-        setVolumeSize(volume.size());
-        setSnapshotId(volume.snapshotId());
-        setState(volume.stateAsString());
-        setVolumeType(volume.volumeTypeAsString());
-        setRootDevice(isRootDevice);
     }
 
     public BlockDeviceMappingResource(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
@@ -178,7 +173,7 @@ public class BlockDeviceMappingResource extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return String.format("Device%s - %s", getRootDevice()? " (root)" : "", getDeviceName());
+        return String.format("Device%s", getDeviceName());
     }
 
     BlockDeviceMapping getBlockDeviceMapping() {
@@ -208,59 +203,5 @@ public class BlockDeviceMappingResource extends Diffable {
                     .deleteOnTermination(getDeleteOnTermination())
             )
             .build();
-    }
-
-    void addDevice(Ec2Client client, String instanceId) {
-        client.attachVolume(
-            r -> r.instanceId(instanceId)
-                .volumeId(getVolumeId())
-                .device(getDeviceName())
-        );
-    }
-
-    void modifyDevice(Ec2Client client) {
-        //Do something if this is the root device.
-
-        client.modifyVolume(
-            r -> r.volumeId(getVolumeId())
-                .iops(getVolumeType().equals("io1") ? getIops() : null)
-                .size(getVolumeSize())
-                .volumeType(getVolumeType())
-        );
-
-        client.modifyVolumeAttribute(
-            r -> r.volumeId(getVolumeId())
-                .autoEnableIO(a -> a.value(getAutoEnableIo()))
-        );
-    }
-
-    void removeDevice(Ec2Client client, String instanceId) {
-        //Do something if this is the root device.
-
-        client.detachVolume(
-            o -> o.device(getDeviceName())
-                .instanceId(instanceId)
-                .volumeId(getVolumeId())
-        );
-
-        if (!getDeleteOnTermination()) {
-            client.deleteVolume(
-                o -> o.volumeId(getVolumeId())
-            );
-        }
-    }
-
-    public boolean isEqual(BlockDeviceMappingResource compare) {
-        boolean isEqual = false;
-        if (compare != null) {
-            isEqual = (this.getDeviceName().equals(compare.getDeviceName())
-                && this.getDeleteOnTermination().equals(compare.getDeleteOnTermination())
-                && this.getIops().equals(compare.getIops())
-                && this.getVolumeSize().equals(compare.getVolumeSize())
-                && this.getVolumeId().equals(compare.getVolumeId())
-                && this.getVolumeType().equals(compare.getVolumeType())
-                && this.getAutoEnableIo().equals(compare.getAutoEnableIo()));
-        }
-        return isEqual;
     }
 }
