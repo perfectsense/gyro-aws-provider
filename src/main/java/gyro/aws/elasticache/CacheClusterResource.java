@@ -21,6 +21,8 @@ import software.amazon.awssdk.services.elasticache.model.ModifyCacheClusterReque
 import software.amazon.awssdk.services.elasticache.model.RebootCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.SecurityGroupMembership;
 import software.amazon.awssdk.services.elasticache.model.Tag;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,7 +84,6 @@ public class CacheClusterResource extends AwsResource {
     private String snapshotWindow;
     private Map<String, String> tags;
     private List<String> preferredAvailabilityZones;
-    private String accountNumber;
     private String arn;
     private Boolean applyImmediately;
 
@@ -330,17 +331,6 @@ public class CacheClusterResource extends AwsResource {
 
     public void setPreferredAvailabilityZones(List<String> preferredAvailabilityZones) {
         this.preferredAvailabilityZones = preferredAvailabilityZones;
-    }
-
-    /**
-     * The account number for the cluster, required to generate the arn. (Required)
-     */
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
     }
 
     public String getArn() {
@@ -661,5 +651,11 @@ public class CacheClusterResource extends AwsResource {
         return client.describeCacheClusters(
             r -> r.cacheClusterId(getCacheClusterId())
         );
+    }
+
+    private String getAccountNumber() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
     }
 }

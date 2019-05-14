@@ -140,7 +140,6 @@ aws::cache-cluster cache-cluster-example
     security-group-ids: [
         $(aws::security-group security-group-cache-cluster-example-1 | group-id)
     ]
-    account-number: "242040583208"
 
     tags: {
         Name: "cache-cluster-example"
