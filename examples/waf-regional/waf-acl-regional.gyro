@@ -1,4 +1,4 @@
-aws::regex-pattern-set regex-pattern-set-match-set-example-waf
+aws::regex-pattern-set-regional regex-pattern-set-match-set-example-waf
     name: "regex-pattern-set-match-set-example-waf"
 
     patterns: [
@@ -7,16 +7,16 @@ aws::regex-pattern-set regex-pattern-set-match-set-example-waf
     ]
 end
 
-aws::regex-match-set regex-match-set-example-waf
+aws::regex-match-set-regional regex-match-set-example-waf
     name: "regex-match-set-example-waf"
     regex-match-tuple
         type: "METHOD"
         text-transformation: "NONE"
-        regex-pattern-set-id: $(aws::regex-pattern-set regex-pattern-set-match-set-example-waf | regex-pattern-set-id)
+        regex-pattern-set-id: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example-waf | regex-pattern-set-id)
     end
 end
 
-aws::geo-match-set geo-match-set-example-waf
+aws::geo-match-set-regional geo-match-set-example-waf
     name: "geo-match-set-example-waf"
 
     geo-match-constraint
@@ -25,7 +25,7 @@ aws::geo-match-set geo-match-set-example-waf
     end
 end
 
-aws::xss-match-set xss-match-set-example-waf
+aws::xss-match-set-regional xss-match-set-example-waf
     name: "xss-match-set-example-waf"
 
     xss-match-tuple
@@ -34,7 +34,7 @@ aws::xss-match-set xss-match-set-example-waf
     end
 end
 
-aws::size-constraint-set size-constraint-set-example-waf
+aws::size-constraint-set-regional size-constraint-set-example-waf
     name: "size-constraint-set-example-waf"
 
     size-constraint
@@ -45,7 +45,7 @@ aws::size-constraint-set size-constraint-set-example-waf
     end
 end
 
-aws::ip-set ip-set-example-waf
+aws::ip-set-regional ip-set-example-waf
     name: "ip-set-example-waf"
 
     ip-set-descriptor
@@ -54,7 +54,7 @@ aws::ip-set ip-set-example-waf
     end
 end
 
-aws::byte-match-set byte-match-set-example-waf
+aws::byte-match-set-regional byte-match-set-example-waf
     name: "byte-match-set-example-waf"
 
     byte-match-tuple
@@ -65,7 +65,7 @@ aws::byte-match-set byte-match-set-example-waf
     end
 end
 
-aws::sql-injection-match-set sql-injection-match-set-example-waf
+aws::sql-injection-match-set-regional sql-injection-match-set-example-waf
     name: "sql-injection-match-set-example-waf"
 
     sql-injection-match-tuple
@@ -74,103 +74,103 @@ aws::sql-injection-match-set sql-injection-match-set-example-waf
     end
 end
 
-aws::rule rule-example-waf
+aws::rule-regional rule-example-waf
     name: "rule-example-waf"
     metric-name: "ruleExampleWaf"
 
     predicate
-        data-id:$(aws::regex-match-set regex-match-set-example-waf | regex-match-set-id)
+        data-id:$(aws::regex-match-set-regional regex-match-set-example-waf | regex-match-set-id)
         type: "RegexMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::geo-match-set geo-match-set-example-waf | geo-match-set-id)
+        data-id:$(aws::geo-match-set-regional geo-match-set-example-waf | geo-match-set-id)
         type: "GeoMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::xss-match-set xss-match-set-example-waf | xss-match-set-id)
+        data-id:$(aws::xss-match-set-regional xss-match-set-example-waf | xss-match-set-id)
         type: "XssMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::size-constraint-set size-constraint-set-example-waf | size-constraint-set-id)
+        data-id:$(aws::size-constraint-set-regional size-constraint-set-example-waf | size-constraint-set-id)
         type: "SizeConstraint"
         negated: false
     end
 
     predicate
-        data-id:$(aws::ip-set ip-set-example-waf | ip-set-id)
+        data-id:$(aws::ip-set-regional ip-set-example-waf | ip-set-id)
         type: "IPMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::byte-match-set byte-match-set-example-waf | byte-match-set-id)
+        data-id:$(aws::byte-match-set-regional byte-match-set-example-waf | byte-match-set-id)
         type: "ByteMatch"
         negated: false
     end
 
     predicate
-        data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
+        data-id: $(aws::sql-injection-match-set-regional sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
     end
 end
 
-aws::rate-rule rate-rule-example-waf
+aws::rate-rule-regional rate-rule-example-waf
     name: "rate-rule-example-waf"
     metric-name: "rateRuleExampleWaf"
     rate-key: "IP"
     rate-limit: 2000
 
     predicate
-        data-id:$(aws::regex-match-set regex-match-set-example-waf | regex-match-set-id)
+        data-id:$(aws::regex-match-set-regional regex-match-set-example-waf | regex-match-set-id)
         type: "RegexMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::geo-match-set geo-match-set-example-waf | geo-match-set-id)
+        data-id:$(aws::geo-match-set-regional geo-match-set-example-waf | geo-match-set-id)
         type: "GeoMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::xss-match-set xss-match-set-example-waf | xss-match-set-id)
+        data-id:$(aws::xss-match-set-regional xss-match-set-example-waf | xss-match-set-id)
         type: "XssMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::size-constraint-set size-constraint-set-example-waf | size-constraint-set-id)
+        data-id:$(aws::size-constraint-set-regional size-constraint-set-example-waf | size-constraint-set-id)
         type: "SizeConstraint"
         negated: false
     end
 
     predicate
-        data-id:$(aws::ip-set ip-set-example-waf | ip-set-id)
+        data-id:$(aws::ip-set-regional ip-set-example-waf | ip-set-id)
         type: "IPMatch"
         negated: false
     end
 
     predicate
-        data-id:$(aws::byte-match-set byte-match-set-example-waf | byte-match-set-id)
+        data-id:$(aws::byte-match-set-regional byte-match-set-example-waf | byte-match-set-id)
         type: "ByteMatch"
         negated: false
     end
 
     predicate
-        data-id: $(aws::sql-injection-match-set sql-injection-match-set-example-waf | sql-injection-match-set-id)
+        data-id: $(aws::sql-injection-match-set-regional sql-injection-match-set-example-waf | sql-injection-match-set-id)
         type: "SqlInjectionMatch"
         negated: false
     end
 end
 
-aws::waf-acl waf-acl-example
+aws::waf-acl-regional waf-acl-example
     name: "waf-acl-example"
     metric-name: "wafAclExample"
     default-action: "ALLOW"
@@ -179,13 +179,13 @@ aws::waf-acl waf-acl-example
         action: "ALLOW"
         type: "REGULAR"
         priority: 1
-        rule-id: $(aws::rule rule-example-waf | rule-id)
+        rule-id: $(aws::rule-regional rule-example-waf | rule-id)
     end
 
     activated-rule
         action: "ALLOW"
         type: "RATE_BASED"
         priority: 2
-        rule-id: $(aws::rate-rule rate-rule-example-waf | rule-id)
+        rule-id: $(aws::rate-rule-regional rate-rule-example-waf | rule-id)
     end
 end
