@@ -12,6 +12,7 @@ import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
+import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
 import software.amazon.awssdk.services.elasticache.model.CacheNode;
 import software.amazon.awssdk.services.elasticache.model.CacheSecurityGroupMembership;
 import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterRequest;
@@ -349,6 +350,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * A flag that updates and restarts node immediately rather than waiting for the maintenance window. Defaults to true.
      */
+    @ResourceUpdatable
     public Boolean getApplyImmediately() {
         if (applyImmediately == null) {
             applyImmediately = true;
@@ -427,7 +429,7 @@ public class CacheClusterResource extends AwsResource {
             setEngine(cacheCluster.engine());
             setEngineVersion(cacheCluster.engineVersion());
             setNotificationTopicArn(cacheCluster.notificationConfiguration() != null ? cacheCluster.notificationConfiguration().topicArn() : null);
-            setNumCacheNodes(cacheCluster.numCacheNodes());
+            setNumCacheNodes(cacheCluster.pendingModifiedValues().numCacheNodes() != null ? cacheCluster.pendingModifiedValues().numCacheNodes() : cacheCluster.numCacheNodes());
             setPort(cacheCluster.configurationEndpoint().port());
             setPreferredAvailabilityZone(cacheCluster.preferredAvailabilityZone());
             setPreferredMaintenanceWindow(cacheCluster.preferredMaintenanceWindow());
@@ -482,7 +484,7 @@ public class CacheClusterResource extends AwsResource {
 
         setStatus(response.cacheCluster().cacheClusterStatus());
 
-        waitForAvailability(client, false);
+        waitForAvailability(client);
     }
 
     @Override
@@ -527,19 +529,7 @@ public class CacheClusterResource extends AwsResource {
 
             client.modifyCacheCluster(modifyCacheClusterRequest);
 
-            if (getApplyImmediately()) {
-                waitForAvailability(client, false);
-            } else {
-                waitForAvailability(client, true);
-
-                RebootCacheClusterRequest rebootCacheClusterRequest = RebootCacheClusterRequest.builder()
-                    .cacheNodeIdsToReboot(getNodes())
-                    .cacheClusterId(getCacheClusterId()).build();
-
-                client.rebootCacheCluster(rebootCacheClusterRequest);
-
-                waitForAvailability(client, false);
-            }
+            waitForAvailability(client);
         }
     }
 
@@ -617,7 +607,7 @@ public class CacheClusterResource extends AwsResource {
         }
     }
 
-    private void waitForAvailability(ElastiCacheClient client, boolean waitWithoutCount) {
+    private void waitForAvailability(ElastiCacheClient client) {
         boolean available = false;
         int count = 0;
         while (!available && count < 20) {
@@ -626,9 +616,7 @@ public class CacheClusterResource extends AwsResource {
             available = response.cacheClusters().get(0).cacheClusterStatus().equals("available");
             count++;
 
-            if (waitWithoutCount) {
-                count = 0;
-            } else if (!available && count == 20) {
+            if (!available && count == 20) {
                 boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
                 if (wait) {
                     count = 0;
@@ -641,9 +629,13 @@ public class CacheClusterResource extends AwsResource {
         boolean available = true;
         int count = 0;
         while (available && count < 20) {
-            DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
+            try {
+                DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
+                available = !response.cacheClusters().isEmpty();
+            } catch (CacheClusterNotFoundException ex) {
+                available = false;
+            }
 
-            available = !response.cacheClusters().isEmpty();
             count++;
 
             if (available && count == 20) {
