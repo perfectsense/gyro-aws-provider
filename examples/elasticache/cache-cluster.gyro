@@ -131,9 +131,10 @@ aws::cache-cluster cache-cluster-example
     cache-subnet-group-name: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example | cache-subnet-group-name)
     engine: "memcached"
     engine-version: "1.5.10"
-    num-cache-nodes: 1
+    num-cache-nodes: 2
     preferred-availability-zones: [
-        "us-east-2a"
+        "us-east-2a",
+        "us-east-2b"
     ]
     port: 11211
     preferred-maintenance-window: "thu:01:00-thu:02:00"
