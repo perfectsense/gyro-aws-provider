@@ -69,10 +69,6 @@ public abstract class AwsResource extends Resource {
         return this.region;
     }
 
-    public Class resourceCredentialsClass() {
-        return AwsCredentials.class;
-    }
-
     @FunctionalInterface
     protected interface Service {
         Object apply();
