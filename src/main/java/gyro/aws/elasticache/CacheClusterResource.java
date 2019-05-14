@@ -360,6 +360,11 @@ public class CacheClusterResource extends AwsResource {
         this.applyImmediately = applyImmediately;
     }
 
+    /**
+     * Status of the cluster.
+     *
+     * @Output
+     */
     @ResourceOutput
     public String getStatus() {
         return status;
@@ -369,6 +374,11 @@ public class CacheClusterResource extends AwsResource {
         this.status = status;
     }
 
+    /**
+     * List of nodes under this cluster.
+     *
+     * @Output
+     */
     @ResourceOutput
     public List<String> getNodes() {
         if (nodes == null) {
@@ -382,6 +392,11 @@ public class CacheClusterResource extends AwsResource {
         this.nodes = nodes;
     }
 
+    /**
+     * The preferred availability zone of the cluster.
+     *
+     * @Output
+     */
     @ResourceOutput
     public String getPreferredAvailabilityZone() {
         return preferredAvailabilityZone;
