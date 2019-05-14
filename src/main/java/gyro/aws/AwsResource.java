@@ -1,6 +1,5 @@
 package gyro.aws;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -15,7 +14,6 @@ import java.net.URI;
 public abstract class AwsResource extends Resource {
 
     private SdkClient client;
-    private String region;
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass) {
         return createClient(clientClass, null, null);
@@ -58,15 +56,6 @@ public abstract class AwsResource extends Resource {
         } catch (Exception ex) {
             throw new GyroException(String.format("Unable to create %s !", clientClass), ex);
         }
-    }
-
-    protected String getRegion() {
-        if (ObjectUtils.isBlank(this.region)) {
-            AwsCredentials credentials = (AwsCredentials) resourceCredentials();
-            this.region = credentials.getRegion();
-        }
-
-        return this.region;
     }
 
     @FunctionalInterface

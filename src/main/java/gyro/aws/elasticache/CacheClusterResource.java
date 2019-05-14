@@ -3,6 +3,7 @@ package gyro.aws.elasticache;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.resource.Resource;
@@ -672,5 +673,10 @@ public class CacheClusterResource extends AwsResource {
         StsClient client = createClient(StsClient.class);
         GetCallerIdentityResponse response = client.getCallerIdentity();
         return response.account();
+    }
+
+    private String getRegion() {
+        AwsCredentials credentials = (AwsCredentials) resourceCredentials();
+        return credentials.getRegion();
     }
 }
