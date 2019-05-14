@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
@@ -11,6 +12,21 @@ import software.amazon.awssdk.services.elasticache.model.Snapshot;
 
 import java.util.Set;
 
+/**
+ * Creates a cache subnet group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::cache-snapshot cache-snapshot-example
+ *         snapshot-name: "cache-snapshot-example"
+ *         replication-group-id: "replication-group-example"
+ *         cache-cluster-id: $(aws::cache-cluster cache-cluster-example | cache-cluster-id)
+ *     end
+ */
+@ResourceType("cache-snapshot")
 public class SnapshotResource extends AwsResource {
     private String snapshotName;
     private String replicationGroupId;
@@ -18,6 +34,9 @@ public class SnapshotResource extends AwsResource {
 
     private String status;
 
+    /**
+     * Name of the snapshot. (Required)
+     */
     public String getSnapshotName() {
         return snapshotName;
     }
@@ -26,6 +45,9 @@ public class SnapshotResource extends AwsResource {
         this.snapshotName = snapshotName;
     }
 
+    /**
+     * Id of the replication group. (Required)
+     */
     public String getReplicationGroupId() {
         return replicationGroupId;
     }
@@ -34,6 +56,9 @@ public class SnapshotResource extends AwsResource {
         this.replicationGroupId = replicationGroupId;
     }
 
+    /**
+     * Id of the cache cluster. (Required)
+     */
     public String getCacheClusterId() {
         return cacheClusterId;
     }
@@ -42,6 +67,11 @@ public class SnapshotResource extends AwsResource {
         this.cacheClusterId = cacheClusterId;
     }
 
+    /**
+     * Status of the replication group.
+     *
+     * @Output
+     */
     @ResourceOutput
     public String getStatus() {
         return status;
