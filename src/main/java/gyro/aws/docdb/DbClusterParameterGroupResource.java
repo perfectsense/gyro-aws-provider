@@ -1,6 +1,8 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -11,6 +13,7 @@ import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParametersResponse;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClustersResponse;
+import software.amazon.awssdk.services.docdb.model.InvalidDbParameterGroupStateException;
 import software.amazon.awssdk.services.docdb.model.Parameter;
 
 import java.util.ArrayList;
@@ -211,6 +214,8 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         DocDbClient client = createClient(DocDbClient.class);
 
         //Make sure any pending cluster delete is resolved.
+
+        boolean clustersClear = false;
         DescribeDbClustersResponse response = client.describeDBClusters();
         int count = 0;
         while (count < 6 && response.dbClusters().stream().anyMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()))) {
@@ -223,9 +228,43 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
             count++;
         }
 
-        client.deleteDBClusterParameterGroup(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
-        );
+        clustersClear = response.dbClusters().stream().anyMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()));
+        boolean done = false;
+        count = 0;
+
+        while (!done && count < 6) {
+            try {
+                client.deleteDBClusterParameterGroup(
+                    r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+                );
+
+                done = true;
+
+            } catch (InvalidDbParameterGroupStateException ex) {
+                if (ex.awsErrorDetails().errorMessage().equals("One or more database instances " +
+                    "are still members of this parameter group db-cluster-param-group-db-cluster-example, " +
+                    "so the group cannot be deleted") && clustersClear) {
+                    count ++;
+
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (count == 6) {
+                        boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
+                        if (wait) {
+                            count = 0;
+                        } else {
+                            throw new GyroException(String.format("Error trying to delete %s. Please retry.", toDisplayString()));
+                        }
+                    }
+                } else {
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override
