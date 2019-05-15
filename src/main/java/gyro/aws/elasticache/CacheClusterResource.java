@@ -88,6 +88,7 @@ public class CacheClusterResource extends AwsResource {
     private List<String> preferredAvailabilityZones;
     private Boolean applyImmediately;
 
+    private String arn;
     private String status;
     private List<String> nodes;
     private String preferredAvailabilityZone;
@@ -351,6 +352,20 @@ public class CacheClusterResource extends AwsResource {
     }
 
     /**
+     * Arn of the cluster.
+     *
+     * @Output
+     */
+    @ResourceOutput
+    public String getArn() {
+        return this.arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
+    /**
      * Status of the cluster.
      *
      * @Output
@@ -470,6 +485,7 @@ public class CacheClusterResource extends AwsResource {
         CreateCacheClusterResponse response = client.createCacheCluster(builder.build());
 
         setStatus(response.cacheCluster().cacheClusterStatus());
+        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
 
         waitForAvailability(client);
     }
@@ -657,9 +673,5 @@ public class CacheClusterResource extends AwsResource {
     private String getRegion() {
         AwsCredentials credentials = (AwsCredentials) resourceCredentials();
         return credentials.getRegion();
-    }
-
-    private String getArn() {
-        return "arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId();
     }
 }
