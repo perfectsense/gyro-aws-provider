@@ -6,6 +6,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -496,6 +497,10 @@ public class CacheClusterResource extends AwsResource {
 
         CacheClusterResource currentCacheClusterResource = (CacheClusterResource) current;
 
+        if (getPreferredAvailabilityZones().size() != getNumCacheNodes()) {
+            throw new GyroException("Field 'preferred-availability-zones' needs to have same number of elements as the value specified for 'num-cache-nodes'.");
+        }
+
         if (changedProperties.contains("tags")) {
             Map<String, String> pendingTags = getTags();
             Map<String, String> currentTags = currentCacheClusterResource.getTags();
@@ -518,9 +523,17 @@ public class CacheClusterResource extends AwsResource {
                 .securityGroupIds(getSecurityGroupIds());
 
             if (changedProperties.contains("num-cache-nodes")) {
+                List<String> oldPreferredAvailabilityZones = currentCacheClusterResource.getPreferredAvailabilityZones();
+
+                ArrayList<String> updatedPreferredAvailabilityZones = new ArrayList<>(getPreferredAvailabilityZones());
+
+                for (String az : oldPreferredAvailabilityZones) {
+                    updatedPreferredAvailabilityZones.remove(az);
+                }
+
                 builder = builder.azMode(getAzMode())
                     .numCacheNodes(getNumCacheNodes())
-                    .newAvailabilityZones(getPreferredAvailabilityZones());
+                    .newAvailabilityZones(updatedPreferredAvailabilityZones);
             }
 
             if (("redis").equalsIgnoreCase(getEngine())) {
