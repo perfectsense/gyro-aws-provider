@@ -94,7 +94,7 @@ public class CacheClusterResource extends AwsResource {
     private String preferredAvailabilityZone;
 
     /**
-     * The Az mode of the cluster. Valid values are ``single-az`` or ``cross-az`` (Required)
+     * The Az mode of the cluster. Valid values is ``single-az`` or ``cross-az`` (Required)
      */
     @ResourceUpdatable
     public String getAzMode() {
@@ -117,7 +117,7 @@ public class CacheClusterResource extends AwsResource {
     }
 
     /**
-     * The type of the cache cluster. Valid values ``memcached`` or ``redis`` (Required)
+     * The type of the cache cluster. Valid values is ``memcached`` or ``redis`` (Required)
      */
     @ResourceUpdatable
     public String getCacheNodeType() {
@@ -157,7 +157,7 @@ public class CacheClusterResource extends AwsResource {
     }
 
     /**
-     * The name of the cache parameter group to be associated. (Required)
+     * The name of the cache subnet group to be associated. (Required)
      */
     public String getCacheSubnetGroupName() {
         return cacheSubnetGroupName;
