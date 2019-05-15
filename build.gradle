@@ -59,7 +59,7 @@ dependencies {
     implementation 'software.amazon.awssdk:sns'
     implementation 'software.amazon.awssdk:sqs'
     implementation 'software.amazon.awssdk:waf'
-    implementation 'software.amazon.awssdk:elasticache:2.5.33'
+    implementation 'software.amazon.awssdk:elasticache'
     implementation 'software.amazon.awssdk:sts'
 
     gyroDoclet "gyro:gyro-doclet:0.14-SNAPSHOT"
