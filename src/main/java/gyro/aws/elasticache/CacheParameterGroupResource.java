@@ -86,16 +86,6 @@ public class CacheParameterGroupResource extends AwsResource {
             parameters = new ArrayList<>();
         }
 
-        removeDefaultParams(parameters);
-
-        return parameters;
-    }
-
-    private List<CacheParameter> getParametersWithoutReset() {
-        if (parameters == null) {
-            parameters = new ArrayList<>();
-        }
-
         return parameters;
     }
 
@@ -120,13 +110,15 @@ public class CacheParameterGroupResource extends AwsResource {
                 r -> r.cacheParameterGroupName(getCacheParamGroupName())
             );
 
-            getParametersWithoutReset().clear();
+            Set<String> configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
+            getParameters().clear();
             for (Parameter parameter : paramResponse.parameters()) {
                 if (parameter.isModifiable()) {
-                    getParametersWithoutReset().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
+                    getParameters().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
                 }
             }
-            removeDefaultParams(getParametersWithoutReset());
+
+            removeDefaultParams(getParameters(), configParamSet);
 
             return true;
         } else {
@@ -176,14 +168,14 @@ public class CacheParameterGroupResource extends AwsResource {
         return sb.toString();
     }
 
-    private void removeDefaultParams(List<CacheParameter> parameters) {
+    private void removeDefaultParams(List<CacheParameter> parameters, Set<String> configParamSet) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         DescribeEngineDefaultParametersResponse defaultParamResponse = client.describeEngineDefaultParameters(
             r -> r.cacheParameterGroupFamily(getCacheParamGroupFamily())
         );
 
-        Map<String, String> parameterMap = parameters.stream().collect(Collectors.toMap(CacheParameter::getName, o -> (o.getValue() == null ? "" : o.getValue())));
+        Map<String, String> parameterMap = parameters.stream().filter(o -> !configParamSet.contains(o.getName())).collect(Collectors.toMap(CacheParameter::getName, o -> (o.getValue() == null ? "" : o.getValue())));
 
         Set<String> defaultParameterKeySet = defaultParamResponse.engineDefaults().parameters()
             .stream()
@@ -208,7 +200,7 @@ public class CacheParameterGroupResource extends AwsResource {
             .stream().filter(Parameter::isModifiable)
             .collect(Collectors.toMap(Parameter::parameterName, o -> (o.parameterValue() == null ? "" : o.parameterValue())));
 
-        List<CacheParameter> modifiedParameters = getParametersWithoutReset().stream()
+        List<CacheParameter> modifiedParameters = getParameters().stream()
             .filter(
                 o -> currentParamMap.containsKey(o.getName()) && !currentParamMap.get(o.getName()).equals(o.getValue())
             )
@@ -223,7 +215,7 @@ public class CacheParameterGroupResource extends AwsResource {
             .stream().filter(Parameter::isModifiable)
             .collect(Collectors.toMap(Parameter::parameterName, o -> (o.parameterValue() == null ? "" : o.parameterValue())));
 
-        Set<String> paramSet = getParametersWithoutReset().stream().map(CacheParameter::getName).collect(Collectors.toSet());
+        Set<String> paramSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
 
         modifiedParameters.addAll(defaultParamMap.keySet().stream()
             .filter(o -> paramSet.isEmpty() || !paramSet.contains(o))
