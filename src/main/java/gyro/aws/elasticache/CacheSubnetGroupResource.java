@@ -2,11 +2,13 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
+import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheSubnetGroupsResponse;
 import software.amazon.awssdk.services.elasticache.model.Subnet;
 
@@ -84,20 +86,16 @@ public class CacheSubnetGroupResource extends AwsResource {
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
-        DescribeCacheSubnetGroupsResponse response = client.describeCacheSubnetGroups(
-            r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
-        );
+        CacheSubnetGroup cacheSubnetGroup = getCacheSubnetGroup(client);
 
-        if (!response.cacheSubnetGroups().isEmpty()) {
-            CacheSubnetGroup cacheSubnetGroup = response.cacheSubnetGroups().get(0);
-
-            setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
-            setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
-
-            return true;
-        } else {
+        if (cacheSubnetGroup == null) {
             return false;
         }
+
+        setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
+        setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
+
+        return true;
     }
 
     @Override
@@ -143,5 +141,28 @@ public class CacheSubnetGroupResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    private CacheSubnetGroup getCacheSubnetGroup(ElastiCacheClient client) {
+        CacheSubnetGroup cacheSubnetGroup = null;
+
+        if (ObjectUtils.isBlank(getCacheSubnetGroupName())) {
+            throw new GyroException("cache-subnet-group-name is missing, unable to load cache subnet group.");
+        }
+
+        try {
+            DescribeCacheSubnetGroupsResponse response = client.describeCacheSubnetGroups(
+                r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
+            );
+
+            if (!response.cacheSubnetGroups().isEmpty()) {
+                cacheSubnetGroup = response.cacheSubnetGroups().get(0);
+            }
+
+        } catch (CacheSubnetGroupNotFoundException ex) {
+
+        }
+
+        return cacheSubnetGroup;
     }
 }

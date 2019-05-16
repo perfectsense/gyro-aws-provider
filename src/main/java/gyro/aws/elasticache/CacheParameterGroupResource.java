@@ -2,11 +2,13 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
+import software.amazon.awssdk.services.elasticache.model.CacheParameterGroupNotFoundException;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheParameterGroupsResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheParametersResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeEngineDefaultParametersResponse;
@@ -97,33 +99,30 @@ public class CacheParameterGroupResource extends AwsResource {
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
-        DescribeCacheParameterGroupsResponse response = client.describeCacheParameterGroups(
+        CacheParameterGroup cacheParameterGroup = getCacheParameterGroup(client);
+
+        if (cacheParameterGroup == null) {
+            return false;
+        }
+
+        setCacheParamGroupFamily(cacheParameterGroup.cacheParameterGroupFamily());
+        setDescription(cacheParameterGroup.description());
+
+        DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
             r -> r.cacheParameterGroupName(getCacheParamGroupName())
         );
 
-        if (!response.cacheParameterGroups().isEmpty()) {
-            CacheParameterGroup cacheParameterGroup = response.cacheParameterGroups().get(0);
-            setCacheParamGroupFamily(cacheParameterGroup.cacheParameterGroupFamily());
-            setDescription(cacheParameterGroup.description());
-
-            DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
-                r -> r.cacheParameterGroupName(getCacheParamGroupName())
-            );
-
-            Set<String> configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
-            getParameters().clear();
-            for (Parameter parameter : paramResponse.parameters()) {
-                if (parameter.isModifiable()) {
-                    getParameters().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
-                }
+        Set<String> configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
+        getParameters().clear();
+        for (Parameter parameter : paramResponse.parameters()) {
+            if (parameter.isModifiable()) {
+                getParameters().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
             }
-
-            removeDefaultParams(getParameters(), configParamSet);
-
-            return true;
-        } else {
-            return false;
         }
+
+        removeDefaultParams(getParameters(), configParamSet);
+
+        return true;
     }
 
     @Override
@@ -240,5 +239,28 @@ public class CacheParameterGroupResource extends AwsResource {
                 done = true;
             }
         } while (!done);
+    }
+
+    private CacheParameterGroup getCacheParameterGroup(ElastiCacheClient client) {
+        CacheParameterGroup cacheParameterGroup = null;
+
+        if (ObjectUtils.isBlank(getCacheParamGroupName())) {
+            throw new GyroException("cache-param-group-name is missing, unable to load cache parameter group.");
+        }
+
+        try {
+            DescribeCacheParameterGroupsResponse response = client.describeCacheParameterGroups(
+                r -> r.cacheParameterGroupName(getCacheParamGroupName())
+            );
+
+            if (!response.cacheParameterGroups().isEmpty()) {
+                cacheParameterGroup = response.cacheParameterGroups().get(0);
+            }
+
+        } catch (CacheParameterGroupNotFoundException ex) {
+
+        }
+
+        return cacheParameterGroup;
     }
 }

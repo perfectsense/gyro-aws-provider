@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
 import software.amazon.awssdk.services.elasticache.model.Snapshot;
+import software.amazon.awssdk.services.elasticache.model.SnapshotNotFoundException;
 
 import java.util.Set;
 
@@ -85,21 +86,16 @@ public class SnapshotResource extends AwsResource {
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
-        DescribeSnapshotsResponse response = client.describeSnapshots(
-            r -> r.snapshotName(getSnapshotName())
-        );
-
-        if (!response.snapshots().isEmpty()) {
-            Snapshot snapshot = response.snapshots().get(0);
-
-            setReplicationGroupId(snapshot.replicationGroupId());
-            setCacheClusterId(snapshot.cacheClusterId());
-            setStatus(snapshot.snapshotStatus());
-
-            return true;
-        } else {
+        Snapshot snapshot = getSnapshot(client);
+        if (snapshot == null) {
             return false;
         }
+
+        setReplicationGroupId(snapshot.replicationGroupId());
+        setCacheClusterId(snapshot.cacheClusterId());
+        setStatus(snapshot.snapshotStatus());
+
+        return true;
     }
 
     @Override
@@ -140,5 +136,24 @@ public class SnapshotResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    private Snapshot getSnapshot(ElastiCacheClient client) {
+        Snapshot snapshot = null;
+
+        try {
+            DescribeSnapshotsResponse response = client.describeSnapshots(
+                r -> r.snapshotName(getSnapshotName())
+            );
+
+            if (!response.snapshots().isEmpty()) {
+                snapshot = response.snapshots().get(0);
+            }
+
+        } catch (SnapshotNotFoundException ex) {
+
+        }
+
+        return snapshot;
     }
 }
