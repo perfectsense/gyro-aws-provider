@@ -370,7 +370,6 @@ public class DbClusterResource extends DocDbTaggableResource {
                 .vpcSecurityGroupIds(getVpcSecurityGroupIds())
                 .storageEncrypted(getStorageEncrypted())
                 .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
-                //.tags(toDocDbTags(getTags()))
         );
 
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());

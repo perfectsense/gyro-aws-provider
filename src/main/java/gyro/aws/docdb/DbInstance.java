@@ -208,7 +208,6 @@ public class DbInstance extends DocDbTaggableResource {
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
                 .dbClusterIdentifier(getDbClusterIdentifier())
-                //.tags(toDocDbTags(getTags()))
         );
 
         setArn(response.dbInstance().dbInstanceArn());
