@@ -525,7 +525,7 @@ public class CacheClusterResource extends AwsResource {
             if (changedProperties.contains("num-cache-nodes")) {
                 List<String> oldPreferredAvailabilityZones = currentCacheClusterResource.getPreferredAvailabilityZones();
 
-                ArrayList<String> updatedPreferredAvailabilityZones = new ArrayList<>(getPreferredAvailabilityZones());
+                List<String> updatedPreferredAvailabilityZones = new ArrayList<>(getPreferredAvailabilityZones());
 
                 for (String az : oldPreferredAvailabilityZones) {
                     updatedPreferredAvailabilityZones.remove(az);
