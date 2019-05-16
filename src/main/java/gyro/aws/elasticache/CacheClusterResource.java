@@ -5,8 +5,8 @@ import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -21,7 +21,6 @@ import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterRespo
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
 import software.amazon.awssdk.services.elasticache.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.elasticache.model.ModifyCacheClusterRequest;
-import software.amazon.awssdk.services.elasticache.model.RebootCacheClusterRequest;
 import software.amazon.awssdk.services.elasticache.model.SecurityGroupMembership;
 import software.amazon.awssdk.services.elasticache.model.Tag;
 import software.amazon.awssdk.services.sts.StsClient;
@@ -32,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -416,43 +416,38 @@ public class CacheClusterResource extends AwsResource {
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
-        DescribeCacheClustersResponse response = client.describeCacheClusters(
-            r -> r.cacheClusterId(getCacheClusterId())
-                .showCacheNodeInfo(true)
-        );
+        CacheCluster cacheCluster = getCacheCluster(client);
 
-        if (!response.cacheClusters().isEmpty()) {
-            CacheCluster cacheCluster = response.cacheClusters().get(0);
-
-            setCacheClusterId(cacheCluster.cacheClusterId());
-            setCacheNodeType(cacheCluster.cacheNodeType());
-            setCacheParamGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
-            setCacheSecurityGroupNames(cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
-            setCacheSubnetGroupName(cacheCluster.cacheSubnetGroupName());
-            setEngine(cacheCluster.engine());
-            setEngineVersion(cacheCluster.engineVersion());
-            setNotificationTopicArn(cacheCluster.notificationConfiguration() != null ? cacheCluster.notificationConfiguration().topicArn() : null);
-            setNumCacheNodes(cacheCluster.pendingModifiedValues().numCacheNodes() != null ? cacheCluster.pendingModifiedValues().numCacheNodes() : cacheCluster.numCacheNodes());
-            setPort(cacheCluster.configurationEndpoint().port());
-            setPreferredAvailabilityZone(cacheCluster.preferredAvailabilityZone());
-            setPreferredMaintenanceWindow(cacheCluster.preferredMaintenanceWindow());
-            setReplicationGroupId(cacheCluster.replicationGroupId());
-            setSecurityGroupIds(cacheCluster.securityGroups().stream().map(SecurityGroupMembership::securityGroupId).collect(Collectors.toList()));
-            setSnapshotRetentionLimit(cacheCluster.snapshotRetentionLimit());
-            setSnapshotWindow(cacheCluster.snapshotWindow());
-            setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
-            setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
-
-            ListTagsForResourceResponse tagResponse = client.listTagsForResource(
-                r -> r.resourceName(getArn())
-            );
-
-            loadTags(tagResponse.tagList());
-
-            return true;
-        } else {
+        if (cacheCluster == null) {
             return false;
         }
+
+        setCacheClusterId(cacheCluster.cacheClusterId());
+        setCacheNodeType(cacheCluster.cacheNodeType());
+        setCacheParamGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
+        setCacheSecurityGroupNames(cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
+        setCacheSubnetGroupName(cacheCluster.cacheSubnetGroupName());
+        setEngine(cacheCluster.engine());
+        setEngineVersion(cacheCluster.engineVersion());
+        setNotificationTopicArn(cacheCluster.notificationConfiguration() != null ? cacheCluster.notificationConfiguration().topicArn() : null);
+        setNumCacheNodes(cacheCluster.pendingModifiedValues().numCacheNodes() != null ? cacheCluster.pendingModifiedValues().numCacheNodes() : cacheCluster.numCacheNodes());
+        setPort(cacheCluster.configurationEndpoint().port());
+        setPreferredAvailabilityZone(cacheCluster.preferredAvailabilityZone());
+        setPreferredMaintenanceWindow(cacheCluster.preferredMaintenanceWindow());
+        setReplicationGroupId(cacheCluster.replicationGroupId());
+        setSecurityGroupIds(cacheCluster.securityGroups().stream().map(SecurityGroupMembership::securityGroupId).collect(Collectors.toList()));
+        setSnapshotRetentionLimit(cacheCluster.snapshotRetentionLimit());
+        setSnapshotWindow(cacheCluster.snapshotWindow());
+        setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
+        setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
+
+        ListTagsForResourceResponse tagResponse = client.listTagsForResource(
+            r -> r.resourceName(getArn())
+        );
+
+        loadTags(tagResponse.tagList());
+
+        return true;
     }
 
     @Override
@@ -488,7 +483,10 @@ public class CacheClusterResource extends AwsResource {
         setStatus(response.cacheCluster().cacheClusterStatus());
         setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
 
-        waitForAvailability(client);
+        Wait.atMost(3, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -545,7 +543,10 @@ public class CacheClusterResource extends AwsResource {
 
             client.modifyCacheCluster(modifyCacheClusterRequest);
 
-            waitForAvailability(client);
+            Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(true)
+                .until(() -> isAvailable(client));
         }
     }
 
@@ -557,7 +558,10 @@ public class CacheClusterResource extends AwsResource {
             r -> r.cacheClusterId(getCacheClusterId())
         );
 
-        waitForDelete(client);
+        Wait.atMost(3, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> getCacheCluster(client) == null);
     }
 
     @Override
@@ -623,60 +627,6 @@ public class CacheClusterResource extends AwsResource {
         }
     }
 
-    private void waitForAvailability(ElastiCacheClient client) {
-        boolean available = false;
-        int count = 0;
-        while (!available && count < 20) {
-            DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
-
-            available = response.cacheClusters().get(0).cacheClusterStatus().equals("available");
-            count++;
-
-            if (!available && count == 20) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
-    }
-
-    private void waitForDelete(ElastiCacheClient client) {
-        boolean available = true;
-        int count = 0;
-        while (available && count < 20) {
-            try {
-                DescribeCacheClustersResponse response = waitHelper(count, client, 10000);
-                available = !response.cacheClusters().isEmpty();
-            } catch (CacheClusterNotFoundException ex) {
-                available = false;
-            }
-
-            count++;
-
-            if (available && count == 20) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
-    }
-
-    private DescribeCacheClustersResponse waitHelper(int count, ElastiCacheClient client, long interval) {
-        if (count > 0) {
-            try {
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return client.describeCacheClusters(
-            r -> r.cacheClusterId(getCacheClusterId())
-        );
-    }
-
     private String getAccountNumber() {
         StsClient client = createClient(StsClient.class);
         GetCallerIdentityResponse response = client.getCallerIdentity();
@@ -686,5 +636,34 @@ public class CacheClusterResource extends AwsResource {
     private String getRegion() {
         AwsCredentials credentials = (AwsCredentials) resourceCredentials();
         return credentials.getRegion();
+    }
+
+    private boolean isAvailable(ElastiCacheClient client) {
+        CacheCluster cacheCluster = getCacheCluster(client);
+
+        return cacheCluster != null && cacheCluster.cacheClusterStatus().equals("available");
+    }
+
+    private CacheCluster getCacheCluster(ElastiCacheClient client) {
+        CacheCluster cacheCluster = null;
+
+        if (ObjectUtils.isBlank(getCacheClusterId())) {
+            throw new GyroException("cache-cluster-id is missing, unable to load cache cluster.");
+        }
+
+        try {
+            DescribeCacheClustersResponse response = client.describeCacheClusters(
+                r -> r.cacheClusterId(getCacheClusterId())
+            );
+
+            if (!response.cacheClusters().isEmpty()) {
+                cacheCluster = response.cacheClusters().get(0);
+            }
+
+        } catch (CacheClusterNotFoundException ex) {
+
+        }
+
+        return cacheCluster;
     }
 }
