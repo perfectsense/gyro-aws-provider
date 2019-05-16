@@ -1,7 +1,8 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -320,36 +322,32 @@ public class DbClusterResource extends DocDbTaggableResource {
     public boolean doRefresh() {
         DocDbClient client = createClient(DocDbClient.class);
 
-        DescribeDbClustersResponse response = client.describeDBClusters(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
-        );
+        DBCluster dbCluster = getDbCluster(client);
 
-        if (!response.dbClusters().isEmpty()) {
-            DBCluster dbCluster = response.dbClusters().get(0);
-
-            setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
-            setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-            setDbSubnetGroupName(dbCluster.dbSubnetGroup());
-            setEngine(dbCluster.engine());
-            setEngineVersion(dbCluster.engineVersion());
-            setDbClusterParamGroupName(dbCluster.dbClusterParameterGroup());
-            setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-            setKmsKeyId(dbCluster.kmsKeyId());
-            setMasterUsername(dbCluster.masterUsername());
-            setPort(dbCluster.port());
-            setPreferredBackupWindow(dbCluster.preferredBackupWindow());
-            setPreferredMaintenanceWindow(dbCluster.preferredMaintenanceWindow());
-            setVpcSecurityGroupIds(dbCluster.vpcSecurityGroups().stream().map(VpcSecurityGroupMembership::vpcSecurityGroupId).collect(Collectors.toList()));
-            setStorageEncrypted(dbCluster.storageEncrypted());
-            setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
-            setStatus(dbCluster.status());
-            setDbClusterResourceId(dbCluster.dbClusterResourceId());
-            setArn(dbCluster.dbClusterArn());
-
-            return true;
-        } else {
+        if (dbCluster == null) {
             return false;
         }
+
+        setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
+        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setDbSubnetGroupName(dbCluster.dbSubnetGroup());
+        setEngine(dbCluster.engine());
+        setEngineVersion(dbCluster.engineVersion());
+        setDbClusterParamGroupName(dbCluster.dbClusterParameterGroup());
+        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setKmsKeyId(dbCluster.kmsKeyId());
+        setMasterUsername(dbCluster.masterUsername());
+        setPort(dbCluster.port());
+        setPreferredBackupWindow(dbCluster.preferredBackupWindow());
+        setPreferredMaintenanceWindow(dbCluster.preferredMaintenanceWindow());
+        setVpcSecurityGroupIds(dbCluster.vpcSecurityGroups().stream().map(VpcSecurityGroupMembership::vpcSecurityGroupId).collect(Collectors.toList()));
+        setStorageEncrypted(dbCluster.storageEncrypted());
+        setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
+        setStatus(dbCluster.status());
+        setDbClusterResourceId(dbCluster.dbClusterResourceId());
+        setArn(dbCluster.dbClusterArn());
+
+        return true;
     }
 
     @Override
@@ -372,13 +370,18 @@ public class DbClusterResource extends DocDbTaggableResource {
                 .vpcSecurityGroupIds(getVpcSecurityGroupIds())
                 .storageEncrypted(getStorageEncrypted())
                 .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
-                .tags(toDocDbTags(getTags()))
+                //.tags(toDocDbTags(getTags()))
         );
 
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
-        waitForAvailability(client);
+
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -402,7 +405,11 @@ public class DbClusterResource extends DocDbTaggableResource {
         }
 
         client.modifyDBCluster(builder.build());
-        waitForAvailability(client);
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -422,7 +429,10 @@ public class DbClusterResource extends DocDbTaggableResource {
 
         client.deleteDBCluster(builder.build());
 
-        waitForDelete(client);
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> getDbCluster(client) == null);
     }
 
     @Override
@@ -438,57 +448,32 @@ public class DbClusterResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
-    private void waitForAvailability(DocDbClient client) {
-        boolean available = false;
-        int count = 0;
-        while (!available && count < 6) {
-            DescribeDbClustersResponse response = waitHelper(count, client, 10000);
+    private boolean isAvailable(DocDbClient client) {
+        DBCluster dbCluster = getDbCluster(client);
 
-            available = response.dbClusters().get(0).status().equals("available");
-            count++;
-
-            if (!available && count == 6) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
+        return dbCluster != null && dbCluster.status().equals("available");
     }
 
-    private void waitForDelete(DocDbClient client) {
-        boolean deleted = false;
-        int count = 0;
-        while (!deleted && count < 6) {
-            try {
-                DescribeDbClustersResponse response = waitHelper(count, client, 10000);
+    private DBCluster getDbCluster(DocDbClient client) {
+        DBCluster dbCluster = null;
 
-                deleted = response.dbClusters().isEmpty();
-            } catch (DbClusterNotFoundException ex) {
-                deleted = true;
-            }
-            count++;
-
-            if (!deleted && count == 10) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
-    }
-
-    private DescribeDbClustersResponse waitHelper(int count, DocDbClient client, long interval) {
-        if (count > 0) {
-            try {
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if (ObjectUtils.isBlank(getDbClusterIdentifier())) {
+            throw new GyroException("db-cluster-identifier is missing, unable to load db cluster.");
         }
 
-        return client.describeDBClusters(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
-        );
+        try {
+            DescribeDbClustersResponse response = client.describeDBClusters(
+                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            );
+
+            if (!response.dbClusters().isEmpty()) {
+                dbCluster = response.dbClusters().get(0);
+            }
+
+        } catch (DbClusterNotFoundException ex) {
+
+        }
+
+        return dbCluster;
     }
 }

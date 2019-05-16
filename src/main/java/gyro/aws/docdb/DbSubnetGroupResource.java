@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -8,6 +9,7 @@ import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
+import software.amazon.awssdk.services.docdb.model.DbSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbSubnetGroupsResponse;
 import software.amazon.awssdk.services.docdb.model.Subnet;
 
@@ -110,21 +112,17 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     protected boolean doRefresh() {
         DocDbClient client = createClient(DocDbClient.class);
 
-        DescribeDbSubnetGroupsResponse response = client.describeDBSubnetGroups(
-            r -> r.dbSubnetGroupName(getDbSubnetGroupName())
-        );
+        DBSubnetGroup dbSubnetGroup = getDbSubnetGroup(client);
 
-        if (!response.dbSubnetGroups().isEmpty()) {
-            DBSubnetGroup dbSubnetGroup = response.dbSubnetGroups().get(0);
-
-            setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
-            setArn(dbSubnetGroup.dbSubnetGroupArn());
-            setSubnetIds(dbSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
-
-            return true;
-        } else {
+        if (dbSubnetGroup == null) {
             return false;
         }
+
+        setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
+        setArn(dbSubnetGroup.dbSubnetGroupArn());
+        setSubnetIds(dbSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
+
+        return true;
     }
 
     @Override
@@ -171,5 +169,27 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
         }
 
         return sb.toString();
+    }
+
+    private DBSubnetGroup getDbSubnetGroup(DocDbClient client) {
+        DBSubnetGroup dbSubnetGroup = null;
+
+        if (ObjectUtils.isBlank(getDbSubnetGroupName())) {
+            throw new GyroException("db-subnet-group-name is missing, unable to load db subnet group.");
+        }
+
+        try {
+            DescribeDbSubnetGroupsResponse response = client.describeDBSubnetGroups(
+                r -> r.dbSubnetGroupName(getDbSubnetGroupName())
+            );
+
+            if (!response.dbSubnetGroups().isEmpty()) {
+                dbSubnetGroup = response.dbSubnetGroups().get(0);
+            }
+        } catch (DbSubnetGroupNotFoundException ex) {
+
+        }
+
+        return dbSubnetGroup;
     }
 }

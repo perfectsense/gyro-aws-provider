@@ -1,17 +1,19 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
-import software.amazon.awssdk.services.docdb.model.DbClusterSnapshotNotFoundException;
+import software.amazon.awssdk.services.docdb.model.DbSnapshotNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterSnapshotsResponse;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates an Document db cluster snapshot.
@@ -80,20 +82,15 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
     protected boolean doRefresh() {
         DocDbClient client = createClient(DocDbClient.class);
 
-        DescribeDbClusterSnapshotsResponse response = client.describeDBClusterSnapshots(
-            r -> r.dbClusterSnapshotIdentifier(getDbClusterIdentifier())
-                .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
-        );
+        DBClusterSnapshot dbClusterSnapshot = getDbClusterSnapshot(client);
 
-        if (!response.dbClusterSnapshots().isEmpty()) {
-            DBClusterSnapshot dbClusterSnapshot = response.dbClusterSnapshots().get(0);
-            setArn(dbClusterSnapshot.dbClusterSnapshotArn());
-            setDbClusterIdentifier(dbClusterSnapshot.dbClusterIdentifier());
-
-            return true;
-        } else {
+        if (dbClusterSnapshot == null) {
             return false;
         }
+
+        setArn(dbClusterSnapshot.dbClusterSnapshotArn());
+
+        return true;
     }
 
     @Override
@@ -107,7 +104,10 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
 
         setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
 
-        waitForAvailability(client);
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -123,7 +123,10 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
             r -> r.dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
         );
 
-        waitForDelete(client);
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> getDbClusterSnapshot(client) == null);
     }
 
     @Override
@@ -139,58 +142,37 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
-    private void waitForAvailability(DocDbClient client) {
-        boolean available = false;
-        int count = 0;
-        while (!available && count < 6) {
-            DescribeDbClusterSnapshotsResponse response = waitHelper(count, client, 10000);
+    private boolean isAvailable(DocDbClient client) {
+        DBClusterSnapshot dbClusterSnapshot = getDbClusterSnapshot(client);
 
-            available = response.dbClusterSnapshots().get(0).status().equals("available");
-            count++;
-
-            if (!available && count == 6) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
+        return dbClusterSnapshot != null && dbClusterSnapshot.status().equals("available");
     }
 
-    private void waitForDelete(DocDbClient client) {
-        boolean deleted = false;
-        int count = 0;
-        while (!deleted && count < 6) {
-            try {
-                DescribeDbClusterSnapshotsResponse response = waitHelper(count, client, 10000);
+    private DBClusterSnapshot getDbClusterSnapshot(DocDbClient client) {
+        DBClusterSnapshot dbClusterSnapshot = null;
 
-                deleted = response.dbClusterSnapshots().isEmpty();
-            } catch (DbClusterSnapshotNotFoundException ex) {
-                deleted = true;
-            }
-            count++;
-
-            if (!deleted && count == 10) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
-    }
-
-    private DescribeDbClusterSnapshotsResponse waitHelper(int count, DocDbClient client, long interval) {
-        if (count > 0) {
-            try {
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if (ObjectUtils.isBlank(getDbClusterIdentifier())) {
+            throw new GyroException("db-cluster-identifier is missing, unable to load db cluster snapshot.");
         }
 
-        return client.describeDBClusterSnapshots(
-            r -> r.dbClusterSnapshotIdentifier(getDbClusterIdentifier())
-                .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
-        );
+        if (ObjectUtils.isBlank(getDbClusterSnapshotIdentifier())) {
+            throw new GyroException("db-cluster-snapshot-identifier is missing, unable to load db cluster snapshot.");
+        }
+
+        try {
+            DescribeDbClusterSnapshotsResponse response = client.describeDBClusterSnapshots(
+                r -> r.dbClusterSnapshotIdentifier(getDbClusterIdentifier())
+                    .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
+            );
+
+            if (!response.dbClusterSnapshots().isEmpty()) {
+                dbClusterSnapshot = response.dbClusterSnapshots().get(0);
+            }
+
+        } catch (DbSnapshotNotFoundException ex) {
+
+        }
+
+        return dbClusterSnapshot;
     }
 }

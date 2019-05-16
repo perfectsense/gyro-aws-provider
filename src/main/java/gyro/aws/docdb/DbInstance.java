@@ -1,7 +1,8 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.docdb.model.DbInstanceNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbInstancesResponse;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates an Document db instance.
@@ -175,26 +177,22 @@ public class DbInstance extends DocDbTaggableResource {
     protected boolean doRefresh() {
         DocDbClient client = createClient(DocDbClient.class);
 
-        DescribeDbInstancesResponse response = client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
-        );
+        DBInstance dbInstance = getDbInstance(client);
 
-        if (!response.dbInstances().isEmpty()) {
-            DBInstance dbInstance = response.dbInstances().get(0);
-
-            setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
-            setAvailabilityZone(dbInstance.availabilityZone());
-            setDbInstanceClass(dbInstance.dbInstanceClass());
-            setEngine(dbInstance.engine());
-            setPreferredMaintenanceWindow(dbInstance.preferredMaintenanceWindow());
-            setPromotionTier(dbInstance.promotionTier());
-            setArn(dbInstance.dbInstanceArn());
-            setStatus(dbInstance.dbInstanceStatus());
-
-            return true;
-        } else {
+        if (dbInstance == null) {
             return false;
         }
+
+        setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
+        setAvailabilityZone(dbInstance.availabilityZone());
+        setDbInstanceClass(dbInstance.dbInstanceClass());
+        setEngine(dbInstance.engine());
+        setPreferredMaintenanceWindow(dbInstance.preferredMaintenanceWindow());
+        setPromotionTier(dbInstance.promotionTier());
+        setArn(dbInstance.dbInstanceArn());
+        setStatus(dbInstance.dbInstanceStatus());
+
+        return true;
     }
 
     @Override
@@ -210,12 +208,17 @@ public class DbInstance extends DocDbTaggableResource {
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
                 .dbClusterIdentifier(getDbClusterIdentifier())
-                .tags(toDocDbTags(getTags()))
+                //.tags(toDocDbTags(getTags()))
         );
 
         setArn(response.dbInstance().dbInstanceArn());
-        waitForAvailability(client);
-        refresh();
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
+
+        doRefresh();
     }
 
     @Override
@@ -230,7 +233,10 @@ public class DbInstance extends DocDbTaggableResource {
                 .promotionTier(getPromotionTier())
         );
 
-        waitForAvailability(client);
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -241,7 +247,10 @@ public class DbInstance extends DocDbTaggableResource {
             r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
         );
 
-        waitForDelete(client);
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> getDbInstance(client) == null);
     }
 
     @Override
@@ -257,57 +266,31 @@ public class DbInstance extends DocDbTaggableResource {
         return sb.toString();
     }
 
-    private void waitForAvailability(DocDbClient client) {
-        boolean available = false;
-        int count = 0;
-        while (!available && count < 6) {
-            DescribeDbInstancesResponse response = waitHelper(count, client, 10000);
+    private boolean isAvailable(DocDbClient client) {
+        DBInstance dbInstance = getDbInstance(client);
 
-            available = response.dbInstances().get(0).dbInstanceStatus().equals("available");
-            count++;
-
-            if (!available && count == 6) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
+        return dbInstance != null && dbInstance.dbInstanceStatus().equals("available");
     }
 
-    private void waitForDelete(DocDbClient client) {
-        boolean deleted = false;
-        int count = 0;
-        while (!deleted && count < 10) {
-            try {
-                DescribeDbInstancesResponse response = waitHelper(count, client, 10000);
+    private DBInstance getDbInstance(DocDbClient client) {
+        DBInstance dbInstance = null;
 
-                deleted = response.dbInstances().isEmpty();
-            } catch (DbInstanceNotFoundException ex) {
-                deleted = true;
-            }
-            count++;
-
-            if (!deleted && count == 10) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
-    }
-
-    private DescribeDbInstancesResponse waitHelper(int count, DocDbClient client, long interval) {
-        if (count > 0) {
-            try {
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if (ObjectUtils.isBlank(getDbInstanceIdentifier())) {
+            throw new GyroException("db-instance-identifier is missing, unable to load db instance.");
         }
 
-        return client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
-        );
+        try {
+            DescribeDbInstancesResponse response = client.describeDBInstances(
+                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            );
+
+            if (!response.dbInstances().isEmpty()) {
+                dbInstance = response.dbInstances().get(0);
+            }
+
+        } catch (DbInstanceNotFoundException ex) {
+        }
+
+        return dbInstance;
     }
 }

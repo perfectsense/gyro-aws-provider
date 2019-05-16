@@ -1,24 +1,25 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
+import software.amazon.awssdk.services.docdb.model.DBCluster;
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
+import software.amazon.awssdk.services.docdb.model.DbClusterParameterGroupNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParametersResponse;
-import software.amazon.awssdk.services.docdb.model.DescribeDbClustersResponse;
-import software.amazon.awssdk.services.docdb.model.InvalidDbParameterGroupStateException;
 import software.amazon.awssdk.services.docdb.model.Parameter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates an Document db cluster parameter group.
@@ -151,38 +152,35 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     protected boolean doRefresh() {
         DocDbClient client = createClient(DocDbClient.class);
 
-        DescribeDbClusterParameterGroupsResponse response = client.describeDBClusterParameterGroups(
+        DBClusterParameterGroup dbClusterParameterGroup = getDbClusterParameterGroup(client);
+
+        if (dbClusterParameterGroup == null) {
+            return false;
+        }
+
+        setArn(dbClusterParameterGroup.dbClusterParameterGroupArn());
+        setDbParamGroupFamily(dbClusterParameterGroup.dbParameterGroupFamily());
+        setDescription(dbClusterParameterGroup.description());
+
+        DescribeDbClusterParametersResponse response1 = client.describeDBClusterParameters(
             r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
         );
 
-        if (!response.dbClusterParameterGroups().isEmpty()) {
-            DBClusterParameterGroup dbClusterParameterGroup = response.dbClusterParameterGroups().get(0);
-            setArn(dbClusterParameterGroup.dbClusterParameterGroupArn());
-            setDbParamGroupFamily(dbClusterParameterGroup.dbParameterGroupFamily());
-            setDescription(dbClusterParameterGroup.description());
-
-            DescribeDbClusterParametersResponse response1 = client.describeDBClusterParameters(
-                r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
-            );
-
-            for (Parameter parameter : response1.parameters()) {
-                switch (parameter.parameterName()) {
-                    case "audit_logs":
-                        setEnableAuditLogs(parameter.parameterValue().equalsIgnoreCase("enabled"));
-                        break;
-                    case "tls":
-                        setEnableTls(parameter.parameterValue().equalsIgnoreCase("enabled"));
-                        break;
-                    case "ttl_monitor":
-                        setEnableTtlMonitor(parameter.parameterValue().equalsIgnoreCase("enabled"));
-                        break;
-                }
+        for (Parameter parameter : response1.parameters()) {
+            switch (parameter.parameterName()) {
+                case "audit_logs":
+                    setEnableAuditLogs(parameter.parameterValue().equalsIgnoreCase("enabled"));
+                    break;
+                case "tls":
+                    setEnableTls(parameter.parameterValue().equalsIgnoreCase("enabled"));
+                    break;
+                case "ttl_monitor":
+                    setEnableTtlMonitor(parameter.parameterValue().equalsIgnoreCase("enabled"));
+                    break;
             }
-
-            return true;
-        } else {
-            return false;
         }
+
+        return true;
     }
 
     @Override
@@ -213,58 +211,33 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     public void delete() {
         DocDbClient client = createClient(DocDbClient.class);
 
-        //Make sure any pending cluster delete is resolved.
+        // Check to see if this parameter group is in use. If it's in use and be deleted then
+        // wait up to 5 minutes for the deletion to complete.
+        List<DBCluster> clusters = client.describeDBClusters().dbClusters();
 
-        boolean clustersClear = false;
-        DescribeDbClustersResponse response = client.describeDBClusters();
-        int count = 0;
-        while (count < 6 && response.dbClusters().stream().anyMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()))) {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            response = client.describeDBClusters();
-            count++;
+        boolean using = clusters.stream()
+            .anyMatch(r -> r.dbClusterParameterGroup().equals(getDbClusterParamGroupName()) && r.status().equals("available"));
+
+        boolean deleting = clusters.stream()
+            .anyMatch(r -> r.dbClusterParameterGroup().equals(getDbClusterParamGroupName()) && r.status().equals("deleting"));
+
+        if (using) {
+            throw new GyroException("Unable to delete DB Cluster Parameter Group. Group is in use.");
         }
 
-        clustersClear = response.dbClusters().stream().anyMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()));
-        boolean done = false;
-        count = 0;
-
-        while (!done && count < 6) {
-            try {
-                client.deleteDBClusterParameterGroup(
-                    r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+        if (deleting) {
+            Wait.atMost(5, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(true)
+                .until(
+                    () -> client.describeDBClusters().dbClusters().stream()
+                        .noneMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()))
                 );
-
-                done = true;
-
-            } catch (InvalidDbParameterGroupStateException ex) {
-                if (ex.awsErrorDetails().errorMessage().equals("One or more database instances " +
-                    "are still members of this parameter group db-cluster-param-group-db-cluster-example, " +
-                    "so the group cannot be deleted") && clustersClear) {
-                    count ++;
-
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (count == 6) {
-                        boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                        if (wait) {
-                            count = 0;
-                        } else {
-                            throw new GyroException(String.format("Error trying to delete %s. Please retry.", toDisplayString()));
-                        }
-                    }
-                } else {
-                    throw ex;
-                }
-            }
         }
+
+        client.deleteDBClusterParameterGroup(
+            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+        );
     }
 
     @Override
@@ -281,13 +254,13 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     }
 
     private void saveParameters(DocDbClient client) {
-        DescribeDbClusterParametersResponse response1 = client.describeDBClusterParameters(
+        DescribeDbClusterParametersResponse response = client.describeDBClusterParameters(
             r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
         );
 
         List<Parameter> parameters = new ArrayList<>();
 
-        for (Parameter parameter : response1.parameters()) {
+        for (Parameter parameter : response.parameters()) {
             switch (parameter.parameterName()) {
                 case "audit_logs":
                     parameters.add(getModifiedParam(parameter, getEnableAuditLogs()));
@@ -322,5 +295,28 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
             .parameterValue(isEnabled ? "enabled" : "disabled")
             .source(parameter.source())
             .build();
+    }
+
+    private DBClusterParameterGroup getDbClusterParameterGroup(DocDbClient client) {
+        DBClusterParameterGroup dbClusterParameterGroup = null;
+
+        if (ObjectUtils.isBlank(getDbClusterParamGroupName())) {
+            throw new GyroException("db-cluster-param-group-name is missing, unable to load db cluster parameter group.");
+        }
+
+        try{
+            DescribeDbClusterParameterGroupsResponse response = client.describeDBClusterParameterGroups(
+                r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+            );
+
+            if (!response.dbClusterParameterGroups().isEmpty()) {
+                dbClusterParameterGroup = response.dbClusterParameterGroups().get(0);
+            }
+
+        } catch (DbClusterParameterGroupNotFoundException ex) {
+
+        }
+
+        return dbClusterParameterGroup;
     }
 }
