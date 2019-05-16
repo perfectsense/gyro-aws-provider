@@ -135,6 +135,10 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         this.keepDefaultEgressRules = keepDefaultEgressRules;
     }
 
+    /**
+     * The id of the security group.
+     */
+    @ResourceId
     @ResourceOutput
     public String getGroupId() {
         return groupId;
@@ -149,6 +153,9 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         return getGroupId();
     }
 
+    /**
+     * The owner id of the security group.
+     */
     @ResourceOutput
     public String getOwnerId() {
         return ownerId;

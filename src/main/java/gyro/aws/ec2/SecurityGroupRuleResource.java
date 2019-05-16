@@ -1,5 +1,6 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceUpdatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
@@ -51,7 +52,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp".
+     * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
      */
     @ResourceUpdatable
     public String getProtocol() {
@@ -79,7 +80,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Starting port for this rule.
+     * Starting port for this rule. (Required)
      */
     @ResourceUpdatable
     public Integer getFromPort() {
@@ -91,7 +92,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Ending port for this rule.
+     * Ending port for this rule. (Required)
      */
     @ResourceUpdatable
     public Integer getToPort() {
@@ -103,7 +104,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * List of IPv4 cidr blocks to apply this rule to.
+     * List of IPv4 cidr blocks to apply this rule to. Required if `ipv6-cidr-blocks` not mentioned.
      */
     @ResourceUpdatable
     public List<String> getCidrBlocks() {
@@ -119,7 +120,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * List of IPv6 cidr blocks to apply this rule to.
+     * List of IPv6 cidr blocks to apply this rule to. Required if `cidr-blocks` not mentioned.
      */
     @ResourceUpdatable
     public List<String> getIpv6CidrBlocks() {
@@ -167,13 +168,15 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             sb.append(getIpv6CidrBlocks());
         }
 
-        sb.append(" ");
-        sb.append(getDescription());
+        if (!ObjectUtils.isBlank(getDescription())) {
+            sb.append(" ");
+            sb.append(getDescription());
+        }
 
         return sb.toString();
     }
 
-    protected IpPermission getIpPermissionRequest() {
+    IpPermission getIpPermissionRequest() {
         IpPermission.Builder permissionBuilder = IpPermission.builder();
 
         if (!getCidrBlocks().isEmpty()) {
@@ -196,13 +199,11 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             permissionBuilder.ipv6Ranges(ipv6builder.build());
         }
 
-        IpPermission permission = permissionBuilder
+        return permissionBuilder
             .fromPort(getFromPort())
             .ipProtocol(getProtocol())
             .toPort(getToPort())
             .build();
-
-        return permission;
     }
 
 }
