@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.core.resource.ResourceId;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
@@ -29,20 +30,15 @@ import java.util.Set;
  */
 @ResourceType("vpn-gateway")
 public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
-
-    private String vpnGatewayId;
     private Long amazonSideAsn;
-    private String vpcId;
+    private VpcResource vpc;
 
-    @ResourceOutput
-    public String getVpnGatewayId() {
-        return vpnGatewayId;
-    }
+    // Read-only
+    private String vpnGatewayId;
 
-    public void setVpnGatewayId(String vpnGatewayId) {
-        this.vpnGatewayId = vpnGatewayId;
-    }
-
+    /**
+     * The private Autonomous System Number (ASN) for the Amazon side of a BGP session. If you're using a 16-bit ASN, it must be in the ``64512`` to ``65534`` range. If you're using a 32-bit ASN, it must be in the ``4200000000`` to ``4294967294`` range.
+     */
     public Long getAmazonSideAsn() {
         return amazonSideAsn;
     }
@@ -52,15 +48,28 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     }
 
     /**
-     * VPC ID to be attached to the gateway.
+     * The VPC to create the security group in.
      */
     @ResourceUpdatable
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
+    }
+
+    /**
+     * The id of the vpn gateway.
+     */
+    @ResourceId
+    @ResourceOutput
+    public String getVpnGatewayId() {
+        return vpnGatewayId;
+    }
+
+    public void setVpnGatewayId(String vpnGatewayId) {
+        this.vpnGatewayId = vpnGatewayId;
     }
 
     @Override
@@ -77,7 +86,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
         if (!response.vpnGateways().isEmpty()) {
             VpnGateway vpnGateway = response.vpnGateways().get(0);
             setAmazonSideAsn(vpnGateway.amazonSideAsn());
-            setVpcId(vpnGateway.vpcAttachments().isEmpty() ? "" : vpnGateway.vpcAttachments().get(0).vpcId());
+            setVpc(vpnGateway.vpcAttachments().isEmpty() ? null : findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
 
             return true;
         }
@@ -98,8 +107,8 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
 
         setVpnGatewayId(response.vpnGateway().vpnGatewayId());
 
-        if (!StringUtils.isEmpty(getVpcId())) {
-            client.attachVpnGateway(r -> r.vpcId(getVpcId()).vpnGatewayId(getVpnGatewayId()));
+        if (getVpc() != null) {
+            client.attachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
         }
     }
 
@@ -109,8 +118,8 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
 
         VpnGatewayResource oldResource = (VpnGatewayResource) config;
         boolean detach = false;
-        if (!StringUtils.isEmpty(oldResource.getVpcId())) {
-            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpcId()).vpnGatewayId(getVpnGatewayId()));
+        if (getVpc() != null) {
+            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
             detach = true;
         }
 
@@ -123,7 +132,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
             }
         }
 
-        client.attachVpnGateway(r -> r.vpcId(getVpcId()).vpnGatewayId(getVpnGatewayId()));
+        client.attachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
 
     }
 
@@ -131,8 +140,8 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (!StringUtils.isEmpty(getVpcId())) {
-            client.detachVpnGateway(r -> r.vpcId(getVpcId()).vpnGatewayId(getVpnGatewayId()));
+        if (getVpc() != null) {
+            client.detachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
         }
 
         client.deleteVpnGateway(r -> r.vpnGatewayId(getVpnGatewayId()));
