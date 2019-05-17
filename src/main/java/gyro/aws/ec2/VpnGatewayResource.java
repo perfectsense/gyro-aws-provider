@@ -1,6 +1,8 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.ResourceId;
 import gyro.core.resource.ResourceUpdatable;
@@ -156,10 +158,10 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("virtual private gateway");
+
         if (getVpnGatewayId() != null) {
-            sb.append(getVpnGatewayId());
-        } else {
-            sb.append("virtual private gateway");
+            sb.append(" - ").append(getVpnGatewayId());
         }
 
         return sb.toString();
@@ -198,6 +200,9 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
 
     private VpnGateway getVpnGateway(Ec2Client client) {
         VpnGateway vpnGateway = null;
+        if (ObjectUtils.isBlank(getVpnGatewayId())) {
+            throw new GyroException("vpn-gateway-id is missing, unable to vpn gateway.");
+        }
 
         try {
             DescribeVpnGatewaysResponse response = client.describeVpnGateways(r -> r.vpnGatewayIds(getVpnGatewayId()));
