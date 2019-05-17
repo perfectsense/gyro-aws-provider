@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
@@ -14,10 +15,12 @@ import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.services.ec2.model.VolumeAttributeName;
+import software.amazon.awssdk.services.ec2.model.VolumeState;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a EBS Volume.
@@ -250,6 +253,11 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                 GyroCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
             }
         }
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -274,6 +282,11 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                     .autoEnableIO(a -> a.value(getAutoEnableIo()))
             );
         }
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -330,5 +343,29 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
         if (!getVolumeType().equals("io1") && isCreate && getIops() != null) {
             throw new GyroException("The param 'iops' can only be set when param 'volume-type' is set to 'io1'.");
         }
+    }
+
+    private boolean isAvailable(Ec2Client client) {
+        Volume volume = getEc2Volume(client);
+
+        return volume != null && volume.state().equals(VolumeState.AVAILABLE);
+    }
+
+    private Volume getEc2Volume(Ec2Client client) {
+        Volume volume = null;
+
+        try {
+            DescribeVolumesResponse response = client.describeVolumes(r -> r.volumeIds(Collections.singletonList(getVolumeId())));
+
+            if (!response.volumes().isEmpty()) {
+                volume = response.volumes().get(0);
+            }
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return volume;
     }
 }
