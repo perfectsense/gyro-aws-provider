@@ -1,6 +1,8 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.resource.ResourceId;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
@@ -8,11 +10,13 @@ import gyro.core.resource.ResourceOutput;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -169,45 +173,34 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        List<Filter> filters = new ArrayList<>();
-        Filter nameFilter = Filter.builder().name("group-id").values(getGroupId()).build();
-        filters.add(nameFilter);
+        SecurityGroup group = getSecurityGroup(client);
 
-        if (getVpc() != null) {
-            Filter vpcFilter = Filter.builder().name("vpc-id").values(getVpc().getId()).build();
-            filters.add(vpcFilter);
+        if (group == null) {
+            return false;
         }
 
-        DescribeSecurityGroupsResponse response = client.describeSecurityGroups(
-            r -> r.filters(filters)
-        );
+        setOwnerId(group.ownerId());
+        setDescription(group.description());
 
-        for (SecurityGroup group : response.securityGroups()) {
-            setOwnerId(group.ownerId());
-            setDescription(group.description());
-
-            getEgress().clear();
-            for (IpPermission permission : group.ipPermissionsEgress()) {
-                if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
-                    && permission.fromPort() == null && permission.toPort() == null
-                    && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
-                    continue;
-                }
-
-                SecurityGroupEgressRuleResource rule = new SecurityGroupEgressRuleResource(permission);
-                getEgress().add(rule);
+        getEgress().clear();
+        for (IpPermission permission : group.ipPermissionsEgress()) {
+            if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
+                && permission.fromPort() == null && permission.toPort() == null
+                && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
+                continue;
             }
 
-            getIngress().clear();
-            for (IpPermission permission : group.ipPermissions()) {
-                SecurityGroupIngressRuleResource rule = new SecurityGroupIngressRuleResource(permission);
-                getIngress().add(rule);
-            }
-
-            return true;
+            SecurityGroupEgressRuleResource rule = new SecurityGroupEgressRuleResource(permission);
+            getEgress().add(rule);
         }
 
-        return false;
+        getIngress().clear();
+        for (IpPermission permission : group.ipPermissions()) {
+            SecurityGroupIngressRuleResource rule = new SecurityGroupIngressRuleResource(permission);
+            getIngress().add(rule);
+        }
+
+        return true;
     }
 
     @Override
@@ -253,5 +246,35 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         return sb.toString();
     }
 
+    private SecurityGroup getSecurityGroup(Ec2Client client) {
+        SecurityGroup securityGroup = null;
+        if (ObjectUtils.isBlank(getGroupId())) {
+            throw new GyroException("group-id is missing, unable to load security group.");
+        }
+
+        if (getVpc() == null) {
+            throw new GyroException("vpc is missing, unable to load security group.");
+        }
+
+        try {
+            DescribeSecurityGroupsResponse response = client.describeSecurityGroups(
+                r -> r.filters(
+                    f -> f.name("group-id").values(getGroupId()),
+                    f -> f.name("vpc-id").values(getVpc().getId())
+                )
+            );
+
+            if (!response.securityGroups().isEmpty()) {
+                securityGroup = response.securityGroups().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return securityGroup;
+    }
 }
 
