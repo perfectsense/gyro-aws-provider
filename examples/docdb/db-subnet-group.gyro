@@ -1,0 +1,41 @@
+aws::vpc vpc-db-subnet-group-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc-db-subnet-group-example"
+    }
+end
+
+aws::subnet subnet-db-subnet-group-example-1
+    vpc: $(aws::vpc vpc-db-subnet-group-example)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.1.0/26"
+
+    tags: {
+        Name: "subnet-db-subnet-group-example-1"
+    }
+end
+
+aws::subnet subnet-db-subnet-group-example-2
+    vpc: $(aws::vpc vpc-db-subnet-group-example)
+    availability-zone: "us-east-2b"
+    cidr-block: "10.0.2.0/26"
+
+    tags: {
+        Name: "subnet-db-subnet-group-example-2"
+    }
+end
+
+aws::docdb-subnet-group db-subnet-group-example
+    db-subnet-group-name: "db-subnet-group-example"
+    db-subnet-group-description: "db-subnet-group-example-description"
+    subnet-ids: [
+        $(aws::subnet subnet-db-subnet-group-example-1 | subnet-id),
+        $(aws::subnet subnet-db-subnet-group-example-2 | subnet-id)
+    ]
+
+    tags: {
+        Name: "db-subnet-group-example"
+    }
+end
