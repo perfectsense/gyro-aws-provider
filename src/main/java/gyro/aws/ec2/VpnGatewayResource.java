@@ -152,6 +152,11 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
         }
 
         client.deleteVpnGateway(r -> r.vpnGatewayId(getVpnGatewayId()));
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isVpnDeleted(client));
     }
 
     @Override
@@ -218,5 +223,11 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
         }
 
         return vpnGateway;
+    }
+
+    private boolean isVpnDeleted(Ec2Client client) {
+        VpnGateway vpnGateway = getVpnGateway(client);
+
+        return vpnGateway == null || vpnGateway.stateAsString().equalsIgnoreCase("deleted");
     }
 }
