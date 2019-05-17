@@ -30,7 +30,7 @@ public class InstanceVolumeAttachment extends Diffable {
     }
 
     /**
-     * The volume id fro the volume to be attached. (Required)
+     * The volume id from the volume to be attached. (Required)
      */
     @ResourceUpdatable
     public String getVolumeId() {

@@ -120,7 +120,7 @@ public class BlockDeviceMappingResource extends Diffable {
 
     /**
      * The type of volume being created. Defaults to 'gp2'.
-     * Valid options [ 'gp2', 'io1', 'st1', 'sc1', 'standard'].
+     * Valid values are ``gp2``, ``io1``, ``st1``, ``sc1`` or ``standard``.
      */
     @ResourceUpdatable
     public String getVolumeType() {
@@ -173,7 +173,7 @@ public class BlockDeviceMappingResource extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return String.format("Device%s", getDeviceName());
+        return String.format("Device %s", getDeviceName());
     }
 
     BlockDeviceMapping getBlockDeviceMapping() {

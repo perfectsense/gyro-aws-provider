@@ -903,7 +903,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         getVolume().clear();
 
-        if (instance != null){
+        if (instance != null) {
             reservedDeviceNameSet.add(instance.rootDeviceName());
 
             setVolume(instance.blockDeviceMappings().stream()
