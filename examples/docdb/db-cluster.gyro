@@ -1,0 +1,112 @@
+aws::vpc vpc-db-cluster-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc-db-cluster-example"
+    }
+end
+
+aws::security-group security-group-db-cluster-example-1
+    group-name: "db-cluster-example-1"
+    vpc-id: $(aws::vpc vpc-db-cluster-example | vpc-id)
+    description: "db-cluster-example-1"
+    keep-default-egress-rules: true
+
+    ingress
+        description: "allow inbound ssh traffic, ipv4 only"
+        cidr-blocks: ["0.0.0.0/0"]
+        protocol: "TCP"
+        from-port: 22
+        to-port: 22
+    end
+
+    tags: {
+        Name: "db-cluster-example-1"
+    }
+end
+
+aws::security-group security-group-db-cluster-example-2
+    group-name: "db-cluster-example-2"
+    vpc-id: $(aws::vpc vpc-db-cluster-example | vpc-id)
+    description: "db-cluster-example-2"
+    keep-default-egress-rules: true
+
+    ingress
+        description: "allow inbound ssh traffic, ipv4 only"
+        cidr-blocks: ["0.0.0.0/0"]
+        protocol: "TCP"
+        from-port: 22
+        to-port: 22
+    end
+
+    tags: {
+        Name: "db-cluster-example-2"
+    }
+end
+
+aws::subnet subnet-db-cluster-example-1
+    vpc: $(aws::vpc vpc-db-cluster-example)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.1.0/26"
+
+    tags: {
+        Name: "subnet-db-cluster-example-1"
+    }
+end
+
+aws::subnet subnet-db-cluster-example-2
+    vpc: $(aws::vpc vpc-db-cluster-example)
+    availability-zone: "us-east-2b"
+    cidr-block: "10.0.2.0/26"
+
+    tags: {
+        Name: "subnet-db-cluster-example-2"
+    }
+end
+
+aws::docdb-subnet-group db-subnet-group-db-cluster-example
+    db-subnet-group-name: "db-subnet-group-db-cluster-example"
+    db-subnet-group-description: "db-subnet-group-db-cluster-example-description"
+    subnet-ids: [
+        $(aws::subnet subnet-db-cluster-example-1 | subnet-id),
+        $(aws::subnet subnet-db-cluster-example-2 | subnet-id)
+    ]
+
+    tags: {
+        Name: "db-subnet-group-db-cluster-example"
+    }
+end
+
+aws::docdb-cluster-param-group db-cluster-param-group-db-cluster-example
+    db-cluster-param-group-name: "db-cluster-param-group-db-cluster-example"
+    db-param-group-family: "docdb3.6"
+    description: "db-cluster-param-group-db-cluster-example-desc"
+
+    tags: {
+        Name: "db-cluster-param-group-db-cluster-example"
+    }
+end
+
+aws::docdb-cluster db-cluster-example
+    db-cluster-identifier: "db-cluster-example"
+    db-subnet-group-name: $(aws::docdb-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
+    engine: "docdb"
+    engine-version: "3.6.0"
+    db-cluster-param-group-name: $(aws::docdb-cluster-param-group db-cluster-param-group-db-cluster-example | db-cluster-param-group-name)
+    master-username: "master"
+    master-user-password: "masterpassword"
+    port: 27017
+    preferred-backup-window: "00:00-00:30"
+    preferred-maintenance-window: "wed:03:28-wed:03:58"
+    vpc-security-group-ids: [
+        $(aws::security-group security-group-db-cluster-example-1 | group-id),
+        $(aws::security-group security-group-db-cluster-example-2 | group-id)
+    ]
+    storage-encrypted: false
+    backup-retention-period: 1
+    tags: {
+        Name: "db-cluster-example"
+    }
+    #post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
+end

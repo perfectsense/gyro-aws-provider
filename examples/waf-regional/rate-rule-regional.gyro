@@ -1,4 +1,4 @@
-aws::rate-rule rate-rule-example
+aws::rate-rule-regional rate-rule-example
     name: "rate-rule-example"
     metric-name: "rateRuleExample"
     rate-key: "IP"

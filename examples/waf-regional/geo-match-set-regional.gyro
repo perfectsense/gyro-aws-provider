@@ -1,0 +1,8 @@
+aws::geo-match-set-regional geo-match-set-example
+    name: "geo-match-set-example"
+
+    geo-match-constraint
+        type: "Country"
+        value: "TL"
+    end
+end

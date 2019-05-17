@@ -1,0 +1,8 @@
+aws::sql-injection-match-set-regional sql-injection-match-set-example
+    name: "sql-injection-match-set-example"
+
+    sql-injection-match-tuple
+        type: "METHOD"
+        text-transformation: "NONE"
+    end
+end
