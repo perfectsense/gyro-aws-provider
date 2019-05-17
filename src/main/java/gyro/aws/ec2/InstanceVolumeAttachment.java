@@ -48,7 +48,7 @@ public class InstanceVolumeAttachment extends Diffable {
 
         sb.append("Device");
 
-        if (ObjectUtils.isBlank(getDeviceName())) {
+        if (!ObjectUtils.isBlank(getDeviceName())) {
             sb.append(" ").append(getDeviceName());
         }
 
