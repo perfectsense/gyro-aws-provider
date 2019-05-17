@@ -1,12 +1,9 @@
 package gyro.aws.ec2;
 
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
-import gyro.core.Wait;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
@@ -20,7 +17,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstanceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
@@ -33,17 +29,13 @@ import software.amazon.awssdk.services.ec2.model.Reservation;
 import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
-import software.amazon.awssdk.services.ec2.model.VolumeState;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -382,6 +374,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     /**
      * Attach existing volumes to the instance.
+     *
+     * @subresource gyro.core.ec2.InstanceVolumeAttachment
      */
     @ResourceUpdatable
     public List<InstanceVolumeAttachment> getVolume() {
@@ -579,10 +573,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         waitForRunningInstances(client);
 
-        saveVolume(client, new InstanceResource());
-
         loadVolume(getInstance(client));
-
     }
 
     @Override
@@ -617,10 +608,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 r -> r.instanceId(getInstanceId())
                     .groups(getSecurityGroupIds())
             );
-        }
-
-        if (changedProperties.contains("volume")) {
-            saveVolume(client, (InstanceResource) config);
         }
 
         boolean instanceStopped = isInstanceStopped(client);
@@ -903,57 +890,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
                 .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
                 .collect(Collectors.toList()));
-        }
-    }
-
-    private void saveVolume(Ec2Client client, InstanceResource oldResource) {
-        Map<String, String> currentVolumeMap = oldResource.getVolume().stream().collect(
-                Collectors.toMap(InstanceVolumeAttachment::getDeviceName, InstanceVolumeAttachment::getVolumeId)
-            );
-        Map<String, String> pendingVolumeMap = getVolume().stream().collect(
-                Collectors.toMap(InstanceVolumeAttachment::getDeviceName, InstanceVolumeAttachment::getVolumeId)
-            );
-
-        MapDifference<String, String> diff = Maps.difference(currentVolumeMap, pendingVolumeMap);
-
-        Map<String, String> deleteVolume = new HashMap<>(diff.entriesOnlyOnLeft());
-
-        Map<String, String> addVolume = new HashMap<>(diff.entriesOnlyOnRight());
-
-        for (String key : diff.entriesDiffering().keySet()) {
-            deleteVolume.put(key, diff.entriesDiffering().get(key).leftValue());
-            addVolume.put(key, diff.entriesDiffering().get(key).rightValue());
-        }
-
-        for (String key : deleteVolume.keySet()) {
-            client.detachVolume(
-                r -> r.instanceId(getInstanceId())
-                    .volumeId(deleteVolume.get(key))
-                    .device(key)
-            );
-        }
-
-        boolean deleteSuccess = true;
-
-        if (!deleteVolume.isEmpty()) {
-            deleteSuccess = Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(5, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> client.describeVolumes(r -> r.volumeIds(new ArrayList<>(deleteVolume.values()))).volumes().stream().allMatch(o -> o.state().equals(VolumeState.AVAILABLE)));
-        }
-
-        if (deleteSuccess) {
-            for (String key : addVolume.keySet()) {
-                client.attachVolume(
-                    r -> r.instanceId(getInstanceId())
-                        .volumeId(addVolume.get(key))
-                        .device(key)
-                );
-            }
-        } else {
-            if (!addVolume.isEmpty()) {
-                GyroCore.ui().write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
-            }
         }
     }
 }
