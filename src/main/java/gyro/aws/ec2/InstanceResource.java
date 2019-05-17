@@ -6,6 +6,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
+import gyro.core.Wait;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -931,7 +933,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        boolean deleteSuccess = deleteVolume.isEmpty() || waitForVolumeDelete(new ArrayList<>(deleteVolume.values()), client);
+        boolean deleteSuccess = true;
+
+        if (!deleteVolume.isEmpty()) {
+            deleteSuccess = Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> client.describeVolumes(r -> r.volumeIds(new ArrayList<>(deleteVolume.values()))).volumes().stream().allMatch(o -> o.state().equals(VolumeState.AVAILABLE)));
+        }
 
         if (deleteSuccess) {
             for (String key : addVolume.keySet()) {
@@ -946,39 +955,5 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 GyroCore.ui().write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
             }
         }
-    }
-
-    private boolean waitForVolumeDelete(List<String> volumeIds, Ec2Client client) {
-        boolean done = false;
-        int count = 0;
-
-        DescribeVolumesResponse response = client.describeVolumes(
-            r -> r.volumeIds(volumeIds)
-        );
-
-        while (count < 10 && !response.volumes().stream().allMatch(o -> o.state().equals(VolumeState.AVAILABLE))) {
-            count ++ ;
-            try {
-                Thread.sleep(5000);
-            }catch (InterruptedException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-            response = client.describeVolumes(
-                r -> r.volumeIds(volumeIds)
-            );
-
-            if (count == 10) {
-                boolean wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-                if (wait) {
-                    count = 0;
-                }
-            }
-        }
-
-        done = response.volumes().stream().allMatch(o -> o.state().equals(VolumeState.AVAILABLE));
-
-        return done;
     }
 }
