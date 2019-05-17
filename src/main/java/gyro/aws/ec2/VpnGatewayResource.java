@@ -157,6 +157,13 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isVpnDeleted(client));
+
+        // Delay for the vpc to be fully cleared.
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
