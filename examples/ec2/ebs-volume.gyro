@@ -1,6 +1,6 @@
 aws::ebs-volume ebs-volume-example
     availability-zone: "us-east-2a"
-    volumeSize: 100
+    size: 100
     auto-enable-io: false
     tags: {
         Name: "ebs-volume-example"
