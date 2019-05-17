@@ -15,7 +15,7 @@ aws::vpc vpc-example-for-vpn-gateway-2
 end
 
 aws::vpn-gateway vpn-gateway-example
-    vpc-id: $(aws::vpc vpc-example-for-vpn-gateway-1 | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-vpn-gateway-1)
     tags: {
         Name: "vpn-gateway-example"
     }
