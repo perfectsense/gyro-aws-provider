@@ -1,5 +1,6 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.ResourceUpdatable;
 
@@ -43,7 +44,19 @@ public class InstanceVolumeAttachment extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return String.format("Device %s with volume id : %s", getDeviceName(), getVolumeId());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Device");
+
+        if (ObjectUtils.isBlank(getDeviceName())) {
+            sb.append(" ").append(getDeviceName());
+        }
+
+        if (!ObjectUtils.isBlank(getVolumeId())) {
+            sb.append(" with volume id : ").append(getVolumeId());
+        }
+
+        return sb.toString();
     }
 
     @Override
