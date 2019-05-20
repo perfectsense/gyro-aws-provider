@@ -167,7 +167,7 @@ public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, S
     }
 
     @Override
-    public void populateAws(Ec2Client client, SubnetResource subnetResource, Subnet subnet) {
+    public void initAwsResource(Ec2Client client, SubnetResource subnetResource, Subnet subnet) {
         subnetResource.setSubnetId(subnet.subnetId());
         subnetResource.setCidrBlock(subnet.cidrBlock());
         subnetResource.setAvailabilityZone(subnet.availabilityZone());

@@ -46,12 +46,12 @@ public abstract class AwsResourceFinder<C extends SdkClient, M, R extends AwsRes
         return findAllAws(createClient(clientClass, credentials));
     }
 
-    protected abstract void populateAws(C client, R resource, M model);
+    protected abstract void initAwsResource(C client, R resource, M model);
 
     @Override
-    public void populate(Credentials credentials, R resource, M model) {
+    public void initResource(Credentials credentials, R resource, M model) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
         Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        populateAws(createClient(clientClass, credentials), resource, model);
+        initAwsResource(createClient(clientClass, credentials), resource, model);
     }
 }

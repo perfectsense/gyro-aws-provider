@@ -163,7 +163,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
     }
 
     @Override
-    public void populateAws(Ec2Client client, VpcResource vpcResource, Vpc vpc) {
+    public void initAwsResource(Ec2Client client, VpcResource vpcResource, Vpc vpc) {
         vpcResource.setVpcId(vpc.vpcId());
         vpcResource.setCidrBlock(vpc.cidrBlock());
         vpcResource.setInstanceTenancy(vpc.instanceTenancyAsString());
