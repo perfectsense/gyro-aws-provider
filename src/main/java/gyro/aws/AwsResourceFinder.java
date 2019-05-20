@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AwsResourceFinder<C extends SdkClient, M, R extends AwsResource> implements ResourceFinder<R, M> {
+public abstract class AwsResourceFinder<C extends SdkClient, M, R extends AwsResource> extends ResourceFinder<R, M> {
 
     private SdkClient client;
 
