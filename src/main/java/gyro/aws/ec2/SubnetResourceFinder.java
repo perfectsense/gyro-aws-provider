@@ -165,4 +165,13 @@ public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, S
     public List<Subnet> findAllAws(Ec2Client client) {
         return client.describeSubnets().subnets();
     }
+
+    @Override
+    public void populateAws(Ec2Client client, SubnetResource subnetResource, Subnet subnet) {
+        subnetResource.setSubnetId(subnet.subnetId());
+        subnetResource.setCidrBlock(subnet.cidrBlock());
+        subnetResource.setAvailabilityZone(subnet.availabilityZone());
+        subnetResource.setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
+        subnetResource.setVpc(subnetResource.findById(VpcResource.class, subnet.vpcId()));
+    }
 }

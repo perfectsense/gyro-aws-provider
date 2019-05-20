@@ -62,22 +62,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
 
     }
 
-    public VpcResource(Ec2Client client, Vpc vpc) {
-        setVpcId(vpc.vpcId());
-        setCidrBlock(vpc.cidrBlock());
-        setInstanceTenancy(vpc.instanceTenancyAsString());
-        setDhcpOptionsId(vpc.dhcpOptionsId());
-        setOwnerId(vpc.ownerId());
-        setDefaultVpc(vpc.isDefault());
-
-        for (VpcIpv6CidrBlockAssociation association : vpc.ipv6CidrBlockAssociationSet()) {
-            setProvideIpv6CidrBlock(true);
-            break;
-        }
-
-        loadSettings(client);
-    }
-
     public String getId() {
         return getVpcId();
     }
@@ -334,7 +318,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         return sb.toString();
     }
 
-    private void loadSettings(Ec2Client client) {
+    void loadSettings(Ec2Client client) {
         // DNS Settings
         DescribeVpcAttributeRequest request = DescribeVpcAttributeRequest.builder()
                 .vpcId(vpcId)

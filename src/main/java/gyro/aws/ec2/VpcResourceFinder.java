@@ -5,6 +5,7 @@ import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceFilter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Vpc;
+import software.amazon.awssdk.services.ec2.model.VpcIpv6CidrBlockAssociation;
 
 import java.util.HashMap;
 import java.util.List;
@@ -159,5 +160,22 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
     @Override
     public List<Vpc> findAllAws(Ec2Client client) {
         return client.describeVpcs().vpcs();
+    }
+
+    @Override
+    public void populateAws(Ec2Client client, VpcResource vpcResource, Vpc vpc) {
+        vpcResource.setVpcId(vpc.vpcId());
+        vpcResource.setCidrBlock(vpc.cidrBlock());
+        vpcResource.setInstanceTenancy(vpc.instanceTenancyAsString());
+        vpcResource.setDhcpOptionsId(vpc.dhcpOptionsId());
+        vpcResource.setOwnerId(vpc.ownerId());
+        vpcResource.setDefaultVpc(vpc.isDefault());
+
+        for (VpcIpv6CidrBlockAssociation association : vpc.ipv6CidrBlockAssociationSet()) {
+            vpcResource.setProvideIpv6CidrBlock(true);
+            break;
+        }
+
+        vpcResource.loadSettings(client);
     }
 }

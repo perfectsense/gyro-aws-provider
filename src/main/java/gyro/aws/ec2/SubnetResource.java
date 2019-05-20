@@ -55,14 +55,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
 
     }
 
-    public SubnetResource(Ec2Client client, Subnet subnet) {
-        setSubnetId(subnet.subnetId());
-        setCidrBlock(subnet.cidrBlock());
-        setAvailabilityZone(subnet.availabilityZone());
-        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
-        setVpc(findById(VpcResource.class, subnet.vpcId()));
-    }
-
     /**
      * The VPC to create the subnet in. (Required)
      */

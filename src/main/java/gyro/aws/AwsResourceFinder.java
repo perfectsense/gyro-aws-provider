@@ -1,18 +1,16 @@
 package gyro.aws;
 
 import com.psddev.dari.util.TypeDefinition;
-import gyro.core.GyroException;
 import gyro.core.Credentials;
 import gyro.core.resource.ResourceFinder;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsResource> implements ResourceFinder<R> {
+public abstract class AwsResourceFinder<C extends SdkClient, M, R extends AwsResource> implements ResourceFinder<R, M> {
 
     private SdkClient client;
 
@@ -30,37 +28,30 @@ public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsRes
             .collect(Collectors.toList());
     }
 
-    protected abstract List<A> findAws(C client, Map<String, String> filters);
+    protected abstract List<M> findAws(C client, Map<String, String> filters);
 
     @Override
-    public final List<R> find(Credentials credentials, Map<String, String> filters) {
+    public final List<M> find(Credentials credentials, Map<String, String> filters) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
         Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        return findAws(createClient(clientClass, credentials), filters).stream().map(this::createResource).collect(Collectors.toList());
+        return findAws(createClient(clientClass, credentials), filters);
     }
 
-    protected abstract List<A> findAllAws(C client);
+    protected abstract List<M> findAllAws(C client);
 
     @Override
-    public final List<R> findAll(Credentials credentials) {
+    public final List<M> findAll(Credentials credentials) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
         Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        return findAllAws(createClient(clientClass, credentials)).stream().map(this::createResource).collect(Collectors.toList());
+        return findAllAws(createClient(clientClass, credentials));
     }
 
-    @SuppressWarnings("unchecked")
-    private R createResource(A model) {
+    protected abstract void populateAws(C client, R resource, M model);
+
+    @Override
+    public void populate(Credentials credentials, R resource, M model) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
         Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        Class<A> modelClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 1);
-        Class<R> resourceClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 2);
-
-        try {
-            return resourceClass.getConstructor(clientClass, modelClass).newInstance(client, model);
-        } catch (NoSuchMethodException nme) {
-            throw new GyroException(String.format("No constructor %s(%s, %s) is defined!", resourceClass, clientClass, modelClass));
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new GyroException(String.format("Unable to create resource of [%s]", resourceClass), e);
-        }
+        populateAws(createClient(clientClass, credentials), resource, model);
     }
 }
