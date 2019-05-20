@@ -61,5 +61,18 @@ aws::instance instance-example
         auto-enable-io: false
     end
 
+    volume
+        device-name: "/dev/sde"
+        volume-id: $(aws::ebs-volume volume | volume-id)
+    end
     capacity-reservation: "none"
+end
+
+aws::ebs-volume volume
+    availability-zone: "us-east-2a"
+    size: 100
+    auto-enable-io: false
+    tags: {
+        Name: "ebs-volume-example"
+    }
 end
