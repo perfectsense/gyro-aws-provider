@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AwsFinder<C extends SdkClient, A, R extends AwsResource> implements Finder<R> {
+public abstract class AwsFinder<C extends SdkClient, A, R extends AwsResource> extends Finder<R> {
 
     private SdkClient client;
 
