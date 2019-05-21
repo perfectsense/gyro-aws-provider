@@ -19,12 +19,9 @@ public abstract class AwsResource extends Resource {
         return createClient(clientClass, null, null);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T extends SdkClient> T createClient(Class<T> clientClass, String region, String endpoint) {
-        AwsCredentials credentials = (AwsCredentials) credentials();
-        if (credentials == null) {
-            throw new GyroException("No credentials associated with the resource.");
-        }
-
+        AwsCredentials credentials = credentials(AwsCredentials.class);
         client = createClient(clientClass, credentials, region, endpoint);
         return (T) client;
     }
