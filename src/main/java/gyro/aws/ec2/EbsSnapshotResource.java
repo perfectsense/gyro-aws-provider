@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("ebs-snapshot")
+@Type("ebs-snapshot")
 public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
 
     private String volumeId;

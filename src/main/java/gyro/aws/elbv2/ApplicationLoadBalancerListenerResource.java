@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -33,7 +33,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceType("alb-listener")
+@Type("alb-listener")
 public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
     private List<ActionResource> defaultAction;

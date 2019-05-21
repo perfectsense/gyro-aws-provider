@@ -5,7 +5,7 @@ import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
@@ -62,7 +62,7 @@ import java.util.Set;
  * end
  */
 
-@ResourceType("sqs")
+@Type("sqs")
 public class SqsResource extends AwsResource {
     private String name;
     private String queueArn;

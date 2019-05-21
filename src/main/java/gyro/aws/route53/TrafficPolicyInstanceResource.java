@@ -2,7 +2,7 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -32,7 +32,7 @@ import java.util.Set;
  *     end
  *
  */
-@ResourceType("traffic-policy-instance")
+@Type("traffic-policy-instance")
 public class TrafficPolicyInstanceResource extends AwsResource {
     private String name;
     private String message;

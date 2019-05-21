@@ -1,6 +1,6 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
@@ -40,7 +40,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("nlb")
+@Type("nlb")
 public class NetworkLoadBalancerResource extends LoadBalancerResource {
 
     private List<SubnetMappings> subnetMappings;

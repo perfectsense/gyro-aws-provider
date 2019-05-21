@@ -1,7 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateGeoMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
@@ -29,7 +29,7 @@ import java.util.List;
  *     end
  * en
  */
-@ResourceType("geo-match-set-regional")
+@Type("geo-match-set-regional")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {
     private List<GeoMatchConstraintResource> geoMatchConstraint;
 

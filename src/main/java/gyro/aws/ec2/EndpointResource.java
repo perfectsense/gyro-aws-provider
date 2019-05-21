@@ -3,7 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import org.apache.commons.lang.StringUtils;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceType("endpoint")
+@Type("endpoint")
 public class EndpointResource extends AwsResource {
 
     private String endpointId;

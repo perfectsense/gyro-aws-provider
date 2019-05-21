@@ -3,7 +3,7 @@ package gyro.aws.route53;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapDifference;
@@ -52,7 +52,7 @@ import java.util.stream.Stream;
  *     end
  *
  */
-@ResourceType("health-check")
+@Type("health-check")
 public class HealthCheckResource extends AwsResource {
 
     private String healthCheckId;

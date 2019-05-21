@@ -1,7 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
@@ -31,7 +31,7 @@ import java.util.List;
  *     end
  * end
  */
-@ResourceType("byte-match-set")
+@Type("byte-match-set")
 public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResource {
     private List<ByteMatchTupleResource> byteMatchTuple;
 

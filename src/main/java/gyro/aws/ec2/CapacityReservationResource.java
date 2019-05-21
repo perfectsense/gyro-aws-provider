@@ -3,7 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -36,7 +36,7 @@ import java.util.Set;
  *         tenancy: "default"
  *     end
  */
-@ResourceType("capacity-reservation")
+@Type("capacity-reservation")
 public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation> {
 
     private String capacityReservationId;

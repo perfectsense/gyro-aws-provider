@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *
  */
 
-@ResourceType("network-interface")
+@Type("network-interface")
 public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterface> {
 
     private String description;

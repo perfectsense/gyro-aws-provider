@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *        }
  *    end
  */
-@ResourceType("db-instance")
+@Type("db-instance")
 public class DbInstanceResource extends RdsTaggableResource {
 
     private Integer allocatedStorage;

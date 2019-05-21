@@ -2,7 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -26,7 +26,7 @@ import java.util.Set;
  *         user-pool-name: "user pool name"
  *     end
  */
-@ResourceType("authenticate-cognito-user-pool")
+@Type("authenticate-cognito-user-pool")
 public class AuthenticateCognitoUserPoolResource extends AwsResource {
 
     private Map<String, String> tags;

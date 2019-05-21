@@ -3,7 +3,7 @@ package gyro.aws.iam;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
@@ -28,7 +28,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("iam-instance-profile")
+@Type("iam-instance-profile")
 public class IamInstanceProfileResource extends AwsResource {
 
     private String instanceProfileArn;

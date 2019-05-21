@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@ResourceType("cache-param-group")
+@Type("cache-param-group")
 public class CacheParameterGroupResource extends AwsResource {
     private String cacheParamGroupName;
     private String cacheParamGroupFamily;

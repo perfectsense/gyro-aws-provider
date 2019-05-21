@@ -9,7 +9,7 @@ import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceType("cache-cluster")
+@Type("cache-cluster")
 public class CacheClusterResource extends AwsResource {
     private String azMode;
     private String cacheClusterId;

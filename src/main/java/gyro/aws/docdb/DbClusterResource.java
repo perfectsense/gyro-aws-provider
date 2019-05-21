@@ -5,7 +5,7 @@ import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  *         post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
  *     end
  */
-@ResourceType("docdb-cluster")
+@Type("docdb-cluster")
 public class DbClusterResource extends DocDbTaggableResource {
     private Integer backupRetentionPeriod;
     private String dbClusterIdentifier;

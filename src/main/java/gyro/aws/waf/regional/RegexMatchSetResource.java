@@ -1,7 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetRegexMatchSetResponse;
@@ -36,7 +36,7 @@ import java.util.List;
  *     end
  * end
  */
-@ResourceType("regex-match-set-regional")
+@Type("regex-match-set-regional")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
     private List<RegexMatchTupleResource> regexMatchTuple;
 

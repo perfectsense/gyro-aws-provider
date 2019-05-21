@@ -1,6 +1,6 @@
 package gyro.aws.waf.global;
 
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
@@ -23,7 +23,7 @@ import java.util.List;
  *         metric-name: "ruleExample"
  *     end
  */
-@ResourceType("rule")
+@Type("rule")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
     private List<PredicateResource> predicate;
 

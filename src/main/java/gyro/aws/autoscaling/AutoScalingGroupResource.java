@@ -6,7 +6,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroInstances;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
  *
  *     end
  */
-@ResourceType("auto-scaling-group")
+@Type("auto-scaling-group")
 public class AutoScalingGroupResource extends AwsResource implements GyroInstances {
 
     private String autoScalingGroupName;

@@ -5,7 +5,7 @@ import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  *         }
  *     end
  */
-@ResourceType("docdb-cluster-param-group")
+@Type("docdb-cluster-param-group")
 public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     private String dbClusterParamGroupName;
     private String dbParamGroupFamily;

@@ -2,7 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -63,7 +63,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("target-group")
+@Type("target-group")
 public class TargetGroupResource extends AwsResource {
 
     private HealthCheck healthCheck;

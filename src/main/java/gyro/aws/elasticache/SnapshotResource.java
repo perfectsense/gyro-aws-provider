@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         cache-cluster-id: $(aws::cache-cluster cache-cluster-example | cache-cluster-id)
  *     end
  */
-@ResourceType("cache-snapshot")
+@Type("cache-snapshot")
 public class SnapshotResource extends AwsResource {
     private String snapshotName;
     private String replicationGroupId;

@@ -6,7 +6,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -41,7 +41,7 @@ import java.util.Set;
  *         enable-dns-support: true
  *     end
  */
-@ResourceType("vpc")
+@Type("vpc")
 public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vpc> {
 
     private String vpcId;

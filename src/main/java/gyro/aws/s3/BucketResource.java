@@ -2,7 +2,7 @@ package gyro.aws.s3;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -109,7 +109,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@ResourceType("bucket")
+@Type("bucket")
 public class BucketResource extends AwsResource {
 
     private String name;

@@ -1,7 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateIpSetResponse;
 import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
@@ -29,7 +29,7 @@ import java.util.List;
  *     end
  * end
  */
-@ResourceType("ip-set-regional")
+@Type("ip-set-regional")
 public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     private List<IpSetDescriptorResource> ipSetDescriptor;
 

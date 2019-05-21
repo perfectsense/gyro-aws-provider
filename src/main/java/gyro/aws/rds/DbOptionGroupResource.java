@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *        }
  *    end
  */
-@ResourceType("db-option-group")
+@Type("db-option-group")
 public class DbOptionGroupResource extends RdsTaggableResource {
 
     private String name;

@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNatGatewayResponse;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceType("nat-gateway")
+@Type("nat-gateway")
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
 
     private String natGatewayId;

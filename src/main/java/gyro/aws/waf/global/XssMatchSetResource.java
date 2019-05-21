@@ -1,7 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateXssMatchSetResponse;
@@ -29,7 +29,7 @@ import java.util.List;
  *     end
  * end
  */
-@ResourceType("xss-match-set")
+@Type("xss-match-set")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {
     private List<XssMatchTupleResource> xssMatchTuple;
 

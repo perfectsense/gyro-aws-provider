@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceType("docdb-subnet-group")
+@Type("docdb-subnet-group")
 public class DbSubnetGroupResource extends DocDbTaggableResource {
     private String dbSubnetGroupDescription;
     private String dbSubnetGroupName;

@@ -3,7 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  *
  */
-@ResourceType("connection-notification")
+@Type("connection-notification")
 public class ConnectionNotificationResource extends AwsResource {
 
     private String serviceId;

@@ -5,7 +5,7 @@ import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *         }
  *     end
  */
-@ResourceType("docdb-cluster-snapshot")
+@Type("docdb-cluster-snapshot")
 public class DbClusterSnapshotResource extends DocDbTaggableResource {
     private String dbClusterIdentifier;
     private String dbClusterSnapshotIdentifier;

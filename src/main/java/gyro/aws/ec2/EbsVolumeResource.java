@@ -5,7 +5,7 @@ import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  *         }
  *     end
  */
-@ResourceType("ebs-volume")
+@Type("ebs-volume")
 public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
 
     private String availabilityZone;

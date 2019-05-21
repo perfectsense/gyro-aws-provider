@@ -3,7 +3,7 @@ package gyro.aws.route53;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -37,7 +37,7 @@ import java.util.UUID;
  *     end
  *
  */
-@ResourceType("hosted-zone")
+@Type("hosted-zone")
 public class HostedZoneResource extends AwsResource {
 
     private String delegationSetId;

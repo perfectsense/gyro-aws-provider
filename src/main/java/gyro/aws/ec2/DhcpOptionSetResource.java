@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
@@ -36,7 +36,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("dhcp-option")
+@Type("dhcp-option")
 public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
 
     private String dhcpOptionsId;

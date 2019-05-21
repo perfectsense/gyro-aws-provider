@@ -4,7 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -40,7 +40,7 @@ import java.util.Set;
  *         cidr-block: 10.0.0.0/24
  *     end
  */
-@ResourceType("subnet")
+@Type("subnet")
 public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copyable<Subnet> {
 
     private VpcResource vpc;

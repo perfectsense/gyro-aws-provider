@@ -2,7 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
  *     end
  */
-@ResourceType("authenticate-cognito-user-pool-client")
+@Type("authenticate-cognito-user-pool-client")
 public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
 
     private Boolean allowedOAuthFlowsClient;

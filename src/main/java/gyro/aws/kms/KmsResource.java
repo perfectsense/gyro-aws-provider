@@ -3,7 +3,7 @@ package gyro.aws.kms;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * end
  */
 
-@ResourceType("kms")
+@Type("kms")
 public class KmsResource extends AwsResource {
 
     private List<String> aliases;

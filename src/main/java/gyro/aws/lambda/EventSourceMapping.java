@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -32,7 +32,7 @@ import java.util.Set;
  *         event-source-arn: "$(aws::sqs sqs-event-source-mapping-example | queue-arn)"
  *     end
  */
-@ResourceType("event-source-mapping")
+@Type("event-source-mapping")
 public class EventSourceMapping extends AwsResource {
     private String functionName;
     private Integer batchSize;

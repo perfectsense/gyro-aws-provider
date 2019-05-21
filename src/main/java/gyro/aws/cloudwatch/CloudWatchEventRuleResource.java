@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.CloudWatchEventsException;
@@ -47,7 +47,7 @@ import java.util.Set;
  * end
  *
  */
-@ResourceType("event-rule")
+@Type("event-rule")
 public class CloudWatchEventRuleResource extends AwsResource {
 
     private String description;

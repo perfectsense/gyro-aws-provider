@@ -1,7 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
@@ -27,7 +27,7 @@ import java.util.Set;
  *          rate-limit: 2000
  *      end
  */
-@ResourceType("rate-rule")
+@Type("rate-rule")
 public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     private List<PredicateResource> predicate;
 

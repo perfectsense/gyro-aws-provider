@@ -3,7 +3,7 @@ package gyro.aws.cloudwatch;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *         statistic: "SampleCount"
  *     end
  */
-@ResourceType("metric-alarm")
+@Type("metric-alarm")
 public class CloudWatchMetricAlarmResource extends AwsResource {
 
     private String alarmName;

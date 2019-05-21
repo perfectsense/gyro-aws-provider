@@ -1,7 +1,7 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -34,7 +34,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("load-balancer")
+@Type("load-balancer")
 public class LoadBalancerResource extends AwsResource {
 
     private String dnsName;

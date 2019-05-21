@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         end
  */
 
-@ResourceType("target")
+@Type("target")
 public class TargetResource extends AwsResource {
 
     private String availabilityZone;

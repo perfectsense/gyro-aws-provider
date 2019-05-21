@@ -1,7 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsFinder;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Subnet;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ResourceType("subnet")
+@Type("subnet")
 public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
 
     private String availabilityZone;

@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceType("lambda-function")
+@Type("lambda-function")
 public class FunctionResource extends AwsResource {
     private String functionName;
     private String description;

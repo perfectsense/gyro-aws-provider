@@ -3,7 +3,7 @@ package gyro.aws.iam;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
@@ -37,7 +37,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("iam-role")
+@Type("iam-role")
 public class IamRoleResource extends AwsResource {
 
     private String assumeRolePolicyContents;
