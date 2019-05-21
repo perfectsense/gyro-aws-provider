@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceId;
 import gyro.core.resource.ResourceUpdatable;
@@ -22,7 +23,6 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
 import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
-import software.amazon.awssdk.services.ec2.model.VpcIpv6CidrBlockAssociation;
 
 import java.util.Set;
 
@@ -42,7 +42,7 @@ import java.util.Set;
  *     end
  */
 @ResourceType("vpc")
-public class VpcResource extends Ec2TaggableResource<Vpc> {
+public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vpc> {
 
     private String vpcId;
     private String cidrBlock;
@@ -60,22 +60,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
 
     public VpcResource() {
 
-    }
-
-    public VpcResource(Ec2Client client, Vpc vpc) {
-        setVpcId(vpc.vpcId());
-        setCidrBlock(vpc.cidrBlock());
-        setInstanceTenancy(vpc.instanceTenancyAsString());
-        setDhcpOptionsId(vpc.dhcpOptionsId());
-        setOwnerId(vpc.ownerId());
-        setDefaultVpc(vpc.isDefault());
-
-        for (VpcIpv6CidrBlockAssociation association : vpc.ipv6CidrBlockAssociationSet()) {
-            setProvideIpv6CidrBlock(true);
-            break;
-        }
-
-        loadSettings(client);
     }
 
     public String getId() {
@@ -222,6 +206,51 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
     }
 
     @Override
+    public void copyFrom(Vpc vpc) {
+        setVpcId(vpc.vpcId());
+        setCidrBlock(vpc.cidrBlock());
+        setInstanceTenancy(vpc.instanceTenancyAsString());
+        setDhcpOptionsId(vpc.dhcpOptionsId());
+        setOwnerId(vpc.ownerId());
+        setDefaultVpc(vpc.isDefault());
+        setProvideIpv6CidrBlock(!vpc.ipv6CidrBlockAssociationSet().isEmpty());
+
+        Ec2Client client = createClient(Ec2Client.class);
+
+        // DNS Settings
+        DescribeVpcAttributeRequest request = DescribeVpcAttributeRequest.builder()
+            .vpcId(vpcId)
+            .attribute(VpcAttributeName.ENABLE_DNS_HOSTNAMES)
+            .build();
+        setEnableDnsHostnames(client.describeVpcAttribute(request).enableDnsHostnames().value());
+
+        request = DescribeVpcAttributeRequest.builder()
+            .vpcId(vpcId)
+            .attribute(VpcAttributeName.ENABLE_DNS_SUPPORT)
+            .build();
+        setEnableDnsSupport(client.describeVpcAttribute(request).enableDnsSupport().value());
+
+        // ClassicLink
+        try {
+            DescribeVpcClassicLinkResponse clResponse = client.describeVpcClassicLink(r -> r.vpcIds(getVpcId()));
+            for (VpcClassicLink classicLink : clResponse.vpcs()) {
+                setEnableClassicLink(classicLink.classicLinkEnabled());
+                break;
+            }
+
+            DescribeVpcClassicLinkDnsSupportResponse cldResponse = client.describeVpcClassicLinkDnsSupport(r -> r.vpcIds(getVpcId()));
+            for (ClassicLinkDnsSupport classicLink : cldResponse.vpcs()) {
+                setEnableClassicLink(classicLink.classicLinkDnsSupported());
+                break;
+            }
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("not available in this region")) {
+                throw ex;
+            }
+        }
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -234,25 +263,8 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
                 .vpcIds(getVpcId())
                 .build();
 
-            for (Vpc vpc : client.describeVpcs(request).vpcs()) {
-                String vpcId = vpc.vpcId();
+            client.describeVpcs(request).vpcs().forEach(this::copyFrom);
 
-                setVpcId(vpcId);
-                setCidrBlock(vpc.cidrBlock());
-                setInstanceTenancy(vpc.instanceTenancyAsString());
-                setDhcpOptionsId(vpc.dhcpOptionsId());
-                setOwnerId(vpc.ownerId());
-                setDefaultVpc(vpc.isDefault());
-
-                for (VpcIpv6CidrBlockAssociation association : vpc.ipv6CidrBlockAssociationSet()) {
-                    setProvideIpv6CidrBlock(true);
-                    break;
-                }
-
-                loadSettings(client);
-
-                break;
-            }
         } catch (Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
                 return false;
@@ -332,40 +344,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> {
         sb.append(name());
 
         return sb.toString();
-    }
-
-    private void loadSettings(Ec2Client client) {
-        // DNS Settings
-        DescribeVpcAttributeRequest request = DescribeVpcAttributeRequest.builder()
-                .vpcId(vpcId)
-                .attribute(VpcAttributeName.ENABLE_DNS_HOSTNAMES)
-                .build();
-        setEnableDnsHostnames(client.describeVpcAttribute(request).enableDnsHostnames().value());
-
-        request = DescribeVpcAttributeRequest.builder()
-                .vpcId(vpcId)
-                .attribute(VpcAttributeName.ENABLE_DNS_SUPPORT)
-                .build();
-        setEnableDnsSupport(client.describeVpcAttribute(request).enableDnsSupport().value());
-
-        // ClassicLink
-        try {
-            DescribeVpcClassicLinkResponse clResponse = client.describeVpcClassicLink(r -> r.vpcIds(getVpcId()));
-            for (VpcClassicLink classicLink : clResponse.vpcs()) {
-                setEnableClassicLink(classicLink.classicLinkEnabled());
-                break;
-            }
-
-            DescribeVpcClassicLinkDnsSupportResponse cldResponse = client.describeVpcClassicLinkDnsSupport(r -> r.vpcIds(getVpcId()));
-            for (ClassicLinkDnsSupport classicLink : cldResponse.vpcs()) {
-                setEnableClassicLink(classicLink.classicLinkDnsSupported());
-                break;
-            }
-        } catch (Ec2Exception ex) {
-            if (!ex.getLocalizedMessage().contains("not available in this region")) {
-                throw ex;
-            }
-        }
     }
 
     private void modifySettings(Ec2Client client) {
