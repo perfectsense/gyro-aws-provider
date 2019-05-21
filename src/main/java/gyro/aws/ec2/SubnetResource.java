@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
@@ -40,7 +41,7 @@ import java.util.Set;
  *     end
  */
 @ResourceType("subnet")
-public class SubnetResource extends Ec2TaggableResource<Subnet> {
+public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copyable<Subnet> {
 
     private VpcResource vpc;
     private String cidrBlock;
@@ -50,18 +51,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     private String aclId;
     private String aclAssociationId;
     private String defaultAclId;
-
-    public SubnetResource() {
-
-    }
-
-    public SubnetResource(Ec2Client client, Subnet subnet) {
-        setSubnetId(subnet.subnetId());
-        setCidrBlock(subnet.cidrBlock());
-        setAvailabilityZone(subnet.availabilityZone());
-        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
-        setVpc(findById(VpcResource.class, subnet.vpcId()));
-    }
 
     /**
      * The VPC to create the subnet in. (Required)
@@ -156,6 +145,15 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     }
 
     @Override
+    public void copyFrom(Subnet subnet) {
+        setSubnetId(subnet.subnetId());
+        setCidrBlock(subnet.cidrBlock());
+        setAvailabilityZone(subnet.availabilityZone());
+        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
+        setVpc(findById(VpcResource.class, subnet.vpcId()));
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -168,12 +166,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 .subnetIds(getSubnetId())
                 .build();
 
-            for (Subnet subnet : client.describeSubnets(request).subnets()) {
-                setSubnetId(subnet.subnetId());
-                setAvailabilityZone(subnet.availabilityZone());
-                setCidrBlock(subnet.cidrBlock());
-                setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
-            }
+            client.describeSubnets(request).subnets().forEach(this::copyFrom);
 
             DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
                 r -> r.filters(
