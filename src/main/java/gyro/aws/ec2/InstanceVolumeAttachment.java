@@ -14,12 +14,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class InstanceVolumeAttachment extends AwsResource {
-    private String deviceName;
 
+    private String deviceName;
     private String volumeId;
 
     public InstanceVolumeAttachment() {
-
     }
 
     public InstanceVolumeAttachment(String deviceName, String volumeId) {
@@ -55,7 +54,7 @@ public class InstanceVolumeAttachment extends AwsResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Device");
+        sb.append("device");
 
         if (!ObjectUtils.isBlank(getDeviceName())) {
             sb.append(" ").append(getDeviceName());
