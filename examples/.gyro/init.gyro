@@ -1,5 +1,4 @@
-HIGHLANDER: true
-
+@highlander
 @repository 'https://artifactory.psdops.com/public'
 @repository 'https://artifactory.psdops.com/gyro-snapshots'
 @plugin 'gyro:gyro-aws-provider:0.14-SNAPSHOT'
