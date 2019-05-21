@@ -9,7 +9,7 @@ project: "beam-sandbox"
 account: "psd-beam-sandbox"
 environment: "sandbox"
 
-@credentials 'enterprise::aws-credentials' 'default' {
+@credentials 'enterprise::aws-credentials' {
     enterprise-url: "https://beam-enterprise.psdops.com",
     project: $(project),
     account: $(account),
