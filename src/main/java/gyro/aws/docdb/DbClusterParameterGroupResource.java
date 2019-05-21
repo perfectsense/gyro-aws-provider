@@ -4,9 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -86,7 +86,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * Enable audit logs. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableAuditLogs() {
         if (enableAuditLogs == null) {
             enableAuditLogs = false;
@@ -102,7 +102,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * Enable tls. Defaults to true.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableTls() {
         if (enableTls == null) {
             enableTls = true;
@@ -118,7 +118,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * Enable ttl monitor. Defaults to true.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableTtlMonitor() {
         if (enableTtlMonitor == null) {
             enableTtlMonitor = true;
@@ -134,7 +134,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     /**
      * The arn of the db cluster parameter group.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

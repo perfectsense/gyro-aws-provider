@@ -2,9 +2,9 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
@@ -53,7 +53,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     private Integer availableInstanceCount;
     private Date createDate;
 
-    @ResourceOutput
+    @Output
     public String getCapacityReservationId() {
         return capacityReservationId;
     }
@@ -87,7 +87,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The date and time at which the Capacity Reservation expires. Required if 'end-date-type' set to 'limited'.
      */
-    @ResourceUpdatable
+    @Updatable
     public Date getEndDate() {
         return endDate;
     }
@@ -99,7 +99,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates the way in which the Capacity Reservation ends. Valid values [ 'unlimited', 'limited' ]. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEndDateType() {
         return endDateType != null ? endDateType.toLowerCase() : null;
     }
@@ -166,7 +166,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The number of instances for which to reserve capacity. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getInstanceCount() {
         return instanceCount;
     }

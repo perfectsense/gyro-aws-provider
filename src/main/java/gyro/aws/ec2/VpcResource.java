@@ -4,10 +4,10 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceId;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Id;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -66,8 +66,8 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         return getVpcId();
     }
 
-    @ResourceId
-    @ResourceOutput
+    @Id
+    @Output
     public String getVpcId() {
         return vpcId;
     }
@@ -90,7 +90,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * Launch instances with public hostnames. Defaults to false. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableDnsHostnames() {
         if (enableDnsHostnames == null) {
             enableDnsHostnames = true;
@@ -106,7 +106,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * Enable Amazon provided DNS server at 169.254.169.253 or base of VPC network range plus two. Default is true. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableDnsSupport() {
         if (enableDnsSupport == null) {
             enableDnsSupport = true;
@@ -122,7 +122,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
     }
@@ -134,7 +134,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInstanceTenancy() {
         return instanceTenancy;
     }
@@ -155,7 +155,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         this.defaultVpc = defaultVpc;
     }
 
-    @ResourceOutput(value = "owner-12345", randomSuffix = false)
+    @Output(value = "owner-12345", randomSuffix = false)
     public String getOwnerId() {
         return ownerId;
     }
@@ -167,7 +167,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * Enable ClassLink to allow communication with EC2-Classic instances. Defaults to false. See `ClassicLink Basics <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-classiclink.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableClassicLink() {
         if (enableClassicLink == null) {
             enableClassicLink = false;
@@ -183,7 +183,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * Enable linked EC2-Classic instance hostnames to resolve to private IP address. Defaults to false. See `Enabling ClassicLink DNS Support <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html?#classiclink-enable-dns-support/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableClassicLinkDnsSupport() {
         if (enableClassicLinkDnsSupport == null) {
             enableClassicLinkDnsSupport = false;
@@ -192,7 +192,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         return enableClassicLinkDnsSupport;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public void setEnableClassicLinkDnsSupport(Boolean enableClassicLinkDnsSupport) {
         this.enableClassicLinkDnsSupport = enableClassicLinkDnsSupport;
     }

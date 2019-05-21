@@ -3,9 +3,9 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -88,7 +88,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     /**
      * Assign a public IPv4 address to network interfaces created in this subnet.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getMapPublicIpOnLaunch() {
         return mapPublicIpOnLaunch;
     }
@@ -97,7 +97,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.mapPublicIpOnLaunch = mapPublicIpOnLaunch;
     }
 
-    @ResourceOutput
+    @Output
     public String getSubnetId() {
         return subnetId;
     }
@@ -124,7 +124,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     /**
      * The ID of the Network ACL associated to the subnet.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAclId() {
         return aclId;
     }

@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -151,7 +151,7 @@ public class LayerResource extends AwsResource {
     /**
      * The ARN of the lambda layer.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -163,7 +163,7 @@ public class LayerResource extends AwsResource {
     /**
      * The ARN of the lambda layer version specific.
      */
-    @ResourceOutput
+    @Output
     public String getVersionArn() {
         return versionArn;
     }
@@ -175,7 +175,7 @@ public class LayerResource extends AwsResource {
     /**
      * The version of the lambda layer.
      */
-    @ResourceOutput
+    @Output
     public Long getVersion() {
         return version;
     }
@@ -187,7 +187,7 @@ public class LayerResource extends AwsResource {
     /**
      * The date that the layer version was created.
      */
-    @ResourceOutput
+    @Output
     public String getCreatedDate() {
         return createdDate;
     }

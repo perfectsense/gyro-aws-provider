@@ -2,7 +2,7 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateIpSetResponse;
 import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
 import software.amazon.awssdk.services.waf.model.IPSet;
@@ -38,7 +38,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
      *
      * @subresource gyro.aws.waf.regional.IpSetDescriptorResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<IpSetDescriptorResource> getIpSetDescriptor() {
         if (ipSetDescriptor == null) {
             ipSetDescriptor = new ArrayList<>();

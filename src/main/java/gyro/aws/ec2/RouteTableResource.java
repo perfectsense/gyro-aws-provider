@@ -1,9 +1,9 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
@@ -52,7 +52,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
     /**
      * Subnet IDs to associate with this route table.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -65,7 +65,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
         this.subnetIds = subnetIds;
     }
 
-    @ResourceOutput
+    @Output
     public String getRouteTableId() {
         return routeTableId;
     }
@@ -74,7 +74,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
         this.routeTableId = routeTableId;
     }
 
-    @ResourceOutput
+    @Output
     public String getOwnerId() {
         return ownerId;
     }

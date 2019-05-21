@@ -2,7 +2,7 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.CreateByteMatchSetResponse;
@@ -40,7 +40,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
      *
      * @subresource gyro.aws.waf.regional.ByteMatchTupleResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<ByteMatchTupleResource> getByteMatchTuple() {
         if (byteMatchTuple == null) {
             byteMatchTuple = new ArrayList<>();

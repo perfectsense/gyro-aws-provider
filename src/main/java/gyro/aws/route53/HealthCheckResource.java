@@ -2,7 +2,7 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
@@ -92,7 +92,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * A list of children health check ids.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getChildHealthChecks() {
         if (childHealthChecks == null) {
             childHealthChecks = new ArrayList<>();
@@ -108,7 +108,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * Disable the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getDisabled() {
         return disabled;
     }
@@ -120,7 +120,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * Enable SNI on the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableSni() {
         return enableSni;
     }
@@ -132,7 +132,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * Set the failure threshold upon which the health check changes its status.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getFailureThreshold() {
         return failureThreshold;
     }
@@ -144,7 +144,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The domain name to monitor for the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDomainName() {
         return domainName;
     }
@@ -156,7 +156,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      *
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHealthThreshold() {
         return healthThreshold;
     }
@@ -168,7 +168,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * What status to give if there is insufficient data for the health check to analyze.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInsufficientDataHealthStatus() {
         return insufficientDataHealthStatus;
     }
@@ -180,7 +180,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * Invert the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getInverted() {
         return inverted;
     }
@@ -192,7 +192,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The ip to monitor for the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getIpAddress() {
         return ipAddress;
     }
@@ -215,7 +215,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The port for the domain name and/or ip address to monitor for the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -228,7 +228,7 @@ public class HealthCheckResource extends AwsResource {
      * Set the regions where the health check would be active.
      * For types that support it, having an empty region would default to all regions being selected.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getRegions() {
         if (regions == null) {
             regions = new ArrayList<>();
@@ -260,7 +260,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The resource path attached at the end of domain name and/or ip address to monitor for the health check.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getResourcePath() {
         if (!ObjectUtils.isBlank(resourcePath)) {
             resourcePath = (resourcePath.startsWith("/") ? "" : "/") + resourcePath;
@@ -275,7 +275,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The search string if types 'HTTP_STR_MATCH' or 'HTTPS_STR_MATCH' is selected.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSearchString() {
         return searchString;
     }
@@ -298,7 +298,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The alarm name to attach with the health check if type 'CLOUDWATCH_METRIC' selected.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAlarmName() {
         return alarmName;
     }
@@ -310,7 +310,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The alarm region to attach with the health check if type 'CLOUDWATCH_METRIC' selected.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAlarmRegion() {
         return alarmRegion;
     }
@@ -319,7 +319,7 @@ public class HealthCheckResource extends AwsResource {
         this.alarmRegion = alarmRegion;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

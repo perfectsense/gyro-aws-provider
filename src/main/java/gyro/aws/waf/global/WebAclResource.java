@@ -2,7 +2,7 @@ package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
@@ -53,7 +53,7 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
      *
      * @subresource gyro.aws.waf.global.ActivatedRuleResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<ActivatedRuleResource> getActivatedRule() {
         if (activatedRule == null) {
             activatedRule = new ArrayList<>();

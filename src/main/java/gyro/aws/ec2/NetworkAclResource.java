@@ -1,9 +1,9 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
@@ -51,7 +51,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
     /**
      * The ID of the network ACL.
      */
-    @ResourceOutput
+    @Output
     public String getNetworkAclId() {
         return networkAclId;
     }
@@ -70,7 +70,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
      *
      * @subresource gyro.aws.ec2.NetworkAclRuleResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<NetworkAclRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();

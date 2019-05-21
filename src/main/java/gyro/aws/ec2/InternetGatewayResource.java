@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
@@ -30,7 +30,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     private String internetGatewayId;
     private String vpcId;
 
-    @ResourceOutput
+    @Output
     public String getInternetGatewayId() {
         return internetGatewayId;
     }

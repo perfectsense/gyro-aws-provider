@@ -2,9 +2,9 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -57,7 +57,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The id of the endpoint service. Either endpoint id or endpoint service id is required.
      */
-    @ResourceOutput
+    @Output
     public String getServiceId() {
         return serviceId;
     }
@@ -80,7 +80,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The ARN of the SNS topic. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getConnectionNotificationArn() {
         return connectionNotificationArn;
     }
@@ -92,7 +92,7 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getConnectionEvents() {
         if (connectionEvents == null) {
             connectionEvents = new ArrayList<>(masterEventSet);

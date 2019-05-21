@@ -1,9 +1,9 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AllowedPrincipal;
@@ -47,7 +47,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     /**
      *  Determines whether requests to create an endpoint to this service must be accepted
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAcceptanceRequired() {
         return acceptanceRequired;
     }
@@ -59,7 +59,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     /**
      *  The load balancer arns connected to the service
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getNetworkLoadBalancerArns() {
         if (networkLoadBalancerArns == null) {
             networkLoadBalancerArns = new ArrayList<>();
@@ -75,7 +75,7 @@ public class VpcEndpointServiceResource extends AwsResource {
     /**
      *  The service consumers connected to the service
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getPrincipals() {
         if (principals == null) {
             principals = new ArrayList<>();
@@ -88,7 +88,7 @@ public class VpcEndpointServiceResource extends AwsResource {
         this.principals = principals;
     }
 
-    @ResourceOutput
+    @Output
     public String getServiceId() {
         return serviceId;
     }

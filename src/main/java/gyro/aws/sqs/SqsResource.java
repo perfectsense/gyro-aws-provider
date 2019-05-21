@@ -4,9 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.auth.Credentials;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
@@ -107,7 +106,7 @@ public class SqsResource extends AwsResource {
      * receive-message-wait-time-seconds : 0-20 seconds
      */
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getVisibilityTimeout() {
         return visibilityTimeout;
     }
@@ -116,7 +115,7 @@ public class SqsResource extends AwsResource {
         this.visibilityTimeout = visibilityTimeout;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getMessageRetentionPeriod() {
         return messageRetentionPeriod;
     }
@@ -125,7 +124,7 @@ public class SqsResource extends AwsResource {
         this.messageRetentionPeriod = messageRetentionPeriod;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getDelaySeconds() {
         return delaySeconds;
     }
@@ -134,7 +133,7 @@ public class SqsResource extends AwsResource {
         this.delaySeconds = delaySeconds;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getMaximumMessageSize() {
         return maximumMessageSize;
     }
@@ -143,7 +142,7 @@ public class SqsResource extends AwsResource {
         this.maximumMessageSize = maximumMessageSize;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getReceiveMessageWaitTimeSeconds() {
         return receiveMessageWaitTimeSeconds;
     }
@@ -171,7 +170,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables moving messages to the dead letter queue. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDeadLetterTargetArn() {
         return deadLetterTargetArn;
     }
@@ -180,7 +179,7 @@ public class SqsResource extends AwsResource {
         this.deadLetterTargetArn = deadLetterTargetArn;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getMaxReceiveCount() {
         return maxReceiveCount;
     }
@@ -189,7 +188,7 @@ public class SqsResource extends AwsResource {
         this.maxReceiveCount = maxReceiveCount;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getDeadLetterQueueName() {
         return deadLetterQueueName;
     }
@@ -201,7 +200,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables content-based deduplication for FIFO Queues. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getContentBasedDeduplication() {
         return contentBasedDeduplication;
     }
@@ -213,7 +212,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables server side encryption on queues. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getKmsMasterKeyId() {
         return kmsMasterKeyId;
     }
@@ -222,7 +221,7 @@ public class SqsResource extends AwsResource {
         this.kmsMasterKeyId = kmsMasterKeyId;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getKmsDataKeyReusePeriodSeconds() {
         return kmsDataKeyReusePeriodSeconds;
     }
@@ -242,7 +241,7 @@ public class SqsResource extends AwsResource {
     /**
      * Enables setting up the valid IAM policies and permissions for the queue.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPolicyDocPath() {
         return policyDocPath;
     }
@@ -259,7 +258,7 @@ public class SqsResource extends AwsResource {
      * Need to change when code changes
      * This method removes all the spaces from the policy content even from the values, the better way to do it would be by using the Jackson's API
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPolicy() {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }

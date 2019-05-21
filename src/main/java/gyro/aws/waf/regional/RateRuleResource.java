@@ -2,7 +2,7 @@ package gyro.aws.waf.regional;
 
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
@@ -36,7 +36,7 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
      *
      * @subresource gyro.aws.waf.PredicateResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<PredicateResource> getPredicate() {
         if (predicate == null) {
             predicate = new ArrayList<>();

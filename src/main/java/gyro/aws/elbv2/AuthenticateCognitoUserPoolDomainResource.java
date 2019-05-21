@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
@@ -29,7 +29,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
     private String domain;
     private String userPoolId;
 
-    @ResourceUpdatable
+    @Updatable
     public String getCertificateArn() {
         return certificateArn;
     }
@@ -38,7 +38,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         this.certificateArn = certificateArn;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getDomain() {
         return domain;
     }

@@ -1,7 +1,7 @@
 package gyro.aws.s3;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
@@ -144,7 +144,7 @@ public class BucketResource extends AwsResource {
         this.enableObjectLock = enableObjectLock;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -160,7 +160,7 @@ public class BucketResource extends AwsResource {
     /**
      * Enable fast easy and secure transfers of files to and from the bucket. See `S3 Transfer Acceleration <https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableAccelerateConfig() {
         if (enableAccelerateConfig == null) {
             enableAccelerateConfig = false;
@@ -176,7 +176,7 @@ public class BucketResource extends AwsResource {
     /**
      * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableVersion() {
         if (enableVersion == null) {
             enableVersion = false;
@@ -192,7 +192,7 @@ public class BucketResource extends AwsResource {
     /**
      * Enable the requester to pay for requests to the bucket than the owner. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnablePay() {
         if (enablePay == null) {
             enablePay = false;
@@ -210,7 +210,7 @@ public class BucketResource extends AwsResource {
      *
      * @subresource gyro.aws.s3.S3CorsRule
      */
-    @ResourceUpdatable
+    @Updatable
     public List<S3CorsRule> getCorsRule() {
         if (corsRule == null) {
             corsRule = new ArrayList<>();
@@ -228,7 +228,7 @@ public class BucketResource extends AwsResource {
      *
      * @subresource gyro.aws.s3.S3LifecycleRule
      */
-    @ResourceUpdatable
+    @Updatable
     public List<S3LifecycleRule> getLifecycleRule() {
         if (lifecycleRule == null) {
             lifecycleRule = new ArrayList<>();

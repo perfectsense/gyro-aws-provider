@@ -2,7 +2,7 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -64,7 +64,7 @@ public class HostedZoneResource extends AwsResource {
     /**
      * Comment for the hosted Zone.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getComment() {
         return comment;
     }

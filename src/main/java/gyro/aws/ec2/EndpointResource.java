@@ -2,9 +2,9 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -77,7 +77,7 @@ public class EndpointResource extends AwsResource {
     private String policyDocPath;
     private String policy;
 
-    @ResourceOutput
+    @Output
     public String getEndpointId() {
         return endpointId;
     }
@@ -122,7 +122,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Route Table ID being associated with the Endpoint. (Required if typeInterface set to true.)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getRouteTableIds() {
         if (routeTableIds == null) {
             routeTableIds = new ArrayList<>();
@@ -138,7 +138,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Subnet ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -154,7 +154,7 @@ public class EndpointResource extends AwsResource {
     /**
      * The list of Security Group ID being associated with the Endpoint. (Required if typeInterface set to false.)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -169,7 +169,7 @@ public class EndpointResource extends AwsResource {
     /**
      * Enable private DNS on the Endpoint.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnablePrivateDns() {
         return enablePrivateDns;
     }
@@ -181,7 +181,7 @@ public class EndpointResource extends AwsResource {
     /**
      * Path to the file that contains the policy.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPolicyDocPath() {
         return policyDocPath;
     }
@@ -194,7 +194,7 @@ public class EndpointResource extends AwsResource {
         }
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getPolicy() {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }

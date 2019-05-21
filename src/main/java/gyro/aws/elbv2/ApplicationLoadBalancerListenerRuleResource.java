@@ -1,9 +1,9 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -60,7 +60,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<ActionResource> getAction() {
         if (action == null) {
             action = new ArrayList<>();
@@ -78,7 +78,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<ConditionResource> getCondition() {
         if (condition == null) {
             condition = new ArrayList<>();
@@ -110,7 +110,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         this.priority = priority;
     }
 
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

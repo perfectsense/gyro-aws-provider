@@ -2,7 +2,7 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
@@ -38,7 +38,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
      *
      * @subresource gyro.aws.waf.regional.SqlInjectionMatchTupleResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
         if (sqlInjectionMatchTuple == null) {
             sqlInjectionMatchTuple = new ArrayList<>();

@@ -3,8 +3,8 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
@@ -47,7 +47,7 @@ public abstract class WebAclResource extends AbstractWafResource {
     /**
      * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDefaultAction() {
         return defaultAction != null ? defaultAction.toUpperCase() : null;
     }
@@ -56,7 +56,7 @@ public abstract class WebAclResource extends AbstractWafResource {
         this.defaultAction = defaultAction;
     }
 
-    @ResourceOutput
+    @Output
     public String getWebAclId() {
         return webAclId;
     }
@@ -65,7 +65,7 @@ public abstract class WebAclResource extends AbstractWafResource {
         this.webAclId = webAclId;
     }
 
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

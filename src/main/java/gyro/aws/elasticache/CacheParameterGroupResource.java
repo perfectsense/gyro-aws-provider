@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroupNotFoundException;
@@ -82,7 +82,7 @@ public class CacheParameterGroupResource extends AwsResource {
     /**
      * The list of cache parameter to modify.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<CacheParameter> getParameters() {
         if (parameters == null) {
             parameters = new ArrayList<>();

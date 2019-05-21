@@ -3,7 +3,7 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
@@ -73,7 +73,7 @@ public class SnapshotResource extends AwsResource {
      *
      * @Output
      */
-    @ResourceOutput
+    @Output
     public String getStatus() {
         return status;
     }

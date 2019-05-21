@@ -3,9 +3,9 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -51,7 +51,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     /**
      * Description of the db subnet group.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDbSubnetGroupDescription() {
         return dbSubnetGroupDescription;
     }
@@ -74,7 +74,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     /**
      * A list of associated subnet id's. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -94,7 +94,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
     /**
      * The arn of the db subnet group.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

@@ -4,9 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -108,7 +108,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The description of the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -120,7 +120,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 bucket name where the function code resides. Required if field 'content-zip-path' not set.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getS3Bucket() {
         return s3Bucket;
     }
@@ -132,7 +132,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 object key where the function code resides. Required if field 'content-zip-path' not set.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getS3Key() {
         return s3Key;
     }
@@ -144,7 +144,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The s3 object version where the function code resides. Required if field 'content-zip-path' not set.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getS3ObjectVersion() {
         return s3ObjectVersion;
     }
@@ -156,7 +156,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The zip file location where the function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getContentZipPath() {
         return contentZipPath;
     }
@@ -172,7 +172,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The role arn to be associated with this function. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRoleArn() {
         return roleArn;
     }
@@ -184,7 +184,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The runtime language for this function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRuntime() {
         return runtime;
     }
@@ -196,7 +196,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The name of the method within your code that Lambda calls to execute the function. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHandler() {
         return handler;
     }
@@ -208,7 +208,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The amount of time that Lambda allows a function to run before stopping it. Defaults to 3. Valid values between ``3`` and ``900``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getTimeout() {
         if (timeout == null) {
             timeout = 3;
@@ -224,7 +224,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The amount of memory that the function has access to. Defaults to 128. valid values are multiple of ``64``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMemorySize() {
         if (memorySize == null) {
             memorySize = 128;
@@ -240,7 +240,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The tracking mode of the function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTrackingConfig() {
         if (trackingConfig == null) {
             trackingConfig = "PassThrough";
@@ -256,7 +256,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn of SQS queue or an SNS topic to be associated with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDeadLetterConfigArn() {
         if (deadLetterConfigArn == null) {
             deadLetterConfigArn = "";
@@ -272,7 +272,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn of KMS key to be associated with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getKmsKeyArn() {
         return kmsKeyArn;
     }
@@ -284,7 +284,7 @@ public class FunctionResource extends AwsResource {
     /**
      * A map of key value pair acting as variables accessible from the code of with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getEnvironment() {
         if (environment == null) {
             environment = new HashMap<>();
@@ -300,7 +300,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of tags be associated with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -316,7 +316,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of security group be associated with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -336,7 +336,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of subnet be associated with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -356,7 +356,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The set of version arns of lambda layers to be associated with the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getLambdaLayers() {
         if (lambdaLayers == null) {
             lambdaLayers = new ArrayList<>();
@@ -376,7 +376,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The number of simultaneous executions to reserve for the function.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getReservedConcurrentExecutions() {
         return reservedConcurrentExecutions;
     }
@@ -402,7 +402,7 @@ public class FunctionResource extends AwsResource {
     /**
      * A flag that states to publish the code or not.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getPublish() {
         if (publish == null) {
             publish = false;
@@ -418,7 +418,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn for the lambda function resource including the version.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -430,7 +430,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn for the lambda function resource without the version.
      */
-    @ResourceOutput
+    @Output
     public String getArnNoVersion() {
         return arnNoVersion;
     }
@@ -442,7 +442,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The revision id for the lambda function.
      */
-    @ResourceOutput
+    @Output
     public String getRevisionId() {
         return revisionId;
     }
@@ -454,7 +454,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The arn for the master function of the lambda function.
      */
-    @ResourceOutput
+    @Output
     public String getMasterArn() {
         return masterArn;
     }
@@ -466,7 +466,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The date and time that the function was last updated.
      */
-    @ResourceOutput
+    @Output
     public String getLastModified() {
         return lastModified;
     }
@@ -478,7 +478,7 @@ public class FunctionResource extends AwsResource {
     /**
      * The version of the Lambda function.
      */
-    @ResourceOutput
+    @Output
     public String getVersion() {
         return version;
     }
@@ -487,7 +487,7 @@ public class FunctionResource extends AwsResource {
         this.version = version;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getFileHash() {
         if (fileHash == null) {
             fileHash = "";

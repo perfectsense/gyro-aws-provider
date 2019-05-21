@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
@@ -100,7 +100,7 @@ public class BlockDeviceMappingResource extends Diffable {
     /**
      * The size of the volume in GiBs.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getVolumeSize() {
         return volumeSize;
     }
@@ -123,7 +123,7 @@ public class BlockDeviceMappingResource extends Diffable {
     /**
      * The state of the drive.
      */
-    @ResourceOutput
+    @Output
     public String getState() {
         return state;
     }
@@ -136,7 +136,7 @@ public class BlockDeviceMappingResource extends Diffable {
      * The type of volume being created. Defaults to 'gp2'.
      * Valid values are ``gp2``, ``io1``, ``st1``, ``sc1`` or ``standard``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";
@@ -152,7 +152,7 @@ public class BlockDeviceMappingResource extends Diffable {
     /**
      * Auto Enable IO. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAutoEnableIo() {
         if (autoEnableIo == null) {
             autoEnableIo = false;

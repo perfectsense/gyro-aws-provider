@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -104,7 +104,7 @@ public class DbOptionGroupResource extends RdsTaggableResource {
      *
      * @subresource gyro.aws.rds.OptionConfiguration
      */
-    @ResourceUpdatable
+    @Updatable
     public List<OptionConfiguration> getOption() {
         if (option == null) {
             option = new ArrayList<>();

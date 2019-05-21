@@ -2,7 +2,7 @@ package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
@@ -40,7 +40,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
      *
      * @subresource gyro.aws.waf.global.SizeConstraintResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
             sizeConstraint = new ArrayList<>();

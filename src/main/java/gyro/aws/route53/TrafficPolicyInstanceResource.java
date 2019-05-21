@@ -1,7 +1,7 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -89,7 +89,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * Id of a traffic policy to be associated. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTrafficPolicyId() {
         return trafficPolicyId;
     }
@@ -109,7 +109,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * The TTL that you want to assign to all of the resource record sets that the policy creates in the specified hosted zone.
      */
-    @ResourceUpdatable
+    @Updatable
     public Long getTtl() {
         return ttl;
     }
@@ -129,7 +129,7 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * The version of the traffic policy which will be used to create the resource records.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getVersion() {
         return version;
     }

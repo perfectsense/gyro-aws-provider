@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
@@ -35,7 +35,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     private String publicIp;
     private Integer bgpAsn;
 
-    @ResourceOutput
+    @Output
     public String getCustomerGatewayId() {
         return customerGatewayId;
     }

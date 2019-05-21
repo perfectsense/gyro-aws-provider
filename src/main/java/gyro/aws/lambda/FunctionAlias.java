@@ -2,9 +2,9 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateAliasRequest;
@@ -71,7 +71,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The function version for the alias. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getFunctionVersion() {
         return functionVersion;
     }
@@ -83,7 +83,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The description for the alias.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -95,7 +95,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * Secondary function for the alias.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAdditionalVersion() {
         return additionalVersion;
     }
@@ -107,7 +107,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The weight to switch between the secondary version. Required if additional version set. Valid values between ``0.0`` to ``1.0``
      */
-    @ResourceUpdatable
+    @Updatable
     public Double getWeight() {
         return weight;
     }
@@ -119,7 +119,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The arn of the alias.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -131,7 +131,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The revision id of the alias.
      */
-    @ResourceOutput
+    @Output
     public String getRevisionId() {
         return revisionId;
     }

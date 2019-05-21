@@ -2,7 +2,7 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.regions.Region;
@@ -42,7 +42,7 @@ public class IamPolicyResource extends AwsResource {
     private String policyDocumentContents;
     private String policyDocumentFile;
 
-    @ResourceUpdatable
+    @Updatable
     public String getPolicyName() {
         return this.policyName;
     }
@@ -75,7 +75,7 @@ public class IamPolicyResource extends AwsResource {
         this.policyArn = policyArn;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getPolicyDocumentContents() {
         if (policyDocumentContents != null) {
             return this.policyDocumentContents;
@@ -97,7 +97,7 @@ public class IamPolicyResource extends AwsResource {
         this.policyDocumentContents = policyDocumentContents;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getPolicyDocumentFile() {
         return this.policyDocumentFile;
     }

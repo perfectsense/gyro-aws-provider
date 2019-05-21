@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -44,7 +44,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
     /**
      * Enable or disable the subscription. Default to true.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnabled() {
         return enabled;
     }
@@ -56,7 +56,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
     /**
      * A list of event categories for a SourceType to subscribe to. See `Events <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html>`_ topic in the Amazon RDS User Guide or by using the `DescribeEventCategories` action.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getEventCategories() {
         if (eventCategories == null || eventCategories.isEmpty()) {
             return new ArrayList<>();
@@ -75,7 +75,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
     /**
      * The ARN of the SNS topic. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSnsTopicArn() {
         return snsTopicArn;
     }
@@ -102,7 +102,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
     /**
      * The type of source that is generating the events. If omitted, all events are returned. Valid values: ``db-instance``, ``db-cluster``, ``db-parameter-group``, ``db-security-group``, ``db-snapshot``, ``db-cluster-snapshot``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSourceType() {
         return sourceType;
     }

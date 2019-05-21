@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
@@ -82,7 +82,7 @@ public class PeeringConectionResource extends Ec2TaggableResource<VpcPeeringConn
         this.region = region;
     }
 
-    @ResourceOutput
+    @Output
     public String getPeeringConnectionId() {
         return peeringConnectionId;
     }

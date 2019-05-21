@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -61,7 +61,7 @@ public class DbClusterEndpointResource extends AwsResource {
     /**
      * The type of the endpoint. Valid values are ``READER``, ``ANY``. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEndpointType() {
         return endpointType;
     }
@@ -73,7 +73,7 @@ public class DbClusterEndpointResource extends AwsResource {
     /**
      * List of DB instance identifiers to excluded from the custom endpoint group. Only applicable if `static-members` is empty.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getExcludedMembers() {
         if (excludedMembers == null) {
             excludedMembers = new ArrayList<>();
@@ -89,7 +89,7 @@ public class DbClusterEndpointResource extends AwsResource {
     /**
      * List of DB instance identifiers that are part of the custom endpoint group.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getStaticMembers() {
         if (staticMembers == null) {
             staticMembers = new ArrayList<>();

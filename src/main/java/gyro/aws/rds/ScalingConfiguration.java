@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 public class ScalingConfiguration extends Diffable {
 
@@ -13,7 +13,7 @@ public class ScalingConfiguration extends Diffable {
     /**
      * Allow automatic pause for an Aurora DB cluster in serverless DB engine mode. A DB cluster can be paused only when it's idle (i.e. it has no connections).
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAutoPause() {
         return autoPause;
     }
@@ -25,7 +25,7 @@ public class ScalingConfiguration extends Diffable {
     /**
      * The maximum capacity for an Aurora DB cluster in serverless DB engine mode. Valid values are ``2``, ``4``, ``8``, ``16``, ``32``, ``64``, ``128``, and ``256``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMaxCapacity() {
         return maxCapacity;
     }
@@ -37,7 +37,7 @@ public class ScalingConfiguration extends Diffable {
     /**
      * The minimum capacity for an Aurora DB cluster in serverless DB engine mode. Valid values are ``2``, ``4``, ``8``, ``16``, ``32``, ``64``, ``128``, and ``256``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMinCapacity() {
         return minCapacity;
     }
@@ -49,7 +49,7 @@ public class ScalingConfiguration extends Diffable {
     /**
      * The time before an Aurora DB cluster in serverless mode is paused in seconds.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getSecondsUntilAutoPause() {
         return secondsUntilAutoPause;
     }

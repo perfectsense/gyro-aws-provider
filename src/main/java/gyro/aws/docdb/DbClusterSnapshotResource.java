@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
@@ -64,7 +64,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
     /**
      * The arn of the db cluster snapshot.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

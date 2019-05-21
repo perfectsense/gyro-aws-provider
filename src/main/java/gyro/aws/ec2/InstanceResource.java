@@ -4,9 +4,9 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
@@ -110,7 +110,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      * Instance ID of this instance.
      *
      */
-    @ResourceOutput
+    @Output
     public String getInstanceId() {
         return instanceId;
     }
@@ -174,7 +174,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Enable EBS optimization for an instance. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEbsOptimized() {
         if (ebsOptimized == null) {
             ebsOptimized = false;
@@ -205,7 +205,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Change the Shutdown Behavior options for an instance. Defaults to Stop. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getShutdownBehavior() {
         return shutdownBehavior != null ? shutdownBehavior.toLowerCase() : ShutdownBehavior.STOP.toString();
     }
@@ -217,7 +217,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -254,7 +254,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -280,7 +280,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Enable or Disable api termination of an instance. See `Enabling Termination Protection for an Instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getDisableApiTermination() {
         if (disableApiTermination == null) {
             disableApiTermination = false;
@@ -296,7 +296,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Enable or Disable ENA support for an instance. Defaults to true and cannot be turned off during creation. See `Enabling Enhanced Networking with the Elastic Network Adapter (ENA) on Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking-ena.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableEnaSupport() {
         if (enableEnaSupport == null) {
             enableEnaSupport = true;
@@ -311,7 +311,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Enable or Disable Source/Dest Check for an instance. Defaults to true and cannot be turned off during creation. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getSourceDestCheck() {
         if (sourceDestCheck == null) {
             sourceDestCheck = true;
@@ -326,7 +326,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Set user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getUserData() {
         if (userData == null) {
             userData = "";
@@ -344,7 +344,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Capacity reservation for the instance.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCapacityReservation() {
         if (capacityReservation == null) {
             capacityReservation = "none";
@@ -377,7 +377,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      *
      * @subresource gyro.core.ec2.InstanceVolumeAttachment
      */
-    @ResourceUpdatable
+    @Updatable
     public List<InstanceVolumeAttachment> getVolume() {
         if (volume == null) {
             volume = new ArrayList<>();

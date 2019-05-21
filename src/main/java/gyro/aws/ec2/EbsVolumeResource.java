@@ -4,9 +4,9 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
@@ -92,7 +92,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
      * The number of I/O operations per second (IOPS) to provision for the volume.
      * Only allowed when 'volume-type' set to 'iops'.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getIops() {
         return iops;
     }
@@ -115,7 +115,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     /**
      * The size of the volume in GiBs.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getSize() {
         return size;
     }
@@ -143,7 +143,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
         this.state = state;
     }
 
-    @ResourceOutput
+    @Output
     public String getVolumeId() {
         return volumeId;
     }
@@ -156,7 +156,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
      * The type of volume being created. Defaults to 'gp2'.
      * Valid options [ 'gp2', 'io1', 'st1', 'sc1', 'standard'].
      */
-    @ResourceUpdatable
+    @Updatable
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";
@@ -172,7 +172,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     /**
      * Auto Enable IO. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAutoEnableIo() {
         if (autoEnableIo == null) {
             autoEnableIo = false;
