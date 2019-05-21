@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsResourceFinder;
+import gyro.aws.AwsFinder;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceFilter;
+import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @ResourceType("subnet")
-public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, SubnetResource> {
+public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
 
     private String availabilityZone;
     private String availabilityZoneId;
@@ -69,7 +69,7 @@ public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, S
         this.defaultForAz = defaultForAz;
     }
 
-    @ResourceFilter("ipv6-cidr-block-association.ipv6-cidr-block")
+    @Filter("ipv6-cidr-block-association.ipv6-cidr-block")
     public String getIpV6CidrBlock() {
         return ipV6CidrBlock;
     }
@@ -78,7 +78,7 @@ public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, S
         this.ipV6CidrBlock = ipV6CidrBlock;
     }
 
-    @ResourceFilter("ipv6-cidr-block-association.association-id")
+    @Filter("ipv6-cidr-block-association.association-id")
     public String getIpV6CiderBlockAssociationId() {
         return ipV6CiderBlockAssociationId;
     }
@@ -87,7 +87,7 @@ public class SubnetResourceFinder extends AwsResourceFinder<Ec2Client, Subnet, S
         this.ipV6CiderBlockAssociationId = ipV6CiderBlockAssociationId;
     }
 
-    @ResourceFilter("ipv6-cidr-block-association.state")
+    @Filter("ipv6-cidr-block-association.state")
     public String getIpV6CiderBlockAssociationState() {
         return ipV6CiderBlockAssociationState;
     }

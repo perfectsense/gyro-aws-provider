@@ -2,8 +2,8 @@ package gyro.aws;
 
 import com.psddev.dari.util.TypeDefinition;
 import gyro.core.GyroException;
-import gyro.core.Credentials;
-import gyro.core.resource.ResourceFinder;
+import gyro.core.auth.Credentials;
+import gyro.core.finder.Finder;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.ec2.model.Filter;
 
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsResource> implements ResourceFinder<R> {
+public abstract class AwsFinder<C extends SdkClient, A, R extends AwsResource> implements Finder<R> {
 
     private SdkClient client;
 
@@ -35,7 +35,7 @@ public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsRes
     @Override
     public final List<R> find(Credentials credentials, Map<String, String> filters) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
-        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsFinder.class, 0);
         return findAws(createClient(clientClass, credentials), filters).stream().map(this::createResource).collect(Collectors.toList());
     }
 
@@ -44,16 +44,16 @@ public abstract class AwsResourceFinder<C extends SdkClient, A, R extends AwsRes
     @Override
     public final List<R> findAll(Credentials credentials) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
-        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsFinder.class, 0);
         return findAllAws(createClient(clientClass, credentials)).stream().map(this::createResource).collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
     private R createResource(A model) {
         TypeDefinition td = TypeDefinition.getInstance(getClass());
-        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 0);
-        Class<A> modelClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 1);
-        Class<R> resourceClass = td.getInferredGenericTypeArgumentClass(AwsResourceFinder.class, 2);
+        Class<C> clientClass = td.getInferredGenericTypeArgumentClass(AwsFinder.class, 0);
+        Class<A> modelClass = td.getInferredGenericTypeArgumentClass(AwsFinder.class, 1);
+        Class<R> resourceClass = td.getInferredGenericTypeArgumentClass(AwsFinder.class, 2);
 
         try {
             return resourceClass.getConstructor(clientClass, modelClass).newInstance(client, model);

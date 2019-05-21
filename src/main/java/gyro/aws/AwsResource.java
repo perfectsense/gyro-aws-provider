@@ -20,7 +20,7 @@ public abstract class AwsResource extends Resource {
     }
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass, String region, String endpoint) {
-        AwsCredentials credentials = (AwsCredentials) resourceCredentials();
+        AwsCredentials credentials = (AwsCredentials) credentials();
         if (credentials == null) {
             throw new GyroException("No credentials associated with the resource.");
         }

@@ -634,7 +634,7 @@ public class CacheClusterResource extends AwsResource {
     }
 
     private String getRegion() {
-        AwsCredentials credentials = (AwsCredentials) resourceCredentials();
+        AwsCredentials credentials = (AwsCredentials) credentials();
         return credentials.getRegion();
     }
 

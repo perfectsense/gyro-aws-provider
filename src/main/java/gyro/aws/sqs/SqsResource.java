@@ -6,7 +6,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.Credentials;
+import gyro.core.auth.Credentials;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
@@ -435,7 +435,7 @@ public class SqsResource extends AwsResource {
      * Adding the account number in the config is a temporary fix, need to change when code changes
      */
     private String createQueueArn(String deadLetterQueueName) {
-        Credentials resourceCredentials = this.resourceCredentials();
+        Credentials resourceCredentials = this.credentials();
         AwsCredentials awsCredentials = (AwsCredentials) resourceCredentials;
 
         return "arn:aws:sqs:" + awsCredentials.getRegion() + ":" + getAccountNo() + ":" + deadLetterQueueName;

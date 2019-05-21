@@ -1,13 +1,11 @@
 package gyro.aws;
 
-import gyro.core.Credentials;
-import gyro.core.resource.ResourceType;
+import gyro.core.auth.Credentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 
-@ResourceType("credentials")
 public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.credentials.AwsCredentials> {
 
     private transient AwsCredentialsProvider provider;
@@ -24,11 +22,6 @@ public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.cred
 
     public AwsCredentialsProvider provider() {
         return provider;
-    }
-
-    @Override
-    public String getCloudName() {
-        return "aws";
     }
 
     public String getProfileName() {
