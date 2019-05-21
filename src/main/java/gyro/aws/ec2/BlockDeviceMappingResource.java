@@ -19,6 +19,20 @@ public class BlockDeviceMappingResource extends Diffable {
     private String volumeType;
     private Boolean autoEnableIo;
 
+    public BlockDeviceMappingResource() {
+    }
+
+    public BlockDeviceMappingResource(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
+        setDeviceName(blockDeviceMapping.deviceName());
+        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
+        setEncrypted(blockDeviceMapping.ebs().encrypted());
+        setIops(blockDeviceMapping.ebs().iops());
+        setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
+        setVolumeSize(blockDeviceMapping.ebs().volumeSize());
+        setSnapshotId(blockDeviceMapping.ebs().snapshotId());
+        setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
+    }
+
     /**
      * Name of the drive to attach this volume to. (Required)
      */
@@ -149,21 +163,6 @@ public class BlockDeviceMappingResource extends Diffable {
 
     public void setAutoEnableIo(Boolean autoEnableIo) {
         this.autoEnableIo = autoEnableIo;
-    }
-
-    public BlockDeviceMappingResource() {
-
-    }
-
-    public BlockDeviceMappingResource(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
-        setDeviceName(blockDeviceMapping.deviceName());
-        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
-        setEncrypted(blockDeviceMapping.ebs().encrypted());
-        setIops(blockDeviceMapping.ebs().iops());
-        setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
-        setVolumeSize(blockDeviceMapping.ebs().volumeSize());
-        setSnapshotId(blockDeviceMapping.ebs().snapshotId());
-        setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
     }
 
     @Override

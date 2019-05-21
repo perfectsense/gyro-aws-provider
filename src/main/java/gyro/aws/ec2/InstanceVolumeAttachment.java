@@ -51,28 +51,6 @@ public class InstanceVolumeAttachment extends AwsResource {
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("device");
-
-        if (!ObjectUtils.isBlank(getDeviceName())) {
-            sb.append(" ").append(getDeviceName());
-        }
-
-        if (!ObjectUtils.isBlank(getVolumeId())) {
-            sb.append(" with volume id : ").append(getVolumeId());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
-    public String primaryKey() {
-        return String.format("%s", getDeviceName());
-    }
-
-    @Override
     public boolean refresh() {
         return true;
     }
@@ -132,5 +110,27 @@ public class InstanceVolumeAttachment extends AwsResource {
                 .volumeId(getVolumeId())
                 .instanceId(parent.getInstanceId())
         );
+    }
+
+    @Override
+    public String toDisplayString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("device");
+
+        if (!ObjectUtils.isBlank(getDeviceName())) {
+            sb.append(" ").append(getDeviceName());
+        }
+
+        if (!ObjectUtils.isBlank(getVolumeId())) {
+            sb.append(" with volume id : ").append(getVolumeId());
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s", getDeviceName());
     }
 }
