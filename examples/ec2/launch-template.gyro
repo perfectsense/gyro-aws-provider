@@ -74,7 +74,13 @@ aws::launch-template launch-template
     disable-api-termination: false
     ebs-optimized: false
 
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
+    end
+
     tags: {
-        Name: "launch-template-example"
+        Name: "launch-template-example-1"
     }
 end

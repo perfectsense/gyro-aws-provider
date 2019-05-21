@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
 import software.amazon.awssdk.services.ec2.model.Reservation;
+import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
@@ -85,6 +86,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
+    private List<BlockDeviceMappingResource> blockDeviceMapping;
+    private List<InstanceVolumeAttachment> volume;
 
     // -- Readonly
 
@@ -99,8 +102,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     }
 
-    public InstanceResource(Instance instance) {
-        init(instance);
+    public InstanceResource(Instance instance, Ec2Client client) {
+        init(instance, client);
     }
 
     /**
@@ -339,6 +342,55 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
+     * Capacity reservation for the instance.
+     */
+    @ResourceUpdatable
+    public String getCapacityReservation() {
+        if (capacityReservation == null) {
+            capacityReservation = "none";
+        }
+
+        return capacityReservation;
+    }
+
+    public void setCapacityReservation(String capacityReservation) {
+        this.capacityReservation = capacityReservation;
+    }
+
+    /**
+     * Set Block device Mapping for the instance.
+     */
+    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new ArrayList<>();
+        }
+
+        return blockDeviceMapping;
+    }
+
+    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+        this.blockDeviceMapping = blockDeviceMapping;
+    }
+
+    /**
+     * Attach existing volumes to the instance.
+     *
+     * @subresource gyro.core.ec2.InstanceVolumeAttachment
+     */
+    @ResourceUpdatable
+    public List<InstanceVolumeAttachment> getVolume() {
+        if (volume == null) {
+            volume = new ArrayList<>();
+        }
+
+        return volume;
+    }
+
+    public void setVolume(List<InstanceVolumeAttachment> volume) {
+        this.volume = volume;
+    }
+
+    /**
      * The private IP of this instance.
      *
      * @output
@@ -403,19 +455,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return launchDate;
     }
 
-    @ResourceUpdatable
-    public String getCapacityReservation() {
-        if (capacityReservation == null) {
-            capacityReservation = "none";
-        }
-
-        return capacityReservation;
-    }
-
-    public void setCapacityReservation(String capacityReservation) {
-        this.capacityReservation = capacityReservation;
-    }
-
     // -- GyroInstance Implementation
 
     @Override
@@ -456,6 +495,18 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         Ec2Client client = createClient(Ec2Client.class);
 
+        Instance instance = getInstance(client);
+
+        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED) {
+            return false;
+        }
+
+        init(instance, client);
+
+        return true;
+    }
+
+    private Instance getInstance(Ec2Client client) {
         if (ObjectUtils.isBlank(getInstanceId())) {
             throw new GyroException("instance-id is missing, unable to load instance.");
         }
@@ -463,55 +514,17 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         try {
             DescribeInstancesResponse response = client.describeInstances(r -> r.instanceIds(getInstanceId()));
 
-            List<Reservation> reservations = response.reservations();
-            for (Reservation reservation : reservations) {
-                List<Instance> instances = reservation.instances();
-                if (instances.isEmpty())  {
-                    return false;
-                }
-
-                for (Instance instance : instances) {
-                    init(instance);
-
-                    if (instance.state().name() == InstanceStateName.TERMINATED) {
-                        return false;
-                    }
-
-                    break;
-                }
-                break;
+            if (!response.reservations().isEmpty() && !response.reservations().get(0).instances().isEmpty()) {
+                return response.reservations().get(0).instances().get(0);
             }
-
-            DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
-            );
-            setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
-
-            attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
-            );
-            setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
-
-            attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.SOURCE_DEST_CHECK)
-            );
-            setSourceDestCheck(attributeResponse.sourceDestCheck().equals(AttributeBooleanValue.builder().value(true).build()));
-
-            attributeResponse = client.describeInstanceAttribute(
-                r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
-            );
-            setUserData(attributeResponse.userData().value() == null
-                ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
 
         } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
-
-            throw ex;
         }
 
-        return true;
+        return null;
     }
 
     @Override
@@ -520,39 +533,47 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         validate(client, true);
 
-        try {
-            RunInstancesResponse response = client.runInstances(
-                r -> r.imageId(getAmiId())
-                    .ebsOptimized(getEbsOptimized())
-                    .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                    .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                    .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
-                    .instanceType(getInstanceType())
-                    .keyName(getKeyName())
-                    .maxCount(1)
-                    .minCount(1)
-                    .monitoring(o -> o.enabled(getEnableMonitoring()))
-                    .securityGroupIds(getSecurityGroupIds())
-                    .subnetId(getSubnetId())
-                    .disableApiTermination(getDisableApiTermination())
-                    .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                    .capacityReservationSpecification(getCapacityReservationSpecification())
+        RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
+        builder = builder.imageId(getAmiId())
+            .ebsOptimized(getEbsOptimized())
+            .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+            .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+            .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
+            .instanceType(getInstanceType())
+            .keyName(getKeyName())
+            .maxCount(1)
+            .minCount(1)
+            .monitoring(o -> o.enabled(getEnableMonitoring()))
+            .securityGroupIds(getSecurityGroupIds())
+            .subnetId(getSubnetId())
+            .disableApiTermination(getDisableApiTermination())
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .capacityReservationSpecification(getCapacityReservationSpecification());
+
+        if (!getBlockDeviceMapping().isEmpty()) {
+            builder = builder.blockDeviceMappings(
+                getBlockDeviceMapping().stream()
+                    .map(BlockDeviceMappingResource::getBlockDeviceMapping)
+                    .collect(Collectors.toList())
             );
-
-            for (Instance instance : response.instances()) {
-                setInstanceId(instance.instanceId());
-                setPublicDnsName(instance.publicDnsName());
-                setPublicIpAddress(instance.publicIpAddress());
-                setPrivateIpAddress(instance.privateIpAddress());
-                setInstanceState(instance.state().nameAsString());
-                setInstanceLaunchDate(Date.from(instance.launchTime()));
-            }
-
-            waitForRunningInstances(client);
-
-        } catch (Ec2Exception ex) {
-            throw ex;
         }
+
+        RunInstancesResponse response = client.runInstances(builder.build());
+
+        for (Instance instance : response.instances()) {
+            setInstanceId(instance.instanceId());
+            setPublicDnsName(instance.publicDnsName());
+            setPublicIpAddress(instance.publicIpAddress());
+            setPrivateIpAddress(instance.privateIpAddress());
+            setInstanceState(instance.state().nameAsString());
+            setInstanceLaunchDate(Date.from(instance.launchTime()));
+
+            break;
+        }
+
+        waitForRunningInstances(client);
+
+        loadVolume(getInstance(client));
     }
 
     @Override
@@ -675,7 +696,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return sb.toString();
     }
 
-    private void init(Instance instance) {
+    private void init(Instance instance, Ec2Client client) {
         setAmiId(instance.imageId());
         setCoreCount(instance.cpuOptions().coreCount());
         setThreadPerCore(instance.cpuOptions().threadsPerCore());
@@ -700,6 +721,29 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                     : instance.capacityReservationSpecification().capacityReservationPreferenceAsString()
             );
         }
+
+        DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
+        );
+        setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
+
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
+        );
+        setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
+
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.SOURCE_DEST_CHECK)
+        );
+        setSourceDestCheck(attributeResponse.sourceDestCheck().equals(AttributeBooleanValue.builder().value(true).build()));
+
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
+        );
+        setUserData(attributeResponse.userData().value() == null
+            ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
+
+        loadVolume(instance);
     }
 
     private void validate(Ec2Client client, boolean isCreate) {
@@ -828,6 +872,24 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             return CapacityReservationSpecification.builder()
                 .capacityReservationTarget(r -> r.capacityReservationId(getCapacityReservation()))
                 .build();
+        }
+    }
+
+    private void loadVolume(Instance instance) {
+        Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
+            .stream()
+            .map(BlockDeviceMappingResource::getDeviceName)
+            .collect(Collectors.toSet());
+
+        getVolume().clear();
+
+        if (instance != null) {
+            reservedDeviceNameSet.add(instance.rootDeviceName());
+
+            setVolume(instance.blockDeviceMappings().stream()
+                .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
+                .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+                .collect(Collectors.toList()));
         }
     }
 }

@@ -723,7 +723,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         for (Reservation reservation : instancesResponse.reservations()) {
             instances.addAll(reservation.instances()
                 .stream()
-                .map(i -> new InstanceResource(i))
+                .map(i -> new InstanceResource(i, ec2Client))
                 .collect(Collectors.toList()));
         }
 
