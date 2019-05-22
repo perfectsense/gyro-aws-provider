@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.ResourceId;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
@@ -109,6 +110,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     }
 
     @ResourceOutput
+    @ResourceId
     public String getSubnetId() {
         return subnetId;
     }
