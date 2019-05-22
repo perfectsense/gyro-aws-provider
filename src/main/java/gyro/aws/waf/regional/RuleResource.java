@@ -1,7 +1,7 @@
 package gyro.aws.waf.regional;
 
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.Rule;
@@ -23,7 +23,7 @@ import java.util.List;
  *         metric-name: "ruleExample"
  *     end
  */
-@ResourceType("rule-regional")
+@Type("rule-regional")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
     private List<PredicateResource> predicate;
 
@@ -32,7 +32,7 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
      *
      * @subresource gyro.aws.waf.PredicateResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<PredicateResource> getPredicate() {
         if (predicate == null) {
             predicate = new ArrayList<>();

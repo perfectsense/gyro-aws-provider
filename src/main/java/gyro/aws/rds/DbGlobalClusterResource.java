@@ -2,8 +2,8 @@ package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -22,7 +22,7 @@ import java.util.Set;
  *        engine: "aurora"
  *    end
  */
-@ResourceType("db-global-cluster")
+@Type("db-global-cluster")
 public class DbGlobalClusterResource extends AwsResource {
 
     private String databaseName;
@@ -47,7 +47,7 @@ public class DbGlobalClusterResource extends AwsResource {
     /**
      * Enable or disable deletion protection on the global cluster. The default is false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getDeletionProtection() {
         return deletionProtection;
     }

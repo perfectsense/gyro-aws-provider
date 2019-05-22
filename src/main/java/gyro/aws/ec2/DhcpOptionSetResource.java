@@ -2,9 +2,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
 import software.amazon.awssdk.services.ec2.model.CreateDhcpOptionsResponse;
@@ -37,7 +36,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("dhcp-option")
+@Type("dhcp-option")
 public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
 
     private String dhcpOptionsId;
@@ -50,7 +49,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
     /**
      * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
      */
-    @ResourceOutput
+    @Output
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
     }

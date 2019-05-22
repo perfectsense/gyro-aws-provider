@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsResourceFinder;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceFilter;
+import gyro.aws.AwsFinder;
+import gyro.core.Type;
+import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 
@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ResourceType("vpc")
-public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcResource> {
+@Type("vpc")
+public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;
     private String dhcpOptionsId;
@@ -44,7 +44,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.dhcpOptionsId = dhcpOptionsId;
     }
 
-    @ResourceFilter("cidr-block-association.cidr-block")
+    @Filter("cidr-block-association.cidr-block")
     public String getIpv4CidrBlock() {
         return ipv4CidrBlock;
     }
@@ -53,7 +53,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.ipv4CidrBlock = ipv4CidrBlock;
     }
 
-    @ResourceFilter("cidr-block-association.association-id")
+    @Filter("cidr-block-association.association-id")
     public String getIpv4CidrBlockAssociationId() {
         return ipv4CidrBlockAssociationId;
     }
@@ -62,7 +62,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.ipv4CidrBlockAssociationId = ipv4CidrBlockAssociationId;
     }
 
-    @ResourceFilter("cidr-block-association.state")
+    @Filter("cidr-block-association.state")
     public String getIpv4CidrBlockAssociationState() {
         return ipv4CidrBlockAssociationState;
     }
@@ -71,7 +71,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.ipv4CidrBlockAssociationState = ipv4CidrBlockAssociationState;
     }
 
-    @ResourceFilter("ipv6-cidr-block-association.ipv6-cidr-block")
+    @Filter("ipv6-cidr-block-association.ipv6-cidr-block")
     public String getIpv6CidrBlock() {
         return ipv6CidrBlock;
     }
@@ -80,7 +80,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
-    @ResourceFilter("ipv6-cidr-block-association.association-id")
+    @Filter("ipv6-cidr-block-association.association-id")
     public String getIpv6CidrBlockAssociationId() {
         return ipv6CidrBlockAssociationId;
     }
@@ -89,7 +89,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.ipv6CidrBlockAssociationId = ipv6CidrBlockAssociationId;
     }
 
-    @ResourceFilter("ipv6-cidr-block-association.state")
+    @Filter("ipv6-cidr-block-association.state")
     public String getIpv6CidrBlockAssociationState() {
         return ipv6CidrBlockAssociationState;
     }
@@ -98,7 +98,7 @@ public class VpcResourceFinder extends AwsResourceFinder<Ec2Client, Vpc, VpcReso
         this.ipv6CidrBlockAssociationState = ipv6CidrBlockAssociationState;
     }
 
-    @ResourceFilter("isDefault")
+    @Filter("isDefault")
     public String getIsDefault() {
         return isDefault;
     }

@@ -2,8 +2,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("ebs-snapshot")
+@Type("ebs-snapshot")
 public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
 
     private String volumeId;
@@ -51,7 +51,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
     /**
      * The volume id based on which the snapshot would be created. (Required)
      */
-    @ResourceOutput
+    @Output
     public String getVolumeId() {
         return volumeId;
     }

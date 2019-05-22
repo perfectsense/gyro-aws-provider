@@ -1,8 +1,8 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *        }
  *    end
  */
-@ResourceType("db-cluster-parameter-group")
+@Type("db-cluster-parameter-group")
 public class DbClusterParameterGroupResource extends RdsTaggableResource {
 
     private String description;
@@ -87,7 +87,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
      *
      * @subresource gyro.aws.rds.DbParameter
      */
-    @ResourceUpdatable
+    @Updatable
     public List<DbParameter> getParameter() {
         if (parameter == null) {
             parameter = new ArrayList<>();

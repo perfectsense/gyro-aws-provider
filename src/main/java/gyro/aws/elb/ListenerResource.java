@@ -3,7 +3,7 @@ package gyro.aws.elb;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
@@ -38,7 +38,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The port on which the instance is listening.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getInstancePort() {
         return instancePort;
     }
@@ -50,7 +50,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The protocol to use for routing traffic to instances : HTTP, HTTPS, TCP, SSL.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInstanceProtocol() {
         return instanceProtocol;
     }
@@ -62,7 +62,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The port on which the load balancer is listening.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getLoadBalancerPort() {
         return loadBalancerPort;
     }
@@ -74,7 +74,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The load balancer transport protocol to use for routing: HTTP, HTTPS, TCP, or SSL.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProtocol() {
         return protocol;
     }
@@ -86,7 +86,7 @@ public class ListenerResource extends AwsResource {
     /**
      * The Amazon Resource Name(ARN) of the server certificate.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSslCertificateId() {
         return sslCertificateId;
     }

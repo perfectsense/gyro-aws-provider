@@ -2,9 +2,9 @@ package gyro.aws.cloudfront;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
  *        end
  *    end
  */
-@ResourceType("cloudfront")
+@Type("cloudfront")
 public class CloudFrontResource extends AwsResource {
 
     private boolean enabled;
@@ -98,7 +98,7 @@ public class CloudFrontResource extends AwsResource {
      * The id of this CloudFront distribution.
      *
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -111,7 +111,7 @@ public class CloudFrontResource extends AwsResource {
      * The arn of this CloudFront distribution.
      *
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -123,7 +123,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * Enable or disable this distribution without deleting it.
      */
-    @ResourceUpdatable
+    @Updatable
     public boolean getEnabled() {
         return enabled;
     }
@@ -135,7 +135,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * A comment for this distribution.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getComment() {
         if (comment == null) {
             return "";
@@ -151,7 +151,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * CNAMES (aliases) for which this distribution will listen for.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getCnames() {
         if (cnames == null) {
             cnames = new ArrayList<>();
@@ -169,7 +169,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The maximum http version that users can request on this distribution. Valid values are ``HTTP1_1`` or ``HTTP2``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHttpVersion() {
         return httpVersion;
     }
@@ -181,7 +181,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The maximum price you want to pay for CloudFront. Valid values are ``PriceClass_All``, ``PriceClass_200`` and ``PriceClass_100``. For information on pricing see `Price classes <https://aws.amazon.com/cloudfront/pricing/#On-demand_Pricing>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPriceClass() {
         if (priceClass == null) {
             return "PriceClass_All";
@@ -197,7 +197,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The object to request from the origin when a user requests the root URL (i.e. http://www.example.com/).
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDefaultRootObject() {
         if (defaultRootObject == null) {
             return "";
@@ -229,7 +229,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * Enable IPv6 support for this distribution.
      */
-    @ResourceUpdatable
+    @Updatable
     public boolean getIpv6Enabled() {
         return isIpv6Enabled;
     }
@@ -241,7 +241,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * The Web ACL (WAF) ID to associate with this distribution.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getWebAclId() {
         if (webAclId == null) {
             return "";
@@ -258,7 +258,7 @@ public class CloudFrontResource extends AwsResource {
      * The domain name for this distribution (i.e. ``abc123893.cloudfront.net``).
      *
      */
-    @ResourceOutput("abc123.cloudfront.net")
+    @Output("abc123.cloudfront.net")
     public String getDomainName() {
         return domainName;
     }
@@ -270,7 +270,7 @@ public class CloudFrontResource extends AwsResource {
     /**
      * A map of tags to apply to this distribution.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -322,7 +322,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCacheBehavior
      */
-    @ResourceUpdatable
+    @Updatable
     public CloudFrontCacheBehavior getDefaultCacheBehavior() {
         return defaultCacheBehavior;
     }
@@ -338,7 +338,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontViewerCertificate
      */
-    @ResourceUpdatable
+    @Updatable
     public CloudFrontViewerCertificate getViewerCertificate() {
         return viewerCertificate;
     }
@@ -352,7 +352,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontLogging
      */
-    @ResourceUpdatable
+    @Updatable
     public CloudFrontLogging getLogging() {
         return logging;
     }
@@ -366,7 +366,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCustomErrorResponse
      */
-    @ResourceUpdatable
+    @Updatable
     public List<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
         if (customErrorResponse == null) {
             customErrorResponse = new ArrayList<>();
@@ -384,7 +384,7 @@ public class CloudFrontResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudfront.CloudFrontGeoRestriction
      */
-    @ResourceUpdatable
+    @Updatable
     public CloudFrontGeoRestriction getGeoRestriction() {
         if (geoRestriction == null) {
             return new CloudFrontGeoRestriction();

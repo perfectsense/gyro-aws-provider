@@ -4,9 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequest;
@@ -32,7 +32,7 @@ import java.util.Set;
  *         event-source-arn: "$(aws::sqs sqs-event-source-mapping-example | queue-arn)"
  *     end
  */
-@ResourceType("event-source-mapping")
+@Type("event-source-mapping")
 public class EventSourceMapping extends AwsResource {
     private String functionName;
     private Integer batchSize;
@@ -55,7 +55,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The name / arn / partial arn of the function to be associated with. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getFunctionName() {
         return isFunctionArnSame() ? getFunctionArn() : functionName;
     }
@@ -67,7 +67,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The batch size for the event to invoke the function. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getBatchSize() {
         return batchSize;
     }
@@ -79,7 +79,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * Enable or disable the event mapping. Defaults to ``True``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnabled() {
         if (enabled == null) {
             enabled = true;
@@ -128,7 +128,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The id of the event mapping.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -140,7 +140,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * Last modified date of the event mapping.
      */
-    @ResourceOutput
+    @Output
     public Date getLastModified() {
         return lastModified;
     }
@@ -152,7 +152,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * Last processing of the event mapping.
      */
-    @ResourceOutput
+    @Output
     public String getLastProcessingResult() {
         return lastProcessingResult;
     }
@@ -164,7 +164,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * Current state of the event mapping.
      */
-    @ResourceOutput
+    @Output
     public String getState() {
         return state;
     }
@@ -176,7 +176,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * Reason for the current state transition.
      */
-    @ResourceOutput
+    @Output
     public String getStateTransitionReason() {
         return stateTransitionReason;
     }
@@ -188,7 +188,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The arn for the event mapping.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -200,7 +200,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The arn of the function associated the event mapping.
      */
-    @ResourceOutput
+    @Output
     public String getFunctionArn() {
         return functionArn;
     }

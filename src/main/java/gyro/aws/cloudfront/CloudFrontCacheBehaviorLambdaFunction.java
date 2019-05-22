@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
 
 import java.util.Arrays;
@@ -17,7 +17,7 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable {
     private static final Set<String> EventType =
         new HashSet<>(Arrays.asList("viewer-request", "viewer-response", "origin-request", "origin-response"));
 
-    @ResourceUpdatable
+    @Updatable
     public String getEventType() {
         if (eventType == null) {
             eventType = "";
@@ -30,7 +30,7 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable {
         this.eventType = eventType;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getArn() {
         if (arn == null) {
             arn = "";
@@ -43,7 +43,7 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable {
         this.arn = arn;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Boolean getIncludeBody() {
         if (includeBody == null) {
             includeBody = false;

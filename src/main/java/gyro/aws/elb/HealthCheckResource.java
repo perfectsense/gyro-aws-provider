@@ -1,7 +1,7 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.HealthCheck;
@@ -37,7 +37,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The number of health check successes required to move an instance to the 'Healthy' state.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHealthyThreshold() {
         return healthyThreshold;
     }
@@ -49,7 +49,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The interval, in seconds, between health checks of an instance
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getInterval() {
         return interval;
     }
@@ -61,7 +61,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The instance that is being checked
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTarget() {
         return target;
     }
@@ -73,7 +73,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The amount of time, in seconds, a lack of response means a failed health check
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getTimeout() {
         return timeout;
     }
@@ -85,7 +85,7 @@ public class HealthCheckResource extends AwsResource {
     /**
      * The number of health check failures required to move an instance to the 'Unhealthy' state.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getUnhealthyThreshold() {
         return unhealthyThreshold;
     }

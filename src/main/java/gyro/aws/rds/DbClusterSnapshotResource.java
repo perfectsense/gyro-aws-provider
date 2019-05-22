@@ -1,7 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -25,7 +25,7 @@ import java.util.Set;
  *        }
  *    end
  */
-@ResourceType("db-cluster-snapshot")
+@Type("db-cluster-snapshot")
 public class DbClusterSnapshotResource extends RdsTaggableResource {
 
     private String dbClusterIdentifier;

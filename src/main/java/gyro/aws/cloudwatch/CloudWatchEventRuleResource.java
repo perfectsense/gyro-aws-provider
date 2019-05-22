@@ -5,8 +5,8 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.CloudWatchEventsException;
 import software.amazon.awssdk.services.cloudwatchevents.model.ListRulesResponse;
@@ -47,7 +47,7 @@ import java.util.Set;
  * end
  *
  */
-@ResourceType("event-rule")
+@Type("event-rule")
 public class CloudWatchEventRuleResource extends AwsResource {
 
     private String description;
@@ -75,7 +75,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
     /**
      * The description of the rule associated with the event.(Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -87,7 +87,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
     /**
      * The iam role arn that gives permissions to invoke actions on the targets.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRoleArn() {
         return roleArn;
     }
@@ -99,7 +99,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
     /**
      * The event pattern which activates target actions when matched.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEventPattern() {
         return eventPattern;
     }
@@ -111,7 +111,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
     /**
      * The location to the json file which contains the event pattern.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEventPatternPath() {
         return eventPatternPath;
     }
@@ -125,7 +125,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
      *
      * See `AWS Services Schedule Expressions <https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getScheduleExpression() {
         return scheduleExpression;
     }
@@ -139,7 +139,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
      *
      * Valid values are ``ENABLED`` and ``DISABLED``
      */
-    @ResourceUpdatable
+    @Updatable
     public String getState() {
         return state;
     }
@@ -155,7 +155,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
      *
      * @subresource gyro.aws.cloudwatch.CloudWatchRuleTargetResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<CloudWatchRuleTargetResource> getTarget() {
         if (target == null) {
             target = new ArrayList<>();
@@ -170,7 +170,7 @@ public class CloudWatchEventRuleResource extends AwsResource {
     /**
      * If role arn is given, this field specifies which aws service can manage the rules.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getManagedBy() {
         return managedBy;
     }

@@ -4,8 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
@@ -36,7 +36,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource {
         this.name = name;
     }
 
-    @ResourceOutput
+    @Output
     public String getRegexPatternSetId() {
         return regexPatternSetId;
     }
@@ -48,7 +48,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource {
     /**
      * A list of regular expression patterns to filter request on. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getPatterns() {
         if (patterns == null) {
             patterns = new ArrayList<>();

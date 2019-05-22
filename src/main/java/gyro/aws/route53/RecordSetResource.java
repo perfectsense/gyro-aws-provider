@@ -2,8 +2,8 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  *         health-check-id: $(aws::health-check health-check-record-set-example-calculated-alpha | health-check-id)
  *     end
  */
-@ResourceType("record-set")
+@Type("record-set")
 public class RecordSetResource extends AwsResource {
     private String comment;
     private String continentCode;
@@ -87,7 +87,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The continent code. At least one of continent code, country code or subdivision code required if type selected as 'geolocation'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getContinentCode() {
         return continentCode != null ? continentCode.toUpperCase() : null;
     }
@@ -99,7 +99,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The country code. At least one of continent code, country code or subdivision code required if 'type' selected as 'geolocation'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCountryCode() {
         return countryCode != null ? countryCode.toUpperCase() : null;
     }
@@ -111,7 +111,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * Dns name to associate with this record set. Required if 'enable alias' is set to 'true'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDnsName() {
         if (dnsName != null) {
             dnsName += dnsName.endsWith(".") ? "" : ".";
@@ -127,7 +127,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * Enable target health evaluation with this record set. Required if 'enable alias' is set to 'true'.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEvaluateTargetHealth() {
         return evaluateTargetHealth;
     }
@@ -139,7 +139,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to 'failover'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getFailover() {
         return failover != null ? failover.toUpperCase() : null;
     }
@@ -162,7 +162,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The id of a health check to be associated with the record set. Required if 'failover' is set to 'primary'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHealthCheckId() {
         return healthCheckId;
     }
@@ -174,7 +174,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * Needs to be enabled if routing policy is 'multivalue'. Required if 'route policy' set to 'multivalue'.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getMultiValueAnswer() {
         return multiValueAnswer;
     }
@@ -186,7 +186,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The name of the record set being created. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getName() {
         return name;
     }
@@ -198,7 +198,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The region where the records mentioned resides. Required if 'route policy' set to 'latency'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRegion() {
         return region;
     }
@@ -210,7 +210,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * a set identifier that differentiates this from other record set of the same type and routing policy. Required if 'enable alias' is set to 'false'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSetIdentifier() {
         return setIdentifier;
     }
@@ -222,7 +222,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The sub division code. At least one of continent code, country code or subdivision code required if type selected as 'geolocation'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSubdivisionCode() {
         return subdivisionCode != null ? subdivisionCode.toUpperCase() : null;
     }
@@ -234,7 +234,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The id of a traffic policy instance to be associated with the record set.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTrafficPolicyInstanceId() {
         return trafficPolicyInstanceId;
     }
@@ -246,7 +246,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The resource record cache time to live. Valid values [ 0 - 172800]. Required if 'enable alias' is set to 'false'.
      */
-    @ResourceUpdatable
+    @Updatable
     public Long getTtl() {
         return ttl;
     }
@@ -258,7 +258,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The type of record set being created. Valid values [ SOA, A, TXT, NS, CNAME, MX, NAPTR, PTR, SRV, SPF, AAAA, CAA ]. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getType() {
         return type;
     }
@@ -270,7 +270,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The weight value determines the probability of a record being selected. Valid values [ 0 - 255]. Required if 'route policy' set to 'weighted'.
      */
-    @ResourceUpdatable
+    @Updatable
     public Long getWeight() {
         return weight;
     }
@@ -282,7 +282,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * A list of ip addresses for the record set. Required if 'enable alias' is set to 'false'.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getRecords() {
         if (records == null) {
             records = new ArrayList<>();
@@ -299,7 +299,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * Routing policy type the record set is going to be. Defaults to Simple. Valid Values [ 'geolocation', 'failover', 'multivalue', 'weighted', 'latency', 'simple' ].
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRoutingPolicy() {
         if (routingPolicy == null) {
             routingPolicy = "simple";
@@ -315,7 +315,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * Enable alias. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableAlias() {
         if (enableAlias == null) {
             enableAlias = false;
@@ -331,7 +331,7 @@ public class RecordSetResource extends AwsResource {
     /**
      * The hosted zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to 'true'.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAliasHostedZoneId() {
         return aliasHostedZoneId;
     }

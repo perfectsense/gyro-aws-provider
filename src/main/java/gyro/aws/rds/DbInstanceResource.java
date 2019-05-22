@@ -1,9 +1,9 @@
 package gyro.aws.rds;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *        }
  *    end
  */
-@ResourceType("db-instance")
+@Type("db-instance")
 public class DbInstanceResource extends RdsTaggableResource {
 
     private Integer allocatedStorage;
@@ -99,7 +99,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The amount of storage to allocate in gibibytes. Not applicable for Aurora.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getAllocatedStorage() {
         return allocatedStorage;
     }
@@ -133,7 +133,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Allow or disallow automatic minor engine version upgrades during the maintenance window. Defaults to true (allow).
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAutoMinorVersionUpgrade() {
         return autoMinorVersionUpgrade;
     }
@@ -156,7 +156,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The number of days to retain backups. Must be a value from ``0`` to ``35`` where ``0`` to disables automated backups. Not applicable for Aurora.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
     }
@@ -179,7 +179,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Copy the DB instance tags to snapshots. Default is false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getCopyTagsToSnapshot() {
         return copyTagsToSnapshot;
     }
@@ -202,7 +202,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The DB instance type. See `DB Instance Class <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
     }
@@ -236,7 +236,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The name of the DB parameter group to use for this instance. The default DB Parameter Group is used if this is not set.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDbParameterGroupName() {
         return dbParameterGroupName;
     }
@@ -248,7 +248,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * A list of security groups to use with this DB instance. This is for EC2 Classic, for VPCs use ``vpc-security-group-ids``.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getDbSecurityGroups() {
         return dbSecurityGroups;
     }
@@ -271,7 +271,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Delete automated backups after the DB instance is deleted. Default to false (keep automated backups).
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getDeleteAutomatedBackups() {
         return deleteAutomatedBackups;
     }
@@ -283,7 +283,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Enable deletion protection on the DB instance. This prevents the database from accidentally being deleted. The default is false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getDeletionProtection() {
         return deletionProtection;
     }
@@ -295,7 +295,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The Active Directory Domain to create the instance in, only applicable to SQL Server engine.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDomain() {
         return domain;
     }
@@ -307,7 +307,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The name of the IAM role to be used when making API calls to the Directory Service, only applicable to SQL Server engine.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDomainIamRoleName() {
         return domainIamRoleName;
     }
@@ -319,7 +319,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The list of log types to export to CloudWatch Logs. Valid values depend on the DB engine being used. See `Publishing Database Logs to Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getEnableCloudwatchLogsExports() {
         return enableCloudwatchLogsExports;
     }
@@ -331,7 +331,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Enable mapping IAM accounts to database accounts, default to false (disable). Not applicable to Aurora.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableIamDatabaseAuthentication() {
         return enableIamDatabaseAuthentication;
     }
@@ -343,7 +343,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Enable Performance Insights for the DB instance. The default to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnablePerformanceInsights() {
         return enablePerformanceInsights;
     }
@@ -366,7 +366,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The version number of the database engine to use.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -389,7 +389,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The amount of Provisioned IOPS to be allocated. The value must be equal to or greater than 1000. Required if `storage-type` is ``io1``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getIops() {
         return iops;
     }
@@ -412,7 +412,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * License model for this DB instance. Valid values: ``license-included``, ``bring-your-own-license``, ``general-public-license``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getLicenseModel() {
         return licenseModel;
     }
@@ -424,7 +424,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The password for the master user.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getMasterUserPassword() {
         return masterUserPassword;
     }
@@ -447,7 +447,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection). Valid Values: ``0``, ``1``, ``5``, ``10``, ``15``, ``30``, ``60``.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMonitoringInterval() {
         return monitoringInterval;
     }
@@ -459,7 +459,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to Amazon CloudWatch Logs.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getMonitoringRoleArn() {
         return monitoringRoleArn;
     }
@@ -471,7 +471,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Launch this DB instance in multiple availability zones. If true, ``availability-zone`` must not be set.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getMultiAz() {
         return multiAz;
     }
@@ -483,7 +483,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The name of the option group to associate with.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getOptionGroupName() {
         return optionGroupName;
     }
@@ -495,7 +495,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The AWS KMS key ARN for encryption of Performance Insights data. Not applicable if `enable-performance-insights` is false.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPerformanceInsightsKmsKeyId() {
         return performanceInsightsKmsKeyId;
     }
@@ -507,7 +507,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * How many days to retain Performance Insights data. Valid values are ``7`` or ``731`` (2 years).
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPerformanceInsightsRetentionPeriod() {
         return performanceInsightsRetentionPeriod;
     }
@@ -530,7 +530,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The preferred backup window when automated backups are enabled. Must be provided in UTC using the format ``hh24:mi-hh24:mi`` (i.e. ``01:00-02:00``).
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPreferredBackupWindow() {
         return preferredBackupWindow;
     }
@@ -542,7 +542,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The preferred system maintenance window. Must be provided in UTC using the format ``ddd:hh24:mi-ddd:hh24:mi``` (i.e. ``Mon:01:00-Mon:02:00``).
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -554,7 +554,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The order of the Aurora Replica is promoted to the primary instance after the existing primary instance fails. Valid Values: 0 - 15.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPromotionTier() {
         return promotionTier;
     }
@@ -603,7 +603,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The storage type for the DB instance. Valid values are ``standard``, ``gp2``, ``io1``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getStorageType() {
         return storageType;
     }
@@ -648,7 +648,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * A list of Amazon VPC security groups to associate with.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getVpcSecurityGroupIds() {
         return vpcSecurityGroupIds;
     }
@@ -660,7 +660,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * DNS hostname to access this database at.
      */
-    @ResourceOutput
+    @Output
     public String getEndpointAddress() {
         return endpointAddress;
     }

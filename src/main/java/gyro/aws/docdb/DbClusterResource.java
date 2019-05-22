@@ -4,9 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  *         post-delete-snapshot-identifier: "db-cluster-example-backup-snapshot"
  *     end
  */
-@ResourceType("docdb-cluster")
+@Type("docdb-cluster")
 public class DbClusterResource extends DocDbTaggableResource {
     private Integer backupRetentionPeriod;
     private String dbClusterIdentifier;
@@ -80,7 +80,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Set backup retention period. Minimum 1. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
     }
@@ -125,7 +125,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Engine version for the cluster. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -137,7 +137,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Associated db cluster parameter group. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDbClusterParamGroupName() {
         return dbClusterParamGroupName;
     }
@@ -182,7 +182,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Set the access port. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -194,7 +194,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Set preferred backup window. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPreferredBackupWindow() {
         return preferredBackupWindow;
     }
@@ -206,7 +206,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Set preferred maintenance window. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -218,7 +218,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Associated vpc security group ids. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getVpcSecurityGroupIds() {
         if (vpcSecurityGroupIds == null) {
             vpcSecurityGroupIds = new ArrayList<>();
@@ -268,7 +268,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * snapshot name to be created post cluster delete.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPostDeleteSnapshotIdentifier() {
         return postDeleteSnapshotIdentifier;
     }
@@ -280,7 +280,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * The id for the db cluster.
      */
-    @ResourceOutput
+    @Output
     public String getDbClusterResourceId() {
         return DbClusterResourceId;
     }
@@ -292,7 +292,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * The status for the db cluster.
      */
-    @ResourceOutput
+    @Output
     public String getStatus() {
         return status;
     }
@@ -304,7 +304,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * The arn for the db cluster.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

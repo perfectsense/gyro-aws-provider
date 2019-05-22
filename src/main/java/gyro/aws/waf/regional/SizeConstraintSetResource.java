@@ -1,8 +1,8 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
@@ -31,7 +31,7 @@ import java.util.List;
  *     end
  * end
  */
-@ResourceType("size-constraint-set-regional")
+@Type("size-constraint-set-regional")
 public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstraintSetResource {
     private List<SizeConstraintResource> sizeConstraint;
 
@@ -40,7 +40,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
      *
      * @subresource gyro.aws.waf.regional.SizeConstraintResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
             sizeConstraint = new ArrayList<>();

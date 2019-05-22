@@ -2,9 +2,9 @@ package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
@@ -38,7 +38,7 @@ import java.util.Set;
  *         topic-arn: $(aws::topic sns-topic-example | topic-arn)
  *     end
  */
-@ResourceType("subscriber")
+@Type("subscriber")
 public class SubscriberResource extends AwsResource {
 
     private Map<String, String> attributes;
@@ -60,7 +60,7 @@ public class SubscriberResource extends AwsResource {
      *
      * RawMessageDelivery is a boolean (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getAttributes() {
         if (attributes == null) {
             attributes = new CompactMap<>();
@@ -118,7 +118,7 @@ public class SubscriberResource extends AwsResource {
         this.protocol = protocol;
     }
 
-    @ResourceOutput
+    @Output
     public String getSubscriptionArn() {
         return subscriptionArn;
     }
