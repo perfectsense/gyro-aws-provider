@@ -76,6 +76,12 @@ public class TargetGroupResource extends AwsResource {
     private String targetType;
     private String vpcId;
 
+    public TargetGroupResource() {}
+
+    public TargetGroupResource(ElasticLoadBalancingV2Client client, TargetGroup targetGroup) {
+        refreshResource(client, targetGroup);
+    }
+
     /**
      *  The health check associated with the target group (Optional)
      */
@@ -191,23 +197,8 @@ public class TargetGroupResource extends AwsResource {
 
         if (tgResponse != null) {
             TargetGroup tg = tgResponse.targetGroups().get(0);
-            setHealthCheck(new HealthCheck(tg));
-            setHealthCheckEnabled(tg.healthCheckEnabled());
-            setPort(tg.port());
-            setProtocol(tg.healthCheckProtocolAsString());
-            setArn(tg.targetGroupArn());
-            setName(tg.targetGroupName());
-            setTargetType(tg.targetTypeAsString());
-            setVpcId(tg.vpcId());
 
-            getTags().clear();
-            DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-            if (tagResponse != null) {
-                List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-                for (Tag tag : tags) {
-                    getTags().put(tag.key(), tag.value());
-                }
-            }
+            refreshResource(client, tg);
 
             return true;
         }
@@ -315,5 +306,25 @@ public class TargetGroupResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    private void refreshResource(ElasticLoadBalancingV2Client client, TargetGroup tg) {
+        setHealthCheck(new HealthCheck(tg));
+        setHealthCheckEnabled(tg.healthCheckEnabled());
+        setPort(tg.port());
+        setProtocol(tg.healthCheckProtocolAsString());
+        setArn(tg.targetGroupArn());
+        setName(tg.targetGroupName());
+        setTargetType(tg.targetTypeAsString());
+        setVpc(findById(VpcResource.class, tg.vpcId()));
+
+        getTags().clear();
+        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        if (tagResponse != null) {
+            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
+            for (Tag tag : tags) {
+                getTags().put(tag.key(), tag.value());
+            }
+        }
     }
 }

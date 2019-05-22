@@ -28,6 +28,23 @@ public abstract class LoadBalancerResource extends AwsResource {
     private String scheme;
     private Map<String, String> tags;
 
+    public LoadBalancerResource() {
+
+    }
+
+    public LoadBalancerResource(ElasticLoadBalancingV2Client client, LoadBalancer loadBalancer) {
+        refreshResource(client, loadBalancer);
+
+        getTags().clear();
+        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        if (tagResponse != null) {
+            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
+            for (Tag tag : tags) {
+                getTags().put(tag.key(), tag.value());
+            }
+        }
+    }
+
     /**
      *  Public DNS name for the alb
      */
@@ -106,23 +123,11 @@ public abstract class LoadBalancerResource extends AwsResource {
         try {
             DescribeLoadBalancersResponse lbResponse = client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
 
-            LoadBalancer lb = lbResponse.loadBalancers().get(0);
-            setDnsName(lb.dnsName());
-            setIpAddressType(lb.ipAddressTypeAsString());
-            setArn(lb.loadBalancerArn());
-            setName(lb.loadBalancerName());
-            setScheme(lb.schemeAsString());
+            LoadBalancer loadBalancer = lbResponse.loadBalancers().get(0);
 
-            getTags().clear();
-            DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-            if (tagResponse != null) {
-                List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-                for (Tag tag : tags) {
-                    getTags().put(tag.key(), tag.value());
-                }
-            }
+            refreshResource(client, loadBalancer);
 
-            return lb;
+            return loadBalancer;
 
         } catch (LoadBalancerNotFoundException ex) {
             return null;
@@ -177,5 +182,22 @@ public abstract class LoadBalancerResource extends AwsResource {
     @Override
     public String toDisplayString() {
         return "load balancer " + getName();
+    }
+
+    private void refreshResource(ElasticLoadBalancingV2Client client, LoadBalancer loadBalancer) {
+        setDnsName(loadBalancer.dnsName());
+        setIpAddressType(loadBalancer.ipAddressTypeAsString());
+        setArn(loadBalancer.loadBalancerArn());
+        setName(loadBalancer.loadBalancerName());
+        setScheme(loadBalancer.schemeAsString());
+
+        getTags().clear();
+        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        if (tagResponse != null) {
+            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
+            for (Tag tag : tags) {
+                getTags().put(tag.key(), tag.value());
+            }
+        }
     }
 }

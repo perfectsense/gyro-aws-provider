@@ -22,6 +22,12 @@ public abstract class ListenerResource extends AwsResource {
     private String protocol;
     private String sslPolicy;
 
+    public ListenerResource() {}
+
+    public ListenerResource(ElasticLoadBalancingV2Client client, Listener listener) {
+        refreshResource(client, listener);
+    }
+
     /**
      *  List of certificates associated with the listener (Optional)
      *
@@ -111,29 +117,7 @@ public abstract class ListenerResource extends AwsResource {
 
             Listener listener = lstResponse.listeners().get(0);
 
-            if (listener.certificates().size() > 0) {
-                setDefaultCertificate(listener.certificates().get(0).certificateArn());
-            }
-            setArn(listener.listenerArn());
-            setLoadBalancerArn(listener.loadBalancerArn());
-            setPort(listener.port());
-            setProtocol(listener.protocolAsString());
-            setSslPolicy(listener.sslPolicy());
-
-            if (this instanceof ApplicationLoadBalancerListenerResource) {
-                getCertificate().clear();
-                DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
-                if (certResponse != null) {
-                    for (Certificate certificate : certResponse.certificates()) {
-                        if (!certificate.isDefault()) {
-                            CertificateResource cert = new CertificateResource();
-                            cert.setArn(certificate.certificateArn());
-                            cert.setIsDefault(certificate.isDefault());
-                            getCertificate().add(cert);
-                        }
-                    }
-                }
-            }
+            refreshResource(client, listener);
 
             return listener;
 
@@ -154,5 +138,32 @@ public abstract class ListenerResource extends AwsResource {
             certificates.add(Certificate.builder().certificateArn(cert.getArn()).build());
         }
         return certificates;
+    }
+
+    private void refreshResource(ElasticLoadBalancingV2Client client, Listener listener) {
+        if (listener.certificates().size() > 0) {
+            setDefaultCertificate(listener.certificates().get(0).certificateArn());
+        }
+
+        setArn(listener.listenerArn());
+        setLoadBalancer(getLoadBalancer());
+        setPort(listener.port());
+        setProtocol(listener.protocolAsString());
+        setSslPolicy(listener.sslPolicy());
+
+        if (this instanceof ApplicationLoadBalancerListenerResource) {
+            getCertificate().clear();
+            DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
+            if (certResponse != null) {
+                for (Certificate certificate : certResponse.certificates()) {
+                    if (!certificate.isDefault()) {
+                        CertificateResource cert = new CertificateResource();
+                        cert.setArn(certificate.certificateArn());
+                        cert.setIsDefault(certificate.isDefault());
+                        getCertificate().add(cert);
+                    }
+                }
+            }
+        }
     }
 }
