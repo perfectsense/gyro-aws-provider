@@ -23,7 +23,7 @@ import java.util.Set;
  *     aws::nlb-listener listener-example
  *         port: "80"
  *         protocol: "TCP"
- *         load-balancer-arn: $(aws::nlb nlb-example | load-balancer-arn)
+ *         load-balancer: $(aws::nlb nlb-example | load-balancer)
  *
  *         default-action
  *             target-group-arn: $(aws::target-group target-group-example | target-group-arn)
@@ -70,7 +70,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         CreateListenerResponse response =
                 client.createListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                         .defaultActions(toDefaultActions())
-                        .loadBalancerArn(getLoadBalancerArn())
+                        .loadBalancerArn(getLoadBalancer().getArn())
                         .port(getPort())
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));

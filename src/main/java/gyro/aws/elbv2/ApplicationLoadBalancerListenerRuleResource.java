@@ -51,7 +51,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
 
     private List<ActionResource> action;
     private List<ConditionResource> condition;
-    private String listenerArn;
+    private ListenerResource listener;
     private Integer priority;
     private String arn;
 
@@ -91,12 +91,12 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         this.condition = condition;
     }
 
-    public String getListenerArn() {
-        return listenerArn;
+    public ListenerResource getListener() {
+        return listener;
     }
 
-    public void setListenerArn(String listenerArn) {
-        this.listenerArn = listenerArn;
+    public void setListener(ListenerResource listener) {
+        this.listener = listener;
     }
 
     /**
@@ -143,7 +143,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         CreateRuleResponse response = client.createRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .listenerArn(getListenerArn())
+                .listenerArn(getListener().getArn())
                 .priority(getPriority()));
 
         setArn(response.rules().get(0).ruleArn());

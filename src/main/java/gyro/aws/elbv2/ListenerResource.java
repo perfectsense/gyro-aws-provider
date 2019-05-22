@@ -17,7 +17,7 @@ public abstract class ListenerResource extends AwsResource {
     private List<CertificateResource> certificate;
     private String defaultCertificate;
     private String arn;
-    private String loadBalancerArn;
+    private LoadBalancerResource loadBalancer;
     private Integer port;
     private String protocol;
     private String sslPolicy;
@@ -66,12 +66,12 @@ public abstract class ListenerResource extends AwsResource {
         this.arn = arn;
     }
 
-    public String getLoadBalancerArn() {
-        return loadBalancerArn;
+    public LoadBalancerResource getLoadBalancer() {
+        return loadBalancer;
     }
 
-    public void setLoadBalancerArn(String loadBalancerArn) {
-        this.loadBalancerArn = loadBalancerArn;
+    public void setLoadBalancer(LoadBalancerResource loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
     /**

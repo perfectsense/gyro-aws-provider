@@ -1,6 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.ec2.VpcResource;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 
@@ -33,7 +34,7 @@ import java.util.Set;
  *         port: "80"
  *         protocol: "HTTP"
  *         target-type: "instance"
- *         vpc-id: $(aws::vpc vpc | vpc-id)
+ *         vpc: $(aws::vpc vpc)
  *         enabled: "true"
  *
  *         health-check
@@ -74,7 +75,7 @@ public class TargetGroupResource extends AwsResource {
     private String arn;
     private String name;
     private String targetType;
-    private String vpcId;
+    private VpcResource vpc;
 
     public TargetGroupResource() {}
 
@@ -181,12 +182,12 @@ public class TargetGroupResource extends AwsResource {
         this.targetType = targetType;
     }
 
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     @Override
@@ -226,7 +227,7 @@ public class TargetGroupResource extends AwsResource {
                     .name(getName())
                     .targetType(getTargetType())
                     .unhealthyThresholdCount(getHealthCheck().getUnhealthyThreshold())
-                    .vpcId(getVpcId())
+                    .vpcId(getVpc().getVpcId())
             );
         } else {
             response = client.createTargetGroup(r -> r.healthCheckEnabled(getHealthCheckEnabled())
@@ -234,7 +235,7 @@ public class TargetGroupResource extends AwsResource {
                     .protocol(getProtocol())
                     .name(getName())
                     .targetType(getTargetType())
-                    .vpcId(getVpcId()));
+                    .vpcId(getVpc().getVpcId()));
         }
 
         setArn(response.targetGroups().get(0).targetGroupArn());

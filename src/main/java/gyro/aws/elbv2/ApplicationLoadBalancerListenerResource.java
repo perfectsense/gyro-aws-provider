@@ -24,7 +24,7 @@ import java.util.Set;
  *     aws::alb-listener listener-example
  *         port: "80"
  *         protocol: "HTTPS"
- *         load-balancer-arn: $(aws::alb alb-example | load-balancer-arn)
+ *         load-balancer: $(aws::alb alb-example)
  *         default-certificate: "arn:aws:acm:us-east-2:acct:certificate/certificate-arn"
  *
  *         default-action
@@ -75,7 +75,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         CreateListenerResponse response =
                 client.createListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                         .defaultActions(toDefaultActions())
-                        .loadBalancerArn(getLoadBalancerArn())
+                        .loadBalancerArn(getLoadBalancer().getArn())
                         .port(getPort())
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));
