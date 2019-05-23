@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.ec2.SubnetResource;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMapping;
 
@@ -13,7 +14,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMappin
  *     subnet-mapping
  *         allocation-id: $(aws::elastic-ip elastic-ip-example | allocation-id)
  *         ip-address: $(aws::elastic-ip elastic-ip-example | public-ip)
- *         subnet-id: $(aws::subnet subnet-example | subnet-id)
+ *         subnet: $(aws::subnet subnet-example)
  *     end
  */
 
@@ -21,7 +22,7 @@ public class SubnetMappings extends Diffable {
 
     private String allocationId;
     private String ipAddress;
-    private String subnetId;
+    private SubnetResource subnet;
 
     /**
      *  The allocation id associated with the elastic ip (Optional)
@@ -48,16 +49,16 @@ public class SubnetMappings extends Diffable {
     /**
      *  The subnet associated with the nlb (Optional)
      */
-    public String getSubnetId() {
-        return subnetId;
+    public SubnetResource getSubnet() {
+        return subnet;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setSubnet(SubnetResource subnet) {
+        this.subnet = this.subnet;
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getAllocationId(), getIpAddress(), getSubnetId());
+        return String.format("%s/%s/%s", getAllocationId(), getIpAddress(), getSubnet());
     }
 
     public String toDisplayString() {
@@ -75,7 +76,7 @@ public class SubnetMappings extends Diffable {
     public SubnetMapping toSubnetMappings() {
         return SubnetMapping.builder()
                 .allocationId(getAllocationId())
-                .subnetId(getSubnetId())
+                .subnetId(getSubnet().getSubnetId())
                 .build();
     }
 }

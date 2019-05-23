@@ -1,8 +1,8 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
@@ -24,7 +24,7 @@ import java.util.Set;
  *     aws::alb-listener listener-example
  *         port: "80"
  *         protocol: "HTTPS"
- *         load-balancer: $(aws::alb alb-example)
+ *         alb: $(aws::alb alb-example)
  *         default-certificate: "arn:aws:acm:us-east-2:acct:certificate/certificate-arn"
  *
  *         default-action
@@ -36,7 +36,19 @@ import java.util.Set;
 @Type("alb-listener")
 public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
+    private ApplicationLoadBalancerResource alb;
     private List<ActionResource> defaultAction;
+
+    /**
+     *  The alb that the listener is attached to. (Required)
+     **/
+    public ApplicationLoadBalancerResource getAlb() {
+        return alb;
+    }
+
+    public void setAlb(ApplicationLoadBalancerResource alb) {
+        this.alb = alb;
+    }
 
     /**
      *  List of default actions associated with the listener (Optional)
@@ -62,6 +74,8 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
         if (listener != null) {
             setDefaultAction(fromDefaultActions(listener.defaultActions()));
+            setAlb(findById(ApplicationLoadBalancerResource.class, listener.loadBalancerArn()));
+
             return true;
         }
 
@@ -75,7 +89,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         CreateListenerResponse response =
                 client.createListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                         .defaultActions(toDefaultActions())
-                        .loadBalancerArn(getLoadBalancer().getArn())
+                        .loadBalancerArn(getAlb().getArn())
                         .port(getPort())
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));
@@ -136,7 +150,8 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         List<ActionResource> actions = new ArrayList<>();
 
         for (Action action : actionList) {
-            ActionResource actionResource = new ActionResource(action);
+            ActionResource actionResource = new ActionResource();
+            actionResource.copyFrom(action);
             actions.add(actionResource);
         }
 

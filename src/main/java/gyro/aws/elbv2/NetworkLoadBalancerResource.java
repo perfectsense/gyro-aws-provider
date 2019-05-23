@@ -1,7 +1,9 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.ec2.SubnetResource;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
@@ -71,11 +73,13 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
             getSubnetMappings().clear();
             for (AvailabilityZone zone : loadBalancer.availabilityZones()) {
                 SubnetMappings subnet = new SubnetMappings();
-                subnet.setSubnetId(zone.subnetId());
+                subnet.setSubnet(findById(SubnetResource.class, zone.subnetId()));
+
                 for (LoadBalancerAddress address : zone.loadBalancerAddresses()) {
                     subnet.setAllocationId(address.allocationId());
                     subnet.setIpAddress(address.ipAddress());
                 }
+
                 getSubnetMappings().add(subnet);
             }
 
