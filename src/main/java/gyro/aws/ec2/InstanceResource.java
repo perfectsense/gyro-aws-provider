@@ -51,10 +51,10 @@ import java.util.stream.Collectors;
  *         shutdown-behavior: "stop"
  *         instance-type: "t2.micro"
  *         key-name: "instance-static"
- *         subnet-id: $(aws::subnet subnet-instance-example | subnet-id)
- *         security-group-ids: [
- *             $(aws::security-group security-group-instance-example-1 | group-id),
- *             $(aws::security-group security-group-instance-example-2 | group-id)
+ *         subnet: $(aws::subnet subnet-instance-example)
+ *         security-group: [
+ *             $(aws::security-group security-group-instance-example-1),
+ *             $(aws::security-group security-group-instance-example-2)
  *         ]
  *         disable-api-termination: false
  *         enable-ena-support: true
@@ -79,8 +79,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String instanceType;
     private String keyName;
     private Boolean enableMonitoring;
-    private List<String> securityGroupIds;
-    private String subnetId;
+    private List<SecurityGroupResource> securityGroups;
+    private SubnetResource subnet;
     private Boolean disableApiTermination;
     private Boolean enableEnaSupport;
     private Boolean sourceDestCheck;
@@ -254,27 +254,29 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
+
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public List<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
+
         }
-        return securityGroupIds;
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
      * Launch instance with the subnet specified. See `Vpcs and Subnets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html/>`_. (Required)
      */
-    public String getSubnetId() {
-        return subnetId;
+    public SubnetResource getSubnet() {
+        return subnet;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setSubnet(SubnetResource subnet) {
+        this.subnet = subnet;
     }
 
     /**
@@ -544,8 +546,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(getSecurityGroupIds())
-            .subnetId(getSubnetId())
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .subnetId(getSubnet().getSubnetId())
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .capacityReservationSpecification(getCapacityReservationSpecification());
@@ -604,9 +606,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("security-group-ids")) {
+            List<String> securityGroupIds = new ArrayList<>();
+            getSecurityGroups().forEach(r -> securityGroupIds.add(r.getGroupId()));
+
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
-                    .groups(getSecurityGroupIds())
+                    .groups(securityGroupIds)
             );
         }
 
@@ -705,8 +710,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setInstanceType(instance.instanceType().toString());
         setKeyName(instance.keyName());
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-        setSecurityGroupIds(instance.securityGroups().stream().map(GroupIdentifier::groupId).collect(Collectors.toList()));
-        setSubnetId(instance.subnetId());
+        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class,r)).collect(Collectors.toList()));
+        setSubnet(findById(SubnetResource.class, instance.subnetId()));
         setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
         setPublicIpAddress(instance.publicIpAddress());
@@ -765,7 +770,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             throw new GyroException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
-        if (getSecurityGroupIds().isEmpty()) {
+        if (getSecurityGroups().isEmpty()) {
             throw new GyroException("At least one security group is required.");
         }
 
