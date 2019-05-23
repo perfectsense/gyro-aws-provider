@@ -1,10 +1,10 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceId;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
+
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
@@ -38,7 +38,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceType("security-group")
+@Type("security-group")
 public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
 
     private String groupName;
@@ -121,7 +121,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * Whether to keep the default egress rule. If false, the rule will be deleted.
      */
-    @ResourceUpdatable
+    @Updatable
     public boolean isKeepDefaultEgressRules() {
         if (keepDefaultEgressRules == null) {
             keepDefaultEgressRules = true;
@@ -134,8 +134,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         this.keepDefaultEgressRules = keepDefaultEgressRules;
     }
 
+<<<<<<< HEAD
     @ResourceOutput
     @ResourceId
+=======
+    @Output
+>>>>>>> master
     public String getGroupId() {
         return groupId;
     }
@@ -149,7 +153,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         return getGroupId();
     }
 
-    @ResourceOutput
+    @Output
     public String getOwnerId() {
         return ownerId;
     }

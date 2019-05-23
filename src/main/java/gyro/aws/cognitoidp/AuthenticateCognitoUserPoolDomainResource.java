@@ -1,8 +1,8 @@
 package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
@@ -22,14 +22,14 @@ import java.util.Set;
  *         user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
  *     end
  */
-@ResourceType("authenticate-cognito-user-pool-domain")
+@Type("authenticate-cognito-user-pool-domain")
 public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
 
     private String certificateArn;
     private String domain;
     private String userPoolId;
 
-    @ResourceUpdatable
+    @Updatable
     public String getCertificateArn() {
         return certificateArn;
     }
@@ -38,7 +38,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         this.certificateArn = certificateArn;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getDomain() {
         return domain;
     }

@@ -3,10 +3,10 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Address;
 import software.amazon.awssdk.services.ec2.model.AllocateAddressResponse;
@@ -42,7 +42,7 @@ import java.util.Set;
  *         network-interface-id : "eni-0be88bd89466e3841"
  *     end
  */
-@ResourceType("elastic-ip")
+@Type("elastic-ip")
 public class ElasticIpResource extends Ec2TaggableResource<Address> {
 
     private String allocationId;
@@ -67,7 +67,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
     /**
      * Network Interface id required when the requested public ip is associated with a network interface.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getNetworkInterfaceId() {
         return networkInterfaceId;
     }
@@ -79,7 +79,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
     /**
      * Instance id required when the requested public ip is associated with an instance.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInstanceId() {
         return instanceId;
     }
@@ -91,7 +91,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
     /**
      * Allocation id when the requested public ip is acquired.
      */
-    @ResourceOutput
+    @Output
     public String getAllocationId() {
         return allocationId;
     }
@@ -114,7 +114,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
     /**
      * Allows reassociation of elastic Ip with another resource.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAllowReassociation() {
         return allowReassociation;
     }
@@ -123,7 +123,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
         this.allowReassociation = allowReassociation;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Boolean getIsStandardDomain() {
         if (isStandardDomain == null) {
             isStandardDomain = false;

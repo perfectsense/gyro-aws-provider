@@ -3,7 +3,7 @@ package gyro.aws.cloudwatch;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
@@ -69,7 +69,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     /**
      * The arn of the target resource, also served as its identifier and thus unique. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTargetArn() {
         return targetArn;
     }
@@ -81,7 +81,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     /**
      * The IAM role arn that gives permission to invoke actions on the target resource. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRoleArn() {
         return roleArn;
     }
@@ -93,7 +93,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     /**
      * The input json text that triggers an action on the target resource. If provided, doesn't consider the matched event conditions. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInput() {
         return input;
     }
@@ -105,7 +105,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     /**
      * The input path that passes the part of the event to trigger the target resource. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInputPath() {
         return inputPath;
     }
@@ -119,7 +119,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
      *
      * The SQS queue must be a FIFO type and should have content-based-deduplication enabled.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getMessageGroupId() {
         return messageGroupId;
     }
@@ -131,7 +131,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     /**
      * The number of tasks created when the target is an Amazon ECS task. (Default is `1`)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getEcsTaskCount() {
         return ecsTaskCount;
     }
@@ -143,7 +143,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     /**
      * The arn of the task that is created when the target is an Amazon ECS task.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEcsTaskDefinitionArn() {
         return ecsTaskDefinitionArn;
     }
@@ -157,7 +157,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
      *
      * See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getInputTransformerPathMap() {
         if (inputTransformerPathMap == null) {
             inputTransformerPathMap = new HashMap<>();
@@ -174,7 +174,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
      *
      * See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInputTransformerTemplate() {
         return inputTransformerTemplate;
     }
@@ -189,7 +189,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
      * See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html/>`_.
      *
      */
-    @ResourceUpdatable
+    @Updatable
     public String getKinesisPartitionKeyPath() {
         return kinesisPartitionKeyPath;
     }

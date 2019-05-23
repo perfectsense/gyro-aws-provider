@@ -2,11 +2,10 @@ package gyro.aws.elbv2;
 
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
-import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerTypeEnum;
@@ -40,7 +39,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("alb")
+@Type("alb")
 public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
     private List<SecurityGroupResource> securityGroups;

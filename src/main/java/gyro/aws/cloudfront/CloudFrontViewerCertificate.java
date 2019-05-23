@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.ViewerCertificate;
 
 public class CloudFrontViewerCertificate extends Diffable {
@@ -28,7 +28,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * Use the default CloudFront SSL certificate (i.e. ``*.cloudfront.net``).
      */
-    @ResourceUpdatable
+    @Updatable
     public boolean getCloudfrontDefaultCertificate() {
         return cloudfrontDefaultCertificate;
     }
@@ -40,7 +40,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * ARN for an ACM generated certificate.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAcmCertificateArn() {
         return acmCertificateArn;
     }
@@ -52,7 +52,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * ID for certificated uploaded to IAM.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getIamCertificateId() {
         return iamCertificateId;
     }
@@ -64,7 +64,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * Minimum SSL protocol. Valid valies are ``SSLv3``, ``TLSv1``, ``TLSv1_2016``, ``TLSv1.1_2016``, ``TLSv1.2_2018``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getMinimumProtocolVersion() {
         return minimumProtocolVersion;
     }
@@ -76,7 +76,7 @@ public class CloudFrontViewerCertificate extends Diffable {
     /**
      * Whether CloudFront uses a dedicated IP or SNI for serving SSL traffic. Valid values are ``vip`` or ``sni-only``. There is a significant additional monthly charge for ``vip`.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSslSupportMethod() {
         if (getCloudfrontDefaultCertificate())  {
             return null;

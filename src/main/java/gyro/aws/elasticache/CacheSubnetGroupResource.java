@@ -4,18 +4,15 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheSubnetGroupsResponse;
 import software.amazon.awssdk.services.elasticache.model.Subnet;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +34,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@ResourceType("cache-subnet-group")
+@Type("cache-subnet-group")
 public class CacheSubnetGroupResource extends AwsResource {
     private String cacheSubnetGroupName;
     private String description;
@@ -57,7 +54,7 @@ public class CacheSubnetGroupResource extends AwsResource {
     /**
      * The description of the cache subnet group.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -69,7 +66,7 @@ public class CacheSubnetGroupResource extends AwsResource {
     /**
      * A list of subnet id's. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Set<String> getSubnets() {
         if (subnets == null) {
             subnets = new HashSet<>();

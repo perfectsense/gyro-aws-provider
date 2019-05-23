@@ -1,9 +1,9 @@
 package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
@@ -27,7 +27,7 @@ import java.util.Set;
  *         user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
  *     end
  */
-@ResourceType("authenticate-cognito-user-pool-client")
+@Type("authenticate-cognito-user-pool-client")
 public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
 
     private Boolean allowedOAuthFlowsClient;
@@ -47,7 +47,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
     private String userPoolId;
     private List<String> writeAttributes;
 
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAllowedOAuthFlowsClient() {
         return allowedOAuthFlowsClient;
     }
@@ -56,7 +56,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthFlowsClient = allowedOAuthFlowsClient;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAllowedOAuthFlows() {
         if (allowedOAuthFlows == null) {
             allowedOAuthFlows = new ArrayList<>();
@@ -69,7 +69,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthFlows = allowedOAuthFlows;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getCallbackUrls() {
         return callbackUrls;
     }
@@ -78,7 +78,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.callbackUrls = callbackUrls;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getDefaultRedirectUri() {
         return defaultRedirectUri;
     }
@@ -87,7 +87,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.defaultRedirectUri = defaultRedirectUri;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getExplicitAuthFlows() {
         return explicitAuthFlows;
     }
@@ -96,7 +96,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.explicitAuthFlows = explicitAuthFlows;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAllowedOAuthScopes() {
         if (allowedOAuthScopes == null) {
             allowedOAuthScopes = new ArrayList<>();
@@ -117,7 +117,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.generateSecret = generateSecret;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getLogoutUrls() {
         return logoutUrls;
     }
@@ -126,7 +126,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.logoutUrls = logoutUrls;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getReadAttributes() {
         return readAttributes;
     }
@@ -135,7 +135,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.readAttributes = readAttributes;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Integer getRefreshTokenValidity() {
         return refreshTokenValidity;
     }
@@ -144,7 +144,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.refreshTokenValidity = refreshTokenValidity;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSupportedIdentityProviders() {
         return supportedIdentityProviders;
     }
@@ -153,7 +153,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.supportedIdentityProviders = supportedIdentityProviders;
     }
 
-    @ResourceOutput
+    @Output
     public String getUserPoolClientId() {
         return userPoolClientId;
     }
@@ -162,7 +162,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.userPoolClientId = userPoolClientId;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getUserPoolClientName() {
         return userPoolClientName;
     }
@@ -187,7 +187,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.userPoolId = userPoolId;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getWriteAttributes() {
         return writeAttributes;
     }

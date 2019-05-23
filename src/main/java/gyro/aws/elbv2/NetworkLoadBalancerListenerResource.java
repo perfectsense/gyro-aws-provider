@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -32,7 +32,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("nlb-listener")
+@Type("nlb-listener")
 public class NetworkLoadBalancerListenerResource extends ListenerResource {
 
     private NetworkActionResource defaultAction;
@@ -42,7 +42,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
-    @ResourceUpdatable
+    @Updatable
     public NetworkActionResource getDefaultAction() {
         return defaultAction;
     }

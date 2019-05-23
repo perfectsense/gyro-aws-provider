@@ -1,7 +1,7 @@
 package gyro.aws.cloudfront;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomOriginConfig;
 
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class CloudFrontCustomOrigin extends Diffable {
     /**
      * The port the origin listens for http.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHttpPort() {
         return httpPort;
     }
@@ -49,7 +49,7 @@ public class CloudFrontCustomOrigin extends Diffable {
     /**
      * The port the origin listens for https.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHttpsPort() {
         return httpsPort;
     }
@@ -61,7 +61,7 @@ public class CloudFrontCustomOrigin extends Diffable {
     /**
      * The amount of time to keep an idle connection to the origin.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getOriginKeepAliveTimeout() {
         return originKeepAliveTimeout;
     }
@@ -73,7 +73,7 @@ public class CloudFrontCustomOrigin extends Diffable {
     /**
      * The max amount of a time CloudFront will wait, in seconds, for an initial connection, and subsequent reads. Valid values are between 4 and 60.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getOriginReadTimeout() {
         return originReadTimeout;
     }
@@ -85,7 +85,7 @@ public class CloudFrontCustomOrigin extends Diffable {
     /**
      * The protocol CloudFront should use to connect to the origin. Valid values are ``http-only``, ``https-only``, or ``match-viewer``.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getOriginProtocolPolicy() {
         return originProtocolPolicy;
     }
@@ -97,7 +97,7 @@ public class CloudFrontCustomOrigin extends Diffable {
     /**
      * SSL protocols CloudFront is allow to connect to the origin with. Valid values are ``SSLv3``, ``TLSv1``, ``TLSv1.1``, ``TLSv1.2``.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getOriginSslProtocols() {
         return originSslProtocols;
     }

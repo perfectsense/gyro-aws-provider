@@ -1,8 +1,8 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
@@ -21,7 +21,7 @@ public abstract class RdsTaggableResource extends AwsResource {
     /**
      * The ARN of the RDS resource.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -33,7 +33,7 @@ public abstract class RdsTaggableResource extends AwsResource {
     /**
      * A list of tags.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

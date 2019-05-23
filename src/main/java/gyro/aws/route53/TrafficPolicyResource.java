@@ -2,8 +2,8 @@ package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.regions.Region;
@@ -33,7 +33,7 @@ import java.util.Set;
  *     end
  *
  */
-@ResourceType("traffic-policy")
+@Type("traffic-policy")
 public class TrafficPolicyResource extends AwsResource {
     private String name;
     private String comment;
@@ -56,7 +56,7 @@ public class TrafficPolicyResource extends AwsResource {
     /**
      * The comment you want to put with the policy.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getComment() {
         return comment;
     }

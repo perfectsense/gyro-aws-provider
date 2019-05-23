@@ -1,8 +1,8 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.psddev.dari.util.CompactMap;
@@ -67,7 +67,7 @@ public abstract class LoadBalancerResource extends AwsResource {
         this.ipAddressType = ipAddressType;
     }
 
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -101,7 +101,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     /**
      *  List of tags associated with the alb (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();

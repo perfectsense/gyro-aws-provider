@@ -8,9 +8,9 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@ResourceType("cache-cluster")
+@Type("cache-cluster")
 public class CacheClusterResource extends AwsResource {
     private String azMode;
     private String cacheClusterId;
@@ -97,7 +97,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The Az mode of the cluster. Valid value is ``single-az`` or ``cross-az`` (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAzMode() {
         return azMode;
     }
@@ -120,7 +120,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The type of the cache cluster. Valid value is ``memcached`` or ``redis`` (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCacheNodeType() {
         return cacheNodeType;
     }
@@ -132,7 +132,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The name of the cache parameter group to be associated. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
     }
@@ -144,7 +144,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The list of cache security groups to be associated.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getCacheSecurityGroupNames() {
         if (cacheSecurityGroupNames == null) {
             cacheSecurityGroupNames = new ArrayList<>();
@@ -182,7 +182,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The version of the engine used to create the cluster. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -194,7 +194,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The notification arn to be associated with the cluster.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getNotificationTopicArn() {
         return notificationTopicArn;
     }
@@ -206,7 +206,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The number of nodes to be created. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getNumCacheNodes() {
         return numCacheNodes;
     }
@@ -229,7 +229,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The preferred maintenance window to be used by the cache cluster. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -252,7 +252,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The list of ec2 security groups to be associated.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -283,7 +283,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The snapshot retention limit to be used for redis cache cluster.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getSnapshotRetentionLimit() {
         return snapshotRetentionLimit;
     }
@@ -295,7 +295,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The snapshot window to be used for redis cache cluster.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSnapshotWindow() {
         return snapshotWindow;
     }
@@ -307,7 +307,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The tags for the cache cluster. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -323,7 +323,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * The preferred availability zone for the cluster. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getPreferredAvailabilityZones() {
         if (preferredAvailabilityZones == null) {
             preferredAvailabilityZones = new ArrayList<>();
@@ -339,7 +339,7 @@ public class CacheClusterResource extends AwsResource {
     /**
      * A flag that updates and restarts node immediately rather than waiting for the maintenance window. Defaults to true.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getApplyImmediately() {
         if (applyImmediately == null) {
             applyImmediately = true;
@@ -357,7 +357,7 @@ public class CacheClusterResource extends AwsResource {
      *
      * @Output
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return this.arn;
     }
@@ -371,7 +371,7 @@ public class CacheClusterResource extends AwsResource {
      *
      * @Output
      */
-    @ResourceOutput
+    @Output
     public String getStatus() {
         return status;
     }
@@ -385,7 +385,7 @@ public class CacheClusterResource extends AwsResource {
      *
      * @Output
      */
-    @ResourceOutput
+    @Output
     public List<String> getNodes() {
         if (nodes == null) {
             nodes = new ArrayList<>();
@@ -403,7 +403,7 @@ public class CacheClusterResource extends AwsResource {
      *
      * @Output
      */
-    @ResourceOutput
+    @Output
     public String getPreferredAvailabilityZone() {
         return preferredAvailabilityZone;
     }
@@ -634,7 +634,7 @@ public class CacheClusterResource extends AwsResource {
     }
 
     private String getRegion() {
-        AwsCredentials credentials = (AwsCredentials) resourceCredentials();
+        AwsCredentials credentials = credentials(AwsCredentials.class);
         return credentials.getRegion();
     }
 

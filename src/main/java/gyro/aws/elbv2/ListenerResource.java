@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenerCertificatesResponse;
@@ -33,7 +33,7 @@ public abstract class ListenerResource extends AwsResource {
      *
      *  @subresource gyro.aws.elbv2.CertificateResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<CertificateResource> getCertificate() {
         if (certificate == null) {
             certificate = new ArrayList<>();
@@ -49,7 +49,7 @@ public abstract class ListenerResource extends AwsResource {
     /**
      *  The default certificate ARN associated with the listener (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDefaultCertificate() {
         return defaultCertificate;
     }
@@ -77,7 +77,7 @@ public abstract class ListenerResource extends AwsResource {
     /**
      *  Connection port between client and the load balancer (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -89,7 +89,7 @@ public abstract class ListenerResource extends AwsResource {
     /**
      *  Connection protocol between client and the load balancer (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProtocol() {
         return protocol;
     }
@@ -101,7 +101,7 @@ public abstract class ListenerResource extends AwsResource {
     /**
      *  Security policy that defines supported protocols and ciphers (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSslPolicy() {
         return sslPolicy;
     }

@@ -1,34 +1,21 @@
 package gyro.aws;
 
-import gyro.core.Credentials;
-import gyro.core.resource.ResourceType;
+import gyro.core.auth.Credentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 
-@ResourceType("credentials")
-public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.credentials.AwsCredentials> {
-
-    private transient AwsCredentialsProvider provider;
+public class AwsCredentials extends Credentials {
 
     private String profileName;
-
     private String region;
+    private AwsCredentialsProvider provider;
 
     public AwsCredentials() {
         this.provider = AwsCredentialsProviderChain.builder()
-                .credentialsProviders(DefaultCredentialsProvider.create())
-                .build();
-    }
-
-    public AwsCredentialsProvider provider() {
-        return provider;
-    }
-
-    @Override
-    public String getCloudName() {
-        return "aws";
+            .credentialsProviders(DefaultCredentialsProvider.create())
+            .build();
     }
 
     public String getProfileName() {
@@ -39,15 +26,11 @@ public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.cred
         this.profileName = profileName;
 
         this.provider = AwsCredentialsProviderChain.builder()
-                .credentialsProviders(
-                        ProfileCredentialsProvider.create(profileName),
-                        DefaultCredentialsProvider.create()
-                )
-                .build();
-    }
-
-    public void setProvider(AwsCredentialsProvider provider) {
-        this.provider = provider;
+            .credentialsProviders(
+                ProfileCredentialsProvider.create(profileName),
+                DefaultCredentialsProvider.create()
+            )
+            .build();
     }
 
     public String getRegion() {
@@ -58,14 +41,13 @@ public class AwsCredentials extends Credentials<software.amazon.awssdk.auth.cred
         this.region = region;
     }
 
-    @Override
-    public software.amazon.awssdk.auth.credentials.AwsCredentials findCredentials(boolean refresh) {
-        return findCredentials(refresh, true);
+    public AwsCredentialsProvider provider() {
+        return provider;
     }
 
     @Override
-    public software.amazon.awssdk.auth.credentials.AwsCredentials findCredentials(boolean refresh, boolean extended) {
-        return provider().resolveCredentials();
+    public void refresh() {
+        provider().resolveCredentials();
     }
 
 }

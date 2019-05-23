@@ -2,7 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Delete;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -32,7 +32,7 @@ public class CertificateResource extends AwsResource {
     /**
      *  ARN of the certificate (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getArn() {
         return arn;
     }
@@ -41,7 +41,7 @@ public class CertificateResource extends AwsResource {
         this.arn = arn;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Boolean getIsDefault() {
         return isDefault;
     }

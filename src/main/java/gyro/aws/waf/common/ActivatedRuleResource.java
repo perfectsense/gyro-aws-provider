@@ -2,7 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -36,7 +36,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
     /**
      * The default action for the rule under this waf. valid values are ``ALLOW`` or ``BLOCK``. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAction() {
         return action != null ? action.toUpperCase() : null;
     }
@@ -59,7 +59,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
     /**
      * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPriority() {
         return priority;
     }

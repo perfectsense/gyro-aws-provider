@@ -4,9 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  *         }
  *     end
  */
-@ResourceType("docdb-instance")
+@Type("docdb-instance")
 public class DbInstance extends DocDbTaggableResource {
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
@@ -55,7 +55,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Enable auto minor version upgrade.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getAutoMinorVersionUpgrade() {
         return autoMinorVersionUpgrade;
     }
@@ -78,7 +78,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Set the size of the data base instance. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
     }
@@ -112,7 +112,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Set the preferred maintenance window. Valid format ``ddd:hh24:mi-ddd:hh24:mi``. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -124,7 +124,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * Set the promotion tier. Valid values ``0-15``. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPromotionTier() {
         return promotionTier;
     }
@@ -147,7 +147,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * The status of the db instance.
      */
-    @ResourceOutput
+    @Output
     public String getStatus() {
         return status;
     }
@@ -159,7 +159,7 @@ public class DbInstance extends DocDbTaggableResource {
     /**
      * The arn of the db instance.
      */
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }

@@ -1,7 +1,7 @@
 package gyro.aws.s3;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 
 public class S3LifecycleRuleNonCurrentTransition extends Diffable {
@@ -20,7 +20,7 @@ public class S3LifecycleRuleNonCurrentTransition extends Diffable {
     /**
      * Days after creation that versioning would start. Min value 30. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getDays() {
         return days;
     }

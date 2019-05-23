@@ -1,8 +1,8 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetRegexMatchSetResponse;
@@ -38,7 +38,7 @@ import java.util.List;
  *     end
  * end
  */
-@ResourceType("regex-match-set")
+@Type("regex-match-set")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
     private List<RegexMatchTupleResource> regexMatchTuple;
 
@@ -47,7 +47,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
      *
      * @subresource gyro.aws.waf.global.RegexMatchTupleResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<RegexMatchTupleResource> getRegexMatchTuple() {
         if (regexMatchTuple == null) {
             regexMatchTuple = new ArrayList<>();

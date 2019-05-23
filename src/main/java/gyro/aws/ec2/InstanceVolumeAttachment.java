@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.VolumeState;
 
@@ -41,7 +41,7 @@ public class InstanceVolumeAttachment extends AwsResource {
     /**
      * The volume id from the volume to be attached. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getVolumeId() {
         return volumeId;
     }

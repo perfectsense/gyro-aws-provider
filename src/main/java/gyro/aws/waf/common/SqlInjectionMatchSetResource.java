@@ -2,7 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 
 import java.util.Set;
 
@@ -21,7 +21,7 @@ public abstract class SqlInjectionMatchSetResource extends AbstractWafResource {
         this.name = name;
     }
 
-    @ResourceOutput
+    @Output
     public String getSqlInjectionMatchSetId() {
         return sqlInjectionMatchSetId;
     }

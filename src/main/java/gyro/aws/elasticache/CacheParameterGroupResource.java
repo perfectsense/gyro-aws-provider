@@ -4,8 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroupNotFoundException;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@ResourceType("cache-param-group")
+@Type("cache-param-group")
 public class CacheParameterGroupResource extends AwsResource {
     private String cacheParamGroupName;
     private String cacheParamGroupFamily;
@@ -82,7 +82,7 @@ public class CacheParameterGroupResource extends AwsResource {
     /**
      * The list of cache parameter to modify.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<CacheParameter> getParameters() {
         if (parameters == null) {
             parameters = new ArrayList<>();

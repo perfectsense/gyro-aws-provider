@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
@@ -24,7 +24,7 @@ import java.util.Set;
  *         vpc-id: $(aws::vpc vpc-example | vpc-id)
  *     end
  */
-@ResourceType("egress-gateway")
+@Type("egress-gateway")
 public class EgressOnlyInternetGatewayResource extends AwsResource {
 
     private String vpcId;
@@ -41,7 +41,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
         this.vpcId = vpcId;
     }
 
-    @ResourceOutput
+    @Output
     public String getGatewayId() {
         return gatewayId;
     }

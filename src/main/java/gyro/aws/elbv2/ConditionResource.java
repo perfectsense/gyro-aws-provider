@@ -3,7 +3,7 @@ package gyro.aws.elbv2;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
@@ -42,7 +42,7 @@ public class ConditionResource extends AwsResource {
     /**
      *  Condition field name  (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getField() {
         return field;
     }
@@ -54,7 +54,7 @@ public class ConditionResource extends AwsResource {
     /**
      *  Condition value (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getValue() {
         if (value == null) {
             value = new ArrayList<>();
