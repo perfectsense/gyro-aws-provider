@@ -1,0 +1,10 @@
+aws::cache-param-group cache-param-group-example
+    cache-param-group-name: "cache-param-group-example"
+    cache-param-group-family: "redis5.0"
+    description: "cache-param-group-desc"
+
+    parameters
+        name: "activedefrag"
+        value: "no"
+    end
+end
