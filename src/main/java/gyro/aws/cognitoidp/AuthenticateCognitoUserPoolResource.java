@@ -1,4 +1,4 @@
-package gyro.aws.elbv2;
+package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.ResourceUpdatable;
