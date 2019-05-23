@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsResourceFinder;
-import gyro.core.resource.ResourceFilter;
-import gyro.core.resource.ResourceType;
+import gyro.aws.AwsFinder;
+import gyro.core.Type;
+import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 
@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ResourceType("security-group")
-public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
+@Type("security-group")
+public class SecurityGroupResourceFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
     private String description;
     private String egressIpPermissionCidr;
     private String egressIpPermissionFromPort;
@@ -46,7 +46,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.description = description;
     }
 
-    @ResourceFilter("egress.ip-permission.cidr")
+    @Filter("egress.ip-permission.cidr")
     public String getEgressIpPermissionCidr() {
         return egressIpPermissionCidr;
     }
@@ -55,7 +55,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionCidr = egressIpPermissionCidr;
     }
 
-    @ResourceFilter("egress.ip-permission.from-port")
+    @Filter("egress.ip-permission.from-port")
     public String getEgressIpPermissionFromPort() {
         return egressIpPermissionFromPort;
     }
@@ -64,7 +64,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionFromPort = egressIpPermissionFromPort;
     }
 
-    @ResourceFilter("egress.ip-permission.group-id")
+    @Filter("egress.ip-permission.group-id")
     public String getEgressIpPermissionGroupId() {
         return egressIpPermissionGroupId;
     }
@@ -73,7 +73,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionGroupId = egressIpPermissionGroupId;
     }
 
-    @ResourceFilter("egress.ip-permission.group-name")
+    @Filter("egress.ip-permission.group-name")
     public String getEgressIpPermissionGroupName() {
         return egressIpPermissionGroupName;
     }
@@ -82,7 +82,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionGroupName = egressIpPermissionGroupName;
     }
 
-    @ResourceFilter("egress.ip-permission.ipv6-cidr")
+    @Filter("egress.ip-permission.ipv6-cidr")
     public String getEgressIpPermissionIpv6Cidr() {
         return egressIpPermissionIpv6Cidr;
     }
@@ -91,7 +91,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionIpv6Cidr = egressIpPermissionIpv6Cidr;
     }
 
-    @ResourceFilter("egress.ip-permission.prefix-list-id")
+    @Filter("egress.ip-permission.prefix-list-id")
     public String getEgressIpPermissionPrefixListId() {
         return egressIpPermissionPrefixListId;
     }
@@ -100,7 +100,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionPrefixListId = egressIpPermissionPrefixListId;
     }
 
-    @ResourceFilter("egress.ip-permission.protocol")
+    @Filter("egress.ip-permission.protocol")
     public String getEgressIpPermissionProtocol() {
         return egressIpPermissionProtocol;
     }
@@ -109,7 +109,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionProtocol = egressIpPermissionProtocol;
     }
 
-    @ResourceFilter("egress.ip-permission.to-port")
+    @Filter("egress.ip-permission.to-port")
     public String getEgressIpPermissionToPort() {
         return egressIpPermissionToPort;
     }
@@ -118,7 +118,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.egressIpPermissionToPort = egressIpPermissionToPort;
     }
 
-    @ResourceFilter("egress.ip-permission.user-id")
+    @Filter("egress.ip-permission.user-id")
     public String getEgressIpPermissionUserId() {
         return egressIpPermissionUserId;
     }
@@ -143,7 +143,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.groupName = groupName;
     }
 
-    @ResourceFilter("ip-permission.cidr")
+    @Filter("ip-permission.cidr")
     public String getIngressIpPermissionCidr() {
         return ingressIpPermissionCidr;
     }
@@ -152,7 +152,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionCidr = ingressIpPermissionCidr;
     }
 
-    @ResourceFilter("ip-permission.from-port")
+    @Filter("ip-permission.from-port")
     public String getIngressIpPermissionFromPort() {
         return ingressIpPermissionFromPort;
     }
@@ -161,7 +161,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionFromPort = ingressIpPermissionFromPort;
     }
 
-    @ResourceFilter("ip-permission.group-id")
+    @Filter("ip-permission.group-id")
     public String getIngressIpPermissionGroupId() {
         return ingressIpPermissionGroupId;
     }
@@ -170,7 +170,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionGroupId = ingressIpPermissionGroupId;
     }
 
-    @ResourceFilter("ip-permission.group-name")
+    @Filter("ip-permission.group-name")
     public String getIngressIpPermissionGroupName() {
         return ingressIpPermissionGroupName;
     }
@@ -179,7 +179,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionGroupName = ingressIpPermissionGroupName;
     }
 
-    @ResourceFilter("ip-permission.ipv6-cidr")
+    @Filter("ip-permission.ipv6-cidr")
     public String getIngressIpPermissionIpv6Cidr() {
         return ingressIpPermissionIpv6Cidr;
     }
@@ -188,7 +188,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionIpv6Cidr = ingressIpPermissionIpv6Cidr;
     }
 
-    @ResourceFilter("ip-permission.prefix-list-id")
+    @Filter("ip-permission.prefix-list-id")
     public String getIngressIpPermissionPrefixListId() {
         return ingressIpPermissionPrefixListId;
     }
@@ -197,7 +197,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionPrefixListId = ingressIpPermissionPrefixListId;
     }
 
-    @ResourceFilter("ip-permission.protocol")
+    @Filter("ip-permission.protocol")
     public String getIngressIpPermissionProtocol() {
         return ingressIpPermissionProtocol;
     }
@@ -206,7 +206,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionProtocol = ingressIpPermissionProtocol;
     }
 
-    @ResourceFilter("ip-permission.to-port")
+    @Filter("ip-permission.to-port")
     public String getIngressIpPermissionToPort() {
         return ingressIpPermissionToPort;
     }
@@ -215,7 +215,7 @@ public class SecurityGroupResourceFinder extends AwsResourceFinder<Ec2Client, Se
         this.ingressIpPermissionToPort = ingressIpPermissionToPort;
     }
 
-    @ResourceFilter("ip-permission.user-id")
+    @Filter("ip-permission.user-id")
     public String getIngressIpPermissionUserId() {
         return ingressIpPermissionUserId;
     }

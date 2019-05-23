@@ -1,8 +1,8 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsResourceFinder;
-import gyro.core.resource.ResourceFilter;
-import gyro.core.resource.ResourceType;
+import gyro.aws.AwsFinder;
+import gyro.core.Type;
+import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.VpnGateway;
 
@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ResourceType("vpn-gateway")
-public class VpnGatewayResourceFinder extends AwsResourceFinder<Ec2Client, VpnGateway, VpnGatewayResource> {
+@Type("vpn-gateway")
+public class VpnGatewayResourceFinder extends AwsFinder<Ec2Client, VpnGateway, VpnGatewayResource> {
     private String amazonSideAsn;
     private String attachmentState;
     private String attachmentVpcId;
@@ -30,7 +30,7 @@ public class VpnGatewayResourceFinder extends AwsResourceFinder<Ec2Client, VpnGa
         this.amazonSideAsn = amazonSideAsn;
     }
 
-    @ResourceFilter("attachment.state")
+    @Filter("attachment.state")
     public String getAttachmentState() {
         return attachmentState;
     }
@@ -39,7 +39,7 @@ public class VpnGatewayResourceFinder extends AwsResourceFinder<Ec2Client, VpnGa
         this.attachmentState = attachmentState;
     }
 
-    @ResourceFilter("attachment.vpc-id")
+    @Filter("attachment.vpc-id")
     public String getAttachmentVpcId() {
         return attachmentVpcId;
     }
