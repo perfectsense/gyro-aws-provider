@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -96,17 +97,11 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
     public void create() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
-        List<String> securityGroupIds = new ArrayList<>();
-        getSecurityGroups().forEach(r -> securityGroupIds.add(r.getGroupId()));
-
-        List<String> subnetIds = new ArrayList<>();
-        getSubnets().forEach(r -> subnetIds.add(r.getId()));
-
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
                 .name(getName())
                 .scheme(getScheme())
-                .securityGroups(securityGroupIds)
-                .subnets(subnetIds)
+                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()))
                 .type(LoadBalancerTypeEnum.APPLICATION)
         );
 
