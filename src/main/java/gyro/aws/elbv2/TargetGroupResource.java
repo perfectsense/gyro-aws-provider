@@ -3,10 +3,12 @@ package gyro.aws.elbv2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.VpcResource;
-import gyro.core.resource.Updatable;
+
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -146,6 +148,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     @Output
+    @Id
     public String getArn() {
         return arn;
     }

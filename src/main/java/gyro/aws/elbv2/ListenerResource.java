@@ -2,7 +2,10 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenerCertificatesResponse;
@@ -53,6 +56,8 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
         this.defaultCertificate = defaultCertificate;
     }
 
+    @Output
+    @Id
     public String getArn() {
         return arn;
     }
