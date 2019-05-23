@@ -4,11 +4,11 @@ aws::nlb nlb-example
     scheme: "internet-facing"
 
     subnet-mapping
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+        subnet: $(aws::subnet subnet-us-east-2a)
     end
 
     subnet-mapping
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+        subnet: $(aws::subnet subnet-us-east-2b)
     end
 
     tags: {
@@ -19,10 +19,10 @@ end
 aws::nlb-listener listener-example
     port: "80"
     protocol: "TCP"
-    load-balancer-arn: $(aws::nlb nlb-example | load-balancer-arn)
+    load-balancer: $(aws::nlb nlb-example)
 
     default-action
-        target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+        target-group: $(aws::target-group target-group-example)
         type: "forward"
     end
 end
@@ -33,15 +33,15 @@ aws::target-group target-group-example
     port: "80"
     protocol: "TCP"
     target-type: "instance"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
 
     target
-        id: $(aws::instance instance-us-east-2a | instance-id)
+        id: $(aws::instance instance-us-east-2a)
         port: "80"
     end
 
     target
-        id: $(aws::instance instance-us-east-2b | instance-id)
+        id: $(aws::instance instance-us-east-2b)
         port: "443"
     end
 
@@ -60,7 +60,7 @@ aws::vpc vpc
 end
 
 aws::subnet subnet-us-east-2a
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2a'
     cidr-block: '10.0.0.0/24'
 
@@ -74,9 +74,9 @@ aws::instance instance-us-east-2a
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "jc-pair-example"
-    subnet-id: $(aws::subnet "subnet-us-east-2a" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    subnet: $(aws::subnet "subnet-us-east-2a")
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
@@ -89,7 +89,7 @@ aws::instance instance-us-east-2a
 end
 
 aws::subnet subnet-us-east-2b
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2b'
     cidr-block: '10.0.1.0/24'
 
@@ -103,9 +103,9 @@ aws::instance instance-us-east-2b
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "jc-pair-example"
-    subnet-id: $(aws::subnet "subnet-us-east-2b" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    subnet: $(aws::subnet "subnet-us-east-2b")
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
@@ -119,7 +119,7 @@ end
 
 aws::security-group security-group
     group-name: "nlb example - allow web traffic"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
