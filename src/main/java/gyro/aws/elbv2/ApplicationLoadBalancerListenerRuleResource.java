@@ -120,16 +120,22 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(Rule rule) {
+        setAction(fromActions(rule.actions()));
+        setCondition(fromCondition(rule.conditions()));
+        setPriority(Integer.valueOf(rule.priority()));
+        setArn(rule.ruleArn());
+    }
+
+    @Override
     public boolean refresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
             DescribeRulesResponse response = client.describeRules(r -> r.ruleArns(getArn()));
 
             Rule rule = response.rules().get(0);
-            setAction(fromActions(rule.actions()));
-            setCondition(fromCondition(rule.conditions()));
-            setPriority(Integer.valueOf(rule.priority()));
-            setArn(rule.ruleArn());
+
+            this.copyFrom(rule);
 
             return true;
 
@@ -200,7 +206,8 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         List<ActionResource> actions = new ArrayList<>();
 
         for (Action action : actionList) {
-            ActionResource actionResource = new ActionResource(action);
+            ActionResource actionResource = new ActionResource();
+            actionResource.copyFrom(action);
             actions.add(actionResource);
         }
         return actions;
@@ -210,7 +217,8 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         List<ConditionResource> conditions = new ArrayList<>();
 
         for (RuleCondition rc : conditionsList) {
-            ConditionResource condition = new ConditionResource(rc);
+            ConditionResource condition = new ConditionResource();
+            condition.copyFrom(rc);
             conditions.add(condition);
         }
 

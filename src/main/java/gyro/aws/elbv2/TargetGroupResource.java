@@ -1,6 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.aws.ec2.VpcResource;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -65,7 +66,7 @@ import java.util.Set;
  */
 
 @Type("target-group")
-public class TargetGroupResource extends AwsResource {
+public class TargetGroupResource extends AwsResource implements Copyable<TargetGroup> {
 
     private HealthCheck healthCheck;
     private Boolean healthCheckEnabled;
@@ -76,12 +77,6 @@ public class TargetGroupResource extends AwsResource {
     private String name;
     private String targetType;
     private VpcResource vpc;
-
-    public TargetGroupResource() {}
-
-    public TargetGroupResource(ElasticLoadBalancingV2Client client, TargetGroup targetGroup) {
-        refreshResource(client, targetGroup);
-    }
 
     /**
      *  The health check associated with the target group (Optional)
@@ -191,6 +186,32 @@ public class TargetGroupResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(TargetGroup targetGroup) {
+        HealthCheck healthCheck = new HealthCheck();
+        healthCheck.copyFrom(targetGroup);
+        setHealthCheck(healthCheck);
+
+        setHealthCheckEnabled(targetGroup.healthCheckEnabled());
+        setPort(targetGroup.port());
+        setProtocol(targetGroup.healthCheckProtocolAsString());
+        setArn(targetGroup.targetGroupArn());
+        setName(targetGroup.targetGroupName());
+        setTargetType(targetGroup.targetTypeAsString());
+        setVpc(findById(VpcResource.class, targetGroup.vpcId()));
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        getTags().clear();
+        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        if (tagResponse != null) {
+            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
+            for (Tag tag : tags) {
+                getTags().put(tag.key(), tag.value());
+            }
+        }
+    }
+
+    @Override
     public boolean refresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
@@ -199,7 +220,7 @@ public class TargetGroupResource extends AwsResource {
         if (tgResponse != null) {
             TargetGroup tg = tgResponse.targetGroups().get(0);
 
-            refreshResource(client, tg);
+            this.copyFrom(tg);
 
             return true;
         }
@@ -307,25 +328,5 @@ public class TargetGroupResource extends AwsResource {
         }
 
         return sb.toString();
-    }
-
-    private void refreshResource(ElasticLoadBalancingV2Client client, TargetGroup tg) {
-        setHealthCheck(new HealthCheck(tg));
-        setHealthCheckEnabled(tg.healthCheckEnabled());
-        setPort(tg.port());
-        setProtocol(tg.healthCheckProtocolAsString());
-        setArn(tg.targetGroupArn());
-        setName(tg.targetGroupName());
-        setTargetType(tg.targetTypeAsString());
-        setVpc(findById(VpcResource.class, tg.vpcId()));
-
-        getTags().clear();
-        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-        if (tagResponse != null) {
-            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-            for (Tag tag : tags) {
-                getTags().put(tag.key(), tag.value());
-            }
-        }
     }
 }

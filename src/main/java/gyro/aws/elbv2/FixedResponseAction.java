@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -21,21 +22,11 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedRespons
  *         status-code: "200"
  *     end
  */
-public class FixedResponseAction extends Diffable {
+public class FixedResponseAction extends Diffable implements Copyable<FixedResponseActionConfig> {
 
     private String contentType;
     private String messageBody;
     private String statusCode;
-
-    public FixedResponseAction() {
-
-    }
-
-    public FixedResponseAction(FixedResponseActionConfig fixed) {
-        setContentType(fixed.contentType());
-        setMessageBody(fixed.messageBody());
-        setStatusCode(fixed.statusCode());
-    }
 
     @Updatable
     public String getContentType() {
@@ -66,6 +57,13 @@ public class FixedResponseAction extends Diffable {
 
     public String primaryKey() {
         return String.format("%s/%s/%s", getContentType(), getMessageBody(), getStatusCode());
+    }
+
+    @Override
+    public void copyFrom(FixedResponseActionConfig fixed) {
+        setContentType(fixed.contentType());
+        setMessageBody(fixed.messageBody());
+        setStatusCode(fixed.statusCode());
     }
 
     public String toDisplayString() {

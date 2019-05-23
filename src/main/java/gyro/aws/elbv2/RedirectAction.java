@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -22,26 +23,13 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActi
  *         end
  *     end
  */
-public class RedirectAction extends Diffable {
+public class RedirectAction extends Diffable implements Copyable<RedirectActionConfig> {
     private String host;
     private String path;
     private String port;
     private String protocol;
     private String query;
     private String statusCode;
-
-    public RedirectAction() {
-
-    }
-
-    public RedirectAction(RedirectActionConfig redirect) {
-        setHost(redirect.host());
-        setPath(redirect.path());
-        setPort(redirect.port());
-        setProtocol(redirect.protocol());
-        setQuery(redirect.query());
-        setStatusCode(redirect.statusCodeAsString());
-    }
 
     @Updatable
     public String getHost() {
@@ -99,6 +87,16 @@ public class RedirectAction extends Diffable {
 
     public String primaryKey() {
         return String.format("%s/%s/%s", getPort(), getProtocol(), getStatusCode());
+    }
+
+    @Override
+    public void copyFrom(RedirectActionConfig redirect) {
+        setHost(redirect.host());
+        setPath(redirect.path());
+        setPort(redirect.port());
+        setProtocol(redirect.protocol());
+        setQuery(redirect.query());
+        setStatusCode(redirect.statusCodeAsString());
     }
 
     public String toDisplayString() {

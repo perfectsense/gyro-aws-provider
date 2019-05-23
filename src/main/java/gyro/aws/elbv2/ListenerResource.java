@@ -1,6 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -12,7 +13,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.ListenerNotF
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ListenerResource extends AwsResource {
+public abstract class ListenerResource extends AwsResource implements Copyable<Listener> {
 
     private List<CertificateResource> certificate;
     private String defaultCertificate;
@@ -21,12 +22,6 @@ public abstract class ListenerResource extends AwsResource {
     private Integer port;
     private String protocol;
     private String sslPolicy;
-
-    public ListenerResource() {}
-
-    public ListenerResource(ElasticLoadBalancingV2Client client, Listener listener) {
-        refreshResource(client, listener);
-    }
 
     /**
      *  List of certificates associated with the listener (Optional)
@@ -110,6 +105,35 @@ public abstract class ListenerResource extends AwsResource {
         this.sslPolicy = sslPolicy;
     }
 
+    @Override
+    public void copyFrom(Listener listener) {
+        if (listener.certificates().size() > 0) {
+            setDefaultCertificate(listener.certificates().get(0).certificateArn());
+        }
+
+        setArn(listener.listenerArn());
+        setPort(listener.port());
+        setProtocol(listener.protocolAsString());
+        setSslPolicy(listener.sslPolicy());
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        if (this instanceof ApplicationLoadBalancerListenerResource) {
+            getCertificate().clear();
+            DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
+            if (certResponse != null) {
+                for (Certificate certificate : certResponse.certificates()) {
+                    if (!certificate.isDefault()) {
+                        CertificateResource cert = new CertificateResource();
+                        cert.setArn(certificate.certificateArn());
+                        cert.setIsDefault(certificate.isDefault());
+                        getCertificate().add(cert);
+                    }
+                }
+            }
+        }
+    }
+
     public Listener internalRefresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
@@ -138,32 +162,5 @@ public abstract class ListenerResource extends AwsResource {
             certificates.add(Certificate.builder().certificateArn(cert.getArn()).build());
         }
         return certificates;
-    }
-
-    private void refreshResource(ElasticLoadBalancingV2Client client, Listener listener) {
-        if (listener.certificates().size() > 0) {
-            setDefaultCertificate(listener.certificates().get(0).certificateArn());
-        }
-
-        setArn(listener.listenerArn());
-        setLoadBalancer(getLoadBalancer());
-        setPort(listener.port());
-        setProtocol(listener.protocolAsString());
-        setSslPolicy(listener.sslPolicy());
-
-        if (this instanceof ApplicationLoadBalancerListenerResource) {
-            getCertificate().clear();
-            DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
-            if (certResponse != null) {
-                for (Certificate certificate : certResponse.certificates()) {
-                    if (!certificate.isDefault()) {
-                        CertificateResource cert = new CertificateResource();
-                        cert.setArn(certificate.certificateArn());
-                        cert.setIsDefault(certificate.isDefault());
-                        getCertificate().add(cert);
-                    }
-                }
-            }
-        }
     }
 }

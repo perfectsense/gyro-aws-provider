@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -27,7 +28,7 @@ import java.util.Map;
  *         end
  *     end
  */
-public class AuthenticateOidcAction extends Diffable {
+public class AuthenticateOidcAction extends Diffable implements Copyable<AuthenticateOidcActionConfig> {
 
     private Map<String, String> extraParams;
     private String authorizationEndpoint;
@@ -40,24 +41,6 @@ public class AuthenticateOidcAction extends Diffable {
     private Long sessionTimeout;
     private String tokenEndpoint;
     private String userInfoEndpoint;
-
-    public AuthenticateOidcAction() {
-
-    }
-
-    public AuthenticateOidcAction(AuthenticateOidcActionConfig oidc) {
-        setExtraParams(oidc.authenticationRequestExtraParams());
-        setAuthorizationEndpoint(oidc.authorizationEndpoint());
-        setClientId(oidc.clientId());
-        setClientSecret(oidc.clientSecret());
-        setIssuer(oidc.issuer());
-        setOnAuthenticatedRequest(oidc.onUnauthenticatedRequestAsString());
-        setScope(oidc.scope());
-        setSessionCookieName(oidc.sessionCookieName());
-        setSessionTimeout(oidc.sessionTimeout());
-        setTokenEndpoint(oidc.tokenEndpoint());
-        setUserInfoEndpoint(oidc.userInfoEndpoint());
-    }
 
     @Updatable
     public Map<String, String> getExtraParams() {
@@ -160,6 +143,21 @@ public class AuthenticateOidcAction extends Diffable {
 
     public String primaryKey() {
         return String.format("%s/%s/%s", getClientId(), getUserInfoEndpoint(), getTokenEndpoint());
+    }
+
+    @Override
+    public void copyFrom(AuthenticateOidcActionConfig oidc) {
+        setExtraParams(oidc.authenticationRequestExtraParams());
+        setAuthorizationEndpoint(oidc.authorizationEndpoint());
+        setClientId(oidc.clientId());
+        setClientSecret(oidc.clientSecret());
+        setIssuer(oidc.issuer());
+        setOnAuthenticatedRequest(oidc.onUnauthenticatedRequestAsString());
+        setScope(oidc.scope());
+        setSessionCookieName(oidc.sessionCookieName());
+        setSessionTimeout(oidc.sessionTimeout());
+        setTokenEndpoint(oidc.tokenEndpoint());
+        setUserInfoEndpoint(oidc.userInfoEndpoint());
     }
 
     public String toDisplayString() {

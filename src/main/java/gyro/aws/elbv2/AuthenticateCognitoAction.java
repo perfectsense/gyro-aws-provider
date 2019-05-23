@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -25,7 +26,7 @@ import java.util.Map;
  *
  *
  */
-public class AuthenticateCognitoAction extends Diffable {
+public class AuthenticateCognitoAction extends Diffable implements Copyable<AuthenticateCognitoActionConfig> {
 
     private Map<String, String> extraParams;
     private String onUnauthenticatedRequest;
@@ -35,21 +36,6 @@ public class AuthenticateCognitoAction extends Diffable {
     private String userPoolArn;
     private String userPoolClientId;
     private String userPoolDomain;
-
-    public AuthenticateCognitoAction() {
-
-    }
-
-    public AuthenticateCognitoAction(AuthenticateCognitoActionConfig cognito) {
-        setExtraParams(cognito.authenticationRequestExtraParams());
-        setOnUnauthenticatedRequest(cognito.onUnauthenticatedRequestAsString());
-        setScope(cognito.scope());
-        setSessionCookieName(cognito.sessionCookieName());
-        setSessionTimeout(cognito.sessionTimeout());
-        setUserPoolArn(cognito.userPoolArn());
-        setUserPoolClientId(cognito.userPoolClientId());
-        setUserPoolDomain(cognito.userPoolDomain());
-    }
 
     public Map<String, String> getExtraParams() {
         return extraParams;
@@ -117,6 +103,18 @@ public class AuthenticateCognitoAction extends Diffable {
 
     public String primaryKey() {
         return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClientId(), getUserPoolDomain());
+    }
+
+    @Override
+    public void copyFrom(AuthenticateCognitoActionConfig cognito) {
+        setExtraParams(cognito.authenticationRequestExtraParams());
+        setOnUnauthenticatedRequest(cognito.onUnauthenticatedRequestAsString());
+        setScope(cognito.scope());
+        setSessionCookieName(cognito.sessionCookieName());
+        setSessionTimeout(cognito.sessionTimeout());
+        setUserPoolArn(cognito.userPoolArn());
+        setUserPoolClientId(cognito.userPoolClientId());
+        setUserPoolDomain(cognito.userPoolDomain());
     }
 
     public String toDisplayString() {

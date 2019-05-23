@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
  *     end
  */
 
-public class HealthCheck extends Diffable {
+public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
 
     private Integer interval;
     private String path;
@@ -34,21 +35,6 @@ public class HealthCheck extends Diffable {
     private Integer healthyThreshold;
     private String matcher;
     private Integer unhealthyThreshold;
-
-    public HealthCheck() {}
-
-    public HealthCheck(TargetGroup targetGroup) {
-        setInterval(targetGroup.healthCheckIntervalSeconds());
-        setPath(targetGroup.healthCheckPath());
-        setPort(targetGroup.healthCheckPort());
-        setProtocol(targetGroup.healthCheckProtocolAsString());
-        setTimeout(targetGroup.healthCheckTimeoutSeconds());
-        setHealthyThreshold(targetGroup.healthyThresholdCount());
-        if (targetGroup.matcher() != null) {
-            setMatcher(targetGroup.matcher().httpCode());
-        }
-        setUnhealthyThreshold(targetGroup.unhealthyThresholdCount());
-    }
 
     /**
      *  The approximate amount of time between health checks of a target (Optional)
@@ -152,5 +138,19 @@ public class HealthCheck extends Diffable {
 
     public String primaryKey() {
         return String.format("%s/%s/%s", getInterval(), getPort(), getProtocol());
+    }
+
+    @Override
+    public void copyFrom(TargetGroup targetGroup) {
+        setInterval(targetGroup.healthCheckIntervalSeconds());
+        setPath(targetGroup.healthCheckPath());
+        setPort(targetGroup.healthCheckPort());
+        setProtocol(targetGroup.healthCheckProtocolAsString());
+        setTimeout(targetGroup.healthCheckTimeoutSeconds());
+        setHealthyThreshold(targetGroup.healthyThresholdCount());
+        if (targetGroup.matcher() != null) {
+            setMatcher(targetGroup.matcher().httpCode());
+        }
+        setUnhealthyThreshold(targetGroup.unhealthyThresholdCount());
     }
 }

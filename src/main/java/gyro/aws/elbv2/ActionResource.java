@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
 import gyro.core.resource.Updatable;
@@ -25,7 +26,7 @@ import java.util.Set;
  *         type: "forward"
  *     end
  */
-public class ActionResource extends NetworkActionResource {
+public class ActionResource extends NetworkActionResource implements Copyable<Action> {
 
     private AuthenticateCognitoAction authenticateCognitoAction;
     private AuthenticateOidcAction authenticateOidcAction;
@@ -34,42 +35,6 @@ public class ActionResource extends NetworkActionResource {
     private RedirectAction redirectAction;
     private String targetGroupArn;
     private String type;
-
-    public ActionResource() {
-
-    }
-
-    public ActionResource(Action action) {
-
-        AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
-        if (cognitoConfig != null) {
-            AuthenticateCognitoAction cognito = new AuthenticateCognitoAction(cognitoConfig);
-            setAuthenticateCognitoAction(cognito);
-        }
-
-        AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
-        if (oidcConfig != null) {
-            AuthenticateOidcAction oidc = new AuthenticateOidcAction(oidcConfig);
-            setAuthenticateOidcAction(oidc);
-        }
-
-        FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
-        if (fixedConfig != null) {
-            FixedResponseAction fixed = new FixedResponseAction(fixedConfig);
-            setFixedResponseAction(fixed);
-        }
-
-        RedirectActionConfig redirectConfig = action.redirectConfig();
-        if (redirectConfig != null) {
-            RedirectAction redirect = new RedirectAction(redirectConfig);
-            setRedirectAction(redirect);
-        }
-
-        setOrder(action.order());
-        setTargetGroupArn(action.targetGroupArn());
-        setType(action.typeAsString());
-    }
-
 
     /**
      *  Authentication through user pools supported by Amazon Cognito (Optional)
@@ -157,6 +122,41 @@ public class ActionResource extends NetworkActionResource {
     @Override
     public String primaryKey() {
         return String.format("%d %s", getOrder(), getType());
+    }
+
+    @Override
+    public void copyFrom(Action action) {
+        AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
+        if (cognitoConfig != null) {
+            AuthenticateCognitoAction cognito = new AuthenticateCognitoAction();
+            cognito.copyFrom(cognitoConfig);
+            setAuthenticateCognitoAction(cognito);
+        }
+
+        AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
+        if (oidcConfig != null) {
+            AuthenticateOidcAction oidc = new AuthenticateOidcAction();
+            oidc.copyFrom(oidcConfig);
+            setAuthenticateOidcAction(oidc);
+        }
+
+        FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
+        if (fixedConfig != null) {
+            FixedResponseAction fixed = new FixedResponseAction();
+            fixed.copyFrom(fixedConfig);
+            setFixedResponseAction(fixed);
+        }
+
+        RedirectActionConfig redirectConfig = action.redirectConfig();
+        if (redirectConfig != null) {
+            RedirectAction redirect = new RedirectAction();
+            redirect.copyFrom(redirectConfig);
+            setRedirectAction(redirect);
+        }
+
+        setOrder(action.order());
+        setTargetGroup(findById(TargetGroupResource.class, action.targetGroupArn()));
+        setType(action.typeAsString());
     }
 
     @Override

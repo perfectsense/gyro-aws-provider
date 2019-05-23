@@ -2,6 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class LoadBalancerResource extends AwsResource {
+public abstract class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancer> {
 
     private String dnsName;
     private String ipAddressType;
@@ -27,23 +28,6 @@ public abstract class LoadBalancerResource extends AwsResource {
     private String name;
     private String scheme;
     private Map<String, String> tags;
-
-    public LoadBalancerResource() {
-
-    }
-
-    public LoadBalancerResource(ElasticLoadBalancingV2Client client, LoadBalancer loadBalancer) {
-        refreshResource(client, loadBalancer);
-
-        getTags().clear();
-        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-        if (tagResponse != null) {
-            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-            for (Tag tag : tags) {
-                getTags().put(tag.key(), tag.value());
-            }
-        }
-    }
 
     /**
      *  Public DNS name for the alb
@@ -118,6 +102,15 @@ public abstract class LoadBalancerResource extends AwsResource {
         }
     }
 
+    @Override
+    public void copyFrom(LoadBalancer loadBalancer) {
+        setDnsName(loadBalancer.dnsName());
+        setIpAddressType(loadBalancer.ipAddressTypeAsString());
+        setArn(loadBalancer.loadBalancerArn());
+        setName(loadBalancer.loadBalancerName());
+        setScheme(loadBalancer.schemeAsString());
+    }
+
     public LoadBalancer internalRefresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
@@ -125,7 +118,7 @@ public abstract class LoadBalancerResource extends AwsResource {
 
             LoadBalancer loadBalancer = lbResponse.loadBalancers().get(0);
 
-            refreshResource(client, loadBalancer);
+            this.copyFrom(loadBalancer);
 
             return loadBalancer;
 
@@ -182,22 +175,5 @@ public abstract class LoadBalancerResource extends AwsResource {
     @Override
     public String toDisplayString() {
         return "load balancer " + getName();
-    }
-
-    private void refreshResource(ElasticLoadBalancingV2Client client, LoadBalancer loadBalancer) {
-        setDnsName(loadBalancer.dnsName());
-        setIpAddressType(loadBalancer.ipAddressTypeAsString());
-        setArn(loadBalancer.loadBalancerArn());
-        setName(loadBalancer.loadBalancerName());
-        setScheme(loadBalancer.schemeAsString());
-
-        getTags().clear();
-        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-        if (tagResponse != null) {
-            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-            for (Tag tag : tags) {
-                getTags().put(tag.key(), tag.value());
-            }
-        }
     }
 }
