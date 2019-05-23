@@ -21,7 +21,6 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     private List<CertificateResource> certificate;
     private String defaultCertificate;
     private String arn;
-    private LoadBalancerResource loadBalancer;
     private Integer port;
     private String protocol;
     private String sslPolicy;
@@ -64,14 +63,6 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
 
     public void setArn(String arn) {
         this.arn = arn;
-    }
-
-    public LoadBalancerResource getLoadBalancer() {
-        return loadBalancer;
-    }
-
-    public void setLoadBalancer(LoadBalancerResource loadBalancer) {
-        this.loadBalancer = loadBalancer;
     }
 
     /**
@@ -146,7 +137,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
 
             Listener listener = lstResponse.listeners().get(0);
 
-            refreshResource(client, listener);
+            this.copyFrom(listener);
 
             return listener;
 
