@@ -210,11 +210,33 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         );
 
         setGroupId(response.groupId());
+
+        if (!isKeepDefaultEgressRules()) {
+            deleteDefaultEgressRule(client);
+        }
     }
 
     @Override
     protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+        SecurityGroupResource current = (SecurityGroupResource) config;
 
+        if (!current.isKeepDefaultEgressRules() && isKeepDefaultEgressRules()) {
+            throw new GyroException("Default rule removed. Cannot be undone.");
+        }
+
+        if (current.isKeepDefaultEgressRules() && !isKeepDefaultEgressRules()) {
+            if (getEgress()
+                .stream()
+                .noneMatch(
+                    o -> o.getToPort() == null
+                        && o.getFromPort() == null
+                        && o.getProtocol().equals("-1")
+                        && o.getCidrBlocks().contains("0.0.0.0/0"))
+                ) {
+
+                deleteDefaultEgressRule(createClient(Ec2Client.class));
+            }
+        }
     }
 
     @Override
@@ -273,6 +295,17 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         }
 
         return securityGroup;
+    }
+
+    private void deleteDefaultEgressRule(Ec2Client client) {
+        SecurityGroup group = getSecurityGroup(client);
+
+        IpPermission permission = group.ipPermissionsEgress().stream().filter(o -> o.ipProtocol().equals("-1")
+            && o.fromPort() == null && o.toPort() == null
+            && o.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")).findFirst().orElse(null);
+
+        SecurityGroupEgressRuleResource defaultRule = new SecurityGroupEgressRuleResource(permission);
+        defaultRule.delete(client, getGroupId());
     }
 }
 

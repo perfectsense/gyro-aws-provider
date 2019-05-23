@@ -39,8 +39,12 @@ public class SecurityGroupEgressRuleResource extends SecurityGroupRuleResource {
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
+        delete(client, getGroupId());
+    }
+
+    void delete(Ec2Client client, String securityGroupId) {
         try {
-            client.revokeSecurityGroupEgress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
+            client.revokeSecurityGroupEgress(r -> r.groupId(securityGroupId).ipPermissions(getIpPermissionRequest()));
         } catch (Ec2Exception eex) {
             if (!eex.awsErrorDetails().errorCode().equals("InvalidPermission.NotFound")) {
                 throw eex;
