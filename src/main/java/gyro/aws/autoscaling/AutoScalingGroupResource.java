@@ -5,8 +5,8 @@ import gyro.aws.ec2.InstanceResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroInstances;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
  *
  *     end
  */
-@ResourceType("auto-scaling-group")
+@Type("auto-scaling-group")
 public class AutoScalingGroupResource extends AwsResource implements GyroInstances {
 
     private String autoScalingGroupName;
@@ -153,7 +153,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The ID of an launched template that would be used as a skeleton to create the Auto scaling group. Required if launch configuration name not provided.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getLaunchTemplateId() {
         return launchTemplateId;
     }
@@ -165,7 +165,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      *  A list of availability zones for the auto scale group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ/>`_. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAvailabilityZones() {
         if (availabilityZones == null) {
             availabilityZones = new ArrayList<>();
@@ -181,7 +181,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The maximum number of instances for the Auto Scaling group. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMaxSize() {
         if (maxSize == null) {
             maxSize = 0;
@@ -197,7 +197,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The minimum number of instances for the Auto Scaling group. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMinSize() {
         if (minSize == null) {
             minSize = 0;
@@ -213,7 +213,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The desired number of instances for the Auto Scaling group. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getDesiredCapacity() {
         if (desiredCapacity == null) {
             desiredCapacity = 0;
@@ -229,7 +229,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The default cool down period in sec for the auto scale group. Defaults to 300 sec. See `Default Cool downs <https://docs.aws.amazon.com/autoscaling/ec2/userguide/Cooldown.html#cooldown-default/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getDefaultCooldown() {
         if (defaultCooldown == null) {
             defaultCooldown = 300;
@@ -245,7 +245,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The type of health check to be performed on the auto scale group. Defaults to EC2. Can be 'EC2' or 'ELB'. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHealthCheckType() {
         if (healthCheckType == null) {
             healthCheckType = "EC2";
@@ -261,7 +261,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The grace period after which health check is started, to give time for the instances to start up. Defaults to 0 sec. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHealthCheckGracePeriod() {
         if (healthCheckGracePeriod == null) {
             healthCheckGracePeriod = 0;
@@ -277,7 +277,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The name of a launched configuration that would be used as a skeleton to create the Auto scaling group. Required if launch template Id is not provided.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getLaunchConfigurationName() {
         return launchConfigurationName;
     }
@@ -289,7 +289,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * Enable protection of instances from auto scale group scale in. Defaults to false. see `Controlling Which Auto Scaling Instances Terminate During Scale In <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getNewInstancesProtectedFromScaleIn() {
         if (newInstancesProtectedFromScaleIn == null) {
             newInstancesProtectedFromScaleIn = false;
@@ -305,7 +305,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * A list of subnet identifiers. If Availability Zone is provided, subnet's need to be part of that. See `Launching Auto Scaling Instances in a VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSubnetIds() {
         if (subnetIds == null) {
             subnetIds = new ArrayList<>();
@@ -336,7 +336,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * Enable/Disable cloud watch metrics for your auto scaling group. Defaults to false. See `Monitoring your Auto Scaling Groups <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableMetricsCollection() {
         if (enableMetricsCollection == null) {
             enableMetricsCollection = false;
@@ -352,7 +352,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * One or more names of cloud watch metrics you want to disable. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getDisabledMetrics() {
         if (disabledMetrics == null || disabledMetrics.isEmpty()) {
             disabledMetrics = new ArrayList<>();
@@ -368,7 +368,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * Tags for auto scaling groups. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -383,7 +383,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * Tags in auto scaling groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getPropagateAtLaunchTags() {
         if (propagateAtLaunchTags == null) {
             propagateAtLaunchTags = new ArrayList<>();
@@ -419,7 +419,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         this.instanceId = instanceId;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getLoadBalancerNames() {
         if (loadBalancerNames == null) {
             loadBalancerNames = new ArrayList<>();
@@ -432,7 +432,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         this.loadBalancerNames = loadBalancerNames;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getTargetGroupArns() {
         if (targetGroupArns == null) {
             targetGroupArns = new ArrayList<>();
@@ -445,7 +445,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         this.targetGroupArns = targetGroupArns;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public List<String> getTerminationPolicies() {
         if (terminationPolicies == null || terminationPolicies.isEmpty()) {
             terminationPolicies = new ArrayList<>();
@@ -723,7 +723,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         for (Reservation reservation : instancesResponse.reservations()) {
             instances.addAll(reservation.instances()
                 .stream()
-                .map(i -> new InstanceResource(i))
+                .map(i -> new InstanceResource(i, ec2Client))
                 .collect(Collectors.toList()));
         }
 

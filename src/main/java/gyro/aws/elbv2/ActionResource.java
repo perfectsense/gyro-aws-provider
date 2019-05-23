@@ -2,7 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
@@ -74,7 +74,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Authentication through user pools supported by Amazon Cognito (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
         return authenticateCognitoAction;
     }
@@ -86,7 +86,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
         return authenticateOidcAction;
     }
@@ -98,7 +98,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Used to specify a custom response for an action  (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public FixedResponseAction getFixedResponseAction() {
         return fixedResponseAction;
     }
@@ -110,7 +110,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  The order in which the action should take place (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getOrder() {
         return order;
     }
@@ -122,7 +122,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  Redirect requests from one URL to another (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public RedirectAction getRedirectAction() {
         return redirectAction;
     }
@@ -145,7 +145,7 @@ public class ActionResource extends NetworkActionResource {
     /**
      *  The type of action to perform  (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getType() {
         return type;
     }

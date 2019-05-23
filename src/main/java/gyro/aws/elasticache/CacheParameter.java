@@ -1,7 +1,7 @@
 package gyro.aws.elasticache;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticache.model.ParameterNameValue;
 
 public class CacheParameter extends Diffable {
@@ -31,7 +31,7 @@ public class CacheParameter extends Diffable {
     /**
      * The value of the cache parameter variable. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getValue() {
         return value;
     }

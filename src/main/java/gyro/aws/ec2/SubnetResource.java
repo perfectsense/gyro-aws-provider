@@ -1,10 +1,11 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -39,8 +40,8 @@ import java.util.Set;
  *         cidr-block: 10.0.0.0/24
  *     end
  */
-@ResourceType("subnet")
-public class SubnetResource extends Ec2TaggableResource<Subnet> {
+@Type("subnet")
+public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copyable<Subnet> {
 
     private VpcResource vpc;
     private String cidrBlock;
@@ -50,18 +51,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     private String aclId;
     private String aclAssociationId;
     private String defaultAclId;
-
-    public SubnetResource() {
-
-    }
-
-    public SubnetResource(Ec2Client client, Subnet subnet) {
-        setSubnetId(subnet.subnetId());
-        setCidrBlock(subnet.cidrBlock());
-        setAvailabilityZone(subnet.availabilityZone());
-        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
-        setVpc(findById(VpcResource.class, subnet.vpcId()));
-    }
 
     /**
      * The VPC to create the subnet in. (Required)
@@ -99,7 +88,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     /**
      * Assign a public IPv4 address to network interfaces created in this subnet.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getMapPublicIpOnLaunch() {
         return mapPublicIpOnLaunch;
     }
@@ -108,7 +97,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
         this.mapPublicIpOnLaunch = mapPublicIpOnLaunch;
     }
 
-    @ResourceOutput
+    @Output
     public String getSubnetId() {
         return subnetId;
     }
@@ -135,7 +124,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     /**
      * The ID of the Network ACL associated to the subnet.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAclId() {
         return aclId;
     }
@@ -156,6 +145,15 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
     }
 
     @Override
+    public void copyFrom(Subnet subnet) {
+        setSubnetId(subnet.subnetId());
+        setCidrBlock(subnet.cidrBlock());
+        setAvailabilityZone(subnet.availabilityZone());
+        setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
+        setVpc(findById(VpcResource.class, subnet.vpcId()));
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -168,12 +166,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> {
                 .subnetIds(getSubnetId())
                 .build();
 
-            for (Subnet subnet : client.describeSubnets(request).subnets()) {
-                setSubnetId(subnet.subnetId());
-                setAvailabilityZone(subnet.availabilityZone());
-                setCidrBlock(subnet.cidrBlock());
-                setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
-            }
+            client.describeSubnets(request).subnets().forEach(this::copyFrom);
 
             DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
                 r -> r.filters(

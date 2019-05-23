@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -54,7 +54,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProtocol() {
         if (protocol != null) {
             return protocol.toLowerCase();
@@ -70,7 +70,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Description for this security group rule.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -82,7 +82,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Starting port for this rule. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getFromPort() {
         return fromPort;
     }
@@ -94,7 +94,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * Ending port for this rule. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getToPort() {
         return toPort;
     }
@@ -106,7 +106,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * List of IPv4 cidr blocks to apply this rule to. Required if `ipv6-cidr-blocks` not mentioned.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getCidrBlocks() {
         if (cidrBlocks == null) {
             cidrBlocks = new ArrayList<>();
@@ -122,7 +122,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     /**
      * List of IPv6 cidr blocks to apply this rule to. Required if `cidr-blocks` not mentioned.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getIpv6CidrBlocks() {
         if (ipv6CidrBlocks == null) {
             ipv6CidrBlocks = new ArrayList<>();

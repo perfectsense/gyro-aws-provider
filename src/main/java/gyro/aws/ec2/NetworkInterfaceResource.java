@@ -4,9 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *
  */
 
-@ResourceType("network-interface")
+@Type("network-interface")
 public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterface> {
 
     private String description;
@@ -76,7 +76,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The description of the network interface card that is being created.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -88,7 +88,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The subnet id to create the network interface in. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSubnetId() {
         return subnetId;
     }
@@ -100,7 +100,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The ID of the Network Interface which is generated with the resource.
      */
-    @ResourceOutput
+    @Output
     public String getNetworkInterfaceId() {
         return networkInterfaceId;
     }
@@ -113,7 +113,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      * The list of Security Group ID's that are getting associated to the Network Interface. (Optional)
      * If no security id is given, the default security group attached to the subnet will be assigned to the network interface.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getSecurityGroupIds() {
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
@@ -130,7 +130,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The id of the instance to which the network interface card will be attached.(Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getInstanceId() {
         return instanceId;
     }
@@ -142,7 +142,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The value of attachment order to the instance, this would be `1` since the default network interface index value is `0` when an instance is created.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getDeviceIndex() {
         return deviceIndex;
     }
@@ -154,7 +154,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * Boolean value to indicate if the network interface will be deleted when the instance is terminated.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getDeleteOnTermination() {
         if (isDeleteOnTermination == null) {
             isDeleteOnTermination = false;
@@ -193,7 +193,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      * The list of Secondary IPV4 addresses which gets assigned to the Network Interface. The limit of setting secondary instance depends on the instance type.
      * See `IP Address per Instance Type <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI>`_.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getIpv4Addresses() {
         if (ipv4Addresses == null) {
             ipv4Addresses = new ArrayList<>();
@@ -211,7 +211,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
      * Boolean value to enable/disable network traffic on instance that isn't specifically destined for the instance.
      * Default is `true`
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getSourceDestCheck() {
         if (sourceDestCheck == null) {
             sourceDestCheck = true;

@@ -1,10 +1,10 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -63,7 +63,7 @@ import java.util.Set;
  *     end
  */
 
-@ResourceType("target-group")
+@Type("target-group")
 public class TargetGroupResource extends AwsResource {
 
     private HealthCheck healthCheck;
@@ -90,7 +90,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  Indicates if health checks are enabled. Required if target type is instance. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getHealthCheckEnabled() {
         return healthCheckEnabled;
     }
@@ -102,7 +102,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  Port on which traffic is received by targets (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -114,7 +114,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  Protocol used to route traffic to targets (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProtocol() {
         return protocol;
     }
@@ -126,7 +126,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  List of tags associated with the target group (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();
@@ -143,7 +143,7 @@ public class TargetGroupResource extends AwsResource {
         }
     }
 
-    @ResourceOutput
+    @Output
     public String getArn() {
         return arn;
     }
@@ -166,7 +166,7 @@ public class TargetGroupResource extends AwsResource {
     /**
      *  The type of the target. Options include instance, ip, and lambda (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTargetType() {
         return targetType;
     }

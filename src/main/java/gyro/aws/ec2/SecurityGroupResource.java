@@ -3,20 +3,18 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceId;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Id;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +40,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceType("security-group")
+@Type("security-group")
 public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
 
     private String groupName;
@@ -126,7 +124,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * Whether to keep the default egress rule. If false, the rule will be deleted.
      */
-    @ResourceUpdatable
+    @Updatable
     public boolean isKeepDefaultEgressRules() {
         if (keepDefaultEgressRules == null) {
             keepDefaultEgressRules = true;
@@ -142,8 +140,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The id of the security group.
      */
-    @ResourceId
-    @ResourceOutput
+    @Id
+    @Output
     public String getGroupId() {
         return groupId;
     }
@@ -160,7 +158,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The owner id of the security group.
      */
-    @ResourceOutput
+    @Output
     public String getOwnerId() {
         return ownerId;
     }

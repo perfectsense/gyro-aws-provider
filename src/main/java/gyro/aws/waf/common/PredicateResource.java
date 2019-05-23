@@ -2,7 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
@@ -30,7 +30,7 @@ public abstract class PredicateResource extends AbstractWafResource {
     /**
      * Set if the condition is checked to be false. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getNegated() {
         return negated;
     }

@@ -41,7 +41,7 @@ aws::instance instance-example
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "foo"
+    key-name: "example"
     subnet-id: $(aws::subnet subnet | subnet-id)
     security-group-ids: [
         $(aws::security-group security-group| group-id)
@@ -55,5 +55,24 @@ aws::instance instance-example
         Name: "instance-example"
     }
 
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
+    end
+
+    volume
+        device-name: "/dev/sde"
+        volume-id: $(aws::ebs-volume volume | volume-id)
+    end
     capacity-reservation: "none"
+end
+
+aws::ebs-volume volume
+    availability-zone: "us-east-2a"
+    size: 100
+    auto-enable-io: false
+    tags: {
+        Name: "ebs-volume-example"
+    }
 end

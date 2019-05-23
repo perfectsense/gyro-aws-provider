@@ -3,8 +3,8 @@
  * ------------
  */
 @DocNamespace("aws")
-@ResourceNamespace("aws")
+@Namespace("aws")
 package gyro.aws;
 
+import gyro.core.Namespace;
 import gyro.core.resource.DocNamespace;
-import gyro.core.resource.ResourceNamespace;

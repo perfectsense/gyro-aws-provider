@@ -1,7 +1,7 @@
 package gyro.aws.s3;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class S3CorsRule extends Diffable {
     /**
      * Allowed headers for the rule.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAllowedHeaders() {
         return allowedHeaders;
     }
@@ -40,7 +40,7 @@ public class S3CorsRule extends Diffable {
     /**
      * Allowed methods for the rule. Ex. ``GET``, ``PUT`` etc.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAllowedMethods() {
         return allowedMethods;
     }
@@ -52,7 +52,7 @@ public class S3CorsRule extends Diffable {
     /**
      * Allowed origins for the rule.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAllowedOrigins() {
         return allowedOrigins;
     }
@@ -64,7 +64,7 @@ public class S3CorsRule extends Diffable {
     /**
      * Expose headers for the rule.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getExposeHeaders() {
         return exposeHeaders;
     }
@@ -76,7 +76,7 @@ public class S3CorsRule extends Diffable {
     /**
      * Max age seconds for the rule.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getMaxAgeSeconds() {
         return maxAgeSeconds;
     }

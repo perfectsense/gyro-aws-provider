@@ -2,9 +2,9 @@ package gyro.aws.kms;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * end
  */
 
-@ResourceType("kms")
+@Type("kms")
 public class KmsResource extends AwsResource {
 
     private List<String> aliases;
@@ -77,7 +77,7 @@ public class KmsResource extends AwsResource {
     /**
      * The list of aliases associated with the key.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAliases() {
         if (aliases == null) {
             aliases = new ArrayList<>();
@@ -93,7 +93,7 @@ public class KmsResource extends AwsResource {
     /**
      * Determines whether to bypass the key policy lockout safety check.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getBypassPolicyLockoutSafetyCheck() {
         return bypassPolicyLockoutSafetyCheck;
     }
@@ -105,7 +105,7 @@ public class KmsResource extends AwsResource {
     /**
      * Creates the key in the specified custom key store.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCustomKeyStoreId() {
         return customKeyStoreId;
     }
@@ -117,7 +117,7 @@ public class KmsResource extends AwsResource {
     /**
      * The description of the key.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -129,7 +129,7 @@ public class KmsResource extends AwsResource {
     /**
      * Determines whether the key is enabled.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnabled() {
         return enabled;
     }
@@ -141,7 +141,7 @@ public class KmsResource extends AwsResource {
     /**
      * Determines whether the backing key is rotated each year.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getKeyRotation() {
         return keyRotation;
     }
@@ -153,7 +153,7 @@ public class KmsResource extends AwsResource {
     /**
      * The arn for this key.
      */
-    @ResourceOutput
+    @Output
     public String getKeyArn() {
         return keyArn;
     }
@@ -165,7 +165,7 @@ public class KmsResource extends AwsResource {
     /**
      * The id for this key.
      */
-    @ResourceOutput
+    @Output
     public String getKeyId() {
         return keyId;
     }
@@ -177,7 +177,7 @@ public class KmsResource extends AwsResource {
     /**
      * The manager of the key, either AWS or customer. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getKeyManager() {
         return keyManager;
     }
@@ -197,7 +197,7 @@ public class KmsResource extends AwsResource {
     /**
      * The usage of the key, which is encryption and decryption. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getKeyUsage() {
         return keyUsage;
     }
@@ -209,7 +209,7 @@ public class KmsResource extends AwsResource {
     /**
      * The source of the key material. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getOrigin() {
         return origin;
     }
@@ -232,7 +232,7 @@ public class KmsResource extends AwsResource {
     /**
      * The policy associated with the key. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPolicy() {
         return policy;
     }
@@ -241,7 +241,7 @@ public class KmsResource extends AwsResource {
         this.policy = policy;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getPolicyContents() {
         if (policyContents != null) {
             return this.policyContents;
@@ -266,7 +266,7 @@ public class KmsResource extends AwsResource {
     /**
      * The tags associated with the key. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new CompactMap<>();

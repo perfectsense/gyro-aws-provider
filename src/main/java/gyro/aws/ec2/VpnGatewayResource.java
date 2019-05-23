@@ -4,10 +4,10 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.Wait;
-import gyro.core.resource.ResourceId;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Id;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpnGatewaysResponse;
@@ -32,13 +32,15 @@ import java.util.concurrent.TimeUnit;
  *         }
  *     end
  */
-@ResourceType("vpn-gateway")
+@Type("vpn-gateway")
 public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     private Long amazonSideAsn;
     private VpcResource vpc;
 
     // Read-only
     private String vpnGatewayId;
+
+
 
     /**
      * The private Autonomous System Number (ASN) for the Amazon side of a BGP session. If you're using a 16-bit ASN, it must be in the ``64512`` to ``65534`` range. If you're using a 32-bit ASN, it must be in the ``4200000000`` to ``4294967294`` range.
@@ -58,7 +60,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     /**
      * The VPC to create the security group in.
      */
-    @ResourceUpdatable
+    @Updatable
     public VpcResource getVpc() {
         return vpc;
     }
@@ -70,8 +72,8 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
     /**
      * The id of the vpn gateway.
      */
-    @ResourceId
-    @ResourceOutput
+    @Id
+    @Output
     public String getVpnGatewayId() {
         return vpnGatewayId;
     }
