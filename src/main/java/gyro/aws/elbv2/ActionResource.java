@@ -3,9 +3,11 @@ package gyro.aws.elbv2;
 import gyro.aws.Copyable;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Update;
+
 import gyro.core.resource.Resource;
+import gyro.core.resource.Update;
+import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
@@ -22,7 +24,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     action
- *         target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+ *         target-group: $(aws::target-group target-group-example)
  *         type: "forward"
  *     end
  */
@@ -33,7 +35,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     private FixedResponseAction fixedResponseAction;
     private Integer order;
     private RedirectAction redirectAction;
-    private String targetGroupArn;
+    private TargetGroupResource targetGroup;
     private String type;
 
     /**
@@ -97,14 +99,14 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  The target group arn that this action is associated with  (Optional)
+     *  The target group that this action is associated with. (Required)
      */
-    public String getTargetGroupArn() {
-        return targetGroupArn;
+    public TargetGroupResource getTargetGroup() {
+        return targetGroup;
     }
 
-    public void setTargetGroupArn(String targetGroupArn) {
-        this.targetGroupArn = targetGroupArn;
+    public void setTargetGroup(TargetGroupResource targetGroup) {
+        this.targetGroup = targetGroup;
     }
 
     /**
@@ -229,7 +231,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
                 .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
                 .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
                 .order(getOrder())
-                .targetGroupArn(getTargetGroupArn())
+                .targetGroupArn(getTargetGroup().getArn())
                 .type(getType())
                 .build();
     }

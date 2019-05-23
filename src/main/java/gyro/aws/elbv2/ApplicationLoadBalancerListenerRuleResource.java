@@ -1,10 +1,12 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
@@ -26,11 +28,11 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::alb-listener-rule listener-rule-example
- *         listener-arn: $(aws::alb-listener listener-example | listener-arn)
+ *         alb-listener: $(aws::alb-listener listener-example)
  *         priority: "1"
  *
  *         action
- *             target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+ *             target-group: $(aws::target-group target-group-example | target-group-arn)
  *             type: "forward"
  *         end
  *
@@ -47,16 +49,16 @@ import java.util.Set;
  */
 
 @Type("alb-listener-rule")
-public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
+public class ApplicationLoadBalancerListenerRuleResource extends AwsResource implements Copyable<Rule> {
 
     private List<ActionResource> action;
     private List<ConditionResource> condition;
-    private ListenerResource listener;
+    private ApplicationLoadBalancerListenerResource albListener;
     private Integer priority;
     private String arn;
 
     /**
-     *  List of actions associated with the rule (Required)
+     *  List of actions associated with the rule. (Required)
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -74,7 +76,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     }
 
     /**
-     *  List of conditions associated with the rule (Required)
+     *  List of conditions associated with the rule. (Required)
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
@@ -91,12 +93,15 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         this.condition = condition;
     }
 
-    public ListenerResource getListener() {
-        return listener;
+    /**
+     *  The alb associated with this listener rule. (Required)
+     */
+    public ApplicationLoadBalancerListenerResource getAlbListener() {
+        return albListener;
     }
 
-    public void setListener(ListenerResource listener) {
-        this.listener = listener;
+    public void setAlbListener(ApplicationLoadBalancerListenerResource albListener) {
+        this.albListener = albListener;
     }
 
     /**
@@ -111,6 +116,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
     }
 
     @Output
+    @Id
     public String getArn() {
         return arn;
     }
@@ -149,7 +155,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         CreateRuleResponse response = client.createRule(r -> r.actions(toActions())
                 .conditions(toConditions())
-                .listenerArn(getListener().getArn())
+                .listenerArn(getAlbListener().getArn())
                 .priority(getPriority()));
 
         setArn(response.rules().get(0).ruleArn());
