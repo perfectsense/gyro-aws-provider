@@ -21,13 +21,12 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *         aws::target target
- *             id: "i-5543455454435"
- *             port: 81
- *             target-group: $(aws::target-group tg-example)
- *         end
+ *      aws::target target
+ *          id: "i-5543455454435"
+ *          port: 81
+ *          target-group: $(aws::target-group tg-example)
+ *      end
  */
-
 @Type("target")
 public class TargetResource extends AwsResource {
 
