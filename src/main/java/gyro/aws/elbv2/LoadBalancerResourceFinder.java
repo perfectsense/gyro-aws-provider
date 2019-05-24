@@ -2,12 +2,14 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsFinder;
 
+import gyro.core.Type;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 
 import java.util.List;
 import java.util.Map;
 
+@Type("load-balancer-type")
 public class LoadBalancerResourceFinder<R extends LoadBalancerResource> extends AwsFinder<ElasticLoadBalancingV2Client, LoadBalancer, R> {
 
     private String arn;

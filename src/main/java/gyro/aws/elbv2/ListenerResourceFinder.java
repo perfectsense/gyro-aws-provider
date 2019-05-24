@@ -1,6 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsFinder;
+import gyro.core.Type;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Type("listener-type")
 public class ListenerResourceFinder<R extends ListenerResource> extends AwsFinder<ElasticLoadBalancingV2Client, Listener, R> {
 
     private String arn;
