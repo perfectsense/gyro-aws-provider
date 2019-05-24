@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 
@@ -135,6 +136,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     }
 
     @Output
+    @Id
     public String getGroupId() {
         return groupId;
     }
