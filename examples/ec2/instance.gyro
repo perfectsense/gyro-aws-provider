@@ -3,7 +3,7 @@ aws::vpc vpc
     provide-ipv6-cidr-block: true
 
     tags: {
-        Name: "instance example"
+        Name: "vpc instance example"
      }
 end
 
@@ -14,13 +14,13 @@ aws::subnet subnet
     map-public-ip-on-launch: true
 
     tags: {
-        Name: "instance example"
+        Name: "subnet instance example"
     }
 end
 
 aws::security-group security-group
     group-name: "instance-example"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "instance example"
     keep-default-egress-rules: true
 
@@ -33,7 +33,7 @@ aws::security-group security-group
     end
 
     tags: {
-        Name: "instance example"
+        Name: "security group instance example"
     }
 end
 
@@ -42,9 +42,9 @@ aws::instance instance-example
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "example"
-    subnet-id: $(aws::subnet subnet | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group| group-id)
+    subnet: $(aws::subnet subnet)
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
