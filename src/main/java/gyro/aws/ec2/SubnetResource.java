@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -97,6 +98,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.mapPublicIpOnLaunch = mapPublicIpOnLaunch;
     }
 
+    @Id
     @Output
     public String getSubnetId() {
         return subnetId;
