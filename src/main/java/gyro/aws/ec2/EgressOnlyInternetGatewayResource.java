@@ -10,6 +10,7 @@ import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
 import software.amazon.awssdk.services.ec2.model.InternetGatewayAttachment;
 
@@ -116,12 +117,18 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
             throw new GyroException("gateway-id is missing, unable to load egress gateway.");
         }
 
-        DescribeEgressOnlyInternetGatewaysResponse response = client.describeEgressOnlyInternetGateways(
-            r -> r.egressOnlyInternetGatewayIds(getGatewayId())
-        );
+        try {
+            DescribeEgressOnlyInternetGatewaysResponse response = client.describeEgressOnlyInternetGateways(
+                r -> r.egressOnlyInternetGatewayIds(getGatewayId())
+            );
 
-        if (!response.egressOnlyInternetGateways().isEmpty()) {
-            egressOnlyInternetGateway = response.egressOnlyInternetGateways().get(0);
+            if (!response.egressOnlyInternetGateways().isEmpty()) {
+                egressOnlyInternetGateway = response.egressOnlyInternetGateways().get(0);
+            }
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
         }
 
         return egressOnlyInternetGateway;

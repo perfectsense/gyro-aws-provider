@@ -1,8 +1,3 @@
-aws::credentials default
-    profile-name: "psd-gyro-sandbox"
-    region: "us-east-2"
-end
-
 aws::vpc vpc-example-for-peering-connection-1
     cidr-block: "10.0.0.0/16"
 
@@ -20,9 +15,8 @@ aws::vpc vpc-example-for-peering-connection-2
 end
 
 aws::peering-connection peering-connection-example
-    vpc-id: $(aws::vpc vpc-example-for-peering-connection-1 | vpc-id)
-    peer-vpc-id: $(aws::vpc vpc-example-for-peering-connection-2 | vpc-id)
-    owner-id: '572681481110'
+    vpc: $(aws::vpc vpc-example-for-peering-connection-1)
+    peer-vpc: $(aws::vpc vpc-example-for-peering-connection-2)
     region: 'us-east-2'
 
     tags: {

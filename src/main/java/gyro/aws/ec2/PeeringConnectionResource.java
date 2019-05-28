@@ -1,14 +1,20 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -22,7 +28,6 @@ import java.util.Set;
  *     aws::peering-connection peering-connection-example
  *         vpc: $(aws::vpc vpc-example-for-peering-connection-1)
  *         peer-vpc: $(aws::vpc vpc-example-for-peering-connection-2)
- *         owner-id: '572681481110'
  *         region: 'us-east-1'
  *
  *         tags: {
@@ -35,7 +40,6 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     private VpcResource vpc;
     private VpcResource peerVpc;
-    private String ownerId;
     private String region;
     private String peeringConnectionId;
 
@@ -59,17 +63,6 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     public void setPeerVpc(VpcResource peerVpc) {
         this.peerVpc = peerVpc;
-    }
-
-    /**
-     * Accepter Account id. (Required)
-     */
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
     }
 
     /**
@@ -105,18 +98,16 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeVpcPeeringConnectionsResponse response = client.describeVpcPeeringConnections(r -> r.vpcPeeringConnectionIds(getId()));
+        VpcPeeringConnection vpcPeeringConnection = getVpcPeeringConnection(client);
 
-        if (!response.vpcPeeringConnections().isEmpty()) {
-            VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnections().get(0);
-            setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
-            setOwnerId(vpcPeeringConnection.accepterVpcInfo().ownerId());
-            setVpc(findById(VpcResource.class, vpcPeeringConnection.accepterVpcInfo().vpcId()));
-
-            return true;
+        if (vpcPeeringConnection == null) {
+            return false;
         }
 
-        return false;
+        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
+        setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
+
+        return true;
     }
 
     @Override
@@ -126,7 +117,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
             r -> r.vpcId(getVpc().getVpcId())
                 .peerVpcId(getPeerVpc().getVpcId())
-                .peerOwnerId(getOwnerId())
+                .peerOwnerId(getAccountNumber())
                 .peerRegion(getRegion())
         );
 
@@ -154,13 +145,43 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getPeeringConnectionId() != null) {
-            sb.append(getPeeringConnectionId());
+        sb.append("peering connection");
 
-        } else {
-            sb.append("peering connection");
+        if (getPeeringConnectionId() != null) {
+            sb.append(" - ").append(getPeeringConnectionId());
         }
 
         return sb.toString();
+    }
+
+    private String getAccountNumber() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
+    }
+
+    private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
+        VpcPeeringConnection vpcPeeringConnection = null;
+
+        if (ObjectUtils.isBlank(getPeeringConnectionId())) {
+            throw new GyroException("vpc-peering-connection-id is missing, unable to load peering connection.");
+        }
+
+        try {
+            DescribeVpcPeeringConnectionsResponse response = client.describeVpcPeeringConnections(
+                r -> r.vpcPeeringConnectionIds(Collections.singleton(getPeeringConnectionId()))
+            );
+
+            if (!response.vpcPeeringConnections().isEmpty()) {
+                vpcPeeringConnection = response.vpcPeeringConnections().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return vpcPeeringConnection;
     }
 }
