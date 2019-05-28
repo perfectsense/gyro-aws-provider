@@ -157,7 +157,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
 
         setOrder(action.order());
-        setTargetGroup(findById(TargetGroupResource.class, action.targetGroupArn()));
+        setTargetGroup(action.targetGroupArn() != null ? parentResource().findById(TargetGroupResource.class, action.targetGroupArn()) : null);
         setType(action.typeAsString());
     }
 
@@ -231,7 +231,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
                 .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
                 .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
                 .order(getOrder())
-                .targetGroupArn(getTargetGroup().getArn())
+                .targetGroupArn(getTargetGroup() != null ? getTargetGroup().getArn() : null)
                 .type(getType())
                 .build();
     }
