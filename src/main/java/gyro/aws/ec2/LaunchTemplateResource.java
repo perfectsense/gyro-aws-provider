@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -39,29 +40,15 @@ import java.util.stream.Collectors;
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
  *         key-name: "instance-static"
- *         security-group-ids: [
- *             $(aws::security-group security-group-launch-template-example-1 | group-id),
- *             $(aws::security-group security-group-launch-template-example-2 | group-id)
+ *         security-groups: [
+ *             $(aws::security-group security-group-launch-template-example-1),
+ *             $(aws::security-group security-group-launch-template-example-2)
  *         ]
  *         disable-api-termination: false
  *         ebs-optimized: false
  *
  *         tags: {
  *             Name: "launch-template-example-1"
- *         }
- *     end
- *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *     aws::launch-template launch-template-2
- *         launch-template-name: "launch-template-gyro-2"
- *         instance-id : "in-instanceid"
- *
- *         tags: {
- *             Name: "launch-template-example-2"
  *         }
  *     end
  */
@@ -81,13 +68,15 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String instanceType;
     private String keyName;
     private Boolean enableMonitoring;
-    private List<String> securityGroupIds;
+    private List<SecurityGroupResource> securityGroups;
     private Boolean disableApiTermination;
     private String userData;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
 
-    private String instanceId;
-
+    /**
+     * The id of the launch template.
+     */
+    @Id
     @Output
     public String getLaunchTemplateId() {
         return launchTemplateId;
@@ -97,6 +86,9 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         this.launchTemplateId = launchTemplateId;
     }
 
+    /**
+     * The name of the launch template. (Required)
+     */
     public String getLaunchTemplateName() {
         return launchTemplateName;
     }
@@ -237,15 +229,16 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public List<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
         }
-        return securityGroupIds;
+
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
@@ -295,17 +288,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
-    /**
-     * The id of the instance from which the details of the launch template will be extracted and used to make this one.
-     */
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
     @Override
     protected String getId() {
         return getLaunchTemplateId();
@@ -315,23 +297,13 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (ObjectUtils.isBlank(getLaunchTemplateId())) {
-            throw new GyroException("launch-template-id is missing, unable to load instance.");
+        LaunchTemplate launchTemplate = getLaunchTemplate(client);
+
+        if (launchTemplate == null) {
+            return false;
         }
 
-        try {
-            DescribeLaunchTemplatesResponse response = client.describeLaunchTemplates(r -> r.launchTemplateIds(getLaunchTemplateId()));
-            for (LaunchTemplate launchTemplate : response.launchTemplates()) {
-                setLaunchTemplateName(launchTemplate.launchTemplateName());
-                break;
-            }
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
+        setLaunchTemplateName(launchTemplate.launchTemplateName());
 
         return true;
     }
@@ -341,30 +313,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(client);
-
-        if (!ObjectUtils.isBlank(getInstanceId())) {
-            GetLaunchTemplateDataResponse response = client.getLaunchTemplateData(r -> r.instanceId(getInstanceId()));
-            setDisableApiTermination(response.launchTemplateData().disableApiTermination());
-            setEbsOptimized(response.launchTemplateData().ebsOptimized());
-            setConfigureHibernateOption(response.launchTemplateData().hibernationOptions().configured());
-            setAmiId(response.launchTemplateData().imageId());
-            setInstanceType(response.launchTemplateData().instanceType().toString());
-            setShutdownBehavior(response.launchTemplateData().instanceInitiatedShutdownBehaviorAsString());
-            setKeyName(response.launchTemplateData().keyName());
-            setEnableMonitoring(response.launchTemplateData().monitoring().enabled());
-            setSecurityGroupIds(response.launchTemplateData().securityGroupIds());
-            setUserData(response.launchTemplateData().userData());
-            setBlockDeviceMapping(
-                response.launchTemplateData().blockDeviceMappings()
-                    .stream()
-                    .map(BlockDeviceMappingResource::new)
-                    .collect(Collectors.toList())
-            );
-
-            //temp fix until we resolve a way to verify by instance types.
-            //setCoreCount(response.launchTemplateData().cpuOptions().coreCount());
-            //setThreadPerCore(response.launchTemplateData().cpuOptions().threadsPerCore());
-        }
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getLaunchTemplateName())
@@ -379,7 +327,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                     .instanceInitiatedShutdownBehavior(getShutdownBehavior())
                     .keyName(getKeyName())
                     .monitoring(o -> o.enabled(getEnableMonitoring()))
-                    .securityGroupIds(getSecurityGroupIds())
+                    .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
                     .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
                     .blockDeviceMappings(
                         getBlockDeviceMapping()
@@ -421,45 +369,64 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     private void validate(Ec2Client client) {
+        if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
+            throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+        }
 
-        if (ObjectUtils.isBlank(getInstanceId())) {
+        if (getSecurityGroups().isEmpty()) {
+            throw new GyroException("At least one security group is required.");
+        }
 
-            if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+        DescribeImagesRequest amiRequest;
+
+        if (ObjectUtils.isBlank(getAmiId())) {
+            if (ObjectUtils.isBlank(getAmiName())) {
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
             }
 
-            if (getSecurityGroupIds().isEmpty()) {
-                throw new GyroException("At least one security group is required.");
+            amiRequest = DescribeImagesRequest.builder().filters(
+                Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
+            ).build();
+
+        } else {
+            amiRequest = DescribeImagesRequest.builder().imageIds(getAmiId()).build();
+        }
+
+        try {
+            DescribeImagesResponse response = client.describeImages(amiRequest);
+            if (response.images().isEmpty()) {
+                throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
+            }
+            setAmiId(response.images().get(0).imageId());
+        } catch (Ec2Exception ex) {
+            if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
+                throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
             }
 
-            DescribeImagesRequest amiRequest;
+            throw ex;
+        }
+    }
 
-            if (ObjectUtils.isBlank(getAmiId())) {
-                if (ObjectUtils.isBlank(getAmiName())) {
-                    throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
-                }
+    private LaunchTemplate getLaunchTemplate(Ec2Client client) {
+        LaunchTemplate launchTemplate = null;
 
-                amiRequest = DescribeImagesRequest.builder().filters(
-                    Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
-                ).build();
+        if (ObjectUtils.isBlank(getLaunchTemplateId())) {
+            throw new GyroException("launch-template-id is missing, unable to load instance.");
+        }
 
-            } else {
-                amiRequest = DescribeImagesRequest.builder().imageIds(getAmiId()).build();
+        try {
+            DescribeLaunchTemplatesResponse response = client.describeLaunchTemplates(r -> r.launchTemplateIds(getLaunchTemplateId()));
+
+            if (!response.launchTemplates().isEmpty()) {
+                launchTemplate = response.launchTemplates().get(0);
             }
 
-            try {
-                DescribeImagesResponse response = client.describeImages(amiRequest);
-                if (response.images().isEmpty()) {
-                    throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
-                }
-                setAmiId(response.images().get(0).imageId());
-            } catch (Ec2Exception ex) {
-                if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
-                    throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
-                }
-
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
                 throw ex;
             }
         }
+
+        return launchTemplate;
     }
 }

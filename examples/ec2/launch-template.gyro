@@ -9,7 +9,7 @@ end
 
 aws::security-group security-group-launch-template-example-1
     group-name: "security-group-launch-template-example-1"
-    vpc-id: $(aws::vpc vpc-launch-template-example | vpc-id)
+    vpc: $(aws::vpc vpc-launch-template-example)
     description: "security group launch-template example 1"
     keep-default-egress-rules: true
 
@@ -36,7 +36,7 @@ end
 
 aws::security-group security-group-launch-template-example-2
     group-name: "security-group-launch-template-example-2"
-    vpc-id: $(aws::vpc vpc-launch-template-example | vpc-id)
+    vpc: $(aws::vpc vpc-launch-template-example)
     description: "security group launch-template example 2"
     keep-default-egress-rules: true
 
@@ -67,9 +67,9 @@ aws::launch-template launch-template
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "instance-static"
-    security-group-ids: [
-        $(aws::security-group security-group-launch-template-example-1 | group-id),
-        $(aws::security-group security-group-launch-template-example-2 | group-id)
+    security-groups: [
+        $(aws::security-group security-group-launch-template-example-1),
+        $(aws::security-group security-group-launch-template-example-2)
     ]
     disable-api-termination: false
     ebs-optimized: false
