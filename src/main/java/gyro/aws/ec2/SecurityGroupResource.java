@@ -268,6 +268,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
 
     private SecurityGroup getSecurityGroup(Ec2Client client) {
         SecurityGroup securityGroup = null;
+
         if (ObjectUtils.isBlank(getGroupId())) {
             throw new GyroException("group-id is missing, unable to load security group.");
         }

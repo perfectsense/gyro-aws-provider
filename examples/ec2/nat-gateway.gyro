@@ -17,7 +17,7 @@ aws::subnet subnet-example-for-nat-gateway
 end
 
 aws::elastic-ip elastic-ip-example-for-nat-gateway
-    is-standard-domain: true
+    is-standard-domain: false
 
     tags: {
         Name: "elastic-ip-example-for-nat-gateway"
@@ -25,8 +25,8 @@ aws::elastic-ip elastic-ip-example-for-nat-gateway
 end
 
 aws::nat-gateway nat-gateway-example
-    subnet-id: $(aws::subnet subnet-example-for-nat-gateway | subnet-id )
-    elastic-allocation-id: $(aws::elastic-ip elastic-ip-example-for-nat-gateway | allocation-id)
+    subnet: $(aws::subnet subnet-example-for-nat-gateway)
+    elastic-ip: $(aws::elastic-ip elastic-ip-example-for-nat-gateway)
 
     tags: {
         Name: "elastic-ip-example-for-nat-gateway"

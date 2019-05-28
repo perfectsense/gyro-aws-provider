@@ -1,11 +1,15 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNatGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
 
 import java.util.Set;
@@ -19,8 +23,8 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::nat-gateway nat-gateway-example
- *         elastic-allocation-id: $(aws::elastic-ip elastic-ip-example-for-nat-gateway | allocation-id)
- *         subnet-id: $(aws::subnet subnet-example-for-nat-gateway | subnet-id )
+ *         elastic-ip: $(aws::elastic-ip elastic-ip-example-for-nat-gateway)
+ *         subnet: $(aws::subnet subnet-example-for-nat-gateway)
  *
  *         tags:
  *             Name: elastic-ip-example-for-nat-gateway
@@ -31,12 +35,13 @@ import java.util.Set;
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
 
     private String natGatewayId;
-    private String elasticAllocationId;
-    private String subnetId;
+    private ElasticIpResource elasticIp;
+    private SubnetResource subnet;
 
     /**
-     * Nat Gateway id when created.
+     * The id of the Nat Gateway.
      */
+    @Id
     @Output
     public String getNatGatewayId() {
         return natGatewayId;
@@ -47,25 +52,25 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
     }
 
     /**
-     * Allocation id of the elastic ip for the nat gateway. (Required)
+     * Associated elastic ip for the nat gateway. (Required)
      */
-    public String getElasticAllocationId() {
-        return elasticAllocationId;
+    public ElasticIpResource getElasticIp() {
+        return elasticIp;
     }
 
-    public void setElasticAllocationId(String elasticAllocationId) {
-        this.elasticAllocationId = elasticAllocationId;
+    public void setElasticIp(ElasticIpResource elasticIp) {
+        this.elasticIp = elasticIp;
     }
 
     /**
-     * Subnet id for the nat gateway. (Required)
+     * Associated subnet for the nat gateway. (Required)
      */
-    public String getSubnetId() {
-        return subnetId;
+    public SubnetResource getSubnet() {
+        return subnet;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setSubnet(SubnetResource subnet) {
+        this.subnet = subnet;
     }
 
     @Override
@@ -77,20 +82,16 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeNatGatewaysResponse response = client.describeNatGateways(
-            r -> r.natGatewayIds(getNatGatewayId())
-                .maxResults(5)
-        );
+        NatGateway natGateway = getNatGateway(client);
 
-        if (!response.natGateways().isEmpty()) {
-            NatGateway natGateway = response.natGateways().get(0);
-            setSubnetId(natGateway.subnetId());
-            setElasticAllocationId(natGateway.natGatewayAddresses().get(0).allocationId());
-
-            return true;
+        if (natGateway == null) {
+            return false;
         }
 
-        return false;
+        setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
+        setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
+
+        return true;
     }
 
     @Override
@@ -98,8 +99,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateNatGatewayResponse response = client.createNatGateway(
-            r -> r.allocationId(getElasticAllocationId())
-                .subnetId(getSubnetId())
+            r -> r.allocationId(getElasticIp().getAllocationId())
+                .subnetId(getSubnet().getSubnetId())
         );
 
         NatGateway natGateway = response.natGateway();
@@ -124,13 +125,39 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getNatGatewayId() != null) {
-            sb.append(getNatGatewayId());
+        sb.append("nat gateway");
 
-        } else {
-            sb.append("nat gateway");
+        if (getNatGatewayId() != null) {
+            sb.append(" - ").append(getNatGatewayId());
+
         }
 
         return sb.toString();
+    }
+
+    private NatGateway getNatGateway(Ec2Client client) {
+        NatGateway natGateway = null;
+
+        if (ObjectUtils.isBlank(getNatGatewayId())) {
+            throw new GyroException("nat-gateway-id is missing, unable to load nat gateway.");
+        }
+
+        try {
+            DescribeNatGatewaysResponse response = client.describeNatGateways(
+                r -> r.natGatewayIds(getNatGatewayId())
+                    .maxResults(5)
+            );
+
+            if (!response.natGateways().isEmpty()) {
+                natGateway = response.natGateways().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return natGateway;
     }
 }
