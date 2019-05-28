@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
@@ -19,8 +20,8 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::peering-connection peering-connection-example
- *         vpc-id: $(aws::vpc vpc-example-for-peering-connection-1 | vpc-id)
- *         peer-vpc-id: $(aws::vpc vpc-example-for-peering-connection-2 | vpc-id)
+ *         vpc: $(aws::vpc vpc-example-for-peering-connection-1)
+ *         peer-vpc: $(aws::vpc vpc-example-for-peering-connection-2)
  *         owner-id: '572681481110'
  *         region: 'us-east-1'
  *
@@ -30,38 +31,38 @@ import java.util.Set;
  *     end
  */
 @Type("peering-connection")
-public class PeeringConectionResource extends Ec2TaggableResource<VpcPeeringConnection> {
+public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringConnection> {
 
-    private String vpcId;
-    private String peerVpcId;
+    private VpcResource vpc;
+    private VpcResource peerVpc;
     private String ownerId;
     private String region;
     private String peeringConnectionId;
 
     /**
-     * Requester VPC ID. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html/>`_. (Required)
+     * Requester VPC. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html/>`_. (Required)
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     /**
-     * Accepter VPC ID. (Required)
+     * Accepter VPC. (Required)
      */
-    public String getPeerVpcId() {
-        return peerVpcId;
+    public VpcResource getPeerVpc() {
+        return peerVpc;
     }
 
-    public void setPeerVpcId(String peerVpcId) {
-        this.peerVpcId = peerVpcId;
+    public void setPeerVpc(VpcResource peerVpc) {
+        this.peerVpc = peerVpc;
     }
 
     /**
-     * Accepter Account ID. (Required)
+     * Accepter Account id. (Required)
      */
     public String getOwnerId() {
         return ownerId;
@@ -82,6 +83,10 @@ public class PeeringConectionResource extends Ec2TaggableResource<VpcPeeringConn
         this.region = region;
     }
 
+    /**
+     * The id of the peering connection.
+     */
+    @Id
     @Output
     public String getPeeringConnectionId() {
         return peeringConnectionId;
@@ -106,7 +111,7 @@ public class PeeringConectionResource extends Ec2TaggableResource<VpcPeeringConn
             VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnections().get(0);
             setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
             setOwnerId(vpcPeeringConnection.accepterVpcInfo().ownerId());
-            setVpcId(vpcPeeringConnection.accepterVpcInfo().vpcId());
+            setVpc(findById(VpcResource.class, vpcPeeringConnection.accepterVpcInfo().vpcId()));
 
             return true;
         }
@@ -119,8 +124,8 @@ public class PeeringConectionResource extends Ec2TaggableResource<VpcPeeringConn
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
-            r -> r.vpcId(getVpcId())
-                .peerVpcId(getPeerVpcId())
+            r -> r.vpcId(getVpc().getVpcId())
+                .peerVpcId(getPeerVpc().getVpcId())
                 .peerOwnerId(getOwnerId())
                 .peerRegion(getRegion())
         );
