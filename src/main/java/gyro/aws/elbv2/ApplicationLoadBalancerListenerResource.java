@@ -74,8 +74,8 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
 
         if (listener != null) {
             setDefaultAction(fromDefaultActions(listener.defaultActions()));
-            setAlb(findById(ApplicationLoadBalancerResource.class, listener.loadBalancerArn()));
-
+            ApplicationLoadBalancerResource alb = (ApplicationLoadBalancerResource) findById(LoadBalancerResource.class, listener.loadBalancerArn());
+            setAlb(alb);
             return true;
         }
 
