@@ -31,10 +31,11 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     private Map<String, String> tags;
 
     /**
-     *  Public DNS name for the alb
+     *  Public DNS name for the alb.
      */
+    @Output
     public String getDnsName() {
-        return ipAddressType;
+        return dnsName;
     }
 
     public void setDnsName(String dnsName) {
@@ -42,7 +43,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  Type of IP address used by the subnets of the alb (Required)
+     *  Type of IP address used by the subnets of the alb. (Optional)
      */
     public String getIpAddressType() {
         return ipAddressType;
@@ -63,7 +64,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  The name of the load balancer (Required)
+     *  The name of the load balancer. (Required)
      */
     public String getName() {
         return name;
@@ -74,7 +75,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  Type of nodes used by the alb (Optional)
+     *  Type of nodes used by the alb. (Optional)
      */
     public String getScheme() {
         return scheme;
@@ -85,7 +86,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  List of tags associated with the alb (Optional)
+     *  List of tags associated with the alb. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -111,6 +112,11 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
         setArn(loadBalancer.loadBalancerArn());
         setName(loadBalancer.loadBalancerName());
         setScheme(loadBalancer.schemeAsString());
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        DescribeTagsResponse describeTagsResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        describeTagsResponse.tagDescriptions().forEach(tag -> tag.tags().forEach(t -> getTags().put(t.key(), t.value())));
     }
 
     public LoadBalancer internalRefresh() {
@@ -128,7 +134,6 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
             return null;
         }
     }
-
 
     @Override
     public void create() {

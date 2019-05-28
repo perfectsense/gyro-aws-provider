@@ -37,7 +37,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     private Integer unhealthyThreshold;
 
     /**
-     *  The approximate amount of time between health checks of a target (Optional)
+     *  The approximate amount of time between health checks of a target. (Optional)
      */
     @Updatable
     public Integer getInterval() {
@@ -61,7 +61,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  The port used when an alb performs health checks on targets (Optional)
+     *  The port used when an alb performs health checks on targets. Required when used with  (Optional)
      */
     @Updatable
     public String getPort() {
@@ -137,7 +137,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getInterval(), getPort(), getProtocol());
+        return String.format("%s", getPath());
     }
 
     @Override
