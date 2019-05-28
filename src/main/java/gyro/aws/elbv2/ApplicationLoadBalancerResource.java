@@ -4,15 +4,14 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerTypeEnum;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,31 +38,32 @@ import java.util.stream.Collectors;
  *             }
  *     end
  */
-
 @Type("alb")
 public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
-    private List<SecurityGroupResource> securityGroups;
+    private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
 
     /**
-     *  List of security groups associated with the alb (Optional)
+     *  List of security groups associated with the alb. (Optional)
      */
-    public List<SecurityGroupResource> getSecurityGroups() {
+    @Updatable
+    public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
+            securityGroups = new HashSet<>();
         }
 
         return securityGroups;
     }
 
-    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
         this.securityGroups = securityGroups;
     }
 
     /**
-     *  List of subnets associated with the alb (Optional)
+     *  List of subnets associated with the alb. (Required)
      */
+    @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
             subnets = new HashSet<>();
@@ -113,6 +113,13 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        client.setSecurityGroups(r -> r.loadBalancerArn(getArn())
+                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList())));
+        client.setSubnets(r -> r.loadBalancerArn(getArn())
+                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())));
+
         super.update(current, changedFieldNames);
     }
 
