@@ -37,7 +37,7 @@ aws::subnet subnet-public-us-east-2c
 end
 
 aws::internet-gateway ig-example
-    vpc-id: $(aws::vpc vpc-example | vpc-id)
+    vpc: $(aws::vpc vpc-example)
 
     tags: {
         Name: "ig-example"
@@ -45,11 +45,11 @@ aws::internet-gateway ig-example
 end
 
 aws::route-table route-table-example
-    vpc-id: $(aws::vpc vpc-example | vpc-id)
-    subnet-ids: [
-        $(aws::subnet subnet-public-us-east-2a | subnet-id),
-        $(aws::subnet subnet-public-us-east-2b | subnet-id),
-        $(aws::subnet subnet-public-us-east-2c | subnet-id)
+    vpc: $(aws::vpc vpc-example)
+    subnets: [
+        $(aws::subnet subnet-public-us-east-2a),
+        $(aws::subnet subnet-public-us-east-2b),
+        $(aws::subnet subnet-public-us-east-2c)
     ]
 
     tags: {
@@ -58,7 +58,7 @@ aws::route-table route-table-example
 end
 
 aws::route route-example
-    route-table-id: $(aws::route-table route-table-example | route-table-id)
+    route-table: $(aws::route-table route-table-example)
     destination-cidr-block: "0.0.0.0/0"
-    gateway-id: $(aws::internet-gateway ig-example | internet-gateway-id)
+    gateway: $(aws::internet-gateway ig-example)
 end

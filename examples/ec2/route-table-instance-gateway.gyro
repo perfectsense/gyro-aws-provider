@@ -20,7 +20,7 @@ end
 
 aws::security-group security-group
     group-name: "instance-example"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "instance example"
     keep-default-egress-rules: true
 
@@ -79,9 +79,9 @@ aws::instance instance-example
 end
 
 aws::route-table route-table-example
-    vpc-id: $(aws::vpc vpc | vpc-id)
-    subnet-ids: [
-        $(aws::subnet subnet | subnet-id)
+    vpc: $(aws::vpc vpc)
+    subnets: [
+        $(aws::subnet subnet)
     ]
 
     tags: {
@@ -111,7 +111,7 @@ workflow 'replace-route'
 end
 
 aws::route route-example
-    route-table-id: $(aws::route-table route-table-example | route-table-id)
+    route-table: $(aws::route-table route-table-example)
     destination-cidr-block: "0.0.0.0/0"
-    instance-id: $(aws::instance instance-example | instance-id)
+    instance: $(aws::instance instance-example)
 end
