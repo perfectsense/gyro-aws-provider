@@ -7,7 +7,7 @@ aws::vpc vpc-example-for-network-acl
 end
 
 aws::network-acl network-acl-example
-    vpc-id: $(aws::vpc vpc-example-for-network-acl | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-network-acl)
 
     rule
             cidr-block: ["0.0.0.0/0"]
