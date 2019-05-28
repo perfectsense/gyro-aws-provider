@@ -150,7 +150,6 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         setExtraParams(oidc.authenticationRequestExtraParams());
         setAuthorizationEndpoint(oidc.authorizationEndpoint());
         setClientId(oidc.clientId());
-        setClientSecret(oidc.clientSecret());
         setIssuer(oidc.issuer());
         setOnAuthenticatedRequest(oidc.onUnauthenticatedRequestAsString());
         setScope(oidc.scope());
