@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsFinder;
+import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
@@ -8,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 import java.util.List;
 import java.util.Map;
 
+@Type("network-interface")
 public class NetworkInterfaceResourceFinder extends AwsFinder<Ec2Client, NetworkInterface, NetworkInterfaceResource> {
     private String addressesPrivateIpAddress;
     private String addressesPrimary;
