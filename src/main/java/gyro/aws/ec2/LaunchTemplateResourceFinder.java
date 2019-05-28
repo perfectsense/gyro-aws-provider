@@ -1,10 +1,13 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +16,7 @@ import java.util.Map;
 public class LaunchTemplateResourceFinder extends AwsFinder<Ec2Client, LaunchTemplate, LaunchTemplateResource> {
     private String createTime;
     private String launchTemplateName;
+    private String launchTemplateId;
     private String tagKey;
     private Map<String, String> tag;
 
@@ -22,6 +26,14 @@ public class LaunchTemplateResourceFinder extends AwsFinder<Ec2Client, LaunchTem
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public String getLaunchTemplateId() {
+        return launchTemplateId;
+    }
+
+    public void setLaunchTemplateId(String launchTemplateId) {
+        this.launchTemplateId = launchTemplateId;
     }
 
     public String getLaunchTemplateName() {
@@ -59,6 +71,19 @@ public class LaunchTemplateResourceFinder extends AwsFinder<Ec2Client, LaunchTem
 
     @Override
     protected List<LaunchTemplate> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeLaunchTemplates(r -> r.filters(createFilters(filters))).launchTemplates();
+        DescribeLaunchTemplatesRequest.Builder request = DescribeLaunchTemplatesRequest.builder();
+
+        if (filters.containsKey("launch-template-id")) {
+            String launchTemplateId = filters.get("launch-template-id");
+            filters.remove("launch-template-id");
+
+            if (!ObjectUtils.isBlank(launchTemplateId)) {
+                request.launchTemplateIds(Collections.singleton(launchTemplateId));
+            }
+        }
+
+        request.filters(createFilters(filters));
+
+        return client.describeLaunchTemplates(request.build()).launchTemplates();
     }
 }
