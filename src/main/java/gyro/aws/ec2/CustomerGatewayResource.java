@@ -1,13 +1,17 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.CustomerGateway;
 import software.amazon.awssdk.services.ec2.model.DescribeCustomerGatewaysResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.GatewayType;
 
 import java.util.Set;
@@ -35,6 +39,10 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     private String publicIp;
     private Integer bgpAsn;
 
+    /**
+     * The id of the customer gateway.
+     */
+    @Id
     @Output
     public String getCustomerGatewayId() {
         return customerGatewayId;
@@ -75,16 +83,15 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getCustomerGatewayId()));
+        CustomerGateway customerGateway = getCustomerGateway(client);
 
-        if (!response.customerGateways().isEmpty()) {
-            CustomerGateway customerGateway = response.customerGateways().get(0);
-            setPublicIp(customerGateway.ipAddress());
-
-            return true;
+        if (customerGateway == null) {
+            return false;
         }
 
-        return false;
+        setPublicIp(customerGateway.ipAddress());
+
+        return true;
     }
 
     @Override
@@ -122,13 +129,35 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("customer gateway");
+
         if (getCustomerGatewayId() != null) {
             sb.append(getCustomerGatewayId());
-
-        } else {
-            sb.append("customer gateway");
         }
 
         return sb.toString();
+    }
+
+    private CustomerGateway getCustomerGateway(Ec2Client client) {
+        CustomerGateway customerGateway = null;
+
+        if (ObjectUtils.isBlank(getCustomerGatewayId())) {
+            throw new GyroException("customer-gateway-id is missing, unable to load customer gateway.");
+        }
+
+        try {
+            DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getCustomerGatewayId()));
+
+            if (!response.customerGateways().isEmpty()) {
+                customerGateway = response.customerGateways().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return customerGateway;
     }
 }
