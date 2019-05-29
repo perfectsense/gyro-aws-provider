@@ -22,7 +22,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *    aws::db-snapshot db-snapshot-example
- *        db-instance-identifier: $(aws::db-instance db-instance-example | db-instance-identifier)
+ *        db-instance: $(aws::db-instance db-instance-example)
  *        db-snapshot-identifier: "db-snapshot-example"
  *        tags: {
  *            Name: "db-snapshot-example"
@@ -32,20 +32,20 @@ import java.util.Set;
 @Type("db-snapshot")
 public class DbSnapshotResource extends RdsTaggableResource implements Copyable<DBSnapshot> {
 
-    private String dbInstanceIdentifier;
+    private DbInstanceResource dbInstance;
     private String dbSnapshotIdentifier;
     private String engineVersion;
-    private String optionGroupName;
+    private DbOptionGroupResource optionGroup;
 
     /**
-     * The identifier of the DB instance to create a snapshot for. (Required)
+     * The DB instance to create a snapshot for. (Required)
      */
-    public String getDbInstanceIdentifier() {
-        return dbInstanceIdentifier;
+    public DbInstanceResource getDbInstance() {
+        return dbInstance;
     }
 
-    public void setDbInstanceIdentifier(String dbInstanceIdentifier) {
-        this.dbInstanceIdentifier = dbInstanceIdentifier;
+    public void setDbInstance(DbInstanceResource dbInstance) {
+        this.dbInstance = dbInstance;
     }
 
     /**
@@ -76,19 +76,19 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
      * The option group associate with the upgraded DB snapshot. Only applicable when upgrading an Oracle DB snapshot.
      */
     @Updatable
-    public String getOptionGroupName() {
-        return optionGroupName;
+    public DbOptionGroupResource getOptionGroup() {
+        return optionGroup;
     }
 
-    public void setOptionGroupName(String optionGroupName) {
-        this.optionGroupName = optionGroupName;
+    public void setOptionGroup(DbOptionGroupResource optionGroup) {
+        this.optionGroup = optionGroup;
     }
 
     @Override
     public void copyFrom(DBSnapshot snapshot) {
-        setDbInstanceIdentifier(snapshot.dbInstanceIdentifier());
+        setDbInstance(findById(DbInstanceResource.class, snapshot.dbInstanceIdentifier()));
         setEngineVersion(snapshot.engineVersion());
-        setOptionGroupName(snapshot.optionGroupName());
+        setOptionGroup(findById(DbOptionGroupResource.class, snapshot.optionGroupName()));
         setArn(snapshot.dbSnapshotArn());
     }
 
@@ -119,7 +119,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbSnapshotResponse response = client.createDBSnapshot(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getDbInstance().getDbInstanceIdentifier())
                     .dbSnapshotIdentifier(getDbSnapshotIdentifier())
             );
 
@@ -135,7 +135,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
         client.modifyDBSnapshot(
             r -> r.dbSnapshotIdentifier(getDbSnapshotIdentifier())
                     .engineVersion(getEngineVersion())
-                    .optionGroupName(getOptionGroupName())
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
         );
     }
 

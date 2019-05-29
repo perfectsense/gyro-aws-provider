@@ -1,6 +1,8 @@
 package gyro.aws.rds;
 
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.kms.KmsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -11,14 +13,11 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
-import software.amazon.awssdk.services.rds.model.DBParameterGroupStatus;
 import software.amazon.awssdk.services.rds.model.DBSecurityGroupMembership;
 import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 import software.amazon.awssdk.services.rds.model.DomainMembership;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
-import software.amazon.awssdk.services.rds.model.OptionGroupMembership;
-import software.amazon.awssdk.services.rds.model.VpcSecurityGroupMembership;
 
 import java.util.List;
 import java.util.Objects;
@@ -57,13 +56,13 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private Integer backupRetentionPeriod;
     private String characterSetName;
     private Boolean copyTagsToSnapshot;
-    private String dbClusterIdentifier;
+    private DbClusterResource dbCluster;
     private String dbInstanceClass;
     private String dbInstanceIdentifier;
     private String dbName;
-    private String dbParameterGroupName;
+    private DbParameterGroupResource dbParameterGroup;
     private List<String> dbSecurityGroups;
-    private String dbSubnetGroupName;
+    private DbSubnetGroupResource dbSubnetGroup;
     private Boolean deleteAutomatedBackups;
     private Boolean deletionProtection;
     private String domain;
@@ -75,15 +74,15 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private String engineVersion;
     private String finalDbSnapshotIdentifier;
     private Integer iops;
-    private String kmsKeyId;
+    private KmsResource kmsKey;
     private String licenseModel;
     private String masterUserPassword;
     private String masterUsername;
     private Integer monitoringInterval;
     private String monitoringRoleArn;
     private Boolean multiAz;
-    private String optionGroupName;
-    private String performanceInsightsKmsKeyId;
+    private DbOptionGroupResource optionGroup;
+    private KmsResource performanceInsightsKmsKey;
     private Integer performanceInsightsRetentionPeriod;
     private Integer port;
     private String preferredBackupWindow;
@@ -96,7 +95,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private String tdeCredentialArn;
     private String tdeCredentialPassword;
     private String timezone;
-    private List<String> vpcSecurityGroupIds;
+    private List<SecurityGroupResource> vpcSecurityGroups;
     private String endpointAddress;
 
     /**
@@ -192,14 +191,14 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The identifier of the existing DB cluster this DB instance belongs to. Only applies to Aurora engine.
+     * The existing DB cluster this DB instance belongs to. Only applies to Aurora engine.
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -238,15 +237,15 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The name of the DB parameter group to use for this instance. The default DB Parameter Group is used if this is not set.
+     * The DB parameter group to use for this instance. The default DB Parameter Group is used if this is not set.
      */
     @Updatable
-    public String getDbParameterGroupName() {
-        return dbParameterGroupName;
+    public DbParameterGroupResource getDbParameterGroup() {
+        return dbParameterGroup;
     }
 
-    public void setDbParameterGroupName(String dbParameterGroupName) {
-        this.dbParameterGroupName = dbParameterGroupName;
+    public void setDbParameterGroup(DbParameterGroupResource dbParameterGroup) {
+        this.dbParameterGroup = dbParameterGroup;
     }
 
     /**
@@ -264,12 +263,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * A DB subnet group to use for this DB instance.
      */
-    public String getDbSubnetGroupName() {
-        return dbSubnetGroupName;
+    public DbSubnetGroupResource getDbSubnetGroup() {
+        return dbSubnetGroup;
     }
 
-    public void setDbSubnetGroupName(String dbSubnetGroupName) {
-        this.dbSubnetGroupName = dbSubnetGroupName;
+    public void setDbSubnetGroup(DbSubnetGroupResource dbSubnetGroup) {
+        this.dbSubnetGroup = dbSubnetGroup;
     }
 
     /**
@@ -403,14 +402,14 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The AWS KMS key ARN to encrypt the DB instance.
+     * The AWS KMS key to encrypt the DB instance.
      */
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -485,27 +484,27 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The name of the option group to associate with.
+     * The option group to associate with.
      */
     @Updatable
-    public String getOptionGroupName() {
-        return optionGroupName;
+    public DbOptionGroupResource getOptionGroup() {
+        return optionGroup;
     }
 
-    public void setOptionGroupName(String optionGroupName) {
-        this.optionGroupName = optionGroupName;
+    public void setOptionGroup(DbOptionGroupResource optionGroup) {
+        this.optionGroup = optionGroup;
     }
 
     /**
-     * The AWS KMS key ARN for encryption of Performance Insights data. Not applicable if `enable-performance-insights` is false.
+     * The AWS KMS key for encryption of Performance Insights data. Not applicable if `enable-performance-insights` is false.
      */
     @Updatable
-    public String getPerformanceInsightsKmsKeyId() {
-        return performanceInsightsKmsKeyId;
+    public KmsResource getPerformanceInsightsKmsKey() {
+        return performanceInsightsKmsKey;
     }
 
-    public void setPerformanceInsightsKmsKeyId(String performanceInsightsKmsKeyId) {
-        this.performanceInsightsKmsKeyId = performanceInsightsKmsKeyId;
+    public void setPerformanceInsightsKmsKey(KmsResource performanceInsightsKmsKey) {
+        this.performanceInsightsKmsKey = performanceInsightsKmsKey;
     }
 
     /**
@@ -653,12 +652,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * A list of Amazon VPC security groups to associate with.
      */
     @Updatable
-    public List<String> getVpcSecurityGroupIds() {
-        return vpcSecurityGroupIds;
+    public List<SecurityGroupResource> getVpcSecurityGroups() {
+        return vpcSecurityGroups;
     }
 
-    public void setVpcSecurityGroupIds(List<String> vpcSecurityGroupIds) {
-        this.vpcSecurityGroupIds = vpcSecurityGroupIds;
+    public void setVpcSecurityGroups(List<SecurityGroupResource> vpcSecurityGroups) {
+        this.vpcSecurityGroups = vpcSecurityGroups;
     }
 
     /**
@@ -681,20 +680,20 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setBackupRetentionPeriod(instance.backupRetentionPeriod());
         setCharacterSetName(instance.characterSetName());
         setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
-        setDbClusterIdentifier(instance.dbClusterIdentifier());
+        setDbCluster(findById(DbClusterResource.class, instance.dbClusterIdentifier()));
         setDbInstanceClass(instance.dbInstanceClass());
         setDbInstanceIdentifier(instance.dbInstanceIdentifier());
         setDbName(instance.dbName());
 
-        setDbParameterGroupName(instance.dbParameterGroups().stream()
-            .findFirst().map(DBParameterGroupStatus::dbParameterGroupName)
+        setDbParameterGroup(instance.dbParameterGroups().stream()
+            .findFirst().map(s -> findById(DbParameterGroupResource.class, s.dbParameterGroupName()))
             .orElse(null));
 
         setDbSecurityGroups(instance.dbSecurityGroups().stream()
             .map(DBSecurityGroupMembership::dbSecurityGroupName)
             .collect(Collectors.toList()));
 
-        setDbSubnetGroupName(instance.dbSubnetGroup() != null ? instance.dbSubnetGroup().dbSubnetGroupName() : null);
+        setDbSubnetGroup(instance.dbSubnetGroup() != null ? findById(DbSubnetGroupResource.class, instance.dbSubnetGroup().dbSubnetGroupName()) : null);
         setDeletionProtection(instance.deletionProtection());
 
         setDomain(instance.domainMemberships().stream()
@@ -718,18 +717,18 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setEngineVersion(version);
         setIops(instance.iops());
-        setKmsKeyId(instance.kmsKeyId());
+        setKmsKey(findById(KmsResource.class, instance.kmsKeyId()));
         setLicenseModel(instance.licenseModel());
         setMasterUsername(instance.masterUsername());
         setMonitoringInterval(instance.monitoringInterval());
         setMonitoringRoleArn(instance.monitoringRoleArn());
         setMultiAz(instance.multiAZ());
 
-        setOptionGroupName(instance.optionGroupMemberships().stream()
-            .findFirst().map(OptionGroupMembership::optionGroupName)
+        setOptionGroup(instance.optionGroupMemberships().stream()
+            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName()))
             .orElse(null));
 
-        setPerformanceInsightsKmsKeyId(instance.performanceInsightsKMSKeyId());
+        setPerformanceInsightsKmsKey(findById(KmsResource.class, instance.performanceInsightsKMSKeyId()));
         setPerformanceInsightsRetentionPeriod(instance.performanceInsightsRetentionPeriod());
         setPort(instance.dbInstancePort());
         setPreferredBackupWindow(instance.preferredBackupWindow());
@@ -740,8 +739,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setStorageType(instance.storageType());
         setTdeCredentialArn(instance.tdeCredentialArn());
         setTimezone(instance.timezone());
-        setVpcSecurityGroupIds(instance.vpcSecurityGroups().stream()
-            .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
+        setVpcSecurityGroups(instance.vpcSecurityGroups().stream()
+            .map(s -> findById(SecurityGroupResource.class, s.vpcSecurityGroupId()))
             .collect(Collectors.toList()));
         setArn(instance.dbInstanceArn());
 
@@ -782,13 +781,13 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbClusterIdentifier())
+                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getDbClusterIdentifier() : null)
                     .dbInstanceClass(getDbInstanceClass())
                     .dbInstanceIdentifier(getDbInstanceIdentifier())
                     .dbName(getDbName())
-                    .dbParameterGroupName(getDbParameterGroupName())
+                    .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
                     .dbSecurityGroups(getDbSecurityGroups())
-                    .dbSubnetGroupName(getDbSubnetGroupName())
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
                     .deletionProtection(getDeletionProtection())
                     .domain(getDomain())
                     .domainIAMRoleName(getDomainIamRoleName())
@@ -798,15 +797,15 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .iops(getIops())
-                    .kmsKeyId(getKmsKeyId())
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyArn() : null)
                     .licenseModel(getLicenseModel())
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
                     .monitoringInterval(getMonitoringInterval())
                     .monitoringRoleArn(getMonitoringRoleArn())
                     .multiAZ(getMultiAz())
-                    .optionGroupName(getOptionGroupName())
-                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKeyId())
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null)
                     .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
                     .port(getPort())
                     .preferredBackupWindow(getPreferredBackupWindow())
@@ -818,7 +817,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .tdeCredentialArn(getTdeCredentialArn())
                     .tdeCredentialPassword(getTdeCredentialPassword())
                     .timezone(getTimezone())
-                    .vpcSecurityGroupIds(getVpcSecurityGroupIds())
+                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                        .stream()
+                        .map(SecurityGroupResource::getGroupId)
+                        .collect(Collectors.toList()) : null)
         );
 
         setArn(response.dbInstance().dbInstanceArn());
@@ -846,6 +848,16 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     public void doUpdate(Resource config, Set<String> changedProperties) {
         RdsClient client = createClient(RdsClient.class);
         DbInstanceResource current = (DbInstanceResource) config;
+
+        String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
+        String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null;
+        String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
+        String performanceInsightsKmsKey = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
+        List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+            .stream()
+            .map(SecurityGroupResource::getGroupId)
+            .collect(Collectors.toList()) : null;
+
         try {
             client.modifyDBInstance(
                 r -> r.allocatedStorage(Objects.equals(getAllocatedStorage(), current.getAllocatedStorage()) ? null : getAllocatedStorage())
@@ -860,10 +872,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .copyTagsToSnapshot(Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null : getCopyTagsToSnapshot())
                     .dbInstanceClass(Objects.equals(getDbInstanceClass(), current.getDbInstanceClass()) ? null : getDbInstanceClass())
                     .dbInstanceIdentifier(getDbInstanceIdentifier())
-                    .dbParameterGroupName(Objects.equals(getDbParameterGroupName(), current.getDbParameterGroupName())
-                        ? null : getDbParameterGroupName())
+                    .dbParameterGroupName(Objects.equals(getDbParameterGroup(), current.getDbParameterGroup())
+                        ? null : parameterGroupName)
                     .dbSecurityGroups(Objects.equals(getDbSecurityGroups(), current.getDbSecurityGroups()) ? null : getDbSecurityGroups())
-                    .dbSubnetGroupName(Objects.equals(getDbSubnetGroupName(), current.getDbSubnetGroupName()) ? null : getDbSubnetGroupName())
+                    .dbSubnetGroupName(Objects.equals(getDbSubnetGroup(), current.getDbSubnetGroup()) ? null : subnetGroupName)
                     .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null : getDeletionProtection())
                     .domain(Objects.equals(getDomain(), current.getDomain()) ? null : getDomain())
                     .domainIAMRoleName(Objects.equals(getDomainIamRoleName(), current.getDomainIamRoleName()) ? null : getDomainIamRoleName())
@@ -879,9 +891,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .monitoringInterval(Objects.equals(getMonitoringInterval(), current.getMonitoringInterval()) ? null : getMonitoringInterval())
                     .monitoringRoleArn(Objects.equals(getMonitoringRoleArn(), current.getMonitoringRoleArn()) ? null : getMonitoringRoleArn())
                     .multiAZ(Objects.equals(getMultiAz(), current.getMultiAz()) ? null : getMultiAz())
-                    .optionGroupName(Objects.equals(getOptionGroupName(), current.getOptionGroupName()) ? null : getOptionGroupName())
-                    .performanceInsightsKMSKeyId(Objects.equals(getPerformanceInsightsKmsKeyId(), current.getPerformanceInsightsKmsKeyId())
-                        ? null : getPerformanceInsightsKmsKeyId())
+                    .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
+                    .performanceInsightsKMSKeyId(Objects.equals(getPerformanceInsightsKmsKey(), current.getPerformanceInsightsKmsKey())
+                        ? null : performanceInsightsKmsKey)
                     .performanceInsightsRetentionPeriod(Objects.equals(
                         getPerformanceInsightsRetentionPeriod(), current.getPerformanceInsightsRetentionPeriod())
                         ? null : getPerformanceInsightsRetentionPeriod())
@@ -895,8 +907,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .tdeCredentialArn(Objects.equals(getTdeCredentialArn(), current.getTdeCredentialArn()) ? null : getTdeCredentialArn())
                     .tdeCredentialPassword(Objects.equals(getTdeCredentialPassword(), current.getTdeCredentialPassword())
                         ? null : getTdeCredentialPassword())
-                    .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroupIds(), current.getVpcSecurityGroupIds())
-                        ? null : getVpcSecurityGroupIds())
+                    .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
+                        ? null : vpcSecurityGroupIds)
             );
         } catch (InvalidDbInstanceStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());

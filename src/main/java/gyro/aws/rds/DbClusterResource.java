@@ -1,6 +1,8 @@
 package gyro.aws.rds;
 
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.kms.KmsResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -10,11 +12,9 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
-import software.amazon.awssdk.services.rds.model.DBClusterOptionGroupStatus;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbClusterStateException;
-import software.amazon.awssdk.services.rds.model.VpcSecurityGroupMembership;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +80,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private String characterSetName;
     private String dbClusterIdentifier;
     private String dbName;
-    private String dbClusterParameterGroupName;
-    private String dbSubnetGroupName;
+    private DbClusterParameterGroupResource dbClusterParameterGroup;
+    private DbSubnetGroupResource dbSubnetGroup;
     private Boolean deletionProtection;
     private List<String> enableCloudwatchLogsExports;
     private Boolean enableIamDatabaseAuthentication;
@@ -89,11 +89,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private String engineMode;
     private String engineVersion;
     private String finalDbSnapshotIdentifier;
-    private String globalClusterIdentifier;
-    private String kmsKeyId;
+    private DbGlobalClusterResource globalCluster;
+    private KmsResource kmsKey;
     private String masterUserPassword;
     private String masterUsername;
-    private String optionGroupName;
+    private DbOptionGroupResource optionGroup;
     private Integer port;
     private String preferredBackupWindow;
     private String preferredMaintenanceWindow;
@@ -102,7 +102,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private ScalingConfiguration scalingConfiguration;
     private Boolean skipFinalSnapshot;
     private Boolean storageEncrypted;
-    private List<String> vpcSecurityGroupIds;
+    private List<SecurityGroupResource> vpcSecurityGroups;
 
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
@@ -190,26 +190,26 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The name of the DB cluster parameter group to associate with. If omitted, ``default.aurora5.6`` is used.
+     * The DB cluster parameter group to associate with. If omitted, ``default.aurora5.6`` is used.
      */
     @Updatable
-    public String getDbClusterParameterGroupName() {
-        return dbClusterParameterGroupName;
+    public DbClusterParameterGroupResource getDbClusterParameterGroup() {
+        return dbClusterParameterGroup;
     }
 
-    public void setDbClusterParameterGroupName(String dbClusterParameterGroupName) {
-        this.dbClusterParameterGroupName = dbClusterParameterGroupName;
+    public void setDbClusterParameterGroup(DbClusterParameterGroupResource dbClusterParameterGroup) {
+        this.dbClusterParameterGroup = dbClusterParameterGroup;
     }
 
     /**
      * A DB subnet group to use for this DB cluster.
      */
-    public String getDbSubnetGroupName() {
-        return dbSubnetGroupName;
+    public DbSubnetGroupResource getDbSubnetGroup() {
+        return dbSubnetGroup;
     }
 
-    public void setDbSubnetGroupName(String dbSubnetGroupName) {
-        this.dbSubnetGroupName = dbSubnetGroupName;
+    public void setDbSubnetGroup(DbSubnetGroupResource dbSubnetGroup) {
+        this.dbSubnetGroup = dbSubnetGroup;
     }
 
     /**
@@ -293,25 +293,25 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The global cluster identifier from the `aws::db-global-cluster`.
+     * The global cluster that becomes the primary cluster in the new global database cluster.
      */
-    public String getGlobalClusterIdentifier() {
-        return globalClusterIdentifier;
+    public DbGlobalClusterResource getGlobalCluster() {
+        return globalCluster;
     }
 
-    public void setGlobalClusterIdentifier(String globalClusterIdentifier) {
-        this.globalClusterIdentifier = globalClusterIdentifier;
+    public void setGlobalCluster(DbGlobalClusterResource globalCluster) {
+        this.globalCluster = globalCluster;
     }
 
     /**
-     * The AWS KMS key ARN to encrypt the DB cluster.
+     * The AWS KMS key to encrypt the DB cluster.
      */
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -341,12 +341,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The name of the option group to associate with.
      */
     @Updatable
-    public String getOptionGroupName() {
-        return optionGroupName;
+    public DbOptionGroupResource getOptionGroup() {
+        return optionGroup;
     }
 
-    public void setOptionGroupName(String optionGroupName) {
-        this.optionGroupName = optionGroupName;
+    public void setOptionGroup(DbOptionGroupResource optionGroup) {
+        this.optionGroup = optionGroup;
     }
 
     /**
@@ -447,12 +447,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * A list of Amazon VPC security groups to associate with.
      */
     @Updatable
-    public List<String> getVpcSecurityGroupIds() {
-        return vpcSecurityGroupIds;
+    public List<SecurityGroupResource> getVpcSecurityGroups() {
+        return vpcSecurityGroups;
     }
 
-    public void setVpcSecurityGroupIds(List<String> vpcSecurityGroupIds) {
-        this.vpcSecurityGroupIds = vpcSecurityGroupIds;
+    public void setVpcSecurityGroups(List<SecurityGroupResource> vpcSecurityGroups) {
+        this.vpcSecurityGroups = vpcSecurityGroups;
     }
 
     @Override
@@ -461,9 +461,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         setBackTrackWindow(cluster.backtrackWindow());
         setBackupRetentionPeriod(cluster.backupRetentionPeriod());
         setCharacterSetName(cluster.characterSetName());
-        setDbClusterParameterGroupName(cluster.dbClusterParameterGroup());
+        setDbClusterParameterGroup(findById(DbClusterParameterGroupResource.class, cluster.dbClusterParameterGroup()));
         setDbName(cluster.databaseName());
-        setDbSubnetGroupName(cluster.dbSubnetGroup());
+        setDbSubnetGroup(findById(DbSubnetGroupResource.class, cluster.dbSubnetGroup()));
         setDeletionProtection(cluster.deletionProtection());
 
         List<String> cwLogsExports = cluster.enabledCloudwatchLogsExports();
@@ -478,11 +478,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setEngineVersion(version);
         setEngineMode(cluster.engineMode());
-        setKmsKeyId(cluster.kmsKeyId());
+        setKmsKey(findById(KmsResource.class, cluster.kmsKeyId()));
         setMasterUsername(cluster.masterUsername());
 
-        setOptionGroupName(cluster.dbClusterOptionGroupMemberships().stream()
-            .findFirst().map(DBClusterOptionGroupStatus::dbClusterOptionGroupName)
+        setOptionGroup(cluster.dbClusterOptionGroupMemberships().stream()
+            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.dbClusterOptionGroupName()))
             .orElse(null));
 
         setPort(cluster.port());
@@ -501,8 +501,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setStorageEncrypted(cluster.storageEncrypted());
 
-        setVpcSecurityGroupIds(cluster.vpcSecurityGroups().stream()
-            .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
+        setVpcSecurityGroups(cluster.vpcSecurityGroups().stream()
+            .map(g -> findById(SecurityGroupResource.class, g.vpcSecurityGroupId()))
             .collect(Collectors.toList()));
     }
 
@@ -547,19 +547,19 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .characterSetName(getCharacterSetName())
                     .databaseName(getDbName())
                     .dbClusterIdentifier(getDbClusterIdentifier())
-                    .dbClusterParameterGroupName(getDbClusterParameterGroupName())
-                    .dbSubnetGroupName(getDbSubnetGroupName())
+                    .dbClusterParameterGroupName(getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
                     .deletionProtection(getDeletionProtection())
                     .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
                     .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .engineMode(getEngineMode())
-                    .globalClusterIdentifier(getGlobalClusterIdentifier())
-                    .kmsKeyId(getKmsKeyId())
+                    .globalClusterIdentifier(getGlobalCluster() != null ? getGlobalCluster().getGlobalClusterIdentifier() : null)
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyArn() : null)
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
-                    .optionGroupName(getOptionGroupName())
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
                     .port(getPort())
                     .preferredBackupWindow(getPreferredBackupWindow())
                     .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
@@ -567,7 +567,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .replicationSourceIdentifier(getReplicationSourceIdentifier())
                     .scalingConfiguration(scalingConfiguration)
                     .storageEncrypted(getStorageEncrypted())
-                    .vpcSecurityGroupIds(getVpcSecurityGroupIds())
+                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                        .stream()
+                        .map(SecurityGroupResource::getGroupId)
+                        .collect(Collectors.toList()) : null)
         );
 
         setArn(response.dbCluster().dbClusterArn());
@@ -586,6 +589,13 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 .build()
             : null;
 
+        String clusterParameterGroupName = getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null;
+        String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
+        List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+            .stream()
+            .map(SecurityGroupResource::getGroupId)
+            .collect(Collectors.toList()) : null;
+
         try {
             client.modifyDBCluster(
                 r -> r.applyImmediately(Objects.equals(getApplyImmediately(), current.getApplyImmediately()) ? null : getApplyImmediately())
@@ -594,23 +604,23 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         ? null : getBackupRetentionPeriod())
                     .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
                     .dbClusterIdentifier(current.getDbClusterIdentifier())
-                    .dbClusterParameterGroupName(Objects.equals(getDbClusterParameterGroupName(), current.getDbClusterParameterGroupName())
-                        ? null : getDbClusterParameterGroupName())
+                    .dbClusterParameterGroupName(Objects.equals(getDbClusterParameterGroup(), current.getDbClusterParameterGroup())
+                        ? null : clusterParameterGroupName)
                     .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null : getDeletionProtection())
                     .enableIAMDatabaseAuthentication(Objects.equals(
                         getEnableIamDatabaseAuthentication(), current.getEnableIamDatabaseAuthentication())
                         ? null : getEnableIamDatabaseAuthentication())
                     .engineVersion(Objects.equals(getEngineVersion(), current.getEngineVersion()) ? null : getEngineVersion())
                     .masterUserPassword(Objects.equals(getMasterUserPassword(), current.getMasterUserPassword()) ? null : getMasterUserPassword())
-                    .optionGroupName(Objects.equals(getOptionGroupName(), current.getOptionGroupName()) ? null : getOptionGroupName())
+                    .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
                     .port(Objects.equals(getPort(), current.getPort()) ? null : getPort())
                     .preferredBackupWindow(Objects.equals(getPreferredBackupWindow(), current.getPreferredBackupWindow())
                         ? null : getPreferredBackupWindow())
                     .preferredMaintenanceWindow(Objects.equals(getPreferredMaintenanceWindow(), current.getPreferredMaintenanceWindow())
                         ? null : getPreferredMaintenanceWindow())
                     .scalingConfiguration(scalingConfiguration)
-                    .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroupIds(), current.getVpcSecurityGroupIds())
-                        ? null : getVpcSecurityGroupIds())
+                    .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
+                        ? null : vpcSecurityGroupIds)
             );
         } catch (InvalidDbClusterStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());
@@ -620,10 +630,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     @Override
     public void delete() {
         RdsClient client = createClient(RdsClient.class);
-        if (getGlobalClusterIdentifier() != null) {
+        if (getGlobalCluster() != null) {
             client.removeFromGlobalCluster(
                 r -> r.dbClusterIdentifier(getArn())
-                        .globalClusterIdentifier(getGlobalClusterIdentifier())
+                        .globalClusterIdentifier(getGlobalCluster().getGlobalClusterIdentifier())
             );
         }
 

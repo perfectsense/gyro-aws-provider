@@ -21,7 +21,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *    aws::db-cluster-snapshot db-cluster-snapshot-example
- *        db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+ *        db-cluster: $(aws::db-cluster db-cluster-example)
  *        db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
  *        tags: {
  *            Name: "db-cluster-snapshot-example"
@@ -31,18 +31,18 @@ import java.util.Set;
 @Type("db-cluster-snapshot")
 public class DbClusterSnapshotResource extends RdsTaggableResource implements Copyable<DBClusterSnapshot> {
 
-    private String dbClusterIdentifier;
+    private DbClusterResource dbCluster;
     private String dbClusterSnapshotIdentifier;
 
     /**
-     * The identifier of the DB cluster to create a snapshot for. (Required)
+     * The DB cluster to create a snapshot for. (Required)
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -59,7 +59,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
 
     @Override
     public void copyFrom(DBClusterSnapshot snapshot) {
-        setDbClusterIdentifier(snapshot.dbClusterIdentifier());
+        setDbCluster(findById(DbClusterResource.class, snapshot.dbClusterIdentifier()));
         setArn(snapshot.dbClusterSnapshotArn());
     }
 
@@ -90,7 +90,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+                r -> r.dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
                     .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
             );
 

@@ -1,6 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.Copyable;
+import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -25,7 +26,7 @@ import java.util.Set;
  *
  *    aws::db-event-subscription db-event-subscription-example
  *        subscription-name: "db-event-subscription-example"
- *        sns-topic-arn: "arn:aws:sns:us-east-2:242040583208:rds-topic-example"
+ *        sns-topic: $(aws::topic sns-topic-example)
  *        enabled: true
  *        source-type: "db-instance"
  *        event-categories: ["availability", "deletion"]
@@ -39,7 +40,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
 
     private Boolean enabled;
     private List<String> eventCategories;
-    private String snsTopicArn;
+    private TopicResource snsTopic;
     private List<String> sourceIds;
     private String sourceType;
     private String subscriptionName;
@@ -76,15 +77,15 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The ARN of the SNS topic. (Required)
+     * The subscribed SNS topic. (Required)
      */
     @Updatable
-    public String getSnsTopicArn() {
-        return snsTopicArn;
+    public TopicResource getSnsTopic() {
+        return snsTopic;
     }
 
-    public void setSnsTopicArn(String snsTopicArn) {
-        this.snsTopicArn = snsTopicArn;
+    public void setSnsTopic(TopicResource snsTopic) {
+        this.snsTopic = snsTopic;
     }
 
     /**
@@ -130,7 +131,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     public void copyFrom(EventSubscription subscription) {
         setEnabled(subscription.enabled());
         setEventCategories(subscription.eventCategoriesList());
-        setSnsTopicArn(subscription.snsTopicArn());
+        setSnsTopic(findById(TopicResource.class, subscription.snsTopicArn()));
         List<String> sourceIds = subscription.sourceIdsList();
         setSourceIds(sourceIds.isEmpty() ? null : sourceIds);
         setSourceType(subscription.sourceType());
@@ -168,7 +169,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
                     .sourceIds(getSourceIds())
                     .sourceType(getSourceType())
                     .subscriptionName(getSubscriptionName())
-                    .snsTopicArn(getSnsTopicArn())
+                    .snsTopicArn(getSnsTopic().getTopicArn())
         );
 
         setArn(response.eventSubscription().eventSubscriptionArn());
@@ -180,7 +181,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
         client.modifyEventSubscription(
             r -> r.enabled(getEnabled())
                     .eventCategories(getEventCategories())
-                    .snsTopicArn(getSnsTopicArn())
+                    .snsTopicArn(getSnsTopic().getTopicArn())
                     .sourceType(getSourceType())
                     .subscriptionName(getSubscriptionName())
         );

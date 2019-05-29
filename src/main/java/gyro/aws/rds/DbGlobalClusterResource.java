@@ -33,7 +33,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     private String engine;
     private String engineVersion;
     private String globalClusterIdentifier;
-    private String sourceDbClusterIdentifier;
+    private DbClusterResource sourceDbCluster;
     private Boolean storageEncrypted;
 
     /**
@@ -94,14 +94,14 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     /**
-     * The primary cluster ARN of the global database.
+     * The primary cluster of the global database.
      */
-    public String getSourceDbClusterIdentifier() {
-        return sourceDbClusterIdentifier;
+    public DbClusterResource getSourceDbCluster() {
+        return sourceDbCluster;
     }
 
-    public void setSourceDbClusterIdentifier(String sourceDbClusterIdentifier) {
-        this.sourceDbClusterIdentifier = sourceDbClusterIdentifier;
+    public void setSourceDbCluster(DbClusterResource sourceDbCluster) {
+        this.sourceDbCluster = sourceDbCluster;
     }
 
     /**
@@ -161,7 +161,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .globalClusterIdentifier(getGlobalClusterIdentifier())
-                    .sourceDBClusterIdentifier(getSourceDbClusterIdentifier())
+                    .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
                     .storageEncrypted(getStorageEncrypted())
         );
     }

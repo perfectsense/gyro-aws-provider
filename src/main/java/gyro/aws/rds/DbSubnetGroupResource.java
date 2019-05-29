@@ -1,6 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -12,12 +13,8 @@ import software.amazon.awssdk.services.rds.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBSubnetGroup;
 import software.amazon.awssdk.services.rds.model.DbSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbSubnetGroupsResponse;
-import software.amazon.awssdk.services.rds.model.Subnet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,9 +26,9 @@ import java.util.stream.Collectors;
  *    aws::db-subnet-group db-subnet-group
  *        group-name: "db-subnet-group-example"
  *        description: "db subnet group description"
- *        subnet-ids: [
- *            $(aws::subnet subnet-us-east-2a | subnet-id),
- *            $(aws::subnet subnet-us-east-2b | subnet-id)
+ *        subnets: [
+ *            $(aws::subnet subnet-us-east-2a),
+ *            $(aws::subnet subnet-us-east-2b)
  *        ]
  *
  *        tags: {
@@ -44,7 +41,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
 
     private String description;
     private String groupName;
-    private List<String> subnetIds;
+    private Set<SubnetResource> subnets;
 
     /**
      * The description for the DB subnet group. (Required)
@@ -71,30 +68,26 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     /**
-     * The list of Subnet IDs for the DB subnet group. (Required)
+     * The list of Subnets for the DB subnet group. (Required)
      */
     @Updatable
-    public List<String> getSubnetIds() {
-        if (subnetIds == null || subnetIds.isEmpty()) {
-            return new ArrayList<>();
+    public Set<SubnetResource> getSubnets() {
+        if (subnets == null) {
+            return new HashSet<>();
         }
 
-        subnetIds = subnetIds.stream().filter(Objects::nonNull).collect(Collectors.toList());
-        List<String> sorted = new ArrayList<>(subnetIds);
-        Collections.sort(sorted);
-
-        return sorted;
+        return subnets;
     }
 
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
+    public void setSubnets(Set<SubnetResource> subnets) {
+        this.subnets = subnets;
     }
 
     @Override
     public void copyFrom(DBSubnetGroup group) {
         setDescription(group.dbSubnetGroupDescription());
         setGroupName(group.dbSubnetGroupName());
-        setSubnetIds(group.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
+        setSubnets(group.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
         setArn(group.dbSubnetGroupArn());
     }
 
@@ -126,7 +119,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDescription())
                     .dbSubnetGroupName(getGroupName())
-                    .subnetIds(getSubnetIds())
+                    .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
         );
 
         setArn(response.dbSubnetGroup().dbSubnetGroupArn());
@@ -138,7 +131,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         client.modifyDBSubnetGroup(
             r -> r.dbSubnetGroupName(getGroupName())
                     .dbSubnetGroupDescription(getDescription())
-                    .subnetIds(getSubnetIds())
+                    .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
         );
     }
 

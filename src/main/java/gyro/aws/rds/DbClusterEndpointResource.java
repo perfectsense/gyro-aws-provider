@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.rds.model.DescribeDbClusterEndpointsRespo
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Create a db cluster endpoint.
@@ -25,19 +26,19 @@ import java.util.Set;
  *
  *    aws::db-cluster-endpoint endpoint-example
  *        cluster-endpoint-identifier: "endpoint"
- *        db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+ *        db-cluster: $(aws::db-cluster db-cluster-example)
  *        endpoint-type: "READER"
- *        static-members: [$(aws::db-instance db-instance-example | db-instance-identifier)]
+ *        static-members: [$(aws::db-instance db-instance-example)]
  *    end
  */
 @Type("db-cluster-endpoint")
 public class DbClusterEndpointResource extends AwsResource implements Copyable<DBClusterEndpoint> {
 
     private String clusterEndpointIdentifier;
-    private String dbClusterIdentifier;
+    private DbClusterResource dbCluster;
     private String endpointType;
-    private List<String> excludedMembers;
-    private List<String> staticMembers;
+    private List<DbInstanceResource> excludedMembers;
+    private List<DbInstanceResource> staticMembers;
 
     /**
      * The unique identifier of the endpoint. (Required)
@@ -52,14 +53,14 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * The DB cluster identifier associated with the endpoint. (Required)
+     * The DB cluster associated with the endpoint. (Required)
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -75,10 +76,10 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * List of DB instance identifiers to excluded from the custom endpoint group. Only applicable if `static-members` is empty.
+     * List of DB instances to excluded from the custom endpoint group. Only applicable if `static-members` is empty.
      */
     @Updatable
-    public List<String> getExcludedMembers() {
+    public List<DbInstanceResource> getExcludedMembers() {
         if (excludedMembers == null) {
             excludedMembers = new ArrayList<>();
         }
@@ -86,15 +87,15 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         return excludedMembers;
     }
 
-    public void setExcludedMembers(List<String> excludedMembers) {
+    public void setExcludedMembers(List<DbInstanceResource> excludedMembers) {
         this.excludedMembers = excludedMembers;
     }
 
     /**
-     * List of DB instance identifiers that are part of the custom endpoint group.
+     * List of DB instances that are part of the custom endpoint group.
      */
     @Updatable
-    public List<String> getStaticMembers() {
+    public List<DbInstanceResource> getStaticMembers() {
         if (staticMembers == null) {
             staticMembers = new ArrayList<>();
         }
@@ -102,29 +103,29 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         return staticMembers;
     }
 
-    public void setStaticMembers(List<String> staticMembers) {
+    public void setStaticMembers(List<DbInstanceResource> staticMembers) {
         this.staticMembers = staticMembers;
     }
 
     @Override
     public void copyFrom(DBClusterEndpoint endpoint) {
         setEndpointType(endpoint.customEndpointType());
-        setExcludedMembers(endpoint.excludedMembers());
-        setStaticMembers(endpoint.staticMembers());
+        setExcludedMembers(endpoint.excludedMembers().stream().map(i -> findById(DbInstanceResource.class, i)).collect(Collectors.toList()));
+        setStaticMembers(endpoint.staticMembers().stream().map(i -> findById(DbInstanceResource.class, i)).collect(Collectors.toList()));
     }
 
     @Override
     public boolean refresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getClusterEndpointIdentifier()) || ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            throw new GyroException("cluster-endpoint-identifier or db-cluster-identifier is missing, unable to load db cluster endpoint.");
+        if (ObjectUtils.isBlank(getClusterEndpointIdentifier()) || ObjectUtils.isBlank(getDbCluster())) {
+            throw new GyroException("cluster-endpoint-identifier or db-cluster is missing, unable to load db cluster endpoint.");
         }
 
         try {
             DescribeDbClusterEndpointsResponse response = client.describeDBClusterEndpoints(
                 r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
-                        .dbClusterIdentifier(getDbClusterIdentifier())
+                        .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
             );
 
             response.dbClusterEndpoints().forEach(this::copyFrom);
@@ -141,10 +142,17 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         RdsClient client = createClient(RdsClient.class);
         client.createDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
-                    .dbClusterIdentifier(getDbClusterIdentifier())
+                    .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
                     .endpointType(getEndpointType())
-                    .excludedMembers(getExcludedMembers())
-                    .staticMembers(getStaticMembers())
+                    .excludedMembers(getExcludedMembers()
+                        .stream()
+                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .collect(Collectors.toList()))
+
+                    .staticMembers(getStaticMembers()
+                        .stream()
+                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .collect(Collectors.toList()))
         );
     }
 
@@ -154,8 +162,15 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         client.modifyDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
                     .endpointType(getEndpointType())
-                    .excludedMembers(getExcludedMembers())
-                    .staticMembers(getStaticMembers())
+                    .excludedMembers(getExcludedMembers()
+                        .stream()
+                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .collect(Collectors.toList()))
+
+                    .staticMembers(getStaticMembers()
+                        .stream()
+                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .collect(Collectors.toList()))
         );
     }
 
