@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -60,6 +61,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     /**
      * The name for the DB subnet group. (Required)
      */
+    @Id
     public String getGroupName() {
         return groupName;
     }

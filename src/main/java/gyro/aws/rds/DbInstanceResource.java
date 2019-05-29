@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -216,6 +217,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The unique name of the DB instance. (Required)
      */
+    @Id
     public String getDbInstanceIdentifier() {
         return dbInstanceIdentifier;
     }

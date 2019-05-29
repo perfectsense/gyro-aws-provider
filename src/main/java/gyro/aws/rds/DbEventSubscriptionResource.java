@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -116,6 +117,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     /**
      * The name of the subscription. (Required)
      */
+    @Id
     public String getSubscriptionName() {
         return subscriptionName;
     }

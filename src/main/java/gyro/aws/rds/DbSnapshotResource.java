@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -50,6 +51,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     /**
      * The unique identifier of the DB instance snapshot. (Required)
      */
+    @Id
     public String getDbSnapshotIdentifier() {
         return dbSnapshotIdentifier;
     }

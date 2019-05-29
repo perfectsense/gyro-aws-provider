@@ -3,6 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -47,6 +48,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     /**
      * The unique identifier of the DB cluster snapshot. (Required)
      */
+    @Id
     public String getDbClusterSnapshotIdentifier() {
         return dbClusterSnapshotIdentifier;
     }

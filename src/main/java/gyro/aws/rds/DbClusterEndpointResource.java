@@ -3,6 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -41,6 +42,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     /**
      * The unique identifier of the endpoint. (Required)
      */
+    @Id
     public String getClusterEndpointIdentifier() {
         return clusterEndpointIdentifier;
     }

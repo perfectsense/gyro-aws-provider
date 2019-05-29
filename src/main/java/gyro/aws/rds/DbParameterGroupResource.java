@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -76,6 +77,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     /**
      * The name of the DB parameter group. (Required)
      */
+    @Id
     public String getName() {
         return name;
     }

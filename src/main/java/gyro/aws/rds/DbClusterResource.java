@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -168,6 +169,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The unique name of the DB Cluster. (Required)
      */
+    @Id
     public String getDbClusterIdentifier() {
         return dbClusterIdentifier;
     }

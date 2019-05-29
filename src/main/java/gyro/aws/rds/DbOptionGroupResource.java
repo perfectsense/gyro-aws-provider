@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -60,6 +61,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
     /**
      * The name of the option group.
      */
+    @Id
     public String getName() {
         return name;
     }
