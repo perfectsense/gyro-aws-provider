@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -24,7 +25,7 @@ import java.util.Set;
  *
  *     aws::ebs-snapshot ebs-snapshot-example
  *         description: "ebs-snapshot-example"
- *         volume-id: "vol-0bda07cf6a43384e9"
+ *         volume: $(aws::ebs-volume ebs-volume-example)
  *         tags: {
  *             Name: 'ebs-snapshot-example'
  *         }
@@ -33,7 +34,7 @@ import java.util.Set;
 @Type("ebs-snapshot")
 public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
 
-    private String volumeId;
+    private EbsVolumeResource volume;
     private String description;
     private String snapshotId;
 
@@ -51,13 +52,12 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
     /**
      * The volume id based on which the snapshot would be created. (Required)
      */
-    @Output
-    public String getVolumeId() {
-        return volumeId;
+    public EbsVolumeResource getVolume() {
+        return volume;
     }
 
-    public void setVolumeId(String volumeId) {
-        this.volumeId = volumeId;
+    public void setVolume(EbsVolumeResource volume) {
+        this.volume = volume;
     }
 
     /**
@@ -71,6 +71,8 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.description = description;
     }
 
+    @Id
+    @Output
     public String getSnapshotId() {
         return snapshotId;
     }
@@ -195,7 +197,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
 
         CreateSnapshotResponse response = client.createSnapshot(
             r -> r.description(getDescription())
-                .volumeId(getVolumeId())
+                .volumeId(getVolume().getVolumeId())
         );
 
         setSnapshotId(response.snapshotId());

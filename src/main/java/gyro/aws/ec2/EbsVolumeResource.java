@@ -241,7 +241,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                 .iops(getVolumeType().equals("io1") ? getIops() : null)
                 .kmsKeyId(getKmsKeyId())
                 .size(getSize())
-                .snapshotId(getSnapshot().getSnapshotId())
+                .snapshotId(getSnapshot() != null ? getSnapshot().getSnapshotId() : null)
                 .volumeType(getVolumeType())
         );
 
