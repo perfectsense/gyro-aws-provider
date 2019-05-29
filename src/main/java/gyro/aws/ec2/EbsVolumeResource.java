@@ -163,7 +163,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
 
     /**
      * The type of volume being created. Defaults to 'gp2'.
-     * Valid options [ 'gp2', 'io1', 'st1', 'sc1', 'standard'].
+     * Valid options are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``].
      */
     @Updatable
     public String getVolumeType() {

@@ -71,6 +71,9 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.description = description;
     }
 
+    /**
+     * The id of the snapshot.
+     */
     @Id
     @Output
     public String getSnapshotId() {
@@ -81,6 +84,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.snapshotId = snapshotId;
     }
 
+    /**
+     * The data encryption key of the snapshot.
+     */
+    @Output
     public String getDataEncryptionKeyId() {
         return dataEncryptionKeyId;
     }
@@ -89,6 +96,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.dataEncryptionKeyId = dataEncryptionKeyId;
     }
 
+    /**
+     * The encryption status of the volume created by the snapshot.
+     */
+    @Output
     public Boolean getEncrypted() {
         return encrypted;
     }
@@ -97,6 +108,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.encrypted = encrypted;
     }
 
+    /**
+     * The kms key id of the snapshot.
+     */
+    @Output
     public String getKmsKeyId() {
         return kmsKeyId;
     }
@@ -105,6 +120,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.kmsKeyId = kmsKeyId;
     }
 
+    /**
+     * The owner alias of the snapshot.
+     */
+    @Output
     public String getOwnerAlias() {
         return ownerAlias;
     }
@@ -113,6 +132,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.ownerAlias = ownerAlias;
     }
 
+    /**
+     * The owner id of the snapshot.
+     */
+    @Output
     public String getOwnerId() {
         return ownerId;
     }
@@ -121,6 +144,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.ownerId = ownerId;
     }
 
+    /**
+     * The progress status of the snapshot.
+     */
+    @Output
     public String getProgress() {
         return progress;
     }
@@ -129,6 +156,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.progress = progress;
     }
 
+    /**
+     * The start time of the snapshot.
+     */
+    @Output
     public Date getStartTime() {
         return startTime;
     }
@@ -137,6 +168,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.startTime = startTime;
     }
 
+    /**
+     * The state of the snapshot.
+     */
+    @Output
     public String getState() {
         return state;
     }
@@ -145,6 +180,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.state = state;
     }
 
+    /**
+     * The state message of the snapshot.
+     */
+    @Output
     public String getStateMessage() {
         return stateMessage;
     }
@@ -153,6 +192,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         this.stateMessage = stateMessage;
     }
 
+    /**
+     * The size of the volume created by the snapshot.
+     */
+    @Output
     public Integer getVolumeSize() {
         return volumeSize;
     }
@@ -231,8 +274,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
     }
 
     private Snapshot getSnapshot(Ec2Client client) {
+        Snapshot snapshot = null;
+
         if (ObjectUtils.isBlank(getSnapshotId())) {
-            throw new GyroException("ebs snapshot-id is missing, unable to load snapshot.");
+            throw new GyroException("snapshot-id is missing, unable to load snapshot.");
         }
 
         try {
@@ -240,17 +285,16 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
                 r -> r.snapshotIds(getSnapshotId())
             );
 
-            if (response.snapshots().isEmpty()) {
-                return null;
+            if (!response.snapshots().isEmpty()) {
+                snapshot = response.snapshots().get(0);
             }
 
-            return response.snapshots().get(0);
         } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return null;
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
-
-            throw ex;
         }
+
+        return snapshot;
     }
 }
