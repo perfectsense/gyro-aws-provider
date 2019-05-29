@@ -478,7 +478,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setEngineVersion(version);
         setEngineMode(cluster.engineMode());
-        setKmsKey(findById(KmsResource.class, cluster.kmsKeyId()));
+        setKmsKey(cluster.kmsKeyId() != null ? findById(KmsResource.class, cluster.kmsKeyId()) : null);
         setMasterUsername(cluster.masterUsername());
 
         setOptionGroup(cluster.dbClusterOptionGroupMemberships().stream()

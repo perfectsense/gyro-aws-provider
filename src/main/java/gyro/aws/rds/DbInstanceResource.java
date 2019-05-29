@@ -680,7 +680,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setBackupRetentionPeriod(instance.backupRetentionPeriod());
         setCharacterSetName(instance.characterSetName());
         setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
-        setDbCluster(findById(DbClusterResource.class, instance.dbClusterIdentifier()));
+        setDbCluster(instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) : null);
         setDbInstanceClass(instance.dbInstanceClass());
         setDbInstanceIdentifier(instance.dbInstanceIdentifier());
         setDbName(instance.dbName());
@@ -717,7 +717,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setEngineVersion(version);
         setIops(instance.iops());
-        setKmsKey(findById(KmsResource.class, instance.kmsKeyId()));
+        setKmsKey(instance.kmsKeyId() != null ? findById(KmsResource.class, instance.kmsKeyId()) : null);
         setLicenseModel(instance.licenseModel());
         setMasterUsername(instance.masterUsername());
         setMonitoringInterval(instance.monitoringInterval());
