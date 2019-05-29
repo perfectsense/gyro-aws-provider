@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNotificationResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +43,7 @@ import java.util.Set;
 public class ConnectionNotificationResource extends AwsResource {
 
     private String serviceId;
-    private String vpcEndpointId;
+    private EndpointResource vpcEndpoint;
     private String connectionNotificationArn;
     private List<String> connectionEvents;
     private String connectionNotificationId;
@@ -70,12 +71,12 @@ public class ConnectionNotificationResource extends AwsResource {
     /**
      * The id of the vpc endpoint. Either endpoint id or endpoint service id is required.
      */
-    public String getVpcEndpointId() {
-        return vpcEndpointId;
+    public EndpointResource getVpcEndpoint() {
+        return vpcEndpoint;
     }
 
-    public void setVpcEndpointId(String vpcEndpointId) {
-        this.vpcEndpointId = vpcEndpointId;
+    public void setVpcEndpoint(EndpointResource vpcEndpoint) {
+        this.vpcEndpoint = vpcEndpoint;
     }
 
     /**
@@ -158,7 +159,7 @@ public class ConnectionNotificationResource extends AwsResource {
         setConnectionNotificationId(connectionNotification.connectionNotificationId());
         setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
         setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
-        setVpcEndpointId(connectionNotification.vpcEndpointId());
+        setVpcEndpoint(connectionNotification.vpcEndpointId() != null ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
         setServiceId(connectionNotification.serviceId());
 
         return true;
@@ -172,9 +173,9 @@ public class ConnectionNotificationResource extends AwsResource {
 
         CreateVpcEndpointConnectionNotificationResponse response = null;
 
-        if (!ObjectUtils.isBlank(getVpcEndpointId())) {
+        if (getVpcEndpoint() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getVpcEndpointId())
+                r -> r.vpcEndpointId(getVpcEndpoint().getEndpointId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
@@ -185,7 +186,7 @@ public class ConnectionNotificationResource extends AwsResource {
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else {
-            throw new GyroException("endpoint-id or service-id required.");
+            throw new GyroException("vpc-endpoint or service-id required.");
         }
 
         setConnectionNotificationId(response.connectionNotification().connectionNotificationId());
@@ -254,9 +255,9 @@ public class ConnectionNotificationResource extends AwsResource {
     }
 
     private void validate() {
-        if ((ObjectUtils.isBlank(getVpcEndpointId()) && ObjectUtils.isBlank(getServiceId()))
-            || (!ObjectUtils.isBlank(getVpcEndpointId()) && !ObjectUtils.isBlank(getServiceId()))) {
-            throw new GyroException("Either 'vpc-endpoint-id' or 'service-id' needs to be set. Not both at a time.");
+        if ((getVpcEndpoint() == null && ObjectUtils.isBlank(getServiceId()))
+            || (getVpcEndpoint() != null && !ObjectUtils.isBlank(getServiceId()))) {
+            throw new GyroException("Either 'vpc-endpoint' or 'service-id' needs to be set. Not both at a time.");
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {
