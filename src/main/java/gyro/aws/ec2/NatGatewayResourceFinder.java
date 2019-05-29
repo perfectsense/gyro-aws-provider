@@ -5,6 +5,7 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,10 @@ public class NatGatewayResourceFinder extends AwsFinder<Ec2Client, NatGateway, N
     }
 
     public String getTagKey() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
         return tagKey;
     }
 

@@ -6,6 +6,7 @@ import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -164,6 +165,10 @@ public class NetworkAclResourceFinder extends AwsFinder<Ec2Client, NetworkAcl, N
     }
 
     public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
         return tag;
     }
 

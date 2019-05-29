@@ -5,6 +5,7 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Address;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +87,10 @@ public class ElasticIpResourceFinder extends AwsFinder<Ec2Client, Address, Elast
     }
 
     public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
         return tag;
     }
 

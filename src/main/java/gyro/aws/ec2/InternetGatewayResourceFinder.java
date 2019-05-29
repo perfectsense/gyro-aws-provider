@@ -6,6 +6,7 @@ import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,10 @@ public class InternetGatewayResourceFinder extends AwsFinder<Ec2Client, Internet
     }
 
     public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
         return tag;
     }
 

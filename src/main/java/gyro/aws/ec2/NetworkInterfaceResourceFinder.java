@@ -6,6 +6,7 @@ import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -322,6 +323,10 @@ public class NetworkInterfaceResourceFinder extends AwsFinder<Ec2Client, Network
     }
 
     public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
         return tag;
     }
 
