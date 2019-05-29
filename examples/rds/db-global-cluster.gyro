@@ -7,7 +7,7 @@ aws::db-cluster db-cluster-example
     db-cluster-identifier: "aurora-primary-cluster"
     engine: "aurora"
     engine-mode: "global"
-    global-cluster-identifier: $(aws::db-global-cluster db-global-cluster-example | global-cluster-identifier)
+    global-cluster: $(aws::db-global-cluster db-global-cluster-example)
     db-name: "clusterexample"
     master-username: "user"
     master-user-password: "password"
