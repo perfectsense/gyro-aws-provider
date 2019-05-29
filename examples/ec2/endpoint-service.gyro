@@ -1,0 +1,74 @@
+aws::vpc vpc-endpoint-service-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "endpoint-service-example"
+    }
+end
+
+aws::subnet subnet-us-east-2a
+    vpc: $(aws::vpc vpc-endpoint-service-example)
+    availability-zone: 'us-east-2a'
+    cidr-block: '10.0.0.0/24'
+
+    tags: {
+        Name: "endpoint-service-example us-east-2a"
+    }
+end
+
+aws::subnet subnet-us-east-2b
+    vpc: $(aws::vpc vpc-endpoint-service-example)
+    availability-zone: 'us-east-2b'
+    cidr-block: '10.0.1.0/24'
+
+    tags: {
+        Name: "endpoint-service-example us-east-2b"
+    }
+end
+
+aws::internet-gateway internet-gateway-example
+    vpc: $(aws::vpc vpc-endpoint-service-example)
+end
+
+aws::nlb nlb-example-1
+    name: "nlb-endpoint-service-example-1"
+    ip-address-type: "ipv4"
+    scheme: "internet-facing"
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+    end
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+    end
+
+    tags: {
+            Name: "nlb-example-1"
+        }
+end
+
+aws::nlb nlb-example-2
+    name: "nlb-endpoint-service-example-2"
+    ip-address-type: "ipv4"
+    scheme: "internet-facing"
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+    end
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+    end
+
+    tags: {
+            Name: "nlb-example-2"
+        }
+end
+
+aws::endpoint-service endpoint-service-example
+    network-load-balancers: [
+        $(aws::nlb nlb-example-2)
+    ]
+end
