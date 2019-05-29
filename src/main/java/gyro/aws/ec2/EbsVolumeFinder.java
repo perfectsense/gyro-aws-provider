@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Type("volume")
+@Type("ebs-volume")
 public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResource> {
 
     private String attachmentAttachTime;
