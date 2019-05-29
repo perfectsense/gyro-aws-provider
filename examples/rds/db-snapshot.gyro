@@ -7,7 +7,6 @@ aws::db-instance db-instance-example
     db-instance-class: "db.t2.micro"
     master-username: "user"
     master-user-password: "password"
-    #db-subnet-group-name: $(aws::db-subnet-group subnet-group | group-name)
     delete-automated-backups: true
     skip-final-snapshot: true
     tags: {
