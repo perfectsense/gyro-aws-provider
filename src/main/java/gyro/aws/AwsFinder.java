@@ -55,4 +55,9 @@ public abstract class AwsFinder<C extends SdkClient, M, R extends AwsResource> e
             .collect(Collectors.toList());
     }
 
+    public List<software.amazon.awssdk.services.rds.model.Filter> createRdsFilters(Map<String, String> query) {
+        return query.entrySet().stream()
+            .map(e -> software.amazon.awssdk.services.rds.model.Filter.builder().name(e.getKey()).values(e.getValue()).build())
+            .collect(Collectors.toList());
+    }
 }
