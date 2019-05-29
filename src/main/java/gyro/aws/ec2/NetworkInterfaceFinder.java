@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("network-interface")
-public class NetworkInterfaceResourceFinder extends AwsFinder<Ec2Client, NetworkInterface, NetworkInterfaceResource> {
+public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterface, NetworkInterfaceResource> {
     private String addressesPrivateIpAddress;
     private String addressesPrimary;
     private String addressesAssociationPublicIp;

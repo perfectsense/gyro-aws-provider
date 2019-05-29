@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("peering-connection")
-public class PeeringConnectionResourceFinder extends AwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {
+public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {
     private String accepterVpcInfoCidrBlock;
     private String accepterVpcInfoOwnerId;
     private String accepterVpcInfoVpcId;

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("network-acl")
-public class NetworkAclResourceFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
+public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
     private String associationAssociationId;
     private String associationNetworkAclId;
     private String associationSubnetId;

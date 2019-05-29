@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("elastic-ip")
-public class ElasticIpResourceFinder extends AwsFinder<Ec2Client, Address, ElasticIpResource> {
+public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpResource> {
     private String allocationId;
     private String associationId;
     private String domain;

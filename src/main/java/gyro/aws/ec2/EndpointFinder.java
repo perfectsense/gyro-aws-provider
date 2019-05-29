@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("endpoint")
-public class EndpointResourceFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
+public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
     private String serviceName;
     private String vpcId;
     private String vpcEndpointId;

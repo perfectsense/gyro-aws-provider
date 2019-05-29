@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("nat-gateway")
-public class NatGatewayResourceFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewayResource> {
+public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewayResource> {
     private String natGatewayId;
     private String state;
     private String subnetId;

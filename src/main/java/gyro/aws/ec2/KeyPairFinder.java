@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("key-pair")
-public class KeyPairResourceFinder extends AwsFinder<Ec2Client, KeyPairInfo, KeyPairResource> {
+public class KeyPairFinder extends AwsFinder<Ec2Client, KeyPairInfo, KeyPairResource> {
     private String fingerprint;
     private String keyName;
 

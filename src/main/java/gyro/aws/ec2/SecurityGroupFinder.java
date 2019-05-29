@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("security-group")
-public class SecurityGroupResourceFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
+public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
     private String description;
     private String egressIpPermissionCidr;
     private String egressIpPermissionFromPort;

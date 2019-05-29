@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("launch-template")
-public class LaunchTemplateResourceFinder extends AwsFinder<Ec2Client, LaunchTemplate, LaunchTemplateResource> {
+public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, LaunchTemplateResource> {
     private String createTime;
     private String launchTemplateName;
     private String launchTemplateId;

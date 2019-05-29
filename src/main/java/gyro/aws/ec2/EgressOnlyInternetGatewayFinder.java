@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("egress-gateway")
-public class EgressOnlyInternetGatewayResourceFinder extends AwsFinder<Ec2Client, EgressOnlyInternetGateway, EgressOnlyInternetGatewayResource> {
+public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, EgressOnlyInternetGateway, EgressOnlyInternetGatewayResource> {
     private String egressOnlyInternetGatewayId;
 
     public String getEgressOnlyInternetGatewayId() {

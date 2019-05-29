@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("vpn-gateway")
-public class VpnGatewayResourceFinder extends AwsFinder<Ec2Client, VpnGateway, VpnGatewayResource> {
+public class VpnGatewayFinder extends AwsFinder<Ec2Client, VpnGateway, VpnGatewayResource> {
     private String amazonSideAsn;
     private String attachmentState;
     private String attachmentVpcId;

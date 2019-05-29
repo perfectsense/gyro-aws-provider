@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("internet-gateway")
-public class InternetGatewayResourceFinder extends AwsFinder<Ec2Client, InternetGateway, InternetGatewayResource> {
+public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway, InternetGatewayResource> {
     private String attachmentState;
     private String attachmentVpcId;
     private String internetGatewayId;

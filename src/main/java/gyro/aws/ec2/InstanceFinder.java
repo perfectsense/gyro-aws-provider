@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Type("instance")
-public class InstanceResourceFinder extends AwsFinder<Ec2Client, Instance, InstanceResource> {
+public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResource> {
     private String affinity;
     private String architecture;
     private String availabilityZone;

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("route-table")
-public class RouteTableResourceFinder extends AwsFinder<Ec2Client, RouteTable, RouteTableResource> {
+public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTableResource> {
     private String associationRouteTableAssociationId;
     private String associationRouteTableId;
     private String associationSubnetId;
