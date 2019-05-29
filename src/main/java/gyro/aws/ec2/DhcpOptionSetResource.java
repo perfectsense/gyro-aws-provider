@@ -48,7 +48,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
     private List<String> ntpServers;
     private List<String> netbiosNameServers;
     private List<String> netbiosNodeType;
-    
+
     private static final String configDomainName = "domain-name";
     private static final String configDomainNameServers = "domain-name-servers";
     private static final String configNtpServers = "ntp-servers";

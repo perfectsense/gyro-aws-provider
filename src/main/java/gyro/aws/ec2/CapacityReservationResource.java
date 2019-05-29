@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -53,6 +54,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     private Integer availableInstanceCount;
     private Date createDate;
 
+    @Id
     @Output
     public String getCapacityReservationId() {
         return capacityReservationId;
@@ -85,7 +87,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The date and time at which the Capacity Reservation expires. Required if 'end-date-type' set to 'limited'.
+     * The date and time at which the Capacity Reservation expires. Required if ``end-date-type`` set to ``limited``.
      */
     @Updatable
     public Date getEndDate() {
@@ -97,7 +99,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the way in which the Capacity Reservation ends. Valid values [ 'unlimited', 'limited' ]. (Required)
+     * Indicates the way in which the Capacity Reservation ends. Valid values are ``unlimited`` or ``limited``. (Required)
      */
     @Updatable
     public String getEndDateType() {
@@ -120,7 +122,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values [ 'open', 'targeted' ]. (Required)
+     * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values are ``open`` or ``targeted``. (Required)
      */
     public String getInstanceMatchCriteria() {
         return instanceMatchCriteria != null ? instanceMatchCriteria.toLowerCase() : null;
@@ -153,7 +155,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the tenancy of the Capacity Reservation. Valid values [ 'default', 'dedicated' ]. (Required)
+     * Indicates the tenancy of the Capacity Reservation. Valid values are ``default`` or ``dedicated``. (Required)
      */
     public String getTenancy() {
         return tenancy != null ? tenancy.toLowerCase() : null;
@@ -201,36 +203,24 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (ObjectUtils.isBlank(getCapacityReservationId())) {
-            throw new GyroException("capacity-reservation-id is missing, unable to load capacity reservation.");
+        CapacityReservation capacityReservation = getCapacityReservation(client);
+
+        if (capacityReservation == null) {
+            return false;
         }
 
-        try {
-            DescribeCapacityReservationsResponse response = client.describeCapacityReservations(
-                r -> r.capacityReservationIds(Collections.singleton(getCapacityReservationId()))
-            );
-
-            CapacityReservation capacityReservation = response.capacityReservations().get(0);
-
-            setAvailabilityZone(capacityReservation.availabilityZone());
-            setEbsOptimized(capacityReservation.ebsOptimized());
-            setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
-            setEndDateType(capacityReservation.endDateTypeAsString());
-            setEphemeralStorage(capacityReservation.ephemeralStorage());
-            setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
-            setInstancePlatform(capacityReservation.instancePlatformAsString());
-            setInstanceType(capacityReservation.instanceType());
-            setTenancy(capacityReservation.tenancyAsString());
-            setAvailableInstanceCount(capacityReservation.availableInstanceCount());
-            setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
-            setInstanceCount(capacityReservation.totalInstanceCount());
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
+        setAvailabilityZone(capacityReservation.availabilityZone());
+        setEbsOptimized(capacityReservation.ebsOptimized());
+        setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
+        setEndDateType(capacityReservation.endDateTypeAsString());
+        setEphemeralStorage(capacityReservation.ephemeralStorage());
+        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
+        setInstancePlatform(capacityReservation.instancePlatformAsString());
+        setInstanceType(capacityReservation.instanceType());
+        setTenancy(capacityReservation.tenancyAsString());
+        setAvailableInstanceCount(capacityReservation.availableInstanceCount());
+        setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
+        setInstanceCount(capacityReservation.totalInstanceCount());
 
         return true;
     }
@@ -309,7 +299,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
                 + "when param 'end-date-type' is set to 'unlimited'.");
         }
 
-        if (getEndDateType().equals("limited") && !ObjectUtils.isBlank(getEndDate())) {
+        if (getEndDateType().equals("limited") && ObjectUtils.isBlank(getEndDate())) {
             throw new GyroException("The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
                 + "when param 'end-date-type' is set to 'limited'.");
         }
@@ -323,5 +313,30 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
             throw new GyroException("The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
                 + "Valid values [ 'default', 'dedicated' ]");
         }
+    }
+
+    private CapacityReservation getCapacityReservation(Ec2Client client) {
+        CapacityReservation capacityReservation = null;
+
+        if (ObjectUtils.isBlank(getCapacityReservationId())) {
+            throw new GyroException("capacity-reservation-id is missing, unable to load capacity reservation.");
+        }
+
+        try {
+            DescribeCapacityReservationsResponse response = client.describeCapacityReservations(
+                r -> r.capacityReservationIds(Collections.singleton(getCapacityReservationId()))
+            );
+
+            if (!response.capacityReservations().isEmpty()) {
+                capacityReservation = response.capacityReservations().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return capacityReservation;
     }
 }
