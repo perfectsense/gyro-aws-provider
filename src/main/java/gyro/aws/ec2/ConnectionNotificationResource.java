@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -105,6 +106,11 @@ public class ConnectionNotificationResource extends AwsResource {
         this.connectionEvents = connectionEvents;
     }
 
+    /**
+     * The id of the connection notification.
+     */
+    @Id
+    @Output
     public String getConnectionNotificationId() {
         return connectionNotificationId;
     }
@@ -113,6 +119,10 @@ public class ConnectionNotificationResource extends AwsResource {
         this.connectionNotificationId = connectionNotificationId;
     }
 
+    /**
+     * The state of the connection notification.
+     */
+    @Output
     public String getConnectionNotificationState() {
         return connectionNotificationState;
     }
@@ -121,6 +131,10 @@ public class ConnectionNotificationResource extends AwsResource {
         this.connectionNotificationState = connectionNotificationState;
     }
 
+    /**
+     * The notification type of the connection notification.
+     */
+    @Output
     public String getConnectionNotificationType() {
         return connectionNotificationType;
     }
@@ -171,7 +185,7 @@ public class ConnectionNotificationResource extends AwsResource {
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else {
-            throw new GyroException("Neither endpoint id nor service id found.");
+            throw new GyroException("endpoint-id or service-id required.");
         }
 
         setConnectionNotificationId(response.connectionNotification().connectionNotificationId());
@@ -215,6 +229,8 @@ public class ConnectionNotificationResource extends AwsResource {
     }
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {
+        ConnectionNotification connectionNotification = null;
+
         if (ObjectUtils.isBlank(getConnectionNotificationId())) {
             throw new GyroException("connection-notification-id is missing, unable to load connection notification.");
         }
@@ -224,18 +240,17 @@ public class ConnectionNotificationResource extends AwsResource {
                 r -> r.connectionNotificationId(getConnectionNotificationId())
             );
 
-            if (response.connectionNotificationSet().isEmpty()) {
-                return null;
+            if (!response.connectionNotificationSet().isEmpty()) {
+                connectionNotification = response.connectionNotificationSet().get(0);
             }
 
-            return response.connectionNotificationSet().get(0);
         } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return null;
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
-
-            throw ex;
         }
+
+        return connectionNotification;
     }
 
     private void validate() {

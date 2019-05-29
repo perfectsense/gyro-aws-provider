@@ -54,6 +54,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     private Integer availableInstanceCount;
     private Date createDate;
 
+    /**
+     * The id of the capacity reservation.
+     */
     @Id
     @Output
     public String getCapacityReservationId() {
