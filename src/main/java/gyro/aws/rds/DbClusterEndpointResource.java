@@ -1,12 +1,14 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
 import software.amazon.awssdk.services.rds.model.DbClusterEndpointNotFoundException;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterEndpointsResponse;
@@ -28,7 +30,7 @@ import java.util.Set;
  *    end
  */
 @Type("db-cluster-endpoint")
-public class DbClusterEndpointResource extends AwsResource {
+public class DbClusterEndpointResource extends AwsResource implements Copyable<DBClusterEndpoint> {
 
     private String clusterEndpointIdentifier;
     private String dbClusterIdentifier;
@@ -103,6 +105,13 @@ public class DbClusterEndpointResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(DBClusterEndpoint endpoint) {
+        setEndpointType(endpoint.customEndpointType());
+        setExcludedMembers(endpoint.excludedMembers());
+        setStaticMembers(endpoint.staticMembers());
+    }
+
+    @Override
     public boolean refresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -116,13 +125,7 @@ public class DbClusterEndpointResource extends AwsResource {
                         .dbClusterIdentifier(getDbClusterIdentifier())
             );
 
-            response.dbClusterEndpoints().stream()
-                .forEach(e -> {
-                    setEndpointType(e.customEndpointType());
-                    setExcludedMembers(e.excludedMembers());
-                    setStaticMembers(e.staticMembers());
-                }
-            );
+            response.dbClusterEndpoints().forEach(this::copyFrom);
 
         } catch (DbClusterNotFoundException | DbClusterEndpointNotFoundException ex) {
             return false;

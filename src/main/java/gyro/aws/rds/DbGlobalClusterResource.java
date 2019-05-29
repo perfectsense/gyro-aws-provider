@@ -1,6 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -8,6 +9,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DescribeGlobalClustersResponse;
+import software.amazon.awssdk.services.rds.model.GlobalCluster;
 import software.amazon.awssdk.services.rds.model.GlobalClusterNotFoundException;
 
 import java.util.Set;
@@ -23,7 +25,7 @@ import java.util.Set;
  *    end
  */
 @Type("db-global-cluster")
-public class DbGlobalClusterResource extends AwsResource {
+public class DbGlobalClusterResource extends AwsResource implements Copyable<GlobalCluster> {
 
     private String databaseName;
     private Boolean deletionProtection;
@@ -112,6 +114,21 @@ public class DbGlobalClusterResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(GlobalCluster cluster) {
+        setDatabaseName(cluster.databaseName());
+        setDeletionProtection(cluster.deletionProtection());
+        setEngine(cluster.engine());
+
+        String version = cluster.engineVersion();
+        if (getEngineVersion() != null) {
+            version = version.substring(0, getEngineVersion().length());
+        }
+
+        setEngineVersion(version);
+        setStorageEncrypted(cluster.storageEncrypted());
+    }
+
+    @Override
     public boolean refresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -124,21 +141,7 @@ public class DbGlobalClusterResource extends AwsResource {
                 r -> r.globalClusterIdentifier(getGlobalClusterIdentifier())
             );
 
-            response.globalClusters().stream()
-                .forEach(c -> {
-                    setDatabaseName(c.databaseName());
-                    setDeletionProtection(c.deletionProtection());
-                    setEngine(c.engine());
-
-                    String version = c.engineVersion();
-                    if (getEngineVersion() != null) {
-                        version = version.substring(0, getEngineVersion().length());
-                    }
-
-                    setEngineVersion(version);
-                    setStorageEncrypted(c.storageEncrypted());
-                }
-            );
+            response.globalClusters().forEach(this::copyFrom);
 
         } catch (GlobalClusterNotFoundException ex) {
             return false;

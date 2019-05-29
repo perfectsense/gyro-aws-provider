@@ -1,5 +1,6 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -8,6 +9,7 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateEventSubscriptionResponse;
 import software.amazon.awssdk.services.rds.model.DescribeEventSubscriptionsResponse;
+import software.amazon.awssdk.services.rds.model.EventSubscription;
 import software.amazon.awssdk.services.rds.model.SubscriptionNotFoundException;
 
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ import java.util.Set;
  *    end
  */
 @Type("db-event-subscription")
-public class DbEventSubscriptionResource extends RdsTaggableResource {
+public class DbEventSubscriptionResource extends RdsTaggableResource implements Copyable<EventSubscription> {
 
     private Boolean enabled;
     private List<String> eventCategories;
@@ -123,6 +125,17 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(EventSubscription subscription) {
+        setEnabled(subscription.enabled());
+        setEventCategories(subscription.eventCategoriesList());
+        setSnsTopicArn(subscription.snsTopicArn());
+        List<String> sourceIds = subscription.sourceIdsList();
+        setSourceIds(sourceIds.isEmpty() ? null : sourceIds);
+        setSourceType(subscription.sourceType());
+        setArn(subscription.eventSubscriptionArn());
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -135,17 +148,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource {
                 r -> r.subscriptionName(getSubscriptionName())
             );
 
-            response.eventSubscriptionsList().stream()
-                .forEach(s -> {
-                    setEnabled(s.enabled());
-                    setEventCategories(s.eventCategoriesList());
-                    setSnsTopicArn(s.snsTopicArn());
-                    List<String> sourceIds = s.sourceIdsList();
-                    setSourceIds(sourceIds.isEmpty() ? null : sourceIds);
-                    setSourceType(s.sourceType());
-                    setArn(s.eventSubscriptionArn());
-                }
-            );
+            response.eventSubscriptionsList().forEach(this::copyFrom);
 
         } catch (SubscriptionNotFoundException ex) {
             return false;

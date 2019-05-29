@@ -1,5 +1,6 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -7,6 +8,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSnapshotResponse;
+import software.amazon.awssdk.services.rds.model.DBSnapshot;
 import software.amazon.awssdk.services.rds.model.DbSnapshotNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbSnapshotsResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
@@ -27,7 +29,7 @@ import java.util.Set;
  *    end
  */
 @Type("db-snapshot")
-public class DbSnapshotResource extends RdsTaggableResource {
+public class DbSnapshotResource extends RdsTaggableResource implements Copyable<DBSnapshot> {
 
     private String dbInstanceIdentifier;
     private String dbSnapshotIdentifier;
@@ -81,6 +83,14 @@ public class DbSnapshotResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBSnapshot snapshot) {
+        setDbInstanceIdentifier(snapshot.dbInstanceIdentifier());
+        setEngineVersion(snapshot.engineVersion());
+        setOptionGroupName(snapshot.optionGroupName());
+        setArn(snapshot.dbSnapshotArn());
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -93,14 +103,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
                 r -> r.dbSnapshotIdentifier(getDbSnapshotIdentifier())
             );
 
-            response.dbSnapshots().stream()
-                .forEach(s -> {
-                    setDbInstanceIdentifier(s.dbInstanceIdentifier());
-                    setEngineVersion(s.engineVersion());
-                    setOptionGroupName(s.optionGroupName());
-                    setArn(s.dbSnapshotArn());
-                }
-            );
+            response.dbSnapshots().forEach(this::copyFrom);
 
         } catch (DbSnapshotNotFoundException ex) {
             return false;

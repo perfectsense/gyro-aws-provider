@@ -1,5 +1,6 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -7,6 +8,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSubnetGroupResponse;
+import software.amazon.awssdk.services.rds.model.DBSubnetGroup;
 import software.amazon.awssdk.services.rds.model.DbSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbSubnetGroupsResponse;
 import software.amazon.awssdk.services.rds.model.Subnet;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-subnet-group")
-public class DbSubnetGroupResource extends RdsTaggableResource {
+public class DbSubnetGroupResource extends RdsTaggableResource implements Copyable<DBSubnetGroup> {
 
     private String description;
     private String groupName;
@@ -87,6 +89,14 @@ public class DbSubnetGroupResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBSubnetGroup group) {
+        setDescription(group.dbSubnetGroupDescription());
+        setGroupName(group.dbSubnetGroupName());
+        setSubnetIds(group.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
+        setArn(group.dbSubnetGroupArn());
+    }
+
+    @Override
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -99,14 +109,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource {
                 r -> r.dbSubnetGroupName(getGroupName())
             );
 
-            response.dbSubnetGroups().stream()
-                .forEach(g -> {
-                    setDescription(g.dbSubnetGroupDescription());
-                    setGroupName(g.dbSubnetGroupName());
-                    setSubnetIds(g.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
-                    setArn(g.dbSubnetGroupArn());
-                }
-            );
+            response.dbSubnetGroups().forEach(this::copyFrom);
 
         } catch (DbSubnetGroupNotFoundException ex) {
             return false;

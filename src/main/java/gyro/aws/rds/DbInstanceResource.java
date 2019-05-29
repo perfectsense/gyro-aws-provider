@@ -1,5 +1,6 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -8,6 +9,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
+import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.rds.model.DBParameterGroupStatus;
 import software.amazon.awssdk.services.rds.model.DBSecurityGroupMembership;
 import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-instance")
-public class DbInstanceResource extends RdsTaggableResource {
+public class DbInstanceResource extends RdsTaggableResource implements Copyable<DBInstance> {
 
     private Integer allocatedStorage;
     private Boolean allowMajorVersionUpgrade;
@@ -670,6 +672,83 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBInstance instance) {
+        setAllocatedStorage(instance.allocatedStorage());
+        setAutoMinorVersionUpgrade(instance.autoMinorVersionUpgrade());
+        setAvailabilityZone(instance.availabilityZone());
+        setBackupRetentionPeriod(instance.backupRetentionPeriod());
+        setCharacterSetName(instance.characterSetName());
+        setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
+        setDbClusterIdentifier(instance.dbClusterIdentifier());
+        setDbInstanceClass(instance.dbInstanceClass());
+        setDbInstanceIdentifier(instance.dbInstanceIdentifier());
+        setDbName(instance.dbName());
+
+        setDbParameterGroupName(instance.dbParameterGroups().stream()
+            .findFirst().map(DBParameterGroupStatus::dbParameterGroupName)
+            .orElse(null));
+
+        setDbSecurityGroups(instance.dbSecurityGroups().stream()
+            .map(DBSecurityGroupMembership::dbSecurityGroupName)
+            .collect(Collectors.toList()));
+
+        setDbSubnetGroupName(instance.dbSubnetGroup() != null ? instance.dbSubnetGroup().dbSubnetGroupName() : null);
+        setDeletionProtection(instance.deletionProtection());
+
+        setDomain(instance.domainMemberships().stream()
+            .findFirst().map(DomainMembership::domain)
+            .orElse(null));
+
+        setDomainIamRoleName(instance.domainMemberships().stream()
+            .findFirst().map(DomainMembership::iamRoleName)
+            .orElse(null));
+
+        List<String> cwLogsExports = instance.enabledCloudwatchLogsExports();
+        setEnableCloudwatchLogsExports(cwLogsExports.isEmpty() ? null : cwLogsExports);
+        setEnableIamDatabaseAuthentication(instance.iamDatabaseAuthenticationEnabled());
+        setEnablePerformanceInsights(instance.performanceInsightsEnabled());
+        setEngine(instance.engine());
+
+        String version = instance.engineVersion();
+        if (getEngineVersion() != null) {
+            version = version.substring(0, getEngineVersion().length());
+        }
+
+        setEngineVersion(version);
+        setIops(instance.iops());
+        setKmsKeyId(instance.kmsKeyId());
+        setLicenseModel(instance.licenseModel());
+        setMasterUsername(instance.masterUsername());
+        setMonitoringInterval(instance.monitoringInterval());
+        setMonitoringRoleArn(instance.monitoringRoleArn());
+        setMultiAz(instance.multiAZ());
+
+        setOptionGroupName(instance.optionGroupMemberships().stream()
+            .findFirst().map(OptionGroupMembership::optionGroupName)
+            .orElse(null));
+
+        setPerformanceInsightsKmsKeyId(instance.performanceInsightsKMSKeyId());
+        setPerformanceInsightsRetentionPeriod(instance.performanceInsightsRetentionPeriod());
+        setPort(instance.dbInstancePort());
+        setPreferredBackupWindow(instance.preferredBackupWindow());
+        setPreferredMaintenanceWindow(instance.preferredMaintenanceWindow());
+        setPromotionTier(instance.promotionTier());
+        setPubliclyAccessible(instance.publiclyAccessible());
+        setStorageEncrypted(instance.storageEncrypted());
+        setStorageType(instance.storageType());
+        setTdeCredentialArn(instance.tdeCredentialArn());
+        setTimezone(instance.timezone());
+        setVpcSecurityGroupIds(instance.vpcSecurityGroups().stream()
+            .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
+            .collect(Collectors.toList()));
+        setArn(instance.dbInstanceArn());
+
+        if (instance.endpoint() != null) {
+            setEndpointAddress(instance.endpoint().address());
+        }
+    }
+
+    @Override
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -682,83 +761,7 @@ public class DbInstanceResource extends RdsTaggableResource {
                 r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
             );
 
-            response.dbInstances().stream()
-                .forEach(i -> {
-                    setAllocatedStorage(i.allocatedStorage());
-                    setAutoMinorVersionUpgrade(i.autoMinorVersionUpgrade());
-                    setAvailabilityZone(i.availabilityZone());
-                    setBackupRetentionPeriod(i.backupRetentionPeriod());
-                    setCharacterSetName(i.characterSetName());
-                    setCopyTagsToSnapshot(i.copyTagsToSnapshot());
-                    setDbClusterIdentifier(i.dbClusterIdentifier());
-                    setDbInstanceClass(i.dbInstanceClass());
-                    setDbInstanceIdentifier(i.dbInstanceIdentifier());
-                    setDbName(i.dbName());
-
-                    setDbParameterGroupName(i.dbParameterGroups().stream()
-                        .findFirst().map(DBParameterGroupStatus::dbParameterGroupName)
-                        .orElse(null));
-
-                    setDbSecurityGroups(i.dbSecurityGroups().stream()
-                        .map(DBSecurityGroupMembership::dbSecurityGroupName)
-                        .collect(Collectors.toList()));
-
-                    setDbSubnetGroupName(i.dbSubnetGroup() != null ? i.dbSubnetGroup().dbSubnetGroupName() : null);
-                    setDeletionProtection(i.deletionProtection());
-
-                    setDomain(i.domainMemberships().stream()
-                        .findFirst().map(DomainMembership::domain)
-                        .orElse(null));
-
-                    setDomainIamRoleName(i.domainMemberships().stream()
-                        .findFirst().map(DomainMembership::iamRoleName)
-                        .orElse(null));
-
-                    List<String> cwLogsExports = i.enabledCloudwatchLogsExports();
-                    setEnableCloudwatchLogsExports(cwLogsExports.isEmpty() ? null : cwLogsExports);
-                    setEnableIamDatabaseAuthentication(i.iamDatabaseAuthenticationEnabled());
-                    setEnablePerformanceInsights(i.performanceInsightsEnabled());
-                    setEngine(i.engine());
-
-                    String version = i.engineVersion();
-                    if (getEngineVersion() != null) {
-                        version = version.substring(0, getEngineVersion().length());
-                    }
-
-                    setEngineVersion(version);
-                    setIops(i.iops());
-                    setKmsKeyId(i.kmsKeyId());
-                    setLicenseModel(i.licenseModel());
-                    setMasterUsername(i.masterUsername());
-                    setMonitoringInterval(i.monitoringInterval());
-                    setMonitoringRoleArn(i.monitoringRoleArn());
-                    setMultiAz(i.multiAZ());
-
-                    setOptionGroupName(i.optionGroupMemberships().stream()
-                        .findFirst().map(OptionGroupMembership::optionGroupName)
-                        .orElse(null));
-
-                    setPerformanceInsightsKmsKeyId(i.performanceInsightsKMSKeyId());
-                    setPerformanceInsightsRetentionPeriod(i.performanceInsightsRetentionPeriod());
-                    setPort(i.dbInstancePort());
-                    setPreferredBackupWindow(i.preferredBackupWindow());
-                    setPreferredMaintenanceWindow(i.preferredMaintenanceWindow());
-                    setPromotionTier(i.promotionTier());
-                    setPubliclyAccessible(i.publiclyAccessible());
-                    setStorageEncrypted(i.storageEncrypted());
-                    setStorageType(i.storageType());
-                    setTdeCredentialArn(i.tdeCredentialArn());
-                    setTimezone(i.timezone());
-                    setVpcSecurityGroupIds(i.vpcSecurityGroups().stream()
-                        .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
-                        .collect(Collectors.toList()));
-                    setArn(i.dbInstanceArn());
-
-                    if (i.endpoint() != null) {
-                        setEndpointAddress(i.endpoint().address());
-                    }
-                }
-            );
+            response.dbInstances().forEach(this::copyFrom);
 
         } catch (DbInstanceNotFoundException ex) {
             return false;

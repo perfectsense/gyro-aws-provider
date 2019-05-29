@@ -1,5 +1,6 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -7,6 +8,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
+import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DBClusterOptionGroupStatus;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
@@ -68,7 +70,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-cluster")
-public class DbClusterResource extends RdsTaggableResource {
+public class DbClusterResource extends RdsTaggableResource implements Copyable<DBCluster> {
 
     private Boolean applyImmediately;
     private List<String> availabilityZones;
@@ -452,6 +454,57 @@ public class DbClusterResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBCluster cluster) {
+        setAvailabilityZones(cluster.availabilityZones());
+        setBackTrackWindow(cluster.backtrackWindow());
+        setBackupRetentionPeriod(cluster.backupRetentionPeriod());
+        setCharacterSetName(cluster.characterSetName());
+        setDbClusterParameterGroupName(cluster.dbClusterParameterGroup());
+        setDbName(cluster.databaseName());
+        setDbSubnetGroupName(cluster.dbSubnetGroup());
+        setDeletionProtection(cluster.deletionProtection());
+
+        List<String> cwLogsExports = cluster.enabledCloudwatchLogsExports();
+        setEnableCloudwatchLogsExports(cwLogsExports.isEmpty() ? null : cwLogsExports);
+        setEnableIamDatabaseAuthentication(cluster.iamDatabaseAuthenticationEnabled());
+        setEngine(cluster.engine());
+
+        String version = cluster.engineVersion();
+        if (getEngineVersion() != null) {
+            version = version.substring(0, getEngineVersion().length());
+        }
+
+        setEngineVersion(version);
+        setEngineMode(cluster.engineMode());
+        setKmsKeyId(cluster.kmsKeyId());
+        setMasterUsername(cluster.masterUsername());
+
+        setOptionGroupName(cluster.dbClusterOptionGroupMemberships().stream()
+            .findFirst().map(DBClusterOptionGroupStatus::dbClusterOptionGroupName)
+            .orElse(null));
+
+        setPort(cluster.port());
+        setPreferredBackupWindow(cluster.preferredBackupWindow());
+        setPreferredMaintenanceWindow(cluster.preferredMaintenanceWindow());
+        setReplicationSourceIdentifier(cluster.replicationSourceIdentifier());
+
+        if (cluster.scalingConfigurationInfo() != null) {
+            ScalingConfiguration scalingConfiguration = new ScalingConfiguration();
+            scalingConfiguration.setAutoPause(cluster.scalingConfigurationInfo().autoPause());
+            scalingConfiguration.setMaxCapacity(cluster.scalingConfigurationInfo().maxCapacity());
+            scalingConfiguration.setMinCapacity(cluster.scalingConfigurationInfo().minCapacity());
+            scalingConfiguration.setSecondsUntilAutoPause(cluster.scalingConfigurationInfo().secondsUntilAutoPause());
+            setScalingConfiguration(scalingConfiguration);
+        }
+
+        setStorageEncrypted(cluster.storageEncrypted());
+
+        setVpcSecurityGroupIds(cluster.vpcSecurityGroups().stream()
+            .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
+            .collect(Collectors.toList()));
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -464,57 +517,7 @@ public class DbClusterResource extends RdsTaggableResource {
                 r -> r.dbClusterIdentifier(getDbClusterIdentifier())
             );
 
-            response.dbClusters().stream()
-                .forEach(c -> {
-                    setAvailabilityZones(c.availabilityZones());
-                    setBackTrackWindow(c.backtrackWindow());
-                    setBackupRetentionPeriod(c.backupRetentionPeriod());
-                    setCharacterSetName(c.characterSetName());
-                    setDbClusterParameterGroupName(c.dbClusterParameterGroup());
-                    setDbName(c.databaseName());
-                    setDbSubnetGroupName(c.dbSubnetGroup());
-                    setDeletionProtection(c.deletionProtection());
-
-                    List<String> cwLogsExports = c.enabledCloudwatchLogsExports();
-                    setEnableCloudwatchLogsExports(cwLogsExports.isEmpty() ? null : cwLogsExports);
-                    setEnableIamDatabaseAuthentication(c.iamDatabaseAuthenticationEnabled());
-                    setEngine(c.engine());
-
-                    String version = c.engineVersion();
-                    if (getEngineVersion() != null) {
-                        version = version.substring(0, getEngineVersion().length());
-                    }
-
-                    setEngineVersion(version);
-                    setEngineMode(c.engineMode());
-                    setKmsKeyId(c.kmsKeyId());
-                    setMasterUsername(c.masterUsername());
-
-                    setOptionGroupName(c.dbClusterOptionGroupMemberships().stream()
-                        .findFirst().map(DBClusterOptionGroupStatus::dbClusterOptionGroupName)
-                        .orElse(null));
-
-                    setPort(c.port());
-                    setPreferredBackupWindow(c.preferredBackupWindow());
-                    setPreferredMaintenanceWindow(c.preferredMaintenanceWindow());
-                    setReplicationSourceIdentifier(c.replicationSourceIdentifier());
-
-                    if (c.scalingConfigurationInfo() != null) {
-                        ScalingConfiguration scalingConfiguration = new ScalingConfiguration();
-                        scalingConfiguration.setAutoPause(c.scalingConfigurationInfo().autoPause());
-                        scalingConfiguration.setMaxCapacity(c.scalingConfigurationInfo().maxCapacity());
-                        scalingConfiguration.setMinCapacity(c.scalingConfigurationInfo().minCapacity());
-                        scalingConfiguration.setSecondsUntilAutoPause(c.scalingConfigurationInfo().secondsUntilAutoPause());
-                        setScalingConfiguration(scalingConfiguration);
-                    }
-
-                    setStorageEncrypted(c.storageEncrypted());
-
-                    setVpcSecurityGroupIds(c.vpcSecurityGroups().stream()
-                        .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
-                        .collect(Collectors.toList()));
-                }
-            );
+            response.dbClusters().forEach(this::copyFrom);
 
         } catch (DbClusterNotFoundException ex) {
             return false;

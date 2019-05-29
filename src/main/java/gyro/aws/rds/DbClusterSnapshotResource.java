@@ -1,11 +1,13 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterSnapshotResponse;
+import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
 import software.amazon.awssdk.services.rds.model.DbClusterSnapshotNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterSnapshotsResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbClusterStateException;
@@ -26,7 +28,7 @@ import java.util.Set;
  *    end
  */
 @Type("db-cluster-snapshot")
-public class DbClusterSnapshotResource extends RdsTaggableResource {
+public class DbClusterSnapshotResource extends RdsTaggableResource implements Copyable<DBClusterSnapshot> {
 
     private String dbClusterIdentifier;
     private String dbClusterSnapshotIdentifier;
@@ -54,6 +56,12 @@ public class DbClusterSnapshotResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBClusterSnapshot snapshot) {
+        setDbClusterIdentifier(snapshot.dbClusterIdentifier());
+        setArn(snapshot.dbClusterSnapshotArn());
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -66,12 +74,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource {
                 r -> r.dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
             );
 
-            response.dbClusterSnapshots().stream()
-                .forEach(s -> {
-                    setDbClusterIdentifier(s.dbClusterIdentifier());
-                    setArn(s.dbClusterSnapshotArn());
-                }
-            );
+            response.dbClusterSnapshots().forEach(this::copyFrom);
 
         } catch (DbClusterSnapshotNotFoundException ex) {
             return false;
