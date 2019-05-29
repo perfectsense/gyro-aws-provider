@@ -1,155 +1,81 @@
-aws::vpc vpc-example-for-connection-notification
+aws::vpc vpc-connection-notification-example
     cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
 
     tags: {
-        Name: "vpc-example-for-connection-notification"
+        Name: "connection-notification-example"
     }
 end
 
-aws::subnet subnet-public-us-east-2a-example-for-connection-notification-1
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.0.0/26"
-    availability-zone: "us-east-2a"
+aws::subnet subnet-us-east-2a
+    vpc: $(aws::vpc vpc-connection-notification-example)
+    availability-zone: 'us-east-2a'
+    cidr-block: '10.0.0.0/24'
 
     tags: {
-        Name: "subnet-public-us-east-2a-example-for-connection-notification-1"
+        Name: "connection-notification-example us-east-2a"
     }
 end
 
-aws::subnet subnet-public-us-east-2a-example-for-connection-notification-2
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.3.0/26"
-    availability-zone: "us-east-2a"
+aws::subnet subnet-us-east-2b
+    vpc: $(aws::vpc vpc-connection-notification-example)
+    availability-zone: 'us-east-2b'
+    cidr-block: '10.0.1.0/24'
 
     tags: {
-        Name: "subnet-public-us-east-2a-example-for-connection-notification-2"
+        Name: "connection-notification-example us-east-2b"
     }
 end
 
-aws::subnet subnet-public-us-east-2a-example-for-connection-notification-3
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.6.0/26"
-    availability-zone: "us-east-2a"
-
-    tags: {
-        Name: "subnet-public-us-east-2a-example-for-connection-notification-3"
-    }
+aws::internet-gateway internet-gateway-example
+    vpc: $(aws::vpc vpc-connection-notification-example)
 end
 
-aws::subnet subnet-public-us-east-2b-example-for-connection-notification-1
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.1.0/26"
-    availability-zone: "us-east-2b"
+aws::nlb nlb-example-1
+    name: "nlb-connection-notification-example-1"
+    ip-address-type: "ipv4"
+    scheme: "internet-facing"
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+    end
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+    end
 
     tags: {
-        Name: "subnet-public-us-east-2b-example-for-connection-notification-1"
-    }
+            Name: "nlb-example-1"
+        }
 end
 
-aws::subnet subnet-public-us-east-2b-example-for-connection-notification-2
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.4.0/26"
-    availability-zone: "us-east-2b"
+aws::nlb nlb-example-2
+    name: "nlb-connection-notification-example-2"
+    ip-address-type: "ipv4"
+    scheme: "internet-facing"
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+    end
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+    end
 
     tags: {
-        Name: "subnet-public-us-east-2b-example-for-connection-notification-2"
-    }
+            Name: "nlb-example-2"
+        }
 end
 
-aws::subnet subnet-public-us-east-2b-example-for-connection-notification-3
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.7.0/26"
-    availability-zone: "us-east-2b"
-
-    tags: {
-        Name: "subnet-public-us-east-2b-example-for-connection-notification-3"
-    }
-end
-
-aws::subnet subnet-public-us-east-2c-example-for-connection-notification-1
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.2.0/26"
-    availability-zone: "us-east-2c"
-
-    tags: {
-        Name: "subnet-public-us-east-2c-example-for-connection-notification-1"
-    }
-end
-
-aws::subnet subnet-public-us-east-2c-example-for-connection-notification-2
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.5.0/26"
-    availability-zone: "us-east-2c"
-
-    tags: {
-        Name: "subnet-public-us-east-2c-example-for-connection-notification-2"
-    }
-end
-
-aws::subnet subnet-public-us-east-2c-example-for-connection-notification-3
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    cidr-block: "10.0.8.0/26"
-    availability-zone: "us-east-2c"
-
-    tags: {
-        Name: "subnet-public-us-east-2c-example-for-connection-notification-3"
-    }
-end
-
-aws::route-table route-table-example-for-connection-notification-1
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    subnets: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-connection-notification-1),
-        $(aws::subnet subnet-public-us-east-2b-example-for-connection-notification-1),
-        $(aws::subnet subnet-public-us-east-2c-example-for-connection-notification-1)
-    ]
-
-    tags: {
-        Name: "route-table-example-for-connection-notification-1"
-    }
-end
-
-aws::route-table route-table-example-for-connection-notification-2
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    subnets: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-connection-notification-2),
-        $(aws::subnet subnet-public-us-east-2b-example-for-connection-notification-2),
-        $(aws::subnet subnet-public-us-east-2c-example-for-connection-notification-2)
-    ]
-
-    tags: {
-        Name: "route-table-example-for-connection-notification-2"
-    }
-end
-
-aws::route-table route-table-example-for-connection-notification-3
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    subnets: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-connection-notification-3),
-        $(aws::subnet subnet-public-us-east-2b-example-for-connection-notification-3),
-        $(aws::subnet subnet-public-us-east-2c-example-for-connection-notification-3)
-    ]
-
-    tags: {
-        Name: "route-table-example-for-connection-notification-3"
-    }
-end
-
-aws::endpoint endpoint-example-for-connection-notification
-    vpc: $(aws::vpc vpc-example-for-connection-notification)
-    service-name: 'com.amazonaws.us-east-2.s3'
-    policy-doc-path: 'endpoint-policy.json'
-    type-interface: false
-    route-tables: [
-        $(aws::route-table route-table-example-for-connection-notification-1),
-        $(aws::route-table route-table-example-for-connection-notification-2),
-        $(aws::route-table route-table-example-for-connection-notification-3)
+aws::endpoint-service endpoint-service-connection-notification-example
+    network-load-balancers: [
+        $(aws::nlb nlb-example-2)
     ]
 end
 
 aws::connection-notification connection-notification-example
-    vpc-endpoint: $(aws::endpoint endpoint-example-for-connection-notification)
-    connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
+    service-id: $(aws::endpoint-service endpoint-service-connection-notification-example | service-id)
+    connection-notification-arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
     connection-events: [
         "Accept"
     ]
