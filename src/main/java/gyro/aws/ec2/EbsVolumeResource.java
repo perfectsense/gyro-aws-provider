@@ -4,6 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -48,7 +49,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     private Integer iops;
     private String kmsKeyId;
     private Integer size;
-    private String snapshotId;
+    private EbsSnapshotResource snapshot;
     private String state;
     private String volumeId;
     private String volumeType;
@@ -127,14 +128,18 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     /**
      * The snapshot from which to create the volume. Required only
      */
-    public String getSnapshotId() {
-        return snapshotId;
+    public EbsSnapshotResource getSnapshot() {
+        return snapshot;
     }
 
-    public void setSnapshotId(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public void setSnapshot(EbsSnapshotResource snapshot) {
+        this.snapshot = snapshot;
     }
 
+    /**
+     * The state of the volume.
+     */
+    @Output
     public String getState() {
         return state;
     }
@@ -143,6 +148,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
         this.state = state;
     }
 
+    /**
+     * The id of the volume.
+     */
+    @Id
     @Output
     public String getVolumeId() {
         return volumeId;
@@ -201,7 +210,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
         setIops(volume.iops());
         setKmsKeyId(volume.kmsKeyId());
         setSize(volume.size());
-        setSnapshotId(volume.snapshotId());
+        setSnapshot(findById(EbsSnapshotResource.class, volume.snapshotId()));
         setState(volume.stateAsString());
         setVolumeType(volume.volumeTypeAsString());
 
@@ -232,7 +241,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                 .iops(getVolumeType().equals("io1") ? getIops() : null)
                 .kmsKeyId(getKmsKeyId())
                 .size(getSize())
-                .snapshotId(getSnapshotId())
+                .snapshotId(getSnapshot().getSnapshotId())
                 .volumeType(getVolumeType())
         );
 
@@ -316,8 +325,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
     }
 
     private Volume getVolume(Ec2Client client) {
+        Volume volume = null;
+
         if (ObjectUtils.isBlank(getVolumeId())) {
-            throw new GyroException("ebs volume-id is missing, unable to load volume.");
+            throw new GyroException("volume-id is missing, unable to load volume.");
         }
 
         try {
@@ -325,18 +336,17 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
                 r -> r.volumeIds(Collections.singleton(getVolumeId()))
             );
 
-            if (response.volumes().isEmpty()) {
-                return null;
+            if (!response.volumes().isEmpty()) {
+                volume = response.volumes().get(0);
             }
 
-            return response.volumes().get(0);
         } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return null;
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
-
-            throw ex;
         }
+
+        return volume;
     }
 
     private void validate(boolean isCreate) {
