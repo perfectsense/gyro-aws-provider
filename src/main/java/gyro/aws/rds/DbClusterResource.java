@@ -106,6 +106,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private Boolean skipFinalSnapshot;
     private Boolean storageEncrypted;
     private List<SecurityGroupResource> vpcSecurityGroups;
+    private String endpointAddress;
 
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
@@ -462,6 +463,18 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         this.vpcSecurityGroups = vpcSecurityGroups;
     }
 
+    /**
+     * DNS hostname to access the primary instance of the cluster.
+     */
+    @Output
+    public String getEndpointAddress() {
+        return endpointAddress;
+    }
+
+    public void setEndpointAddress(String endpointAddress) {
+        this.endpointAddress = endpointAddress;
+    }
+
     @Override
     public void copyFrom(DBCluster cluster) {
         setAvailabilityZones(cluster.availabilityZones());
@@ -511,6 +524,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         setVpcSecurityGroups(cluster.vpcSecurityGroups().stream()
             .map(g -> findById(SecurityGroupResource.class, g.vpcSecurityGroupId()))
             .collect(Collectors.toList()));
+
+        setEndpointAddress(cluster.endpoint());
     }
 
     @Override
@@ -586,6 +601,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             .checkEvery(15, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isAvailable(client));
+
+        DescribeDbClustersResponse describeResponse = client.describeDBClusters(
+            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+        );
+
+        setEndpointAddress(describeResponse.dbClusters().get(0).endpoint());
     }
 
     private boolean isAvailable(RdsClient client) {
