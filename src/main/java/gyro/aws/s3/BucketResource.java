@@ -1,6 +1,10 @@
 package gyro.aws.s3;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -110,7 +114,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("bucket")
-public class BucketResource extends AwsResource {
+public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     private String name;
     private Boolean enableObjectLock;
@@ -121,6 +125,7 @@ public class BucketResource extends AwsResource {
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
 
+    @Id
     public String getName() {
         return name;
     }
@@ -175,6 +180,8 @@ public class BucketResource extends AwsResource {
 
     /**
      * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_.
+     *
+     * Updatable only when object lock is disabled
      */
     @Updatable
     public Boolean getEnableVersion() {
@@ -245,27 +252,13 @@ public class BucketResource extends AwsResource {
     public boolean refresh() {
         S3Client client = createClient(S3Client.class);
 
-        ListBucketsResponse listBucketsResponse = client.listBuckets();
+        Bucket bucket = getBucket(client);
 
-        Bucket bucket = null;
-        for (Bucket bucketObj : listBucketsResponse.buckets()) {
-            if (bucketObj.name().equals(getName())) {
-                bucket = bucketObj;
-            }
+        if (bucket == null) {
+            return false;
         }
 
-        if (bucket != null) {
-            loadTags(client);
-            loadAccelerateConfig(client);
-            loadEnableVersion(client);
-            loadEnablePay(client);
-            loadCorsRules(client);
-            loadLifecycleRules(client);
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     @Override
@@ -345,6 +338,33 @@ public class BucketResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    private Bucket getBucket(S3Client client) {
+        Bucket bucket = null;
+
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("Bucket name is missing, unable to load bucket.");
+        }
+
+        try {
+            ListBucketsResponse listBucketsResponse = client.listBuckets();
+
+            for (Bucket bucketObj : listBucketsResponse.buckets()) {
+                if (bucketObj.name().equals(getName())) {
+                    bucket = bucketObj;
+                }
+            }
+
+            client.listBuckets().buckets().forEach(this :: copyFrom);
+
+        } catch (S3Exception ex ) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+
+        }
+        return bucket;
     }
 
     private void loadTags(S3Client client) {
@@ -501,5 +521,17 @@ public class BucketResource extends AwsResource {
                     )
             );
         }
+    }
+
+    @Override
+    public void copyFrom(Bucket bucket) {
+        S3Client client = createClient(S3Client.class);
+
+        loadTags(client);
+        loadAccelerateConfig(client);
+        loadEnableVersion(client);
+        loadEnablePay(client);
+        loadCorsRules(client);
+        loadLifecycleRules(client);
     }
 }
