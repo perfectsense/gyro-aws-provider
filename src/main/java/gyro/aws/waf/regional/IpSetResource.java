@@ -61,14 +61,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
             r -> r.ipSetId(getId())
         );
 
-        IPSet ipSet = response.ipSet();
-        setName(ipSet.name());
-
-        getIpSetDescriptor().clear();
-        for (IPSetDescriptor ipSetDescriptor : ipSet.ipSetDescriptors()) {
-            IpSetDescriptorResource ipSetDescriptorResource = new IpSetDescriptorResource(ipSetDescriptor);
-            getIpSetDescriptor().add(ipSetDescriptorResource);
-        }
+        this.copyFrom(response.ipSet());
 
         return true;
     }
@@ -93,5 +86,17 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .ipSetId(getId())
         );
+    }
+
+    @Override
+    public void copyFrom(IPSet ipSet) {
+        setName(ipSet.name());
+
+        getIpSetDescriptor().clear();
+        for (IPSetDescriptor ipSetDescriptor : ipSet.ipSetDescriptors()) {
+            IpSetDescriptorResource ipSetDescriptorResource = newSubresource(IpSetDescriptorResource.class);
+            ipSetDescriptorResource.copyFrom(ipSetDescriptor);
+            getIpSetDescriptor().add(ipSetDescriptorResource);
+        }
     }
 }
