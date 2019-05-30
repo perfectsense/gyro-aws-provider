@@ -150,7 +150,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
                         optionSettings.setValue(s.value());
                         return optionSettings;
                     })
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toSet()));
 
                 return optionConfiguration;
             })

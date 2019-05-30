@@ -1,14 +1,17 @@
 package gyro.aws.rds;
 
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OptionConfiguration extends Diffable {
 
     private String optionName;
-    private List<OptionSettings> optionSettings;
+    private Set<OptionSettings> optionSettings;
     private Integer port;
     private String version;
     private List<String> vpcSecurityGroupMemberships;
@@ -29,15 +32,16 @@ public class OptionConfiguration extends Diffable {
      *
      * @subresource gyro.aws.rds.OptionSettings
      */
-    public List<OptionSettings> getOptionSettings() {
+    @Updatable
+    public Set<OptionSettings> getOptionSettings() {
         if (optionSettings == null) {
-            optionSettings = new ArrayList<>();
+            optionSettings = new HashSet<>();
         }
 
         return optionSettings;
     }
 
-    public void setOptionSettings(List<OptionSettings> optionSettings) {
+    public void setOptionSettings(Set<OptionSettings> optionSettings) {
         this.optionSettings = optionSettings;
     }
 
