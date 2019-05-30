@@ -4,11 +4,13 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
 import software.amazon.awssdk.services.rds.model.DbClusterEndpointNotFoundException;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
@@ -39,6 +41,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     private String endpointType;
     private List<DbInstanceResource> excludedMembers;
     private List<DbInstanceResource> staticMembers;
+    private String endpointAddress;
 
     /**
      * The unique identifier of the endpoint. (Required)
@@ -107,11 +110,24 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         this.staticMembers = staticMembers;
     }
 
+    /**
+     * DNS address of the endpoint.
+     */
+    @Output
+    public String getEndpointAddress() {
+        return endpointAddress;
+    }
+
+    public void setEndpointAddress(String endpointAddress) {
+        this.endpointAddress = endpointAddress;
+    }
+
     @Override
     public void copyFrom(DBClusterEndpoint endpoint) {
         setEndpointType(endpoint.customEndpointType());
         setExcludedMembers(endpoint.excludedMembers().stream().map(i -> findById(DbInstanceResource.class, i)).collect(Collectors.toList()));
         setStaticMembers(endpoint.staticMembers().stream().map(i -> findById(DbInstanceResource.class, i)).collect(Collectors.toList()));
+        setEndpointAddress(endpoint.endpoint());
     }
 
     @Override
@@ -140,7 +156,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     @Override
     public void create() {
         RdsClient client = createClient(RdsClient.class);
-        client.createDBClusterEndpoint(
+        CreateDbClusterEndpointResponse response = client.createDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
                     .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
                     .endpointType(getEndpointType())
@@ -154,6 +170,8 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
                         .map(DbInstanceResource::getDbInstanceIdentifier)
                         .collect(Collectors.toList()))
         );
+
+        setEndpointAddress(response.endpoint());
     }
 
     @Override
