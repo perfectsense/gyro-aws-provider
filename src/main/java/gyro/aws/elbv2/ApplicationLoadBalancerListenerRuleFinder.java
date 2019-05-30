@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("elbv2-alb-listener-rule")
-public class ApplicationLoadBalancerListenerRuleResourceFinder extends AwsFinder<ElasticLoadBalancingV2Client, Rule, ApplicationLoadBalancerListenerRuleResource> {
+public class ApplicationLoadBalancerListenerRuleFinder extends AwsFinder<ElasticLoadBalancingV2Client, Rule, ApplicationLoadBalancerListenerRuleResource> {
 
     private String arn;
 

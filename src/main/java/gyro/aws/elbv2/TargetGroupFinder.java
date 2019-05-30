@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("elbv2-target-group")
-public class TargetGroupResourceFinder extends AwsFinder<ElasticLoadBalancingV2Client, TargetGroup, TargetGroupResource> {
+public class TargetGroupFinder extends AwsFinder<ElasticLoadBalancingV2Client, TargetGroup, TargetGroupResource> {
 
     private String arn;
 

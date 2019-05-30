@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("load-balancer-type")
-public class LoadBalancerResourceFinder<R extends LoadBalancerResource> extends AwsFinder<ElasticLoadBalancingV2Client, LoadBalancer, R> {
+public class LoadBalancerFinder<R extends LoadBalancerResource> extends AwsFinder<ElasticLoadBalancingV2Client, LoadBalancer, R> {
 
     private String arn;
     private String name;

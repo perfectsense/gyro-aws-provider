@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("listener-type")
-public class ListenerResourceFinder<R extends ListenerResource> extends AwsFinder<ElasticLoadBalancingV2Client, Listener, R> {
+public class ListenerFinder<R extends ListenerResource> extends AwsFinder<ElasticLoadBalancingV2Client, Listener, R> {
 
     private String arn;
 
