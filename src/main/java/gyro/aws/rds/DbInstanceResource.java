@@ -126,7 +126,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
      */
+    @Updatable
     public Boolean getApplyImmediately() {
+        if (applyImmediately == null) {
+            applyImmediately = false;
+        }
+
         return applyImmediately;
     }
 

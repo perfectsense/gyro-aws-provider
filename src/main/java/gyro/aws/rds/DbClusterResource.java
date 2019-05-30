@@ -109,6 +109,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      */
     @Updatable
     public Boolean getApplyImmediately() {
+        if (applyImmediately == null) {
+            applyImmediately = false;
+        }
+
         return applyImmediately;
     }
 
