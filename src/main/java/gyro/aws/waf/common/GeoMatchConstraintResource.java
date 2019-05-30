@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateGeoMatchSetRequest;
 
 import java.util.Set;
 
-public abstract class GeoMatchConstraintResource extends AbstractWafResource {
+public abstract class GeoMatchConstraintResource extends AbstractWafResource implements Copyable<GeoMatchConstraint> {
     private String value;
     private String type;
 
@@ -97,5 +98,11 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource {
         return UpdateGeoMatchSetRequest.builder()
             .geoMatchSetId(parent.getId())
             .updates(geoMatchSetUpdate);
+    }
+
+    @Override
+    public void copyFrom(GeoMatchConstraint geoMatchConstraint) {
+        setType(geoMatchConstraint.typeAsString());
+        setValue(geoMatchConstraint.valueAsString());
     }
 }
