@@ -932,6 +932,24 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .skipFinalSnapshot(getSkipFinalSnapshot())
                     .deleteAutomatedBackups(getDeleteAutomatedBackups())
         );
+
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isDeleted(client));
+    }
+
+    private boolean isDeleted(RdsClient client) {
+        try {
+            client.describeDBInstances(
+                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            );
+
+        } catch (DbInstanceNotFoundException ex) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
