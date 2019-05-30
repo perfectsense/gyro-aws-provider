@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetUpdate;
@@ -9,11 +10,11 @@ import software.amazon.awssdk.services.waf.model.UpdateRegexMatchSetRequest;
 
 import java.util.Set;
 
-public abstract class RegexMatchTupleResource extends AbstractWafResource {
+public abstract class RegexMatchTupleResource extends AbstractWafResource implements Copyable<RegexMatchTuple> {
     private String type;
     private String data;
     private String textTransformation;
-    private String regexPatternSetId;
+    private CommonRegexPatternSet regexPatternSet;
 
     /**
      * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
@@ -49,14 +50,14 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource {
     }
 
     /**
-     * The id of a regex pattern set, having the regex patterns to filter the request.
+     * The regex pattern set, having the regex patterns to filter the request.
      */
-    public String getRegexPatternSetId() {
-        return regexPatternSetId;
+    public CommonRegexPatternSet getRegexPatternSet() {
+        return regexPatternSet;
     }
 
-    public void setRegexPatternSetId(String regexPatternSetId) {
-        this.regexPatternSetId = regexPatternSetId;
+    public void setRegexPatternSet(CommonRegexPatternSet regexPatternSet) {
+        this.regexPatternSet = regexPatternSet;
     }
 
     @Override
@@ -83,7 +84,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("byte match tuple");
+        sb.append("regex match tuple");
 
         if (!ObjectUtils.isBlank(getData())) {
             sb.append(" - ").append(getData());
@@ -97,8 +98,8 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource {
             sb.append(" - ").append(getTextTransformation());
         }
 
-        if (!ObjectUtils.isBlank(getRegexPatternSetId())) {
-            sb.append(" - ").append(getRegexPatternSetId());
+        if (getRegexPatternSet() != null) {
+            sb.append(" - ").append(getRegexPatternSet().getRegexPatternSetId());
         }
 
         return sb.toString();
@@ -106,13 +107,21 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s %s", getData(), getType(), getTextTransformation(), getRegexPatternSetId());
+        return String.format("%s %s %s %s", getData(), getType(), getTextTransformation(), getRegexPatternSet() != null ? getRegexPatternSet().getRegexPatternSetId() : null);
+    }
+
+    @Override
+    public void copyFrom(RegexMatchTuple regexMatchTuple) {
+        setType(regexMatchTuple.fieldToMatch().typeAsString());
+        setData(regexMatchTuple.fieldToMatch().data());
+        setRegexPatternSet(findById(CommonRegexPatternSet.class, regexMatchTuple.regexPatternSetId()));
+        setTextTransformation(regexMatchTuple.textTransformationAsString());
     }
 
     private RegexMatchTuple getRegexMatchTuple() {
         return RegexMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))
-            .regexPatternSetId(getRegexPatternSetId())
+            .regexPatternSetId(getRegexPatternSet().getRegexPatternSetId())
             .textTransformation(getTextTransformation())
             .build();
     }

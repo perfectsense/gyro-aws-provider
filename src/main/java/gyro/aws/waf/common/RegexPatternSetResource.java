@@ -1,8 +1,10 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -20,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class RegexPatternSetResource extends AbstractWafResource {
+public abstract class RegexPatternSetResource extends AbstractWafResource implements Copyable<RegexPatternSet> {
     private String name;
     private String regexPatternSetId;
     private List<String> patterns;
@@ -36,6 +38,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource {
         this.name = name;
     }
 
+    @Id
     @Output
     public String getRegexPatternSetId() {
         return regexPatternSetId;
@@ -69,10 +72,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource {
             return false;
         }
 
-        RegexPatternSet regexPatternSet = getRegexPatternSet();
-
-        setName(regexPatternSet.name());
-        setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
+        this.copyFrom(getRegexPatternSet());
 
         return true;
     }
@@ -149,6 +149,12 @@ public abstract class RegexPatternSetResource extends AbstractWafResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(RegexPatternSet regexPatternSet) {
+        setName(regexPatternSet.name());
+        setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
     }
 
     protected abstract void savePatterns(List<String> oldPatterns, List<String> newPatterns);

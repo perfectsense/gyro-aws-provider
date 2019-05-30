@@ -67,16 +67,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
             r -> r.regexMatchSetId(getId())
         );
 
-        RegexMatchSet regexMatchSet = response.regexMatchSet();
-
-        setName(regexMatchSet.name());
-
-        getRegexMatchTuple().clear();
-
-        for (RegexMatchTuple regexMatchTuple : regexMatchSet.regexMatchTuples()) {
-            RegexMatchTupleResource regexMatchTupleResource = new RegexMatchTupleResource(regexMatchTuple);
-            getRegexMatchTuple().add(regexMatchTupleResource);
-        }
+        this.copyFrom(response.regexMatchSet());
 
         return true;
     }
@@ -101,5 +92,18 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .regexMatchSetId(getId())
         );
+    }
+
+    @Override
+    public void copyFrom(RegexMatchSet regexMatchSet) {
+        setName(regexMatchSet.name());
+
+        getRegexMatchTuple().clear();
+
+        for (RegexMatchTuple regexMatchTuple : regexMatchSet.regexMatchTuples()) {
+            RegexMatchTupleResource regexMatchTupleResource = newSubresource(RegexMatchTupleResource.class);
+            regexMatchTupleResource.copyFrom(regexMatchTuple);
+            getRegexMatchTuple().add(regexMatchTupleResource);
+        }
     }
 }
