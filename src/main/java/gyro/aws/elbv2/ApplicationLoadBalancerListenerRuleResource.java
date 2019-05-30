@@ -212,7 +212,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
         List<ActionResource> actions = new ArrayList<>();
 
         for (Action action : actionList) {
-            ActionResource actionResource = new ActionResource();
+            ActionResource actionResource = newSubresource(ActionResource.class);
             actionResource.copyFrom(action);
             actions.add(actionResource);
         }
