@@ -2,6 +2,7 @@ package gyro.aws.waf.common;
 
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.waf.model.Predicate;
 
@@ -34,6 +35,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
         this.metricName = metricName;
     }
 
+    @Id
     @Output
     public String getRuleId() {
         return ruleId;

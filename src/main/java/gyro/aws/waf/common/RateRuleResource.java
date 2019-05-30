@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 
-public abstract class RateRuleResource extends AbstractRuleResource {
+public abstract class RateRuleResource extends CommonRuleResource {
     private String rateKey;
     private Long rateLimit;
 

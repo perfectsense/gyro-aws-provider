@@ -83,7 +83,8 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
 
     @Override
     protected void setActivatedRules(ActivatedRule activatedRule) {
-        ActivatedRuleResource activatedRuleResource = new ActivatedRuleResource(activatedRule);
+        ActivatedRuleResource activatedRuleResource = newSubresource(ActivatedRuleResource.class);
+        activatedRuleResource.copyFrom(activatedRule);
         getActivatedRule().add(activatedRuleResource);
     }
 

@@ -6,7 +6,7 @@ import software.amazon.awssdk.services.waf.model.Rule;
 
 import java.util.Set;
 
-public abstract class RuleResource extends AbstractRuleResource {
+public abstract class RuleResource extends CommonRuleResource {
     protected abstract Rule getRule();
 
     @Override
