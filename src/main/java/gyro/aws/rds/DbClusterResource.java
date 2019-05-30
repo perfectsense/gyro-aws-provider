@@ -107,6 +107,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private Boolean storageEncrypted;
     private List<SecurityGroupResource> vpcSecurityGroups;
     private String endpointAddress;
+    private String readerEndpointAddress;
 
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
@@ -475,6 +476,18 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         this.endpointAddress = endpointAddress;
     }
 
+    /**
+     * DNS hostname to access the readers of the cluster.
+     */
+    @Output
+    public String getReaderEndpointAddress() {
+        return readerEndpointAddress;
+    }
+
+    public void setReaderEndpointAddress(String readerEndpointAddress) {
+        this.readerEndpointAddress = readerEndpointAddress;
+    }
+
     @Override
     public void copyFrom(DBCluster cluster) {
         setAvailabilityZones(cluster.availabilityZones());
@@ -526,6 +539,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             .collect(Collectors.toList()));
 
         setEndpointAddress(cluster.endpoint());
+        setReaderEndpointAddress(cluster.readerEndpoint());
     }
 
     @Override
@@ -607,6 +621,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         );
 
         setEndpointAddress(describeResponse.dbClusters().get(0).endpoint());
+        setReaderEndpointAddress(describeResponse.dbClusters().get(0).readerEndpoint());
     }
 
     private boolean isAvailable(RdsClient client) {
