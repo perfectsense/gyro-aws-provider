@@ -60,14 +60,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
             r -> r.xssMatchSetId(getId())
         );
 
-        XssMatchSet xssMatchSet = response.xssMatchSet();
-        setName(xssMatchSet.name());
-
-        getXssMatchTuple().clear();
-        for (XssMatchTuple xssMatchTuple : xssMatchSet.xssMatchTuples()) {
-            XssMatchTupleResource xssMatchTupleResource = new XssMatchTupleResource(xssMatchTuple);
-            getXssMatchTuple().add(xssMatchTupleResource);
-        }
+        this.copyFrom(response.xssMatchSet());
 
         return true;
     }
@@ -92,5 +85,17 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .xssMatchSetId(getId())
         );
+    }
+
+    @Override
+    public void copyFrom(XssMatchSet xssMatchSet) {
+        setName(xssMatchSet.name());
+
+        getXssMatchTuple().clear();
+        for (XssMatchTuple xssMatchTuple : xssMatchSet.xssMatchTuples()) {
+            XssMatchTupleResource xssMatchTupleResource = newSubresource(XssMatchTupleResource.class);
+            xssMatchTupleResource.copyFrom(xssMatchTuple);
+            getXssMatchTuple().add(xssMatchTupleResource);
+        }
     }
 }

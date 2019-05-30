@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.UpdateXssMatchSetRequest;
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 
 import java.util.Set;
 
-public abstract class XssMatchTupleResource extends AbstractWafResource {
+public abstract class XssMatchTupleResource extends AbstractWafResource implements Copyable<XssMatchTuple> {
     private String data;
     private String type;
     private String textTransformation;
@@ -91,6 +92,13 @@ public abstract class XssMatchTupleResource extends AbstractWafResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
+    }
+
+    @Override
+    public void copyFrom(XssMatchTuple xssMatchTuple) {
+        setData(xssMatchTuple.fieldToMatch().data());
+        setType(xssMatchTuple.fieldToMatch().typeAsString());
+        setTextTransformation(xssMatchTuple.textTransformationAsString());
     }
 
     protected abstract void saveXssMatchTuple(XssMatchTuple xssMatchTuple, boolean isDelete);
