@@ -52,12 +52,12 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
     }
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getGeoMatchSetId())) {
+        if (ObjectUtils.isBlank(getId())) {
             return false;
         }
 
         GetGeoMatchSetResponse response = getRegionalClient().getGeoMatchSet(
-            r -> r.geoMatchSetId(getGeoMatchSetId())
+            r -> r.geoMatchSetId(getId())
         );
 
         GeoMatchSet geoMatchSet = response.geoMatchSet();
@@ -81,7 +81,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
                 .name(getName())
         );
 
-        setGeoMatchSetId(response.geoMatchSet().geoMatchSetId());
+        setId(response.geoMatchSet().geoMatchSetId());
     }
 
     @Override
@@ -89,7 +89,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
         WafRegionalClient client = getRegionalClient();
 
         client.deleteGeoMatchSet(
-            r -> r.geoMatchSetId(getGeoMatchSetId())
+            r -> r.geoMatchSetId(getId())
                 .changeToken(client.getChangeToken().changeToken())
         );
     }

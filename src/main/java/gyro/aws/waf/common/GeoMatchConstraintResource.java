@@ -95,7 +95,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource {
             .build();
 
         return UpdateGeoMatchSetRequest.builder()
-            .geoMatchSetId(parent.getGeoMatchSetId())
+            .geoMatchSetId(parent.getId())
             .updates(geoMatchSetUpdate);
     }
 }

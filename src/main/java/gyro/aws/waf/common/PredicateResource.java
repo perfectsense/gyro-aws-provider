@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
@@ -11,20 +12,20 @@ import software.amazon.awssdk.services.waf.model.UpdateRuleRequest;
 
 import java.util.Set;
 
-public abstract class PredicateResource extends AbstractWafResource {
-    private String dataId;
+public abstract class PredicateResource extends AbstractWafResource implements Copyable<Predicate> {
+    private ConditionResource condition;
     private Boolean negated;
     private String type;
 
     /**
-     * The id of the condition to be attached with the rule. (Required)
+     * The condition to be attached with the rule. (Required)
      */
-    public String getDataId() {
-        return dataId;
+    public ConditionResource getCondition() {
+        return condition;
     }
 
-    public void setDataId(String dataId) {
-        this.dataId = dataId;
+    public void setCondition(ConditionResource condition) {
+        this.condition = condition;
     }
 
     /**
@@ -80,8 +81,8 @@ public abstract class PredicateResource extends AbstractWafResource {
 
         sb.append("predicate");
 
-        if (!ObjectUtils.isBlank(getDataId())) {
-            sb.append(" - ").append(getDataId());
+        if (getCondition() != null) {
+            sb.append(" - ").append(getCondition().getId());
         }
 
         if (!ObjectUtils.isBlank(getType())) {
@@ -93,14 +94,14 @@ public abstract class PredicateResource extends AbstractWafResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", getDataId(), getType());
+        return String.format("%s %s", (getCondition() != null ? getCondition().getId() : null), getType());
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);
 
     protected Predicate getPredicate() {
         return Predicate.builder()
-            .dataId(getDataId())
+            .dataId(getCondition().getId())
             .negated(getNegated())
             .type(getType())
             .build();
@@ -128,5 +129,12 @@ public abstract class PredicateResource extends AbstractWafResource {
             .ruleId(parent.getRuleId())
             .rateLimit(parent.getRateLimit())
             .updates(getRuleUpdate(predicate, isDelete));
+    }
+
+    @Override
+    public void copyFrom(Predicate predicate) {
+        setCondition(findById(ConditionResource.class, predicate.dataId()));
+        setNegated(predicate.negated());
+        setType(predicate.typeAsString());
     }
 }

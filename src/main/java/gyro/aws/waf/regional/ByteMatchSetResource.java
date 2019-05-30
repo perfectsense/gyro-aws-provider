@@ -55,11 +55,11 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getByteMatchSetId())) {
+        if (ObjectUtils.isBlank(getId())) {
             return false;
         }
 
-        GetByteMatchSetResponse response = getRegionalClient().getByteMatchSet(r -> r.byteMatchSetId(getByteMatchSetId()));
+        GetByteMatchSetResponse response = getRegionalClient().getByteMatchSet(r -> r.byteMatchSetId(getId()));
 
         ByteMatchSet byteMatchSet = response.byteMatchSet();
 
@@ -84,7 +84,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
                 .name(getName())
         );
 
-        setByteMatchSetId(response.byteMatchSet().byteMatchSetId());
+        setId(response.byteMatchSet().byteMatchSetId());
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
         client.deleteByteMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .byteMatchSetId(getByteMatchSetId())
+                .byteMatchSetId(getId())
         );
     }
 }

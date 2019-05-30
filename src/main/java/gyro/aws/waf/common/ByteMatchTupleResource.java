@@ -146,7 +146,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
             .build();
 
         return UpdateByteMatchSetRequest.builder()
-            .byteMatchSetId(parent.getByteMatchSetId())
+            .byteMatchSetId(parent.getId())
             .updates(byteMatchSetUpdate);
     }
 }

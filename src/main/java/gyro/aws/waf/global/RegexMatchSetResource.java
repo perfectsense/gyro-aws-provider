@@ -62,12 +62,12 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
 
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getRegexMatchSetId())) {
+        if (ObjectUtils.isBlank(getId())) {
             return false;
         }
 
         GetRegexMatchSetResponse response = getGlobalClient().getRegexMatchSet(
-                r -> r.regexMatchSetId(getRegexMatchSetId())
+                r -> r.regexMatchSetId(getId())
             );
 
         RegexMatchSet regexMatchSet = response.regexMatchSet();
@@ -93,7 +93,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
                 .name(getName())
         );
 
-        setRegexMatchSetId(response.regexMatchSet().regexMatchSetId());
+        setId(response.regexMatchSet().regexMatchSetId());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
 
         client.deleteRegexMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .regexMatchSetId(getRegexMatchSetId())
+                .regexMatchSetId(getId())
         );
     }
 }

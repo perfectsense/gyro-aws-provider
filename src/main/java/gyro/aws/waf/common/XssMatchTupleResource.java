@@ -111,7 +111,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource {
             .build();
 
         return UpdateXssMatchSetRequest.builder()
-            .xssMatchSetId(parent.getXssMatchSetId())
+            .xssMatchSetId(parent.getId())
             .updates(xssMatchSetUpdate);
     }
 }

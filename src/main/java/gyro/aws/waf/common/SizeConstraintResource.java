@@ -145,7 +145,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
             .build();
 
         return UpdateSizeConstraintSetRequest.builder()
-            .sizeConstraintSetId(parent.getSizeConstraintSetId())
+            .sizeConstraintSetId(parent.getId())
             .updates(sizeConstraintSetUpdate);
     }
 }

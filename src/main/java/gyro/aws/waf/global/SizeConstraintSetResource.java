@@ -53,12 +53,12 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     }
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getSizeConstraintSetId())) {
+        if (ObjectUtils.isBlank(getId())) {
             return false;
         }
 
         GetSizeConstraintSetResponse response = getGlobalClient().getSizeConstraintSet(
-                r -> r.sizeConstraintSetId(getSizeConstraintSetId())
+                r -> r.sizeConstraintSetId(getId())
             );
 
 
@@ -83,7 +83,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
                 .name(getName())
         );
 
-        setSizeConstraintSetId(response.sizeConstraintSet().sizeConstraintSetId());
+        setId(response.sizeConstraintSet().sizeConstraintSetId());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
 
         client.deleteSizeConstraintSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .sizeConstraintSetId(getSizeConstraintSetId())
+                .sizeConstraintSetId(getId())
         );
     }
 }

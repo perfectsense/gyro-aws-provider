@@ -52,12 +52,12 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
     }
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getXssMatchSetId())) {
+        if (ObjectUtils.isBlank(getId())) {
             return false;
         }
 
         GetXssMatchSetResponse response = getRegionalClient().getXssMatchSet(
-            r -> r.xssMatchSetId(getXssMatchSetId())
+            r -> r.xssMatchSetId(getId())
         );
 
         XssMatchSet xssMatchSet = response.xssMatchSet();
@@ -81,7 +81,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
                 .name(getName())
         );
 
-        setXssMatchSetId(response.xssMatchSet().xssMatchSetId());
+        setId(response.xssMatchSet().xssMatchSetId());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
 
         client.deleteXssMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .xssMatchSetId(getXssMatchSetId())
+                .xssMatchSetId(getId())
         );
     }
 }

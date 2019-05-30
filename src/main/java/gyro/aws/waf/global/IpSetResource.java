@@ -53,12 +53,12 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
 
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getIpSetId())) {
+        if (ObjectUtils.isBlank(getId())) {
             return false;
         }
 
         GetIpSetResponse response = getGlobalClient().getIPSet(
-                r -> r.ipSetId(getIpSetId())
+                r -> r.ipSetId(getId())
             );
 
 
@@ -83,7 +83,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
                 .name(getName())
         );
 
-        setIpSetId(response.ipSet().ipSetId());
+        setId(response.ipSet().ipSetId());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
 
         client.deleteIPSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .ipSetId(getIpSetId())
+                .ipSetId(getId())
         );
     }
 }

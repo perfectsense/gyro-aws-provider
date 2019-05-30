@@ -111,7 +111,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
             .build();
 
         return UpdateSqlInjectionMatchSetRequest.builder()
-            .sqlInjectionMatchSetId(parent.getSqlInjectionMatchSetId())
+            .sqlInjectionMatchSetId(parent.getId())
             .updates(sqlInjectionMatchSetUpdate);
     }
 }

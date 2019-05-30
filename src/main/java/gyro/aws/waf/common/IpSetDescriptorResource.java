@@ -102,7 +102,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource {
             .build();
 
         return UpdateIpSetRequest.builder()
-            .ipSetId(parent.getIpSetId())
+            .ipSetId(parent.getId())
             .updates(ipSetUpdate);
     }
 

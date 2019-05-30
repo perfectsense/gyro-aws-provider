@@ -80,7 +80,8 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
         getPredicate().clear();
 
         for (Predicate predicate: predicates) {
-            PredicateResource predicateResource = new PredicateResource(predicate);
+            PredicateResource predicateResource = newSubresource(PredicateResource.class);
+            predicateResource.copyFrom(predicate);
             getPredicate().add(predicateResource);
         }
     }

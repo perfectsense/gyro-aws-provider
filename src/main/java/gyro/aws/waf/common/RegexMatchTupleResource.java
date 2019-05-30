@@ -128,7 +128,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource {
             .build();
 
         return UpdateRegexMatchSetRequest.builder()
-            .regexMatchSetId(parent.getRegexMatchSetId())
+            .regexMatchSetId(parent.getId())
             .updates(regexMatchSetUpdate);
     }
 }
