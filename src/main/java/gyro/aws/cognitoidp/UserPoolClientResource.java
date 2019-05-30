@@ -349,6 +349,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
                 .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
                 .allowedOAuthScopes(getAllowedOAuthScopes())
                 .callbackURLs(getCallbackUrls())
+                .clientId(getId())
                 .clientName(getName())
                 .defaultRedirectURI(getDefaultRedirectUri())
                 .explicitAuthFlowsWithStrings(getExplicitAuthFlows())
@@ -357,7 +358,8 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
                 .refreshTokenValidity(getRefreshTokenValidity())
                 .supportedIdentityProviders(getSupportedIdentityProviders())
                 .userPoolId(getUserPool().getId())
-                .writeAttributes(getWriteAttributes()));
+                .writeAttributes(getWriteAttributes())
+        );
     }
 
     @Override
