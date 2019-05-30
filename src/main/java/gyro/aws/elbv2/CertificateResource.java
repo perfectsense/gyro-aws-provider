@@ -27,7 +27,7 @@ public class CertificateResource extends AwsResource {
     private Boolean isDefault;
 
     /**
-     *  ARN of the certificate (Required)
+     *  ARN of the certificate. (Required)
      */
     @Updatable
     public String getArn() {

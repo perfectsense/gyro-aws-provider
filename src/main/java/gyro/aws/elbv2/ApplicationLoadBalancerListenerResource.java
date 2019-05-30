@@ -51,7 +51,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
     }
 
     /**
-     *  List of default actions associated with the listener (Optional)
+     *  List of default actions associated with the listener. (Required)
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -150,7 +150,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         List<ActionResource> actions = new ArrayList<>();
 
         for (Action action : actionList) {
-            ActionResource actionResource = new ActionResource();
+            ActionResource actionResource = newSubresource(ActionResource.class);
             actionResource.copyFrom(action);
             actions.add(actionResource);
         }

@@ -3,7 +3,6 @@ package gyro.aws.elbv2;
 import gyro.aws.Copyable;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-
 import gyro.core.resource.Resource;
 import gyro.core.resource.Update;
 import gyro.core.resource.Updatable;
@@ -39,7 +38,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     private String type;
 
     /**
-     *  Authentication through user pools supported by Amazon Cognito (Optional)
+     *  Authentication through user pools supported by Amazon Cognito. (Optional)
      */
     @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
@@ -51,7 +50,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
+     *  Authentication through provider that is OpenID Connect (OIDC) compliant. (Optional)
      */
     @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
@@ -63,7 +62,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  Used to specify a custom response for an action  (Optional)
+     *  Used to specify a custom response for an action. (Optional)
      */
     @Updatable
     public FixedResponseAction getFixedResponseAction() {
@@ -75,7 +74,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  The order in which the action should take place (Optional)
+     *  The order in which the action should take place. (Optional)
      */
     @Updatable
     public Integer getOrder() {
@@ -87,7 +86,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  Redirect requests from one URL to another (Optional)
+     *  Redirect requests from one URL to another. (Optional)
      */
     @Updatable
     public RedirectAction getRedirectAction() {
@@ -110,7 +109,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  The type of action to perform  (Required)
+     *  The type of action to perform. (Required)
      */
     @Updatable
     public String getType() {
@@ -130,28 +129,28 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     public void copyFrom(Action action) {
         AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
         if (cognitoConfig != null) {
-            AuthenticateCognitoAction cognito = new AuthenticateCognitoAction();
+            AuthenticateCognitoAction cognito = newSubresource(AuthenticateCognitoAction.class);
             cognito.copyFrom(cognitoConfig);
             setAuthenticateCognitoAction(cognito);
         }
 
         AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
         if (oidcConfig != null) {
-            AuthenticateOidcAction oidc = new AuthenticateOidcAction();
+            AuthenticateOidcAction oidc = newSubresource(AuthenticateOidcAction.class);
             oidc.copyFrom(oidcConfig);
             setAuthenticateOidcAction(oidc);
         }
 
         FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
         if (fixedConfig != null) {
-            FixedResponseAction fixed = new FixedResponseAction();
+            FixedResponseAction fixed = newSubresource(FixedResponseAction.class);
             fixed.copyFrom(fixedConfig);
             setFixedResponseAction(fixed);
         }
 
         RedirectActionConfig redirectConfig = action.redirectConfig();
         if (redirectConfig != null) {
-            RedirectAction redirect = new RedirectAction();
+            RedirectAction redirect = newSubresource(RedirectAction.class);
             redirect.copyFrom(redirectConfig);
             setRedirectAction(redirect);
         }
@@ -216,7 +215,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         StringBuilder sb = new StringBuilder();
 
         if (parentResource() instanceof ListenerResource) {
-            sb.append("default action");
+            sb.append(getType() + " default action");
         } else {
             sb.append("rule action - type: " + getType());
         }

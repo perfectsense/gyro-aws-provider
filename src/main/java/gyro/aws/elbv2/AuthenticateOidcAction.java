@@ -35,13 +35,16 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     private String clientId;
     private String clientSecret;
     private String issuer;
-    private String onAuthenticatedRequest;
+    private String onUnauthenticatedRequest;
     private String scope;
     private String sessionCookieName;
     private Long sessionTimeout;
     private String tokenEndpoint;
     private String userInfoEndpoint;
 
+    /**
+     *  Up to 10 query parameters to include in the redirect request to the authorization endpoint. (Optional)
+     */
     @Updatable
     public Map<String, String> getExtraParams() {
         return extraParams;
@@ -51,6 +54,9 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.extraParams = extraParams;
     }
 
+    /**
+     *  The authorization endpoint of the IdP. (Required)
+     */
     @Updatable
     public String getAuthorizationEndpoint() {
         return authorizationEndpoint;
@@ -60,6 +66,9 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.authorizationEndpoint = authorizationEndpoint;
     }
 
+    /**
+     *  The OAuth 2.0 client identifier. (Required)
+     */
     @Updatable
     public String getClientId() {
         return clientId;
@@ -69,6 +78,9 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.clientId = clientId;
     }
 
+    /**
+     *  The OAuth 2.0 client secret. Required if creating a rule. (Required)
+     */
     @Updatable
     public String getClientSecret() {
         return clientSecret;
@@ -78,6 +90,9 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.clientSecret = clientSecret;
     }
 
+    /**
+     *  The OIDC issuer identifier of the IdP. (Required)
+     */
     @Updatable
     public String getIssuer() {
         return issuer;
@@ -87,17 +102,32 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.issuer = issuer;
     }
 
+    /**
+     *  The behavior if the use is not authenticated. Valid values are ``deny``, ``allow``, and ``authenticate``.
+     *  Defaults to ``authenticate``. (Optional)
+     */
     @Updatable
-    public String getOnAuthenticatedRequest() {
-        return onAuthenticatedRequest;
+    public String getOnUnauthenticatedRequest() {
+        if (onUnauthenticatedRequest == null) {
+            onUnauthenticatedRequest = "authenticate";
+        }
+
+        return onUnauthenticatedRequest;
     }
 
-    public void setOnAuthenticatedRequest(String onAuthenticatedRequest) {
-        this.onAuthenticatedRequest = onAuthenticatedRequest;
+    public void setOnUnauthenticatedRequest(String onUnauthenticatedRequest) {
+        this.onUnauthenticatedRequest = onUnauthenticatedRequest;
     }
 
+    /**
+     *  The set of user claims to be request from th IdP. Defaults to ``openid``. (Optional)
+     */
     @Updatable
     public String getScope() {
+        if (scope == null) {
+            scope = "openid";
+        }
+
         return scope;
     }
 
@@ -105,8 +135,15 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.scope = scope;
     }
 
+    /**
+     *  The name of the cookie used to maintain session information. Defaults to ``AWSELBAuthSessionCookie``. (Optional)
+     */
     @Updatable
     public String getSessionCookieName() {
+        if (sessionCookieName == null) {
+            sessionCookieName = "AWSELBAuthSessionCookie";
+        }
+
         return sessionCookieName;
     }
 
@@ -114,8 +151,15 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.sessionCookieName = sessionCookieName;
     }
 
+    /**
+     *  The maximum duration of the authentication session. Defaults to 604800 seconds. (Optional)
+     */
     @Updatable
     public Long getSessionTimeout() {
+        if (sessionTimeout == null) {
+            sessionTimeout = 604800L;
+        }
+
         return sessionTimeout;
     }
 
@@ -123,6 +167,9 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.sessionTimeout = sessionTimeout;
     }
 
+    /**
+     *  The token endpoint of the IdP. (Required)
+     */
     @Updatable
     public String getTokenEndpoint() {
         return tokenEndpoint;
@@ -132,6 +179,9 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         this.tokenEndpoint = tokenEndpoint;
     }
 
+    /**
+     *  The user token endpoint of the IdP. (Required)
+     */
     @Updatable
     public String getUserInfoEndpoint() {
         return userInfoEndpoint;
@@ -151,7 +201,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         setAuthorizationEndpoint(oidc.authorizationEndpoint());
         setClientId(oidc.clientId());
         setIssuer(oidc.issuer());
-        setOnAuthenticatedRequest(oidc.onUnauthenticatedRequestAsString());
+        setOnUnauthenticatedRequest(oidc.onUnauthenticatedRequestAsString());
         setScope(oidc.scope());
         setSessionCookieName(oidc.sessionCookieName());
         setSessionTimeout(oidc.sessionTimeout());
@@ -170,7 +220,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
                 .clientId(getClientId())
                 .clientSecret(getClientSecret())
                 .issuer(getIssuer())
-                .onUnauthenticatedRequest(getOnAuthenticatedRequest())
+                .onUnauthenticatedRequest(getOnUnauthenticatedRequest())
                 .scope(getScope())
                 .sessionCookieName(getSessionCookieName())
                 .sessionTimeout(getSessionTimeout())
