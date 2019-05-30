@@ -4,7 +4,9 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsResource;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -578,6 +581,19 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         );
 
         setArn(response.dbCluster().dbClusterArn());
+
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
+    }
+
+    private boolean isAvailable(RdsClient client) {
+        DescribeDbClustersResponse describeResponse = client.describeDBClusters(
+            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+        );
+
+        return describeResponse.dbClusters().get(0).status().equals("available");
     }
 
     @Override
