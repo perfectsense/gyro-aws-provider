@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -61,16 +62,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
         GetByteMatchSetResponse response = getGlobalClient().getByteMatchSet(r -> r.byteMatchSetId(getId()));
 
-        ByteMatchSet byteMatchSet = response.byteMatchSet();
-
-        setName(byteMatchSet.name());
-
-        getByteMatchTuple().clear();
-
-        for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
-            ByteMatchTupleResource byteMatchTupleResource = new ByteMatchTupleResource(byteMatchTuple);
-            getByteMatchTuple().add(byteMatchTupleResource);
-        }
+        this.copyFrom(response.byteMatchSet());
 
         return true;
     }
@@ -95,5 +87,18 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .byteMatchSetId(getId())
         );
+    }
+
+    @Override
+    public void copyFrom(ByteMatchSet byteMatchSet) {
+        setName(byteMatchSet.name());
+
+        getByteMatchTuple().clear();
+
+        for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
+            ByteMatchTupleResource byteMatchTupleResource = newSubresource(ByteMatchTupleResource.class);
+            byteMatchTupleResource.copyFrom(byteMatchTuple);
+            getByteMatchTuple().add(byteMatchTupleResource);
+        }
     }
 }

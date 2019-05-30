@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetUpdate;
@@ -8,9 +9,10 @@ import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.UpdateByteMatchSetRequest;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-public abstract class ByteMatchTupleResource extends AbstractWafResource {
+public abstract class ByteMatchTupleResource extends AbstractWafResource implements Copyable<ByteMatchTuple> {
     private String type;
     private String data;
     private String positionalConstraint;
@@ -124,6 +126,15 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s %s %s", getData(), getType(), getTextTransformation(), getPositionalConstraint(), getTargetString());
+    }
+
+    @Override
+    public void copyFrom(ByteMatchTuple byteMatchTuple) {
+        setType(byteMatchTuple.fieldToMatch().typeAsString());
+        setData(byteMatchTuple.fieldToMatch().data());
+        setPositionalConstraint(byteMatchTuple.positionalConstraintAsString());
+        setTargetString(byteMatchTuple.targetString().asString(StandardCharsets.UTF_8));
+        setTextTransformation(byteMatchTuple.textTransformationAsString());
     }
 
     protected abstract void saveByteMatchTuple(ByteMatchTuple byteMatchTuple, boolean isDelete);
