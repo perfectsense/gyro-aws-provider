@@ -735,7 +735,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName()))
             .orElse(null));
 
-        setPerformanceInsightsKmsKey(findById(KmsResource.class, instance.performanceInsightsKMSKeyId()));
+        setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ? findById(KmsResource.class, instance.performanceInsightsKMSKeyId()) : null);
         setPerformanceInsightsRetentionPeriod(instance.performanceInsightsRetentionPeriod());
         setPort(instance.dbInstancePort());
         setPreferredBackupWindow(instance.preferredBackupWindow());
@@ -860,7 +860,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
         String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null;
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
-        String performanceInsightsKmsKey = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
+        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
             .map(SecurityGroupResource::getGroupId)
@@ -901,7 +901,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .multiAZ(Objects.equals(getMultiAz(), current.getMultiAz()) ? null : getMultiAz())
                     .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
                     .performanceInsightsKMSKeyId(Objects.equals(getPerformanceInsightsKmsKey(), current.getPerformanceInsightsKmsKey())
-                        ? null : performanceInsightsKmsKey)
+                        ? null : performanceInsightsKmsKeyId)
                     .performanceInsightsRetentionPeriod(Objects.equals(
                         getPerformanceInsightsRetentionPeriod(), current.getPerformanceInsightsRetentionPeriod())
                         ? null : getPerformanceInsightsRetentionPeriod())
