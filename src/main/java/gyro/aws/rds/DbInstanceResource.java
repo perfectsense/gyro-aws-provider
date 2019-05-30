@@ -4,6 +4,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsResource;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -22,6 +23,7 @@ import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -825,23 +827,24 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setArn(response.dbInstance().dbInstanceArn());
 
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
+
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
             r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
         );
 
-        while (describeResponse.dbInstances().get(0).dbInstanceStatus().equals("creating")) {
-            try {
-                Thread.sleep(15000);
-            } catch (InterruptedException ex) {
-                return;
-            }
-
-            describeResponse = client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
-            );
-        }
-
         setEndpointAddress(describeResponse.dbInstances().get(0).endpoint().address());
+    }
+
+    private boolean isAvailable(RdsClient client) {
+        DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
+            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+        );
+
+        return describeResponse.dbInstances().get(0).dbInstanceStatus().equals("available");
     }
 
     @Override
