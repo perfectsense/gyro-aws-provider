@@ -26,7 +26,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Allowed headers for the rule.
+     * List of allowed headers for the rule.
      */
     @Updatable
     public List<String> getAllowedHeaders() {
@@ -38,7 +38,9 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Allowed methods for the rule. Ex. ``GET``, ``PUT`` etc.
+     * Allowed HTTP methods for the rule.
+     *
+     * Valid values are ``GET``, ``PUT`` , ``POST``, ``DELETE``, ``HEAD``.
      */
     @Updatable
     public List<String> getAllowedMethods() {
@@ -50,7 +52,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Allowed origins for the rule.
+     * Allowed origins for the rule that requires bucket access.
      */
     @Updatable
     public List<String> getAllowedOrigins() {
@@ -74,7 +76,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Max age seconds for the rule.
+     * Max age seconds that specifies the cache duration of the response.
      */
     @Updatable
     public Integer getMaxAgeSeconds() {
