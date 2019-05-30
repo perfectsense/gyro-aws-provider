@@ -58,6 +58,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     @Output
+    @Id
     public String getArn() {
         return arn;
     }
@@ -67,7 +68,6 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     @Output
-    @Id
     public String getId() {
         return id;
     }

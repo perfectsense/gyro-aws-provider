@@ -3,6 +3,7 @@ package gyro.aws.cognitoidp;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
@@ -48,6 +49,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
      *  The domain. (Required)
      */
     @Updatable
+    @Id
     public String getDomain() {
         return domain;
     }

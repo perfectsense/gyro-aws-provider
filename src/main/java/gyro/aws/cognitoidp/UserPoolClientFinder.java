@@ -2,11 +2,11 @@ package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
+
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolClientDescription;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolClientType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolDescriptionType;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolType;
 
 import java.util.ArrayList;
 import java.util.List;
