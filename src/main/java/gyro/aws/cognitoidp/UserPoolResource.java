@@ -1,16 +1,19 @@
 package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolType;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,20 +25,20 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::authenticate-cognito-user-pool cognito
- *         user-pool-name: "user pool name"
+ *     aws::user-pool cognito
+ *         name: "user pool name"
  *     end
  */
-@Type("authenticate-cognito-user-pool")
-public class AuthenticateCognitoUserPoolResource extends AwsResource {
+@Type("user-pool")
+public class UserPoolResource extends AwsResource implements Copyable<UserPoolType> {
 
     private Map<String, String> tags;
-    private String userPoolArn;
-    private String userPoolId;
-    private String userPoolName;
+    private String arn;
+    private String id;
+    private String name;
 
     /**
-     *  List of tags associated with the alb (Optional)
+     *  List of tags associated with the user pool. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -55,29 +58,40 @@ public class AuthenticateCognitoUserPoolResource extends AwsResource {
     }
 
     @Output
-    public String getUserPoolArn() {
-        return userPoolArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setUserPoolArn(String userPoolArn) {
-        this.userPoolArn = userPoolArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     @Output
-    public String getUserPoolId() {
-        return userPoolId;
+    @Id
+    public String getId() {
+        return id;
     }
 
-    public void setUserPoolId(String userPoolId) {
-        this.userPoolId = userPoolId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getUserPoolName() {
-        return userPoolName;
+    /**
+     *  The name of the user pool. (Required)
+     */
+    public String getName() {
+        return name;
     }
 
-    public void setUserPoolName(String userPoolName) {
-        this.userPoolName = userPoolName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void copyFrom(UserPoolType model) {
+        setArn(model.arn());
+        setId(model.id());
+        setTags(model.userPoolTags());
     }
 
     @Override
@@ -85,11 +99,9 @@ public class AuthenticateCognitoUserPoolResource extends AwsResource {
         try {
             CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
-            DescribeUserPoolResponse response = client.describeUserPool(r -> r.userPoolId(getUserPoolId()));
+            DescribeUserPoolResponse response = client.describeUserPool(r -> r.userPoolId(getId()));
 
-            setUserPoolArn(response.userPool().arn());
-            setUserPoolId(response.userPool().id());
-            setTags(response.userPool().userPoolTags());
+            this.copyFrom(response.userPool());
 
             return true;
         } catch (CognitoIdentityProviderException ex) {
@@ -103,11 +115,11 @@ public class AuthenticateCognitoUserPoolResource extends AwsResource {
     public void create() {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
-        CreateUserPoolResponse response = client.createUserPool(r -> r.poolName(getUserPoolName())
+        CreateUserPoolResponse response = client.createUserPool(r -> r.poolName(getName())
             .userPoolTags(getTags()));
 
-        setUserPoolArn(response.userPool().arn());
-        setUserPoolId(response.userPool().id());
+        setArn(response.userPool().arn());
+        setId(response.userPool().id());
     }
 
     @Override
@@ -117,11 +129,11 @@ public class AuthenticateCognitoUserPoolResource extends AwsResource {
     public void delete() {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
-        client.deleteUserPool(r -> r.userPoolId(getUserPoolId()));
+        client.deleteUserPool(r -> r.userPoolId(getId()));
     }
 
     @Override
     public String toDisplayString() {
-        return "user pool " + getUserPoolName();
+        return "user pool " + getName();
     }
 }

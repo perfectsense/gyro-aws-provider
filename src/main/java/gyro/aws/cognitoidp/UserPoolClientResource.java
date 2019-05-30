@@ -1,14 +1,18 @@
 package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolClientResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolClientResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolClientType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +26,13 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::authenticate-cognito-user-pool-client client
+ *     aws::user-pool-client client
  *         client-name: "clientname"
- *         user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
+ *         user-pool: $(aws::authenticate-cognito-user-pool cognito)
  *     end
  */
-@Type("authenticate-cognito-user-pool-client")
-public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
+@Type("user-pool-client")
+public class UserPoolClientResource extends AwsResource implements Copyable<UserPoolClientType> {
 
     private Boolean allowedOAuthFlowsClient;
     private List<String> allowedOAuthFlows;
@@ -37,16 +41,19 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
     private String defaultRedirectUri;
     private List<String> explicitAuthFlows;
     private Boolean generateSecret;
+    private String id;
     private List<String> logoutUrls;
+    private String name;
     private List<String> readAttributes;
     private Integer refreshTokenValidity;
+    private String secret;
     private List<String> supportedIdentityProviders;
-    private String userPoolClientId;
-    private String userPoolClientName;
-    private String userPoolClientSecret;
-    private String userPoolId;
+    private UserPoolResource userPool;
     private List<String> writeAttributes;
 
+    /**
+     *  Sets to true if client is allowed to follow OAuth protocol when interacting with Cognito user pools. (Optional)
+     */
     @Updatable
     public Boolean getAllowedOAuthFlowsClient() {
         return allowedOAuthFlowsClient;
@@ -56,6 +63,9 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthFlowsClient = allowedOAuthFlowsClient;
     }
 
+    /**
+     *  Sets the OAuth flows. Valid values are ``code`` and ``token``. (Optional)
+     */
     @Updatable
     public List<String> getAllowedOAuthFlows() {
         if (allowedOAuthFlows == null) {
@@ -69,8 +79,15 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthFlows = allowedOAuthFlows;
     }
 
+    /**
+     *  The list of allowed redirect URLs for the identity providers. (Optional)
+     */
     @Updatable
     public List<String> getCallbackUrls() {
+        if (callbackUrls == null) {
+            callbackUrls = new ArrayList<>();
+        }
+
         return callbackUrls;
     }
 
@@ -78,6 +95,9 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.callbackUrls = callbackUrls;
     }
 
+    /**
+     *  The default redirect URI. (Optional)
+     */
     @Updatable
     public String getDefaultRedirectUri() {
         return defaultRedirectUri;
@@ -87,8 +107,15 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.defaultRedirectUri = defaultRedirectUri;
     }
 
+    /**
+     *  The explicit authentication flows. (Optional)
+     */
     @Updatable
     public List<String> getExplicitAuthFlows() {
+        if (explicitAuthFlows == null) {
+            explicitAuthFlows = new ArrayList<>();
+        }
+
         return explicitAuthFlows;
     }
 
@@ -96,6 +123,9 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.explicitAuthFlows = explicitAuthFlows;
     }
 
+    /**
+     *  The list of allowed OAuth scopes. (Optional)
+     */
     @Updatable
     public List<String> getAllowedOAuthScopes() {
         if (allowedOAuthScopes == null) {
@@ -109,6 +139,9 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.allowedOAuthScopes = allowedOAuthScopes;
     }
 
+    /**
+     *  Specified whether you want to generate a secret for the client. (Optional)
+     */
     public Boolean getGenerateSecret() {
         return generateSecret;
     }
@@ -117,8 +150,25 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.generateSecret = generateSecret;
     }
 
+    @Output
+    @Id
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     *  The list of logout URLs for the identity providers. (Optional)
+     */
     @Updatable
     public List<String> getLogoutUrls() {
+        if (logoutUrls == null) {
+            logoutUrls = new ArrayList<>();
+        }
+
         return logoutUrls;
     }
 
@@ -126,8 +176,26 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.logoutUrls = logoutUrls;
     }
 
+    /**
+     *  The name of the client. (Required)
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     *  The read attributes. (Optional)
+     */
     @Updatable
     public List<String> getReadAttributes() {
+        if (readAttributes == null) {
+            readAttributes = new ArrayList<>();
+        }
+
         return readAttributes;
     }
 
@@ -135,6 +203,9 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.readAttributes = readAttributes;
     }
 
+    /**
+     *  The time limit after which the refresh token cannot be used because it is no longer valid. (Optional)
+     */
     @Updatable
     public Integer getRefreshTokenValidity() {
         return refreshTokenValidity;
@@ -144,8 +215,24 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.refreshTokenValidity = refreshTokenValidity;
     }
 
+    @Output
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
+    /**
+     *  The list of provider names for support identity providers. (Optional)
+     */
     @Updatable
     public List<String> getSupportedIdentityProviders() {
+        if (supportedIdentityProviders == null) {
+            supportedIdentityProviders = new ArrayList<>();
+        }
+
         return supportedIdentityProviders;
     }
 
@@ -153,42 +240,26 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
         this.supportedIdentityProviders = supportedIdentityProviders;
     }
 
-    @Output
-    public String getUserPoolClientId() {
-        return userPoolClientId;
+    /**
+     *  The user pool resource where the client will be created. (Optional)
+     */
+    public UserPoolResource getUserPool() {
+        return userPool;
     }
 
-    public void setUserPoolClientId(String userPoolClientId) {
-        this.userPoolClientId = userPoolClientId;
+    public void setUserPool(UserPoolResource userPool) {
+        this.userPool = userPool;
     }
 
-    @Updatable
-    public String getUserPoolClientName() {
-        return userPoolClientName;
-    }
-
-    public void setUserPoolClientName(String userPoolClientName) {
-        this.userPoolClientName = userPoolClientName;
-    }
-
-    public String getUserPoolClientSecret() {
-        return userPoolClientSecret;
-    }
-
-    public void setUserPoolClientSecret(String userPoolClientSecret) {
-        this.userPoolClientSecret = userPoolClientSecret;
-    }
-
-    public String getUserPoolId() {
-        return userPoolId;
-    }
-
-    public void setUserPoolId(String userPoolId) {
-        this.userPoolId = userPoolId;
-    }
-
+    /**
+     *  The user pool attributes the app client can write to. (Optional)
+     */
     @Updatable
     public List<String> getWriteAttributes() {
+        if (writeAttributes == null) {
+            writeAttributes = new ArrayList<>();
+        }
+
         return writeAttributes;
     }
 
@@ -197,15 +268,48 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(UserPoolClientType model) {
+        setAllowedOAuthFlowsClient(model.allowedOAuthFlowsUserPoolClient());
+
+        getAllowedOAuthFlows().clear();
+        model.allowedOAuthFlowsAsStrings().forEach(allowedOAuthFlow -> getAllowedOAuthFlows().add(allowedOAuthFlow));
+
+        getAllowedOAuthScopes().clear();
+        model.allowedOAuthScopes().forEach(allowedOAuthScope -> getAllowedOAuthScopes().add(allowedOAuthScope));
+
+        getCallbackUrls().clear();
+        model.callbackURLs().forEach(callbackUrl -> getCallbackUrls().add(callbackUrl));
+
+        setDefaultRedirectUri(model.defaultRedirectURI());
+
+        getExplicitAuthFlows().clear();
+        model.explicitAuthFlowsAsStrings().forEach(explicitAuthFlow -> getExplicitAuthFlows().add(explicitAuthFlow));
+
+        getLogoutUrls().clear();
+        model.logoutURLs().forEach(logoutUrl -> getLogoutUrls().add(logoutUrl));
+
+        getReadAttributes().clear();
+        model.readAttributes().forEach(readAttribute -> getReadAttributes().add(readAttribute));
+
+        setRefreshTokenValidity(model.refreshTokenValidity());
+
+        getSupportedIdentityProviders().clear();
+        model.supportedIdentityProviders().forEach(ip -> getSupportedIdentityProviders().add(ip));
+
+        setUserPool(findById(UserPoolResource.class, model.userPoolId()));
+
+        getWriteAttributes().clear();
+        model.writeAttributes().forEach(writeAttribute -> getWriteAttributes().add(writeAttribute));
+    }
+
+    @Override
     public boolean refresh() {
         try {
             CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
-            DescribeUserPoolClientResponse response = client.describeUserPoolClient(r -> r.clientId(getUserPoolClientId())
-                                                                                            .userPoolId(getUserPoolId()));
-            setUserPoolClientId(response.userPoolClient().clientId());
-            setUserPoolId(response.userPoolClient().userPoolId());
-            setUserPoolClientSecret(response.userPoolClient().clientSecret());
+            DescribeUserPoolClientResponse response = client.describeUserPoolClient(r -> r.clientId(getId())
+                                                                                            .userPoolId(getUserPool().getId()));
+            this.copyFrom(response.userPoolClient());
 
             return true;
         } catch (CognitoIdentityProviderException ex) {
@@ -223,7 +327,7 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
                 .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
                 .allowedOAuthScopes(getAllowedOAuthScopes())
                 .callbackURLs(getCallbackUrls())
-                .clientName(getUserPoolClientName())
+                .clientName(getName())
                 .defaultRedirectURI(getDefaultRedirectUri())
                 .explicitAuthFlowsWithStrings(getExplicitAuthFlows())
                 .generateSecret(getGenerateSecret())
@@ -231,11 +335,11 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
                 .readAttributes(getReadAttributes())
                 .refreshTokenValidity(getRefreshTokenValidity())
                 .supportedIdentityProviders(getSupportedIdentityProviders())
-                .userPoolId(getUserPoolId())
+                .userPoolId(getUserPool().getId())
                 .writeAttributes(getWriteAttributes()));
 
-        setUserPoolClientId(response.userPoolClient().clientId());
-        setUserPoolClientSecret(response.userPoolClient().clientSecret());
+        setId(response.userPoolClient().clientId());
+        setSecret(response.userPoolClient().clientSecret());
     }
 
     @Override
@@ -245,26 +349,26 @@ public class AuthenticateCognitoUserPoolClientResource extends AwsResource {
                 .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
                 .allowedOAuthScopes(getAllowedOAuthScopes())
                 .callbackURLs(getCallbackUrls())
-                .clientName(getUserPoolClientName())
+                .clientName(getName())
                 .defaultRedirectURI(getDefaultRedirectUri())
                 .explicitAuthFlowsWithStrings(getExplicitAuthFlows())
                 .logoutURLs(getLogoutUrls())
                 .readAttributes(getReadAttributes())
                 .refreshTokenValidity(getRefreshTokenValidity())
                 .supportedIdentityProviders(getSupportedIdentityProviders())
-                .userPoolId(getUserPoolId())
+                .userPoolId(getUserPool().getId())
                 .writeAttributes(getWriteAttributes()));
     }
 
     @Override
     public void delete() {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-        client.deleteUserPoolClient(r -> r.clientId(getUserPoolClientId())
-                                            .userPoolId(getUserPoolId()));
+        client.deleteUserPoolClient(r -> r.clientId(getId())
+                                            .userPoolId(getUserPool().getId()));
     }
 
     @Override
     public String toDisplayString() {
-        return "user pool client " + getUserPoolClientName();
+        return "user pool client " + getName();
     }
 }
