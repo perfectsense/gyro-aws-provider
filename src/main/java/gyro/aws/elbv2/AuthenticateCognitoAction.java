@@ -1,9 +1,6 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.Copyable;
-import gyro.aws.cognitoidp.UserPoolClientResource;
-import gyro.aws.cognitoidp.UserPoolDomainResource;
-import gyro.aws.cognitoidp.UserPoolResource;
 import gyro.core.resource.Diffable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -21,9 +18,9 @@ import java.util.Map;
  *         type: "authenticate-cognito"
  *
  *         authenticate-cognito-action
- *             user-pool: $(aws::authenticate-cognito-user-pool cognito)
- *             user-pool-client: $(aws::authenticate-cognito-user-pool-client client)
- *             user-pool-domain: $(aws::authenticate-cognito-user-pool-domain domain)
+ *             user-pool-arn: $(aws::authenticate-cognito-user-pool cognito | user-pool-arn)
+ *             user-pool-client-id: $(aws::authenticate-cognito-user-pool-client client | user-pool-client-id)
+ *             user-pool-domain: $(aws::authenticate-cognito-user-pool-domain domain | domain)
  *         end
  *     end
  *
@@ -36,9 +33,9 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     private String scope;
     private String sessionCookieName;
     private Long sessionTimeout;
-    private UserPoolResource userPool;
-    private UserPoolClientResource userPoolClient;
-    private UserPoolDomainResource userPoolDomain;
+    private String userPoolArn;
+    private String userPoolClientId;
+    private String userPoolDomain;
 
     /**
      *  Up to 10 query parameters to include in the redirect request to the authorization endpoint. (Optional)
@@ -101,40 +98,40 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The cognito user pool resource associated with the action. (Required)
+     *  The arn of the cognito user pool associated with the action. (Required)
      */
-    public UserPoolResource getUserPool() {
-        return userPool;
+    public String getUserPoolArn() {
+        return userPoolArn;
     }
 
-    public void setUserPool(UserPoolResource userPool) {
-        this.userPool = userPool;
+    public void setUserPoolArn(String userPoolArn) {
+        this.userPoolArn = userPoolArn;
     }
 
     /**
-     *  The cognito user pool client resource associated with the action. (Required)
+     *  The id of the cognito user pool client associated with the action. (Required)
      */
-    public UserPoolClientResource getUserPoolClient() {
-        return userPoolClient;
+    public String getUserPoolClientId() {
+        return userPoolClientId;
     }
 
-    public void setUserPoolClient(UserPoolClientResource userPoolClient) {
-        this.userPoolClient = userPoolClient;
+    public void setUserPoolClientId(String userPoolClientId) {
+        this.userPoolClientId = userPoolClientId;
     }
 
     /**
-     *  The cognito user pool domain resource associated with the the user pool. (Required)
+     *  The domain prefix or fully-qualified domain name of the user pool. (Required)
      */
-    public UserPoolDomainResource getUserPoolDomain() {
+    public String getUserPoolDomain() {
         return userPoolDomain;
     }
 
-    public void setUserPoolDomain(UserPoolDomainResource userPoolDomain) {
+    public void setUserPoolDomain(String userPoolDomain) {
         this.userPoolDomain = userPoolDomain;
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getUserPool(), getUserPoolClient(), getUserPoolDomain());
+        return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClientId(), getUserPoolDomain());
     }
 
     @Override
@@ -144,9 +141,9 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
         setScope(cognito.scope());
         setSessionCookieName(cognito.sessionCookieName());
         setSessionTimeout(cognito.sessionTimeout());
-        setUserPool(findById(UserPoolResource.class, cognito.userPoolArn()));
-        setUserPoolClient(findById(UserPoolClientResource.class, cognito.userPoolClientId()));
-        setUserPoolDomain(findById(UserPoolDomainResource.class, cognito.userPoolDomain()));
+        setUserPoolArn(cognito.userPoolArn());
+        setUserPoolClientId(cognito.userPoolClientId());
+        setUserPoolDomain(cognito.userPoolDomain());
     }
 
     public String toDisplayString() {
@@ -160,9 +157,9 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
                 .scope(getScope())
                 .sessionCookieName(getSessionCookieName())
                 .sessionTimeout(getSessionTimeout())
-                .userPoolArn(getUserPool().getArn())
-                .userPoolClientId(getUserPoolClient().getId())
-                .userPoolDomain(getUserPoolDomain().getDomain())
+                .userPoolArn(getUserPoolArn())
+                .userPoolClientId(getUserPoolClientId())
+                .userPoolDomain(getUserPoolDomain())
                 .build();
     }
 }
