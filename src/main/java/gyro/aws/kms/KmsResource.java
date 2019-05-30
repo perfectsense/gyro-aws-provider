@@ -2,6 +2,7 @@ package gyro.aws.kms;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -153,6 +154,7 @@ public class KmsResource extends AwsResource {
     /**
      * The arn for this key.
      */
+    @Id
     @Output
     public String getKeyArn() {
         return keyArn;
