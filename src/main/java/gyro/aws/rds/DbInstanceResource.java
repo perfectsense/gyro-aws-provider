@@ -832,7 +832,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setArn(response.dbInstance().dbInstanceArn());
 
-        Wait.atMost(5, TimeUnit.MINUTES)
+        Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(15, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isAvailable(client));
