@@ -61,14 +61,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
                 r -> r.sqlInjectionMatchSetId(getId())
             );
 
-        SqlInjectionMatchSet sqlInjectionMatchSet = response.sqlInjectionMatchSet();
-        setName(sqlInjectionMatchSet.name());
-
-        getSqlInjectionMatchTuple().clear();
-        for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
-            SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = new SqlInjectionMatchTupleResource(sqlInjectionMatchTuple);
-            getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
-        }
+        this.copyFrom(response.sqlInjectionMatchSet());
 
         return true;
     }
@@ -93,5 +86,17 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .sqlInjectionMatchSetId(getId())
         );
+    }
+
+    @Override
+    public void copyFrom(SqlInjectionMatchSet sqlInjectionMatchSet) {
+        setName(sqlInjectionMatchSet.name());
+
+        getSqlInjectionMatchTuple().clear();
+        for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
+            SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = newSubresource(SqlInjectionMatchTupleResource.class);
+            sqlInjectionMatchTupleResource.copyFrom(sqlInjectionMatchTuple);
+            getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
+        }
     }
 }

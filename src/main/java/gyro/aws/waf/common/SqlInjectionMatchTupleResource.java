@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSetUpdate;
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateSqlInjectionMatchSetReque
 
 import java.util.Set;
 
-public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource {
+public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource implements Copyable<SqlInjectionMatchTuple> {
     private String data;
     private String type;
     private String textTransformation;
@@ -91,6 +92,13 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
+    }
+
+    @Override
+    public void copyFrom(SqlInjectionMatchTuple sqlInjectionMatchTuple) {
+        setData(sqlInjectionMatchTuple.fieldToMatch().data());
+        setType(sqlInjectionMatchTuple.fieldToMatch().typeAsString());
+        setTextTransformation(sqlInjectionMatchTuple.textTransformationAsString());
     }
 
     protected abstract void saveSqlInjectionMatchTuple(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete);
