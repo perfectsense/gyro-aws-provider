@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateSizeConstraintSetRequest;
 
 import java.util.Set;
 
-public abstract class SizeConstraintResource extends AbstractWafResource {
+public abstract class SizeConstraintResource extends AbstractWafResource implements Copyable<SizeConstraint> {
     private String data;
     private String type;
     private String comparisonOperator;
@@ -123,6 +124,15 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s %s %s %s", getData(), getType(), getComparisonOperator(), getTextTransformation(), getSize());
+    }
+
+    @Override
+    public void copyFrom(SizeConstraint sizeConstraint) {
+        setComparisonOperator(sizeConstraint.comparisonOperatorAsString());
+        setData(sizeConstraint.fieldToMatch().data());
+        setType(sizeConstraint.fieldToMatch().typeAsString());
+        setSize(sizeConstraint.size());
+        setTextTransformation(sizeConstraint.textTransformationAsString());
     }
 
     protected abstract void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete);
