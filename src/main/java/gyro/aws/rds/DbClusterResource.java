@@ -698,6 +698,24 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
                     .skipFinalSnapshot(getSkipFinalSnapshot())
         );
+
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isDeleted(client));
+    }
+
+    private boolean isDeleted(RdsClient client) {
+        try {
+            client.describeDBClusters(
+                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            );
+
+        } catch (DbClusterNotFoundException ex) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
