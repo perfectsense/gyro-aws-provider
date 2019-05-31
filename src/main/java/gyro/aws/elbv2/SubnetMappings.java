@@ -55,7 +55,7 @@ public class SubnetMappings extends Diffable {
     }
 
     public void setSubnet(SubnetResource subnet) {
-        this.subnet = this.subnet;
+        this.subnet = subnet;
     }
 
     public String primaryKey() {
