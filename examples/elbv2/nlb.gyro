@@ -1,5 +1,5 @@
 aws::nlb nlb-example
-    load-balancer-name: "nlb-example"
+    name: "nlb-example"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
@@ -13,13 +13,13 @@ aws::nlb nlb-example
 
     tags: {
             Name: "nlb-example"
-        }
+    }
 end
 
 aws::nlb-listener listener-example
     port: "80"
     protocol: "TCP"
-    load-balancer: $(aws::nlb nlb-example)
+    nlb: $(aws::nlb nlb-example)
 
     default-action
         target-group: $(aws::target-group target-group-example)
@@ -28,26 +28,36 @@ aws::nlb-listener listener-example
 end
 
 aws::target-group target-group-example
-    target-group-name: "test-target-group"
-    health-check-enabled: "true"
+    name: "test-target-group"
     port: "80"
     protocol: "TCP"
     target-type: "instance"
     vpc: $(aws::vpc vpc)
 
-    target
-        id: $(aws::instance instance-us-east-2a)
-        port: "80"
-    end
-
-    target
-        id: $(aws::instance instance-us-east-2b)
-        port: "443"
+    health-check
+        interval: "30"
+        path: "/hi"
+        port: "traffic-port"
+        protocol: "HTTP"
+        healthy-threshold: "3"
+        unhealthy-threshold: "3"
     end
 
     tags: {
         Name: "nlb-example-target-group"
     }
+end
+
+aws::target target-ex-one
+    id: $(aws::instance instance-us-east-2a | instance-id)
+    port: "80"
+    target-group: $(aws::target-group target-group-example)
+end
+
+aws::target target-ex-two
+    id: $(aws::instance instance-us-east-2b | instance-id)
+    port: "443"
+    target-group: $(aws::target-group target-group-example)
 end
 
 aws::vpc vpc
@@ -57,6 +67,10 @@ aws::vpc vpc
     tags: {
         Name: "nlb-example"
     }
+end
+
+aws::internet-gateway internet-gateway
+    vpc-id: $(aws::vpc vpc | vpc-id)
 end
 
 aws::subnet subnet-us-east-2a
@@ -132,8 +146,4 @@ aws::security-group security-group
             to-port: $(port)
         end
     end
-end
-
-aws::internet-gateway internet-gateway
-    vpc-id: $(aws::vpc vpc | vpc-id)
 end
