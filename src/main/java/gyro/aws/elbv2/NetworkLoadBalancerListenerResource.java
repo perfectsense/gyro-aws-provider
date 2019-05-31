@@ -140,9 +140,9 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     private Action toDefaultActions() {
-        return Action.builder()
-                .type(getDefaultAction().getType())
-                .targetGroupArn(getDefaultAction().getTargetGroup().getArn())
+            return Action.builder()
+                    .type(getDefaultAction() != null ? getDefaultAction().getType() : null)
+                    .targetGroupArn(getDefaultAction() != null ? getDefaultAction().getTargetGroup().getArn() : null)
                 .build();
     }
 
