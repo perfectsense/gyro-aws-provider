@@ -1,0 +1,21 @@
+regex-pattern-set-ids: $(aws::regex-pattern-set EXTERNAL/* | regex-pattern-set-id = '')
+
+regex-match-set-ids: $(aws::regex-match-set EXTERNAL/* | id = '')
+
+geo-match-set-ids: $(aws::geo-match-set EXTERNAL/* | id = '')
+
+xss-match-set-ids: $(aws::xss-match-set EXTERNAL/* | id = '')
+
+size-constraint-set-ids: $(aws::size-constraint-set EXTERNAL/* | id = '')
+
+ip-set-ids: $(aws::ip-set EXTERNAL/* | id = '')
+
+byte-match-set-ids: $(aws::byte-match-set EXTERNAL/* | id = '')
+
+sql-injection-match-set-ids: $(aws::sql-injection-match-set EXTERNAL/* | id = '')
+
+rule-ids: $(aws::rule EXTERNAL/* | rule-id = '')
+
+rate-rule-ids: $(aws::rate-rule EXTERNAL/* | rule-id = '')
+
+waf-acl-ids: $(aws::waf-acl EXTERNAL/* | web-acl-id = '')
