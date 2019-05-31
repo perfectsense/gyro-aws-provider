@@ -26,7 +26,7 @@ public class SubnetMappings extends Diffable {
     private SubnetResource subnet;
 
     /**
-     *  The allocation id associated with the elastic ip (Optional)
+     *  The allocation id associated with the elastic ip. (Optional)
      */
     public String getAllocationId() {
         return allocationId;
@@ -37,7 +37,7 @@ public class SubnetMappings extends Diffable {
     }
 
     /**
-     *  The public ip associated with the elastic ip (Optional)
+     *  The public ip associated with the elastic ip. (Optional)
      */
     public String getIpAddress() {
         return ipAddress;
@@ -48,7 +48,7 @@ public class SubnetMappings extends Diffable {
     }
 
     /**
-     *  The subnet associated with the nlb (Optional)
+     *  The subnet associated with the nlb. (Required)
      */
     public SubnetResource getSubnet() {
         return subnet;
@@ -77,7 +77,7 @@ public class SubnetMappings extends Diffable {
     public SubnetMapping toSubnetMappings() {
         return SubnetMapping.builder()
                 .allocationId(getAllocationId())
-                .subnetId(getSubnet().getSubnetId())
+                .subnetId(getSubnet() != null ? getSubnet().getSubnetId() : null)
                 .build();
     }
 }
