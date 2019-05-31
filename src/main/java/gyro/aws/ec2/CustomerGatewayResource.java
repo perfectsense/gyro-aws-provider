@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -33,7 +34,7 @@ import java.util.Set;
  *     end
  */
 @Type("customer-gateway")
-public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> {
+public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> implements Copyable<CustomerGateway> {
 
     private String customerGatewayId;
     private String publicIp;
@@ -89,7 +90,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
             return false;
         }
 
-        setPublicIp(customerGateway.ipAddress());
+        copyFrom(customerGateway);
 
         return true;
     }
@@ -136,6 +137,12 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(CustomerGateway customerGateway) {
+        setCustomerGatewayId(customerGateway.customerGatewayId());
+        setPublicIp(customerGateway.ipAddress());
     }
 
     private CustomerGateway getCustomerGateway(Ec2Client client) {

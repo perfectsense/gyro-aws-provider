@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
@@ -45,7 +46,7 @@ import java.util.Set;
  *     end
  */
 @Type("elastic-ip")
-public class ElasticIpResource extends Ec2TaggableResource<Address> {
+public class ElasticIpResource extends Ec2TaggableResource<Address> implements Copyable<Address> {
 
     private String allocationId;
     private String publicIp;
@@ -157,12 +158,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
             return false;
         }
 
-        setAllocationId(address.allocationId());
-        setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
-        setPublicIp(address.publicIp());
-        setNetworkInterface(findById(NetworkInterfaceResource.class, address.networkInterfaceId()));
-        setInstance(findById(InstanceResource.class, address.instanceId()));
-        setAssociationId(address.associationId());
+        copyFrom(address);
 
         return true;
     }
@@ -277,6 +273,17 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> {
 
         return sb.toString();
     }
+
+    @Override
+    public void copyFrom(Address address) {
+        setAllocationId(address.allocationId());
+        setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
+        setPublicIp(address.publicIp());
+        setNetworkInterface(findById(NetworkInterfaceResource.class, address.networkInterfaceId()));
+        setInstance(findById(InstanceResource.class, address.instanceId()));
+        setAssociationId(address.associationId());
+    }
+
     private Address getAddress(Ec2Client client) {
         Address address = null;
 

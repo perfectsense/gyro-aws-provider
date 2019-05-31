@@ -2,8 +2,10 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.aws.elbv2.LoadBalancerResource;
 import gyro.aws.elbv2.NetworkLoadBalancerResource;
+import gyro.aws.iam.IamRoleResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -11,10 +13,13 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.AllowedPrincipal;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointServiceConfigurationResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointServiceConfigurationsResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointServicePermissionsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServiceConfigurationRequest;
+import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServicePermissionsRequest;
 import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
 
 import java.util.HashSet;
@@ -37,9 +42,10 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("endpoint-service")
-public class EndpointServiceResource extends AwsResource {
+public class EndpointServiceResource extends AwsResource implements Copyable<ServiceConfiguration> {
     private Boolean acceptanceRequired;
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;
+    private Set<IamRoleResource> principlals;
 
     private String serviceId;
     private String serviceName;
@@ -78,6 +84,22 @@ public class EndpointServiceResource extends AwsResource {
 
     public void setNetworkLoadBalancers(Set<NetworkLoadBalancerResource> networkLoadBalancers) {
         this.networkLoadBalancers = networkLoadBalancers;
+    }
+
+    /**
+     * A list of IAM Role's.
+     */
+    @Updatable
+    public Set<IamRoleResource> getPrinciplals() {
+        if (principlals == null) {
+            principlals = new HashSet<>();
+        }
+
+        return principlals;
+    }
+
+    public void setPrinciplals(Set<IamRoleResource> principlals) {
+        this.principlals = principlals;
     }
 
     /**
@@ -163,20 +185,7 @@ public class EndpointServiceResource extends AwsResource {
             return false;
         }
 
-        setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
-
-        setServiceName(serviceConfiguration.serviceName());
-        setAvailablityZones(serviceConfiguration.availabilityZones());
-        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames());
-        setPrivateDnsName(serviceConfiguration.privateDnsName());
-        setState(serviceConfiguration.serviceStateAsString());
-
-        setNetworkLoadBalancers(
-            serviceConfiguration.networkLoadBalancerArns()
-                .stream()
-                .map(o -> findById(NetworkLoadBalancerResource.class, o))
-                .collect(Collectors.toSet())
-        );
+        copyFrom(serviceConfiguration);
 
         return true;
     }
@@ -191,37 +200,77 @@ public class EndpointServiceResource extends AwsResource {
         );
 
         setServiceId(response.serviceConfiguration().serviceId());
+
+        if (!getPrinciplals().isEmpty()) {
+            client.modifyVpcEndpointServicePermissions(
+                r -> r.serviceId(getServiceId())
+                    .addAllowedPrincipals(getPrinciplals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toList()))
+            );
+        }
     }
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest.builder()
-            .serviceId(getServiceId());
-
-        builder.acceptanceRequired(getAcceptanceRequired());
-
         EndpointServiceResource currentEndpointService = (EndpointServiceResource) current;
 
-        Set<String> currentNlbArns = currentEndpointService.getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
-        Set<String> pendingNlbArns = getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+        if (changedFieldNames.contains("acceptance-required") || changedFieldNames.contains("network-load-balancers")) {
 
-        Set<String> deleteNlbArns = new HashSet<>(currentNlbArns);
-        deleteNlbArns.removeAll(pendingNlbArns);
+            ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest.builder()
+                .serviceId(getServiceId());
 
-        if (!deleteNlbArns.isEmpty()) {
-            builder.removeNetworkLoadBalancerArns(deleteNlbArns);
+            builder.acceptanceRequired(getAcceptanceRequired());
+
+            Set<String> currentNlbArns = currentEndpointService.getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+            Set<String> pendingNlbArns = getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+
+            Set<String> deleteNlbArns = new HashSet<>(currentNlbArns);
+            deleteNlbArns.removeAll(pendingNlbArns);
+
+            if (!deleteNlbArns.isEmpty()) {
+                builder.removeNetworkLoadBalancerArns(deleteNlbArns);
+            }
+
+            Set<String> addNlbArns = new HashSet<>(pendingNlbArns);
+            addNlbArns.removeAll(currentNlbArns);
+
+            if (!currentNlbArns.isEmpty()) {
+                builder.addNetworkLoadBalancerArns(addNlbArns);
+            }
+
+            client.modifyVpcEndpointServiceConfiguration(builder.build());
         }
 
-        Set<String> addNlbArns = new HashSet<>(pendingNlbArns);
-        addNlbArns.removeAll(currentNlbArns);
+        if (changedFieldNames.contains("principals")) {
+            ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
+                .serviceId(getServiceId());
 
-        if (!currentNlbArns.isEmpty()) {
-            builder.addNetworkLoadBalancerArns(addNlbArns);
+            Set<String> currentIamArns = currentEndpointService.getPrinciplals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
+            Set<String> pendingIamArns = getPrinciplals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
+
+            Set<String> deleteIamRoleArns = new HashSet<>(currentIamArns);
+            deleteIamRoleArns.removeAll(pendingIamArns);
+
+            boolean doUpdate = false;
+
+            if (!deleteIamRoleArns.isEmpty()) {
+                builder.removeAllowedPrincipals(deleteIamRoleArns);
+                doUpdate = true;
+            }
+
+            Set<String> addIamRoleArns = new HashSet<>(pendingIamArns);
+            addIamRoleArns.removeAll(currentIamArns);
+
+            if (!addIamRoleArns.isEmpty()) {
+                builder.addAllowedPrincipals(addIamRoleArns);
+                doUpdate = true;
+            }
+
+            if (doUpdate) {
+                client.modifyVpcEndpointServicePermissions(builder.build());
+            }
         }
-
-        client.modifyVpcEndpointServiceConfiguration(builder.build());
     }
 
     @Override
@@ -244,6 +293,34 @@ public class EndpointServiceResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(ServiceConfiguration serviceConfiguration) {
+        setServiceId(serviceConfiguration.serviceId());
+        setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
+        setServiceName(serviceConfiguration.serviceName());
+        setAvailablityZones(serviceConfiguration.availabilityZones());
+        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames());
+        setPrivateDnsName(serviceConfiguration.privateDnsName());
+        setState(serviceConfiguration.serviceStateAsString());
+
+        setNetworkLoadBalancers(
+            serviceConfiguration.networkLoadBalancerArns()
+                .stream()
+                .map(o -> findById(NetworkLoadBalancerResource.class, o))
+                .collect(Collectors.toSet())
+        );
+
+        Ec2Client client = createClient(Ec2Client.class);
+
+        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r -> r.serviceId(getServiceId()));
+
+        getPrinciplals().clear();
+
+        for (AllowedPrincipal allowedPrincipal: response.allowedPrincipals()) {
+            getPrinciplals().add(findById(IamRoleResource.class,allowedPrincipal.principal()));
+        }
     }
 
     private ServiceConfiguration getServiceConfiguration(Ec2Client client) {

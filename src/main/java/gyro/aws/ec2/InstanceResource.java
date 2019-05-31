@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
@@ -68,7 +69,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("instance")
-public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance {
+public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance, Copyable<Instance> {
 
     private String amiId;
     private String amiName;
@@ -501,7 +502,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             return false;
         }
 
-        init(instance, client);
+        copyFrom(instance);
 
         return true;
     }
@@ -670,6 +671,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(Instance instance) {
+        Ec2Client client = createClient(Ec2Client.class);
+        setInstanceId(getInstanceId());
+        init(instance, client);
     }
 
     private void init(Instance instance, Ec2Client client) {

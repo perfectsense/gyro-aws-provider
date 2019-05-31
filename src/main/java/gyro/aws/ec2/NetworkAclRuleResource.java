@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
@@ -37,7 +38,7 @@ import java.util.Set;
  *    end
  *
  */
-public class NetworkAclRuleResource extends AwsResource {
+public class NetworkAclRuleResource extends AwsResource implements Copyable<NetworkAclEntry> {
 
     private Integer ruleNumber;
     private String ruleAction;
@@ -49,29 +50,6 @@ public class NetworkAclRuleResource extends AwsResource {
     private String ipv6CidrBlock;
     private Integer icmpType;
     private Integer icmpCode;
-
-    public NetworkAclRuleResource() {
-    }
-
-    public NetworkAclRuleResource(NetworkAclEntry e) {
-        setCidrBlock(e.cidrBlock());
-        setIpv6CidrBlock(e.ipv6CidrBlock());
-        setEgressRule(e.egress());
-        setProtocol(e.protocol());
-
-        if (e.portRange() != null) {
-            setFromPort(e.portRange().from());
-            setToPort(e.portRange().to());
-        }
-
-        if (e.icmpTypeCode() != null) {
-            setIcmpCode(e.icmpTypeCode().code());
-            setIcmpType(e.icmpTypeCode().type());
-        }
-
-        setRuleAction(e.ruleActionAsString());
-        setRuleNumber(e.ruleNumber());
-    }
 
     /**
      * A number that determines the rule's processing order. (Required)
@@ -309,5 +287,26 @@ public class NetworkAclRuleResource extends AwsResource {
         sb.append(" ");
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(NetworkAclEntry networkAclEntry) {
+        setCidrBlock(networkAclEntry.cidrBlock());
+        setIpv6CidrBlock(networkAclEntry.ipv6CidrBlock());
+        setEgressRule(networkAclEntry.egress());
+        setProtocol(networkAclEntry.protocol());
+
+        if (networkAclEntry.portRange() != null) {
+            setFromPort(networkAclEntry.portRange().from());
+            setToPort(networkAclEntry.portRange().to());
+        }
+
+        if (networkAclEntry.icmpTypeCode() != null) {
+            setIcmpCode(networkAclEntry.icmpTypeCode().code());
+            setIcmpType(networkAclEntry.icmpTypeCode().type());
+        }
+
+        setRuleAction(networkAclEntry.ruleActionAsString());
+        setRuleNumber(networkAclEntry.ruleNumber());
     }
 }

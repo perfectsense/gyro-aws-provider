@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -62,7 +63,7 @@ import java.util.stream.Collectors;
  */
 
 @Type("network-interface")
-public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterface> {
+public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterface> implements Copyable<NetworkInterface> {
 
     private String description;
     private SubnetResource subnet;
@@ -241,37 +242,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             return false;
         }
 
-        setNetworkInterfaceId(networkInterface.networkInterfaceId());
-        setDescription(networkInterface.description());
-        setSourceDestCheck(networkInterface.sourceDestCheck());
-
-        if (networkInterface.groups() != null) {
-            setSecurityGroups(networkInterface.groups()
-                .stream()
-                .map(o -> findById(SecurityGroupResource.class, o.groupId()))
-                .collect(Collectors.toSet()));
-        }
-
-        if (networkInterface.privateIpAddresses() != null) {
-            ArrayList<String> ipAddresses = new ArrayList<>();
-
-            for (NetworkInterfacePrivateIpAddress address : networkInterface.privateIpAddresses()) {
-                if (address.primary()) {
-                    setPrimaryIpv4Address(address.privateIpAddress());
-                } else {
-                    ipAddresses.add(address.privateIpAddress());
-                }
-            }
-            setIpv4Addresses(ipAddresses);
-        }
-
-        NetworkInterfaceAttachment attachment = networkInterface.attachment();
-        if (attachment != null) {
-            setInstance(findById(InstanceResource.class, attachment.instanceId()));
-            setDeviceIndex(attachment.deviceIndex());
-            setAttachmentId(attachment.attachmentId());
-            setDeleteOnTermination(attachment.deleteOnTermination());
-        }
+        copyFrom(networkInterface);
 
         return true;
     }
@@ -452,6 +423,41 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             sb.append(getNetworkInterfaceId());
         }
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(NetworkInterface networkInterface) {
+        setNetworkInterfaceId(networkInterface.networkInterfaceId());
+        setDescription(networkInterface.description());
+        setSourceDestCheck(networkInterface.sourceDestCheck());
+
+        if (networkInterface.groups() != null) {
+            setSecurityGroups(networkInterface.groups()
+                .stream()
+                .map(o -> findById(SecurityGroupResource.class, o.groupId()))
+                .collect(Collectors.toSet()));
+        }
+
+        if (networkInterface.privateIpAddresses() != null) {
+            ArrayList<String> ipAddresses = new ArrayList<>();
+
+            for (NetworkInterfacePrivateIpAddress address : networkInterface.privateIpAddresses()) {
+                if (address.primary()) {
+                    setPrimaryIpv4Address(address.privateIpAddress());
+                } else {
+                    ipAddresses.add(address.privateIpAddress());
+                }
+            }
+            setIpv4Addresses(ipAddresses);
+        }
+
+        NetworkInterfaceAttachment attachment = networkInterface.attachment();
+        if (attachment != null) {
+            setInstance(findById(InstanceResource.class, attachment.instanceId()));
+            setDeviceIndex(attachment.deviceIndex());
+            setAttachmentId(attachment.attachmentId());
+            setDeleteOnTermination(attachment.deleteOnTermination());
+        }
     }
 
     private NetworkInterface getNetworkInterface(Ec2Client client) {

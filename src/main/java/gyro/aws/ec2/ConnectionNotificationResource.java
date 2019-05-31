@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -40,7 +41,7 @@ import java.util.Set;
  *
  */
 @Type("connection-notification")
-public class ConnectionNotificationResource extends AwsResource {
+public class ConnectionNotificationResource extends AwsResource implements Copyable<ConnectionNotification> {
 
     private String serviceId;
     private EndpointResource vpcEndpoint;
@@ -154,13 +155,7 @@ public class ConnectionNotificationResource extends AwsResource {
             return false;
         }
 
-        setConnectionEvents(connectionNotification.connectionEvents());
-        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
-        setConnectionNotificationId(connectionNotification.connectionNotificationId());
-        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
-        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
-        setVpcEndpoint(connectionNotification.vpcEndpointId() != null ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
-        setServiceId(connectionNotification.serviceId());
+        copyFrom(connectionNotification);
 
         return true;
     }
@@ -227,6 +222,18 @@ public class ConnectionNotificationResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(ConnectionNotification connectionNotification) {
+        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setConnectionEvents(connectionNotification.connectionEvents());
+        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
+        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
+        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
+        setVpcEndpoint(connectionNotification.vpcEndpointId() != null ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
+        setServiceId(connectionNotification.serviceId());
     }
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {

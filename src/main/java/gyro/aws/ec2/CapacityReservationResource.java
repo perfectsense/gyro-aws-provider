@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -38,7 +39,7 @@ import java.util.Set;
  *     end
  */
 @Type("capacity-reservation")
-public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation> {
+public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation> implements Copyable<CapacityReservation> {
 
     private String capacityReservationId;
     private String availabilityZone;
@@ -212,18 +213,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
             return false;
         }
 
-        setAvailabilityZone(capacityReservation.availabilityZone());
-        setEbsOptimized(capacityReservation.ebsOptimized());
-        setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
-        setEndDateType(capacityReservation.endDateTypeAsString());
-        setEphemeralStorage(capacityReservation.ephemeralStorage());
-        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
-        setInstancePlatform(capacityReservation.instancePlatformAsString());
-        setInstanceType(capacityReservation.instanceType());
-        setTenancy(capacityReservation.tenancyAsString());
-        setAvailableInstanceCount(capacityReservation.availableInstanceCount());
-        setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
-        setInstanceCount(capacityReservation.totalInstanceCount());
+        copyFrom(capacityReservation);
 
         return true;
     }
@@ -289,6 +279,23 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(CapacityReservation capacityReservation) {
+        setCapacityReservationId(capacityReservation.capacityReservationId());
+        setAvailabilityZone(capacityReservation.availabilityZone());
+        setEbsOptimized(capacityReservation.ebsOptimized());
+        setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
+        setEndDateType(capacityReservation.endDateTypeAsString());
+        setEphemeralStorage(capacityReservation.ephemeralStorage());
+        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
+        setInstancePlatform(capacityReservation.instancePlatformAsString());
+        setInstanceType(capacityReservation.instanceType());
+        setTenancy(capacityReservation.tenancyAsString());
+        setAvailableInstanceCount(capacityReservation.availableInstanceCount());
+        setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
+        setInstanceCount(capacityReservation.totalInstanceCount());
     }
 
     private void validate() {

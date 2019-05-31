@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -41,7 +42,7 @@ import java.util.Set;
  *     end
  */
 @Type("security-group")
-public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
+public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> implements Copyable<SecurityGroup> {
 
     private String groupName;
     private VpcResource vpc;
@@ -177,26 +178,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
             return false;
         }
 
-        setOwnerId(group.ownerId());
-        setDescription(group.description());
-
-        getEgress().clear();
-        for (IpPermission permission : group.ipPermissionsEgress()) {
-            if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
-                && permission.fromPort() == null && permission.toPort() == null
-                && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
-                continue;
-            }
-
-            SecurityGroupEgressRuleResource rule = new SecurityGroupEgressRuleResource(permission);
-            getEgress().add(rule);
-        }
-
-        getIngress().clear();
-        for (IpPermission permission : group.ipPermissions()) {
-            SecurityGroupIngressRuleResource rule = new SecurityGroupIngressRuleResource(permission);
-            getIngress().add(rule);
-        }
+        copyFrom(group);
 
         return true;
     }
@@ -266,6 +248,34 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(SecurityGroup group) {
+        setVpc(findById(VpcResource.class, group.vpcId()));
+        setGroupId(group.groupId());
+        setOwnerId(group.ownerId());
+        setDescription(group.description());
+
+        getEgress().clear();
+        for (IpPermission permission : group.ipPermissionsEgress()) {
+            if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
+                && permission.fromPort() == null && permission.toPort() == null
+                && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
+                continue;
+            }
+
+            SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
+            rule.copyFrom(permission);
+            getEgress().add(rule);
+        }
+
+        getIngress().clear();
+        for (IpPermission permission : group.ipPermissions()) {
+            SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
+            rule.copyFrom(permission);
+            getIngress().add(rule);
+        }
+    }
+
     private SecurityGroup getSecurityGroup(Ec2Client client) {
         SecurityGroup securityGroup = null;
 
@@ -305,7 +315,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
             && o.fromPort() == null && o.toPort() == null
             && o.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")).findFirst().orElse(null);
 
-        SecurityGroupEgressRuleResource defaultRule = new SecurityGroupEgressRuleResource(permission);
+        SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
+        defaultRule.copyFrom(permission);
         defaultRule.delete(client, getGroupId());
     }
 }

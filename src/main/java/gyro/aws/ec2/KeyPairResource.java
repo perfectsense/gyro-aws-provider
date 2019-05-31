@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -44,7 +45,7 @@ import java.util.Set;
  *     end
  */
 @Type("key-pair")
-public class KeyPairResource extends AwsResource {
+public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo> {
 
     private String keyName;
     private String publicKeyPath;
@@ -107,7 +108,7 @@ public class KeyPairResource extends AwsResource {
             return false;
         }
 
-        setKeyFingerPrint(keyPairInfo.keyFingerprint());
+        copyFrom(keyPairInfo);
 
         return true;
     }
@@ -151,6 +152,12 @@ public class KeyPairResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(KeyPairInfo keyPairInfo) {
+        setKeyName(keyPairInfo.keyName());
+        setKeyFingerPrint(keyPairInfo.keyFingerprint());
     }
 
     private String getPublicKeyFromPath() {

@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
@@ -10,7 +11,7 @@ import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SecurityGroupRuleResource extends AwsResource {
+public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
 
     private List<String> cidrBlocks;
     private List<String> ipv6CidrBlocks;
@@ -18,29 +19,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     private String description;
     private Integer fromPort;
     private Integer toPort;
-
-    public SecurityGroupRuleResource() {
-    }
-
-    public SecurityGroupRuleResource(IpPermission permission) {
-        setProtocol(permission.ipProtocol());
-        setFromPort(permission.fromPort());
-        setToPort(permission.toPort());
-
-        if (!permission.ipRanges().isEmpty()) {
-            for (IpRange range : permission.ipRanges()) {
-                getCidrBlocks().add(range.cidrIp());
-                setDescription(range.description());
-            }
-        }
-
-        if (!permission.ipv6Ranges().isEmpty()) {
-            for (Ipv6Range range : permission.ipv6Ranges()) {
-                getIpv6CidrBlocks().add(range.cidrIpv6());
-                setDescription(range.description());
-            }
-        }
-    }
 
     public String getGroupId() {
         SecurityGroupResource parent = (SecurityGroupResource) parent();
@@ -174,6 +152,27 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(IpPermission permission) {
+        setProtocol(permission.ipProtocol());
+        setFromPort(permission.fromPort());
+        setToPort(permission.toPort());
+
+        if (!permission.ipRanges().isEmpty()) {
+            for (IpRange range : permission.ipRanges()) {
+                getCidrBlocks().add(range.cidrIp());
+                setDescription(range.description());
+            }
+        }
+
+        if (!permission.ipv6Ranges().isEmpty()) {
+            for (Ipv6Range range : permission.ipv6Ranges()) {
+                getIpv6CidrBlocks().add(range.cidrIpv6());
+                setDescription(range.description());
+            }
+        }
     }
 
     IpPermission getIpPermissionRequest() {

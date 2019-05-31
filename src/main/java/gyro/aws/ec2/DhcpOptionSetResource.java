@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -40,7 +41,7 @@ import java.util.Set;
  */
 
 @Type("dhcp-option")
-public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
+public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> implements Copyable<DhcpOptions> {
 
     private String dhcpOptionsId;
     private List<String> domainName;
@@ -166,25 +167,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
             return false;
         }
 
-        setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
-
-        for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
-            if (config.key().equals(configDomainName)) {
-                setDomainName(convertString(config.values()));
-            }
-            if (config.key().equals(configDomainNameServers)) {
-                setDomainNameServers(convertString(config.values()));
-            }
-            if (config.key().equals(configNtpServers)) {
-                setNtpServers(convertString(config.values()));
-            }
-            if (config.key().equals(configNetbiosServers)) {
-                setNetbiosNameServers(convertString(config.values()));
-            }
-            if (config.key().equals(configNetbiosNodeType)) {
-                setNetbiosNodeType(convertString(config.values()));
-            }
-        }
+        copyFrom(dhcpOptions);
 
         return true;
     }
@@ -230,6 +213,29 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(DhcpOptions dhcpOptions) {
+        setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
+
+        for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
+            if (config.key().equals(configDomainName)) {
+                setDomainName(convertString(config.values()));
+            }
+            if (config.key().equals(configDomainNameServers)) {
+                setDomainNameServers(convertString(config.values()));
+            }
+            if (config.key().equals(configNtpServers)) {
+                setNtpServers(convertString(config.values()));
+            }
+            if (config.key().equals(configNetbiosServers)) {
+                setNetbiosNameServers(convertString(config.values()));
+            }
+            if (config.key().equals(configNetbiosNodeType)) {
+                setNetbiosNodeType(convertString(config.values()));
+            }
+        }
     }
 
     private void addDhcpConfiguration(Collection<NewDhcpConfiguration> dhcpConfigurations, String configName, List<String> newConfiguration) {

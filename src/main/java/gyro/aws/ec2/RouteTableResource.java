@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("route-table")
-public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
+public class RouteTableResource extends Ec2TaggableResource<RouteTable> implements Copyable<RouteTable> {
 
     private VpcResource vpc;
     private Set<SubnetResource> subnets;
@@ -105,21 +106,13 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        RouteTable routeTable = getroRouteTable(client);
+        RouteTable routeTable = getRouteTable(client);
 
         if (routeTable == null) {
             return false;
         }
 
-        setVpc(findById(VpcResource.class, routeTable.vpcId()));
-        setOwnerId(routeTable.ownerId());
-
-        getSubnets().clear();
-        for (RouteTableAssociation rta : routeTable.associations()) {
-            if (!rta.main()) {
-                getSubnets().add(findById(SubnetResource.class, rta.subnetId()));
-            }
-        }
+        copyFrom(routeTable);
 
         return true;
     }
@@ -154,7 +147,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
             client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
         }
 
-        RouteTable routeTable = getroRouteTable(client);
+        RouteTable routeTable = getRouteTable(client);
 
         List<String> routeTableAssociations = routeTable.associations().stream()
             .filter(o -> !o.main() && subtractions.contains(o.subnetId()))
@@ -168,7 +161,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        RouteTable routeTable = getroRouteTable(client);
+        RouteTable routeTable = getRouteTable(client);
 
         if (routeTable != null) {
             for (RouteTableAssociation rta : routeTable.associations()) {
@@ -192,7 +185,21 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
         return sb.toString();
     }
 
-    private RouteTable getroRouteTable(Ec2Client client) {
+    @Override
+    public void copyFrom(RouteTable routeTable) {
+        setRouteTableId(routeTable.routeTableId());
+        setVpc(findById(VpcResource.class, routeTable.vpcId()));
+        setOwnerId(routeTable.ownerId());
+
+        getSubnets().clear();
+        for (RouteTableAssociation rta : routeTable.associations()) {
+            if (!rta.main()) {
+                getSubnets().add(findById(SubnetResource.class, rta.subnetId()));
+            }
+        }
+    }
+
+    private RouteTable getRouteTable(Ec2Client client) {
         RouteTable routeTable = null;
 
         if (ObjectUtils.isBlank(getRouteTableId())) {

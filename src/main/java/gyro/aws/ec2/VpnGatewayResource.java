@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -33,14 +34,12 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("vpn-gateway")
-public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
+public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implements Copyable<VpnGateway> {
     private Long amazonSideAsn;
     private VpcResource vpc;
 
     // Read-only
     private String vpnGatewayId;
-
-
 
     /**
      * The private Autonomous System Number (ASN) for the Amazon side of a BGP session. If you're using a 16-bit ASN, it must be in the ``64512`` to ``65534`` range. If you're using a 32-bit ASN, it must be in the ``4200000000`` to ``4294967294`` range.
@@ -97,13 +96,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
             return false;
         }
 
-        setAmazonSideAsn(vpnGateway.amazonSideAsn());
-
-        if (!vpnGateway.vpcAttachments().isEmpty() && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")) {
-            setVpc(findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
-        } else {
-            setVpc(null);
-        }
+        copyFrom(vpnGateway);
 
         return true;
     }
@@ -179,6 +172,18 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(VpnGateway vpnGateway) {
+        setVpnGatewayId(vpnGateway.vpnGatewayId());
+        setAmazonSideAsn(vpnGateway.amazonSideAsn());
+
+        if (!vpnGateway.vpcAttachments().isEmpty() && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")) {
+            setVpc(findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
+        } else {
+            setVpc(null);
+        }
     }
 
     private boolean replaceVpc(Ec2Client client) {

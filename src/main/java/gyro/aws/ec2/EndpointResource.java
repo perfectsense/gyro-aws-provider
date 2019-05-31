@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -10,6 +11,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Address;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointsResponse;
@@ -68,7 +70,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("endpoint")
-public class EndpointResource extends AwsResource {
+public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
 
     private String endpointId;
     private String serviceName;
@@ -225,13 +227,7 @@ public class EndpointResource extends AwsResource {
             return false;
         }
 
-        setSecurityGroups(endpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
-        setEndpointId(endpoint.vpcEndpointId());
-        setTypeInterface(endpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
-        setEnablePrivateDns(endpoint.privateDnsEnabled());
-        setRouteTables(endpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
-        setSubnets(endpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
-        setPolicy(endpoint.policyDocument());
+        copyFrom(endpoint);
 
         return true;
     }
@@ -364,6 +360,19 @@ public class EndpointResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(VpcEndpoint vpcEndpoint) {
+        setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
+        setServiceName(vpcEndpoint.serviceName());
+        setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
+        setEndpointId(vpcEndpoint.vpcEndpointId());
+        setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
+        setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
+        setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
+        setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
+        setPolicy(vpcEndpoint.policyDocument());
     }
 
     private void setPolicyFromPath() {

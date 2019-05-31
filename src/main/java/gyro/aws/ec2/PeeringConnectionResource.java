@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -36,7 +37,7 @@ import java.util.Set;
  *     end
  */
 @Type("peering-connection")
-public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringConnection> {
+public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringConnection> implements Copyable<VpcPeeringConnection> {
 
     private VpcResource vpc;
     private VpcResource peerVpc;
@@ -104,8 +105,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
             return false;
         }
 
-        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
-        setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
+        copyFrom(vpcPeeringConnection);
 
         return true;
     }
@@ -152,6 +152,12 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
+        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
+        setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
     }
 
     private String getAccountNumber() {

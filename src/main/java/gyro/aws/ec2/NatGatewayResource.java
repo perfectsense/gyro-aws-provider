@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -32,7 +33,7 @@ import java.util.Set;
  *     end
  */
 @Type("nat-gateway")
-public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
+public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implements Copyable<NatGateway> {
 
     private String natGatewayId;
     private ElasticIpResource elasticIp;
@@ -88,8 +89,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
             return false;
         }
 
-        setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
-        setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
+        copyFrom(natGateway);
 
         return true;
     }
@@ -133,6 +133,13 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(NatGateway natGateway) {
+        setNatGatewayId(natGateway.natGatewayId());
+        setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
+        setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
     }
 
     private NatGateway getNatGateway(Ec2Client client) {

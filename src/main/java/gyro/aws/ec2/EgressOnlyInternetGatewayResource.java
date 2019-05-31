@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -29,7 +30,7 @@ import java.util.Set;
  *     end
  */
 @Type("egress-gateway")
-public class EgressOnlyInternetGatewayResource extends AwsResource {
+public class EgressOnlyInternetGatewayResource extends AwsResource implements Copyable<EgressOnlyInternetGateway> {
 
     private VpcResource vpc;
     private String gatewayId;
@@ -68,9 +69,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
             return false;
         }
 
-        if (!egressOnlyInternetGateway.attachments().isEmpty()) {
-            setVpc(findById(VpcResource.class, egressOnlyInternetGateway.attachments().get(0).vpcId()));
-        }
+        copyFrom(egressOnlyInternetGateway);
 
         return true;
     }
@@ -108,6 +107,15 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(EgressOnlyInternetGateway egressOnlyInternetGateway) {
+        setGatewayId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
+
+        if (!egressOnlyInternetGateway.attachments().isEmpty()) {
+            setVpc(findById(VpcResource.class, egressOnlyInternetGateway.attachments().get(0).vpcId()));
+        }
     }
 
     private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {

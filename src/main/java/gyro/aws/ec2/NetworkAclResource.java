@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -35,7 +36,7 @@ import java.util.Set;
  *     end
  */
 @Type("network-acl")
-public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
+public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implements Copyable<NetworkAcl> {
 
     private VpcResource vpc;
     private String networkAclId;
@@ -97,19 +98,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
             return false;
         }
 
-        for (NetworkAclEntry e: networkAcl.entries()) {
-
-            if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
-                && e.portRange() == null
-                && e.cidrBlock().equals("0.0.0.0/0")) {
-                continue;
-            }
-
-            NetworkAclRuleResource rule = new NetworkAclRuleResource(e);
-            getRule().add(rule);
-        }
-
-        setVpc(findById(VpcResource.class, networkAcl.vpcId()));
+        copyFrom(networkAcl);
 
         return true;
     }
@@ -148,6 +137,26 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(NetworkAcl networkAcl) {
+        setNetworkAclId(networkAcl.networkAclId());
+
+        for (NetworkAclEntry e: networkAcl.entries()) {
+
+            if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
+                && e.portRange() == null
+                && e.cidrBlock().equals("0.0.0.0/0")) {
+                continue;
+            }
+
+            NetworkAclRuleResource rule = newSubresource(NetworkAclRuleResource.class);
+            rule.copyFrom(e);
+            getRule().add(rule);
+        }
+
+        setVpc(findById(VpcResource.class, networkAcl.vpcId()));
     }
 
     private NetworkAcl getNetworkAcl(Ec2Client client) {

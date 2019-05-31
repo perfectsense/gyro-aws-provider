@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
@@ -41,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("ebs-volume")
-public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
+public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Copyable<Volume> {
 
     private String availabilityZone;
     private Date createTime;
@@ -204,22 +205,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
             return false;
         }
 
-        setAvailabilityZone(volume.availabilityZone());
-        setCreateTime(Date.from(volume.createTime()));
-        setEncrypted(volume.encrypted());
-        setIops(volume.iops());
-        setKmsKeyId(volume.kmsKeyId());
-        setSize(volume.size());
-        setSnapshot(findById(EbsSnapshotResource.class, volume.snapshotId()));
-        setState(volume.stateAsString());
-        setVolumeType(volume.volumeTypeAsString());
-
-        DescribeVolumeAttributeResponse responseAutoEnableIo = client.describeVolumeAttribute(
-            r -> r.volumeId(getVolumeId())
-                .attribute(VolumeAttributeName.AUTO_ENABLE_IO)
-        );
-
-        setAutoEnableIo(responseAutoEnableIo.autoEnableIO().value());
+        copyFrom(volume);
 
         return true;
     }
@@ -322,6 +308,29 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(Volume volume) {
+        setVolumeId(volume.volumeId());
+        setAvailabilityZone(volume.availabilityZone());
+        setCreateTime(Date.from(volume.createTime()));
+        setEncrypted(volume.encrypted());
+        setIops(volume.iops());
+        setKmsKeyId(volume.kmsKeyId());
+        setSize(volume.size());
+        setSnapshot(findById(EbsSnapshotResource.class, volume.snapshotId()));
+        setState(volume.stateAsString());
+        setVolumeType(volume.volumeTypeAsString());
+
+        Ec2Client client = createClient(Ec2Client.class);
+
+        DescribeVolumeAttributeResponse responseAutoEnableIo = client.describeVolumeAttribute(
+            r -> r.volumeId(getVolumeId())
+                .attribute(VolumeAttributeName.AUTO_ENABLE_IO)
+        );
+
+        setAutoEnableIo(responseAutoEnableIo.autoEnableIO().value());
     }
 
     private Volume getVolume(Ec2Client client) {

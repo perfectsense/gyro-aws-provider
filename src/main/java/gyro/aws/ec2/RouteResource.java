@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -28,7 +29,7 @@ import java.util.Set;
  *     end
  */
 @Type("route")
-public class RouteResource extends AwsResource {
+public class RouteResource extends AwsResource implements Copyable<Route> {
 
     private RouteTableResource routeTable;
     private String destinationCidrBlock;
@@ -170,13 +171,7 @@ public class RouteResource extends AwsResource {
             return false;
         }
 
-        setEgressOnlyInternetGateway(findById(EgressOnlyInternetGatewayResource.class, route.egressOnlyInternetGatewayId()));
-        setGateway(findById(InternetGatewayResource.class, route.gatewayId()));
-        setInstance(findById(InstanceResource.class, route.instanceId()));
-        setNatGateway(findById(NatGatewayResource.class, route.natGatewayId()));
-        setNetworkInterface(findById(NetworkInterfaceResource.class, route.networkInterfaceId()));
-        setTransitGatewayId(route.transitGatewayId());
-        setVpcPeeringConnection(findById(PeeringConnectionResource.class, route.vpcPeeringConnectionId()));
+        copyFrom(route);
 
         return true;
     }
@@ -242,6 +237,17 @@ public class RouteResource extends AwsResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(Route route) {
+        setEgressOnlyInternetGateway(findById(EgressOnlyInternetGatewayResource.class, route.egressOnlyInternetGatewayId()));
+        setGateway(findById(InternetGatewayResource.class, route.gatewayId()));
+        setInstance(findById(InstanceResource.class, route.instanceId()));
+        setNatGateway(findById(NatGatewayResource.class, route.natGatewayId()));
+        setNetworkInterface(findById(NetworkInterfaceResource.class, route.networkInterfaceId()));
+        setTransitGatewayId(route.transitGatewayId());
+        setVpcPeeringConnection(findById(PeeringConnectionResource.class, route.vpcPeeringConnectionId()));
+    }
+
     private Route getRoute(Ec2Client client) {
         Route route = null;
 
@@ -276,5 +282,4 @@ public class RouteResource extends AwsResource {
 
         return route;
     }
-
 }

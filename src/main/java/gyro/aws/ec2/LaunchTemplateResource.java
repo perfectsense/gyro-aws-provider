@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -53,7 +54,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("launch-template")
-public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> {
+public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> implements Copyable<LaunchTemplate> {
 
     private String launchTemplateId;
     private String launchTemplateName;
@@ -303,7 +304,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             return false;
         }
 
-        setLaunchTemplateName(launchTemplate.launchTemplateName());
+        copyFrom(launchTemplate);
 
         return true;
     }
@@ -366,6 +367,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(LaunchTemplate launchTemplate) {
+        setLaunchTemplateId(launchTemplate.launchTemplateId());
+        setLaunchTemplateName(launchTemplate.launchTemplateName());
     }
 
     private void validate(Ec2Client client) {

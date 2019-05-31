@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -32,7 +33,7 @@ import java.util.Set;
  *     end
  */
 @Type("ebs-snapshot")
-public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
+public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implements Copyable<Snapshot> {
 
     private EbsVolumeResource volume;
     private String description;
@@ -214,17 +215,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
             return false;
         }
 
-        setDataEncryptionKeyId(snapshot.dataEncryptionKeyId());
-        setDescription(snapshot.description());
-        setEncrypted(snapshot.encrypted());
-        setKmsKeyId(snapshot.kmsKeyId());
-        setOwnerAlias(snapshot.ownerAlias());
-        setOwnerId(snapshot.ownerId());
-        setProgress(snapshot.progress());
-        setStartTime(Date.from(snapshot.startTime()));
-        setState(snapshot.stateAsString());
-        setStateMessage(snapshot.stateMessage());
-        setVolumeSize(snapshot.volumeSize());
+        copyFrom(snapshot);
 
         return true;
     }
@@ -271,6 +262,22 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(Snapshot snapshot) {
+        setSnapshotId(snapshot.snapshotId());
+        setDataEncryptionKeyId(snapshot.dataEncryptionKeyId());
+        setDescription(snapshot.description());
+        setEncrypted(snapshot.encrypted());
+        setKmsKeyId(snapshot.kmsKeyId());
+        setOwnerAlias(snapshot.ownerAlias());
+        setOwnerId(snapshot.ownerId());
+        setProgress(snapshot.progress());
+        setStartTime(Date.from(snapshot.startTime()));
+        setState(snapshot.stateAsString());
+        setStateMessage(snapshot.stateMessage());
+        setVolumeSize(snapshot.volumeSize());
     }
 
     private Snapshot getSnapshot(Ec2Client client) {

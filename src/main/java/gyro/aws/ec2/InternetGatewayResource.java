@@ -1,6 +1,9 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -26,7 +29,7 @@ import java.util.Set;
  *     end
  */
 @Type("internet-gateway")
-public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway> {
+public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway> implements Copyable<InternetGateway> {
 
     private String internetGatewayId;
     private VpcResource vpc;
@@ -71,9 +74,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
             return false;
         }
 
-        if (!internetGateway.attachments().isEmpty()) {
-            setVpc(findById(VpcResource.class, internetGateway.attachments().get(0).vpcId()));
-        }
+        copyFrom(internetGateway);
 
         return true;
     }
@@ -127,8 +128,21 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(InternetGateway internetGateway) {
+        setInternetGatewayId(internetGateway.internetGatewayId());
+
+        if (!internetGateway.attachments().isEmpty()) {
+            setVpc(findById(VpcResource.class, internetGateway.attachments().get(0).vpcId()));
+        }
+    }
+
     private InternetGateway getInternetGateway(Ec2Client client) {
         InternetGateway internetGateway = null;
+
+        if (ObjectUtils.isBlank(getInternetGatewayId())) {
+            throw new GyroException("internet-gateway-id is missing, unable to load internet gateway.");
+        }
 
         try {
             DescribeInternetGatewaysResponse response = client.describeInternetGateways(
@@ -147,5 +161,4 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         return internetGateway;
     }
-
 }
