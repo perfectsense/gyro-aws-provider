@@ -4,7 +4,9 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.EventSubscription;
+import software.amazon.awssdk.services.rds.model.SubscriptionNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,11 @@ public class DbEventSubscriptionFinder extends AwsFinder<RdsClient, EventSubscri
 
     @Override
     protected List<EventSubscription> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeEventSubscriptions(r -> r.subscriptionName(filters.get("subscription-name"))).eventSubscriptionsList();
+        try {
+            return client.describeEventSubscriptions(r -> r.subscriptionName(filters.get("subscription-name"))).eventSubscriptionsList();
+        } catch (SubscriptionNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override

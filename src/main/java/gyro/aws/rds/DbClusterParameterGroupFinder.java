@@ -4,7 +4,9 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DBClusterParameterGroup;
+import software.amazon.awssdk.services.rds.model.DbParameterGroupNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,11 @@ public class DbClusterParameterGroupFinder extends AwsFinder<RdsClient, DBCluste
 
     @Override
     protected List<DBClusterParameterGroup> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeDBClusterParameterGroups(r -> r.dbClusterParameterGroupName(filters.get("name"))).dbClusterParameterGroups();
+        try {
+            return client.describeDBClusterParameterGroups(r -> r.dbClusterParameterGroupName(filters.get("name"))).dbClusterParameterGroups();
+        } catch (DbParameterGroupNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override

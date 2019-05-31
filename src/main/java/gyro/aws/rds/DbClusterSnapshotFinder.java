@@ -4,7 +4,9 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
+import software.amazon.awssdk.services.rds.model.DbClusterSnapshotNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,11 @@ public class DbClusterSnapshotFinder extends AwsFinder<RdsClient, DBClusterSnaps
 
     @Override
     protected List<DBClusterSnapshot> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeDBClusterSnapshots(r -> r.dbClusterSnapshotIdentifier(filters.get("db-cluster-snapshot-identifier"))).dbClusterSnapshots();
+        try {
+            return client.describeDBClusterSnapshots(r -> r.dbClusterSnapshotIdentifier(filters.get("db-cluster-snapshot-identifier"))).dbClusterSnapshots();
+        } catch (DbClusterSnapshotNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override

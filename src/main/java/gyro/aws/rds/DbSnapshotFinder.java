@@ -4,7 +4,9 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DBSnapshot;
+import software.amazon.awssdk.services.rds.model.DbSnapshotNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,11 @@ public class DbSnapshotFinder extends AwsFinder<RdsClient, DBSnapshot, DbSnapsho
 
     @Override
     protected List<DBSnapshot> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeDBSnapshots(r -> r.dbSnapshotIdentifier(filters.get("db-snapshot-identifier"))).dbSnapshots();
+        try {
+            return client.describeDBSnapshots(r -> r.dbSnapshotIdentifier(filters.get("db-snapshot-identifier"))).dbSnapshots();
+        } catch (DbSnapshotNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override

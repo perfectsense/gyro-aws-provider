@@ -4,7 +4,9 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.OptionGroup;
+import software.amazon.awssdk.services.rds.model.OptionGroupNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,11 @@ public class DbOptionGroupFinder extends AwsFinder<RdsClient, OptionGroup, DbOpt
 
     @Override
     protected List<OptionGroup> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeOptionGroups(r -> r.optionGroupName(filters.get("name"))).optionGroupsList();
+        try {
+            return client.describeOptionGroups(r -> r.optionGroupName(filters.get("name"))).optionGroupsList();
+        } catch (OptionGroupNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
