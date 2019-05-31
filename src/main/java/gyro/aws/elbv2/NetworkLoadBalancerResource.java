@@ -45,23 +45,23 @@ import java.util.Set;
 @Type("nlb")
 public class NetworkLoadBalancerResource extends LoadBalancerResource {
 
-    private List<SubnetMappings> subnetMappings;
+    private List<SubnetMappings> subnetMapping;
 
     /**
      * The list of subnet mappings associated with the nlb (Required)
      *
      * @subresource gyro.aws.elbv2.SubnetMappingResource
      */
-    public List<SubnetMappings> getSubnetMappings() {
-        if (subnetMappings == null) {
-            subnetMappings = new ArrayList<>();
+    public List<SubnetMappings> getSubnetMapping() {
+        if (subnetMapping == null) {
+            subnetMapping = new ArrayList<>();
         }
 
-        return subnetMappings;
+        return subnetMapping;
     }
 
-    public void setSubnetMappings(List<SubnetMappings> subnetMappings) {
-        this.subnetMappings = subnetMappings;
+    public void setSubnetMapping(List<SubnetMappings> subnetMapping) {
+        this.subnetMapping = subnetMapping;
     }
 
     @Override
@@ -70,9 +70,9 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
 
         if (loadBalancer != null) {
 
-            getSubnetMappings().clear();
+            getSubnetMapping().clear();
             for (AvailabilityZone zone : loadBalancer.availabilityZones()) {
-                SubnetMappings subnet = new SubnetMappings();
+                SubnetMappings subnet = newSubresource(SubnetMappings.class);
                 subnet.setSubnet(findById(SubnetResource.class, zone.subnetId()));
 
                 for (LoadBalancerAddress address : zone.loadBalancerAddresses()) {
@@ -80,7 +80,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
                     subnet.setIpAddress(address.ipAddress());
                 }
 
-                getSubnetMappings().add(subnet);
+                getSubnetMapping().add(subnet);
             }
 
             return true;
@@ -126,7 +126,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
     private List<SubnetMapping> toSubnetMappings() {
         List<SubnetMapping> subnetMappings = new ArrayList<>();
 
-        for (SubnetMappings subMap : getSubnetMappings()) {
+        for (SubnetMappings subMap : getSubnetMapping()) {
             subnetMappings.add(subMap.toSubnetMappings());
         }
 
