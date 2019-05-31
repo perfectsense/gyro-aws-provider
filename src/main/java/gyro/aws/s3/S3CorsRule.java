@@ -102,7 +102,7 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
             .maxAgeSeconds(getMaxAgeSeconds())
             .build();
     }
-    
+
     private String getUniqueName() {
         StringBuilder sb = new StringBuilder();
 
