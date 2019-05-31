@@ -39,11 +39,11 @@ public class LoadBalancerFinder<R extends LoadBalancerResource> extends AwsFinde
 
     @Override
     public List<LoadBalancer> findAws(ElasticLoadBalancingV2Client client, Map<String, String> filters) {
-        if (getArn() != null) {
+        if (filters.get("arn") != null) {
             return client.describeLoadBalancers(r -> r.loadBalancerArns(filters.get("arn"))).loadBalancers();
         }
 
-        return client.describeLoadBalancers(r -> r.names(filters.get("load-balancer-name"))).loadBalancers();
+        return client.describeLoadBalancers(r -> r.names(filters.get("name"))).loadBalancers();
     }
 
     @Override
