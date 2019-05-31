@@ -42,16 +42,16 @@ public class S3LifecycleRuleNonCurrentTransition extends Diffable implements Cop
         return String.format("non current transition - days [%s], storage-class [%s]", getDays(), getStorageClass());
     }
 
+    @Override
+    public void copyFrom(NoncurrentVersionTransition noncurrentVersionTransition) {
+        setDays(noncurrentVersionTransition.noncurrentDays());
+        setStorageClass(noncurrentVersionTransition.storageClassAsString());
+    }
+
     NoncurrentVersionTransition toNoncurrentVersionTransition() {
         return NoncurrentVersionTransition.builder()
             .noncurrentDays(getDays())
             .storageClass(getStorageClass())
             .build();
-    }
-
-    @Override
-    public void copyFrom(NoncurrentVersionTransition noncurrentVersionTransition) {
-        setDays(noncurrentVersionTransition.noncurrentDays());
-        setStorageClass(noncurrentVersionTransition.storageClassAsString());
     }
 }

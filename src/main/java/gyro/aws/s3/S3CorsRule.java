@@ -27,9 +27,7 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
     }
 
     /**
-     * Allowed HTTP methods for the rule.
-     *
-     * Valid values are ``GET``, ``PUT``, ``POST``, ``DELETE``, ``HEAD``.
+     * Allowed HTTP methods for the rule. Valid values are ``GET``, ``PUT``, ``POST``, ``DELETE`` and ``HEAD``.
      */
     @Updatable
     public List<String> getAllowedMethods() {
@@ -86,6 +84,15 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
         return getUniqueName();
     }
 
+    @Override
+    public void copyFrom(CORSRule corsRule) {
+        setAllowedHeaders(corsRule.allowedHeaders());
+        setAllowedMethods(corsRule.allowedMethods());
+        setAllowedOrigins(corsRule.allowedOrigins());
+        setExposeHeaders(corsRule.exposeHeaders());
+        setMaxAgeSeconds(corsRule.maxAgeSeconds());
+    }
+
     CORSRule toCorsRule() {
         return CORSRule.builder()
             .allowedHeaders(getAllowedHeaders())
@@ -95,7 +102,7 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
             .maxAgeSeconds(getMaxAgeSeconds())
             .build();
     }
-
+    
     private String getUniqueName() {
         StringBuilder sb = new StringBuilder();
 
@@ -127,14 +134,5 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
             .append(getMaxAgeSeconds() != null ? getMaxAgeSeconds() : "").append("]");
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(CORSRule corsRule) {
-        setAllowedHeaders(corsRule.allowedHeaders());
-        setAllowedMethods(corsRule.allowedMethods());
-        setAllowedOrigins(corsRule.allowedOrigins());
-        setExposeHeaders(corsRule.exposeHeaders());
-        setMaxAgeSeconds(corsRule.maxAgeSeconds());
     }
 }

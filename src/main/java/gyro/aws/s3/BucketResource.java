@@ -179,9 +179,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_.
-     *
-     * Updatable only when object lock is disabled
+     * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_. Updatable only when object lock is disabled.
      */
     @Updatable
     public Boolean getEnableVersion() {
@@ -246,6 +244,18 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     public void setLifecycleRule(List<S3LifecycleRule> lifecycleRule) {
         this.lifecycleRule = lifecycleRule;
+    }
+
+    @Override
+    public void copyFrom(Bucket bucket) {
+        S3Client client = createClient(S3Client.class);
+        setName(bucket.name());
+        loadTags(client);
+        loadAccelerateConfig(client);
+        loadEnableVersion(client);
+        loadEnablePay(client);
+        loadCorsRules(client);
+        loadLifecycleRules(client);
     }
 
     @Override
@@ -522,17 +532,5 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                     )
             );
         }
-    }
-
-    @Override
-    public void copyFrom(Bucket bucket) {
-        S3Client client = createClient(S3Client.class);
-        setName(bucket.name());
-        loadTags(client);
-        loadAccelerateConfig(client);
-        loadEnableVersion(client);
-        loadEnablePay(client);
-        loadCorsRules(client);
-        loadLifecycleRules(client);
     }
 }

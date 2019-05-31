@@ -6,6 +6,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class BucketFinder extends AwsFinder<S3Client, Bucket, BucketResource> {
         if (filters.containsKey("name")) {
             return buckets.stream().filter(o -> o.name().equals(filters.get("name"))).collect(Collectors.toList());
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }
