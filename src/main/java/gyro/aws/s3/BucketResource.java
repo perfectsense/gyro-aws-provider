@@ -258,6 +258,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             return false;
         }
 
+        this.copyFrom(bucket);
+
         return true;
     }
 
@@ -350,13 +352,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         try {
             ListBucketsResponse listBucketsResponse = client.listBuckets();
 
-            for (Bucket bucketObj : listBucketsResponse.buckets()) {
-                if (bucketObj.name().equals(getName())) {
-                    bucket = bucketObj;
-                }
-            }
-
-            client.listBuckets().buckets().forEach(this :: copyFrom);
+            bucket = listBucketsResponse.buckets().stream().filter(o -> o.name().equals(getName())).findFirst().orElse(null);
 
         } catch (S3Exception ex ) {
             if (!ex.getLocalizedMessage().contains("does not exist")) {
@@ -364,6 +360,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             }
 
         }
+
         return bucket;
     }
 
@@ -530,7 +527,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
-
+        setName(bucket.name());
         loadTags(client);
         loadAccelerateConfig(client);
         loadEnableVersion(client);

@@ -10,10 +10,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query bucket name.
+ *
+ * .. code-block:: gyro
+ *
+ *   bucket-name: $(aws::bucket EXTERNAL/* | name = 'bucket-example')
+ */
 @Type("bucket")
 public class BucketFinder extends AwsFinder<S3Client, Bucket, BucketResource> {
     private String name;
 
+    /**
+     * The name of the bucket. This should be a unique value.
+     */
     public String getName() {
         return name;
     }
