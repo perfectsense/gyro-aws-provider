@@ -8,12 +8,22 @@ import software.amazon.awssdk.services.rds.model.DBInstance;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db instance.
+ *
+ * .. code-block:: gyro
+ *
+ *    db-instances: $(aws::db-instance EXTERNAL/* | db-instance-id = 'db-instance-example')
+ */
 @Type("db-instance")
 public class DbInstanceFinder extends AwsFinder<RdsClient, DBInstance, DbInstanceResource> {
 
     private String dbClusterId;
     private String dbInstanceId;
 
+    /**
+     * The identifier or arn of the cluster.
+     */
     public String getDbClusterId() {
         return dbClusterId;
     }
@@ -22,6 +32,9 @@ public class DbInstanceFinder extends AwsFinder<RdsClient, DBInstance, DbInstanc
         this.dbClusterId = dbClusterId;
     }
 
+    /**
+     * The identifier or arn of the db instance.
+     */
     public String getDbInstanceId() {
         return dbInstanceId;
     }

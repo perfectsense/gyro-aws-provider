@@ -8,6 +8,13 @@ import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db cluster endpoint.
+ *
+ * .. code-block:: gyro
+ *
+ *    endpoints: $(aws::db-cluster-endpoint EXTERNAL/* | db-cluster-endpoint-type = 'reader')
+ */
 @Type("db-cluster-endpoint")
 public class DbClusterEndpointFinder extends AwsFinder<RdsClient, DBClusterEndpoint, DbClusterEndpointResource> {
 
@@ -16,6 +23,9 @@ public class DbClusterEndpointFinder extends AwsFinder<RdsClient, DBClusterEndpo
     private String dbClusterEndpointId;
     private String dbClusterEndpointStatus;
 
+    /**
+     * The type of the endpoint. Valid values are ``reader``, ``writer`` and ``custom``.
+     */
     public String getDbClusterEndpointType() {
         return dbClusterEndpointType;
     }
@@ -24,6 +34,9 @@ public class DbClusterEndpointFinder extends AwsFinder<RdsClient, DBClusterEndpo
         this.dbClusterEndpointType = dbClusterEndpointType;
     }
 
+    /**
+     * The custom type of the endpoint. Valid values are ``reader`` and ``any``.
+     */
     public String getDbClusterEndpointCustomType() {
         return dbClusterEndpointCustomType;
     }
@@ -32,6 +45,9 @@ public class DbClusterEndpointFinder extends AwsFinder<RdsClient, DBClusterEndpo
         this.dbClusterEndpointCustomType = dbClusterEndpointCustomType;
     }
 
+    /**
+     * The identifier of the endpoint.
+     */
     public String getDbClusterEndpointId() {
         return dbClusterEndpointId;
     }
@@ -40,6 +56,9 @@ public class DbClusterEndpointFinder extends AwsFinder<RdsClient, DBClusterEndpo
         this.dbClusterEndpointId = dbClusterEndpointId;
     }
 
+    /**
+     * The status of the endpoint. Valid values are ``available``, ``creating``, ``deleting`` and ``modifying``.
+     */
     public String getDbClusterEndpointStatus() {
         return dbClusterEndpointStatus;
     }

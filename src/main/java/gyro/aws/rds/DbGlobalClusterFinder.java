@@ -8,11 +8,21 @@ import software.amazon.awssdk.services.rds.model.GlobalCluster;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query global cluster.
+ *
+ * .. code-block:: gyro
+ *
+ *    global-clusters: $(aws::db-global-cluster EXTERNAL/* | db-cluster-id = 'aurora-global-cluster')
+ */
 @Type("db-global-cluster")
 public class DbGlobalClusterFinder extends AwsFinder<RdsClient, GlobalCluster, DbGlobalClusterResource> {
 
     private String dbClusterId;
 
+    /**
+     * The identifier or arn of the global cluster.
+     */
     public String getDbClusterId() {
         return dbClusterId;
     }

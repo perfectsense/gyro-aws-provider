@@ -10,11 +10,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db cluster parameter group.
+ *
+ * .. code-block:: gyro
+ *
+ *    cluster-parameter-groups: $(aws::db-cluster-parameter-group EXTERNAL/* | name = 'cluster-parameter-group-example')
+ */
 @Type("db-cluster-parameter-group")
 public class DbClusterParameterGroupFinder extends AwsFinder<RdsClient, DBClusterParameterGroup, DbClusterParameterGroupResource> {
 
     private String name;
 
+    /**
+     * The name of the cluster parameter group.
+     */
     public String getName() {
         return name;
     }

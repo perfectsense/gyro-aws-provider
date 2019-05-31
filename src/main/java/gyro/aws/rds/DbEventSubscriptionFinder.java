@@ -10,11 +10,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db event subscription.
+ *
+ * .. code-block:: gyro
+ *
+ *    subscriptions: $(aws::db-event-subscription EXTERNAL/* | subscription-name = 'db-event-subscription-example')
+ */
 @Type("db-event-subscription")
 public class DbEventSubscriptionFinder extends AwsFinder<RdsClient, EventSubscription, DbEventSubscriptionResource> {
 
     private String subscriptionName;
 
+    /**
+     * The name of the event subscription.
+     */
     public String getSubscriptionName() {
         return subscriptionName;
     }

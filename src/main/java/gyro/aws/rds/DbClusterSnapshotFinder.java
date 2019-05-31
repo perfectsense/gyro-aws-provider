@@ -10,11 +10,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db cluster snapshot.
+ *
+ * .. code-block:: gyro
+ *
+ *    cluster-snapshots: $(aws::db-cluster-snapshot EXTERNAL/* | db-cluster-snapshot-identifier = 'db-cluster-snapshot-example')
+ */
 @Type("db-cluster-snapshot")
 public class DbClusterSnapshotFinder extends AwsFinder<RdsClient, DBClusterSnapshot, DbClusterSnapshotResource> {
 
     private String dbClusterSnapshotIdentifier;
 
+    /**
+     * The identifier of the cluster snapshot.
+     */
     public String getDbClusterSnapshotIdentifier() {
         return dbClusterSnapshotIdentifier;
     }

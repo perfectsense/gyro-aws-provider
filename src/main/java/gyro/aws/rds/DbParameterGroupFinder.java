@@ -10,11 +10,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db parameter group.
+ *
+ * .. code-block:: gyro
+ *
+ *    db-parameter-groups: $(aws::db-parameter-group EXTERNAL/* | name = 'db-parameter-group-example')
+ */
 @Type("db-parameter-group")
 public class DbParameterGroupFinder extends AwsFinder<RdsClient, DBParameterGroup, DbParameterGroupResource> {
 
     private String name;
 
+    /**
+     * The name of the parameter group.
+     */
     public String getName() {
         return name;
     }

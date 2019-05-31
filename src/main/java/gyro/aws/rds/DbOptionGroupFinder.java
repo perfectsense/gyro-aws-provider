@@ -10,11 +10,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db option group.
+ *
+ * .. code-block:: gyro
+ *
+ *    option-groups: $(aws::db-option-group EXTERNAL/* | name = 'option-group-example')
+ */
 @Type("db-option-group")
 public class DbOptionGroupFinder extends AwsFinder<RdsClient, OptionGroup, DbOptionGroupResource> {
 
     private String name;
 
+    /**
+     * The name of the option group.
+     */
     public String getName() {
         return name;
     }

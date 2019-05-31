@@ -10,11 +10,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query db subnet group.
+ *
+ * .. code-block:: gyro
+ *
+ *    db-subnet-group: $(aws::db-subnet-group EXTERNAL/* | group-name = 'db-subnet-group-db-cluster-example')
+ */
 @Type("db-subnet-group")
 public class DbSubnetGroupFinder extends AwsFinder<RdsClient, DBSubnetGroup, DbSubnetGroupResource> {
 
     private String groupName;
 
+    /**
+     * The name of the subnet group.
+     */
     public String getGroupName() {
         return groupName;
     }
