@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query xss match set.
+ *
+ * .. code-block:: gyro
+ *
+ *    xss-match-sets: $(aws::xss-match-set EXTERNAL/* | id = '')
+ */
 @Type("xss-match-set")
 public class XssMatchSetFinder extends gyro.aws.waf.common.XssMatchSetFinder<WafClient, XssMatchSetResource> {
     @Override

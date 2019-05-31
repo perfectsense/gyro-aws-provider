@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query byte match set regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    byte-match-sets: $(aws::byte-match-set-regional EXTERNAL/* | id = '')
+ */
 @Type("byte-match-set-regional")
 public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<WafRegionalClient, ByteMatchSetResource> {
     @Override

@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query rule regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    rules: $(aws::rule-regional EXTERNAL/* | rule-id = '')
+ */
 @Type("rule-regional")
 public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafRegionalClient, RuleResource> {
     @Override

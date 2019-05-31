@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query sql injection match set.
+ *
+ * .. code-block:: gyro
+ *
+ *    sql-injection-match-sets: $(aws::sql-injection-match-set EXTERNAL/* | id = '')
+ */
 @Type("sql-injection-match-set")
 public class SqlInjectionMatchSetFinder extends gyro.aws.waf.common.SqlInjectionMatchSetFinder<WafClient, SqlInjectionMatchSetResource> {
     @Override

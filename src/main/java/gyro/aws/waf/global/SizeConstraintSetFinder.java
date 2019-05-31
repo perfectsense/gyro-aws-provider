@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query size constraint set.
+ *
+ * .. code-block:: gyro
+ *
+ *    size-constraint-sets: $(aws::size-constraint-set EXTERNAL/* | id = '')
+ */
 @Type("size-constraint-set")
 public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintSetFinder<WafClient, SizeConstraintSetResource> {
     @Override

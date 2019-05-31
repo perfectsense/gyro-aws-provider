@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query byte match set.
+ *
+ * .. code-block:: gyro
+ *
+ *    byte-match-sets: $(aws::byte-match-set EXTERNAL/* | id = '')
+ */
 @Type("byte-match-set")
 public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<WafClient, ByteMatchSetResource> {
     @Override

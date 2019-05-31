@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.Rule;
 abstract public class RuleFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, Rule, U> {
     private String ruleId;
 
+    /**
+     * The id of rule.
+     */
     public String getRuleId() {
         return ruleId;
     }

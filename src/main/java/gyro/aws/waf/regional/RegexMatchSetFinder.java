@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query regex match set regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    regex-match-sets: $(aws::regex-match-set-regional EXTERNAL/* | id = '')
+ */
 @Type("regex-match-set-regional")
 public class RegexMatchSetFinder extends gyro.aws.waf.common.RegexMatchSetFinder<WafRegionalClient, RegexMatchSetResource> {
     @Override

@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query ip set.
+ *
+ * .. code-block:: gyro
+ *
+ *    ip-sets: $(aws::ip-set EXTERNAL/* | id = '')
+ */
 @Type("ip-set")
 public class IpSetFinder extends gyro.aws.waf.common.IpSetFinder<WafClient, IpSetResource> {
     @Override

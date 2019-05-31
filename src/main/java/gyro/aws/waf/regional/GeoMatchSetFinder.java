@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query geo match set regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    geo-match-sets: $(aws::geo-match-set-regional EXTERNAL/* | id = '')
+ */
 @Type("geo-match-set-regional")
 public class GeoMatchSetFinder extends gyro.aws.waf.common.GeoMatchSetFinder<WafRegionalClient, GeoMatchSetResource> {
     @Override

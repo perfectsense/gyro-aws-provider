@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.WebACL;
 abstract public class WebAclFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, WebACL, U> {
     private String webAclId;
 
+    /**
+     * The id of web acl.
+     */
     public String getWebAclId() {
         return webAclId;
     }

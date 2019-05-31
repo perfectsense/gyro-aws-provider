@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.XssMatchSet;
 abstract public class XssMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, XssMatchSet, U> {
     private String XssMatchSetId;
 
+    /**
+     * The id of xss match set.
+     */
     public String getXssMatchSetId() {
         return XssMatchSetId;
     }

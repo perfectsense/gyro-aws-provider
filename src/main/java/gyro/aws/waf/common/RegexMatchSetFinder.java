@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 abstract public class RegexMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, RegexMatchSet, U> {
     private String RegexMatchSetId;
 
+    /**
+     * The id of regex match set.
+     */
     public String getRegexMatchSetId() {
         return RegexMatchSetId;
     }

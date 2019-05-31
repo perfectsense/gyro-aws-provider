@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query rate rule regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    rate-rules: $(aws::rate-rule-regional EXTERNAL/* | rule-id = '')
+ */
 @Type("rate-rule-regional")
 public class RateRuleFinder extends gyro.aws.waf.common.RateRuleFinder<WafRegionalClient, RateRuleResource> {
     @Override

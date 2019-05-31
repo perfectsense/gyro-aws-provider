@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query sql injection match set regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    sql-injection-match-sets: $(aws::sql-injection-match-set-regional EXTERNAL/* | id = '')
+ */
 @Type("sql-injection-match-set-regional")
 public class SqlInjectionMatchSetFinder extends gyro.aws.waf.common.SqlInjectionMatchSetFinder<WafRegionalClient, SqlInjectionMatchSetResource> {
     @Override

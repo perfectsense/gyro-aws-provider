@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query xss match set regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    xss-match-sets: $(aws::xss-match-set-regional EXTERNAL/* | id = '')
+ */
 @Type("xss-match-set-regional")
 public class XssMatchSetFinder extends gyro.aws.waf.common.XssMatchSetFinder<WafRegionalClient, XssMatchSetResource> {
     @Override

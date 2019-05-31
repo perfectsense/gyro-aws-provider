@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 abstract public class SqlInjectionMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, SqlInjectionMatchSet, U> {
     private String SqlInjectionMatchSetId;
 
+    /**
+     * The id of sql injection match set.
+     */
     public String getSqlInjectionMatchSetId() {
         return SqlInjectionMatchSetId;
     }

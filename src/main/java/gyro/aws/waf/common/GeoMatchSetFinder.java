@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.GeoMatchSet;
 abstract public class GeoMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, GeoMatchSet, U> {
     private String GeoMatchSetId;
 
+    /**
+     * The id of geo match set.
+     */
     public String getGeoMatchSetId() {
         return GeoMatchSetId;
     }

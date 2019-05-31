@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query waf acl regional.
+ *
+ * .. code-block:: gyro
+ *
+ *    waf-acl: $(aws::waf-acl-regional EXTERNAL/* | web-acl-id = '')
+ */
 @Type("waf-acl-regional")
 public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafRegionalClient, WebAclResource> {
     @Override

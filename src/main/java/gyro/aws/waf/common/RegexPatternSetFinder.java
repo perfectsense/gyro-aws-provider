@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.RegexPatternSet;
 abstract public class RegexPatternSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, RegexPatternSet, U> {
     private String RegexPatternSetId;
 
+    /**
+     * The id of regex pattern set.
+     */
     public String getRegexPatternSetId() {
         return RegexPatternSetId;
     }

@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 abstract public class SizeConstraintSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, SizeConstraintSet, U> {
     private String SizeConstraintSetId;
 
+    /**
+     * The id of size constraint set.
+     */
     public String getSizeConstraintSetId() {
         return SizeConstraintSetId;
     }
