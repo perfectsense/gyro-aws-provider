@@ -467,7 +467,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
             getCorsRule().clear();
             for (CORSRule corsRule : response.corsRules()) {
-                getCorsRule().add(new S3CorsRule(corsRule));
+                S3CorsRule s3CorsRule = newSubresource(S3CorsRule.class);
+                s3CorsRule.copyFrom(corsRule);
+                getCorsRule().add(s3CorsRule);
             }
         } catch (S3Exception ex) {
             if (!ex.awsErrorDetails().errorCode().equals("NoSuchCORSConfiguration")) {
@@ -499,7 +501,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
             getLifecycleRule().clear();
             for (LifecycleRule lifecycleRule : response.rules()) {
-                getLifecycleRule().add(new S3LifecycleRule(lifecycleRule));
+                S3LifecycleRule s3LifecycleRule = newSubresource(S3LifecycleRule.class);
+                s3LifecycleRule.copyFrom(lifecycleRule);
+                getLifecycleRule().add(s3LifecycleRule);
             }
         } catch (S3Exception ex) {
             if (!ex.awsErrorDetails().errorCode().equals("NoSuchLifecycleConfiguration")) {

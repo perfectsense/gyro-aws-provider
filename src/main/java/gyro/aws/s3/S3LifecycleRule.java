@@ -1,6 +1,7 @@
 package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class S3LifecycleRule extends Diffable {
+public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule> {
     private String lifecycleRuleName;
     private Integer versionExpirationDays;
     private Boolean expiredObjectDeleteMarker;
@@ -27,74 +28,6 @@ public class S3LifecycleRule extends Diffable {
     private Map<String, String> tags;
     private List<S3LifecycleRuleNonCurrentTransition> nonCurrentTransition;
     private List<S3LifecycleRuleTransition> transition;
-
-    public S3LifecycleRule() {
-
-    }
-
-    public S3LifecycleRule(LifecycleRule lifecycleRule) {
-        setLifecycleRuleName(lifecycleRule.id());
-
-        if (lifecycleRule.expiration() != null) {
-            setVersionExpirationDays(lifecycleRule.expiration().days());
-            setExpiredObjectDeleteMarker(lifecycleRule.expiration().expiredObjectDeleteMarker());
-        }
-
-        if (lifecycleRule.abortIncompleteMultipartUpload() != null) {
-            setIncompleteMultipartUploadDays(lifecycleRule.abortIncompleteMultipartUpload().daysAfterInitiation());
-        }
-
-        if (lifecycleRule.filter() != null) {
-            String filterAndPrefix = "";
-            String filterPrefix = "";
-
-            Map<String, String> filterAndTag = new HashMap<>();
-            Map<String, String> filterTag = new HashMap<>();
-
-            if (lifecycleRule.filter().and() != null) {
-                filterAndPrefix = lifecycleRule.filter().and().prefix();
-                filterAndTag = fromTags(lifecycleRule.filter().and().tags());
-            }
-
-            filterPrefix = lifecycleRule.filter().prefix();
-
-            if (lifecycleRule.filter().tag() != null) {
-                filterTag = fromTags(Collections.singletonList(lifecycleRule.filter().tag()));
-            }
-
-            if (ObjectUtils.isBlank(filterAndPrefix)) {
-                setPrefix(filterPrefix);
-            } else {
-                setPrefix(filterAndPrefix);
-            }
-
-            if (filterTag.isEmpty()) {
-                setTags(filterAndTag);
-            } else {
-                setTags(filterTag);
-            }
-        }
-
-        if (lifecycleRule.noncurrentVersionExpiration() != null) {
-            setNonCurrentVersionExpirationDays(lifecycleRule.noncurrentVersionExpiration().noncurrentDays());
-        }
-
-        getNonCurrentTransition().clear();
-        if (!lifecycleRule.noncurrentVersionTransitions().isEmpty()) {
-            for (NoncurrentVersionTransition noncurrentVersionTransition : lifecycleRule.noncurrentVersionTransitions()) {
-                getNonCurrentTransition().add(new S3LifecycleRuleNonCurrentTransition(noncurrentVersionTransition));
-            }
-        }
-
-        setStatus(lifecycleRule.statusAsString());
-
-        getTransition().clear();
-        if (!lifecycleRule.transitions().isEmpty()) {
-            for (Transition transition : lifecycleRule.transitions()) {
-                getTransition().add(new S3LifecycleRuleTransition(transition));
-            }
-        }
-    }
 
     /**
      * Name of the life cycle rule. (Required)
@@ -351,5 +284,75 @@ public class S3LifecycleRule extends Diffable {
                 throw new GyroException("Field: 'incomplete-multipart-upload-days' cannot be set when Field: 'tags' is set.");
             }
         }
+    }
+
+    @Override
+    public void copyFrom(LifecycleRule lifecycleRule) {
+        setLifecycleRuleName(lifecycleRule.id());
+
+        if (lifecycleRule.expiration() != null) {
+            setVersionExpirationDays(lifecycleRule.expiration().days());
+            setExpiredObjectDeleteMarker(lifecycleRule.expiration().expiredObjectDeleteMarker());
+        }
+
+        if (lifecycleRule.abortIncompleteMultipartUpload() != null) {
+            setIncompleteMultipartUploadDays(lifecycleRule.abortIncompleteMultipartUpload().daysAfterInitiation());
+        }
+
+        if (lifecycleRule.filter() != null) {
+            String filterAndPrefix = "";
+            String filterPrefix;
+
+            Map<String, String> filterAndTag = new HashMap<>();
+            Map<String, String> filterTag = new HashMap<>();
+
+            if (lifecycleRule.filter().and() != null) {
+                filterAndPrefix = lifecycleRule.filter().and().prefix();
+                filterAndTag = fromTags(lifecycleRule.filter().and().tags());
+            }
+
+            filterPrefix = lifecycleRule.filter().prefix();
+
+            if (lifecycleRule.filter().tag() != null) {
+                filterTag = fromTags(Collections.singletonList(lifecycleRule.filter().tag()));
+            }
+
+            if (ObjectUtils.isBlank(filterAndPrefix)) {
+                setPrefix(filterPrefix);
+            } else {
+                setPrefix(filterAndPrefix);
+            }
+
+            if (filterTag.isEmpty()) {
+                setTags(filterAndTag);
+            } else {
+                setTags(filterTag);
+            }
+        }
+
+        if (lifecycleRule.noncurrentVersionExpiration() != null) {
+            setNonCurrentVersionExpirationDays(lifecycleRule.noncurrentVersionExpiration().noncurrentDays());
+        }
+
+        getNonCurrentTransition().clear();
+        if (!lifecycleRule.noncurrentVersionTransitions().isEmpty()) {
+            for (NoncurrentVersionTransition noncurrentVersionTransition : lifecycleRule.noncurrentVersionTransitions()) {
+                S3LifecycleRuleNonCurrentTransition s3LifecycleRuleNonCurrentTransition = newSubresource(S3LifecycleRuleNonCurrentTransition.class);
+                s3LifecycleRuleNonCurrentTransition.copyFrom(noncurrentVersionTransition);
+                getNonCurrentTransition().add(s3LifecycleRuleNonCurrentTransition);
+            }
+        }
+
+        setStatus(lifecycleRule.statusAsString());
+
+        getTransition().clear();
+        if (!lifecycleRule.transitions().isEmpty()) {
+            for (Transition transition : lifecycleRule.transitions()) {
+                S3LifecycleRuleTransition s3LifecycleRuleTransition = newSubresource(S3LifecycleRuleTransition.class);
+                s3LifecycleRuleTransition.copyFrom(transition);
+                getTransition().add(s3LifecycleRuleTransition);
+            }
+        }
+
     }
 }

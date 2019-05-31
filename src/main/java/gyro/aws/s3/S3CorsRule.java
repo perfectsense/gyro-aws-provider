@@ -1,29 +1,18 @@
 package gyro.aws.s3;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 
 import java.util.List;
 
-public class S3CorsRule extends Diffable {
+public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
     private List<String> allowedHeaders;
     private List<String> allowedMethods;
     private List<String> allowedOrigins;
     private List<String> exposeHeaders;
     private Integer maxAgeSeconds;
-
-    public S3CorsRule() {
-
-    }
-
-    public S3CorsRule(CORSRule corsRule) {
-        setAllowedHeaders(corsRule.allowedHeaders());
-        setAllowedMethods(corsRule.allowedMethods());
-        setAllowedOrigins(corsRule.allowedOrigins());
-        setExposeHeaders(corsRule.exposeHeaders());
-        setMaxAgeSeconds(corsRule.maxAgeSeconds());
-    }
 
     /**
      * List of allowed headers for the rule.
@@ -40,7 +29,7 @@ public class S3CorsRule extends Diffable {
     /**
      * Allowed HTTP methods for the rule.
      *
-     * Valid values are ``GET``, ``PUT`` , ``POST``, ``DELETE``, ``HEAD``.
+     * Valid values are ``GET``, ``PUT``, ``POST``, ``DELETE``, ``HEAD``.
      */
     @Updatable
     public List<String> getAllowedMethods() {
@@ -76,7 +65,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Max age seconds that specifies the cache duration of the response.
+     * Max age in seconds that specifies the cache duration of the response.
      */
     @Updatable
     public Integer getMaxAgeSeconds() {
@@ -138,5 +127,14 @@ public class S3CorsRule extends Diffable {
             .append(getMaxAgeSeconds() != null ? getMaxAgeSeconds() : "").append("]");
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(CORSRule corsRule) {
+        setAllowedHeaders(corsRule.allowedHeaders());
+        setAllowedMethods(corsRule.allowedMethods());
+        setAllowedOrigins(corsRule.allowedOrigins());
+        setExposeHeaders(corsRule.exposeHeaders());
+        setMaxAgeSeconds(corsRule.maxAgeSeconds());
     }
 }

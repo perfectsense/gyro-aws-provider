@@ -1,21 +1,13 @@
 package gyro.aws.s3;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.Transition;
 
-public class S3LifecycleRuleTransition extends Diffable {
+public class S3LifecycleRuleTransition extends Diffable implements Copyable<Transition> {
     private Integer days;
     private String storageClass;
-
-    public S3LifecycleRuleTransition() {
-
-    }
-
-    public S3LifecycleRuleTransition(Transition transition) {
-        setDays(transition.days());
-        setStorageClass(transition.storageClassAsString());
-    }
 
     /**
      * Days after creation that versioning would start. Min value 30. (Required)
@@ -56,5 +48,11 @@ public class S3LifecycleRuleTransition extends Diffable {
             .days(getDays())
             .storageClass(getStorageClass())
             .build();
+    }
+
+    @Override
+    public void copyFrom(Transition transition) {
+        setDays(transition.days());
+        setStorageClass(transition.storageClassAsString());
     }
 }
