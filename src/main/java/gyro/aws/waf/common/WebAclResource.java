@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -15,7 +16,7 @@ import software.amazon.awssdk.services.waf.model.WebACL;
 import java.util.List;
 import java.util.Set;
 
-public abstract class WebAclResource extends AbstractWafResource {
+public abstract class WebAclResource extends AbstractWafResource implements Copyable<WebACL> {
     private String name;
     private String metricName;
     private String defaultAction;
@@ -90,15 +91,7 @@ public abstract class WebAclResource extends AbstractWafResource {
             return false;
         }
 
-        setArn(webAcl.webACLArn());
-        setDefaultAction(webAcl.defaultAction().typeAsString());
-        setMetricName(webAcl.metricName());
-        setName(webAcl.name());
-
-        clearActivatedRules();
-        for (ActivatedRule activatedRule : webAcl.rules()) {
-            setActivatedRules(activatedRule);
-        }
+        this.copyFrom(webAcl);
 
         return true;
     }
@@ -155,6 +148,19 @@ public abstract class WebAclResource extends AbstractWafResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(WebACL webAcl) {
+        setArn(webAcl.webACLArn());
+        setDefaultAction(webAcl.defaultAction().typeAsString());
+        setMetricName(webAcl.metricName());
+        setName(webAcl.name());
+
+        clearActivatedRules();
+        for (ActivatedRule activatedRule : webAcl.rules()) {
+            setActivatedRules(activatedRule);
+        }
     }
 
     protected void validateActivatedRule() {
