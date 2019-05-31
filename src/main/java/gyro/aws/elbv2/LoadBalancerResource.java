@@ -1,7 +1,10 @@
 package gyro.aws.elbv2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -20,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public abstract class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancer> {
 
@@ -177,6 +181,31 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     public void delete() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteLoadBalancer(r -> r.loadBalancerArn(getArn()));
+
+        Wait.atMost(2, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(true)
+                .until(() -> getLoadBalancer(client) == null);
+    }
+
+    private LoadBalancer getLoadBalancer(ElasticLoadBalancingV2Client client) {
+        LoadBalancer loadBalancer = null;
+
+        if (ObjectUtils.isBlank(getArn())) {
+            throw new GyroException("the arn is missing, unable to load the load balancer.");
+        }
+
+        try {
+            DescribeLoadBalancersResponse describeLoadBalancersResponse =
+                    client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
+
+            if (describeLoadBalancersResponse.loadBalancers().isEmpty()) {
+                loadBalancer = describeLoadBalancersResponse.loadBalancers().get(0);
+            }
+        } catch (LoadBalancerNotFoundException ex) {
+        }
+
+        return loadBalancer;
     }
 
     @Override

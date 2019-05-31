@@ -1,21 +1,27 @@
 package gyro.aws.elbv2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerAddress;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerNotFoundException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMapping;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -49,7 +55,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     private List<SubnetMappings> subnetMapping;
 
     /**
-     * The list of subnet mappings associated with the nlb (Required)
+     * The list of subnet mappings associated with the nlb. (Required)
      *
      * @subresource gyro.aws.elbv2.SubnetMappingResource
      */
@@ -110,6 +116,11 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
+        Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(true)
+                .until(() -> isActiveState(client).equalsIgnoreCase("Active"));
+
         super.create();
     }
 
@@ -120,7 +131,14 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
 
     @Override
     public void delete() {
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
         super.delete();
+
+        Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(true)
+                .until(() -> isDeleted(client) == null);
     }
 
     @Override
@@ -138,5 +156,29 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         }
 
         return subnetMappings;
+    }
+
+    private String isActiveState(ElasticLoadBalancingV2Client client) {
+        return client.describeLoadBalancers(r -> r.loadBalancerArns(getArn())).loadBalancers().get(0).state().codeAsString();
+    }
+
+    private LoadBalancer isDeleted(ElasticLoadBalancingV2Client client) {
+        LoadBalancer loadBalancer = null;
+
+        if (ObjectUtils.isBlank(getArn())) {
+            throw new GyroException("the arn is missing, unable to load the load balancer.");
+        }
+
+        try {
+            DescribeLoadBalancersResponse describeLoadBalancersResponse =
+                    client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
+
+            if (describeLoadBalancersResponse.loadBalancers().isEmpty()) {
+                loadBalancer = describeLoadBalancersResponse.loadBalancers().get(0);
+            }
+        } catch (LoadBalancerNotFoundException ex) {
+        }
+
+        return loadBalancer;
     }
 }
