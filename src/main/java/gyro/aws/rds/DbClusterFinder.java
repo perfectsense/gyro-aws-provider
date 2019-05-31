@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("db-cluster")
-public class DbClusterFinder extends AwsFinder<RdsClient, DBCluster, DbInstanceResource> {
+public class DbClusterFinder extends AwsFinder<RdsClient, DBCluster, DbClusterResource> {
 
     private String dbClusterId;
 
