@@ -1,11 +1,10 @@
 package gyro.aws.rds;
 
+import gyro.aws.ec2.SecurityGroupResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class OptionConfiguration extends Diffable {
@@ -14,7 +13,7 @@ public class OptionConfiguration extends Diffable {
     private Set<OptionSettings> optionSettings;
     private Integer port;
     private String version;
-    private List<String> vpcSecurityGroupMemberships;
+    private Set<SecurityGroupResource> vpcSecurityGroups;
 
     /**
      * The name of the option.
@@ -70,16 +69,16 @@ public class OptionConfiguration extends Diffable {
     /**
      * A list of VPC security groups used for this option.
      */
-    public List<String> getVpcSecurityGroupMemberships() {
-        if (vpcSecurityGroupMemberships == null) {
-            vpcSecurityGroupMemberships = new ArrayList<>();
+    public Set<SecurityGroupResource> getVpcSecurityGroups() {
+        if (vpcSecurityGroups == null) {
+            vpcSecurityGroups = new HashSet<>();
         }
 
-        return vpcSecurityGroupMemberships;
+        return vpcSecurityGroups;
     }
 
-    public void setVpcSecurityGroupMemberships(List<String> vpcSecurityGroupMemberships) {
-        this.vpcSecurityGroupMemberships = vpcSecurityGroupMemberships;
+    public void setVpcSecurityGroups(Set<SecurityGroupResource> vpcSecurityGroups) {
+        this.vpcSecurityGroups = vpcSecurityGroups;
     }
 
     @Override

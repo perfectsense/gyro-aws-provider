@@ -1,6 +1,7 @@
 package gyro.aws.rds;
 
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -135,10 +136,10 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
                 optionConfiguration.setPort(o.port());
                 optionConfiguration.setVersion(o.optionVersion());
 
-                optionConfiguration.setVpcSecurityGroupMemberships(
+                optionConfiguration.setVpcSecurityGroups(
                     o.vpcSecurityGroupMemberships().stream()
-                        .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
-                        .collect(Collectors.toList()));
+                        .map(g -> findById(SecurityGroupResource.class, g.vpcSecurityGroupId()))
+                        .collect(Collectors.toSet()));
 
                 optionConfiguration.setOptionSettings(o.optionSettings().stream()
                     .filter(s -> current.getOptionSettings().stream()
@@ -226,7 +227,10 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
                         .optionName(o.getOptionName())
                         .optionVersion(o.getVersion())
                         .port(o.getPort())
-                        .vpcSecurityGroupMemberships(o.getVpcSecurityGroupMemberships())
+                        .vpcSecurityGroupMemberships(o.getVpcSecurityGroups()
+                            .stream()
+                            .map(SecurityGroupResource::getGroupId)
+                            .collect(Collectors.toList()))
                         .optionSettings(o.getOptionSettings().stream()
                             .map(s -> software.amazon.awssdk.services.rds.model.OptionSetting.builder()
                                 .name(s.getName())
