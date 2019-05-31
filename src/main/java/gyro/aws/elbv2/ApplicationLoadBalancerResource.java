@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.Type;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("alb")
-public class ApplicationLoadBalancerResource extends LoadBalancerResource {
+public class ApplicationLoadBalancerResource extends LoadBalancerResource implements Copyable<LoadBalancer> {
 
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
@@ -77,15 +78,22 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
     }
 
     @Override
+    public void copyFrom(LoadBalancer loadBalancer) {
+        getSecurityGroups().clear();
+        loadBalancer.securityGroups().forEach(r -> getSecurityGroups().add(findById(SecurityGroupResource.class, r)));
+
+        getSubnets().clear();
+        loadBalancer.availabilityZones().forEach(az -> getSubnets().add(findById(SubnetResource.class, az.subnetId())));
+    }
+
+    @Override
     public boolean refresh() {
         LoadBalancer loadBalancer = super.internalRefresh();
 
         if (loadBalancer != null) {
-            getSecurityGroups().clear();
-            loadBalancer.securityGroups().forEach(r -> getSecurityGroups().add(findById(SecurityGroupResource.class, r)));
 
-            getSubnets().clear();
-            loadBalancer.availabilityZones().forEach(az -> getSubnets().add(findById(SubnetResource.class, az.subnetId())));
+            super.copyFrom(loadBalancer);
+            this.copyFrom(loadBalancer);
 
             return true;
         }

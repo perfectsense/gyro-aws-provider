@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -43,7 +44,7 @@ import java.util.Set;
  */
 
 @Type("nlb")
-public class NetworkLoadBalancerResource extends LoadBalancerResource {
+public class NetworkLoadBalancerResource extends LoadBalancerResource implements Copyable<LoadBalancer> {
 
     private List<SubnetMappings> subnetMapping;
 
@@ -65,23 +66,29 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource {
     }
 
     @Override
+    public void copyFrom(LoadBalancer loadBalancer) {
+        getSubnetMapping().clear();
+        for (AvailabilityZone zone : loadBalancer.availabilityZones()) {
+            SubnetMappings subnet = newSubresource(SubnetMappings.class);
+            subnet.setSubnet(findById(SubnetResource.class, zone.subnetId()));
+
+            for (LoadBalancerAddress address : zone.loadBalancerAddresses()) {
+                subnet.setAllocationId(address.allocationId());
+                subnet.setIpAddress(address.ipAddress());
+            }
+
+            getSubnetMapping().add(subnet);
+        }
+    }
+
+    @Override
     public boolean refresh() {
         LoadBalancer loadBalancer = super.internalRefresh();
 
         if (loadBalancer != null) {
 
-            getSubnetMapping().clear();
-            for (AvailabilityZone zone : loadBalancer.availabilityZones()) {
-                SubnetMappings subnet = newSubresource(SubnetMappings.class);
-                subnet.setSubnet(findById(SubnetResource.class, zone.subnetId()));
-
-                for (LoadBalancerAddress address : zone.loadBalancerAddresses()) {
-                    subnet.setAllocationId(address.allocationId());
-                    subnet.setIpAddress(address.ipAddress());
-                }
-
-                getSubnetMapping().add(subnet);
-            }
+            super.copyFrom(loadBalancer);
+            this.copyFrom(loadBalancer);
 
             return true;
         }

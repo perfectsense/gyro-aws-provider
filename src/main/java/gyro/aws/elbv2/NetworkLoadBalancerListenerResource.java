@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -33,13 +34,13 @@ import java.util.Set;
  */
 
 @Type("nlb-listener")
-public class NetworkLoadBalancerListenerResource extends ListenerResource {
+public class NetworkLoadBalancerListenerResource extends ListenerResource implements Copyable<Listener> {
 
     private NetworkActionResource defaultAction;
     private NetworkLoadBalancerResource nlb;
 
     /**
-     *  The default action associated with the listener (Optional)
+     *  The default action associated with the listener. (Required)
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -64,12 +65,20 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
     }
 
     @Override
+    public void copyFrom(Listener listener) {
+        setDefaultAction(fromDefaultActions(listener.defaultActions()));
+        setNlb(findById(NetworkLoadBalancerResource.class, listener.loadBalancerArn()));
+    }
+
+    @Override
     public boolean refresh() {
         Listener listener = super.internalRefresh();
 
         if (listener != null) {
-            setDefaultAction(fromDefaultActions(listener.defaultActions()));
-            setNlb(findById(NetworkLoadBalancerResource.class, listener.loadBalancerArn()));
+
+            super.copyFrom(listener);
+            this.copyFrom(listener);
+
             return true;
         }
 
