@@ -17,7 +17,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     private CommonRegexPatternSet regexPatternSet;
 
     /**
-     * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
+     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
      */
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -28,7 +28,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     /**
-     * If type selected as ```HEADER``` or ```SINGLE_QUERY_ARG```, the value needs to be provided.
+     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
      */
     public String getData() {
         return data;
@@ -39,7 +39,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``, ``CMD_LINE``, ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
      */
     public String getTextTransformation() {
         return textTransformation != null ? textTransformation.toUpperCase() : null;

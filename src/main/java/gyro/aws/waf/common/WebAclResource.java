@@ -46,7 +46,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     /**
-     * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
+     * The default action for the waf acl. valid values ``ALLOW`` or ``BLOCK``. (Required)
      */
     @Updatable
     public String getDefaultAction() {
