@@ -91,6 +91,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
     @Override
     public void copyFrom(ByteMatchSet byteMatchSet) {
+        setId(byteMatchSet.byteMatchSetId());
         setName(byteMatchSet.name());
 
         getByteMatchTuple().clear();

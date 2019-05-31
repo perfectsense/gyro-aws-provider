@@ -40,7 +40,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
             return false;
         }
 
-        this.copyFrom(getRule());
+        copyFrom(getRule());
 
         return true;
     }
@@ -52,6 +52,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
 
     @Override
     public void copyFrom(RateBasedRule rule) {
+        setRuleId(rule.ruleId());
         setName(rule.name());
         setMetricName(rule.metricName());
         setRateKey(rule.rateKeyAsString());

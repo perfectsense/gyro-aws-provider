@@ -89,6 +89,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
 
     @Override
     public void copyFrom(GeoMatchSet geoMatchSet) {
+        setId(geoMatchSet.geoMatchSetId());
         setName(geoMatchSet.name());
 
         getGeoMatchConstraint().clear();

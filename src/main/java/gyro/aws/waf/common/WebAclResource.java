@@ -91,7 +91,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
             return false;
         }
 
-        this.copyFrom(webAcl);
+        copyFrom(webAcl);
 
         return true;
     }
@@ -152,6 +152,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
 
     @Override
     public void copyFrom(WebACL webAcl) {
+        setWebAclId(webAcl.webACLId());
         setArn(webAcl.webACLArn());
         setDefaultAction(webAcl.defaultAction().typeAsString());
         setMetricName(webAcl.metricName());

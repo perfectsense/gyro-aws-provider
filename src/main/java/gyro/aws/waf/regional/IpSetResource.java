@@ -90,6 +90,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
 
     @Override
     public void copyFrom(IPSet ipSet) {
+        setId(ipSet.ipSetId());
         setName(ipSet.name());
 
         getIpSetDescriptor().clear();

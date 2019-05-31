@@ -1,7 +1,5 @@
 package gyro.aws.waf.global;
 
-import gyro.aws.Copyable;
-import gyro.aws.waf.common.ConditionResource;
 import gyro.aws.waf.common.AbstractRuleResource;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.Predicate;

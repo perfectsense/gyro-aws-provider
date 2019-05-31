@@ -89,6 +89,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
 
     @Override
     public void copyFrom(XssMatchSet xssMatchSet) {
+        setId(xssMatchSet.xssMatchSetId());
         setName(xssMatchSet.name());
 
         getXssMatchTuple().clear();

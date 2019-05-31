@@ -72,7 +72,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
             return false;
         }
 
-        this.copyFrom(getRegexPatternSet());
+        copyFrom(getRegexPatternSet());
 
         return true;
     }
@@ -153,6 +153,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
 
     @Override
     public void copyFrom(RegexPatternSet regexPatternSet) {
+        setRegexPatternSetId(regexPatternSet.regexPatternSetId());
         setName(regexPatternSet.name());
         setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
     }

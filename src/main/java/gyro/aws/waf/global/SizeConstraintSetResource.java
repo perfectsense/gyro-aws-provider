@@ -90,6 +90,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
 
     @Override
     public void copyFrom(SizeConstraintSet sizeConstraintSet) {
+        setId(sizeConstraintSet.sizeConstraintSetId());
         setName(sizeConstraintSet.name());
 
         getSizeConstraint().clear();

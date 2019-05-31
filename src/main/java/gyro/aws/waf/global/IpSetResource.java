@@ -62,7 +62,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
             );
 
 
-        this.copyFrom(response.ipSet());
+        copyFrom(response.ipSet());
 
         return true;
     }
@@ -91,6 +91,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
 
     @Override
     public void copyFrom(IPSet ipSet) {
+        setId(ipSet.ipSetId());
         setName(ipSet.name());
 
         getIpSetDescriptor().clear();

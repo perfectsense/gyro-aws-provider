@@ -16,7 +16,7 @@ public abstract class RuleResource extends CommonRuleResource implements Copyabl
             return false;
         }
 
-        this.copyFrom(getRule());
+        copyFrom(getRule());
 
         return true;
     }
@@ -33,6 +33,7 @@ public abstract class RuleResource extends CommonRuleResource implements Copyabl
 
     @Override
     public void copyFrom(Rule rule) {
+        setRuleId(rule.ruleId());
         setMetricName(rule.metricName());
         setName(rule.name());
         loadPredicates(rule.predicates());

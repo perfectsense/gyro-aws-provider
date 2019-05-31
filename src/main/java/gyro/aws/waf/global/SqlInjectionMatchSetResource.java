@@ -90,6 +90,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
 
     @Override
     public void copyFrom(SqlInjectionMatchSet sqlInjectionMatchSet) {
+        setId(sqlInjectionMatchSet.sqlInjectionMatchSetId());
         setName(sqlInjectionMatchSet.name());
 
         getSqlInjectionMatchTuple().clear();

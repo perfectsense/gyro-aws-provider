@@ -96,6 +96,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
 
     @Override
     public void copyFrom(RegexMatchSet regexMatchSet) {
+        setId(regexMatchSet.regexMatchSetId());
         setName(regexMatchSet.name());
 
         getRegexMatchTuple().clear();
