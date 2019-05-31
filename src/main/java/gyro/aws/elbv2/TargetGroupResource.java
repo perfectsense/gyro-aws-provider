@@ -191,7 +191,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
         }
 
         setPort(targetGroup.port());
-        setProtocol(targetGroup.healthCheckProtocolAsString());
+        setProtocol(targetGroup.protocolAsString());
         setArn(targetGroup.targetGroupArn());
         setName(targetGroup.targetGroupName());
         setTargetType(targetGroup.targetTypeAsString());
