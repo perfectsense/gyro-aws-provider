@@ -179,6 +179,11 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
         client.deleteDBParameterGroup(r -> r.dbParameterGroupName(getName()));
     }
 
+    @Override
+    public String toDisplayString() {
+        return "db parameter group " + getName();
+    }
+
     private void modifyParameterGroup() {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBParameterGroup(
@@ -191,10 +196,5 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
                         .build())
                     .collect(Collectors.toList()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "db parameter group " + getName();
     }
 }

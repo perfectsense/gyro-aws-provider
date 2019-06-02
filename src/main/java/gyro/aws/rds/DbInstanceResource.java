@@ -623,7 +623,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The ARN from the key store for TDE encryption.
+     * The ARN from the key store for Transparent data encryption.
      */
     public String getTdeCredentialArn() {
         return tdeCredentialArn;

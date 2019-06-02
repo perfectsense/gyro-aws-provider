@@ -176,6 +176,11 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
         client.deleteDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()));
     }
 
+    @Override
+    public String toDisplayString() {
+        return "db cluster parameter group " + getName();
+    }
+
     private void modifyClusterParameterGroup() {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterParameterGroup(
@@ -188,10 +193,5 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
                         .build())
                     .collect(Collectors.toList()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "db cluster parameter group " + getName();
     }
 }

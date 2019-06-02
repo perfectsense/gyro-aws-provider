@@ -79,7 +79,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * List of DB instances to excluded from the custom endpoint group. Only applicable if `static-members` is empty.
+     * List of DB instances to be excluded from the custom endpoint group. Only applicable if `static-members` is empty.
      */
     @Updatable
     public List<DbInstanceResource> getExcludedMembers() {
