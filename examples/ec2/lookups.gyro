@@ -17,6 +17,7 @@ key-pair: $(aws::key-pair EXTERNAL/* | key-name = '')
 launch-template: $(aws::launch-template EXTERNAL/* | launch-template-name = '')
 nat-gateway: $(aws::nat-gateway EXTERNAL/* | nat-gateway-id = '')
 network-acl: $(aws::network-acl EXTERNAL/* | network-acl-id = '')
+network-interface: $(aws::network-interface EXTERNAL/* | description = '')
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"

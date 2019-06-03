@@ -10,8 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query network interface.
+ *
+ * .. code-block:: gyro
+ *
+ *    network-interface: $(aws::network-interface EXTERNAL/* | description = '')
+ */
 @Type("network-interface")
 public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterface, NetworkInterfaceResource> {
+
     private String addressesPrivateIpAddress;
     private String addressesPrimary;
     private String addressesAssociationPublicIp;
@@ -48,6 +56,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
     private String tagKey;
     private String vpcId;
 
+    /**
+     * The private IPv4 addresses associated with the network interface.
+     */
     @Filter("addresses.private-ip-address")
     public String getAddressesPrivateIpAddress() {
         return addressesPrivateIpAddress;
@@ -57,6 +68,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.addressesPrivateIpAddress = addressesPrivateIpAddress;
     }
 
+    /**
+     * Whether the private IPv4 address is the primary IP address associated with the network interface.
+     */
     @Filter("addresses.primary")
     public String getAddressesPrimary() {
         return addressesPrimary;
@@ -66,6 +80,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.addressesPrimary = addressesPrimary;
     }
 
+    /**
+     * The association ID returned when the network interface was associated with the Elastic IP address (IPv4).
+     */
     @Filter("addresses.association.public-ip")
     public String getAddressesAssociationPublicIp() {
         return addressesAssociationPublicIp;
@@ -75,6 +92,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.addressesAssociationPublicIp = addressesAssociationPublicIp;
     }
 
+    /**
+     * The owner ID of the addresses associated with the network interface.
+     */
     @Filter("addresses.association.owner-id")
     public String getAddressesAssociationOwnerId() {
         return addressesAssociationOwnerId;
@@ -84,6 +104,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.addressesAssociationOwnerId = addressesAssociationOwnerId;
     }
 
+    /**
+     * The association ID returned when the network interface was associated with an IPv4 address.
+     */
     @Filter("association.association-id")
     public String getAssociationAssociationId() {
         return associationAssociationId;
@@ -93,6 +116,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.associationAssociationId = associationAssociationId;
     }
 
+    /**
+     * The allocation ID returned when you allocated the Elastic IP address (IPv4) for your network interface.
+     */
     @Filter("association.allocation-id")
     public String getAssociationAllocationId() {
         return associationAllocationId;
@@ -102,6 +128,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.associationAllocationId = associationAllocationId;
     }
 
+    /**
+     * The owner of the Elastic IP address (IPv4) associated with the network interface.
+     */
     @Filter("association.ip-owner-id")
     public String getAssociationIpOwnerId() {
         return associationIpOwnerId;
@@ -111,6 +140,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.associationIpOwnerId = associationIpOwnerId;
     }
 
+    /**
+     * The address of the Elastic IP address (IPv4) bound to the network interface.
+     */
     @Filter("association.public-ip")
     public String getAssociationPublicIp() {
         return associationPublicIp;
@@ -120,6 +152,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.associationPublicIp = associationPublicIp;
     }
 
+    /**
+     * The public DNS name for the network interface (IPv4).
+     */
     @Filter("association.public-dns-name")
     public String getAssociationPublicDnsName() {
         return associationPublicDnsName;
@@ -129,6 +164,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.associationPublicDnsName = associationPublicDnsName;
     }
 
+    /**
+     * The ID of the interface attachment.
+     */
     @Filter("attachment.attachment-id")
     public String getAttachmentAttachmentId() {
         return attachmentAttachmentId;
@@ -138,6 +176,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentAttachmentId = attachmentAttachmentId;
     }
 
+    /**
+     * The time that the network interface was attached to an instance.
+     */
     @Filter("attachment.attach.time")
     public String getAttachmentAttachTime() {
         return attachmentAttachTime;
@@ -147,6 +188,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentAttachTime = attachmentAttachTime;
     }
 
+    /**
+     * Indicates whether the attachment is deleted when an instance is terminated.
+     */
     @Filter("attachment.delete-on-termination")
     public String getAttachmentDeleteOnTermination() {
         return attachmentDeleteOnTermination;
@@ -156,6 +200,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentDeleteOnTermination = attachmentDeleteOnTermination;
     }
 
+    /**
+     * The device index to which the network interface is attached.
+     */
     @Filter("attachment.device-index")
     public String getAttachmentDeviceIndex() {
         return attachmentDeviceIndex;
@@ -165,6 +212,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentDeviceIndex = attachmentDeviceIndex;
     }
 
+    /**
+     * The ID of the instance to which the network interface is attached.
+     */
     @Filter("attachment.instance-id")
     public String getAttachmentInstanceId() {
         return attachmentInstanceId;
@@ -174,6 +224,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentInstanceId = attachmentInstanceId;
     }
 
+    /**
+     * The owner ID of the instance to which the network interface is attached.
+     */
     @Filter("attachment.instance-owner-id")
     public String getAttachmentInstanceOwnerId() {
         return attachmentInstanceOwnerId;
@@ -183,6 +236,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentInstanceOwnerId = attachmentInstanceOwnerId;
     }
 
+    /**
+     * The ID of the NAT gateway to which the network interface is attached.
+     */
     @Filter("attachment.nat-gateway-id")
     public String getAttachmentNatGatewayId() {
         return attachmentNatGatewayId;
@@ -192,6 +248,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentNatGatewayId = attachmentNatGatewayId;
     }
 
+    /**
+     * The status of the attachment . Valid values are ``attaching `` or `` attached `` or `` detaching `` or `` detached``.
+     */
     @Filter("attachment.status")
     public String getAttachmentStatus() {
         return attachmentStatus;
@@ -201,6 +260,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.attachmentStatus = attachmentStatus;
     }
 
+    /**
+     * The Availability Zone of the network interface.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -209,6 +271,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The description of the network interface.
+     */
     public String getDescription() {
         return description;
     }
@@ -217,6 +282,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.description = description;
     }
 
+    /**
+     * The ID of a security group associated with the network interface.
+     */
     public String getGroupId() {
         return groupId;
     }
@@ -225,6 +293,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.groupId = groupId;
     }
 
+    /**
+     * The name of a security group associated with the network interface.
+     */
     public String getGroupName() {
         return groupName;
     }
@@ -233,6 +304,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.groupName = groupName;
     }
 
+    /**
+     * An IPv6 address associated with the network interface.
+     */
     @Filter("ipv6-addresses.ipv6-address")
     public String getIpv6AddressesIpv6Address() {
         return ipv6AddressesIpv6Address;
@@ -242,6 +316,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.ipv6AddressesIpv6Address = ipv6AddressesIpv6Address;
     }
 
+    /**
+     * The MAC address of the network interface.
+     */
     public String getMacAddress() {
         return macAddress;
     }
@@ -250,6 +327,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.macAddress = macAddress;
     }
 
+    /**
+     * The ID of the network interface.
+     */
     public String getNetworkInterfaceId() {
         return networkInterfaceId;
     }
@@ -258,6 +338,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.networkInterfaceId = networkInterfaceId;
     }
 
+    /**
+     * The AWS account ID of the network interface owner.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -266,6 +349,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.ownerId = ownerId;
     }
 
+    /**
+     * The private IPv4 address or addresses of the network interface.
+     */
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -274,6 +360,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.privateIpAddress = privateIpAddress;
     }
 
+    /**
+     * The private DNS name of the network interface (IPv4).
+     */
     public String getPrivateDnsName() {
         return privateDnsName;
     }
@@ -282,6 +371,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.privateDnsName = privateDnsName;
     }
 
+    /**
+     * The ID of the entity that launched the instance on your behalf (for example, AWS Management Console, Auto Scaling, and so on).
+     */
     public String getRequesterId() {
         return requesterId;
     }
@@ -290,6 +382,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.requesterId = requesterId;
     }
 
+    /**
+     * Indicates whether the network interface is being managed by an AWS service (for example, AWS Management Console, Auto Scaling, and so on).
+     */
     public String getRequesterManaged() {
         return requesterManaged;
     }
@@ -298,6 +393,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.requesterManaged = requesterManaged;
     }
 
+    /**
+     * Indicates whether the network interface performs source/destination checking. A value of true means checking is enabled, and false means checking is disabled. The value must be false for the network interface to perform network address translation (NAT) in your VPC.
+     */
     public String getSourceDestCheck() {
         return sourceDestCheck;
     }
@@ -306,6 +404,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.sourceDestCheck = sourceDestCheck;
     }
 
+    /**
+     * The status of the network interface. If the network interface is not attached to an instance, the status is available; if a network interface is attached to an instance the status is in-use.
+     */
     public String getStatus() {
         return status;
     }
@@ -314,6 +415,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.status = status;
     }
 
+    /**
+     * The ID of the subnet for the network interface.
+     */
     public String getSubnetId() {
         return subnetId;
     }
@@ -322,6 +426,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.subnetId = subnetId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -334,6 +441,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -342,6 +452,9 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the VPC for the network interface.
+     */
     public String getVpcId() {
         return vpcId;
     }
