@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.kms.model.Tag;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -352,6 +353,10 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     @Override
     public void create() {
         KmsClient client = createClient(KmsClient.class);
+
+        if (getAliases().isEmpty()) {
+            throw new GyroException("At least one alias must be provided.");
+        }
 
         List<String> newList = getAliases().stream()
                 .distinct()
