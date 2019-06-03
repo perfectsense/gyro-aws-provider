@@ -18,6 +18,7 @@ launch-template: $(aws::launch-template EXTERNAL/* | launch-template-name = '')
 nat-gateway: $(aws::nat-gateway EXTERNAL/* | nat-gateway-id = '')
 network-acl: $(aws::network-acl EXTERNAL/* | network-acl-id = '')
 network-interface: $(aws::network-interface EXTERNAL/* | description = '')
+peering-connection: $(aws::peering-connection EXTERNAL/* | vpc-peering-connection-id = '')
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"

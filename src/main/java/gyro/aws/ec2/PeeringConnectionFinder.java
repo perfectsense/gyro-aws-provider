@@ -10,8 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query peering connection.
+ *
+ * .. code-block:: gyro
+ *
+ *    peering-connection: $(aws::peering-connection EXTERNAL/* | vpc-peering-connection-id = '')
+ */
 @Type("peering-connection")
 public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {
+
     private String accepterVpcInfoCidrBlock;
     private String accepterVpcInfoOwnerId;
     private String accepterVpcInfoVpcId;
@@ -25,6 +33,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
     private String tagKey;
     private String vpcPeeringConnectionId;
 
+    /**
+     * The IPv4 CIDR block of the accepter VPC.
+     */
     @Filter("accepter-vpc-info.cidr-block")
     public String getAccepterVpcInfoCidrBlock() {
         return accepterVpcInfoCidrBlock;
@@ -34,6 +45,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.accepterVpcInfoCidrBlock = accepterVpcInfoCidrBlock;
     }
 
+    /**
+     * The AWS account ID of the owner of the accepter VPC.
+     */
     @Filter("accepter-vpc-info.owner-id")
     public String getAccepterVpcInfoOwnerId() {
         return accepterVpcInfoOwnerId;
@@ -43,6 +57,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.accepterVpcInfoOwnerId = accepterVpcInfoOwnerId;
     }
 
+    /**
+     * The ID of the accepter VPC.
+     */
     @Filter("accepter-vpc-info.vpc-id")
     public String getAccepterVpcInfoVpcId() {
         return accepterVpcInfoVpcId;
@@ -52,6 +69,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.accepterVpcInfoVpcId = accepterVpcInfoVpcId;
     }
 
+    /**
+     * The expiration date and time for the VPC peering connection.
+     */
     public String getExpirationTime() {
         return expirationTime;
     }
@@ -60,6 +80,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.expirationTime = expirationTime;
     }
 
+    /**
+     * The IPv4 CIDR block of the requester's VPC.
+     */
     @Filter("requester-vpc-info.cidr-block")
     public String getRequesterVpcInfoCidrBlock() {
         return requesterVpcInfoCidrBlock;
@@ -69,6 +92,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.requesterVpcInfoCidrBlock = requesterVpcInfoCidrBlock;
     }
 
+    /**
+     * The AWS account ID of the owner of the requester VPC.
+     */
     @Filter("requester-vpc-info.owner-id")
     public String getRequesterVpcInfoOwnerId() {
         return requesterVpcInfoOwnerId;
@@ -78,6 +104,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.requesterVpcInfoOwnerId = requesterVpcInfoOwnerId;
     }
 
+    /**
+     * The ID of the requester VPC.
+     */
     @Filter("requester-vpc-info.vpc-id")
     public String getRequesterVpcInfoVpcId() {
         return requesterVpcInfoVpcId;
@@ -87,6 +116,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.requesterVpcInfoVpcId = requesterVpcInfoVpcId;
     }
 
+    /**
+     * The status of the VPC peering connection . Valid values are ``pending-acceptance `` or `` failed `` or `` expired `` or `` provisioning `` or `` active `` or `` deleting `` or `` deleted `` or `` rejected``.
+     */
     public String getStatusCode() {
         return statusCode;
     }
@@ -95,6 +127,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.statusCode = statusCode;
     }
 
+    /**
+     * A message that provides more information about the status of the VPC peering connection, if applicable.
+     */
     public String getStatusMessage() {
         return statusMessage;
     }
@@ -103,6 +138,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.statusMessage = statusMessage;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -115,6 +153,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -123,6 +164,9 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the VPC peering connection.
+     */
     public String getVpcPeeringConnectionId() {
         return vpcPeeringConnectionId;
     }
