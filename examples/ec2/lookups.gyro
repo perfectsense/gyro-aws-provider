@@ -12,6 +12,7 @@ elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
 endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
 endpoint-service: $(aws::endpoint-service EXTERNAL/* | service-name = '')
 instance: $(aws::instance EXTERNAL/* | affinity = 'default')
+internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway = '')
 
 
 aws::vpc foobar-dev

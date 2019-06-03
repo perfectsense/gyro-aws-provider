@@ -10,8 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query internet gateway.
+ *
+ * .. code-block:: gyro
+ *
+ *    internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway = '')
+ */
 @Type("internet-gateway")
 public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway, InternetGatewayResource> {
+
     private String attachmentState;
     private String attachmentVpcId;
     private String internetGatewayId;
@@ -19,6 +27,9 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
     private Map<String, String> tag;
     private String tagKey;
 
+    /**
+     * The current state of the attachment between the gateway and the VPC ( available). Present only if a VPC is attached.
+     */
     @Filter("attachment.state")
     public String getAttachmentState() {
         return attachmentState;
@@ -28,6 +39,9 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
         this.attachmentState = attachmentState;
     }
 
+    /**
+     * The ID of an attached VPC.
+     */
     @Filter("attachment.vpc-id")
     public String getAttachmentVpcId() {
         return attachmentVpcId;
@@ -37,6 +51,9 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
         this.attachmentVpcId = attachmentVpcId;
     }
 
+    /**
+     * The ID of the Internet gateway.
+     */
     public String getInternetGatewayId() {
         return internetGatewayId;
     }
@@ -45,6 +62,9 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
         this.internetGatewayId = internetGatewayId;
     }
 
+    /**
+     * The ID of the AWS account that owns the internet gateway.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -53,6 +73,9 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
         this.ownerId = ownerId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -65,6 +88,9 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
