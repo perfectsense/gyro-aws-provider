@@ -3,6 +3,7 @@ package gyro.aws.kms;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -449,6 +450,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
             client.updateKeyDescription(r -> r.description(getDescription())
                     .keyId(getKeyId()));
+
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
         }
