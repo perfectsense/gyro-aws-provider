@@ -10,8 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query network acl.
+ *
+ * .. code-block:: gyro
+ *
+ *    network-acl: $(aws::network-acl EXTERNAL/* | network-acl-id = '')
+ */
 @Type("network-acl")
 public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
+
     private String associationAssociationId;
     private String associationNetworkAclId;
     private String associationSubnetId;
@@ -31,6 +39,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
     private String tagKey;
     private String vpcId;
 
+    /**
+     * The ID of an association ID for the ACL.
+     */
     @Filter("association.association-id")
     public String getAssociationAssociationId() {
         return associationAssociationId;
@@ -40,6 +51,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.associationAssociationId = associationAssociationId;
     }
 
+    /**
+     * The ID of the network ACL involved in the association.
+     */
     @Filter("association.network-acl-id")
     public String getAssociationNetworkAclId() {
         return associationNetworkAclId;
@@ -49,6 +63,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.associationNetworkAclId = associationNetworkAclId;
     }
 
+    /**
+     * The ID of the subnet involved in the association.
+     */
     @Filter("association.subnet-id")
     public String getAssociationSubnetId() {
         return associationSubnetId;
@@ -58,6 +75,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.associationSubnetId = associationSubnetId;
     }
 
+    /**
+     * Indicates whether the ACL is the default network ACL for the VPC.
+     */
     @Filter("default")
     public String getDefaultAcl() {
         return defaultAcl;
@@ -67,6 +87,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.defaultAcl = defaultAcl;
     }
 
+    /**
+     * The IPv4 CIDR range specified in the entry.
+     */
     @Filter("entry.cidr")
     public String getEntryCidr() {
         return entryCidr;
@@ -76,6 +99,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryCidr = entryCidr;
     }
 
+    /**
+     * The ICMP code specified in the entry, if any.
+     */
     @Filter("entry.icmp.code")
     public String getEntryIcmpCode() {
         return entryIcmpCode;
@@ -85,6 +111,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryIcmpCode = entryIcmpCode;
     }
 
+    /**
+     * The ICMP type specified in the entry, if any.
+     */
     @Filter("entry.icmp.type")
     public String getEntryIcmpType() {
         return entryIcmpType;
@@ -94,6 +123,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryIcmpType = entryIcmpType;
     }
 
+    /**
+     * The IPv6 CIDR range specified in the entry.
+     */
     @Filter("entry.ipv6-cidr")
     public String getEntryIpv6Cidr() {
         return entryIpv6Cidr;
@@ -103,6 +135,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryIpv6Cidr = entryIpv6Cidr;
     }
 
+    /**
+     * The start of the port range specified in the entry.
+     */
     @Filter("entry.port-range.from")
     public String getEntryPortRangeFrom() {
         return entryPortRangeFrom;
@@ -112,6 +147,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryPortRangeFrom = entryPortRangeFrom;
     }
 
+    /**
+     * The end of the port range specified in the entry.
+     */
     @Filter("entry.port-range.to")
     public String getEntryPortRangeTo() {
         return entryPortRangeTo;
@@ -121,6 +159,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryPortRangeTo = entryPortRangeTo;
     }
 
+    /**
+     * The protocol specified in the entry . Valid values are ``tcp`` or ``udp`` or ``icmp`` or ``a protocol number``.
+     */
     @Filter("entry.protocol")
     public String getEntryProtocol() {
         return entryProtocol;
@@ -130,6 +171,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryProtocol = entryProtocol;
     }
 
+    /**
+     * Allows or denies the matching traffic . Valid values are ``allow`` or ``deny``.
+     */
     @Filter("entry.rule-action")
     public String getEntryRuleAction() {
         return entryRuleAction;
@@ -139,6 +183,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryRuleAction = entryRuleAction;
     }
 
+    /**
+     * The number of an entry (in other words, rule) in the set of ACL entries.
+     */
     @Filter("entry.rule-number")
     public String getEntryRuleNumber() {
         return entryRuleNumber;
@@ -148,6 +195,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.entryRuleNumber = entryRuleNumber;
     }
 
+    /**
+     * The ID of the network ACL.
+     */
     public String getNetworkAclId() {
         return networkAclId;
     }
@@ -156,6 +206,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.networkAclId = networkAclId;
     }
 
+    /**
+     * The ID of the AWS account that owns the network ACL.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -164,6 +217,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.ownerId = ownerId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -176,6 +232,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -184,6 +243,9 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the VPC for the network ACL.
+     */
     public String getVpcId() {
         return vpcId;
     }
