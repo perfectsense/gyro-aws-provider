@@ -8,6 +8,13 @@ import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query connection notification.
+ *
+ * .. code-block:: gyro
+ *
+ *    connection-notification: $(aws::connection-notification EXTERNAL/* | connection-notification-arn = '')
+ */
 @Type("connection-notification")
 public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, ConnectionNotification, ConnectionNotificationResource> {
 
@@ -18,6 +25,9 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
     private String serviceId;
     private String vpcEndpointId;
 
+    /**
+     * The ARN of SNS topic for the notification.
+     */
     public String getConnectionNotificationArn() {
         return connectionNotificationArn;
     }
@@ -26,6 +36,9 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
         this.connectionNotificationArn = connectionNotificationArn;
     }
 
+    /**
+     * The ID of the notification.
+     */
     public String getConnectionNotificationId() {
         return connectionNotificationId;
     }
@@ -34,6 +47,9 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
         this.connectionNotificationId = connectionNotificationId;
     }
 
+    /**
+     * The state of the notification . Valid values are ``Enabled`` or ``Disabled``.
+     */
     public String getConnectionNotificationState() {
         return connectionNotificationState;
     }
@@ -42,6 +58,9 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
         this.connectionNotificationState = connectionNotificationState;
     }
 
+    /**
+     * The type of notification (Topic).
+     */
     public String getConnectionNotificationType() {
         return connectionNotificationType;
     }
@@ -50,6 +69,9 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
         this.connectionNotificationType = connectionNotificationType;
     }
 
+    /**
+     * The ID of the endpoint service.
+     */
     public String getServiceId() {
         return serviceId;
     }
@@ -58,6 +80,9 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
         this.serviceId = serviceId;
     }
 
+    /**
+     * The ID of the VPC endpoint.
+     */
     public String getVpcEndpointId() {
         return vpcEndpointId;
     }

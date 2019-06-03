@@ -2,6 +2,8 @@
 subnet-ids: $(aws::subnet EXTERNAL/* | availability-zone = 'us-east-2a' | vpc-id = 'vpc-09b9493a3d5db31b6' or vpc-id = 'vpc-7365661b' | map-public-ip-on-launch != true and cidr-block = '10.0.0.0/24')
 vpc-ids: $(aws::vpc EXTERNAL/* | tag.Name = "vpc-example-for-network-acl")
 capacity-reservations: $(aws::capacity-reservation EXTERNAL/* | capacity-reservation-id = 'cr-071f2771deb1ea5d4')
+connection-notification: $(aws::connection-notification EXTERNAL/* | connection-notification-arn = '')
+
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"
