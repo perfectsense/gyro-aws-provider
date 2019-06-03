@@ -9,8 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query endpoint.
+ *
+ * .. code-block:: gyro
+ *
+ *    endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
+ */
 @Type("endpoint")
 public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
+
     private String serviceName;
     private String vpcId;
     private String vpcEndpointId;
@@ -18,6 +26,9 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
     private Map<String, String> tag;
     private String tagKey;
 
+    /**
+     * The name of the service.
+     */
     public String getServiceName() {
         return serviceName;
     }
@@ -26,6 +37,9 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
         this.serviceName = serviceName;
     }
 
+    /**
+     * The ID of the VPC in which the endpoint resides.
+     */
     public String getVpcId() {
         return vpcId;
     }
@@ -34,6 +48,9 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
         this.vpcId = vpcId;
     }
 
+    /**
+     * The ID of the endpoint.
+     */
     public String getVpcEndpointId() {
         return vpcEndpointId;
     }
@@ -42,6 +59,9 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
         this.vpcEndpointId = vpcEndpointId;
     }
 
+    /**
+     * The state of the endpoint. . Valid values are ``pending `` or `` available `` or `` deleting `` or `` deleted``
+     */
     public String getVpcEndpointState() {
         return vpcEndpointState;
     }
@@ -50,6 +70,9 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
         this.vpcEndpointState = vpcEndpointState;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -62,6 +85,9 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
