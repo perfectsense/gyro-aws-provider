@@ -9,8 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query nat gateway.
+ *
+ * .. code-block:: gyro
+ *
+ *    nat-gateway: $(aws::nat-gateway EXTERNAL/* | nat-gateway-id = '')
+ */
 @Type("nat-gateway")
 public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewayResource> {
+
     private String natGatewayId;
     private String state;
     private String subnetId;
@@ -18,6 +26,9 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
     private String tagKey;
     private String vpcId;
 
+    /**
+     * The ID of the NAT gateway.
+     */
     public String getNatGatewayId() {
         return natGatewayId;
     }
@@ -26,6 +37,9 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
         this.natGatewayId = natGatewayId;
     }
 
+    /**
+     * The state of the NAT gateway . Valid values are ``pending `` or `` failed `` or `` available `` or `` deleting `` or `` deleted``.
+     */
     public String getState() {
         return state;
     }
@@ -34,6 +48,9 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
         this.state = state;
     }
 
+    /**
+     * The ID of the subnet in which the NAT gateway resides.
+     */
     public String getSubnetId() {
         return subnetId;
     }
@@ -42,7 +59,14 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
         this.subnetId = subnetId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
+        if (tag == null) {
+            tag = new HashMap<>();
+        }
+
         return tag;
     }
 
@@ -50,11 +74,10 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
-        if (tag == null) {
-            tag = new HashMap<>();
-        }
-
         return tagKey;
     }
 
@@ -62,6 +85,9 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the VPC in which the NAT gateway resides.
+     */
     public String getVpcId() {
         return vpcId;
     }

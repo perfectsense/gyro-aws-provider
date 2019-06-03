@@ -15,6 +15,7 @@ instance: $(aws::instance EXTERNAL/* | affinity = 'default')
 internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway = '')
 key-pair: $(aws::key-pair EXTERNAL/* | key-name = '')
 launch-template: $(aws::launch-template EXTERNAL/* | launch-template-name = '')
+nat-gateway: $(aws::nat-gateway EXTERNAL/* | nat-gateway-id = '')
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"
