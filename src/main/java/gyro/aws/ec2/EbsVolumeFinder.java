@@ -10,6 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query volume.
+ *
+ * .. code-block:: gyro
+ *
+ *    ebs-volume: $(aws::ebs-volume EXTERNAL/* | volume-id = '')
+ */
 @Type("ebs-volume")
 public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResource> {
 
@@ -29,6 +36,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
     private String volumeId;
     private String volumeType;
 
+    /**
+     * The time stamp when the attachment initiated.
+     */
     @Filter("attachment.attach-time")
     public String getAttachmentAttachTime() {
         return attachmentAttachTime;
@@ -38,6 +48,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.attachmentAttachTime = attachmentAttachTime;
     }
 
+    /**
+     * Whether the volume is deleted on instance termination.
+     */
     @Filter("attachment.delete-on-termination")
     public String getAttachmentDeleteOnTermination() {
         return attachmentDeleteOnTermination;
@@ -47,6 +60,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.attachmentDeleteOnTermination = attachmentDeleteOnTermination;
     }
 
+    /**
+     * The device name specified in the block device mapping (for example, /dev/sda1).
+     */
     @Filter("attachment.device")
     public String getAttachmentDevice() {
         return attachmentDevice;
@@ -56,6 +72,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.attachmentDevice = attachmentDevice;
     }
 
+    /**
+     * The ID of the instance the volume is attached to.
+     */
     @Filter("attachment.instance-id")
     public String getAttachmentInstanceId() {
         return attachmentInstanceId;
@@ -65,6 +84,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.attachmentInstanceId = attachmentInstanceId;
     }
 
+    /**
+     * The attachment state . Valid values are ``attaching`` or ``attached`` or ``detaching``.
+     */
     @Filter("attachment.status")
     public String getAttachmentStatus() {
         return attachmentStatus;
@@ -74,6 +96,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.attachmentStatus = attachmentStatus;
     }
 
+    /**
+     * The Availability Zone in which the volume was created.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -82,6 +107,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The time stamp when the volume was created.
+     */
     public String getCreateTime() {
         return createTime;
     }
@@ -90,6 +118,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.createTime = createTime;
     }
 
+    /**
+     * Indicates whether the volume is encrypted . Valid values are ``true`` or ``false``
+     */
     public String getEncrypted() {
         return encrypted;
     }
@@ -98,6 +129,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.encrypted = encrypted;
     }
 
+    /**
+     * The size of the volume, in GiB.
+     */
     public String getSize() {
         return size;
     }
@@ -106,6 +140,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.size = size;
     }
 
+    /**
+     * The snapshot from which the volume was created.
+     */
     public String getSnapshotId() {
         return snapshotId;
     }
@@ -114,6 +151,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.snapshotId = snapshotId;
     }
 
+    /**
+     * The status of the volume . Valid values are ``creating`` or ``available`` or ``in-use`` or ``deleting`` or ``deleted`` or ``error``.
+     */
     public String getStatus() {
         return status;
     }
@@ -122,6 +162,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.status = status;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -134,6 +177,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -142,6 +188,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.tagKey = tagKey;
     }
 
+    /**
+     * The volume ID.
+     */
     public String getVolumeId() {
         return volumeId;
     }
@@ -150,6 +199,9 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
         this.volumeId = volumeId;
     }
 
+    /**
+     * The Amazon EBS volume type. Valid values are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
+     */
     public String getVolumeType() {
         return volumeType;
     }

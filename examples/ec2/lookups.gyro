@@ -6,6 +6,7 @@ connection-notification: $(aws::connection-notification EXTERNAL/* | connection-
 customer-gateway: $(aws::customer-gateway EXTERNAL/* | state = 'available')
 dhcp-options: $(aws::dhcp-options EXTERNAL/* | dhcp-options-id = '')
 ebs-snapshot: $(aws::ebs-snapshot EXTERNAL/* | owner-alias = 'amazon')
+ebs-volume: $(aws::ebs-volume EXTERNAL/* | volume-id = '')
 
 
 aws::vpc foobar-dev
