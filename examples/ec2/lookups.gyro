@@ -4,6 +4,7 @@ vpc-ids: $(aws::vpc EXTERNAL/* | tag.Name = "vpc-example-for-network-acl")
 capacity-reservations: $(aws::capacity-reservation EXTERNAL/* | capacity-reservation-id = 'cr-071f2771deb1ea5d4')
 connection-notification: $(aws::connection-notification EXTERNAL/* | connection-notification-arn = '')
 customer-gateway: $(aws::customer-gateway EXTERNAL/* | state = 'available')
+dhcp-options: $(aws::dhcp-options EXTERNAL/* | dhcp-options-id = '')
 
 
 aws::vpc foobar-dev

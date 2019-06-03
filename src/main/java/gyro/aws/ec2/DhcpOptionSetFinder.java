@@ -8,6 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query dhcp options.
+ *
+ * .. code-block:: gyro
+ *
+ *    dhcp-options: $(aws::dhcp-options EXTERNAL/* | dhcp-options-id = '')
+ */
 @Type("dhcp-options")
 public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpOptionSetResource> {
 
@@ -18,6 +25,9 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
     private Map<String, String> tag;
     private String tagKey;
 
+    /**
+     * The ID of a DHCP options set.
+     */
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
     }
@@ -26,6 +36,9 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
         this.dhcpOptionsId = dhcpOptionsId;
     }
 
+    /**
+     * The key for one of the options (for example, domain-name).
+     */
     public String getKey() {
         return key;
     }
@@ -34,6 +47,9 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
         this.key = key;
     }
 
+    /**
+     * The value for one of the options.
+     */
     public String getValue() {
         return value;
     }
@@ -42,6 +58,9 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
         this.value = value;
     }
 
+    /**
+     * The ID of the AWS account that owns the DHCP options set.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -50,6 +69,9 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
         this.ownerId = ownerId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -62,6 +84,9 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
