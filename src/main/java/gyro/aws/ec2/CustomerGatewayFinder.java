@@ -9,6 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query customer gateway.
+ *
+ * .. code-block:: gyro
+ *
+ *    customer-gateway: $(aws::customer-gateway EXTERNAL/* | state = 'available')
+ */
 @Type("customer-gateway")
 public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway, CustomerGatewayResource> {
 
@@ -20,6 +27,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
     private Map<String, String> tag;
     private String tagKey;
 
+    /**
+     * The customer gateway's Border Gateway Protocol (BGP) Autonomous System Number (ASN).
+     */
     public String getBgpAsn() {
         return bgpAsn;
     }
@@ -28,6 +38,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
         this.bgpAsn = bgpAsn;
     }
 
+    /**
+     * The ID of the customer gateway.
+     */
     public String getCustomerGatewayId() {
         return customerGatewayId;
     }
@@ -36,6 +49,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
         this.customerGatewayId = customerGatewayId;
     }
 
+    /**
+     * The IP address of the customer gateway's Internet-routable external interface.
+     */
     public String getIpAddress() {
         return ipAddress;
     }
@@ -44,6 +60,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
         this.ipAddress = ipAddress;
     }
 
+    /**
+     * The state of the customer gateway . Valid values are ``pending`` or ``available`` or ``deleting`` or ``deleted``.
+     */
     public String getState() {
         return state;
     }
@@ -52,6 +71,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
         this.state = state;
     }
 
+    /**
+     * The type of customer gateway. Currently, the only supported type is ipsec.1.
+     */
     public String getType() {
         return type;
     }
@@ -60,6 +82,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
         this.type = type;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -72,6 +97,9 @@ public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway,
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
