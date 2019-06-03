@@ -9,6 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query ebs snapshot.
+ *
+ * .. code-block:: gyro
+ *
+ *    ebs-snapshot: $(aws::ebs-snapshot EXTERNAL/* | owner-alias = 'amazon')
+ */
 @Type("ebs-snapshot")
 public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapshotResource> {
 
@@ -25,6 +32,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
     private String volumeId;
     private String volumeSize;
 
+    /**
+     * A description of the snapshot.
+     */
     public String getDescription() {
         return description;
     }
@@ -33,6 +43,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.description = description;
     }
 
+    /**
+     * Indicates whether the snapshot is encrypted . Valid values are ``true`` or ``false``
+     */
     public String getEncrypted() {
         return encrypted;
     }
@@ -41,6 +54,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.encrypted = encrypted;
     }
 
+    /**
+     * Value from an Amazon-maintained list . Valid values are ``amazon`` or ``self`` or ``all`` or ``aws-marketplace`` or ``microsoft``.
+     */
     public String getOwnerAlias() {
         return ownerAlias;
     }
@@ -49,6 +65,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.ownerAlias = ownerAlias;
     }
 
+    /**
+     * The ID of the AWS account that owns the snapshot.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -57,6 +76,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.ownerId = ownerId;
     }
 
+    /**
+     * The progress of the snapshot, as a percentage (for example, 80%).
+     */
     public String getProgress() {
         return progress;
     }
@@ -65,6 +87,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.progress = progress;
     }
 
+    /**
+     * The snapshot ID.
+     */
     public String getSnapshotId() {
         return snapshotId;
     }
@@ -73,6 +98,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.snapshotId = snapshotId;
     }
 
+    /**
+     * The time stamp when the snapshot was initiated.
+     */
     public String getStartTime() {
         return startTime;
     }
@@ -81,6 +109,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.startTime = startTime;
     }
 
+    /**
+     * The status of the snapshot . Valid values are ``pending`` or ``completed`` or ``error``.
+     */
     public String getStatus() {
         return status;
     }
@@ -89,6 +120,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.status = status;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -101,6 +135,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -109,6 +146,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the volume the snapshot is for.
+     */
     public String getVolumeId() {
         return volumeId;
     }
@@ -117,6 +157,9 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         this.volumeId = volumeId;
     }
 
+    /**
+     * The size of the volume, in GiB.
+     */
     public String getVolumeSize() {
         return volumeSize;
     }
@@ -135,4 +178,3 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
         return client.describeSnapshots(r -> r.filters(createFilters(filters))).snapshots();
     }
 }
-
