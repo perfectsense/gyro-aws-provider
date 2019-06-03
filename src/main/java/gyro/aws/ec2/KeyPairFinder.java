@@ -8,11 +8,21 @@ import software.amazon.awssdk.services.ec2.model.KeyPairInfo;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query key pair.
+ *
+ * .. code-block:: gyro
+ *
+ *    key-pair: $(aws::key-pair EXTERNAL/* | key-name = '')
+ */
 @Type("key-pair")
 public class KeyPairFinder extends AwsFinder<Ec2Client, KeyPairInfo, KeyPairResource> {
     private String fingerprint;
     private String keyName;
 
+    /**
+     * The fingerprint of the key pair.
+     */
     public String getFingerprint() {
         return fingerprint;
     }
@@ -21,6 +31,9 @@ public class KeyPairFinder extends AwsFinder<Ec2Client, KeyPairInfo, KeyPairReso
         this.fingerprint = fingerprint;
     }
 
+    /**
+     * The key name of the key pair.
+     */
     public String getKeyName() {
         return keyName;
     }

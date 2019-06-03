@@ -13,7 +13,7 @@ endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
 endpoint-service: $(aws::endpoint-service EXTERNAL/* | service-name = '')
 instance: $(aws::instance EXTERNAL/* | affinity = 'default')
 internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway = '')
-
+key-pair: $(aws::key-pair EXTERNAL/* | key-name = '')
 
 aws::vpc foobar-dev
     cidr-block: "10.7.0.0/16"
