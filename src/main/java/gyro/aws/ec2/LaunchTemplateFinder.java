@@ -12,6 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query launch template.
+ *
+ * .. code-block:: gyro
+ *
+ *    launch-template: $(aws::launch-template EXTERNAL/* | launch-template-name = '')
+ */
 @Type("launch-template")
 public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, LaunchTemplateResource> {
     private String createTime;
@@ -20,6 +27,9 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
     private String tagKey;
     private Map<String, String> tag;
 
+    /**
+     * The time the launch template was created.
+     */
     public String getCreateTime() {
         return createTime;
     }
@@ -28,6 +38,9 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
         this.createTime = createTime;
     }
 
+    /**
+     * The ID of the launch template.
+     */
     public String getLaunchTemplateId() {
         return launchTemplateId;
     }
@@ -36,6 +49,9 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
         this.launchTemplateId = launchTemplateId;
     }
 
+    /**
+     * The name of the launch template.
+     */
     public String getLaunchTemplateName() {
         return launchTemplateName;
     }
@@ -44,14 +60,9 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
         this.launchTemplateName = launchTemplateName;
     }
 
-    public String getTagKey() {
-        return tagKey;
-    }
-
-    public void setTagKey(String tagKey) {
-        this.tagKey = tagKey;
-    }
-
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -62,6 +73,17 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
 
     public void setTag(Map<String, String> tag) {
         this.tag = tag;
+    }
+
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
+    public String getTagKey() {
+        return tagKey;
+    }
+
+    public void setTagKey(String tagKey) {
+        this.tagKey = tagKey;
     }
 
     @Override
