@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    vpc: $(aws::vpc EXTERNAL/* | cidr = '####')
+ *    vpc: $(aws::vpc EXTERNAL/* | tag.Name = "vpc-example-for-network-acl")
  */
 @Type("vpc")
 public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
