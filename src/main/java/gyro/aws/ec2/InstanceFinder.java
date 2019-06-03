@@ -12,8 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query instance.
+ *
+ * .. code-block:: gyro
+ *
+ *    instance: $(aws::instance EXTERNAL/* | affinity = 'default')
+ */
 @Type("instance")
 public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResource> {
+
     private String affinity;
     private String architecture;
     private String availabilityZone;
@@ -99,6 +107,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
     private String virtualizationType;
     private String vpcId;
 
+    /**
+     * The affinity setting for an instance running on a Dedicated Host . Valid values are ``default`` or ``host``.
+     */
     public String getAffinity() {
         return affinity;
     }
@@ -107,6 +118,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.affinity = affinity;
     }
 
+    /**
+     * The instance architecture . Valid values are ``i386`` or ``x86_64``.
+     */
     public String getArchitecture() {
         return architecture;
     }
@@ -115,6 +129,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.architecture = architecture;
     }
 
+    /**
+     * The Availability Zone of the instance.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -123,6 +140,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The attach time for an EBS volume mapped to the instance, for example, 2010-09-15T17:15:20.000Z.
+     */
     @Filter("block-device-mapping.attach-time")
     public String getBlockDeviceMappingAttachTime() {
         return blockDeviceMappingAttachTime;
@@ -132,6 +152,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.blockDeviceMappingAttachTime = blockDeviceMappingAttachTime;
     }
 
+    /**
+     * A Boolean that indicates whether the EBS volume is deleted on instance termination.
+     */
     @Filter("block-device-mapping.delete-on-termination")
     public String getBlockDeviceMappingDeleteOnTermination() {
         return blockDeviceMappingDeleteOnTermination;
@@ -141,6 +164,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.blockDeviceMappingDeleteOnTermination = blockDeviceMappingDeleteOnTermination;
     }
 
+    /**
+     * The device name specified in the block device mapping (for example, /dev/sdh or xvdh).
+     */
     @Filter("block-device-mapping.device-name")
     public String getBlockDeviceMappingDeviceName() {
         return blockDeviceMappingDeviceName;
@@ -150,6 +176,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.blockDeviceMappingDeviceName = blockDeviceMappingDeviceName;
     }
 
+    /**
+     * The status for the EBS volume . Valid values are ``attaching`` or ``attached`` or ``detaching`` or ``detached``.
+     */
     @Filter("block-device-mapping.status")
     public String getBlockDeviceMappingStatus() {
         return blockDeviceMappingStatus;
@@ -159,6 +188,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.blockDeviceMappingStatus = blockDeviceMappingStatus;
     }
 
+    /**
+     * The volume ID of the EBS volume.
+     */
     @Filter("block-device-mapping.volume-id")
     public String getBlockDeviceMappingVolumeId() {
         return blockDeviceMappingVolumeId;
@@ -168,6 +200,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.blockDeviceMappingVolumeId = blockDeviceMappingVolumeId;
     }
 
+    /**
+     * The idempotency token you provided when you launched the instance.
+     */
     public String getClientToken() {
         return clientToken;
     }
@@ -176,6 +211,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.clientToken = clientToken;
     }
 
+    /**
+     * The public DNS name of the instance.
+     */
     public String getDnsName() {
         return dnsName;
     }
@@ -184,6 +222,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.dnsName = dnsName;
     }
 
+    /**
+     * The ID of the security group for the instance. EC2-Classic only.
+     */
     public String getGroupId() {
         return groupId;
     }
@@ -192,6 +233,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.groupId = groupId;
     }
 
+    /**
+     * The name of the security group for the instance. EC2-Classic only.
+     */
     public String getGroupName() {
         return groupName;
     }
@@ -200,6 +244,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.groupName = groupName;
     }
 
+    /**
+     * A Boolean that indicates whether the instance is enabled for hibernation. A value of true means that the instance is enabled for hibernation.
+     */
     @Filter("hibernation-options.configured")
     public String getHibernationOptionsConfigured() {
         return hibernationOptionsConfigured;
@@ -209,6 +256,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.hibernationOptionsConfigured = hibernationOptionsConfigured;
     }
 
+    /**
+     * The ID of the Dedicated Host on which the instance is running, if applicable.
+     */
     public String getHostId() {
         return hostId;
     }
@@ -217,6 +267,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.hostId = hostId;
     }
 
+    /**
+     * The hypervisor type of the instance . Valid values are ``ovm`` or ``xen``.
+     */
     public String getHypervisor() {
         return hypervisor;
     }
@@ -225,6 +278,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.hypervisor = hypervisor;
     }
 
+    /**
+     * The instance profile associated with the instance. Specified as an ARN.
+     */
     @Filter("iam-instance-profile.arn")
     public String getIamInstanceProfileArn() {
         return iamInstanceProfileArn;
@@ -234,6 +290,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.iamInstanceProfileArn = iamInstanceProfileArn;
     }
 
+    /**
+     * The ID of the image used to launch the instance.
+     */
     public String getImageId() {
         return imageId;
     }
@@ -242,6 +301,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.imageId = imageId;
     }
 
+    /**
+     * The ID of the instance.
+     */
     public String getInstanceId() {
         return instanceId;
     }
@@ -250,6 +312,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceId = instanceId;
     }
 
+    /**
+     * Indicates whether this is a Spot Instance or a Scheduled Instance . Valid values are `` spot`` or ``scheduled``.
+     */
     public String getInstanceLifecycle() {
         return instanceLifecycle;
     }
@@ -258,6 +323,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceLifecycle = instanceLifecycle;
     }
 
+    /**
+     * The state of the instance, as a 16-bit unsigned integer. The high byte is used for internal purposes and should be ignored. The low byte is set based on the state represented. The valid values are: 0 (pending), 16 (running), 32 (shutting-down), 48 (terminated), 64 (stopping), and 80 (stopped).
+     */
     public String getInstanceStateCode() {
         return instanceStateCode;
     }
@@ -266,6 +334,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceStateCode = instanceStateCode;
     }
 
+    /**
+     * The state of the instance . Valid values are ``pending`` or ``running`` or ``shutting-down`` or ``terminated`` or ``stopping`` or ``stopped``.
+     */
     public String getInstanceStateName() {
         return instanceStateName;
     }
@@ -274,6 +345,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceStateName = instanceStateName;
     }
 
+    /**
+     * The type of instance (for example, t2.micro).
+     */
     public String getInstanceType() {
         return instanceType;
     }
@@ -282,6 +356,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceType = instanceType;
     }
 
+    /**
+     * The ID of the security group for the instance.
+     */
     @Filter("instance.group-id")
     public String getInstanceGroupId() {
         return instanceGroupId;
@@ -291,6 +368,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceGroupId = instanceGroupId;
     }
 
+    /**
+     * The name of the security group for the instance.
+     */
     @Filter("instance.group-name")
     public String getInstanceGroupName() {
         return instanceGroupName;
@@ -300,6 +380,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.instanceGroupName = instanceGroupName;
     }
 
+    /**
+     * The public IPv4 address of the instance.
+     */
     public String getIpAddress() {
         return ipAddress;
     }
@@ -308,6 +391,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.ipAddress = ipAddress;
     }
 
+    /**
+     * The kernel ID.
+     */
     public String getKernelId() {
         return kernelId;
     }
@@ -316,6 +402,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.kernelId = kernelId;
     }
 
+    /**
+     * The name of the key pair used when the instance was launched.
+     */
     public String getKeyName() {
         return keyName;
     }
@@ -324,6 +413,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.keyName = keyName;
     }
 
+    /**
+     * When launching multiple instances, this is the index for the instance in the launch group (for example, 0, 1, 2, and so on).
+     */
     public String getLaunchIndex() {
         return launchIndex;
     }
@@ -332,6 +424,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.launchIndex = launchIndex;
     }
 
+    /**
+     * The time when the instance was launched.
+     */
     public String getLaunchTime() {
         return launchTime;
     }
@@ -340,6 +435,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.launchTime = launchTime;
     }
 
+    /**
+     * Indicates whether detailed monitoring is enabled . Valid values are ``disabled`` or ``enabled``.
+     */
     public String getMonitoringState() {
         return monitoringState;
     }
@@ -348,6 +446,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.monitoringState = monitoringState;
     }
 
+    /**
+     * The private IPv4 address associated with the network interface.
+     */
     @Filter("network-interface.addresses.private-ip-address")
     public String getNetworkInterfaceAddressesPrivateIpAddress() {
         return networkInterfaceAddressesPrivateIpAddress;
@@ -357,6 +458,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAddressesPrivateIpAddress = networkInterfaceAddressesPrivateIpAddress;
     }
 
+    /**
+     * Specifies whether the IPv4 address of the network interface is the primary private IPv4 address.
+     */
     @Filter("network-interface.addresses.primary")
     public String getNetworkInterfaceAddressesPrimary() {
         return networkInterfaceAddressesPrimary;
@@ -366,6 +470,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAddressesPrimary = networkInterfaceAddressesPrimary;
     }
 
+    /**
+     * The ID of the association of an Elastic IP address (IPv4) with a network interface.
+     */
     @Filter("network-interface.addresses.association.public-ip")
     public String getNetworkInterfaceAddressesAssociationPublicIp() {
         return networkInterfaceAddressesAssociationPublicIp;
@@ -375,6 +482,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAddressesAssociationPublicIp = networkInterfaceAddressesAssociationPublicIp;
     }
 
+    /**
+     * The owner ID of the private IPv4 address associated with the network interface.
+     */
     @Filter("network-interface.addresses.association.ip-owner-id")
     public String getNetworkInterfaceAddressesAssociationIpOwnerId() {
         return networkInterfaceAddressesAssociationIpOwnerId;
@@ -384,6 +494,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAddressesAssociationIpOwnerId = networkInterfaceAddressesAssociationIpOwnerId;
     }
 
+    /**
+     * The address of the Elastic IP address (IPv4) bound to the network interface.
+     */
     @Filter("network-interface.association.public-ip")
     public String getNetworkInterfaceAssociationPublicIp() {
         return networkInterfaceAssociationPublicIp;
@@ -393,6 +506,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAssociationPublicIp = networkInterfaceAssociationPublicIp;
     }
 
+    /**
+     * The owner of the Elastic IP address (IPv4) associated with the network interface.
+     */
     @Filter("network-interface.association.ip-owner-id")
     public String getNetworkInterfaceAssociationIpOwnerId() {
         return networkInterfaceAssociationIpOwnerId;
@@ -402,6 +518,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAssociationIpOwnerId = networkInterfaceAssociationIpOwnerId;
     }
 
+    /**
+     * The allocation ID returned when you allocated the Elastic IP address (IPv4) for your network interface.
+     */
     @Filter("network-interface.association.allocation-id")
     public String getNetworkInterfaceAssociationAllocationId() {
         return networkInterfaceAssociationAllocationId;
@@ -411,7 +530,10 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAssociationAllocationId = networkInterfaceAssociationAllocationId;
     }
 
-    @Filter("network-interface..association.association-id")
+    /**
+     * The association ID returned when the network interface was associated with an IPv4 address.
+     */
+    @Filter("network-interface.association.association-id")
     public String getNetworkInterfaceAssociationAssociationId() {
         return networkInterfaceAssociationAssociationId;
     }
@@ -420,6 +542,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAssociationAssociationId = networkInterfaceAssociationAssociationId;
     }
 
+    /**
+     * The ID of the interface attachment.
+     */
     @Filter("network-interface.attachment.attachment-id")
     public String getNetworkInterfaceAttachmentAttachmentId() {
         return networkInterfaceAttachmentAttachmentId;
@@ -429,6 +554,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentAttachmentId = networkInterfaceAttachmentAttachmentId;
     }
 
+    /**
+     * The ID of the instance to which the network interface is attached.
+     */
     @Filter("network-interface.attachment.instance-id")
     public String getNetworkInterfaceAttachmentInstanceId() {
         return networkInterfaceAttachmentInstanceId;
@@ -438,6 +566,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentInstanceId = networkInterfaceAttachmentInstanceId;
     }
 
+    /**
+     * The owner ID of the instance to which the network interface is attached.
+     */
     @Filter("network-interface.attachment.instance-owner-id")
     public String getNetworkInterfaceAttachmentInstanceOwnerId() {
         return networkInterfaceAttachmentInstanceOwnerId;
@@ -447,6 +578,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentInstanceOwnerId = networkInterfaceAttachmentInstanceOwnerId;
     }
 
+    /**
+     * The device index to which the network interface is attached.
+     */
     @Filter("network-interface.attachment.device-index")
     public String getNetworkInterfaceAttachmentDeviceIndex() {
         return networkInterfaceAttachmentDeviceIndex;
@@ -456,6 +590,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentDeviceIndex = networkInterfaceAttachmentDeviceIndex;
     }
 
+    /**
+     * The status of the attachment . Valid values are ``attaching`` or ``attached`` or ``detaching`` or ``detached``.
+     */
     @Filter("network-interface.attachment.status")
     public String getNetworkInterfaceAttachmentStatus() {
         return networkInterfaceAttachmentStatus;
@@ -465,6 +602,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentStatus = networkInterfaceAttachmentStatus;
     }
 
+    /**
+     * The time that the network interface was attached to an instance.
+     */
     @Filter("network-interface.attachment.attach-time")
     public String getNetworkInterfaceAttachmentAttachTime() {
         return networkInterfaceAttachmentAttachTime;
@@ -474,6 +614,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentAttachTime = networkInterfaceAttachmentAttachTime;
     }
 
+    /**
+     * Specifies whether the attachment is deleted when an instance is terminated.
+     */
     @Filter("network-interface.attachment.delete-on-termination")
     public String getNetworkInterfaceAttachmentDeleteOnTermination() {
         return networkInterfaceAttachmentDeleteOnTermination;
@@ -483,6 +626,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAttachmentDeleteOnTermination = networkInterfaceAttachmentDeleteOnTermination;
     }
 
+    /**
+     * The Availability Zone for the network interface.
+     */
     @Filter("network-interface.availability-zone")
     public String getNetworkInterfaceAvailabilityZone() {
         return networkInterfaceAvailabilityZone;
@@ -492,6 +638,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceAvailabilityZone = networkInterfaceAvailabilityZone;
     }
 
+    /**
+     * The description of the network interface.
+     */
     @Filter("network-interface.description")
     public String getNetworkInterfaceDescription() {
         return networkInterfaceDescription;
@@ -501,6 +650,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceDescription = networkInterfaceDescription;
     }
 
+    /**
+     * The ID of a security group associated with the network interface.
+     */
     @Filter("network-interface.group-id")
     public String getNetworkInterfaceGroupId() {
         return networkInterfaceGroupId;
@@ -510,6 +662,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceGroupId = networkInterfaceGroupId;
     }
 
+    /**
+     * The name of a security group associated with the network interface.
+     */
     @Filter("network-interface.group-name")
     public String getNetworkInterfaceGroupName() {
         return networkInterfaceGroupName;
@@ -519,6 +674,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceGroupName = networkInterfaceGroupName;
     }
 
+    /**
+     * The IPv6 address associated with the network interface.
+     */
     @Filter("network-interface.ipv6-addresses.ipv6-address")
     public String getNetworkInterfaceIpv6AddressesIpv6Address() {
         return networkInterfaceIpv6AddressesIpv6Address;
@@ -528,6 +686,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceIpv6AddressesIpv6Address = networkInterfaceIpv6AddressesIpv6Address;
     }
 
+    /**
+     * The MAC address of the network interface.
+     */
     @Filter("network-interface.mac-address")
     public String getNetworkInterfaceMacAddress() {
         return networkInterfaceMacAddress;
@@ -537,6 +698,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceMacAddress = networkInterfaceMacAddress;
     }
 
+    /**
+     * The ID of the network interface.
+     */
     @Filter("network-interface.network-interface-id")
     public String getNetworkInterfaceNetworkInterfaceId() {
         return networkInterfaceNetworkInterfaceId;
@@ -546,6 +710,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceNetworkInterfaceId = networkInterfaceNetworkInterfaceId;
     }
 
+    /**
+     * The ID of the owner of the network interface.
+     */
     @Filter("network-interface.owner-id")
     public String getNetworkInterfaceOwnerId() {
         return networkInterfaceOwnerId;
@@ -555,6 +722,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceOwnerId = networkInterfaceOwnerId;
     }
 
+    /**
+     * The private DNS name of the network interface.
+     */
     @Filter("network-interface.private-dns-name")
     public String getNetworkInterfacePrivateDnsName() {
         return networkInterfacePrivateDnsName;
@@ -564,6 +734,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfacePrivateDnsName = networkInterfacePrivateDnsName;
     }
 
+    /**
+     * The requester ID for the network interface.
+     */
     @Filter("network-interface.requester-id")
     public String getNetworkInterfaceRequesterId() {
         return networkInterfaceRequesterId;
@@ -573,6 +746,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceRequesterId = networkInterfaceRequesterId;
     }
 
+    /**
+     * Indicates whether the network interface is being managed by AWS.
+     */
     @Filter("network-interface.requester-managed")
     public String getNetworkInterfaceRequesterManaged() {
         return networkInterfaceRequesterManaged;
@@ -582,6 +758,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceRequesterManaged = networkInterfaceRequesterManaged;
     }
 
+    /**
+     * The status of the network interface . Valid values are ``available)`` or ``in-use``.
+     */
     @Filter("network-interface.status")
     public String getNetworkInterfaceStatus() {
         return networkInterfaceStatus;
@@ -591,6 +770,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceStatus = networkInterfaceStatus;
     }
 
+    /**
+     * Whether the network interface performs source/destination checking. A value of true means that checking is enabled, and false means that checking is disabled. The value must be false for the network interface to perform network address translation (NAT) in your VPC.
+     */
     @Filter("network-interface.source-dest-check")
     public String getNetworkInterfaceSourceDestCheck() {
         return networkInterfaceSourceDestCheck;
@@ -600,6 +782,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceSourceDestCheck = networkInterfaceSourceDestCheck;
     }
 
+    /**
+     * The ID of the subnet for the network interface.
+     */
     @Filter("network-interface.subnet-id")
     public String getNetworkInterfaceSubnetId() {
         return networkInterfaceSubnetId;
@@ -609,6 +794,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceSubnetId = networkInterfaceSubnetId;
     }
 
+    /**
+     * The ID of the VPC for the network interface.
+     */
     @Filter("network-interface.vpc-id")
     public String getNetworkInterfaceVpcId() {
         return networkInterfaceVpcId;
@@ -618,6 +806,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.networkInterfaceVpcId = networkInterfaceVpcId;
     }
 
+    /**
+     * The AWS account ID of the instance owner.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -626,6 +817,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.ownerId = ownerId;
     }
 
+    /**
+     * The name of the placement group for the instance.
+     */
     public String getPlacementGroupName() {
         return placementGroupName;
     }
@@ -634,6 +828,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.placementGroupName = placementGroupName;
     }
 
+    /**
+     * The partition in which the instance is located.
+     */
     public String getPlacementPartitionNumber() {
         return placementPartitionNumber;
     }
@@ -642,6 +839,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.placementPartitionNumber = placementPartitionNumber;
     }
 
+    /**
+     * The platform. To list only Windows instances, use windows.
+     */
     public String getPlatform() {
         return platform;
     }
@@ -650,6 +850,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.platform = platform;
     }
 
+    /**
+     * The private IPv4 DNS name of the instance.
+     */
     public String getPrivateDnsName() {
         return privateDnsName;
     }
@@ -658,6 +861,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.privateDnsName = privateDnsName;
     }
 
+    /**
+     * The private IPv4 address of the instance.
+     */
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -666,6 +872,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.privateIpAddress = privateIpAddress;
     }
 
+    /**
+     * The product code associated with the AMI used to launch the instance.
+     */
     public String getProductCode() {
         return productCode;
     }
@@ -674,6 +883,10 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.productCode = productCode;
     }
 
+    /**
+     * The type of product code . Valid values are ``devpay`` or ``marketplace``.
+     */
+    @Filter("product-code.type")
     public String getProductCodeType() {
         return productCodeType;
     }
@@ -682,6 +895,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.productCodeType = productCodeType;
     }
 
+    /**
+     * The RAM disk ID.
+     */
     public String getRamdiskId() {
         return ramdiskId;
     }
@@ -690,6 +906,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.ramdiskId = ramdiskId;
     }
 
+    /**
+     * The reason for the current state of the instance (for example, shows "User Initiated [date]" when you stop or terminate the instance). Similar to the state-reason-code filter.
+     */
     public String getReason() {
         return reason;
     }
@@ -698,6 +917,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.reason = reason;
     }
 
+    /**
+     * The ID of the entity that launched the instance on your behalf (for example, AWS Management Console, Auto Scaling, and so on).
+     */
     public String getRequesterId() {
         return requesterId;
     }
@@ -706,6 +928,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.requesterId = requesterId;
     }
 
+    /**
+     * The ID of the instance's reservation. A reservation ID is created any time you launch an instance. A reservation ID has a one-to-one relationship with an instance launch request, but can be associated with more than one instance if you launch multiple instances using the same launch request. For example, if you launch one instance, you get one reservation ID. If you launch ten instances using the same launch request, you also get one reservation ID.
+     */
     public String getReservationId() {
         return reservationId;
     }
@@ -714,6 +939,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.reservationId = reservationId;
     }
 
+    /**
+     * The device name of the root device volume (for example, /dev/sda1).
+     */
     public String getRootDeviceName() {
         return rootDeviceName;
     }
@@ -722,6 +950,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.rootDeviceName = rootDeviceName;
     }
 
+    /**
+     * The type of the root device volume . Valid values are ``ebs`` or ``instance-store``.
+     */
     public String getRootDeviceType() {
         return rootDeviceType;
     }
@@ -730,6 +961,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.rootDeviceType = rootDeviceType;
     }
 
+    /**
+     * Indicates whether the instance performs source/destination checking. A value of true means that checking is enabled, and false means that checking is disabled. The value must be false for the instance to perform network address translation (NAT) in your VPC.
+     */
     public String getSourceDestCheck() {
         return sourceDestCheck;
     }
@@ -738,6 +972,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.sourceDestCheck = sourceDestCheck;
     }
 
+    /**
+     * The ID of the Spot Instance request.
+     */
     public String getSpotInstanceRequestId() {
         return spotInstanceRequestId;
     }
@@ -746,6 +983,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.spotInstanceRequestId = spotInstanceRequestId;
     }
 
+    /**
+     * The reason code for the state change.
+     */
     public String getStateReasonCode() {
         return stateReasonCode;
     }
@@ -754,6 +994,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.stateReasonCode = stateReasonCode;
     }
 
+    /**
+     * A message that describes the state change.
+     */
     public String getStateReasonMessage() {
         return stateReasonMessage;
     }
@@ -762,6 +1005,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.stateReasonMessage = stateReasonMessage;
     }
 
+    /**
+     * The ID of the subnet for the instance.
+     */
     public String getSubnetId() {
         return subnetId;
     }
@@ -770,6 +1016,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.subnetId = subnetId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -782,6 +1031,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources that have a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -790,6 +1042,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.tagKey = tagKey;
     }
 
+    /**
+     * The tenancy of an instance . Valid values are ``dedicated`` or ``default`` or ``host``.
+     */
     public String getTenancy() {
         return tenancy;
     }
@@ -798,6 +1053,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.tenancy = tenancy;
     }
 
+    /**
+     * The virtualization type of the instance . Valid values are ``paravirtual`` or ``hvm``.
+     */
     public String getVirtualizationType() {
         return virtualizationType;
     }
@@ -806,6 +1064,9 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
         this.virtualizationType = virtualizationType;
     }
 
+    /**
+     * The ID of the VPC that the instance is running in.
+     */
     public String getVpcId() {
         return vpcId;
     }

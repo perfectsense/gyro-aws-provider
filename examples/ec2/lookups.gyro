@@ -11,6 +11,7 @@ egress-gateway: $(aws::egress-gateway EXTERNAL/* | egress-only-internet-gateway-
 elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
 endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
 endpoint-service: $(aws::endpoint-service EXTERNAL/* | service-name = '')
+instance: $(aws::instance EXTERNAL/* | affinity = 'default')
 
 
 aws::vpc foobar-dev
