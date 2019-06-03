@@ -9,10 +9,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query egress gateway.
+ *
+ * .. code-block:: gyro
+ *
+ *    egress-gateway: $(aws::egress-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
+ */
 @Type("egress-gateway")
 public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, EgressOnlyInternetGateway, EgressOnlyInternetGatewayResource> {
     private String egressOnlyInternetGatewayId;
 
+    /**
+     * The ID for the egress only internet gateway..
+     */
     public String getEgressOnlyInternetGatewayId() {
         return egressOnlyInternetGatewayId;
     }
