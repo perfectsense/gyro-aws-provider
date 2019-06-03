@@ -10,6 +10,7 @@ ebs-volume: $(aws::ebs-volume EXTERNAL/* | volume-id = '')
 egress-gateway: $(aws::egress-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
 elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
 endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
+endpoint-service: $(aws::endpoint-service EXTERNAL/* | service-name = '')
 
 
 aws::vpc foobar-dev

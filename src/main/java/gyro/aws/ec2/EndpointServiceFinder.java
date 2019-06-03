@@ -9,14 +9,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query endpoint service.
+ *
+ * .. code-block:: gyro
+ *
+ *    endpoint-service: $(aws::endpoint-service EXTERNAL/* | service-name = '')
+ */
 @Type("endpoint-service")
 public class EndpointServiceFinder extends AwsFinder<Ec2Client, ServiceConfiguration, EndpointServiceResource> {
+
     private String serviceName;
     private String serviceId;
     private String serviceState;
     private Map<String, String> tag;
     private String tagKey;
 
+    /**
+     * The name of the service.
+     */
     public String getServiceName() {
         return serviceName;
     }
@@ -25,6 +36,9 @@ public class EndpointServiceFinder extends AwsFinder<Ec2Client, ServiceConfigura
         this.serviceName = serviceName;
     }
 
+    /**
+     * The ID of the service.
+     */
     public String getServiceId() {
         return serviceId;
     }
@@ -33,6 +47,9 @@ public class EndpointServiceFinder extends AwsFinder<Ec2Client, ServiceConfigura
         this.serviceId = serviceId;
     }
 
+    /**
+     * The state of the service . Valid values are ``Pending `` or `` Available `` or `` Deleting `` or `` Deleted `` or `` Failed``.
+     */
     public String getServiceState() {
         return serviceState;
     }
@@ -41,6 +58,9 @@ public class EndpointServiceFinder extends AwsFinder<Ec2Client, ServiceConfigura
         this.serviceState = serviceState;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -53,6 +73,9 @@ public class EndpointServiceFinder extends AwsFinder<Ec2Client, ServiceConfigura
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
