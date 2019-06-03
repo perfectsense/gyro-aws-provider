@@ -76,13 +76,15 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     private Map<String, String> tags;
 
     /**
-     * The list of aliases associated with the key.
+     * The list of aliases associated with the key. (Required)
      */
     @Updatable
     public List<String> getAliases() {
         if (aliases == null) {
             aliases = new ArrayList<>();
         }
+
+        Collections.sort(aliases);
 
         return aliases;
     }
@@ -92,10 +94,13 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * Determines whether to bypass the key policy lockout safety check.
+     * Determines whether to bypass the key policy lockout safety check. Defaults to false. (Optional)
      */
-    @Updatable
     public Boolean getBypassPolicyLockoutSafetyCheck() {
+        if (bypassPolicyLockoutSafetyCheck == null) {
+            bypassPolicyLockoutSafetyCheck = false;
+        }
+
         return bypassPolicyLockoutSafetyCheck;
     }
 
@@ -104,19 +109,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * Creates the key in the specified custom key store.
-     */
-    @Updatable
-    public String getCustomKeyStoreId() {
-        return customKeyStoreId;
-    }
-
-    public void setCustomKeyStoreId(String customKeyStoreId) {
-        this.customKeyStoreId = customKeyStoreId;
-    }
-
-    /**
-     * The description of the key.
+     * The description of the key. (Optional)
      */
     @Updatable
     public String getDescription() {
@@ -128,10 +121,14 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * Determines whether the key is enabled.
+     * Determines whether the key is enabled. Defaults to ``enabled``. (Optional)
      */
     @Updatable
     public Boolean getEnabled() {
+        if (enabled == null) {
+            enabled = true;
+        }
+
         return enabled;
     }
 
@@ -140,10 +137,14 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * Determines whether the backing key is rotated each year.
+     * Determines whether the backing key is rotated each year. Defaults to ``false``. (Optional)
      */
     @Updatable
     public Boolean getKeyRotation() {
+        if (keyRotation == null) {
+            keyRotation = true;
+        }
+
         return keyRotation;
     }
 
@@ -167,6 +168,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
      * The id for this key.
      */
     @Output
+    @Id
     public String getKeyId() {
         return keyId;
     }
@@ -176,9 +178,9 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * The manager of the key, either AWS or customer. (Optional)
+     * The manager of the key, either AWS or customer.
      */
-    @Updatable
+    @Output
     public String getKeyManager() {
         return keyManager;
     }
@@ -187,6 +189,10 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         this.keyManager = keyManager;
     }
 
+    /**
+     * The current state of the key.
+     */
+    @Output
     public String getKeyState() {
         return keyState;
     }
@@ -196,10 +202,13 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * The usage of the key, which is encryption and decryption. (Required)
+     * The usage of the key. The only valid value is ``ENCRYPT_DECRYPT``. Defaults to ``ENCRYPT_DECRYPT``. (Required)
      */
-    @Updatable
     public String getKeyUsage() {
+        if (keyUsage == null) {
+            keyUsage = "ENCRYPT_DECRYPT";
+        }
+
         return keyUsage;
     }
 
@@ -208,10 +217,13 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * The source of the key material. (Required)
+     * The source of the key material. Defaults to ``AWS_KMS``. (Optional)
      */
-    @Updatable
     public String getOrigin() {
+        if (origin == null) {
+            origin = "AWS_KMS";
+        }
+
         return origin;
     }
 
@@ -220,9 +232,13 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * The number of days until the key will be deleted. (Required)
+     * The number of days until the key will be deleted. Defaults to 30. (Optional)
      */
     public String getPendingWindow() {
+        if (pendingWindow == null) {
+            pendingWindow = "30";
+        }
+
         return pendingWindow;
     }
 
@@ -231,7 +247,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     }
 
     /**
-     * The policy associated with the key. (Optional)
+     * The path to the policy associated with the key. (Optional)
      */
     @Updatable
     public String getPolicy() {
@@ -242,6 +258,9 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         this.policy = policy;
     }
 
+    /**
+     * The path to the policy associated with the key.
+     */
     @Updatable
     public String getPolicyContents() {
         if (policyContents != null) {
