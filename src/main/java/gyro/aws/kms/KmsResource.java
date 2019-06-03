@@ -1,6 +1,7 @@
 package gyro.aws.kms;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
  */
 
 @Type("kms")
-public class KmsResource extends AwsResource {
+public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
     private List<String> aliases;
     private Boolean bypassPolicyLockoutSafetyCheck;
@@ -284,35 +285,42 @@ public class KmsResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(KeyMetadata keyMetadata) {
+        setDescription(keyMetadata.description());
+        setEnabled(keyMetadata.enabled());
+        setKeyArn(keyMetadata.arn());
+        setKeyId(keyMetadata.keyId());
+        setKeyManager(keyMetadata.keyManagerAsString());
+        setKeyState(keyMetadata.keyStateAsString());
+        setKeyUsage(keyMetadata.keyUsageAsString());
+        setOrigin(keyMetadata.originAsString());
+
+        KmsClient client = createClient(KmsClient.class);
+
+        getAliases().clear();
+        ListAliasesResponse aliasResponse = client.listAliases(r -> r.keyId(getKeyId()));
+        if (aliasResponse != null) {
+            for (AliasListEntry alias : aliasResponse.aliases()) {
+                getAliases().add(alias.aliasName());
+            }
+        }
+
+        GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getKeyId()).policyName("default"));
+        if (policyResponse != null) {
+            setPolicyContents(formatPolicy(policyResponse.policy()));
+        }
+    }
+
+    @Override
     public boolean refresh() {
         KmsClient client = createClient(KmsClient.class);
 
         try {
             DescribeKeyResponse keyResponse = client.describeKey(r -> r.keyId(getKeyId()));
             KeyMetadata keyMetadata = keyResponse.keyMetadata();
+
             if (!keyMetadata.keyStateAsString().equals("PENDING_DELETION")) {
-
-                setCustomKeyStoreId(keyMetadata.customKeyStoreId());
-                setDescription(keyMetadata.description());
-                setEnabled(keyMetadata.enabled());
-                setKeyArn(keyMetadata.arn());
-                setKeyManager(keyMetadata.keyManagerAsString());
-                setKeyState(keyMetadata.keyStateAsString());
-                setKeyUsage(keyMetadata.keyUsageAsString());
-                setOrigin(keyMetadata.originAsString());
-
-                getAliases().clear();
-                ListAliasesResponse aliasResponse = client.listAliases(r -> r.keyId(getKeyId()));
-                if (aliasResponse != null) {
-                    for (AliasListEntry alias : aliasResponse.aliases()) {
-                        getAliases().add(alias.aliasName());
-                    }
-                }
-
-                GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getKeyId()).policyName("default"));
-                if (policyResponse != null) {
-                    setPolicyContents(formatPolicy(policyResponse.policy()));
-                }
+                this.copyFrom(keyMetadata);
             }
 
             return true;
