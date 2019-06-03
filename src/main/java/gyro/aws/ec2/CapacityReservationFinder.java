@@ -9,10 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Type("capacity-reservation-id")
+/**
+ * Query capacity reservation.
+ *
+ * .. code-block:: gyro
+ *
+ *    capacity-reservations: $(aws::capacity-reservation EXTERNAL/* | capacity-reservation-id = 'cr-071f2771deb1ea5d4')
+ */
+@Type("capacity-reservation")
 public class CapacityReservationFinder extends AwsFinder<Ec2Client, CapacityReservation, CapacityReservationResource> {
     private String capacityReservationId;
 
+    /**
+     * The ID of the capacity reservation.
+     */
     public String getCapacityReservationId() {
         return capacityReservationId;
     }
