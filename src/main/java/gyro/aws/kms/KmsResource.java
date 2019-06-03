@@ -61,7 +61,6 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
     private List<String> aliases;
     private Boolean bypassPolicyLockoutSafetyCheck;
-    private String customKeyStoreId;
     private String description;
     private Boolean enabled;
     private String keyArn;
@@ -366,7 +365,6 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
             CreateKeyResponse response = client.createKey(
                 r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
-                            .customKeyStoreId(getCustomKeyStoreId())
                             .description(getDescription())
                             .keyUsage(getKeyUsage())
                             .origin(getOrigin())
