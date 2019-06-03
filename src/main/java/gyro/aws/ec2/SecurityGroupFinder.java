@@ -10,8 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query security group.
+ *
+ * .. code-block:: gyro
+ *
+ *    security-group: $(aws::security-group EXTERNAL/* | group-name = '')
+ */
 @Type("security-group")
 public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
+
     private String description;
     private String egressIpPermissionCidr;
     private String egressIpPermissionFromPort;
@@ -24,20 +32,23 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
     private String egressIpPermissionUserId;
     private String groupId;
     private String groupName;
-    private String ingressIpPermissionCidr;
-    private String ingressIpPermissionFromPort;
-    private String ingressIpPermissionGroupId;
-    private String ingressIpPermissionGroupName;
-    private String ingressIpPermissionIpv6Cidr;
-    private String ingressIpPermissionPrefixListId;
-    private String ingressIpPermissionProtocol;
-    private String ingressIpPermissionToPort;
-    private String ingressIpPermissionUserId;
+    private String ipPermissionCidr;
+    private String ipPermissionFromPort;
+    private String ipPermissionGroupId;
+    private String ipPermissionGroupName;
+    private String ipPermissionIpv6Cidr;
+    private String ipPermissionPrefixListId;
+    private String ipPermissionProtocol;
+    private String ipPermissionToPort;
+    private String ipPermissionUserId;
     private String ownerId;
     private Map<String, String> tag;
     private String tagKey;
     private String vpcId;
 
+    /**
+     * The description of the security group.
+     */
     public String getDescription() {
         return description;
     }
@@ -46,6 +57,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.description = description;
     }
 
+    /**
+     * An IPv4 CIDR block for an outbound security group rule.
+     */
     @Filter("egress.ip-permission.cidr")
     public String getEgressIpPermissionCidr() {
         return egressIpPermissionCidr;
@@ -55,6 +69,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionCidr = egressIpPermissionCidr;
     }
 
+    /**
+     * For an outbound rule, the start of port range for the TCP and UDP protocols, or an ICMP type number.
+     */
     @Filter("egress.ip-permission.from-port")
     public String getEgressIpPermissionFromPort() {
         return egressIpPermissionFromPort;
@@ -64,6 +81,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionFromPort = egressIpPermissionFromPort;
     }
 
+    /**
+     * The ID of a security group that has been referenced in an outbound security group rule.
+     */
     @Filter("egress.ip-permission.group-id")
     public String getEgressIpPermissionGroupId() {
         return egressIpPermissionGroupId;
@@ -73,6 +93,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionGroupId = egressIpPermissionGroupId;
     }
 
+    /**
+     * The name of a security group that has been referenced in an outbound security group rule.
+     */
     @Filter("egress.ip-permission.group-name")
     public String getEgressIpPermissionGroupName() {
         return egressIpPermissionGroupName;
@@ -82,6 +105,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionGroupName = egressIpPermissionGroupName;
     }
 
+    /**
+     * An IPv6 CIDR block for an outbound security group rule.
+     */
     @Filter("egress.ip-permission.ipv6-cidr")
     public String getEgressIpPermissionIpv6Cidr() {
         return egressIpPermissionIpv6Cidr;
@@ -91,6 +117,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionIpv6Cidr = egressIpPermissionIpv6Cidr;
     }
 
+    /**
+     * The ID (prefix) of the AWS service to which a security group rule allows outbound access.
+     */
     @Filter("egress.ip-permission.prefix-list-id")
     public String getEgressIpPermissionPrefixListId() {
         return egressIpPermissionPrefixListId;
@@ -100,6 +129,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionPrefixListId = egressIpPermissionPrefixListId;
     }
 
+    /**
+     * The IP protocol for an outbound security group rule . Valid values are `` tcp `` or `` udp `` or `` icmp or a protocol number``.
+     */
     @Filter("egress.ip-permission.protocol")
     public String getEgressIpPermissionProtocol() {
         return egressIpPermissionProtocol;
@@ -109,6 +141,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionProtocol = egressIpPermissionProtocol;
     }
 
+    /**
+     * For an outbound rule, the end of port range for the TCP and UDP protocols, or an ICMP code.
+     */
     @Filter("egress.ip-permission.to-port")
     public String getEgressIpPermissionToPort() {
         return egressIpPermissionToPort;
@@ -118,6 +153,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionToPort = egressIpPermissionToPort;
     }
 
+    /**
+     * The ID of an AWS account that has been referenced in an outbound security group rule.
+     */
     @Filter("egress.ip-permission.user-id")
     public String getEgressIpPermissionUserId() {
         return egressIpPermissionUserId;
@@ -127,6 +165,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.egressIpPermissionUserId = egressIpPermissionUserId;
     }
 
+    /**
+     * The ID of the security group.
+     */
     public String getGroupId() {
         return groupId;
     }
@@ -135,6 +176,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.groupId = groupId;
     }
 
+    /**
+     * The name of the security group.
+     */
     public String getGroupName() {
         return groupName;
     }
@@ -143,87 +187,117 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.groupName = groupName;
     }
 
+    /**
+     * An IPv4 CIDR block for an inbound security group rule.
+     */
     @Filter("ip-permission.cidr")
-    public String getIngressIpPermissionCidr() {
-        return ingressIpPermissionCidr;
+    public String getIpPermissionCidr() {
+        return ipPermissionCidr;
     }
 
-    public void setIngressIpPermissionCidr(String ingressIpPermissionCidr) {
-        this.ingressIpPermissionCidr = ingressIpPermissionCidr;
+    public void setIpPermissionCidr(String ipPermissionCidr) {
+        this.ipPermissionCidr = ipPermissionCidr;
     }
 
+    /**
+     * For an inbound rule, the start of port range for the TCP and UDP protocols, or an ICMP type number.
+     */
     @Filter("ip-permission.from-port")
-    public String getIngressIpPermissionFromPort() {
-        return ingressIpPermissionFromPort;
+    public String getIpPermissionFromPort() {
+        return ipPermissionFromPort;
     }
 
-    public void setIngressIpPermissionFromPort(String ingressIpPermissionFromPort) {
-        this.ingressIpPermissionFromPort = ingressIpPermissionFromPort;
+    public void setIpPermissionFromPort(String ipPermissionFromPort) {
+        this.ipPermissionFromPort = ipPermissionFromPort;
     }
 
+    /**
+     * The ID of a security group that has been referenced in an inbound security group rule.
+     */
     @Filter("ip-permission.group-id")
-    public String getIngressIpPermissionGroupId() {
-        return ingressIpPermissionGroupId;
+    public String getIpPermissionGroupId() {
+        return ipPermissionGroupId;
     }
 
-    public void setIngressIpPermissionGroupId(String ingressIpPermissionGroupId) {
-        this.ingressIpPermissionGroupId = ingressIpPermissionGroupId;
+    public void setIpPermissionGroupId(String ipPermissionGroupId) {
+        this.ipPermissionGroupId = ipPermissionGroupId;
     }
 
+    /**
+     * The name of a security group that has been referenced in an inbound security group rule.
+     */
     @Filter("ip-permission.group-name")
-    public String getIngressIpPermissionGroupName() {
-        return ingressIpPermissionGroupName;
+    public String getIpPermissionGroupName() {
+        return ipPermissionGroupName;
     }
 
-    public void setIngressIpPermissionGroupName(String ingressIpPermissionGroupName) {
-        this.ingressIpPermissionGroupName = ingressIpPermissionGroupName;
+    public void setIpPermissionGroupName(String ipPermissionGroupName) {
+        this.ipPermissionGroupName = ipPermissionGroupName;
     }
 
+    /**
+     * An IPv6 CIDR block for an inbound security group rule.
+     */
     @Filter("ip-permission.ipv6-cidr")
-    public String getIngressIpPermissionIpv6Cidr() {
-        return ingressIpPermissionIpv6Cidr;
+    public String getIpPermissionIpv6Cidr() {
+        return ipPermissionIpv6Cidr;
     }
 
-    public void setIngressIpPermissionIpv6Cidr(String ingressIpPermissionIpv6Cidr) {
-        this.ingressIpPermissionIpv6Cidr = ingressIpPermissionIpv6Cidr;
+    public void setIpPermissionIpv6Cidr(String ipPermissionIpv6Cidr) {
+        this.ipPermissionIpv6Cidr = ipPermissionIpv6Cidr;
     }
 
+    /**
+     * The ID (prefix) of the AWS service from which a security group rule allows inbound access.
+     */
     @Filter("ip-permission.prefix-list-id")
-    public String getIngressIpPermissionPrefixListId() {
-        return ingressIpPermissionPrefixListId;
+    public String getIpPermissionPrefixListId() {
+        return ipPermissionPrefixListId;
     }
 
-    public void setIngressIpPermissionPrefixListId(String ingressIpPermissionPrefixListId) {
-        this.ingressIpPermissionPrefixListId = ingressIpPermissionPrefixListId;
+    public void setIpPermissionPrefixListId(String ipPermissionPrefixListId) {
+        this.ipPermissionPrefixListId = ipPermissionPrefixListId;
     }
 
+    /**
+     * The IP protocol for an inbound security group rule . Valid values are ``tcp `` or `` udp `` or `` icmp or a protocol number``.
+     */
     @Filter("ip-permission.protocol")
-    public String getIngressIpPermissionProtocol() {
-        return ingressIpPermissionProtocol;
+    public String getIpPermissionProtocol() {
+        return ipPermissionProtocol;
     }
 
-    public void setIngressIpPermissionProtocol(String ingressIpPermissionProtocol) {
-        this.ingressIpPermissionProtocol = ingressIpPermissionProtocol;
+    public void setIpPermissionProtocol(String ipPermissionProtocol) {
+        this.ipPermissionProtocol = ipPermissionProtocol;
     }
 
+    /**
+     * For an inbound rule, the end of port range for the TCP and UDP protocols, or an ICMP code.
+     */
     @Filter("ip-permission.to-port")
-    public String getIngressIpPermissionToPort() {
-        return ingressIpPermissionToPort;
+    public String getIpPermissionToPort() {
+        return ipPermissionToPort;
     }
 
-    public void setIngressIpPermissionToPort(String ingressIpPermissionToPort) {
-        this.ingressIpPermissionToPort = ingressIpPermissionToPort;
+    public void setIpPermissionToPort(String ipPermissionToPort) {
+        this.ipPermissionToPort = ipPermissionToPort;
     }
 
+    /**
+     * The ID of an AWS account that has been referenced in an inbound security group rule.
+     */
     @Filter("ip-permission.user-id")
-    public String getIngressIpPermissionUserId() {
-        return ingressIpPermissionUserId;
+    public String getIpPermissionUserId() {
+        return ipPermissionUserId;
     }
 
-    public void setIngressIpPermissionUserId(String ingressIpPermissionUserId) {
-        this.ingressIpPermissionUserId = ingressIpPermissionUserId;
+    public void setIpPermissionUserId(String ipPermissionUserId) {
+        this.ipPermissionUserId = ipPermissionUserId;
     }
 
+    /**
+     * The AWS account ID of the owner of the security group.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -232,6 +306,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.ownerId = ownerId;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -244,6 +321,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -252,6 +332,9 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the VPC specified when the security group was created.
+     */
     public String getVpcId() {
         return vpcId;
     }
