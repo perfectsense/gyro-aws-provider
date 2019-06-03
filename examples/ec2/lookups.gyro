@@ -8,6 +8,7 @@ dhcp-options: $(aws::dhcp-options EXTERNAL/* | dhcp-options-id = '')
 ebs-snapshot: $(aws::ebs-snapshot EXTERNAL/* | owner-alias = 'amazon')
 ebs-volume: $(aws::ebs-volume EXTERNAL/* | volume-id = '')
 egress-gateway: $(aws::egress-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
+elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
 
 
 aws::vpc foobar-dev

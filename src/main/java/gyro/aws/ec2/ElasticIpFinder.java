@@ -9,8 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query elastic ip.
+ *
+ * .. code-block:: gyro
+ *
+ *    elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
+ */
 @Type("elastic-ip")
 public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpResource> {
+
     private String allocationId;
     private String associationId;
     private String domain;
@@ -22,6 +30,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
     private Map<String, String> tag;
     private String tagKey;
 
+    /**
+     * The allocation ID for the address.
+     */
     public String getAllocationId() {
         return allocationId;
     }
@@ -30,6 +41,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.allocationId = allocationId;
     }
 
+    /**
+     * The association ID for the address.
+     */
     public String getAssociationId() {
         return associationId;
     }
@@ -38,6 +52,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.associationId = associationId;
     }
 
+    /**
+     * Indicates whether the address is for use in EC2-Classic (standard) or in a VPC (vpc).
+     */
     public String getDomain() {
         return domain;
     }
@@ -46,6 +63,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.domain = domain;
     }
 
+    /**
+     * The ID of the instance the address is associated with, if any.
+     */
     public String getInstanceId() {
         return instanceId;
     }
@@ -54,6 +74,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.instanceId = instanceId;
     }
 
+    /**
+     * The ID of the network interface that the address is associated with, if any.
+     */
     public String getNetworkInterfaceId() {
         return networkInterfaceId;
     }
@@ -62,6 +85,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.networkInterfaceId = networkInterfaceId;
     }
 
+    /**
+     * The AWS account ID of the owner.
+     */
     public String getNetworkInterfaceOwnerId() {
         return networkInterfaceOwnerId;
     }
@@ -70,6 +96,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.networkInterfaceOwnerId = networkInterfaceOwnerId;
     }
 
+    /**
+     * The private IP address associated with the Elastic IP address.
+     */
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -78,6 +107,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.privateIpAddress = privateIpAddress;
     }
 
+    /**
+     * The Elastic IP address.
+     */
     public String getPublicIp() {
         return publicIp;
     }
@@ -86,6 +118,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.publicIp = publicIp;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -98,6 +133,9 @@ public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpReso
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
