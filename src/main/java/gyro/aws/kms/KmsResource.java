@@ -425,13 +425,16 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         }
 
         try {
-            List<String> aliasAdditions = new ArrayList<>(getAliases());
-            aliasAdditions.removeAll(currentResource.getAliases());
-
             try {
-                for (String add : aliasAdditions) {
-                    client.createAlias(r -> r.aliasName(add).targetKeyId(getKeyId()));
-                }
+                List<String> aliasSubtractions = new ArrayList<>(currentResource.getAliases());
+                aliasSubtractions.removeAll(getAliases());
+
+                aliasSubtractions.forEach(alias -> client.deleteAlias(r -> r.aliasName(alias)));
+
+                List<String> aliasAdditions = new ArrayList<>(getAliases());
+                aliasAdditions.removeAll(currentResource.getAliases());
+
+                aliasAdditions.forEach(alias -> client.createAlias(r -> r.aliasName(alias).targetKeyId(getKeyId())));
 
             } catch (AlreadyExistsException ex) {
                 throw new GyroException(ex.getMessage());
@@ -445,14 +448,6 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
                     .keyId(getKeyId()));
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
-        }
-
-        List<String> aliasSubtractions = new ArrayList<>(currentResource.getAliases());
-        aliasSubtractions.removeAll(getAliases());
-
-        for (String sub : aliasSubtractions) {
-            client.deleteAlias(
-                r -> r.aliasName(sub));
         }
 
         client.putKeyPolicy(r -> r.policy(getPolicyContents())
