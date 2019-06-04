@@ -1,6 +1,11 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -9,9 +14,11 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyInstanceResponse;
 import software.amazon.awssdk.services.route53.model.GetTrafficPolicyInstanceResponse;
+import software.amazon.awssdk.services.route53.model.NoSuchTrafficPolicyInstanceException;
 import software.amazon.awssdk.services.route53.model.TrafficPolicyInstance;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a Traffic Policy Instance resource.
@@ -26,23 +33,20 @@ import java.util.Set;
  *         comment: "traffic-policy-instance-example Comment"
  *         version: 1
  *         ttl: 900
- *         hosted-zone-id: $(aws::hosted-zone hosted-zone-record-set-example | hosted-zone-id)
- *         hosted-zone-name: $(aws::hosted-zone hosted-zone-record-set-example | hosted-zone-name)
- *         traffic-policy-id: $(aws::traffic-policy traffic-policy-example-instance | traffic-policy-id)
+ *         hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
+ *         traffic-policy: $(aws::traffic-policy traffic-policy-example-instance)
  *     end
  *
  */
 @Type("traffic-policy-instance")
-public class TrafficPolicyInstanceResource extends AwsResource {
+public class TrafficPolicyInstanceResource extends AwsResource implements Copyable<TrafficPolicyInstance> {
     private String name;
     private String message;
-    private String hostedZoneId;
-    private String hostedZoneName;
-    private String trafficPolicyId;
+    private HostedZoneResource hostedZone;
+    private TrafficPolicyResource trafficPolicy;
     private String type;
     private Long ttl;
     private String state;
-    private Integer version;
     private String trafficPolicyInstanceId;
 
     /**
@@ -56,6 +60,9 @@ public class TrafficPolicyInstanceResource extends AwsResource {
         this.name = name;
     }
 
+    /**
+     * Message for the traffic policy instance.
+     */
     public String getMessage() {
         return message;
     }
@@ -67,37 +74,30 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     /**
      * Id of the associated hosted zone. (Required)
      */
-    public String getHostedZoneId() {
-        return hostedZoneId;
+    public HostedZoneResource getHostedZone() {
+        return hostedZone;
     }
 
-    public void setHostedZoneId(String hostedZoneId) {
-        this.hostedZoneId = hostedZoneId;
-    }
-
-    /**
-     * Name of the associated hosted zone. (Required)
-     */
-    public String getHostedZoneName() {
-        return hostedZoneName;
-    }
-
-    public void setHostedZoneName(String hostedZoneName) {
-        this.hostedZoneName = hostedZoneName;
+    public void setHostedZone(HostedZoneResource hostedZone) {
+        this.hostedZone = hostedZone;
     }
 
     /**
-     * Id of a traffic policy to be associated. (Required)
+     * The traffic policy to be associated. (Required)
      */
     @Updatable
-    public String getTrafficPolicyId() {
-        return trafficPolicyId;
+    public TrafficPolicyResource getTrafficPolicy() {
+        return trafficPolicy;
     }
 
-    public void setTrafficPolicyId(String trafficPolicyId) {
-        this.trafficPolicyId = trafficPolicyId;
+    public void setTrafficPolicy(TrafficPolicyResource trafficPolicy) {
+        this.trafficPolicy = trafficPolicy;
     }
 
+    /**
+     *  The type of the traffic policy instance.
+     */
+    @Output
     public String getType() {
         return type;
     }
@@ -118,6 +118,10 @@ public class TrafficPolicyInstanceResource extends AwsResource {
         this.ttl = ttl;
     }
 
+    /**
+     * The state of the traffic policy instance.
+     */
+    @Output
     public String getState() {
         return state;
     }
@@ -127,17 +131,10 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     }
 
     /**
-     * The version of the traffic policy which will be used to create the resource records.
+     * The ID of the traffic policy instance.
      */
-    @Updatable
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
+    @Id
+    @Output
     public String getTrafficPolicyInstanceId() {
         return trafficPolicyInstanceId;
     }
@@ -150,18 +147,13 @@ public class TrafficPolicyInstanceResource extends AwsResource {
     public boolean refresh() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        GetTrafficPolicyInstanceResponse response = client.getTrafficPolicyInstance(
-            r -> r.id(getTrafficPolicyInstanceId())
-        );
+        TrafficPolicyInstance trafficPolicyInstance = getTrafficPolicyInstance(client);
 
-        TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
-        setMessage(trafficPolicyInstance.message());
-        setHostedZoneId(trafficPolicyInstance.hostedZoneId());
-        setType(trafficPolicyInstance.trafficPolicyTypeAsString());
-        setTtl(trafficPolicyInstance.ttl());
-        setState(trafficPolicyInstance.state());
-        setVersion(trafficPolicyInstance.trafficPolicyVersion());
-        setTrafficPolicyId(trafficPolicyInstance.trafficPolicyId());
+        if (trafficPolicyInstance == null) {
+            return false;
+        }
+
+        copyFrom(trafficPolicyInstance);
 
         return true;
     }
@@ -171,15 +163,20 @@ public class TrafficPolicyInstanceResource extends AwsResource {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
-            r -> r.name(getName() + getHostedZoneName())
-                .hostedZoneId(getHostedZoneId())
-                .trafficPolicyId(getTrafficPolicyId())
-                .trafficPolicyVersion(getVersion())
+            r -> r.name(getName() + getHostedZone().getHostedZoneName())
+                .hostedZoneId(getHostedZone().getHostedZoneId())
+                .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
+                .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
         );
 
         TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
         setTrafficPolicyInstanceId(trafficPolicyInstance.id());
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(3, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isTrafficPolicyInstanceReady(client));
     }
 
     @Override
@@ -188,10 +185,15 @@ public class TrafficPolicyInstanceResource extends AwsResource {
 
         client.updateTrafficPolicyInstance(
             r -> r.id(getTrafficPolicyInstanceId())
-                .trafficPolicyId(getTrafficPolicyId())
-                .trafficPolicyVersion(getVersion())
+                .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
+                .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
         );
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(3, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isTrafficPolicyInstanceReady(client));
     }
 
     @Override
@@ -213,8 +215,8 @@ public class TrafficPolicyInstanceResource extends AwsResource {
             sb.append(getName());
         }
 
-        if (!ObjectUtils.isBlank(getHostedZoneName())) {
-            sb.append(getHostedZoneName());
+        if (getHostedZone() != null) {
+            sb.append(getHostedZone().getHostedZoneName());
         }
 
         if (!ObjectUtils.isBlank(getTrafficPolicyInstanceId())) {
@@ -223,5 +225,42 @@ public class TrafficPolicyInstanceResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(TrafficPolicyInstance trafficPolicyInstance) {
+        setTrafficPolicyInstanceId(trafficPolicyInstance.id());
+        setMessage(trafficPolicyInstance.message());
+        setHostedZone(findById(HostedZoneResource.class, trafficPolicyInstance.hostedZoneId()));
+        setType(trafficPolicyInstance.trafficPolicyTypeAsString());
+        setTtl(trafficPolicyInstance.ttl());
+        setState(trafficPolicyInstance.state());
+        setTrafficPolicy(findById(TrafficPolicyResource.class, trafficPolicyInstance.trafficPolicyId()));
+    }
+
+    private TrafficPolicyInstance getTrafficPolicyInstance(Route53Client client) {
+        TrafficPolicyInstance trafficPolicyInstance = null;
+
+        if (ObjectUtils.isBlank(getTrafficPolicyInstanceId())) {
+            throw new GyroException("traffic-policy-instance-id is missing, unable to load traffic policy instance.");
+        }
+
+        try {
+            GetTrafficPolicyInstanceResponse response = client.getTrafficPolicyInstance(
+                r -> r.id(getTrafficPolicyInstanceId())
+            );
+
+            trafficPolicyInstance = response.trafficPolicyInstance();
+        } catch (NoSuchTrafficPolicyInstanceException ignore) {
+            // ignore
+        }
+
+        return trafficPolicyInstance;
+    }
+
+    private boolean isTrafficPolicyInstanceReady(Route53Client client) {
+        TrafficPolicyInstance trafficPolicyInstance = getTrafficPolicyInstance(client);
+
+        return trafficPolicyInstance != null && trafficPolicyInstance.state().equals("Applied");
     }
 }
