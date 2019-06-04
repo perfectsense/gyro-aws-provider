@@ -1,7 +1,10 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -11,6 +14,7 @@ import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyResponse;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyVersionResponse;
 import software.amazon.awssdk.services.route53.model.GetTrafficPolicyResponse;
+import software.amazon.awssdk.services.route53.model.NoSuchTrafficPolicyException;
 import software.amazon.awssdk.services.route53.model.TrafficPolicy;
 import software.amazon.awssdk.utils.IoUtils;
 
@@ -34,7 +38,7 @@ import java.util.Set;
  *
  */
 @Type("traffic-policy")
-public class TrafficPolicyResource extends AwsResource {
+public class TrafficPolicyResource extends AwsResource implements Copyable<TrafficPolicy> {
     private String name;
     private String comment;
     private String document;
@@ -91,6 +95,11 @@ public class TrafficPolicyResource extends AwsResource {
         }
     }
 
+    /**
+     * The ID of the traffic policy.
+     */
+    @Id
+    @Output
     public String getTrafficPolicyId() {
         return trafficPolicyId;
     }
@@ -99,6 +108,10 @@ public class TrafficPolicyResource extends AwsResource {
         this.trafficPolicyId = trafficPolicyId;
     }
 
+    /**
+     * The version of the policy.
+     */
+    @Output
     public Integer getVersion() {
         return version;
     }
@@ -111,11 +124,12 @@ public class TrafficPolicyResource extends AwsResource {
     public boolean refresh() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        GetTrafficPolicyResponse response = client.getTrafficPolicy(
-            r -> r.id(getTrafficPolicyId()).version(getVersion())
-        );
+        TrafficPolicy trafficPolicy = getTrafficPolicy(client);
 
-        TrafficPolicy trafficPolicy = response.trafficPolicy();
+        if (trafficPolicy == null) {
+            return false;
+        }
+
         setName(trafficPolicy.name());
         setComment(trafficPolicy.comment());
         setDocument(trafficPolicy.document());
@@ -201,13 +215,45 @@ public class TrafficPolicyResource extends AwsResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(TrafficPolicy trafficPolicy) {
+        setTrafficPolicyId(trafficPolicy.id());
+        setVersion(trafficPolicy.version());
+        setName(trafficPolicy.name());
+        setComment(trafficPolicy.comment());
+        setDocument(trafficPolicy.document());
+    }
+
+    private TrafficPolicy getTrafficPolicy(Route53Client client) {
+        TrafficPolicy trafficPolicy = null;
+
+        if (ObjectUtils.isBlank(getTrafficPolicyId())) {
+            throw new GyroException("traffic-policy-id is missing, unable to load traffic policy.");
+        }
+
+        if (ObjectUtils.isBlank(getVersion())) {
+            throw new GyroException("version is missing, unable to load traffic policy.");
+        }
+
+        try {
+            GetTrafficPolicyResponse response = client.getTrafficPolicy(
+                r -> r.id(getTrafficPolicyId()).version(getVersion())
+            );
+
+            trafficPolicy = response.trafficPolicy();
+        } catch (NoSuchTrafficPolicyException ignore) {
+            //ignore
+        }
+
+        return trafficPolicy;
+    }
+
     private void setDocumentFromPath() {
         try (InputStream input = openInput(getDocumentPath())) {
             setDocument(IoUtils.toUtf8String(input));
 
-        } catch (IOException ioex) {
-            throw new GyroException(String.format("traffic policy - %s document error."
-                + " Unable to read document from path [%s]", getName(), getDocument()));
+        } catch (Exception ignore) {
+            // ignore
         }
     }
 
