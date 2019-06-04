@@ -1,7 +1,10 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -32,8 +35,7 @@ import java.util.stream.Stream;
  * .. code-block:: gyro
  *
  *     aws::record-set record-set-example
- *         hosted-zone-name: $(aws::hosted-zone hosted-zone-record-set-example-alpha | hosted-zone-name)
- *         hosted-zone-id: $(aws::hosted-zone hosted-zone-record-set-example-alpha | hosted-zone-id)
+ *         hosted-zone-name: $(aws::hosted-zone hosted-zone-record-set-example)
  *         name: "record-set-example."
  *         type: "A"
  *         ttl: 300
@@ -44,25 +46,25 @@ import java.util.stream.Stream;
  *         failover: "secondary"
  *         set-identifier: "set_id"
  *         routing-policy: "failover"
- *         health-check-id: $(aws::health-check health-check-record-set-example-calculated-alpha | health-check-id)
+ *         health-check: $(aws::health-check health-check-record-set-example-calculated)
  *     end
  */
 @Type("record-set")
-public class RecordSetResource extends AwsResource {
+public class RecordSetResource extends AwsResource implements Copyable<ResourceRecordSet> {
     private String comment;
     private String continentCode;
     private String countryCode;
     private String dnsName;
     private Boolean evaluateTargetHealth;
     private String failover;
-    private String hostedZoneId;
-    private String healthCheckId;
+    private HostedZoneResource hostedZone;
+    private HealthCheckResource healthCheck;
     private Boolean multiValueAnswer;
     private String name;
     private String region;
     private String setIdentifier;
     private String subdivisionCode;
-    private String trafficPolicyInstanceId;
+    private TrafficPolicyInstanceResource trafficPolicyInstance;
     private Long ttl;
     private String type;
     private Long weight;
@@ -70,6 +72,7 @@ public class RecordSetResource extends AwsResource {
     private String routingPolicy;
     private Boolean enableAlias;
     private String aliasHostedZoneId;
+    private String recordSetId;
 
     private static final Set<String> RoutingPolicySet = ImmutableSet.of("geolocation","failover","multivalue","weighted","latency","simple");
 
@@ -149,26 +152,26 @@ public class RecordSetResource extends AwsResource {
     }
 
     /**
-     * The id of the hosted zone under which the the record set is to be created. (Required)
+     * The hosted zone under which the the record set is to be created. (Required)
      */
-    public String getHostedZoneId() {
-        return hostedZoneId;
+    public HostedZoneResource getHostedZone() {
+        return hostedZone;
     }
 
-    public void setHostedZoneId(String hostedZoneId) {
-        this.hostedZoneId = hostedZoneId;
+    public void setHostedZone(HostedZoneResource hostedZone) {
+        this.hostedZone = hostedZone;
     }
 
     /**
-     * The id of a health check to be associated with the record set. Required if 'failover' is set to 'primary'.
+     * The health check to be associated with the record set. Required if 'failover' is set to 'primary'.
      */
     @Updatable
-    public String getHealthCheckId() {
-        return healthCheckId;
+    public HealthCheckResource getHealthCheck() {
+        return healthCheck;
     }
 
-    public void setHealthCheckId(String healthCheckId) {
-        this.healthCheckId = healthCheckId;
+    public void setHealthCheck(HealthCheckResource healthCheck) {
+        this.healthCheck = healthCheck;
     }
 
     /**
@@ -232,15 +235,15 @@ public class RecordSetResource extends AwsResource {
     }
 
     /**
-     * The id of a traffic policy instance to be associated with the record set.
+     * The traffic policy instance to be associated with the record set.
      */
     @Updatable
-    public String getTrafficPolicyInstanceId() {
-        return trafficPolicyInstanceId;
+    public TrafficPolicyInstanceResource getTrafficPolicyInstance() {
+        return trafficPolicyInstance;
     }
 
-    public void setTrafficPolicyInstanceId(String trafficPolicyInstanceId) {
-        this.trafficPolicyInstanceId = trafficPolicyInstanceId;
+    public void setTrafficPolicyInstance(TrafficPolicyInstanceResource trafficPolicyInstance) {
+        this.trafficPolicyInstance = trafficPolicyInstance;
     }
 
     /**
@@ -256,7 +259,7 @@ public class RecordSetResource extends AwsResource {
     }
 
     /**
-     * The type of record set being created. Valid values [ SOA, A, TXT, NS, CNAME, MX, NAPTR, PTR, SRV, SPF, AAAA, CAA ]. (Required)
+     * The type of record set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``. (Required)
      */
     @Updatable
     public String getType() {
@@ -297,7 +300,7 @@ public class RecordSetResource extends AwsResource {
     }
 
     /**
-     * Routing policy type the record set is going to be. Defaults to Simple. Valid Values [ 'geolocation', 'failover', 'multivalue', 'weighted', 'latency', 'simple' ].
+     * Routing policy type the record set is going to be. Defaults to Simple. Valid Values are ``geolocation`` or ``failover`` or ``multivalue`` or ``weighted`` or ``latency`` or ``simple``.
      */
     @Updatable
     public String getRoutingPolicy() {
@@ -340,6 +343,19 @@ public class RecordSetResource extends AwsResource {
         this.aliasHostedZoneId = aliasHostedZoneId;
     }
 
+    /**
+     * The Id of the record set.
+     */
+    @Id
+    @Output
+    public String getRecordSetId() {
+        return recordSetId;
+    }
+
+    public void setRecordSetId(String recordSetId) {
+        this.recordSetId = recordSetId;
+    }
+
     @Override
     public boolean refresh() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
@@ -350,7 +366,7 @@ public class RecordSetResource extends AwsResource {
             return false;
         }
 
-        loadRecordSet(recordSet);
+        copyFrom(recordSet);
 
         return true;
     }
@@ -367,7 +383,7 @@ public class RecordSetResource extends AwsResource {
             saveResourceRecordSet(client,this, ChangeAction.CREATE);
         }
 
-        refresh();
+        setRecordSetId(String.format("%s %s", getName(), getType()));
     }
 
     @Override
@@ -413,15 +429,20 @@ public class RecordSetResource extends AwsResource {
         return sb.toString();
     }
 
-    private void loadRecordSet(ResourceRecordSet recordSet) {
+    @Override
+    public void copyFrom(ResourceRecordSet recordSet) {
+        setName(recordSet.name());
+        setType(recordSet.typeAsString());
         setFailover(recordSet.failoverAsString());
-        setHealthCheckId(recordSet.healthCheckId());
+        setHealthCheck(findById(HealthCheckResource.class, recordSet.healthCheckId()));
         setMultiValueAnswer(recordSet.multiValueAnswer());
         setRegion(recordSet.regionAsString());
         setWeight(recordSet.weight());
-        setTrafficPolicyInstanceId(recordSet.trafficPolicyInstanceId());
+        setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
         setTtl(recordSet.ttl());
         setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toList()));
+        //setHostedZone(findById(HostedZoneResource.class,recordSet.aliasTarget().hostedZoneId()));
+        setRecordSetId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
             setDnsName(recordSet.aliasTarget().dnsName());
@@ -438,7 +459,7 @@ public class RecordSetResource extends AwsResource {
 
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
         ListResourceRecordSetsResponse response = client.listResourceRecordSets(
-            r -> r.hostedZoneId(getHostedZoneId())
+            r -> r.hostedZoneId(getHostedZone().getHostedZoneId())
                 .startRecordName(getName())
                 .startRecordType(getType())
         );
@@ -453,9 +474,9 @@ public class RecordSetResource extends AwsResource {
     private void saveResourceRecordSet(Route53Client client, RecordSetResource recordSetResource, ChangeAction changeAction) {
         ResourceRecordSet.Builder recordSetBuilder = ResourceRecordSet.builder()
             .name(recordSetResource.getName())
-            .healthCheckId(recordSetResource.getHealthCheckId())
+            .healthCheckId(recordSetResource.getHealthCheck() != null ? recordSetResource.getHealthCheck().getHealthCheckId() : null)
             .setIdentifier(recordSetResource.getSetIdentifier())
-            .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstanceId())
+            .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstance() != null ? recordSetResource.getTrafficPolicyInstance().getTrafficPolicyInstanceId() : null)
             .type(recordSetResource.getType());
 
         if (recordSetResource.getEnableAlias()) {
@@ -498,7 +519,7 @@ public class RecordSetResource extends AwsResource {
             .build();
 
         client.changeResourceRecordSets(
-            r -> r.hostedZoneId(recordSetResource.getHostedZoneId())
+            r -> r.hostedZoneId(recordSetResource.getHostedZone().getHostedZoneId())
                 .changeBatch(
                     c -> c.comment(recordSetResource.getComment())
                         .changes(change)
