@@ -1,35 +1,29 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.ec2.VpcResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.route53.model.Route53Exception;
+import software.amazon.awssdk.services.route53.model.VPC;
 
 import java.util.Set;
 
-public class Route53VpcResource extends AwsResource {
-    private String vpcId;
+public class Route53VpcResource extends AwsResource implements Copyable<VPC> {
+    private VpcResource vpc;
     private String vpcRegion;
 
-    public Route53VpcResource() {
-
-    }
-
-    public Route53VpcResource(String vpcId, String vpcRegion) {
-        this.vpcId = vpcId;
-        this.vpcRegion = vpcRegion;
-    }
-
     /**
-     * The vpc id.
+     * The vpc.
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     /**
@@ -53,7 +47,7 @@ public class Route53VpcResource extends AwsResource {
         HostedZoneResource parent = getParent();
 
         try {
-            parent.saveVpc(getVpcId(), getVpcRegion(), true);
+            parent.saveVpc(getVpc().getVpcId(), getVpcRegion(), true);
         } catch (Route53Exception ex) {
             if (!ex.awsErrorDetails().errorCode().equalsIgnoreCase("ConflictingDomainExists")) {
                 throw ex;
@@ -71,7 +65,7 @@ public class Route53VpcResource extends AwsResource {
         HostedZoneResource parent = getParent();
 
         try {
-            parent.saveVpc(getVpcId(), getVpcRegion(), false);
+            parent.saveVpc(getVpc().getVpcId(), getVpcRegion(), false);
         } catch (Route53Exception ex) {
             if (!ex.awsErrorDetails().errorCode().equalsIgnoreCase("LastVpcAssociation")) {
                 throw ex;
@@ -85,8 +79,8 @@ public class Route53VpcResource extends AwsResource {
 
         sb.append("route53 vpc ").append(" [ ");
 
-        if (!ObjectUtils.isBlank(getVpcId())) {
-            sb.append(getVpcId()).append(" - ");
+        if (getVpc() != null) {
+            sb.append(getVpc().getVpcId()).append(" - ");
         }
 
         if (!ObjectUtils.isBlank(getVpcRegion())) {
@@ -98,7 +92,7 @@ public class Route53VpcResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", getVpcId(), getVpcRegion());
+        return String.format("%s %s", getVpc() != null ? getVpc().getVpcId() : null, getVpcRegion());
     }
 
     private HostedZoneResource getParent() {
@@ -107,5 +101,11 @@ public class Route53VpcResource extends AwsResource {
             throw new GyroException("Parent hosted zone resource not found.");
         }
         return parent;
+    }
+
+    @Override
+    public void copyFrom(VPC vpc) {
+        this.vpc = findById(VpcResource.class, vpc.vpcId());
+        this.vpcRegion = vpc.vpcRegionAsString();
     }
 }
