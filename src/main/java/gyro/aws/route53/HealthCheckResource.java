@@ -1,7 +1,10 @@
 package gyro.aws.route53;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -20,12 +23,14 @@ import software.amazon.awssdk.services.route53.model.HealthCheckRegion;
 import software.amazon.awssdk.services.route53.model.HealthCheckType;
 import software.amazon.awssdk.services.route53.model.InsufficientDataHealthStatus;
 import software.amazon.awssdk.services.route53.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.route53.model.NoSuchHealthCheckException;
 import software.amazon.awssdk.services.route53.model.Tag;
 import software.amazon.awssdk.services.route53.model.TagResourceType;
 import software.amazon.awssdk.services.route53.model.UpdateHealthCheckRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,10 +58,10 @@ import java.util.stream.Stream;
  *
  */
 @Type("health-check")
-public class HealthCheckResource extends AwsResource {
+public class HealthCheckResource extends AwsResource implements Copyable<HealthCheck> {
 
     private String healthCheckId;
-    private List<String> childHealthChecks;
+    private Set<HealthCheckResource> childHealthChecks;
     private Boolean disabled;
     private Boolean enableSni;
     private Integer failureThreshold;
@@ -81,6 +86,14 @@ public class HealthCheckResource extends AwsResource {
             .map(HealthCheckRegion::toString).collect(Collectors.toList())
     );
 
+    private static final String HealthCheckTypeCalculated = "CALCULATED";
+    private static final String HealthCheckTypeCloudWatch = "CLOUDWATCH_METRIC";
+
+    /**
+     * The id of the health check.
+     */
+    @Id
+    @Output
     public String getHealthCheckId() {
         return healthCheckId;
     }
@@ -90,18 +103,18 @@ public class HealthCheckResource extends AwsResource {
     }
 
     /**
-     * A list of children health check ids.
+     * A list of children health checks.
      */
     @Updatable
-    public List<String> getChildHealthChecks() {
+    public Set<HealthCheckResource> getChildHealthChecks() {
         if (childHealthChecks == null) {
-            childHealthChecks = new ArrayList<>();
+            childHealthChecks = new HashSet<>();
         }
 
         return childHealthChecks;
     }
 
-    public void setChildHealthChecks(List<String> childHealthChecks) {
+    public void setChildHealthChecks(Set<HealthCheckResource> childHealthChecks) {
         this.childHealthChecks = childHealthChecks;
     }
 
@@ -154,7 +167,7 @@ public class HealthCheckResource extends AwsResource {
     }
 
     /**
-     *
+     * Health check threshold.
      */
     @Updatable
     public Integer getHealthThreshold() {
@@ -235,7 +248,7 @@ public class HealthCheckResource extends AwsResource {
         }
 
         if (regions.isEmpty() && getType() != null
-            && !getType().equals("CALCULATED") && !getType().equals("CLOUDWATCH_METRIC")) {
+            && !getType().equals(HealthCheckTypeCalculated) && !getType().equals(HealthCheckTypeCloudWatch)) {
             regions = new ArrayList<>(regionSet);
         }
 
@@ -336,45 +349,13 @@ public class HealthCheckResource extends AwsResource {
     public boolean refresh() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        GetHealthCheckResponse response = client.getHealthCheck(
-            r -> r.healthCheckId(getHealthCheckId())
-        );
+        HealthCheck healthCheck = getHealthCheck(client);
 
-        HealthCheck healthCheck = response.healthCheck();
-        HealthCheckConfig healthCheckConfig = healthCheck.healthCheckConfig();
-        setChildHealthChecks(healthCheckConfig.childHealthChecks());
-        setDisabled(healthCheckConfig.disabled());
-        setEnableSni(healthCheckConfig.enableSNI());
-        setFailureThreshold(healthCheckConfig.failureThreshold());
-        setDomainName(healthCheckConfig.fullyQualifiedDomainName());
-        setHealthThreshold(healthCheckConfig.healthThreshold());
-        setInsufficientDataHealthStatus(healthCheckConfig.insufficientDataHealthStatusAsString());
-        setInverted(healthCheckConfig.inverted());
-        setIpAddress(healthCheckConfig.ipAddress());
-        setMeasureLatency(healthCheckConfig.measureLatency());
-        setPort(healthCheckConfig.port());
-
-        setRequestInterval(healthCheckConfig.requestInterval());
-        setResourcePath(healthCheckConfig.resourcePath());
-        setSearchString(healthCheckConfig.searchString());
-        setType(healthCheckConfig.typeAsString());
-
-        if (getType().equals("CALCULATED") || getType().equals("CLOUDWATCH_METRIC")) {
-            setRegions(new ArrayList<>());
-        } else {
-            if (healthCheckConfig.regionsAsStrings().isEmpty()) {
-                setRegions(new ArrayList<>(regionSet));
-            } else {
-                setRegions(healthCheckConfig.regionsAsStrings());
-            }
+        if (healthCheck == null) {
+            return false;
         }
 
-        if (healthCheckConfig.alarmIdentifier() != null) {
-            setAlarmName(healthCheckConfig.alarmIdentifier().name());
-            setAlarmRegion(healthCheckConfig.alarmIdentifier().regionAsString());
-        }
-
-        loadTags(client);
+        copyFrom(healthCheck);
 
         return true;
     }
@@ -437,17 +418,77 @@ public class HealthCheckResource extends AwsResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(HealthCheck healthCheck) {
+        setHealthCheckId(healthCheck.id());
+        HealthCheckConfig healthCheckConfig = healthCheck.healthCheckConfig();
+        setChildHealthChecks(healthCheckConfig.childHealthChecks().stream().map(o -> findById(HealthCheckResource.class, o)).collect(Collectors.toSet()));
+        setDisabled(healthCheckConfig.disabled());
+        setEnableSni(healthCheckConfig.enableSNI());
+        setFailureThreshold(healthCheckConfig.failureThreshold());
+        setDomainName(healthCheckConfig.fullyQualifiedDomainName());
+        setHealthThreshold(healthCheckConfig.healthThreshold());
+        setInsufficientDataHealthStatus(healthCheckConfig.insufficientDataHealthStatusAsString());
+        setInverted(healthCheckConfig.inverted());
+        setIpAddress(healthCheckConfig.ipAddress());
+        setMeasureLatency(healthCheckConfig.measureLatency());
+        setPort(healthCheckConfig.port());
+
+        setRequestInterval(healthCheckConfig.requestInterval());
+        setResourcePath(healthCheckConfig.resourcePath());
+        setSearchString(healthCheckConfig.searchString());
+        setType(healthCheckConfig.typeAsString());
+
+        if (getType().equals(HealthCheckTypeCalculated) || getType().equals(HealthCheckTypeCloudWatch)) {
+            setRegions(new ArrayList<>());
+        } else {
+            if (healthCheckConfig.regionsAsStrings().isEmpty()) {
+                setRegions(new ArrayList<>(regionSet));
+            } else {
+                setRegions(healthCheckConfig.regionsAsStrings());
+            }
+        }
+
+        if (healthCheckConfig.alarmIdentifier() != null) {
+            setAlarmName(healthCheckConfig.alarmIdentifier().name());
+            setAlarmRegion(healthCheckConfig.alarmIdentifier().regionAsString());
+        }
+
+        loadTags(createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null));
+    }
+
+    private HealthCheck getHealthCheck(Route53Client client) {
+        HealthCheck healthCheck;
+
+        if (ObjectUtils.isBlank(getHealthCheckId())) {
+            throw new GyroException("health-check-id is missing, unable to health check.");
+        }
+
+        try {
+            GetHealthCheckResponse response = client.getHealthCheck(
+                r -> r.healthCheckId(getHealthCheckId())
+            );
+
+            healthCheck = response.healthCheck();
+
+        } catch (NoSuchHealthCheckException ex) {
+            healthCheck = null;
+        }
+
+        return healthCheck;
+    }
+
     private HealthCheckConfig getCreateHealthCheckRequest() {
-        if (getType().equals("CALCULATED")) {
+        if (getType().equals(HealthCheckTypeCalculated)) {
             return HealthCheckConfig.builder()
                 .type(getType())
-                .childHealthChecks(getChildHealthChecks())
+                .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getHealthCheckId).collect(Collectors.toList()))
                 .disabled(getDisabled())
                 .inverted(getInverted())
                 .healthThreshold(getHealthThreshold())
                 .build();
 
-        } else if (getType().equals("CLOUDWATCH_METRIC")) {
+        } else if (getType().equals(HealthCheckTypeCloudWatch)) {
             return HealthCheckConfig.builder()
                 .type(getType())
                 .disabled(getDisabled())
@@ -480,15 +521,15 @@ public class HealthCheckResource extends AwsResource {
     }
 
     private UpdateHealthCheckRequest getUpdateHealthCheckRequest() {
-        if (getType().equals("CALCULATED")) {
+        if (getType().equals(HealthCheckTypeCalculated)) {
             return UpdateHealthCheckRequest.builder()
                 .healthCheckId(getHealthCheckId())
-                .childHealthChecks(getChildHealthChecks())
+                .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getHealthCheckId).collect(Collectors.toList()))
                 .disabled(getDisabled())
                 .inverted(getInverted())
                 .healthThreshold(getHealthThreshold())
                 .build();
-        } else if (getType().equals("CLOUDWATCH_METRIC")) {
+        } else if (getType().equals(HealthCheckTypeCloudWatch)) {
             return UpdateHealthCheckRequest.builder()
                 .healthCheckId(getHealthCheckId())
                 .disabled(getDisabled())
@@ -628,7 +669,7 @@ public class HealthCheckResource extends AwsResource {
         }
 
         //Attribute validation when type CLOUDWATCH_METRIC
-        if (getType().equals("CLOUDWATCH_METRIC")) {
+        if (getType().equals(HealthCheckTypeCloudWatch)) {
             if (ObjectUtils.isBlank(getInsufficientDataHealthStatus())
                 || InsufficientDataHealthStatus.fromValue(getInsufficientDataHealthStatus())
                 .equals(InsufficientDataHealthStatus.UNKNOWN_TO_SDK_VERSION)) {
@@ -641,7 +682,7 @@ public class HealthCheckResource extends AwsResource {
         }
 
         //Attribute validation when type is CALCULATED or CLOUDWATCH_METRIC
-        if (getType().equals("CALCULATED") && getType().equals("CLOUDWATCH_METRIC")) {
+        if (getType().equals(HealthCheckTypeCalculated) && getType().equals(HealthCheckTypeCloudWatch)) {
             if (!getRegions().isEmpty()) {
                 throw new GyroException("The param 'regions' is not allowed when"
                     + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
