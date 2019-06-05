@@ -1,5 +1,6 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.GeoRestriction;
@@ -8,25 +9,20 @@ import software.amazon.awssdk.services.cloudfront.model.Restrictions;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CloudFrontGeoRestriction extends Diffable {
+public class CloudFrontGeoRestriction extends Diffable implements Copyable<GeoRestriction> {
 
     private String type;
     private List<String> restrictions;
-
-    public CloudFrontGeoRestriction() {
-        setType("none");
-    }
-
-    public CloudFrontGeoRestriction(GeoRestriction geoRestriction) {
-        setType(geoRestriction.restrictionTypeAsString());
-        setRestrictions(geoRestriction.items());
-    }
 
     /**
      * Type of restriction. Valid values are ``Whitelist`` or ``Blacklist``.
      */
     @Updatable
     public String getType() {
+        if (type == null) {
+            type = "none";
+        }
+
         return type;
     }
 
@@ -65,5 +61,11 @@ public class CloudFrontGeoRestriction extends Diffable {
     @Override
     public String toDisplayString() {
         return "geo restriction";
+    }
+
+    @Override
+    public void copyFrom(GeoRestriction geoRestriction) {
+        setType(geoRestriction.restrictionTypeAsString());
+        setRestrictions(geoRestriction.items());
     }
 }

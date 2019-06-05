@@ -1,33 +1,24 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
-public class CloudFrontLogging extends Diffable {
+public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfig> {
 
     private Boolean enabled;
     private String bucket;
     private String bucketPrefix;
     private Boolean includeCookies;
 
-    public CloudFrontLogging() {
-        setEnabled(false);
-        setIncludeCookies(false);
-        setBucket("");
-        setBucketPrefix("");
-    }
-
-    public CloudFrontLogging(LoggingConfig loggingConfig) {
-        setBucket(loggingConfig.bucket());
-        setBucketPrefix(loggingConfig.prefix());
-        setEnabled(loggingConfig.enabled());
-        setIncludeCookies(loggingConfig.includeCookies());
-    }
-
     /**
      * Enable or disable logging for this distribution.
      */
     public Boolean getEnabled() {
+        if (enabled == null) {
+            enabled = false;
+        }
+
         return enabled;
     }
 
@@ -39,6 +30,10 @@ public class CloudFrontLogging extends Diffable {
      * Name of bucket to save access logs.
      */
     public String getBucket() {
+        if (bucket == null) {
+            bucket = "";
+        }
+
         return bucket;
     }
 
@@ -50,6 +45,10 @@ public class CloudFrontLogging extends Diffable {
      * Directory within bucket ot save access logs.
      */
     public String getBucketPrefix() {
+        if (bucketPrefix == null) {
+            bucketPrefix = "";
+        }
+
         return bucketPrefix;
     }
 
@@ -61,6 +60,10 @@ public class CloudFrontLogging extends Diffable {
      * Whether to include cookies logs.
      */
     public Boolean getIncludeCookies() {
+        if (includeCookies == null) {
+            includeCookies = false;
+        }
+
         return includeCookies;
     }
 
@@ -84,5 +87,13 @@ public class CloudFrontLogging extends Diffable {
     @Override
     public String toDisplayString() {
         return String.format("logging config - bucket: %s, prefix: %s", getBucket(), getBucketPrefix());
+    }
+
+    @Override
+    public void copyFrom(LoggingConfig loggingConfig) {
+        setBucket(loggingConfig.bucket());
+        setBucketPrefix(loggingConfig.prefix());
+        setEnabled(loggingConfig.enabled());
+        setIncludeCookies(loggingConfig.includeCookies());
     }
 }

@@ -1,5 +1,6 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.cloudfront.model.CustomErrorResponse;
 
@@ -7,7 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CloudFrontCustomErrorResponse extends Diffable {
+public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<CustomErrorResponse> {
 
     private long ttl;
     private Integer errorCode;
@@ -16,16 +17,6 @@ public class CloudFrontCustomErrorResponse extends Diffable {
     private Boolean customizeErrorResponse;
 
     private static final Set<Integer> ERROR_CODE_LIST = new HashSet<>(Arrays.asList(400,403,404,405,414,416,500,501,502,503,504));
-
-    public CloudFrontCustomErrorResponse() {
-    }
-
-    public CloudFrontCustomErrorResponse(CustomErrorResponse errorResponse) {
-        setTtl(errorResponse.errorCachingMinTTL());
-        setErrorCode(errorResponse.errorCode());
-        setResponseCode(errorResponse.responseCode());
-        setResponsePagePath(errorResponse.responsePagePath());
-    }
 
     /**
      * The minimum amount of time to cache this error code.
@@ -107,5 +98,13 @@ public class CloudFrontCustomErrorResponse extends Diffable {
     @Override
     public String toDisplayString() {
         return String.format("error response - code: %d, ttl: %d", getErrorCode(), getTtl());
+    }
+
+    @Override
+    public void copyFrom(CustomErrorResponse errorResponse) {
+        setTtl(errorResponse.errorCachingMinTTL());
+        setErrorCode(errorResponse.errorCode());
+        setResponseCode(errorResponse.responseCode());
+        setResponsePagePath(errorResponse.responsePagePath());
     }
 }
