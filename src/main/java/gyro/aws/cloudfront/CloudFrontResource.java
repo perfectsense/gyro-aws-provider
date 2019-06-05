@@ -88,20 +88,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private String arn;
     private String domainName;
 
-    /*public CloudFrontResource() {
-        setEnabled(true);
-        setIpv6Enabled(false);
-        setHttpVersion("http1.1");
-
-        CloudFrontLogging cloudFrontLogging = newSubresource(CloudFrontLogging.class);
-        cloudFrontLogging.setDefaultLoggingConfig();
-        setLogging(cloudFrontLogging);
-
-        CloudFrontViewerCertificate cloudFrontViewerCertificate = newSubresource(CloudFrontViewerCertificate.class);
-        cloudFrontViewerCertificate.setDefaultViewerCertificate();
-        setViewerCertificate(cloudFrontViewerCertificate);
-    }*/
-
     /**
      * The id of this CloudFront distribution.
      */
