@@ -2,8 +2,11 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -17,6 +20,7 @@ import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates an event source mapping.
@@ -33,7 +37,7 @@ import java.util.Set;
  *     end
  */
 @Type("event-source-mapping")
-public class EventSourceMapping extends AwsResource {
+public class EventSourceMapping extends AwsResource implements Copyable<GetEventSourceMappingResponse> {
     private String functionName;
     private Integer batchSize;
     private Boolean enabled;
@@ -128,6 +132,7 @@ public class EventSourceMapping extends AwsResource {
     /**
      * The id of the event mapping.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -218,21 +223,12 @@ public class EventSourceMapping extends AwsResource {
                 r -> r.uuid(getId())
             );
 
-            setBatchSize(response.batchSize());
-            setEventSourceArn(response.eventSourceArn());
-            setLastModified(Date.from(response.lastModified()));
-            setLastProcessingResult(response.lastProcessingResult());
-            setState(response.state());
-            setStateTransitionReason(response.stateTransitionReason());
-            setEnabled(getState().equals("Enabled"));
-            setFunctionArn(response.functionArn());
-            setFunctionName(getFunctionArn());
+            copyFrom(response);
         } catch (ResourceNotFoundException ex) {
             return false;
         }
 
         return true;
-
     }
 
     @Override
@@ -257,7 +253,7 @@ public class EventSourceMapping extends AwsResource {
 
         setId(response.uuid());
 
-        saveEventSourceMapping(client);
+        waitToSave(client);
     }
 
     @Override
@@ -275,7 +271,7 @@ public class EventSourceMapping extends AwsResource {
                 .functionName(getFunctionName())
         );
 
-        saveEventSourceMapping(client);
+        waitToSave(client);
     }
 
     @Override
@@ -302,6 +298,18 @@ public class EventSourceMapping extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    private void waitToSave(LambdaClient client) {
+        Wait.atMost(3, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> client.getEventSourceMapping(
+                r -> r.uuid(getId()))
+                .state().equals(getEnabled() ? "Enabled" : "Disabled")
+            );
+
+        copyFrom(client.getEventSourceMapping(r -> r.uuid(getId())));
     }
 
     private boolean isFunctionArnSame() {
@@ -331,36 +339,17 @@ public class EventSourceMapping extends AwsResource {
         }
     }
 
-    private void saveEventSourceMapping(LambdaClient client) {
-        long time = 20000;
-        int count = 0;
-        boolean wait = true;
-        GetEventSourceMappingResponse response = null;
-
-        while(wait && count < 20) {
-            count++;
-            response = client.getEventSourceMapping(r -> r.uuid(getId()));
-            if (response.state().equals(getEnabled() ? "Enabled" : "Disabled")) {
-                break;
-            }
-
-            try {
-                Thread.sleep(time);
-            } catch (InterruptedException e) {
-                break;
-            }
-
-            if (count % 5 == 0) {
-                wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-            }
-        }
-
+    @Override
+    public void copyFrom(GetEventSourceMappingResponse response) {
+        setId(response.uuid());
+        setBatchSize(response.batchSize());
+        setEventSourceArn(response.eventSourceArn());
         setLastModified(Date.from(response.lastModified()));
         setLastProcessingResult(response.lastProcessingResult());
         setState(response.state());
         setStateTransitionReason(response.stateTransitionReason());
+        setEnabled(getState().equals("Enabled"));
         setFunctionArn(response.functionArn());
-        setEventSourceArn(response.eventSourceArn());
         setFunctionName(getFunctionArn());
     }
 }
