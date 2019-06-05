@@ -2,8 +2,10 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.core.SdkBytes;
@@ -39,7 +41,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("lambda-layer")
-public class LayerResource extends AwsResource {
+public class LayerResource extends AwsResource implements Copyable<GetLayerVersionResponse> {
     private String layerName;
     private String description;
     private String licenseInfo;
@@ -163,6 +165,7 @@ public class LayerResource extends AwsResource {
     /**
      * The ARN of the lambda layer version specific.
      */
+    @Id
     @Output
     public String getVersionArn() {
         return versionArn;
@@ -210,12 +213,7 @@ public class LayerResource extends AwsResource {
                     .versionNumber(getVersion())
             );
 
-            setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
-            setCreatedDate(response.createdDate());
-            setDescription(response.description());
-            setArn(response.layerArn());
-            setVersionArn(response.layerVersionArn());
-            setLicenseInfo(response.licenseInfo());
+            copyFrom(response);
         } catch (ResourceNotFoundException ex) {
             return false;
         }
@@ -282,6 +280,17 @@ public class LayerResource extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(GetLayerVersionResponse response) {
+        setVersion(response.version());
+        setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
+        setCreatedDate(response.createdDate());
+        setDescription(response.description());
+        setArn(response.layerArn());
+        setVersionArn(response.layerVersionArn());
+        setLicenseInfo(response.licenseInfo());
     }
 
     private SdkBytes getZipFile() {
