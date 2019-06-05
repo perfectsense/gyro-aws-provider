@@ -1,10 +1,12 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.DefaultCacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.ForwardedValues;
+import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociations;
 import software.amazon.awssdk.services.cloudfront.model.TrustedSigners;
 
@@ -13,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CloudFrontCacheBehavior extends Diffable {
+public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheBehavior> {
 
     private String targetOriginId;
     private String pathPattern;
@@ -33,66 +35,6 @@ public class CloudFrontCacheBehavior extends Diffable {
     private List<String> trustedSigners;
     private String fieldLevelEncryptionId;
     private List<CloudFrontCacheBehaviorLambdaFunction> lambdaFunctions;
-
-    public CloudFrontCacheBehavior() {
-        setDefaultTtl(86400L);
-        setMaxTtl(31536000L);
-        setMinTtl(0L);
-    }
-
-    public CloudFrontCacheBehavior(CacheBehavior cacheBehavior) {
-        setTargetOriginId(cacheBehavior.targetOriginId());
-        setPathPattern(cacheBehavior.pathPattern());
-        setViewerProtocolPolicy(cacheBehavior.viewerProtocolPolicyAsString());
-        setTrustedSigners(new ArrayList<>(cacheBehavior.trustedSigners().items()));
-
-        // -- TTLs
-        setDefaultTtl(cacheBehavior.defaultTTL());
-        setMinTtl(cacheBehavior.minTTL());
-        setMaxTtl(cacheBehavior.maxTTL());
-
-        // -- Forwarded Values
-        setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
-        if (!getForwardCookies().equals("none")) {
-            setCookies(new ArrayList<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
-        }
-        setHeaders(new ArrayList<>(cacheBehavior.forwardedValues().headers().items()));
-        setQueryString(cacheBehavior.forwardedValues().queryString());
-        setQueryStringCacheKeys(new ArrayList<>(cacheBehavior.forwardedValues().queryStringCacheKeys().items()));
-
-        setAllowedMethods(cacheBehavior.allowedMethods().itemsAsStrings());
-        setCachedMethods(cacheBehavior.allowedMethods().cachedMethods().itemsAsStrings());
-        setCompress(cacheBehavior.compress());
-        setFieldLevelEncryptionId(cacheBehavior.fieldLevelEncryptionId());
-        setSmoothStreaming(cacheBehavior.smoothStreaming());
-    }
-
-    public CloudFrontCacheBehavior(DefaultCacheBehavior cacheBehavior) {
-        setTargetOriginId(cacheBehavior.targetOriginId());
-        setPathPattern("*");
-        setViewerProtocolPolicy(cacheBehavior.viewerProtocolPolicyAsString());
-        setTrustedSigners(new ArrayList<>(cacheBehavior.trustedSigners().items()));
-
-        // -- TTLs
-        setDefaultTtl(cacheBehavior.defaultTTL());
-        setMinTtl(cacheBehavior.minTTL());
-        setMaxTtl(cacheBehavior.maxTTL());
-
-        // -- Forwarded Values
-        setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
-        if (!getForwardCookies().equals("none")) {
-            setCookies(new ArrayList<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
-        }
-        setHeaders(new ArrayList<>(cacheBehavior.forwardedValues().headers().items()));
-        setQueryString(cacheBehavior.forwardedValues().queryString());
-        setQueryStringCacheKeys(new ArrayList<>(cacheBehavior.forwardedValues().queryStringCacheKeys().items()));
-
-        setAllowedMethods(cacheBehavior.allowedMethods().itemsAsStrings());
-        setCachedMethods(cacheBehavior.allowedMethods().cachedMethods().itemsAsStrings());
-        setCompress(cacheBehavior.compress());
-        setFieldLevelEncryptionId(cacheBehavior.fieldLevelEncryptionId());
-        setSmoothStreaming(cacheBehavior.smoothStreaming());
-    }
 
     /**
      * The ID for the origin to route requests to when the path pattern matches this cache behavior.
@@ -134,6 +76,10 @@ public class CloudFrontCacheBehavior extends Diffable {
      */
     @Updatable
     public Long getMinTtl() {
+        if (minTtl == null) {
+            minTtl = 0L;
+        }
+
         return minTtl;
     }
 
@@ -244,6 +190,10 @@ public class CloudFrontCacheBehavior extends Diffable {
      */
     @Updatable
     public Long getDefaultTtl() {
+        if (defaultTtl == null) {
+            defaultTtl = 86400L;
+        }
+
         return defaultTtl;
     }
 
@@ -256,6 +206,10 @@ public class CloudFrontCacheBehavior extends Diffable {
      */
     @Updatable
     public Long getMaxTtl() {
+        if (maxTtl == null) {
+            maxTtl = 31536000L;
+        }
+
         return maxTtl;
     }
 
@@ -433,5 +387,58 @@ public class CloudFrontCacheBehavior extends Diffable {
         }
 
         return "cache behavior";
+    }
+
+    @Override
+    public void copyFrom(CacheBehavior cacheBehavior) {
+        setTargetOriginId(cacheBehavior.targetOriginId());
+        setPathPattern(cacheBehavior.pathPattern());
+        setViewerProtocolPolicy(cacheBehavior.viewerProtocolPolicyAsString());
+        setTrustedSigners(new ArrayList<>(cacheBehavior.trustedSigners().items()));
+
+        // -- TTLs
+        setDefaultTtl(cacheBehavior.defaultTTL());
+        setMinTtl(cacheBehavior.minTTL());
+        setMaxTtl(cacheBehavior.maxTTL());
+
+        // -- Forwarded Values
+        setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
+        if (!getForwardCookies().equals("none")) {
+            setCookies(new ArrayList<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
+        }
+        setHeaders(new ArrayList<>(cacheBehavior.forwardedValues().headers().items()));
+        setQueryString(cacheBehavior.forwardedValues().queryString());
+        setQueryStringCacheKeys(new ArrayList<>(cacheBehavior.forwardedValues().queryStringCacheKeys().items()));
+
+        setAllowedMethods(cacheBehavior.allowedMethods().itemsAsStrings());
+        setCachedMethods(cacheBehavior.allowedMethods().cachedMethods().itemsAsStrings());
+        setCompress(cacheBehavior.compress());
+        setFieldLevelEncryptionId(cacheBehavior.fieldLevelEncryptionId());
+        setSmoothStreaming(cacheBehavior.smoothStreaming());
+
+        getLambdaFunctions().clear();
+        if (cacheBehavior.lambdaFunctionAssociations() != null && !cacheBehavior.lambdaFunctionAssociations().items().isEmpty()) {
+            for (LambdaFunctionAssociation lambdaFunctionAssociation : cacheBehavior.lambdaFunctionAssociations().items()) {
+                CloudFrontCacheBehaviorLambdaFunction cloudFrontCacheBehaviorLambdaFunction = newSubresource(CloudFrontCacheBehaviorLambdaFunction.class);
+                cloudFrontCacheBehaviorLambdaFunction.copyFrom(lambdaFunctionAssociation);
+                getLambdaFunctions().add(cloudFrontCacheBehaviorLambdaFunction);
+            }
+        }
+    }
+
+    static CacheBehavior getCacheBehaviorFromDefault(DefaultCacheBehavior defaultCacheBehavior) {
+        return CacheBehavior.builder().targetOriginId(defaultCacheBehavior.targetOriginId())
+            .pathPattern("*")
+            .viewerProtocolPolicy(defaultCacheBehavior.viewerProtocolPolicy())
+            .trustedSigners(defaultCacheBehavior.trustedSigners())
+            .defaultTTL(defaultCacheBehavior.defaultTTL())
+            .minTTL(defaultCacheBehavior.minTTL())
+            .maxTTL(defaultCacheBehavior.maxTTL())
+            .forwardedValues(defaultCacheBehavior.forwardedValues())
+            .allowedMethods(defaultCacheBehavior.allowedMethods())
+            .compress(defaultCacheBehavior.compress())
+            .fieldLevelEncryptionId(defaultCacheBehavior.fieldLevelEncryptionId())
+            .smoothStreaming(defaultCacheBehavior.smoothStreaming())
+            .lambdaFunctionAssociations(defaultCacheBehavior.lambdaFunctionAssociations()).build();
     }
 }

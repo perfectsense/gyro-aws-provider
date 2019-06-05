@@ -1,13 +1,15 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomOriginConfig;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CloudFrontCustomOrigin extends Diffable {
+public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomOriginConfig> {
 
     private Integer httpPort;
     private Integer httpsPort;
@@ -16,29 +18,15 @@ public class CloudFrontCustomOrigin extends Diffable {
     private String originProtocolPolicy;
     private List<String> originSslProtocols;
 
-    public CloudFrontCustomOrigin() {
-        setHttpPort(80);
-        setHttpsPort(443);
-        setOriginKeepAliveTimeout(5);
-        setOriginReadTimeout(30);
-        setOriginProtocolPolicy("http-only");
-        setOriginSslProtocols(Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2"));
-    }
-
-    public CloudFrontCustomOrigin(CustomOriginConfig originConfig) {
-        setHttpPort(originConfig.httpPort());
-        setHttpsPort(originConfig.httpsPort());
-        setOriginKeepAliveTimeout(originConfig.originKeepaliveTimeout());
-        setOriginProtocolPolicy(originConfig.originProtocolPolicyAsString());
-        setOriginReadTimeout(originConfig.originReadTimeout());
-        setOriginSslProtocols(originConfig.originSslProtocols().itemsAsStrings());
-    }
-
     /**
      * The port the origin listens for http.
      */
     @Updatable
     public Integer getHttpPort() {
+        if (httpPort == null) {
+            httpPort = 80;
+        }
+
         return httpPort;
     }
 
@@ -51,6 +39,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public Integer getHttpsPort() {
+        if (httpsPort == null) {
+            httpsPort = 443;
+        }
+
         return httpsPort;
     }
 
@@ -63,6 +55,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public Integer getOriginKeepAliveTimeout() {
+        if (originKeepAliveTimeout == null) {
+            originKeepAliveTimeout = 5;
+        }
+
         return originKeepAliveTimeout;
     }
 
@@ -75,6 +71,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public Integer getOriginReadTimeout() {
+        if (originReadTimeout == null) {
+            originReadTimeout = 30;
+        }
+
         return originReadTimeout;
     }
 
@@ -87,6 +87,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public String getOriginProtocolPolicy() {
+        if (originProtocolPolicy == null) {
+            originProtocolPolicy = "http-only";
+        }
+
         return originProtocolPolicy;
     }
 
@@ -99,6 +103,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public List<String> getOriginSslProtocols() {
+        if (originSslProtocols == null) {
+            originSslProtocols = Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2");
+        }
+
         return originSslProtocols;
     }
 
@@ -125,5 +133,15 @@ public class CloudFrontCustomOrigin extends Diffable {
     @Override
     public String toDisplayString() {
         return "custom origin config";
+    }
+
+    @Override
+    public void copyFrom(CustomOriginConfig originConfig) {
+        setHttpPort(originConfig.httpPort());
+        setHttpsPort(originConfig.httpsPort());
+        setOriginKeepAliveTimeout(originConfig.originKeepaliveTimeout());
+        setOriginProtocolPolicy(originConfig.originProtocolPolicyAsString());
+        setOriginReadTimeout(originConfig.originReadTimeout());
+        setOriginSslProtocols(originConfig.originSslProtocols().itemsAsStrings());
     }
 }

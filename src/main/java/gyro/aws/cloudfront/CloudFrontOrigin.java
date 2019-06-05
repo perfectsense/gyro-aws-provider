@@ -1,5 +1,6 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomHeaders;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CloudFrontOrigin extends Diffable {
+public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
 
     private String id;
     private String domainName;
@@ -19,29 +20,6 @@ public class CloudFrontOrigin extends Diffable {
     private Map<String, String> customHeaders;
     private CloudFrontS3Origin s3Origin;
     private CloudFrontCustomOrigin customOrigin;
-
-    public CloudFrontOrigin() {
-    }
-
-    public CloudFrontOrigin(Origin origin) {
-        setId(origin.id());
-        setDomainName(origin.domainName());
-        setOriginPath(origin.originPath());
-
-        if (origin.customHeaders().quantity() > 0) {
-            for (OriginCustomHeader header : origin.customHeaders().items()) {
-                getCustomHeaders().put(header.headerName(), header.headerValue());
-            }
-        }
-
-        if (origin.customOriginConfig() != null) {
-            setCustomOrigin(new CloudFrontCustomOrigin(origin.customOriginConfig()));
-        }
-
-        if (origin.s3OriginConfig() != null) {
-            setS3Origin(new CloudFrontS3Origin(origin.s3OriginConfig()));
-        }
-    }
 
     /**
      * A unique ID for this origin.
@@ -106,7 +84,7 @@ public class CloudFrontOrigin extends Diffable {
     @Updatable
     public CloudFrontS3Origin getS3Origin() {
         if (s3Origin == null && customOrigin == null) {
-            return new CloudFrontS3Origin();
+            return newSubresource(CloudFrontS3Origin.class);
         }
 
         return s3Origin;
@@ -142,7 +120,7 @@ public class CloudFrontOrigin extends Diffable {
             .build();
 
         if (getCustomOrigin() == null && getS3Origin() == null) {
-            setS3Origin(new CloudFrontS3Origin());
+            setS3Origin(newSubresource(CloudFrontS3Origin.class));
         }
 
         return Origin.builder()
@@ -163,5 +141,30 @@ public class CloudFrontOrigin extends Diffable {
     @Override
     public String toDisplayString() {
         return "origin - targetId: " + getId();
+    }
+
+    @Override
+    public void copyFrom(Origin origin) {
+        setId(origin.id());
+        setDomainName(origin.domainName());
+        setOriginPath(origin.originPath());
+
+        if (origin.customHeaders().quantity() > 0) {
+            for (OriginCustomHeader header : origin.customHeaders().items()) {
+                getCustomHeaders().put(header.headerName(), header.headerValue());
+            }
+        }
+
+        if (origin.customOriginConfig() != null) {
+            CloudFrontCustomOrigin cloudFrontCustomOrigin = newSubresource(CloudFrontCustomOrigin.class);
+            cloudFrontCustomOrigin.copyFrom(origin.customOriginConfig());
+            setCustomOrigin(cloudFrontCustomOrigin);
+        }
+
+        if (origin.s3OriginConfig() != null) {
+            CloudFrontS3Origin cloudFrontS3Origin = newSubresource(CloudFrontS3Origin.class);
+            cloudFrontS3Origin.copyFrom(origin.s3OriginConfig());
+            setS3Origin(cloudFrontS3Origin);
+        }
     }
 }
