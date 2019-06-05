@@ -2,6 +2,8 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -35,7 +37,7 @@ import java.util.Set;
  *     end
  */
 @Type("lambda-alias")
-public class FunctionAlias extends AwsResource {
+public class FunctionAlias extends AwsResource implements Copyable<GetAliasResponse> {
     private String aliasName;
     private String functionName;
     private String functionVersion;
@@ -105,7 +107,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * The weight to switch between the secondary version. Required if additional version set. Valid values between ``0.0`` to ``1.0``
+     * The weight to switch between the secondary version. Required if additional version set. Valid values are between ``0.0`` to ``1.0``
      */
     @Updatable
     public Double getWeight() {
@@ -119,6 +121,7 @@ public class FunctionAlias extends AwsResource {
     /**
      * The arn of the alias.
      */
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -150,14 +153,7 @@ public class FunctionAlias extends AwsResource {
                     .functionName(getFunctionName())
             );
 
-            setArn(response.aliasArn());
-            setDescription(response.description());
-            setFunctionVersion(response.functionVersion());
-            setRevisionId(response.revisionId());
-            if (response.routingConfig() != null && response.routingConfig().additionalVersionWeights().isEmpty()) {
-                setAdditionalVersion(response.routingConfig().additionalVersionWeights().keySet().iterator().next());
-                setWeight(response.routingConfig().additionalVersionWeights().get(getAdditionalVersion()));
-            }
+            copyFrom(response);
         } catch (ResourceNotFoundException ex) {
             return false;
         }
@@ -236,5 +232,18 @@ public class FunctionAlias extends AwsResource {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void copyFrom(GetAliasResponse response) {
+        setAliasName(response.name());
+        setArn(response.aliasArn());
+        setDescription(response.description());
+        setFunctionVersion(response.functionVersion());
+        setRevisionId(response.revisionId());
+        if (response.routingConfig() != null && response.routingConfig().additionalVersionWeights().isEmpty()) {
+            setAdditionalVersion(response.routingConfig().additionalVersionWeights().keySet().iterator().next());
+            setWeight(response.routingConfig().additionalVersionWeights().get(getAdditionalVersion()));
+        }
     }
 }
