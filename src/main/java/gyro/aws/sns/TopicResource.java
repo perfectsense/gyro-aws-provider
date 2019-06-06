@@ -3,6 +3,7 @@ package gyro.aws.sns;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -23,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates a sns topic
+ * Creates a sns topic.
  *
  * Example
  * -------
@@ -33,7 +34,7 @@ import java.util.Set;
  *     aws::topic sns-topic-example
  *         attributes: {
  *             DisplayName: "sns-topic-example",
- *             Policy: "gyro-providers/gyro-aws-provider/examples/sns/sns-policy.json"
+ *             Policy: "sns/sns-policy.json"
  *         }
  *         name: "sns-topic"
  *     end
@@ -56,7 +57,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
-     * The attributes associated with this topic (Required)
+     * The attributes associated with this topic (Optional)
      *
      * Possible attributes are DeliveryPolicy, Policy, and DisplayName
      *
@@ -185,14 +186,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
 
     @Override
     public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("sns topic ");
-
-        if (getTopicArn() != null) {
-            sb.append(getTopicArn());
-        }
-
-        return sb.toString();
+        return "sns topic " + getName();
     }
 
     private String formatPolicy(String policy) {
