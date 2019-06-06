@@ -3,6 +3,7 @@ package gyro.aws.sns;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.services.sns.model.NotFoundException;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
 import software.amazon.awssdk.services.sns.model.Subscription;
 
+import org.json.JSONObject;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -118,6 +120,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Output
+    @Id
     public String getSubscriptionArn() {
         return subscriptionArn;
     }
@@ -194,9 +197,21 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     public void update(Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
-        for (Map.Entry<String, String> entry : getAttributes().entrySet()) {
-            client.setSubscriptionAttributes(r -> r.attributeName(entry.getKey())
-                    .attributeValue(getAttributes().get(entry.getValue()))
+        JSONObject map = new JSONObject();
+
+        for (Map.Entry<String, String> attr : getAttributes().entrySet()) {
+            if (attr.getKey().contains("Policy")) {
+                map.put(attr.getKey(), attr.getValue());
+                client.setSubscriptionAttributes(r -> r.attributeName(attr.getKey())
+                        .attributeValue(map.get(attr.getKey()).toString())
+                        .subscriptionArn(getSubscriptionArn()));
+            }
+
+        }
+
+        if (getAttributes().containsKey("RawMessageDelivery")) {
+            client.setSubscriptionAttributes(r -> r.attributeName("RawMessageDelivery")
+                    .attributeValue(getAttributes().get("RawMessageDelivery"))
                     .subscriptionArn(getSubscriptionArn()));
         }
     }
