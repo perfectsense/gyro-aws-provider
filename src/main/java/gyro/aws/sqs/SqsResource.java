@@ -441,10 +441,14 @@ public class SqsResource extends AwsResource {
         attributeUpdate.put(QueueAttributeName.DELAY_SECONDS, getDelaySeconds().toString());
         attributeUpdate.put(QueueAttributeName.MAXIMUM_MESSAGE_SIZE, getMaximumMessageSize().toString());
         attributeUpdate.put(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS, getReceiveMessageWaitTimeSeconds().toString());
-        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId().toString());
+        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId().toString() : null);
+
         attributeUpdate.put(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS, getKmsDataKeyReusePeriodSeconds().toString());
         attributeUpdate.put(QueueAttributeName.POLICY, getPolicy());
-        attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+
+        if (getName().contains(".fifo")) {
+            attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+        }
 
         SqsClient client = createClient(SqsClient.class);
 
