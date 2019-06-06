@@ -1,7 +1,7 @@
 aws::topic sns-topic-example
     attributes: {
         DisplayName: "sns-topic-example-ex",
-        Policy: "examples/sns/sns-policy.json"
+        Policy: "sns/sns-policy.json"
     }
     name: "sns-topic"
 end
@@ -10,10 +10,10 @@ aws::subscriber sns-subscriber-example
     protocol: "sqs"
     endpoint: $(aws::sqs sqs-example | queue-arn)
     attributes: {
-        FilterPolicy: "examples/sns/filter-policy.json",
+        FilterPolicy: "sns/filter-policy.json",
         RawMessageDelivery: "true"
     }
-    topic-arn: $(aws::topic sns-topic-example | topic-arn)
+    topic: $(aws::topic sns-topic-example)
 end
 
 aws::sqs sqs-example
