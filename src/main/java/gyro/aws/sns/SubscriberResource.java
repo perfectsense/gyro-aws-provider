@@ -1,6 +1,7 @@
 package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.sns.model.GetSubscriptionAttributesRespon
 import software.amazon.awssdk.services.sns.model.InvalidParameterException;
 import software.amazon.awssdk.services.sns.model.NotFoundException;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
+import software.amazon.awssdk.services.sns.model.Subscription;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,7 +41,7 @@ import java.util.Set;
  *     end
  */
 @Type("subscriber")
-public class SubscriberResource extends AwsResource {
+public class SubscriberResource extends AwsResource implements Copyable<Subscription> {
 
     private Map<String, String> attributes;
     private String endpoint;
@@ -136,6 +138,26 @@ public class SubscriberResource extends AwsResource {
 
     public void setTopicArn(String topicArn) {
         this.topicArn = topicArn;
+    @Override
+    public void copyFrom(Subscription subscription) {
+        SnsClient client = createClient(SnsClient.class);
+
+        GetSubscriptionAttributesResponse response = client.getSubscriptionAttributes(r -> r.subscriptionArn(subscription.subscriptionArn()));
+        getAttributes().clear();
+
+        //The list of attributes is much larger than what can be set.
+        //Only those that can be set are extracted out of the list of attributes.
+        if (response.attributes().get("DeliveryPolicy") != null) {
+            getAttributes().put("DeliveryPolicy", (response.attributes().get("DeliveryPolicy")));
+        }
+        if (response.attributes().get("FilterPolicy") != null) {
+            getAttributes().put("FilterPolicy", (response.attributes().get("FilterPolicy")));
+        }
+        if (response.attributes().get("RawMessageDelivery") != null) {
+            getAttributes().put("RawMessageDelivery", (response.attributes().get("RawMessageDelivery")));
+        }
+
+        setTopic(findById(TopicResource.class, response.attributes().get("TopicArn")));
     }
 
     @Override
@@ -143,23 +165,10 @@ public class SubscriberResource extends AwsResource {
         SnsClient client = createClient(SnsClient.class);
 
         try {
-            GetSubscriptionAttributesResponse response = client.getSubscriptionAttributes(r -> r.subscriptionArn(getSubscriptionArn()));
-            getAttributes().clear();
-
-            //The list of attributes is much larger than what can be set.
-            //Only those that can be set are extracted out of the list of attributes.
-            if (response != null) {
-                if (response.attributes().get("DeliveryPolicy") != null) {
-                    getAttributes().put("DeliveryPolicy", (response.attributes().get("DeliveryPolicy")));
+            for (Subscription target : client.listSubscriptions().subscriptions()) {
+                if (target.subscriptionArn().equals(getSubscriptionArn())) {
+                    this.copyFrom(target);
                 }
-                if (response.attributes().get("FilterPolicy") != null) {
-                    getAttributes().put("FilterPolicy", (response.attributes().get("FilterPolicy")));
-                }
-                if (response.attributes().get("RawMessageDelivery") != null) {
-                    getAttributes().put("RawMessageDelivery", (response.attributes().get("RawMessageDelivery")));
-                }
-
-                setTopicArn(response.attributes().get("TopicArn"));
             }
         } catch (AuthorizationErrorException | InvalidParameterException ex) {
             throw new GyroException(ex.getMessage());
