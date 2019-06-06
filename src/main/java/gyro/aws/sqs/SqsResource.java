@@ -268,65 +268,70 @@ public class SqsResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(String sqs) {
+        SqsClient client = createClient(SqsClient.class);
+
+        GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(sqs)
+                .attributeNames(QueueAttributeName.ALL));
+
+        setQueueArn(response.attributes().get(QueueAttributeName.QUEUE_ARN));
+
+        setVisibilityTimeout(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.VISIBILITY_TIMEOUT)));
+
+        setMessageRetentionPeriod(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.MESSAGE_RETENTION_PERIOD)));
+
+        setDelaySeconds(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.DELAY_SECONDS)));
+
+        setMaximumMessageSize(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.MAXIMUM_MESSAGE_SIZE)));
+
+        setReceiveMessageWaitTimeSeconds(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS)));
+
+        if (response.attributes().get(QueueAttributeName.POLICY) != null) {
+            setPolicy(response.attributes().get(QueueAttributeName.POLICY));
+        }
+
+        if (response.attributes().get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION) != null) {
+            setContentBasedDeduplication(response.attributes()
+                    .get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION));
+        }
+
+        if (response.attributes().get(QueueAttributeName.REDRIVE_POLICY) != null) {
+            String policy = response.attributes().get(QueueAttributeName.REDRIVE_POLICY);
+            JsonProcessor obj = new JsonProcessor();
+            Object parse = obj.parse(policy);
+
+            setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
+            setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
+        }
+
+        if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
+            setKmsMasterKeyId(Integer.valueOf(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID)));
+
+            if (response.attributes().get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS) != null) {
+                setKmsDataKeyReusePeriodSeconds(Integer.valueOf(response.attributes()
+                        .get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS)));
+            }
+        }
+    @Override
     public boolean refresh() {
         SqsClient client = createClient(SqsClient.class);
 
-        ListQueuesResponse response1 = client.listQueues(r -> r.queueNamePrefix(getName()));
-        if (!response1.queueUrls().isEmpty()) {
-            setQueueUrl(response1.queueUrls() != null ? response1.queueUrls().get(0) : null);
+        ListQueuesResponse queues = client.listQueues(r -> r.queueNamePrefix(getName()));
+
+        if (queues.queueUrls().isEmpty()) {
+            return false;
         }
 
-        if (getQueueUrl() != null && !getQueueUrl().isEmpty()) {
-
-            GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(getQueueUrl())
-                .attributeNames(QueueAttributeName.ALL));
-
-            setQueueArn(response.attributes().get(QueueAttributeName.QUEUE_ARN));
-
-            setVisibilityTimeout(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.VISIBILITY_TIMEOUT)));
-
-            setMessageRetentionPeriod(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.MESSAGE_RETENTION_PERIOD)));
-
-            setDelaySeconds(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.DELAY_SECONDS)));
-
-            setMaximumMessageSize(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.MAXIMUM_MESSAGE_SIZE)));
-
-            setReceiveMessageWaitTimeSeconds(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS)));
-
-            if (response.attributes().get(QueueAttributeName.POLICY) != null) {
-                setPolicy(response.attributes().get(QueueAttributeName.POLICY));
-            }
-
-            if (response.attributes().get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION) != null) {
-                setContentBasedDeduplication(response.attributes()
-                    .get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION));
-            }
-
-            if (response.attributes().get(QueueAttributeName.REDRIVE_POLICY) != null) {
-                String policy = response.attributes().get(QueueAttributeName.REDRIVE_POLICY);
-                JsonProcessor obj = new JsonProcessor();
-                Object parse = obj.parse(policy);
-
-                setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
-                setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
-            }
-
-            if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
-                setKmsMasterKeyId(Integer.valueOf(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID)));
-
-                if (response.attributes().get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS) != null) {
-                    setKmsDataKeyReusePeriodSeconds(Integer.valueOf(response.attributes()
-                        .get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS)));
-                }
-            }
-            return true;
+        if (!queues.queueUrls().isEmpty()) {
+            this.copyFrom(queues.queueUrls().get(0));
         }
-        return false;
+
+        return true;
     }
 
     @Override
