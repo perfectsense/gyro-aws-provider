@@ -4,6 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -86,6 +88,7 @@ public class SqsResource extends AwsResource {
      * Enables setting the name of the queue. The name of a FIFO queue must end with the .fifo suffix.
      * Example for standard queue : test123
      * Example for Fifo queue : test123.fifo
+     * (Required)
      */
     public String getName() {
         return name;
@@ -98,16 +101,20 @@ public class SqsResource extends AwsResource {
     /**
      * Enable setting up the attributes for the queue. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_GetQueueAttributes.html>`_.
      * Check default values for the attributes of the queue here `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SetQueueAttributes.html>`_.
-     * Valid values :
-     * delay-seconds : 0-900 seconds
+     * Valid values are:
+     * delay-seconds : 0-900 seconds. Defaults to 0.
      * visibility-timeout : 0-12 hrs
      * message-retention-period : 1 minute - 14 days
-     * maximum-message-size : 1 KiB - 256 Kib
+     * maximum-message-size : 1 KiB - 256 Kib. Defaults to 262,144.
      * receive-message-wait-time-seconds : 0-20 seconds
+     * (All optional)
      */
-
     @Updatable
     public Integer getVisibilityTimeout() {
+        if (visibilityTimeout == null) {
+            visibilityTimeout = 30;
+        }
+
         return visibilityTimeout;
     }
 
@@ -117,6 +124,10 @@ public class SqsResource extends AwsResource {
 
     @Updatable
     public Integer getMessageRetentionPeriod() {
+        if (messageRetentionPeriod == null){
+            messageRetentionPeriod = 345600;
+        }
+
         return messageRetentionPeriod;
     }
 
@@ -126,6 +137,10 @@ public class SqsResource extends AwsResource {
 
     @Updatable
     public Integer getDelaySeconds() {
+        if (delaySeconds == null) {
+            delaySeconds = 0;
+        }
+
         return delaySeconds;
     }
 
@@ -135,6 +150,10 @@ public class SqsResource extends AwsResource {
 
     @Updatable
     public Integer getMaximumMessageSize() {
+        if (maximumMessageSize == null) {
+            maximumMessageSize = 262144;
+        }
+
         return maximumMessageSize;
     }
 
@@ -144,6 +163,10 @@ public class SqsResource extends AwsResource {
 
     @Updatable
     public Integer getReceiveMessageWaitTimeSeconds() {
+        if (receiveMessageWaitTimeSeconds == null) {
+            receiveMessageWaitTimeSeconds = 0;
+        }
+
         return receiveMessageWaitTimeSeconds;
     }
 
@@ -151,6 +174,7 @@ public class SqsResource extends AwsResource {
         this.receiveMessageWaitTimeSeconds = receiveMessageWaitTimeSeconds;
     }
 
+    @Output
     public String getQueueArn() {
         return queueArn;
     }
@@ -159,6 +183,8 @@ public class SqsResource extends AwsResource {
         this.queueArn = queueArn;
     }
 
+    @Output
+    @Id
     public String getQueueUrl() {
         return queueUrl;
     }
@@ -168,7 +194,7 @@ public class SqsResource extends AwsResource {
     }
 
     /**
-     * Enables moving messages to the dead letter queue. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
+     * Enables moving messages to the dead letter queue. (Optional) See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
      */
     @Updatable
     public String getDeadLetterTargetArn() {
@@ -179,6 +205,9 @@ public class SqsResource extends AwsResource {
         this.deadLetterTargetArn = deadLetterTargetArn;
     }
 
+    /**
+     * The number of times a message is received before being moved to the dead-letter queue. (Optional)
+     */
     @Updatable
     public String getMaxReceiveCount() {
         return maxReceiveCount;
@@ -188,6 +217,9 @@ public class SqsResource extends AwsResource {
         this.maxReceiveCount = maxReceiveCount;
     }
 
+    /**
+     * The name of the dead-letter queue. (Optional)
+     */
     @Updatable
     public String getDeadLetterQueueName() {
         return deadLetterQueueName;
@@ -210,7 +242,7 @@ public class SqsResource extends AwsResource {
     }
 
     /**
-     * Enables server side encryption on queues. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms>`_.
+     * Enables server side encryption on queues. (Optional) See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms>`_.
      */
     @Updatable
     public Integer getKmsMasterKeyId() {
@@ -221,8 +253,15 @@ public class SqsResource extends AwsResource {
         this.kmsMasterKeyId = kmsMasterKeyId;
     }
 
+    /**
+     * Enables setting up the valid IAM policies and permissions for the queue. (Optional)
+     */
     @Updatable
     public Integer getKmsDataKeyReusePeriodSeconds() {
+        if (kmsDataKeyReusePeriodSeconds == null) {
+            kmsDataKeyReusePeriodSeconds = 300;
+        }
+
         return kmsDataKeyReusePeriodSeconds;
     }
 
@@ -239,7 +278,7 @@ public class SqsResource extends AwsResource {
     }
 
     /**
-     * Enables setting up the valid IAM policies and permissions for the queue.
+     * Enables setting up the valid IAM policies and permissions for the queue. (Optional)
      */
     @Updatable
     public String getPolicyDocPath() {
