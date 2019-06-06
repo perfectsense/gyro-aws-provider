@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates a subscriber to a topic
+ * Creates a subscriber to a topic.
  *
  * Example
  * -------
@@ -37,7 +37,7 @@ import java.util.Set;
  *             FilterPolicy: "gyro-providers/gyro-aws-provider/examples/sns/filter-policy.json",
  *             RawMessageDelivery: "true"
  *         }
- *         topic-arn: $(aws::topic sns-topic-example | topic-arn)
+ *         topic: $(aws::topic sns-topic-example)
  *     end
  */
 @Type("subscriber")
@@ -47,9 +47,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     private String endpoint;
     private String protocol;
     private String subscriptionArn;
-    private String topicArn;
-
-    public SubscriberResource() {}
+    private TopicResource topic;
 
     /**
      * The attributes for the subscription (Optional)
@@ -92,7 +90,6 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     public void setAttributes(Map<String, String> attributes) {
         if (this.attributes != null && attributes != null) {
             this.attributes.putAll(attributes);
-
         } else {
             this.attributes = attributes;
         }
@@ -130,14 +127,16 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     /**
-     * The topic arn to subscribe to. (Required)
+     * The topic resource to subscribe to. (Required)
      */
-    public String getTopicArn() {
-        return topicArn;
+    public TopicResource getTopic() {
+        return topic;
     }
 
-    public void setTopicArn(String topicArn) {
-        this.topicArn = topicArn;
+    public void setTopic(TopicResource topic) {
+        this.topic = topic;
+    }
+
     @Override
     public void copyFrom(Subscription subscription) {
         SnsClient client = createClient(SnsClient.class);
@@ -186,7 +185,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
         SubscribeResponse subscribeResponse = client.subscribe(r -> r.attributes(getAttributes())
                 .endpoint(getEndpoint())
                 .protocol(getProtocol())
-                .topicArn(getTopicArn()));
+                .topicArn(getTopic().getArn()));
 
         setSubscriptionArn(subscribeResponse.subscriptionArn());
     }
