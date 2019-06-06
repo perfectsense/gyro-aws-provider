@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query launch-configuration.
+ * Query launch configuration.
  *
  * .. code-block:: gyro
  *

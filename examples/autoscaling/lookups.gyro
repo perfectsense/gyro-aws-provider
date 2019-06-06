@@ -1,1 +1,2 @@
 launch-configuration: $(aws::launch-configuration EXTERNAL/* | launch-configuration-name = '')
+auto-scaling-group: $(aws::auto-scaling-group EXTERNAL/* | auto-scaling-group-name = '')
