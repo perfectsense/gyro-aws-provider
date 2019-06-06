@@ -1,6 +1,7 @@
 package gyro.aws.dlm;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.dlm.model.CreateRule;
 import software.amazon.awssdk.services.dlm.model.GetLifecyclePolicyResponse;
 import software.amazon.awssdk.services.dlm.model.LifecyclePolicy;
 import software.amazon.awssdk.services.dlm.model.PolicyDetails;
+import software.amazon.awssdk.services.dlm.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.dlm.model.RetainRule;
 import software.amazon.awssdk.services.dlm.model.Schedule;
 import software.amazon.awssdk.services.dlm.model.Tag;
@@ -49,7 +51,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("ebs-snapshot-lifecycle-policy")
-public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
+public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements Copyable<LifecyclePolicy> {
 
     private String policyId;
     private String description;
@@ -67,6 +69,9 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     private Integer retainRuleCount;
     private Map<String, String> tagsToAdd;
 
+    /**
+     * The policy id.
+     */
     @Output
     public String getPolicyId() {
         return policyId;
@@ -148,6 +153,9 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         this.state = state;
     }
 
+    /**
+     * The creation date of the policy.
+     */
     @Output
     public Date getDateCreated() {
         return dateCreated;
@@ -157,6 +165,9 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         this.dateCreated = dateCreated;
     }
 
+    /**
+     * The last update date of the policy.
+     */
     @Output
     public Date getDateModified() {
         return dateModified;
@@ -195,7 +206,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     }
 
     /**
-     * The name of the schedule for the snapshot policy. Valid values are ``2``,``3``,``4``,``6``,``8``, ``12`` and ``24``  (Required)
+     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``  (Required)
      */
     @Updatable
     public Integer getRuleInterval() {
@@ -271,44 +282,12 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         DlmClient client = createClient(DlmClient.class);
 
         LifecyclePolicy policy = getPolicy(client);
-        setDateCreated(Date.from(policy.dateCreated()));
-        setDateModified(Date.from(policy.dateModified()));
-        setDescription(policy.description());
-        setExecutionRoleArn(policy.executionRoleArn());
-        setPolicyId(policy.policyId());
-        setState(policy.stateAsString());
 
-        PolicyDetails policyDetails = policy.policyDetails();
-        setResourceType(policyDetails.resourceTypes().get(0).name());
-
-        for (Schedule schedule : policyDetails.schedules()) {
-            setCopyTags(schedule.copyTags());
-            setScheduleName(schedule.name());
-
-            for (Tag tag : schedule.tagsToAdd()) {
-                getTagsToAdd().put(tag.key(), tag.value());
-            }
-
-            CreateRule createRule = schedule.createRule();
-            if (createRule != null) {
-                setRuleInterval(createRule.interval());
-                setRuleIntervalUnit(createRule.intervalUnitAsString());
-                setRuleTime(createRule.times().get(0));
-            }
-
-            RetainRule retainRule = schedule.retainRule();
-
-            if (retainRule != null) {
-                setRetainRuleCount(retainRule.count());
-            }
-
-            break;
+        if (policy == null) {
+            return false;
         }
 
-        getTargetTags().clear();
-        for (Tag tag : policyDetails.targetTags()) {
-            getTargetTags().put(tag.key(), tag.value());
-        }
+        copyFrom(policy);
 
         return true;
     }
@@ -374,6 +353,47 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(LifecyclePolicy policy) {
+        setDateCreated(Date.from(policy.dateCreated()));
+        setDateModified(Date.from(policy.dateModified()));
+        setDescription(policy.description());
+        setExecutionRoleArn(policy.executionRoleArn());
+        setPolicyId(policy.policyId());
+        setState(policy.stateAsString());
+
+        PolicyDetails policyDetails = policy.policyDetails();
+        setResourceType(policyDetails.resourceTypes().get(0).name());
+
+        if (!policyDetails.schedules().isEmpty()) {
+            Schedule schedule = policyDetails.schedules().get(0);
+            setCopyTags(schedule.copyTags());
+            setScheduleName(schedule.name());
+
+            for (Tag tag : schedule.tagsToAdd()) {
+                getTagsToAdd().put(tag.key(), tag.value());
+            }
+
+            CreateRule createRule = schedule.createRule();
+            if (createRule != null) {
+                setRuleInterval(createRule.interval());
+                setRuleIntervalUnit(createRule.intervalUnitAsString());
+                setRuleTime(createRule.times().get(0));
+            }
+
+            RetainRule retainRule = schedule.retainRule();
+
+            if (retainRule != null) {
+                setRetainRuleCount(retainRule.count());
+            }
+        }
+
+        getTargetTags().clear();
+        for (Tag tag : policyDetails.targetTags()) {
+            getTargetTags().put(tag.key(), tag.value());
+        }
+    }
+
     private Schedule getSchedule() {
         return Schedule.builder()
             .tagsToAdd(getTags(getTagsToAdd()))
@@ -395,14 +415,22 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     }
 
     private LifecyclePolicy getPolicy(DlmClient client) {
+        LifecyclePolicy lifecyclePolicy = null;
+
         if (ObjectUtils.isBlank(getPolicyId())) {
             throw new GyroException("policy-id is missing, unable to load ebs snapshot policy.");
         }
 
-        GetLifecyclePolicyResponse response = client.getLifecyclePolicy(
-            r -> r.policyId(getPolicyId())
-        );
+        try {
+            GetLifecyclePolicyResponse response = client.getLifecyclePolicy(
+                r -> r.policyId(getPolicyId())
+            );
 
-        return response.policy();
+            lifecyclePolicy = response.policy();
+        } catch (ResourceNotFoundException ignore) {
+            //ignore
+        }
+
+        return lifecyclePolicy;
     }
 }
