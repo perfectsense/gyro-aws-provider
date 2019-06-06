@@ -41,9 +41,19 @@ import java.util.Set;
 @Type("topic")
 public class TopicResource extends AwsResource implements Copyable<Topic> {
 
+    private String arn;
     private Map<String, String> attributes;
     private String name;
-    private String topicArn;
+
+    @Output
+    @Id
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
 
     /**
      * The attributes associated with this topic (Required)
@@ -103,10 +113,6 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
         this.name = name;
     }
 
-    @Output
-    public String getTopicArn() {
-        return topicArn;
-    }
     @Override
     public void copyFrom(Topic topic) {
         SnsClient client = createClient(SnsClient.class);
@@ -156,7 +162,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
         CreateTopicResponse topicResponse = client.createTopic(r -> r.attributes(getAttributes())
                                     .name(getName()));
 
-        setTopicArn(topicResponse.topicArn());
+        setArn(topicResponse.topicArn());
     }
 
     @Override
@@ -166,7 +172,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
         for (Map.Entry<String, String> entry : getAttributes().entrySet()) {
             client.setTopicAttributes(r -> r.attributeName(entry.getKey())
                     .attributeValue(entry.getValue())
-                    .topicArn(getTopicArn()));
+                    .topicArn(getArn()));
         }
     }
 
@@ -174,7 +180,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     public void delete() {
         SnsClient client = createClient(SnsClient.class);
 
-        client.deleteTopic(r -> r.topicArn(getTopicArn()));
+        client.deleteTopic(r -> r.topicArn(getArn()));
     }
 
     @Override
