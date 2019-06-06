@@ -1,16 +1,18 @@
 package gyro.aws.sqs;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
+
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
 import software.amazon.awssdk.services.sqs.model.ListQueuesResponse;
@@ -65,7 +67,7 @@ import java.util.Set;
  */
 
 @Type("sqs")
-public class SqsResource extends AwsResource {
+public class SqsResource extends AwsResource implements Copyable<String> {
     private String name;
     private String queueArn;
     private String queueUrl;
@@ -356,6 +358,8 @@ public class SqsResource extends AwsResource {
                         .get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS)));
             }
         }
+    }
+
     @Override
     public boolean refresh() {
         SqsClient client = createClient(SqsClient.class);
@@ -460,7 +464,6 @@ public class SqsResource extends AwsResource {
         SqsClient client = createClient(SqsClient.class);
 
         client.deleteQueue(r -> r.queueUrl(getQueueUrl()));
-
     }
 
     @Override
