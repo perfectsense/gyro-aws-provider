@@ -9,7 +9,7 @@ end
 
 aws::security-group security-group-launch-configuration-example-1
     group-name: "security-group-launch-configuration-example-1"
-    vpc-id: $(aws::vpc vpc-launch-configuration-example | vpc-id)
+    vpc: $(aws::vpc vpc-launch-configuration-example)
     description: "security group launch-configuration example 1"
     keep-default-egress-rules: true
 
@@ -36,7 +36,7 @@ end
 
 aws::security-group security-group-launch-configuration-example-2
     group-name: "security-group-launch-configuration-example-2"
-    vpc-id: $(aws::vpc vpc-launch-configuration-example | vpc-id)
+    vpc: $(aws::vpc vpc-launch-configuration-example)
     description: "security group launch-configuration example 2"
     keep-default-egress-rules: true
 
@@ -63,12 +63,12 @@ end
 
 aws::launch-configuration launch-configuration
     launch-configuration-name: "launch-configuration-gyro-1"
-    ami-id: "ami-01e24be29428c15b2"
+    ami-id: "ami-04328208f4f0cf1fe"
     instance-type: "t2.micro"
-    key-name: "instance-static"
-    security-group-ids: [
-        $(aws::security-group security-group-launch-configuration-example-1 | group-id),
-        $(aws::security-group security-group-launch-configuration-example-2 | group-id)
+    key-name: "key-pair-example"
+    security-groups: [
+        $(aws::security-group security-group-launch-configuration-example-1),
+        $(aws::security-group security-group-launch-configuration-example-2)
     ]
     ebs-optimized: false
     enable-monitoring: true
