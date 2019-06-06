@@ -1,7 +1,9 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -10,7 +12,7 @@ import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
 
 import java.util.Set;
 
-public class AutoScalingGroupLifecycleHookResource extends AwsResource {
+public class AutoScalingGroupLifecycleHookResource extends AwsResource implements Copyable<LifecycleHook> {
 
     private String lifecycleHookName;
     private String autoScalingGroupName;
@@ -130,28 +132,16 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
         this.roleArn = roleArn;
     }
 
+    /**
+     * The value set as the global timeout.
+     */
+    @Output
     public Integer getGlobalTimeout() {
         return globalTimeout;
     }
 
     public void setGlobalTimeout(Integer globalTimeout) {
         this.globalTimeout = globalTimeout;
-    }
-
-    public AutoScalingGroupLifecycleHookResource() {
-
-    }
-
-    public AutoScalingGroupLifecycleHookResource(LifecycleHook lifecycleHook) {
-        setLifecycleHookName(lifecycleHook.lifecycleHookName());
-        setAutoScalingGroupName(lifecycleHook.autoScalingGroupName());
-        setDefaultResult(lifecycleHook.defaultResult());
-        setHeartbeatTimeout(lifecycleHook.heartbeatTimeout());
-        setLifecycleTransition(lifecycleHook.lifecycleTransition());
-        setNotificationMetadata(lifecycleHook.notificationMetadata());
-        setNotificationTargetArn(lifecycleHook.notificationTargetARN());
-        setRoleArn(lifecycleHook.roleARN());
-        setGlobalTimeout(lifecycleHook.globalTimeout());
     }
 
     @Override
@@ -202,6 +192,19 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getLifecycleHookName());
+    }
+
+    @Override
+    public void copyFrom(LifecycleHook lifecycleHook) {
+        setLifecycleHookName(lifecycleHook.lifecycleHookName());
+        setAutoScalingGroupName(lifecycleHook.autoScalingGroupName());
+        setDefaultResult(lifecycleHook.defaultResult());
+        setHeartbeatTimeout(lifecycleHook.heartbeatTimeout());
+        setLifecycleTransition(lifecycleHook.lifecycleTransition());
+        setNotificationMetadata(lifecycleHook.notificationMetadata());
+        setNotificationTargetArn(lifecycleHook.notificationTargetARN());
+        setRoleArn(lifecycleHook.roleARN());
+        setGlobalTimeout(lifecycleHook.globalTimeout());
     }
 
     private String getParentId() {

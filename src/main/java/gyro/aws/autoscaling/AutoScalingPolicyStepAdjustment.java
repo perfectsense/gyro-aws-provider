@@ -1,19 +1,13 @@
 package gyro.aws.autoscaling;
 
+import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
-public class AutoScalingPolicyStepAdjustment {
+public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyable<StepAdjustment> {
     private Integer scalingAdjustment;
     private Double metricIntervalLowerBound;
     private Double metricIntervalUpperBound;
-
-    public StepAdjustment getStepPolicyStep() {
-        return StepAdjustment.builder()
-            .scalingAdjustment(getScalingAdjustment())
-            .metricIntervalLowerBound(getMetricIntervalLowerBound())
-            .metricIntervalUpperBound(getMetricIntervalUpperBound())
-            .build();
-    }
 
     public Integer getScalingAdjustment() {
         return scalingAdjustment;
@@ -37,5 +31,25 @@ public class AutoScalingPolicyStepAdjustment {
 
     public void setMetricIntervalUpperBound(Double metricIntervalUpperBound) {
         this.metricIntervalUpperBound = metricIntervalUpperBound;
+    }
+
+    @Override
+    public void copyFrom(StepAdjustment stepAdjustment) {
+        setScalingAdjustment(stepAdjustment.scalingAdjustment());
+        setMetricIntervalLowerBound(stepAdjustment.metricIntervalLowerBound());
+        setMetricIntervalUpperBound(stepAdjustment.metricIntervalUpperBound());
+    }
+
+    @Override
+    public String toDisplayString() {
+        return "step adjustment policy";
+    }
+
+    public StepAdjustment getStepPolicyStep() {
+        return StepAdjustment.builder()
+            .scalingAdjustment(getScalingAdjustment())
+            .metricIntervalLowerBound(getMetricIntervalLowerBound())
+            .metricIntervalUpperBound(getMetricIntervalUpperBound())
+            .build();
     }
 }

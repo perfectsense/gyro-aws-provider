@@ -12,7 +12,7 @@ aws::internet-gateway internet-gateway-auto-scaling-group-example
 end
 
 aws::subnet subnet-auto-scaling-group-example
-    vpc-id: $(aws::vpc vpc-auto-scaling-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.1.0/26"
 
@@ -22,7 +22,7 @@ aws::subnet subnet-auto-scaling-group-example
 end
 
 aws::subnet subnet-auto-scaling-group-example-2
-    vpc-id: $(aws::vpc vpc-auto-scaling-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.2.0/26"
 
@@ -33,7 +33,7 @@ end
 
 aws::security-group security-group-auto-scaling-group-example-1
     group-name: "security-group-auto-scaling-group-example-1"
-    vpc-id: $(aws::vpc vpc-auto-scaling-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
     description: "security group instance example 1"
     keep-default-egress-rules: true
 
@@ -60,7 +60,7 @@ end
 
 aws::security-group security-group-auto-scaling-group-example-2
     group-name: "security-group-auto-scaling-group-example-2"
-    vpc-id: $(aws::vpc vpc-auto-scaling-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
     description: "security group instance example 2"
     keep-default-egress-rules: true
 
@@ -89,7 +89,7 @@ aws::instance instance-auto-scaling-group-example
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "instance-static"
+    key-name: "key-pair-example"
     subnet-id: $(aws::subnet subnet-auto-scaling-group-example | subnet-id)
     security-group-ids: [
         $(aws::security-group security-group-auto-scaling-group-example-1 | group-id),
@@ -116,19 +116,62 @@ end
 
 aws::launch-configuration launch-configuration-auto-scaling-group-example
     launch-configuration-name: "launch-configuration-gyro-1"
-    instance-id: $(aws::instance instance-auto-scaling-group-example | instance-id)
+    instance: $(aws::instance instance-auto-scaling-group-example)
 end
 
-aws::auto-scaling-group auto-scaling-group-example
-    auto-scaling-group-name: "auto-scaling-group-gyro-1"
-    #launch-template-id: $(aws::launch-template launch-template-auto-scaling-group-example | launch-template-id)
-    launch-configuration-name: $(aws::launch-configuration launch-configuration-auto-scaling-group-example | launch-configuration-name)
+aws::launch-configuration launch-configuration-auto-scaling-group-example-2
+    launch-configuration-name: "launch-configuration-gyro-2"
+    instance: $(aws::instance instance-auto-scaling-group-example)
+end
+
+aws::auto-scaling-group auto-scaling-group-example-launch-config
+    auto-scaling-group-name: "auto-scaling-group-example-launch-config"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
     availability-zones: [
         $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
     ]
-    subnet-ids: [
-        $(aws::subnet subnet-auto-scaling-group-example | subnet-id),
-        $(aws::subnet subnet-auto-scaling-group-example-2 | subnet-id)
+    subnets: [
+        $(aws::subnet subnet-auto-scaling-group-example),
+        $(aws::subnet subnet-auto-scaling-group-example-2)
+    ]
+    enable-metrics-collection: false
+end
+
+aws::auto-scaling-group auto-scaling-group-example-launch-template
+    auto-scaling-group-name: "auto-scaling-group-example-launch-template"
+    launch-template: $(aws::launch-template launch-template-auto-scaling-group-example)
+    availability-zones: [
+        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
+    ]
+    subnets: [
+        $(aws::subnet subnet-auto-scaling-group-example),
+        $(aws::subnet subnet-auto-scaling-group-example-2)
+    ]
+    enable-metrics-collection: false
+end
+
+aws::auto-scaling-group auto-scaling-group-example-instance
+    auto-scaling-group-name: "auto-scaling-group-gyro-example-instance"
+    instance: $(aws::instance launch-template-auto-scaling-group-example)
+    availability-zones: [
+        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
+    ]
+    subnets: [
+        $(aws::subnet subnet-auto-scaling-group-example),
+        $(aws::subnet subnet-auto-scaling-group-example-2)
+    ]
+    enable-metrics-collection: false
+end
+
+aws::auto-scaling-group auto-scaling-group-example
+    auto-scaling-group-name: "auto-scaling-group-example"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
+    availability-zones: [
+        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
+    ]
+    subnets: [
+        $(aws::subnet subnet-auto-scaling-group-example),
+        $(aws::subnet subnet-auto-scaling-group-example-2)
     ]
     enable-metrics-collection: false
     tags: {
@@ -175,3 +218,5 @@ aws::auto-scaling-group auto-scaling-group-example
         "Default"
     ]
 end
+
+

@@ -2,6 +2,7 @@ package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -102,6 +103,7 @@ public class LoadBalancerResource extends AwsResource {
     /**
      * The load balancer name. (Required)
      */
+    @Id
     public String getLoadBalancerName() {
         return loadBalancerName;
     }

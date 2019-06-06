@@ -1,7 +1,9 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -13,7 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-public class AutoScalingGroupScheduledActionResource extends AwsResource {
+public class AutoScalingGroupScheduledActionResource extends AwsResource implements Copyable<ScheduledUpdateGroupAction> {
 
     private String scheduledActionName;
     private String autoScalingGroupName;
@@ -119,28 +121,16 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
         this.endTime = endTime;
     }
 
+    /**
+     * The arn of the scheduled action resource.
+     */
+    @Output
     public String getArn() {
         return arn;
     }
 
     public void setArn(String arn) {
         this.arn = arn;
-    }
-
-    public AutoScalingGroupScheduledActionResource() {
-
-    }
-
-    public AutoScalingGroupScheduledActionResource(ScheduledUpdateGroupAction scheduledUpdateGroupAction) {
-        setScheduledActionName(scheduledUpdateGroupAction.scheduledActionName());
-        setAutoScalingGroupName(scheduledUpdateGroupAction.autoScalingGroupName());
-        setDesiredCapacity(scheduledUpdateGroupAction.desiredCapacity());
-        setMaxSize(scheduledUpdateGroupAction.maxSize());
-        setMinSize(scheduledUpdateGroupAction.minSize());
-        setRecurrence(scheduledUpdateGroupAction.recurrence());
-        setStartTime(scheduledUpdateGroupAction.startTime() != null ? Date.from(scheduledUpdateGroupAction.startTime()) : null);
-        setEndTime(scheduledUpdateGroupAction.endTime() != null ? Date.from(scheduledUpdateGroupAction.endTime()) : null);
-        setArn(scheduledUpdateGroupAction.scheduledActionARN());
     }
 
     @Override
@@ -201,6 +191,19 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getScheduledActionName());
+    }
+
+    @Override
+    public void copyFrom(ScheduledUpdateGroupAction scheduledUpdateGroupAction) {
+        setScheduledActionName(scheduledUpdateGroupAction.scheduledActionName());
+        setAutoScalingGroupName(scheduledUpdateGroupAction.autoScalingGroupName());
+        setDesiredCapacity(scheduledUpdateGroupAction.desiredCapacity());
+        setMaxSize(scheduledUpdateGroupAction.maxSize());
+        setMinSize(scheduledUpdateGroupAction.minSize());
+        setRecurrence(scheduledUpdateGroupAction.recurrence());
+        setStartTime(scheduledUpdateGroupAction.startTime() != null ? Date.from(scheduledUpdateGroupAction.startTime()) : null);
+        setEndTime(scheduledUpdateGroupAction.endTime() != null ? Date.from(scheduledUpdateGroupAction.endTime()) : null);
+        setArn(scheduledUpdateGroupAction.scheduledActionARN());
     }
 
     private String getParentId() {

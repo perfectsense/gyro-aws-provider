@@ -1,6 +1,7 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
@@ -15,8 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AutoScalingPolicyResource extends AwsResource {
-
+public class AutoScalingPolicyResource extends AwsResource implements Copyable<ScalingPolicy> {
     private String policyName;
     private String autoScalingGroupName;
     private String adjustmentType;
@@ -56,7 +56,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     }
 
     /**
-     * The adjustment type. Valid values [ 'ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity' ].
+     * The adjustment type. Valid values are ``ChangeInCapacity`` or ``ExactCapacity`` or ``PercentChangeInCapacity``.
      */
     @Updatable
     public String getAdjustmentType() {
@@ -68,7 +68,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     }
 
     /**
-     * The amount of time between two scaling events. Valid values [ Integer greater than 0 ].
+     * The amount of time between two scaling events. Valid values is any integer greater than 0.
      */
     @Updatable
     public Integer getCooldown() {
@@ -81,7 +81,7 @@ public class AutoScalingPolicyResource extends AwsResource {
 
     /**
      * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics.
-     * Valid values [ Integer greater than 0 ].
+     * Valid values is any integer greater than 0.
      */
     @Updatable
     public Integer getEstimatedInstanceWarmup() {
@@ -93,7 +93,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     }
 
     /**
-     * the aggregation type for cloud watch metrics. Valid values [ 'Minimum', 'Maximum', 'Average' ].
+     * the aggregation type for cloud watch metrics. Valid values are ``Minimum`` or ``Maximum`` or ``Average``. Defaults to ``Average``.
      */
     @Updatable
     public String getMetricAggregationType() {
@@ -121,7 +121,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     }
 
     /**
-     * The type of policy. Defaults to 'SimpleScaling'. Valid values [ 'SimpleScaling', 'StepScaling', 'TargetTrackingScaling' ]. (Required)
+     * The type of policy. Defaults to 'SimpleScaling'. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. (Required)
      */
     public String getPolicyType() {
         if (policyType == null) {
@@ -189,7 +189,7 @@ public class AutoScalingPolicyResource extends AwsResource {
     /**
      * Predefined defines metric resource label.
      *
-     * Valid values are ``ASGAverageCPUUtilization``, ``ASGAverageNetworkIn``, ``ASGAverageNetworkOut``, ``ALBRequestCountPerTarget``.
+     * Valid values are ``ASGAverageCPUUtilization`` or ``ASGAverageNetworkIn`` or ``ASGAverageNetworkOut`` or ``ALBRequestCountPerTarget``.
      */
     @Updatable
     public String getPredefinedMetricResourceLabel() {
@@ -221,43 +221,6 @@ public class AutoScalingPolicyResource extends AwsResource {
 
     public void setStepAdjustment(List<AutoScalingPolicyStepAdjustment> stepAdjustment) {
         this.stepAdjustment = stepAdjustment;
-    }
-
-    public AutoScalingPolicyResource() {
-
-    }
-
-    public AutoScalingPolicyResource(ScalingPolicy scalingPolicy) {
-        setAdjustmentType(scalingPolicy.adjustmentType());
-        setPolicyName(scalingPolicy.policyName());
-        setAutoScalingGroupName(scalingPolicy.autoScalingGroupName());
-        setCooldown(scalingPolicy.cooldown());
-        setEstimatedInstanceWarmup(scalingPolicy.estimatedInstanceWarmup());
-        setMetricAggregationType(scalingPolicy.metricAggregationType());
-        setMinAdjustmentMagnitude(scalingPolicy.minAdjustmentMagnitude());
-        setPolicyType(scalingPolicy.policyType());
-        setScalingAdjustment(scalingPolicy.scalingAdjustment());
-        setPolicyArn(scalingPolicy.policyARN());
-
-        if (scalingPolicy.stepAdjustments() != null && !scalingPolicy.stepAdjustments().isEmpty()) {
-            for (StepAdjustment stepAdjustment : scalingPolicy.stepAdjustments()) {
-                AutoScalingPolicyStepAdjustment policyStepAdjustment = new AutoScalingPolicyStepAdjustment();
-                policyStepAdjustment.setScalingAdjustment(stepAdjustment.scalingAdjustment());
-                policyStepAdjustment.setMetricIntervalLowerBound(stepAdjustment.metricIntervalLowerBound());
-                policyStepAdjustment.setMetricIntervalUpperBound(stepAdjustment.metricIntervalUpperBound());
-                getStepAdjustment().add(policyStepAdjustment);
-            }
-        }
-
-        if (scalingPolicy.targetTrackingConfiguration() != null) {
-            setDisableScaleIn(scalingPolicy.targetTrackingConfiguration().disableScaleIn());
-            setTargetValue(scalingPolicy.targetTrackingConfiguration().targetValue());
-
-            if (scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification() != null) {
-                setPredefinedMetricType(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().predefinedMetricTypeAsString());
-                setPredefinedMetricResourceLabel(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().resourceLabel());
-            }
-        }
     }
 
     @Override
@@ -312,6 +275,39 @@ public class AutoScalingPolicyResource extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s %s", getPolicyName(), getPolicyType());
+    }
+
+    @Override
+    public void copyFrom(ScalingPolicy scalingPolicy) {
+        setAdjustmentType(scalingPolicy.adjustmentType());
+        setPolicyName(scalingPolicy.policyName());
+        setAutoScalingGroupName(scalingPolicy.autoScalingGroupName());
+        setCooldown(scalingPolicy.cooldown());
+        setEstimatedInstanceWarmup(scalingPolicy.estimatedInstanceWarmup());
+        setMetricAggregationType(scalingPolicy.metricAggregationType());
+        setMinAdjustmentMagnitude(scalingPolicy.minAdjustmentMagnitude());
+        setPolicyType(scalingPolicy.policyType());
+        setScalingAdjustment(scalingPolicy.scalingAdjustment());
+        setPolicyArn(scalingPolicy.policyARN());
+
+        getStepAdjustment().clear();
+        if (scalingPolicy.stepAdjustments() != null && !scalingPolicy.stepAdjustments().isEmpty()) {
+            for (StepAdjustment stepAdjustment : scalingPolicy.stepAdjustments()) {
+                AutoScalingPolicyStepAdjustment policyStepAdjustment = newSubresource(AutoScalingPolicyStepAdjustment.class);
+                policyStepAdjustment.copyFrom(stepAdjustment);
+                getStepAdjustment().add(policyStepAdjustment);
+            }
+        }
+
+        if (scalingPolicy.targetTrackingConfiguration() != null) {
+            setDisableScaleIn(scalingPolicy.targetTrackingConfiguration().disableScaleIn());
+            setTargetValue(scalingPolicy.targetTrackingConfiguration().targetValue());
+
+            if (scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification() != null) {
+                setPredefinedMetricType(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().predefinedMetricTypeAsString());
+                setPredefinedMetricResourceLabel(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().resourceLabel());
+            }
+        }
     }
 
     private void savePolicy(AutoScalingClient client) {

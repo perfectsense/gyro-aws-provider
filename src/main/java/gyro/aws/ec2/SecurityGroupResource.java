@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -41,7 +42,7 @@ import java.util.Set;
 public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
 
     private String groupName;
-    private String vpcId;
+    private VpcResource vpc;
     private String description;
     private List<SecurityGroupIngressRuleResource> ingress;
     private List<SecurityGroupEgressRuleResource> egress;
@@ -64,12 +65,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
     /**
      * The ID of the VPC to associate this security group with.
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     /**
@@ -133,6 +134,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         this.keepDefaultEgressRules = keepDefaultEgressRules;
     }
 
+    @Id
     @Output
     public String getGroupId() {
         return groupId;
@@ -164,8 +166,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         Filter nameFilter = Filter.builder().name("group-id").values(getGroupId()).build();
         filters.add(nameFilter);
 
-        if (getVpcId() != null) {
-            Filter vpcFilter = Filter.builder().name("vpc-id").values(getVpcId()).build();
+        if (getVpc() != null) {
+            Filter vpcFilter = Filter.builder().name("vpc-id").values(getVpc().getVpcId()).build();
             filters.add(vpcFilter);
         }
 
@@ -175,7 +177,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
 
         for (SecurityGroup group : response.securityGroups()) {
             setOwnerId(group.ownerId());
-            setVpcId(group.vpcId());
+            setVpc(findById(VpcResource.class, group.vpcId()));
             setDescription(group.description());
 
             getEgress().clear();
@@ -207,7 +209,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSecurityGroupResponse response = client.createSecurityGroup(
-            r -> r.vpcId(getVpcId()).description(getDescription()).groupName(getGroupName())
+            r -> r.vpcId(getVpc().getVpcId()).description(getDescription()).groupName(getGroupName())
         );
 
         setGroupId(response.groupId());

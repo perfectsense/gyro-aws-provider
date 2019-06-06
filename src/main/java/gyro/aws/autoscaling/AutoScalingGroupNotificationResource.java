@@ -1,6 +1,7 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
@@ -15,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AutoScalingGroupNotificationResource extends AwsResource {
+public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
 
     private String topicArn;
     private String autoScalingGroupName;
@@ -58,16 +59,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
 
     public void setNotificationTypes(List<String> notificationTypes) {
         this.notificationTypes = notificationTypes;
-    }
-
-    public AutoScalingGroupNotificationResource() {
-
-    }
-
-    public AutoScalingGroupNotificationResource(NotificationConfiguration notificationConfiguration) {
-        setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
-        setTopicArn(notificationConfiguration.topicARN());
-        setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
     }
 
     @Override
@@ -126,6 +117,13 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
         return parent.getAutoScalingGroupName();
+    }
+
+    @Override
+    public void copyFrom(NotificationConfiguration notificationConfiguration) {
+        setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
+        setTopicArn(notificationConfiguration.topicARN());
+        setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
     }
 
     private void saveNotification(AutoScalingClient client) {
