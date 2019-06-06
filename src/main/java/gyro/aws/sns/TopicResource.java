@@ -1,6 +1,7 @@
 package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 import software.amazon.awssdk.services.sns.model.GetTopicAttributesResponse;
 import software.amazon.awssdk.services.sns.model.InvalidParameterException;
 import software.amazon.awssdk.services.sns.model.NotFoundException;
+import software.amazon.awssdk.services.sns.model.Topic;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -37,7 +39,7 @@ import java.util.Set;
  *     end
  */
 @Type("topic")
-public class TopicResource extends AwsResource {
+public class TopicResource extends AwsResource implements Copyable<Topic> {
 
     private Map<String, String> attributes;
     private String name;
@@ -105,9 +107,26 @@ public class TopicResource extends AwsResource {
     public String getTopicArn() {
         return topicArn;
     }
+    @Override
+    public void copyFrom(Topic topic) {
+        SnsClient client = createClient(SnsClient.class);
 
-    public void setTopicArn(String topicArn) {
-        this.topicArn = topicArn;
+        GetTopicAttributesResponse attributesResponse = client.getTopicAttributes(r -> r.topicArn(topic.topicArn()));
+        getAttributes().clear();
+
+        //The list of attributes is much larger than what can be set.
+        //Only those that can be set are extracted out of the list of attributes.
+        if (attributesResponse.attributes().get("DisplayName") != null) {
+            getAttributes().put("DisplayName", (attributesResponse.attributes().get("DisplayName")));
+        }
+        if (attributesResponse.attributes().get("Policy") != null) {
+            getAttributes().put("Policy", (attributesResponse.attributes().get("Policy")));
+        }
+        if (attributesResponse.attributes().get("DeliveryPolicy") != null) {
+            getAttributes().put("DeliveryPolicy", (attributesResponse.attributes().get("DeliveryPolicy")));
+        }
+
+        setArn(attributesResponse.attributes().get("TopicArn"));
     }
 
     @Override
@@ -115,22 +134,11 @@ public class TopicResource extends AwsResource {
         SnsClient client = createClient(SnsClient.class);
 
         try {
-            GetTopicAttributesResponse attributesResponse = client.getTopicAttributes(r -> r.topicArn(getTopicArn()));
-            getAttributes().clear();
-
-            //The list of attributes is much larger than what can be set.
-            //Only those that can be set are extracted out of the list of attributes.
-            if (attributesResponse.attributes().get("DisplayName") != null) {
-                getAttributes().put("DisplayName", (attributesResponse.attributes().get("DisplayName")));
+            for (Topic topic : client.listTopics().topics()) {
+                if (topic.topicArn().equals(getArn())) {
+                    this.copyFrom(topic);
+                }
             }
-            if (attributesResponse.attributes().get("Policy") != null) {
-                getAttributes().put("Policy", (attributesResponse.attributes().get("Policy")));
-            }
-            if (attributesResponse.attributes().get("DeliveryPolicy") != null) {
-                getAttributes().put("DeliveryPolicy", (attributesResponse.attributes().get("DeliveryPolicy")));
-            }
-
-            setTopicArn(attributesResponse.attributes().get("TopicArn"));
 
             return true;
 
