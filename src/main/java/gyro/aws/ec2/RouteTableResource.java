@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.RouteTable;
 import software.amazon.awssdk.services.ec2.model.RouteTableAssociation;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +45,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     private String ownerId;
 
     /**
-     * The VPC to create a route table for. (Required)
+     * The VPC to create a Route Table for. (Required)
      */
     public VpcResource getVpc() {
         return vpc;
@@ -57,7 +56,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     /**
-     * Subnet's to associate with this route table.
+     * Subnets to associate with this Route Table.
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {
@@ -73,7 +72,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     /**
-     * The id of the route table..
+     * The ID of the Route Table.
      */
     @Id
     @Output
@@ -86,7 +85,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     /**
-     * The owner id of the route table..
+     * The owner ID of the Route Table.
      */
     @Output
     public String getOwnerId() {
@@ -100,6 +99,20 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     @Override
     protected String getId() {
         return getRouteTableId();
+    }
+
+    @Override
+    public void copyFrom(RouteTable routeTable) {
+        setRouteTableId(routeTable.routeTableId());
+        setVpc(!ObjectUtils.isBlank(routeTable.vpcId()) ? findById(VpcResource.class, routeTable.vpcId()) : null);
+        setOwnerId(routeTable.ownerId());
+
+        getSubnets().clear();
+        for (RouteTableAssociation rta : routeTable.associations()) {
+            if (!rta.main()) {
+                getSubnets().add(!ObjectUtils.isBlank(rta.subnetId()) ? findById(SubnetResource.class, rta.subnetId()) : null);
+            }
+        }
     }
 
     @Override
@@ -183,20 +196,6 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(RouteTable routeTable) {
-        setRouteTableId(routeTable.routeTableId());
-        setVpc(findById(VpcResource.class, routeTable.vpcId()));
-        setOwnerId(routeTable.ownerId());
-
-        getSubnets().clear();
-        for (RouteTableAssociation rta : routeTable.associations()) {
-            if (!rta.main()) {
-                getSubnets().add(findById(SubnetResource.class, rta.subnetId()));
-            }
-        }
     }
 
     private RouteTable getRouteTable(Ec2Client client) {
