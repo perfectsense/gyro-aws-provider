@@ -60,7 +60,7 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
     }
 
     /**
-     * The state of the endpoint. . Valid values are ``pending `` or `` available `` or `` deleting `` or `` deleted``
+     * The state of the endpoint. Valid values are ``pending `` or `` available `` or `` deleting `` or `` deleted``.
      */
     public String getVpcEndpointState() {
         return vpcEndpointState;

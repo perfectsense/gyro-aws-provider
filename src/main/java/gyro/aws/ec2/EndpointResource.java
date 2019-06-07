@@ -11,22 +11,17 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Address;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointRequest;
-import software.amazon.awssdk.services.ec2.model.SecurityGroupIdentifier;
 import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 import software.amazon.awssdk.services.ec2.model.VpcEndpointType;
 import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -218,6 +213,19 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
+    public void copyFrom(VpcEndpoint vpcEndpoint) {
+        setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
+        setServiceName(vpcEndpoint.serviceName());
+        setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
+        setEndpointId(vpcEndpoint.vpcEndpointId());
+        setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
+        setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
+        setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
+        setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
+        setPolicy(vpcEndpoint.policyDocument());
+    }
+
+    @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -360,19 +368,6 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(VpcEndpoint vpcEndpoint) {
-        setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
-        setServiceName(vpcEndpoint.serviceName());
-        setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
-        setEndpointId(vpcEndpoint.vpcEndpointId());
-        setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
-        setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
-        setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
-        setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
-        setPolicy(vpcEndpoint.policyDocument());
     }
 
     private void setPolicyFromPath() {
