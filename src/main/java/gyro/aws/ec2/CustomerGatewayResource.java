@@ -41,19 +41,6 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     private Integer bgpAsn;
 
     /**
-     * The id of the customer gateway.
-     */
-    @Id
-    @Output
-    public String getCustomerGatewayId() {
-        return customerGatewayId;
-    }
-
-    public void setCustomerGatewayId(String customerGatewayId) {
-        this.customerGatewayId = customerGatewayId;
-    }
-
-    /**
      * Public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html/>`_. (Required)
      */
     public String getPublicIp() {
@@ -68,6 +55,10 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
      * the Border Gateway Protocol Autonomous System Number of the gateway.
      */
     public Integer getBgpAsn() {
+        if (bgpAsn == null) {
+            bgpAsn = 0;
+        }
+
         return bgpAsn;
     }
 
@@ -78,6 +69,26 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     @Override
     protected String getId() {
         return getCustomerGatewayId();
+    }
+
+    /**
+     * The ID of the Customer Gateway.
+     */
+    @Id
+    @Output
+    public String getCustomerGatewayId() {
+        return customerGatewayId;
+    }
+
+    public void setCustomerGatewayId(String customerGatewayId) {
+        this.customerGatewayId = customerGatewayId;
+    }
+
+    @Override
+    public void copyFrom(CustomerGateway customerGateway) {
+        setCustomerGatewayId(customerGateway.customerGatewayId());
+        setPublicIp(customerGateway.ipAddress());
+        setBgpAsn(!ObjectUtils.isBlank(customerGateway.bgpAsn()) ? Integer.parseInt(customerGateway.bgpAsn()) : null);
     }
 
     @Override
@@ -132,17 +143,11 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
 
         sb.append("customer gateway");
 
-        if (getCustomerGatewayId() != null) {
+        if (!ObjectUtils.isBlank(getCustomerGatewayId())) {
             sb.append(getCustomerGatewayId());
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(CustomerGateway customerGateway) {
-        setCustomerGatewayId(customerGateway.customerGatewayId());
-        setPublicIp(customerGateway.ipAddress());
     }
 
     private CustomerGateway getCustomerGateway(Ec2Client client) {
