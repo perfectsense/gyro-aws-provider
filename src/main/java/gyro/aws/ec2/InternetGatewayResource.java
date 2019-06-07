@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
-import software.amazon.awssdk.services.ec2.model.InternetGatewayAttachment;
 
 import java.util.Set;
 
@@ -35,7 +34,18 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     private VpcResource vpc;
 
     /**
-     * The id of the internet gateway.
+     * The VPC to create an internet gateway in. (Required)
+     */
+    public VpcResource getVpc() {
+        return vpc;
+    }
+
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
+    }
+
+    /**
+     * The ID of the Internet Gateway.
      */
     @Id
     @Output
@@ -47,21 +57,20 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         this.internetGatewayId = internetGatewayId;
     }
 
-    /**
-     * The VPC to create an internet gateway in. (Required)
-     */
-    public VpcResource getVpc() {
-        return vpc;
-    }
-
-    public void setVpc(VpcResource vpc) {
-        this.vpc = vpc;
-    }
-
-
     @Override
     protected String getId() {
         return getInternetGatewayId();
+    }
+
+    @Override
+    public void copyFrom(InternetGateway internetGateway) {
+        setInternetGatewayId(internetGateway.internetGatewayId());
+
+        if (!internetGateway.attachments().isEmpty() && !ObjectUtils.isBlank(internetGateway.attachments().get(0).vpcId())) {
+            setVpc(findById(VpcResource.class, internetGateway.attachments().get(0).vpcId()));
+        } else {
+            setVpc(null);
+        }
     }
 
     @Override
@@ -126,15 +135,6 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(InternetGateway internetGateway) {
-        setInternetGatewayId(internetGateway.internetGatewayId());
-
-        if (!internetGateway.attachments().isEmpty()) {
-            setVpc(findById(VpcResource.class, internetGateway.attachments().get(0).vpcId()));
-        }
     }
 
     private InternetGateway getInternetGateway(Ec2Client client) {
