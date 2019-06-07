@@ -10,18 +10,17 @@ import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
 import software.amazon.awssdk.services.ec2.model.CreateDhcpOptionsResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeDhcpOptionsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeDhcpOptionsResponse;
 import software.amazon.awssdk.services.ec2.model.DhcpConfiguration;
 import software.amazon.awssdk.services.ec2.model.DhcpOptions;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NewDhcpConfiguration;
-import software.amazon.awssdk.services.ec2.model.Vpc;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a DHCP option set with the specified options.
@@ -50,24 +49,11 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     private List<String> netbiosNameServers;
     private List<String> netbiosNodeType;
 
-    private static final String configDomainName = "domain-name";
-    private static final String configDomainNameServers = "domain-name-servers";
-    private static final String configNtpServers = "ntp-servers";
-    private static final String configNetbiosServers = "netbios-name-servers";
-    private static final String configNetbiosNodeType = "netbios-node-type";
-
-    /**
-     * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
-     */
-    @Id
-    @Output
-    public String getDhcpOptionsId() {
-        return dhcpOptionsId;
-    }
-
-    public void setDhcpOptionsId(String dhcpOptionsId) {
-        this.dhcpOptionsId = dhcpOptionsId;
-    }
+    private static final String CONFIG_DOMAIN_NAME = "domain-name";
+    private static final String CONFIG_DOMAIN_NAME_SERVERS = "domain-name-servers";
+    private static final String CONFIG_NTP_SERVERS = "ntp-servers";
+    private static final String CONFIG_NETBIOS_SERVERS = "netbios-name-servers";
+    private static final String CONFIG_NETBIOS_NODE_TYPE = "netbios-node-type";
 
     /**
      * The domain name for the DHCP option set.
@@ -144,17 +130,22 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
         this.netbiosNodeType = netbiosNodeType;
     }
 
+    /**
+     * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
+     */
+    @Id
+    @Output
+    public String getDhcpOptionsId() {
+        return dhcpOptionsId;
+    }
+
+    public void setDhcpOptionsId(String dhcpOptionsId) {
+        this.dhcpOptionsId = dhcpOptionsId;
+    }
+
     @Override
     protected String getId() {
         return getDhcpOptionsId();
-    }
-
-    public List<String> convertString(Collection<AttributeValue> toConvert) {
-        List<String> convertedList = new ArrayList<>();
-        for (AttributeValue str : toConvert) {
-            convertedList.add(str.value());
-        }
-        return convertedList;
     }
 
     @Override
@@ -175,11 +166,11 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     @Override
     protected void doCreate() {
         Collection<NewDhcpConfiguration> configs = new ArrayList<>();
-        addDhcpConfiguration(configs, configDomainName, getDomainName());
-        addDhcpConfiguration(configs, configDomainNameServers, getDomainNameServers());
-        addDhcpConfiguration(configs, configNtpServers, getNtpServers());
-        addDhcpConfiguration(configs, configNetbiosServers, getNetbiosNameServers());
-        addDhcpConfiguration(configs, configNetbiosNodeType, getNetbiosNodeType());
+        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME, getDomainName());
+        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, getDomainNameServers());
+        addDhcpConfiguration(configs, CONFIG_NTP_SERVERS, getNtpServers());
+        addDhcpConfiguration(configs, CONFIG_NETBIOS_SERVERS, getNetbiosNameServers());
+        addDhcpConfiguration(configs, CONFIG_NETBIOS_NODE_TYPE, getNetbiosNodeType());
 
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -208,7 +199,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
 
         sb.append("dhcp options");
 
-        if (getDhcpOptionsId() != null) {
+        if (!ObjectUtils.isBlank(getDhcpOptionsId())) {
             sb.append(" - ").append(getDhcpOptionsId());
         }
 
@@ -220,20 +211,20 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
         setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
 
         for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
-            if (config.key().equals(configDomainName)) {
-                setDomainName(convertString(config.values()));
+            if (config.key().equals(CONFIG_DOMAIN_NAME)) {
+                setDomainName(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
             }
-            if (config.key().equals(configDomainNameServers)) {
-                setDomainNameServers(convertString(config.values()));
+            if (config.key().equals(CONFIG_DOMAIN_NAME_SERVERS)) {
+                setDomainNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
             }
-            if (config.key().equals(configNtpServers)) {
-                setNtpServers(convertString(config.values()));
+            if (config.key().equals(CONFIG_NTP_SERVERS)) {
+                setNtpServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
             }
-            if (config.key().equals(configNetbiosServers)) {
-                setNetbiosNameServers(convertString(config.values()));
+            if (config.key().equals(CONFIG_NETBIOS_SERVERS)) {
+                setNetbiosNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
             }
-            if (config.key().equals(configNetbiosNodeType)) {
-                setNetbiosNodeType(convertString(config.values()));
+            if (config.key().equals(CONFIG_NETBIOS_NODE_TYPE)) {
+                setNetbiosNodeType(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
             }
         }
     }
