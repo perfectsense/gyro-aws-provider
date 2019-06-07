@@ -40,7 +40,29 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     private SubnetResource subnet;
 
     /**
-     * The id of the Nat Gateway.
+     * Associated Elastic IP for the Nat Gateway. (Required)
+     */
+    public ElasticIpResource getElasticIp() {
+        return elasticIp;
+    }
+
+    public void setElasticIp(ElasticIpResource elasticIp) {
+        this.elasticIp = elasticIp;
+    }
+
+    /**
+     * Associated Subnet for the Nat Gateway. (Required)
+     */
+    public SubnetResource getSubnet() {
+        return subnet;
+    }
+
+    public void setSubnet(SubnetResource subnet) {
+        this.subnet = subnet;
+    }
+
+    /**
+     * The ID of the Nat Gateway.
      */
     @Id
     @Output
@@ -52,31 +74,16 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         this.natGatewayId = natGatewayId;
     }
 
-    /**
-     * Associated elastic ip for the nat gateway. (Required)
-     */
-    public ElasticIpResource getElasticIp() {
-        return elasticIp;
-    }
-
-    public void setElasticIp(ElasticIpResource elasticIp) {
-        this.elasticIp = elasticIp;
-    }
-
-    /**
-     * Associated subnet for the nat gateway. (Required)
-     */
-    public SubnetResource getSubnet() {
-        return subnet;
-    }
-
-    public void setSubnet(SubnetResource subnet) {
-        this.subnet = subnet;
-    }
-
     @Override
     protected String getId() {
         return getNatGatewayId();
+    }
+
+    @Override
+    public void copyFrom(NatGateway natGateway) {
+        setNatGatewayId(natGateway.natGatewayId());
+        setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
+        setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
     }
 
     @Override
@@ -127,19 +134,12 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         sb.append("nat gateway");
 
-        if (getNatGatewayId() != null) {
+        if (!ObjectUtils.isBlank(getNatGatewayId())) {
             sb.append(" - ").append(getNatGatewayId());
 
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(NatGateway natGateway) {
-        setNatGatewayId(natGateway.natGatewayId());
-        setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
-        setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
     }
 
     private NatGateway getNatGateway(Ec2Client client) {
