@@ -295,6 +295,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
+    public void copyFrom(LaunchTemplate launchTemplate) {
+        setLaunchTemplateId(launchTemplate.launchTemplateId());
+        setLaunchTemplateName(launchTemplate.launchTemplateName());
+    }
+
+    @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -367,12 +373,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(LaunchTemplate launchTemplate) {
-        setLaunchTemplateId(launchTemplate.launchTemplateId());
-        setLaunchTemplateName(launchTemplate.launchTemplateName());
     }
 
     private void validate(Ec2Client client) {
