@@ -206,6 +206,23 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
+    public void copyFrom(Snapshot snapshot) {
+        setSnapshotId(snapshot.snapshotId());
+        setDataEncryptionKeyId(snapshot.dataEncryptionKeyId());
+        setDescription(snapshot.description());
+        setEncrypted(snapshot.encrypted());
+        setKmsKeyId(snapshot.kmsKeyId());
+        setOwnerAlias(snapshot.ownerAlias());
+        setOwnerId(snapshot.ownerId());
+        setProgress(snapshot.progress());
+        setStartTime(Date.from(snapshot.startTime()));
+        setState(snapshot.stateAsString());
+        setStateMessage(snapshot.stateMessage());
+        setVolumeSize(snapshot.volumeSize());
+        setVolume(!ObjectUtils.isBlank(snapshot.volumeId()) ? findById(EbsVolumeResource.class, snapshot.volumeId()) : null);
+    }
+
+    @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -257,27 +274,15 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
         sb.append("ebs snapshot");
 
+        if (!ObjectUtils.isBlank(getSnapshotId())) {
+            sb.append(" - ").append(getSnapshotId());
+        }
+
         if (!ObjectUtils.isBlank(getDescription())) {
             sb.append(" [ ").append(getDescription()).append(" ]");
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(Snapshot snapshot) {
-        setSnapshotId(snapshot.snapshotId());
-        setDataEncryptionKeyId(snapshot.dataEncryptionKeyId());
-        setDescription(snapshot.description());
-        setEncrypted(snapshot.encrypted());
-        setKmsKeyId(snapshot.kmsKeyId());
-        setOwnerAlias(snapshot.ownerAlias());
-        setOwnerId(snapshot.ownerId());
-        setProgress(snapshot.progress());
-        setStartTime(Date.from(snapshot.startTime()));
-        setState(snapshot.stateAsString());
-        setStateMessage(snapshot.stateMessage());
-        setVolumeSize(snapshot.volumeSize());
     }
 
     private Snapshot getSnapshot(Ec2Client client) {
