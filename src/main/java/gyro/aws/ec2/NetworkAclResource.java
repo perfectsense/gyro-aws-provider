@@ -54,6 +54,23 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     }
 
     /**
+     * A list of rules for the Network ACL.
+     *
+     * @subresource gyro.aws.ec2.NetworkAclRuleResource
+     */
+    @Updatable
+    public List<NetworkAclRuleResource> getRule() {
+        if (rule == null) {
+            rule = new ArrayList<>();
+        }
+        return rule;
+    }
+
+    public void setRule(List<NetworkAclRuleResource> ruleEntries) {
+        this.rule = ruleEntries;
+    }
+
+    /**
      * The ID of the network ACL.
      */
     @Id
@@ -71,21 +88,24 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
         return getNetworkAclId();
     }
 
-    /**
-     * A list of rules for the Network ACL.
-     *
-     * @subresource gyro.aws.ec2.NetworkAclRuleResource
-     */
-    @Updatable
-    public List<NetworkAclRuleResource> getRule() {
-        if (rule == null) {
-            rule = new ArrayList<>();
-        }
-        return rule;
-    }
+    @Override
+    public void copyFrom(NetworkAcl networkAcl) {
+        setNetworkAclId(networkAcl.networkAclId());
 
-    public void setRule(List<NetworkAclRuleResource> ruleEntries) {
-        this.rule = ruleEntries;
+        for (NetworkAclEntry e: networkAcl.entries()) {
+
+            if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
+                && e.portRange() == null
+                && e.cidrBlock().equals("0.0.0.0/0")) {
+                continue;
+            }
+
+            NetworkAclRuleResource rule = newSubresource(NetworkAclRuleResource.class);
+            rule.copyFrom(e);
+            getRule().add(rule);
+        }
+
+        setVpc(findById(VpcResource.class, networkAcl.vpcId()));
     }
 
     @Override
@@ -137,26 +157,6 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(NetworkAcl networkAcl) {
-        setNetworkAclId(networkAcl.networkAclId());
-
-        for (NetworkAclEntry e: networkAcl.entries()) {
-
-            if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
-                && e.portRange() == null
-                && e.cidrBlock().equals("0.0.0.0/0")) {
-                continue;
-            }
-
-            NetworkAclRuleResource rule = newSubresource(NetworkAclRuleResource.class);
-            rule.copyFrom(e);
-            getRule().add(rule);
-        }
-
-        setVpc(findById(VpcResource.class, networkAcl.vpcId()));
     }
 
     private NetworkAcl getNetworkAcl(Ec2Client client) {

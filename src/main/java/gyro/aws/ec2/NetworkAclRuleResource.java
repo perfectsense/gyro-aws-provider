@@ -169,20 +169,35 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
         this.icmpCode = icmpCode;
     }
 
-    /**
-     * The Id of the network ACL.
-     */
-    public String getNetworkAclId() {
-        NetworkAclResource parent = (NetworkAclResource) parentResource();
-        if (parent != null) {
-            return parent.getNetworkAclId();
+    @Override
+    public void copyFrom(NetworkAclEntry networkAclEntry) {
+        setCidrBlock(networkAclEntry.cidrBlock());
+        setIpv6CidrBlock(networkAclEntry.ipv6CidrBlock());
+        setEgressRule(networkAclEntry.egress());
+        setProtocol(networkAclEntry.protocol());
+
+        if (networkAclEntry.portRange() != null) {
+            setFromPort(networkAclEntry.portRange().from());
+            setToPort(networkAclEntry.portRange().to());
         }
-        return null;
+
+        if (networkAclEntry.icmpTypeCode() != null) {
+            setIcmpCode(networkAclEntry.icmpTypeCode().code());
+            setIcmpType(networkAclEntry.icmpTypeCode().type());
+        }
+
+        setRuleAction(networkAclEntry.ruleActionAsString());
+        setRuleNumber(networkAclEntry.ruleNumber());
     }
 
     @Override
     public boolean refresh() {
         return false;
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s, %s", getRuleNumber(), getEgressRule());
     }
 
     @Override
@@ -215,11 +230,6 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
                     .protocol(getProtocol()));
             }
         }
-    }
-
-    @Override
-    public String primaryKey() {
-        return String.format("%s, %s", getRuleNumber(), getEgressRule());
     }
 
     @Override
@@ -256,7 +266,7 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
             sb.append("Inbound entry");
         }
 
-        sb.append(" rule #" + getRuleNumber());
+        sb.append(" rule #").append(getRuleNumber());
 
         if (getProtocol().equals("6") || getProtocol().equals("17")) {
             sb.append(" TCP/UDP on ports ");
@@ -289,24 +299,11 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
         return sb.toString();
     }
 
-    @Override
-    public void copyFrom(NetworkAclEntry networkAclEntry) {
-        setCidrBlock(networkAclEntry.cidrBlock());
-        setIpv6CidrBlock(networkAclEntry.ipv6CidrBlock());
-        setEgressRule(networkAclEntry.egress());
-        setProtocol(networkAclEntry.protocol());
-
-        if (networkAclEntry.portRange() != null) {
-            setFromPort(networkAclEntry.portRange().from());
-            setToPort(networkAclEntry.portRange().to());
+    private String getNetworkAclId() {
+        NetworkAclResource parent = (NetworkAclResource) parentResource();
+        if (parent != null) {
+            return parent.getNetworkAclId();
         }
-
-        if (networkAclEntry.icmpTypeCode() != null) {
-            setIcmpCode(networkAclEntry.icmpTypeCode().code());
-            setIcmpType(networkAclEntry.icmpTypeCode().type());
-        }
-
-        setRuleAction(networkAclEntry.ruleActionAsString());
-        setRuleNumber(networkAclEntry.ruleNumber());
+        return null;
     }
 }
