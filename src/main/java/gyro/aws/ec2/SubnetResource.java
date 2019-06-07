@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -25,6 +26,7 @@ import software.amazon.awssdk.services.ec2.model.ReplaceNetworkAclAssociationRes
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Create a subnet in a VPC.
@@ -49,7 +51,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private String subnetId;
-    private String aclId;
+    private NetworkAclResource networkAcl;
     private String aclAssociationId;
     private String defaultAclId;
 
@@ -98,16 +100,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.mapPublicIpOnLaunch = mapPublicIpOnLaunch;
     }
 
-    @Id
-    @Output
-    public String getSubnetId() {
-        return subnetId;
-    }
-
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
-    }
-
+    @Override
     public String getId() {
         return getSubnetId();
     }
@@ -124,15 +117,15 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * The ID of the Network ACL associated to the subnet.
+     * The Network ACL associated to the subnet.
      */
     @Updatable
-    public String getAclId() {
-        return aclId;
+    public NetworkAclResource getNetworkAcl() {
+        return networkAcl;
     }
 
-    public void setAclId(String aclId) {
-        this.aclId = aclId;
+    public void setNetworkAcl(NetworkAclResource networkAcl) {
+        this.networkAcl = networkAcl;
     }
 
     /**
@@ -144,6 +137,16 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     public void setAclAssociationId(String aclAssociationId) {
         this.aclAssociationId = aclAssociationId;
+    }
+
+    @Id
+    @Output
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
     }
 
     @Override
@@ -180,7 +183,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             for (NetworkAcl acl: aclResponse.networkAcls()) {
 
                 if (!acl.isDefault().equals(true)) {
-                    setAclId(acl.networkAclId());
+                    setNetworkAcl(!ObjectUtils.isBlank(acl.networkAclId()) ? findById(NetworkAclResource.class, acl.networkAclId()) : null);
                     if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
                             .filter(a -> getSubnetId().equals(a.subnetId()))
@@ -189,7 +192,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
                     }
                 } else {
                     setDefaultAclId(acl.networkAclId());
-                    setAclId(null);
+                    setNetworkAcl(null);
                     if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
                             .filter(a -> getSubnetId().equals(a.subnetId()))
@@ -239,10 +242,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             }
         }
 
-        if (getAclId() != null) {
+        if (getNetworkAcl() != null) {
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
-                        .networkAclId(getAclId())
+                        .networkAclId(getNetworkAcl().getNetworkAclId())
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
@@ -255,8 +258,8 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     protected void doUpdate(AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (changedProperties.contains("acl-id")) {
-            String acl = getAclId() != null ? getAclId() : getDefaultAclId();
+        if (changedProperties.contains("network-acl")) {
+            String acl = getNetworkAcl() != null ? getNetworkAcl().getNetworkAclId() : getDefaultAclId();
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
                         .networkAclId(acl)
@@ -285,56 +288,34 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
         // Network interfaces may still be detaching, so check and wait
         // before deleting the subnet.
-        while (true) {
-            DescribeNetworkInterfacesRequest request = DescribeNetworkInterfacesRequest.builder()
-                    .filters(Filter.builder()
-                            .name("subnet-id")
-                            .values(getSubnetId()).build())
-                    .build();
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> client.describeNetworkInterfaces(
+                r -> r.filters(Filter.builder().name("subnet-id").values(getSubnetId()).build())
+            ).networkInterfaces().isEmpty());
 
-            if (client.describeNetworkInterfaces(request).networkInterfaces().isEmpty()) {
-                break;
-            }
-
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException error) {
-                break;
-            }
-        }
-
-        DeleteSubnetRequest request = DeleteSubnetRequest.builder()
-                .subnetId(getSubnetId())
-                .build();
-
-        client.deleteSubnet(request);
+        client.deleteSubnet(r -> r.subnetId(getSubnetId()));
     }
 
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        String subnetId = getSubnetId();
 
-        if (subnetId != null) {
-            sb.append(subnetId);
+        sb.append("subnet");
 
-        } else {
-            sb.append("subnet");
+        if (!ObjectUtils.isBlank(getSubnetId())) {
+            sb.append(" - ").append(getSubnetId());
         }
 
-        String cidrBlock = getCidrBlock();
-
-        if (cidrBlock != null) {
+        if (!ObjectUtils.isBlank(getCidrBlock())) {
             sb.append(' ');
             sb.append(getCidrBlock());
         }
 
-        String availabilityZone = getAvailabilityZone();
-
-        if (availabilityZone != null) {
+        if (!ObjectUtils.isBlank(getAvailabilityZone())) {
             sb.append(" in ");
-            sb.append(availabilityZone);
+            sb.append(getAvailabilityZone());
         }
 
         return sb.toString();
