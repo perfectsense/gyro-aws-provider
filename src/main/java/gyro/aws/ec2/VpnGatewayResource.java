@@ -147,8 +147,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
             Wait.atMost(1, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
-                .until(() -> replaceVpc(client)
-                );
+                .until(() -> replaceVpc(client));
         }
     }
 

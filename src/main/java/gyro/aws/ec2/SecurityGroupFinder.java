@@ -21,26 +21,26 @@ import java.util.Map;
 public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
 
     private String description;
-    private String egressIpPermissionCidr;
-    private String egressIpPermissionFromPort;
-    private String egressIpPermissionGroupId;
-    private String egressIpPermissionGroupName;
-    private String egressIpPermissionIpv6Cidr;
-    private String egressIpPermissionPrefixListId;
-    private String egressIpPermissionProtocol;
-    private String egressIpPermissionToPort;
-    private String egressIpPermissionUserId;
+    private String egressCidr;
+    private String egressFromPort;
+    private String egressGroupId;
+    private String egressGroupName;
+    private String egressIpv6Cidr;
+    private String egressPrefixListId;
+    private String egressProtocol;
+    private String egressToPort;
+    private String egressUserId;
     private String groupId;
     private String groupName;
-    private String ipPermissionCidr;
-    private String ipPermissionFromPort;
-    private String ipPermissionGroupId;
-    private String ipPermissionGroupName;
-    private String ipPermissionIpv6Cidr;
-    private String ipPermissionPrefixListId;
-    private String ipPermissionProtocol;
-    private String ipPermissionToPort;
-    private String ipPermissionUserId;
+    private String ingressCidr;
+    private String ingressFromPort;
+    private String ingressGroupId;
+    private String ingressGroupName;
+    private String ingressIpv6Cidr;
+    private String ingressPrefixListId;
+    private String ingressProtocol;
+    private String ingressToPort;
+    private String ingressUserId;
     private String ownerId;
     private Map<String, String> tag;
     private String tagKey;
@@ -61,108 +61,108 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
      * An IPv4 CIDR block for an outbound security group rule.
      */
     @Filter("egress.ip-permission.cidr")
-    public String getEgressIpPermissionCidr() {
-        return egressIpPermissionCidr;
+    public String getEgressCidr() {
+        return egressCidr;
     }
 
-    public void setEgressIpPermissionCidr(String egressIpPermissionCidr) {
-        this.egressIpPermissionCidr = egressIpPermissionCidr;
+    public void setEgressCidr(String egressCidr) {
+        this.egressCidr = egressCidr;
     }
 
     /**
      * For an outbound rule, the start of port range for the TCP and UDP protocols, or an ICMP type number.
      */
     @Filter("egress.ip-permission.from-port")
-    public String getEgressIpPermissionFromPort() {
-        return egressIpPermissionFromPort;
+    public String getEgressFromPort() {
+        return egressFromPort;
     }
 
-    public void setEgressIpPermissionFromPort(String egressIpPermissionFromPort) {
-        this.egressIpPermissionFromPort = egressIpPermissionFromPort;
+    public void setEgressFromPort(String egressFromPort) {
+        this.egressFromPort = egressFromPort;
     }
 
     /**
      * The ID of a security group that has been referenced in an outbound security group rule.
      */
     @Filter("egress.ip-permission.group-id")
-    public String getEgressIpPermissionGroupId() {
-        return egressIpPermissionGroupId;
+    public String getEgressGroupId() {
+        return egressGroupId;
     }
 
-    public void setEgressIpPermissionGroupId(String egressIpPermissionGroupId) {
-        this.egressIpPermissionGroupId = egressIpPermissionGroupId;
+    public void setEgressGroupId(String egressGroupId) {
+        this.egressGroupId = egressGroupId;
     }
 
     /**
      * The name of a security group that has been referenced in an outbound security group rule.
      */
     @Filter("egress.ip-permission.group-name")
-    public String getEgressIpPermissionGroupName() {
-        return egressIpPermissionGroupName;
+    public String getEgressGroupName() {
+        return egressGroupName;
     }
 
-    public void setEgressIpPermissionGroupName(String egressIpPermissionGroupName) {
-        this.egressIpPermissionGroupName = egressIpPermissionGroupName;
+    public void setEgressGroupName(String egressGroupName) {
+        this.egressGroupName = egressGroupName;
     }
 
     /**
      * An IPv6 CIDR block for an outbound security group rule.
      */
     @Filter("egress.ip-permission.ipv6-cidr")
-    public String getEgressIpPermissionIpv6Cidr() {
-        return egressIpPermissionIpv6Cidr;
+    public String getEgressIpv6Cidr() {
+        return egressIpv6Cidr;
     }
 
-    public void setEgressIpPermissionIpv6Cidr(String egressIpPermissionIpv6Cidr) {
-        this.egressIpPermissionIpv6Cidr = egressIpPermissionIpv6Cidr;
+    public void setEgressIpv6Cidr(String egressIpv6Cidr) {
+        this.egressIpv6Cidr = egressIpv6Cidr;
     }
 
     /**
      * The ID (prefix) of the AWS service to which a security group rule allows outbound access.
      */
     @Filter("egress.ip-permission.prefix-list-id")
-    public String getEgressIpPermissionPrefixListId() {
-        return egressIpPermissionPrefixListId;
+    public String getEgressPrefixListId() {
+        return egressPrefixListId;
     }
 
-    public void setEgressIpPermissionPrefixListId(String egressIpPermissionPrefixListId) {
-        this.egressIpPermissionPrefixListId = egressIpPermissionPrefixListId;
+    public void setEgressPrefixListId(String egressPrefixListId) {
+        this.egressPrefixListId = egressPrefixListId;
     }
 
     /**
      * The IP protocol for an outbound security group rule . Valid values are `` tcp `` or `` udp `` or `` icmp or a protocol number``.
      */
     @Filter("egress.ip-permission.protocol")
-    public String getEgressIpPermissionProtocol() {
-        return egressIpPermissionProtocol;
+    public String getEgressProtocol() {
+        return egressProtocol;
     }
 
-    public void setEgressIpPermissionProtocol(String egressIpPermissionProtocol) {
-        this.egressIpPermissionProtocol = egressIpPermissionProtocol;
+    public void setEgressProtocol(String egressProtocol) {
+        this.egressProtocol = egressProtocol;
     }
 
     /**
      * For an outbound rule, the end of port range for the TCP and UDP protocols, or an ICMP code.
      */
     @Filter("egress.ip-permission.to-port")
-    public String getEgressIpPermissionToPort() {
-        return egressIpPermissionToPort;
+    public String getEgressToPort() {
+        return egressToPort;
     }
 
-    public void setEgressIpPermissionToPort(String egressIpPermissionToPort) {
-        this.egressIpPermissionToPort = egressIpPermissionToPort;
+    public void setEgressToPort(String egressToPort) {
+        this.egressToPort = egressToPort;
     }
 
     /**
      * The ID of an AWS account that has been referenced in an outbound security group rule.
      */
     @Filter("egress.ip-permission.user-id")
-    public String getEgressIpPermissionUserId() {
-        return egressIpPermissionUserId;
+    public String getEgressUserId() {
+        return egressUserId;
     }
 
-    public void setEgressIpPermissionUserId(String egressIpPermissionUserId) {
-        this.egressIpPermissionUserId = egressIpPermissionUserId;
+    public void setEgressUserId(String egressUserId) {
+        this.egressUserId = egressUserId;
     }
 
     /**
@@ -191,108 +191,108 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
      * An IPv4 CIDR block for an inbound security group rule.
      */
     @Filter("ip-permission.cidr")
-    public String getIpPermissionCidr() {
-        return ipPermissionCidr;
+    public String getIngressCidr() {
+        return ingressCidr;
     }
 
-    public void setIpPermissionCidr(String ipPermissionCidr) {
-        this.ipPermissionCidr = ipPermissionCidr;
+    public void setIngressCidr(String ingressCidr) {
+        this.ingressCidr = ingressCidr;
     }
 
     /**
      * For an inbound rule, the start of port range for the TCP and UDP protocols, or an ICMP type number.
      */
     @Filter("ip-permission.from-port")
-    public String getIpPermissionFromPort() {
-        return ipPermissionFromPort;
+    public String getIngressFromPort() {
+        return ingressFromPort;
     }
 
-    public void setIpPermissionFromPort(String ipPermissionFromPort) {
-        this.ipPermissionFromPort = ipPermissionFromPort;
+    public void setIngressFromPort(String ingressFromPort) {
+        this.ingressFromPort = ingressFromPort;
     }
 
     /**
      * The ID of a security group that has been referenced in an inbound security group rule.
      */
     @Filter("ip-permission.group-id")
-    public String getIpPermissionGroupId() {
-        return ipPermissionGroupId;
+    public String getIngressGroupId() {
+        return ingressGroupId;
     }
 
-    public void setIpPermissionGroupId(String ipPermissionGroupId) {
-        this.ipPermissionGroupId = ipPermissionGroupId;
+    public void setIngressGroupId(String ingressGroupId) {
+        this.ingressGroupId = ingressGroupId;
     }
 
     /**
      * The name of a security group that has been referenced in an inbound security group rule.
      */
     @Filter("ip-permission.group-name")
-    public String getIpPermissionGroupName() {
-        return ipPermissionGroupName;
+    public String getIngressGroupName() {
+        return ingressGroupName;
     }
 
-    public void setIpPermissionGroupName(String ipPermissionGroupName) {
-        this.ipPermissionGroupName = ipPermissionGroupName;
+    public void setIngressGroupName(String ingressGroupName) {
+        this.ingressGroupName = ingressGroupName;
     }
 
     /**
      * An IPv6 CIDR block for an inbound security group rule.
      */
     @Filter("ip-permission.ipv6-cidr")
-    public String getIpPermissionIpv6Cidr() {
-        return ipPermissionIpv6Cidr;
+    public String getIngressIpv6Cidr() {
+        return ingressIpv6Cidr;
     }
 
-    public void setIpPermissionIpv6Cidr(String ipPermissionIpv6Cidr) {
-        this.ipPermissionIpv6Cidr = ipPermissionIpv6Cidr;
+    public void setIngressIpv6Cidr(String ingressIpv6Cidr) {
+        this.ingressIpv6Cidr = ingressIpv6Cidr;
     }
 
     /**
      * The ID (prefix) of the AWS service from which a security group rule allows inbound access.
      */
     @Filter("ip-permission.prefix-list-id")
-    public String getIpPermissionPrefixListId() {
-        return ipPermissionPrefixListId;
+    public String getIngressPrefixListId() {
+        return ingressPrefixListId;
     }
 
-    public void setIpPermissionPrefixListId(String ipPermissionPrefixListId) {
-        this.ipPermissionPrefixListId = ipPermissionPrefixListId;
+    public void setIngressPrefixListId(String ingressPrefixListId) {
+        this.ingressPrefixListId = ingressPrefixListId;
     }
 
     /**
      * The IP protocol for an inbound security group rule . Valid values are ``tcp `` or `` udp `` or `` icmp or a protocol number``.
      */
     @Filter("ip-permission.protocol")
-    public String getIpPermissionProtocol() {
-        return ipPermissionProtocol;
+    public String getIngressProtocol() {
+        return ingressProtocol;
     }
 
-    public void setIpPermissionProtocol(String ipPermissionProtocol) {
-        this.ipPermissionProtocol = ipPermissionProtocol;
+    public void setIngressProtocol(String ingressProtocol) {
+        this.ingressProtocol = ingressProtocol;
     }
 
     /**
      * For an inbound rule, the end of port range for the TCP and UDP protocols, or an ICMP code.
      */
     @Filter("ip-permission.to-port")
-    public String getIpPermissionToPort() {
-        return ipPermissionToPort;
+    public String getIngressToPort() {
+        return ingressToPort;
     }
 
-    public void setIpPermissionToPort(String ipPermissionToPort) {
-        this.ipPermissionToPort = ipPermissionToPort;
+    public void setIngressToPort(String ingressToPort) {
+        this.ingressToPort = ingressToPort;
     }
 
     /**
      * The ID of an AWS account that has been referenced in an inbound security group rule.
      */
     @Filter("ip-permission.user-id")
-    public String getIpPermissionUserId() {
-        return ipPermissionUserId;
+    public String getIngressUserId() {
+        return ingressUserId;
     }
 
-    public void setIpPermissionUserId(String ipPermissionUserId) {
-        this.ipPermissionUserId = ipPermissionUserId;
+    public void setIngressUserId(String ingressUserId) {
+        this.ingressUserId = ingressUserId;
     }
 
     /**
