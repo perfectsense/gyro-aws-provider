@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGateway
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
-import software.amazon.awssdk.services.ec2.model.InternetGatewayAttachment;
 
 import java.util.Set;
 
@@ -57,6 +56,15 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
 
     public void setGatewayId(String gatewayId) {
         this.gatewayId = gatewayId;
+    }
+
+    @Override
+    public void copyFrom(EgressOnlyInternetGateway egressOnlyInternetGateway) {
+        setGatewayId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
+
+        if (!egressOnlyInternetGateway.attachments().isEmpty()) {
+            setVpc(findById(VpcResource.class, egressOnlyInternetGateway.attachments().get(0).vpcId()));
+        }
     }
 
     @Override
@@ -107,15 +115,6 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(EgressOnlyInternetGateway egressOnlyInternetGateway) {
-        setGatewayId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
-
-        if (!egressOnlyInternetGateway.attachments().isEmpty()) {
-            setVpc(findById(VpcResource.class, egressOnlyInternetGateway.attachments().get(0).vpcId()));
-        }
     }
 
     private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {
