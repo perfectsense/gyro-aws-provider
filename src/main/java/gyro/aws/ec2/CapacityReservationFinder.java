@@ -5,7 +5,7 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +41,7 @@ public class CapacityReservationFinder extends AwsFinder<Ec2Client, CapacityRese
         if (filters.containsKey("capacity-reservation-id")) {
             return client.describeCapacityReservations(r -> r.capacityReservationIds(filters.get("capacity-reservation-id"))).capacityReservations();
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }
