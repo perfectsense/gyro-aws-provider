@@ -120,6 +120,10 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
      */
     @Updatable
     public Boolean getAllowReassociation() {
+        if (allowReassociation == null) {
+            allowReassociation = false;
+        }
+
         return allowReassociation;
     }
 
@@ -146,6 +150,16 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     @Override
     protected String getId() {
         return getAllocationId();
+    }
+
+    @Override
+    public void copyFrom(Address address) {
+        setAllocationId(address.allocationId());
+        setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
+        setPublicIp(address.publicIp());
+        setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
+        setInstance(!ObjectUtils.isBlank(address.instanceId()) ? findById(InstanceResource.class, address.instanceId()) : null);
+        setAssociationId(address.associationId());
     }
 
     @Override
@@ -213,7 +227,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
                         .allowReassociation(getAllowReassociation()));
                     setAssociationId(resp.associationId());
                 } else {
-                    if (!changedProperties.contains("network-interfac")) {
+                    if (!changedProperties.contains("network-interface")) {
                         client.disassociateAddress(r -> r.associationId(getAssociationId()));
                     }
                 }
@@ -272,16 +286,6 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(Address address) {
-        setAllocationId(address.allocationId());
-        setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
-        setPublicIp(address.publicIp());
-        setNetworkInterface(findById(NetworkInterfaceResource.class, address.networkInterfaceId()));
-        setInstance(findById(InstanceResource.class, address.instanceId()));
-        setAssociationId(address.associationId());
     }
 
     private Address getAddress(Ec2Client client) {
