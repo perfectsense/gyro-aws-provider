@@ -21,14 +21,14 @@ import java.util.Map;
 public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;
-    private String cidrBlockAssociationCidrBlock;
-    private String cidrBlockAssociationAssociationId;
-    private String cidrBlockAssociationState;
+    private String ipv4CidrBlock;
+    private String ipv4AssociationId;
+    private String ipv4State;
     private String dhcpOptionsId;
-    private String ipv6CidrBlockAssociationIpv6CidrBlock;
-    private String ipv6CidrBlockAssociationAssociationId;
-    private String ipv6CidrBlockAssociationState;
-    private String isdefault;
+    private String ipv6CidrBlock;
+    private String ipv6AssociationId;
+    private String ipv6State;
+    private String isDefault;
     private String ownerId;
     private String state;
     private Map<String, String> tag;
@@ -50,36 +50,36 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
      * An IPv4 CIDR block associated with the VPC.
      */
     @Filter("cidr-block-association.cidr-block")
-    public String getCidrBlockAssociationCidrBlock() {
-        return cidrBlockAssociationCidrBlock;
+    public String getIpv4CidrBlock() {
+        return ipv4CidrBlock;
     }
 
-    public void setCidrBlockAssociationCidrBlock(String cidrBlockAssociationCidrBlock) {
-        this.cidrBlockAssociationCidrBlock = cidrBlockAssociationCidrBlock;
+    public void setIpv4CidrBlock(String ipv4CidrBlock) {
+        this.ipv4CidrBlock = ipv4CidrBlock;
     }
 
     /**
      * The association ID for an IPv4 CIDR block associated with the VPC.
      */
     @Filter("cidr-block-association.association-id")
-    public String getCidrBlockAssociationAssociationId() {
-        return cidrBlockAssociationAssociationId;
+    public String getIpv4AssociationId() {
+        return ipv4AssociationId;
     }
 
-    public void setCidrBlockAssociationAssociationId(String cidrBlockAssociationAssociationId) {
-        this.cidrBlockAssociationAssociationId = cidrBlockAssociationAssociationId;
+    public void setIpv4AssociationId(String ipv4AssociationId) {
+        this.ipv4AssociationId = ipv4AssociationId;
     }
 
     /**
      * The state of an IPv4 CIDR block associated with the VPC.
      */
     @Filter("cidr-block-association.state")
-    public String getCidrBlockAssociationState() {
-        return cidrBlockAssociationState;
+    public String getIpv4State() {
+        return ipv4State;
     }
 
-    public void setCidrBlockAssociationState(String cidrBlockAssociationState) {
-        this.cidrBlockAssociationState = cidrBlockAssociationState;
+    public void setIpv4State(String ipv4State) {
+        this.ipv4State = ipv4State;
     }
 
     /**
@@ -97,47 +97,47 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
      * An IPv6 CIDR block associated with the VPC.
      */
     @Filter("ipv6-cidr-block-association.ipv6-cidr-block")
-    public String getIpv6CidrBlockAssociationIpv6CidrBlock() {
-        return ipv6CidrBlockAssociationIpv6CidrBlock;
+    public String getIpv6CidrBlock() {
+        return ipv6CidrBlock;
     }
 
-    public void setIpv6CidrBlockAssociationIpv6CidrBlock(String ipv6CidrBlockAssociationIpv6CidrBlock) {
-        this.ipv6CidrBlockAssociationIpv6CidrBlock = ipv6CidrBlockAssociationIpv6CidrBlock;
+    public void setIpv6CidrBlock(String ipv6CidrBlock) {
+        this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
     /**
      * The association ID for an IPv6 CIDR block associated with the VPC.
      */
     @Filter("ipv6-cidr-block-association.association-id")
-    public String getIpv6CidrBlockAssociationAssociationId() {
-        return ipv6CidrBlockAssociationAssociationId;
+    public String getIpv6AssociationId() {
+        return ipv6AssociationId;
     }
 
-    public void setIpv6CidrBlockAssociationAssociationId(String ipv6CidrBlockAssociationAssociationId) {
-        this.ipv6CidrBlockAssociationAssociationId = ipv6CidrBlockAssociationAssociationId;
+    public void setIpv6AssociationId(String ipv6AssociationId) {
+        this.ipv6AssociationId = ipv6AssociationId;
     }
 
     /**
      * The state of an IPv6 CIDR block associated with the VPC.
      */
     @Filter("ipv6-cidr-block-association.state")
-    public String getIpv6CidrBlockAssociationState() {
-        return ipv6CidrBlockAssociationState;
+    public String getIpv6State() {
+        return ipv6State;
     }
 
-    public void setIpv6CidrBlockAssociationState(String ipv6CidrBlockAssociationState) {
-        this.ipv6CidrBlockAssociationState = ipv6CidrBlockAssociationState;
+    public void setIpv6State(String ipv6State) {
+        this.ipv6State = ipv6State;
     }
 
     /**
      * Indicates whether the VPC is the default VPC.
      */
-    public String getIsdefault() {
-        return isdefault;
+    public String getIsDefault() {
+        return isDefault;
     }
 
-    public void setIsdefault(String isdefault) {
-        this.isdefault = isdefault;
+    public void setIsDefault(String isDefault) {
+        this.isDefault = isDefault;
     }
 
     /**
