@@ -45,7 +45,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     private PeeringConnectionResource vpcPeeringConnection;
 
     /**
-     * The Route Rable to add this route to.
+     * The Route Table to add this route to.
      */
     public RouteTableResource getRouteTable() {
         return routeTable;

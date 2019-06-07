@@ -96,6 +96,13 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     @Override
+    public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
+        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
+        setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
+        setPeerVpc(findById(VpcResource.class, vpcPeeringConnection.accepterVpcInfo().vpcId()));
+    }
+
+    @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -147,17 +154,11 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
         sb.append("peering connection");
 
-        if (getPeeringConnectionId() != null) {
+        if (!ObjectUtils.isBlank(getPeeringConnectionId())) {
             sb.append(" - ").append(getPeeringConnectionId());
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
-        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
-        setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
     }
 
     private String getAccountNumber() {
