@@ -26,17 +26,17 @@ public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTabl
     private String associationMain;
     private String ownerId;
     private String routeTableId;
-    private String routeDestinationCidrBlock;
-    private String routeDestinationIpv6CidrBlock;
-    private String routeDestinationPrefixListId;
-    private String routeEgressOnlyInternetGatewayId;
-    private String routeGatewayId;
-    private String routeInstanceId;
-    private String routeNatGatewayId;
+    private String destinationCidrBlock;
+    private String destinationIpv6CidrBlock;
+    private String destinationPrefixListId;
+    private String egressOnlyInternetGatewayId;
+    private String gatewayId;
+    private String instanceId;
+    private String natGatewayId;
     private String routeTransitGatewayId;
-    private String routeOrigin;
-    private String routeState;
-    private String routeVpcPeeringConnectionId;
+    private String origin;
+    private String state;
+    private String vpcPeeringConnectionId;
     private Map<String, String> tag;
     private String tagKey;
     private String transitGatewayId;
@@ -116,84 +116,84 @@ public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTabl
      * The IPv4 CIDR range specified in a route in the table.
      */
     @Filter("route.destination-cidr-block")
-    public String getRouteDestinationCidrBlock() {
-        return routeDestinationCidrBlock;
+    public String getDestinationCidrBlock() {
+        return destinationCidrBlock;
     }
 
-    public void setRouteDestinationCidrBlock(String routeDestinationCidrBlock) {
-        this.routeDestinationCidrBlock = routeDestinationCidrBlock;
+    public void setDestinationCidrBlock(String destinationCidrBlock) {
+        this.destinationCidrBlock = destinationCidrBlock;
     }
 
     /**
      * The IPv6 CIDR range specified in a route in the route table.
      */
     @Filter("route.destination-ipv6-cidr-block")
-    public String getRouteDestinationIpv6CidrBlock() {
-        return routeDestinationIpv6CidrBlock;
+    public String getDestinationIpv6CidrBlock() {
+        return destinationIpv6CidrBlock;
     }
 
-    public void setRouteDestinationIpv6CidrBlock(String routeDestinationIpv6CidrBlock) {
-        this.routeDestinationIpv6CidrBlock = routeDestinationIpv6CidrBlock;
+    public void setDestinationIpv6CidrBlock(String destinationIpv6CidrBlock) {
+        this.destinationIpv6CidrBlock = destinationIpv6CidrBlock;
     }
 
     /**
      * The ID (prefix) of the AWS service specified in a route in the table.
      */
     @Filter("route.destination-prefix-list-id")
-    public String getRouteDestinationPrefixListId() {
-        return routeDestinationPrefixListId;
+    public String getDestinationPrefixListId() {
+        return destinationPrefixListId;
     }
 
-    public void setRouteDestinationPrefixListId(String routeDestinationPrefixListId) {
-        this.routeDestinationPrefixListId = routeDestinationPrefixListId;
+    public void setDestinationPrefixListId(String destinationPrefixListId) {
+        this.destinationPrefixListId = destinationPrefixListId;
     }
 
     /**
      * The ID of an egress-only Internet gateway specified in a route in the route table.
      */
     @Filter("route.egress-only-internet-gateway-id")
-    public String getRouteEgressOnlyInternetGatewayId() {
-        return routeEgressOnlyInternetGatewayId;
+    public String getEgressOnlyInternetGatewayId() {
+        return egressOnlyInternetGatewayId;
     }
 
-    public void setRouteEgressOnlyInternetGatewayId(String routeEgressOnlyInternetGatewayId) {
-        this.routeEgressOnlyInternetGatewayId = routeEgressOnlyInternetGatewayId;
+    public void setEgressOnlyInternetGatewayId(String egressOnlyInternetGatewayId) {
+        this.egressOnlyInternetGatewayId = egressOnlyInternetGatewayId;
     }
 
     /**
      * The ID of a gateway specified in a route in the table.
      */
     @Filter("route.gateway-id")
-    public String getRouteGatewayId() {
-        return routeGatewayId;
+    public String getGatewayId() {
+        return gatewayId;
     }
 
-    public void setRouteGatewayId(String routeGatewayId) {
-        this.routeGatewayId = routeGatewayId;
+    public void setGatewayId(String gatewayId) {
+        this.gatewayId = gatewayId;
     }
 
     /**
      * The ID of an instance specified in a route in the table.
      */
     @Filter("route.instance-id")
-    public String getRouteInstanceId() {
-        return routeInstanceId;
+    public String getInstanceId() {
+        return instanceId;
     }
 
-    public void setRouteInstanceId(String routeInstanceId) {
-        this.routeInstanceId = routeInstanceId;
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     /**
      * The ID of a NAT gateway.
      */
     @Filter("route.nat-gateway-id")
-    public String getRouteNatGatewayId() {
-        return routeNatGatewayId;
+    public String getNatGatewayId() {
+        return natGatewayId;
     }
 
-    public void setRouteNatGatewayId(String routeNatGatewayId) {
-        this.routeNatGatewayId = routeNatGatewayId;
+    public void setNatGatewayId(String natGatewayId) {
+        this.natGatewayId = natGatewayId;
     }
 
     /**
@@ -212,36 +212,36 @@ public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTabl
      * Describes how the route was created. CreateRouteTable indicates that the route was automatically created when the route table was created; CreateRoute indicates that the route was manually added to the route table; EnableVgwRoutePropagation indicates that the route was propagated by route propagation.
      */
     @Filter("route.origin")
-    public String getRouteOrigin() {
-        return routeOrigin;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setRouteOrigin(String routeOrigin) {
-        this.routeOrigin = routeOrigin;
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     /**
      * The state of a route in the route table (active | blackhole ). The blackhole state indicates that the route's target isn't available . Valid values are ``for example, the specified gateway isn't attached to the VPC, the specified NAT instance has been terminated, and so on``.
      */
     @Filter("route.state")
-    public String getRouteState() {
-        return routeState;
+    public String getState() {
+        return state;
     }
 
-    public void setRouteState(String routeState) {
-        this.routeState = routeState;
+    public void setState(String state) {
+        this.state = state;
     }
 
     /**
      * The ID of a VPC peering connection specified in a route in the table.
      */
     @Filter("route.vpc-peering-connection-id")
-    public String getRouteVpcPeeringConnectionId() {
-        return routeVpcPeeringConnectionId;
+    public String getVpcPeeringConnectionId() {
+        return vpcPeeringConnectionId;
     }
 
-    public void setRouteVpcPeeringConnectionId(String routeVpcPeeringConnectionId) {
-        this.routeVpcPeeringConnectionId = routeVpcPeeringConnectionId;
+    public void setVpcPeeringConnectionId(String vpcPeeringConnectionId) {
+        this.vpcPeeringConnectionId = vpcPeeringConnectionId;
     }
 
     /**
