@@ -20,15 +20,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     private Integer fromPort;
     private Integer toPort;
 
-    public String getGroupId() {
-        SecurityGroupResource parent = (SecurityGroupResource) parent();
-        if (parent != null) {
-            return parent.getGroupId();
-        }
-
-        return null;
-    }
-
     /**
      * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
      */
@@ -114,6 +105,27 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     @Override
+    public void copyFrom(IpPermission permission) {
+        setProtocol(permission.ipProtocol());
+        setFromPort(permission.fromPort());
+        setToPort(permission.toPort());
+
+        if (!permission.ipRanges().isEmpty()) {
+            for (IpRange range : permission.ipRanges()) {
+                getCidrBlocks().add(range.cidrIp());
+                setDescription(range.description());
+            }
+        }
+
+        if (!permission.ipv6Ranges().isEmpty()) {
+            for (Ipv6Range range : permission.ipv6Ranges()) {
+                getIpv6CidrBlocks().add(range.cidrIpv6());
+                setDescription(range.description());
+            }
+        }
+    }
+
+    @Override
     public String primaryKey() {
         return String.format("%s %d %d", getProtocol(), getFromPort(), getToPort());
     }
@@ -154,25 +166,13 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         return sb.toString();
     }
 
-    @Override
-    public void copyFrom(IpPermission permission) {
-        setProtocol(permission.ipProtocol());
-        setFromPort(permission.fromPort());
-        setToPort(permission.toPort());
-
-        if (!permission.ipRanges().isEmpty()) {
-            for (IpRange range : permission.ipRanges()) {
-                getCidrBlocks().add(range.cidrIp());
-                setDescription(range.description());
-            }
+    public String getGroupId() {
+        SecurityGroupResource parent = (SecurityGroupResource) parent();
+        if (parent != null) {
+            return parent.getGroupId();
         }
 
-        if (!permission.ipv6Ranges().isEmpty()) {
-            for (Ipv6Range range : permission.ipv6Ranges()) {
-                getIpv6CidrBlocks().add(range.cidrIpv6());
-                setDescription(range.description());
-            }
-        }
+        return null;
     }
 
     IpPermission getIpPermissionRequest() {

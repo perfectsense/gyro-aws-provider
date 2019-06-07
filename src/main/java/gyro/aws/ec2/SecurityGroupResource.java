@@ -29,7 +29,7 @@ import java.util.Set;
  *
  *     aws::security-group security-group-example
  *         group-name: "security-group-example"
- *         vpc-id: $(aws::vpc vpc-security-group-example | vpc-id)
+ *         vpc: $(aws::vpc vpc-security-group-example)
  *         description: "security group example"
  *
  *         ingress
@@ -151,11 +151,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         this.groupId = groupId;
     }
 
-    @Override
-    protected String getId() {
-        return getGroupId();
-    }
-
     /**
      * The owner id of the security group.
      */
@@ -166,6 +161,39 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
     public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
+    }
+
+    @Override
+    protected String getId() {
+        return getGroupId();
+    }
+
+    @Override
+    public void copyFrom(SecurityGroup group) {
+        setVpc(findById(VpcResource.class, group.vpcId()));
+        setGroupId(group.groupId());
+        setOwnerId(group.ownerId());
+        setDescription(group.description());
+
+        getEgress().clear();
+        for (IpPermission permission : group.ipPermissionsEgress()) {
+            if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
+                && permission.fromPort() == null && permission.toPort() == null
+                && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
+                continue;
+            }
+
+            SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
+            rule.copyFrom(permission);
+            getEgress().add(rule);
+        }
+
+        getIngress().clear();
+        for (IpPermission permission : group.ipPermissions()) {
+            SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
+            rule.copyFrom(permission);
+            getIngress().add(rule);
+        }
     }
 
     @Override
@@ -246,34 +274,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(SecurityGroup group) {
-        setVpc(findById(VpcResource.class, group.vpcId()));
-        setGroupId(group.groupId());
-        setOwnerId(group.ownerId());
-        setDescription(group.description());
-
-        getEgress().clear();
-        for (IpPermission permission : group.ipPermissionsEgress()) {
-            if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
-                && permission.fromPort() == null && permission.toPort() == null
-                && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
-                continue;
-            }
-
-            SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
-            rule.copyFrom(permission);
-            getEgress().add(rule);
-        }
-
-        getIngress().clear();
-        for (IpPermission permission : group.ipPermissions()) {
-            SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
-            rule.copyFrom(permission);
-            getIngress().add(rule);
-        }
     }
 
     private SecurityGroup getSecurityGroup(Ec2Client client) {
