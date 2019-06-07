@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 public class EndpointServiceResource extends AwsResource implements Copyable<ServiceConfiguration> {
     private Boolean acceptanceRequired;
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;
-    private Set<IamRoleResource> principlals;
+    private Set<IamRoleResource> principals;
 
     private String serviceId;
     private String serviceName;
@@ -90,16 +90,16 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
      * A list of IAM Role's.
      */
     @Updatable
-    public Set<IamRoleResource> getPrinciplals() {
-        if (principlals == null) {
-            principlals = new HashSet<>();
+    public Set<IamRoleResource> getPrincipals() {
+        if (principals == null) {
+            principals = new HashSet<>();
         }
 
-        return principlals;
+        return principals;
     }
 
-    public void setPrinciplals(Set<IamRoleResource> principlals) {
-        this.principlals = principlals;
+    public void setPrincipals(Set<IamRoleResource> principals) {
+        this.principals = principals;
     }
 
     /**
@@ -176,6 +176,35 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
+    public void copyFrom(ServiceConfiguration serviceConfiguration) {
+        setServiceId(serviceConfiguration.serviceId());
+        setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
+        setServiceName(serviceConfiguration.serviceName());
+        setAvailablityZones(serviceConfiguration.availabilityZones());
+        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames());
+        setPrivateDnsName(serviceConfiguration.privateDnsName());
+        setState(serviceConfiguration.serviceStateAsString());
+
+        setNetworkLoadBalancers(
+            serviceConfiguration.networkLoadBalancerArns()
+                .stream()
+                .filter(o -> !ObjectUtils.isBlank(o))
+                .map(o -> findById(NetworkLoadBalancerResource.class, o))
+                .collect(Collectors.toSet())
+        );
+
+        Ec2Client client = createClient(Ec2Client.class);
+
+        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r -> r.serviceId(getServiceId()));
+
+        getPrincipals().clear();
+
+        for (AllowedPrincipal allowedPrincipal: response.allowedPrincipals()) {
+            getPrincipals().add(findById(IamRoleResource.class,allowedPrincipal.principal()));
+        }
+    }
+
+    @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -201,10 +230,10 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
 
         setServiceId(response.serviceConfiguration().serviceId());
 
-        if (!getPrinciplals().isEmpty()) {
+        if (!getPrincipals().isEmpty()) {
             client.modifyVpcEndpointServicePermissions(
                 r -> r.serviceId(getServiceId())
-                    .addAllowedPrincipals(getPrinciplals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toList()))
+                    .addAllowedPrincipals(getPrincipals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toList()))
             );
         }
     }
@@ -246,8 +275,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
             ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
                 .serviceId(getServiceId());
 
-            Set<String> currentIamArns = currentEndpointService.getPrinciplals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
-            Set<String> pendingIamArns = getPrinciplals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
+            Set<String> currentIamArns = currentEndpointService.getPrincipals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
+            Set<String> pendingIamArns = getPrincipals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
 
             Set<String> deleteIamRoleArns = new HashSet<>(currentIamArns);
             deleteIamRoleArns.removeAll(pendingIamArns);
@@ -293,34 +322,6 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(ServiceConfiguration serviceConfiguration) {
-        setServiceId(serviceConfiguration.serviceId());
-        setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
-        setServiceName(serviceConfiguration.serviceName());
-        setAvailablityZones(serviceConfiguration.availabilityZones());
-        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames());
-        setPrivateDnsName(serviceConfiguration.privateDnsName());
-        setState(serviceConfiguration.serviceStateAsString());
-
-        setNetworkLoadBalancers(
-            serviceConfiguration.networkLoadBalancerArns()
-                .stream()
-                .map(o -> findById(NetworkLoadBalancerResource.class, o))
-                .collect(Collectors.toSet())
-        );
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r -> r.serviceId(getServiceId()));
-
-        getPrinciplals().clear();
-
-        for (AllowedPrincipal allowedPrincipal: response.allowedPrincipals()) {
-            getPrinciplals().add(findById(IamRoleResource.class,allowedPrincipal.principal()));
-        }
     }
 
     private ServiceConfiguration getServiceConfiguration(Ec2Client client) {
