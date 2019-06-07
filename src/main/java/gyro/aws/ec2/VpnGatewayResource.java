@@ -165,7 +165,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("virtual private gateway");
+        sb.append("vpn gateway");
 
         if (getVpnGatewayId() != null) {
             sb.append(" - ").append(getVpnGatewayId());
@@ -179,7 +179,9 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         setVpnGatewayId(vpnGateway.vpnGatewayId());
         setAmazonSideAsn(vpnGateway.amazonSideAsn());
 
-        if (!vpnGateway.vpcAttachments().isEmpty() && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")) {
+        if (!vpnGateway.vpcAttachments().isEmpty()
+            && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")
+            && !ObjectUtils.isBlank(vpnGateway.vpcAttachments().get(0).vpcId())) {
             setVpc(findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
         } else {
             setVpc(null);
