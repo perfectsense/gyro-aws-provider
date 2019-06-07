@@ -99,6 +99,12 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     }
 
     @Override
+    public void copyFrom(KeyPairInfo keyPairInfo) {
+        setKeyName(keyPairInfo.keyName());
+        setKeyFingerPrint(keyPairInfo.keyFingerprint());
+    }
+
+    @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -152,12 +158,6 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(KeyPairInfo keyPairInfo) {
-        setKeyName(keyPairInfo.keyName());
-        setKeyFingerPrint(keyPairInfo.keyFingerprint());
     }
 
     private String getPublicKeyFromPath() {
