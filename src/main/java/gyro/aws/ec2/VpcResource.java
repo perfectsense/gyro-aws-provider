@@ -17,13 +17,14 @@ import software.amazon.awssdk.services.ec2.model.DeleteVpcRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcClassicLinkDnsSupportResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcClassicLinkResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
 import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -44,36 +45,23 @@ import java.util.Set;
 @Type("vpc")
 public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vpc> {
 
-    private String vpcId;
     private String cidrBlock;
     private Boolean enableDnsHostnames;
     private Boolean enableDnsSupport;
-    private String dhcpOptionsId;
+    private DhcpOptionSetResource dhcpOptions;
     private String instanceTenancy;
     private Boolean enableClassicLink;
     private Boolean enableClassicLinkDnsSupport;
     private Boolean provideIpv6CidrBlock;
 
     // Read-only
+    private String vpcId;
     private String ownerId;
     private Boolean defaultVpc;
 
-    public VpcResource() {
-
-    }
-
+    @Override
     public String getId() {
         return getVpcId();
-    }
-
-    @Id
-    @Output
-    public String getVpcId() {
-        return vpcId;
-    }
-
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
     }
 
     /**
@@ -120,15 +108,15 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
+     * A custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
      */
     @Updatable
-    public String getDhcpOptionsId() {
-        return dhcpOptionsId;
+    public DhcpOptionSetResource getDhcpOptions() {
+        return dhcpOptions;
     }
 
-    public void setDhcpOptionsId(String dhcpOptionsId) {
-        this.dhcpOptionsId = dhcpOptionsId;
+    public void setDhcpOptions(DhcpOptionSetResource dhcpOptions) {
+        this.dhcpOptions = dhcpOptions;
     }
 
     /**
@@ -141,27 +129,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
     public void setInstanceTenancy(String instanceTenancy) {
         this.instanceTenancy = instanceTenancy;
-    }
-
-    public Boolean getDefaultVpc() {
-        if (defaultVpc == null) {
-            defaultVpc = false;
-        }
-
-        return defaultVpc;
-    }
-
-    public void setDefaultVpc(Boolean defaultVpc) {
-        this.defaultVpc = defaultVpc;
-    }
-
-    @Output(value = "owner-12345", randomSuffix = false)
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
     }
 
     /**
@@ -192,11 +159,13 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         return enableClassicLinkDnsSupport;
     }
 
-    @Updatable
     public void setEnableClassicLinkDnsSupport(Boolean enableClassicLinkDnsSupport) {
         this.enableClassicLinkDnsSupport = enableClassicLinkDnsSupport;
     }
 
+    /**
+     * The amazon provided ipv6 cidr block.
+     */
     public Boolean getProvideIpv6CidrBlock() {
         return provideIpv6CidrBlock;
     }
@@ -205,12 +174,53 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         this.provideIpv6CidrBlock = provideIpv6CidrBlock;
     }
 
+    /**
+     * The ID of the vpc.
+     */
+    @Id
+    @Output
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
+    }
+
+    /**
+     * Is the current vpc default.
+     */
+    @Output
+    public Boolean getDefaultVpc() {
+        if (defaultVpc == null) {
+            defaultVpc = false;
+        }
+
+        return defaultVpc;
+    }
+
+    public void setDefaultVpc(Boolean defaultVpc) {
+        this.defaultVpc = defaultVpc;
+    }
+
+    /**
+     * The owner ID.
+     */
+    @Output(value = "owner-12345", randomSuffix = false)
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
     @Override
     public void copyFrom(Vpc vpc) {
         setVpcId(vpc.vpcId());
         setCidrBlock(vpc.cidrBlock());
         setInstanceTenancy(vpc.instanceTenancyAsString());
-        setDhcpOptionsId(vpc.dhcpOptionsId());
+        setDhcpOptions(!ObjectUtils.isBlank(vpc.dhcpOptionsId()) ? findById(DhcpOptionSetResource.class,vpc.dhcpOptionsId()) : null);
         setOwnerId(vpc.ownerId());
         setDefaultVpc(vpc.isDefault());
         setProvideIpv6CidrBlock(!vpc.ipv6CidrBlockAssociationSet().isEmpty());
@@ -240,7 +250,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
             DescribeVpcClassicLinkDnsSupportResponse cldResponse = client.describeVpcClassicLinkDnsSupport(r -> r.vpcIds(getVpcId()));
             for (ClassicLinkDnsSupport classicLink : cldResponse.vpcs()) {
-                setEnableClassicLink(classicLink.classicLinkDnsSupported());
+                setEnableClassicLinkDnsSupport(classicLink.classicLinkDnsSupported());
                 break;
             }
         } catch (Ec2Exception ex) {
@@ -254,24 +264,13 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (ObjectUtils.isBlank(getVpcId())) {
-            throw new GyroException("vpc-id is missing, unable to load vpc.");
+        Vpc vpc = getVpc(client);
+
+        if (vpc == null) {
+            return false;
         }
 
-        try {
-            DescribeVpcsRequest request = DescribeVpcsRequest.builder()
-                .vpcIds(getVpcId())
-                .build();
-
-            client.describeVpcs(request).vpcs().forEach(this::copyFrom);
-
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
+        copyFrom(vpc);
 
         return true;
     }
@@ -324,26 +323,43 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        String vpcId = getVpcId();
 
-        if (vpcId != null) {
-            sb.append(vpcId);
+        sb.append("vpc");
 
-        } else {
-            sb.append("vpc");
+        if (!ObjectUtils.isBlank(getVpcId())) {
+            sb.append(" - ").append(vpcId);
+
         }
 
-        String cidrBlock = getCidrBlock();
-
-        if (cidrBlock != null) {
+        if (!ObjectUtils.isBlank(getCidrBlock())) {
             sb.append(' ');
-            sb.append(cidrBlock);
+            sb.append(getCidrBlock());
         }
-
-        sb.append(" - ");
-        sb.append(name());
 
         return sb.toString();
+    }
+
+    private Vpc getVpc(Ec2Client client) {
+        Vpc vpc = null;
+
+        if (ObjectUtils.isBlank(getVpcId())) {
+            throw new GyroException("vpc-id is missing, unable to load vpc.");
+        }
+
+        try {
+            DescribeVpcsResponse response = client.describeVpcs(r -> r.vpcIds(Collections.singleton(getVpcId())));
+
+            if (!response.vpcs().isEmpty()) {
+                vpc = response.vpcs().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return vpc;
     }
 
     private void modifySettings(Ec2Client client) {
@@ -374,8 +390,8 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         }
 
         // DCHP Options
-        if (getDhcpOptionsId() != null) {
-            client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()).vpcId(getVpcId()));
+        if (getDhcpOptions() != null) {
+            client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptions().getDhcpOptionsId()).vpcId(getVpcId()));
         }
 
         // ClassicLink
