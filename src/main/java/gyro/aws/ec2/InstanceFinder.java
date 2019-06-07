@@ -759,7 +759,7 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
     }
 
     /**
-     * The status of the network interface . Valid values are ``available)`` or ``in-use``.
+     * The status of the network interface . Valid values are ``available`` or ``in-use``.
      */
     @Filter("network-interface.status")
     public String getNetworkInterfaceStatus() {

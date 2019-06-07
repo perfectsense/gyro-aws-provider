@@ -109,19 +109,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * Instance ID of this instance.
-     */
-    @Id
-    @Output
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
-    /**
      * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
      */
     public String getAmiId() {
@@ -397,6 +384,19 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
+     * Instance ID of this instance.
+     */
+    @Id
+    @Output
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    /**
      * The private IP of this instance.
      */
     @Output
@@ -489,6 +489,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     protected String getId() {
         return getInstanceId();
+    }
+
+    @Override
+    public void copyFrom(Instance instance) {
+        Ec2Client client = createClient(Ec2Client.class);
+        setInstanceId(getInstanceId());
+        init(instance, client);
     }
 
     @Override
@@ -671,13 +678,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(Instance instance) {
-        Ec2Client client = createClient(Ec2Client.class);
-        setInstanceId(getInstanceId());
-        init(instance, client);
     }
 
     private void init(Instance instance, Ec2Client client) {
