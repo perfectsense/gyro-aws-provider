@@ -74,11 +74,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private Boolean isDeleteOnTermination;
     private Set<SecurityGroupResource> securityGroups;
     private String primaryIpv4Address;
-    private List<String> ipv4Addresses;
+    private Set<String> ipv4Addresses;
     private Boolean sourceDestCheck;
 
     /**
-     * The description of the network interface card that is being created.
+     * The description of the Network Interface card that is being created.
      */
     @Updatable
     public String getDescription() {
@@ -90,7 +90,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The subnet to create the network interface in. (Required)
+     * The Subnet to create the Network Interface in. (Required)
      */
     @Updatable
     public SubnetResource getSubnet() {
@@ -102,21 +102,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The ID of the Network Interface which is generated with the resource.
-     */
-    @Id
-    @Output
-    public String getNetworkInterfaceId() {
-        return networkInterfaceId;
-    }
-
-    public void setNetworkInterfaceId(String networkInterfaceId) {
-        this.networkInterfaceId = networkInterfaceId;
-    }
-
-    /**
-     * The list of Security Group's that are getting associated to the Network Interface. (Optional)
-     * If no security id is given, the default security group attached to the subnet will be assigned to the network interface.
+     * The list of Security Group's that are getting associated to the Network Interface. If no Security Group is given, the default security group attached to the subnet will be assigned to the network interface.
      */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
@@ -132,7 +118,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The id of the instance to which the network interface card will be attached.(Optional)
+     * The ID of the instance to which the Network Interface card will be attached.(Optional)
      */
     @Updatable
     public InstanceResource getInstance() {
@@ -144,7 +130,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The value of attachment order to the instance, this would be `1` since the default network interface index value is `0` when an instance is created.
+     * The value of attachment order to the instance, this would be `1` since the default Network Interface index value is `0` when an instance is created.
      */
     @Updatable
     public Integer getDeviceIndex() {
@@ -156,7 +142,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * Boolean value to indicate if the network interface will be deleted when the instance is terminated.
+     * Boolean value to indicate if the Network Interface will be deleted when the Instance is terminated.
      */
     @Updatable
     public Boolean getDeleteOnTermination() {
@@ -172,7 +158,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The id generated when an instance is attached to the network interface.
+     * The ID generated when an Instance is attached to the Network Interface.
      */
     public String getAttachmentId() {
         return attachmentId;
@@ -194,26 +180,23 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The list of Secondary IPV4 addresses which gets assigned to the Network Interface. The limit of setting secondary instance depends on the instance type.
-     * See `IP Address per Instance Type <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI>`_.
+     * The list of Secondary IPV4 addresses which gets assigned to the Network Interface. The limit of setting secondary instance depends on the instance type. See `IP Address per Instance Type <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI>`_.
      */
     @Updatable
-    public List<String> getIpv4Addresses() {
+    public Set<String> getIpv4Addresses() {
         if (ipv4Addresses == null) {
-            ipv4Addresses = new ArrayList<>();
+            ipv4Addresses = new HashSet<>();
         }
 
-        Collections.sort(ipv4Addresses);
         return ipv4Addresses;
     }
 
-    public void setIpv4Addresses(List<String> ipv4Addresses) {
+    public void setIpv4Addresses(Set<String> ipv4Addresses) {
         this.ipv4Addresses = ipv4Addresses;
     }
 
     /**
-     * Boolean value to enable/disable network traffic on instance that isn't specifically destined for the instance.
-     * Default is `true`
+     * Boolean value to enable/disable network traffic on instance that isn't specifically destined for the instance. Default is `true`
      */
     @Updatable
     public Boolean getSourceDestCheck() {
@@ -227,9 +210,58 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         this.sourceDestCheck = sourceDestCheck;
     }
 
+    /**
+     * The ID of the Network Interface which is generated with the resource.
+     */
+    @Id
+    @Output
+    public String getNetworkInterfaceId() {
+        return networkInterfaceId;
+    }
+
+    public void setNetworkInterfaceId(String networkInterfaceId) {
+        this.networkInterfaceId = networkInterfaceId;
+    }
+
     @Override
     protected String getId() {
         return getNetworkInterfaceId();
+    }
+
+    @Override
+    public void copyFrom(NetworkInterface networkInterface) {
+        setNetworkInterfaceId(networkInterface.networkInterfaceId());
+        setDescription(networkInterface.description());
+        setSourceDestCheck(networkInterface.sourceDestCheck());
+        setSubnet(!ObjectUtils.isBlank(networkInterface.subnetId()) ? findById(SubnetResource.class, networkInterface.subnetId()) : null);
+
+        if (networkInterface.groups() != null) {
+            setSecurityGroups(networkInterface.groups()
+                .stream()
+                .map(o -> findById(SecurityGroupResource.class, o.groupId()))
+                .collect(Collectors.toSet()));
+        }
+
+        if (networkInterface.privateIpAddresses() != null) {
+            Set<String> ipAddresses = new HashSet<>();
+
+            for (NetworkInterfacePrivateIpAddress address : networkInterface.privateIpAddresses()) {
+                if (address.primary()) {
+                    setPrimaryIpv4Address(address.privateIpAddress());
+                } else {
+                    ipAddresses.add(address.privateIpAddress());
+                }
+            }
+            setIpv4Addresses(ipAddresses);
+        }
+
+        NetworkInterfaceAttachment attachment = networkInterface.attachment();
+        if (attachment != null) {
+            setInstance(!ObjectUtils.isBlank(attachment.instanceId()) ? findById(InstanceResource.class, attachment.instanceId()) : null);
+            setDeviceIndex(attachment.deviceIndex());
+            setAttachmentId(attachment.attachmentId());
+            setDeleteOnTermination(attachment.deleteOnTermination());
+        }
     }
 
     @Override
@@ -415,49 +447,14 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         sb.append("network interface ");
 
-        if (ObjectUtils.isBlank(getDescription())) {
+        if (!ObjectUtils.isBlank(getDescription())) {
             sb.append(getDescription());
         }
 
-        if (getNetworkInterfaceId() != null) {
+        if (!ObjectUtils.isBlank(getNetworkInterfaceId())) {
             sb.append(getNetworkInterfaceId());
         }
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(NetworkInterface networkInterface) {
-        setNetworkInterfaceId(networkInterface.networkInterfaceId());
-        setDescription(networkInterface.description());
-        setSourceDestCheck(networkInterface.sourceDestCheck());
-
-        if (networkInterface.groups() != null) {
-            setSecurityGroups(networkInterface.groups()
-                .stream()
-                .map(o -> findById(SecurityGroupResource.class, o.groupId()))
-                .collect(Collectors.toSet()));
-        }
-
-        if (networkInterface.privateIpAddresses() != null) {
-            ArrayList<String> ipAddresses = new ArrayList<>();
-
-            for (NetworkInterfacePrivateIpAddress address : networkInterface.privateIpAddresses()) {
-                if (address.primary()) {
-                    setPrimaryIpv4Address(address.privateIpAddress());
-                } else {
-                    ipAddresses.add(address.privateIpAddress());
-                }
-            }
-            setIpv4Addresses(ipAddresses);
-        }
-
-        NetworkInterfaceAttachment attachment = networkInterface.attachment();
-        if (attachment != null) {
-            setInstance(findById(InstanceResource.class, attachment.instanceId()));
-            setDeviceIndex(attachment.deviceIndex());
-            setAttachmentId(attachment.attachmentId());
-            setDeleteOnTermination(attachment.deleteOnTermination());
-        }
     }
 
     private NetworkInterface getNetworkInterface(Ec2Client client) {

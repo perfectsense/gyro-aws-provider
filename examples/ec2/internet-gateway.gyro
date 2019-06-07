@@ -6,6 +6,6 @@ aws::vpc vpc-example
     }
 end
 
-aws::egress-gateway internet-gateway-example
+aws::internet-gateway internet-gateway-example
     vpc: $(aws::vpc vpc-example)
 end
