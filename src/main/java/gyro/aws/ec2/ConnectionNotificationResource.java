@@ -14,7 +14,6 @@ import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNotificationResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +31,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::connection-notification connection-notification-example
- *         vpc-endpoint-id: $(aws::endpoint endpoint-example-interface | endpoint-id)
+ *         vpc-endpoint: $(aws::endpoint endpoint-example-interface)
  *         connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
  *         connection-events: [
  *             "Accept"
@@ -43,8 +42,8 @@ import java.util.Set;
 @Type("connection-notification")
 public class ConnectionNotificationResource extends AwsResource implements Copyable<ConnectionNotification> {
 
-    private String serviceId;
-    private EndpointResource vpcEndpoint;
+    private EndpointServiceResource endpointService;
+    private EndpointResource endpoint;
     private String connectionNotificationArn;
     private List<String> connectionEvents;
     private String connectionNotificationId;
@@ -58,26 +57,25 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     ));
 
     /**
-     * The id of the endpoint service. Either endpoint id or endpoint service id is required.
+     * Endpoint Service. Either Endpoint or Endpoint Service is required.
      */
-    @Output
-    public String getServiceId() {
-        return serviceId;
+    public EndpointServiceResource getEndpointService() {
+        return endpointService;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setEndpointService(EndpointServiceResource endpointService) {
+        this.endpointService = endpointService;
     }
 
     /**
-     * The id of the vpc endpoint. Either endpoint id or endpoint service id is required.
+     * Endpoint. Either Endpoint or Endpoint Service is required.
      */
-    public EndpointResource getVpcEndpoint() {
-        return vpcEndpoint;
+    public EndpointResource getEndpoint() {
+        return endpoint;
     }
 
-    public void setVpcEndpoint(EndpointResource vpcEndpoint) {
-        this.vpcEndpoint = vpcEndpoint;
+    public void setEndpoint(EndpointResource endpoint) {
+        this.endpoint = endpoint;
     }
 
     /**
@@ -109,7 +107,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The id of the connection notification.
+     * The ID of the Connection Notification.
      */
     @Id
     @Output
@@ -122,7 +120,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The state of the connection notification.
+     * The state of the Connection Notification.
      */
     @Output
     public String getConnectionNotificationState() {
@@ -134,7 +132,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The notification type of the connection notification.
+     * The notification type of the Connection Notification.
      */
     @Output
     public String getConnectionNotificationType() {
@@ -143,6 +141,18 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
     public void setConnectionNotificationType(String connectionNotificationType) {
         this.connectionNotificationType = connectionNotificationType;
+    }
+
+    @Override
+    public void copyFrom(ConnectionNotification connectionNotification) {
+        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setConnectionEvents(connectionNotification.connectionEvents());
+        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
+        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
+        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
+        setEndpoint(!ObjectUtils.isBlank(connectionNotification.vpcEndpointId()) ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
+        setEndpointService(!ObjectUtils.isBlank(connectionNotification.serviceId()) ? findById(EndpointServiceResource.class, connectionNotification.serviceId()) : null);
     }
 
     @Override
@@ -168,15 +178,15 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
         CreateVpcEndpointConnectionNotificationResponse response = null;
 
-        if (getVpcEndpoint() != null) {
+        if (getEndpoint() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getVpcEndpoint().getEndpointId())
+                r -> r.vpcEndpointId(getEndpoint().getEndpointId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
-        } else if (!ObjectUtils.isBlank(getServiceId())) {
+        } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.serviceId(getServiceId())
+                r -> r.serviceId(getEndpointService().getServiceId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
@@ -224,18 +234,6 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         return sb.toString();
     }
 
-    @Override
-    public void copyFrom(ConnectionNotification connectionNotification) {
-        setConnectionNotificationId(connectionNotification.connectionNotificationId());
-        setConnectionEvents(connectionNotification.connectionEvents());
-        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
-        setConnectionNotificationId(connectionNotification.connectionNotificationId());
-        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
-        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
-        setVpcEndpoint(connectionNotification.vpcEndpointId() != null ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
-        setServiceId(connectionNotification.serviceId());
-    }
-
     private ConnectionNotification getConnectionNotification(Ec2Client client) {
         ConnectionNotification connectionNotification = null;
 
@@ -262,9 +260,9 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     private void validate() {
-        if ((getVpcEndpoint() == null && ObjectUtils.isBlank(getServiceId()))
-            || (getVpcEndpoint() != null && !ObjectUtils.isBlank(getServiceId()))) {
-            throw new GyroException("Either 'vpc-endpoint' or 'service-id' needs to be set. Not both at a time.");
+        if ((getEndpoint() == null && getEndpointService() == null)
+            || (getEndpoint() != null && getEndpointService() != null)) {
+            throw new GyroException("Either 'endpoint' or 'endpoint-service' needs to be set. Not both at a time.");
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {

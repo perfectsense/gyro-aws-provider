@@ -32,7 +32,7 @@ aws::internet-gateway internet-gateway-example
 end
 
 aws::nlb nlb-example-1
-    name: "nlb-connection-notification-example-1"
+    name: "nlb-CN-example-1"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
@@ -50,7 +50,7 @@ aws::nlb nlb-example-1
 end
 
 aws::nlb nlb-example-2
-    name: "nlb-connection-notification-example-2"
+    name: "nlb-CN-example-2"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
@@ -74,7 +74,7 @@ aws::endpoint-service endpoint-service-connection-notification-example
 end
 
 aws::connection-notification connection-notification-example
-    service-id: $(aws::endpoint-service endpoint-service-connection-notification-example | service-id)
+    endpoint-service: $(aws::endpoint-service endpoint-service-connection-notification-example)
     connection-notification-arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
     connection-events: [
         "Accept"
