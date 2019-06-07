@@ -87,6 +87,20 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
+    public void copyFrom(VpnGateway vpnGateway) {
+        setVpnGatewayId(vpnGateway.vpnGatewayId());
+        setAmazonSideAsn(vpnGateway.amazonSideAsn());
+
+        if (!vpnGateway.vpcAttachments().isEmpty()
+            && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")
+            && !ObjectUtils.isBlank(vpnGateway.vpcAttachments().get(0).vpcId())) {
+            setVpc(findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
+        } else {
+            setVpc(null);
+        }
+    }
+
+    @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -172,20 +186,6 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(VpnGateway vpnGateway) {
-        setVpnGatewayId(vpnGateway.vpnGatewayId());
-        setAmazonSideAsn(vpnGateway.amazonSideAsn());
-
-        if (!vpnGateway.vpcAttachments().isEmpty()
-            && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")
-            && !ObjectUtils.isBlank(vpnGateway.vpcAttachments().get(0).vpcId())) {
-            setVpc(findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
-        } else {
-            setVpc(null);
-        }
     }
 
     private boolean replaceVpc(Ec2Client client) {
