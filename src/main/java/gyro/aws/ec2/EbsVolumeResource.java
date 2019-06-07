@@ -91,8 +91,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The number of I/O operations per second (IOPS) to provision for the volume.
-     * Only allowed when 'volume-type' set to 'iops'.
+     * The number of I/O operations per second (IOPS) to provision for the volume. Only allowed when 'volume-type' set to 'iops'.
      */
     @Updatable
     public Integer getIops() {
@@ -127,7 +126,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The snapshot from which to create the volume. Required only
+     * The snapshot from which to create the volume. Required id size is not mentioned.
      */
     public EbsSnapshotResource getSnapshot() {
         return snapshot;
@@ -163,8 +162,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The type of volume being created. Defaults to 'gp2'.
-     * Valid options are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``].
+     * The type of volume being created. Defaults to 'gp2'. Valid options are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``].
      */
     @Updatable
     public String getVolumeType() {
@@ -193,6 +191,29 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
     public void setAutoEnableIo(Boolean autoEnableIo) {
         this.autoEnableIo = autoEnableIo;
+    }
+
+    @Override
+    public void copyFrom(Volume volume) {
+        setVolumeId(volume.volumeId());
+        setAvailabilityZone(volume.availabilityZone());
+        setCreateTime(Date.from(volume.createTime()));
+        setEncrypted(volume.encrypted());
+        setIops(volume.iops());
+        setKmsKeyId(volume.kmsKeyId());
+        setSize(volume.size());
+        setSnapshot(!ObjectUtils.isBlank(volume.snapshotId()) ? findById(EbsSnapshotResource.class, volume.snapshotId()) : null);
+        setState(volume.stateAsString());
+        setVolumeType(volume.volumeTypeAsString());
+
+        Ec2Client client = createClient(Ec2Client.class);
+
+        DescribeVolumeAttributeResponse responseAutoEnableIo = client.describeVolumeAttribute(
+            r -> r.volumeId(getVolumeId())
+                .attribute(VolumeAttributeName.AUTO_ENABLE_IO)
+        );
+
+        setAutoEnableIo(responseAutoEnableIo.autoEnableIO().value());
     }
 
     @Override
@@ -308,29 +329,6 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(Volume volume) {
-        setVolumeId(volume.volumeId());
-        setAvailabilityZone(volume.availabilityZone());
-        setCreateTime(Date.from(volume.createTime()));
-        setEncrypted(volume.encrypted());
-        setIops(volume.iops());
-        setKmsKeyId(volume.kmsKeyId());
-        setSize(volume.size());
-        setSnapshot(findById(EbsSnapshotResource.class, volume.snapshotId()));
-        setState(volume.stateAsString());
-        setVolumeType(volume.volumeTypeAsString());
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        DescribeVolumeAttributeResponse responseAutoEnableIo = client.describeVolumeAttribute(
-            r -> r.volumeId(getVolumeId())
-                .attribute(VolumeAttributeName.AUTO_ENABLE_IO)
-        );
-
-        setAutoEnableIo(responseAutoEnableIo.autoEnableIO().value());
     }
 
     private Volume getVolume(Ec2Client client) {
