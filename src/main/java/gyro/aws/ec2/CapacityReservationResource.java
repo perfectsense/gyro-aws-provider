@@ -170,7 +170,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The number of instances for which to reserve capacity. (Required)
+     * The number of Instances for which to reserve capacity. (Required)
      */
     @Updatable
     public Integer getInstanceCount() {
@@ -181,6 +181,10 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         this.instanceCount = instanceCount;
     }
 
+    /**
+     * The count of available instances.
+     */
+    @Output
     public Integer getAvailableInstanceCount() {
         return availableInstanceCount;
     }
@@ -189,6 +193,10 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         this.availableInstanceCount = availableInstanceCount;
     }
 
+    /**
+     * The Capacity Reservation creation date.
+     */
+    @Output
     public Date getCreateDate() {
         return createDate;
     }
@@ -200,6 +208,23 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     @Override
     protected String getId() {
         return getCapacityReservationId();
+    }
+
+    @Override
+    public void copyFrom(CapacityReservation capacityReservation) {
+        setCapacityReservationId(capacityReservation.capacityReservationId());
+        setAvailabilityZone(capacityReservation.availabilityZone());
+        setEbsOptimized(capacityReservation.ebsOptimized());
+        setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
+        setEndDateType(capacityReservation.endDateTypeAsString());
+        setEphemeralStorage(capacityReservation.ephemeralStorage());
+        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
+        setInstancePlatform(capacityReservation.instancePlatformAsString());
+        setInstanceType(capacityReservation.instanceType());
+        setTenancy(capacityReservation.tenancyAsString());
+        setAvailableInstanceCount(capacityReservation.availableInstanceCount());
+        setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
+        setInstanceCount(capacityReservation.totalInstanceCount());
     }
 
     @Override
@@ -279,23 +304,6 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(CapacityReservation capacityReservation) {
-        setCapacityReservationId(capacityReservation.capacityReservationId());
-        setAvailabilityZone(capacityReservation.availabilityZone());
-        setEbsOptimized(capacityReservation.ebsOptimized());
-        setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
-        setEndDateType(capacityReservation.endDateTypeAsString());
-        setEphemeralStorage(capacityReservation.ephemeralStorage());
-        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
-        setInstancePlatform(capacityReservation.instancePlatformAsString());
-        setInstanceType(capacityReservation.instanceType());
-        setTenancy(capacityReservation.tenancyAsString());
-        setAvailableInstanceCount(capacityReservation.availableInstanceCount());
-        setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
-        setInstanceCount(capacityReservation.totalInstanceCount());
     }
 
     private void validate() {
