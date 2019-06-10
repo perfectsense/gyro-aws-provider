@@ -100,14 +100,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String instanceState;
     private Date launchDate;
 
-    public InstanceResource() {
-
-    }
-
-    public InstanceResource(Instance instance, Ec2Client client) {
-        init(instance, client);
-    }
-
     /**
      * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
      */
