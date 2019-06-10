@@ -23,7 +23,6 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServicePermiss
 import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,7 +70,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     /**
-     * A list of Network load Balancer's. At least one is Required.
+     * A list of Network load Balancers. At least one is Required.
      */
     @Updatable
     public Set<NetworkLoadBalancerResource> getNetworkLoadBalancers() {
@@ -87,7 +86,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     /**
-     * A list of IAM Role's.
+     * A list of IAM Roles.
      */
     @Updatable
     public Set<IamRoleResource> getPrincipals() {

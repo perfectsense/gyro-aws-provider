@@ -7,6 +7,10 @@ aws::vpc vpc-endpoint-service-example
     }
 end
 
+aws::internet-gateway internet-gateway-example
+    vpc: $(aws::vpc vpc-endpoint-service-example)
+end
+
 aws::subnet subnet-us-east-2a
     vpc: $(aws::vpc vpc-endpoint-service-example)
     availability-zone: 'us-east-2a'
@@ -27,10 +31,6 @@ aws::subnet subnet-us-east-2b
     }
 end
 
-aws::internet-gateway internet-gateway-example
-    vpc: $(aws::vpc vpc-endpoint-service-example)
-end
-
 aws::nlb nlb-example-1
     name: "nlb-endpoint-service-example-1"
     ip-address-type: "ipv4"
@@ -45,8 +45,8 @@ aws::nlb nlb-example-1
     end
 
     tags: {
-            Name: "nlb-example-1"
-        }
+        Name: "nlb-example-1"
+    }
 end
 
 aws::nlb nlb-example-2
@@ -63,8 +63,8 @@ aws::nlb nlb-example-2
     end
 
     tags: {
-            Name: "nlb-example-2"
-        }
+        Name: "nlb-example-2"
+    }
 end
 
 aws::endpoint-service endpoint-service-example
