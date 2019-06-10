@@ -149,6 +149,29 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
+    public void copyFrom(DhcpOptions dhcpOptions) {
+        setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
+
+        for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
+            if (config.key().equals(CONFIG_DOMAIN_NAME)) {
+                setDomainName(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+            }
+            if (config.key().equals(CONFIG_DOMAIN_NAME_SERVERS)) {
+                setDomainNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+            }
+            if (config.key().equals(CONFIG_NTP_SERVERS)) {
+                setNtpServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+            }
+            if (config.key().equals(CONFIG_NETBIOS_SERVERS)) {
+                setNetbiosNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+            }
+            if (config.key().equals(CONFIG_NETBIOS_NODE_TYPE)) {
+                setNetbiosNodeType(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+            }
+        }
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -204,29 +227,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(DhcpOptions dhcpOptions) {
-        setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
-
-        for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
-            if (config.key().equals(CONFIG_DOMAIN_NAME)) {
-                setDomainName(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
-            }
-            if (config.key().equals(CONFIG_DOMAIN_NAME_SERVERS)) {
-                setDomainNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
-            }
-            if (config.key().equals(CONFIG_NTP_SERVERS)) {
-                setNtpServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
-            }
-            if (config.key().equals(CONFIG_NETBIOS_SERVERS)) {
-                setNetbiosNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
-            }
-            if (config.key().equals(CONFIG_NETBIOS_NODE_TYPE)) {
-                setNetbiosNodeType(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
-            }
-        }
     }
 
     private void addDhcpConfiguration(Collection<NewDhcpConfiguration> dhcpConfigurations, String configName, List<String> newConfiguration) {
