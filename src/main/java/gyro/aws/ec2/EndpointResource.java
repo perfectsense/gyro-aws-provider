@@ -1,5 +1,7 @@
 package gyro.aws.ec2;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -21,6 +23,7 @@ import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 import software.amazon.awssdk.services.ec2.model.VpcEndpointType;
 import software.amazon.awssdk.utils.IoUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +41,7 @@ import java.util.stream.Collectors;
  *     aws::endpoint endpoint-example-gateway
  *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         service-name: 'com.amazonaws.us-east-1.s3'
- *         policy-doc-path: 'policy.json'
+ *         policy: 'policy.json'
  *         type-interface: false
  *         route-tables: [
  *             $(aws::route-table route-table-example-for-endpoint-1),
@@ -50,7 +53,7 @@ import java.util.stream.Collectors;
  *     aws::endpoint endpoint-example-interface
  *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
  *         service-name: 'com.amazonaws.us-east-1.ec2'
- *         policy-doc-path: 'policy.json'
+ *         policy: 'policy.json'
  *         type-interface: true
  *         subnets: [
  *             $(aws::subnet subnet-public-us-east-1a-example-for-endpoint-1),
@@ -75,7 +78,6 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private Set<SubnetResource> subnets;
     private Set<SecurityGroupResource> securityGroups;
     private Boolean enablePrivateDns;
-    private String policyDocPath;
     private String policy;
 
     /**
@@ -185,31 +187,37 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     /**
-     * Path to the file that contains the policy.
-     */
-    @Updatable
-    public String getPolicyDocPath() {
-        return policyDocPath;
-    }
-
-    public void setPolicyDocPath(String policyDocPath) {
-        this.policyDocPath = policyDocPath;
-
-        if (policyDocPath != null) {
-            setPolicyFromPath();
-        }
-    }
-
-    /**
      * The content of the policy.
      */
     @Updatable
     public String getPolicy() {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+        policy = getProcessedPolicy(policy);
+        return policy;
     }
 
     public void setPolicy(String policy) {
         this.policy = policy;
+    }
+
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+        }
     }
 
     @Override
@@ -329,7 +337,6 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         }
 
         if (changedFieldNames.contains("policy-doc-path")) {
-            setPolicyFromPath();
             builder.policyDocument(getPolicy());
         }
 
@@ -368,15 +375,6 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         }
 
         return sb.toString();
-    }
-
-    private void setPolicyFromPath() {
-        try (InputStream input = openInput(getPolicyDocPath())) {
-            setPolicy(IoUtils.toUtf8String(input));
-
-        } catch (Exception ignore) {
-            // ignore
-        }
     }
 
     private void validate() {

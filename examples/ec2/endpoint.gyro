@@ -213,7 +213,7 @@ end
 aws::endpoint endpoint-example-gateway
     vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.s3'
-    policy-doc-path: 'endpoint-policy.json'
+    policy: 'endpoint-policy-1.json'
     type-interface: false
     route-tables: [
         $(aws::route-table route-table-example-for-endpoint-1),
@@ -225,7 +225,7 @@ end
 aws::endpoint endpoint-example-interface
     vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.ec2'
-    policy-doc-path: 'endpoint-policy.json'
+    policy: 'endpoint-policy-2.json'
     type-interface: true
     subnets: [
         $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1),
