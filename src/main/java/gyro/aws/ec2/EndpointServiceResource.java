@@ -49,8 +49,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
 
     private String serviceId;
     private String serviceName;
-    private List<String> availablityZones;
-    private List<String> baseEndpointDnsNames;
+    private Set<String> availabilityZones;
+    private Set<String> baseEndpointDnsNames;
     private String privateDnsName;
     private String state;
 
@@ -131,23 +131,23 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
      * A list of Availability zones of the endpoint service.
      */
     @Output
-    public List<String> getAvailablityZones() {
-        return availablityZones;
+    public Set<String> getAvailabilityZones() {
+        return availabilityZones;
     }
 
-    public void setAvailablityZones(List<String> availablityZones) {
-        this.availablityZones = availablityZones;
+    public void setAvailabilityZones(Set<String> availabilityZones) {
+        this.availabilityZones = availabilityZones;
     }
 
     /**
      * A list of base endpoint dns names.
      */
     @Output
-    public List<String> getBaseEndpointDnsNames() {
+    public Set<String> getBaseEndpointDnsNames() {
         return baseEndpointDnsNames;
     }
 
-    public void setBaseEndpointDnsNames(List<String> baseEndpointDnsNames) {
+    public void setBaseEndpointDnsNames(Set<String> baseEndpointDnsNames) {
         this.baseEndpointDnsNames = baseEndpointDnsNames;
     }
 
@@ -180,8 +180,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         setServiceId(serviceConfiguration.serviceId());
         setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
         setServiceName(serviceConfiguration.serviceName());
-        setAvailablityZones(serviceConfiguration.availabilityZones());
-        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames());
+        setAvailabilityZones(serviceConfiguration.availabilityZones() != null ? new HashSet<>(serviceConfiguration.availabilityZones()) : null);
+        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames() != null ? new HashSet<>(serviceConfiguration.baseEndpointDnsNames()) : null);
         setPrivateDnsName(serviceConfiguration.privateDnsName());
         setState(serviceConfiguration.serviceStateAsString());
 
