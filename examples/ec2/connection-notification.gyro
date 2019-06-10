@@ -7,6 +7,10 @@ aws::vpc vpc-connection-notification-example
     }
 end
 
+aws::internet-gateway internet-gateway-example
+    vpc: $(aws::vpc vpc-connection-notification-example)
+end
+
 aws::subnet subnet-us-east-2a
     vpc: $(aws::vpc vpc-connection-notification-example)
     availability-zone: 'us-east-2a'
@@ -27,12 +31,8 @@ aws::subnet subnet-us-east-2b
     }
 end
 
-aws::internet-gateway internet-gateway-example
-    vpc: $(aws::vpc vpc-connection-notification-example)
-end
-
-aws::nlb nlb-example-1
-    name: "nlb-CN-example-1"
+aws::nlb nlb-example
+    name: "nlb-CN-example"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
@@ -45,25 +45,7 @@ aws::nlb nlb-example-1
     end
 
     tags: {
-            Name: "nlb-example-1"
-        }
-end
-
-aws::nlb nlb-example-2
-    name: "nlb-CN-example-2"
-    ip-address-type: "ipv4"
-    scheme: "internet-facing"
-
-    subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
-    end
-
-    subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
-    end
-
-    tags: {
-            Name: "nlb-example-2"
+            Name: "nlb-example"
         }
 end
 

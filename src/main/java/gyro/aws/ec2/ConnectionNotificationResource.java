@@ -15,12 +15,11 @@ import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNoti
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a connection notification for an endpoint or an endpoint service.
@@ -45,7 +44,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     private EndpointServiceResource endpointService;
     private EndpointResource endpoint;
     private String connectionNotificationArn;
-    private List<String> connectionEvents;
+    private Set<String> connectionEvents;
     private String connectionNotificationId;
     private String connectionNotificationState;
     private String connectionNotificationType;
@@ -53,7 +52,8 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     private final Set<String> masterEventSet = new HashSet<>(Arrays.asList(
         "Accept",
         "Connect",
-        "Delete"
+        "Delete",
+        "Reject"
     ));
 
     /**
@@ -94,15 +94,15 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
      */
     @Updatable
-    public List<String> getConnectionEvents() {
+    public Set<String> getConnectionEvents() {
         if (connectionEvents == null) {
-            connectionEvents = new ArrayList<>(masterEventSet);
+            connectionEvents = new HashSet<>(masterEventSet);
         }
 
         return connectionEvents;
     }
 
-    public void setConnectionEvents(List<String> connectionEvents) {
+    public void setConnectionEvents(Set<String> connectionEvents) {
         this.connectionEvents = connectionEvents;
     }
 
@@ -146,7 +146,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     @Override
     public void copyFrom(ConnectionNotification connectionNotification) {
         setConnectionNotificationId(connectionNotification.connectionNotificationId());
-        setConnectionEvents(connectionNotification.connectionEvents());
+        setConnectionEvents(connectionNotification.connectionEvents() != null ? new HashSet<>(connectionNotification.connectionEvents()) : null);
         setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
         setConnectionNotificationId(connectionNotification.connectionNotificationId());
         setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
@@ -266,8 +266,8 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {
-            throw new GyroException("The values - (" + String.join(" , ", getConnectionEvents())
-                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '") + "' ].");
+            throw new GyroException("The values - (" + getConnectionEvents().stream().filter(o -> !masterEventSet.contains(o)).collect(Collectors.joining(" , "))
+                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '", masterEventSet) + "' ].");
         }
     }
 }
