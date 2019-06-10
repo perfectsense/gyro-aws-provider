@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  *             $(aws::route-table route-table-example-for-endpoint-1),
  *             $(aws::route-table route-table-example-for-endpoint-2),
  *             $(aws::route-table route-table-example-for-endpoint-3)
-*          ]
+ *          ]
  *     end
  *
  *     aws::endpoint endpoint-example-interface
@@ -81,7 +81,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private String policy;
 
     /**
-     * The id of the endpoint.
+     * The ID of the endpoint.
      */
     @Id
     @Output
@@ -127,7 +127,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     /**
-     * The list of Route Table ID being associated with the Endpoint. (Required if typeInterface set to true.)
+     * The set of Route Tables being associated with the Endpoint. (Required if ```type-interface``` set to true.)
      */
     @Updatable
     public Set<RouteTableResource> getRouteTables() {
@@ -143,7 +143,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     /**
-     * The list of Subnet ID being associated with the Endpoint. (Required if typeInterface set to false.)
+     * The set of Subnets being associated with the Endpoint. (Required if ``type-interface`` set to false.)
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {
@@ -159,7 +159,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     /**
-     * The list of Security Group ID being associated with the Endpoint. (Required if typeInterface set to false.)
+     * The set of of Security Groups being associated with the Endpoint. (Required if ``type-interface`` set to false.)
      */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
