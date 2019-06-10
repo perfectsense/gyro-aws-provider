@@ -26,8 +26,8 @@ public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
     private String cidrBlock;
     private String defaultForAz;
     private String ipv6CidrBlock;
-    private String ipv6AssociationId;
-    private String ipv6State;
+    private String ipv6CidrBlockAssociationId;
+    private String ipv6CidrBlockAssociationState;
     private String ownerId;
     private String state;
     private String subnetArn;
@@ -107,24 +107,24 @@ public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
      * An association ID for an IPv6 CIDR block associated with the subnet.
      */
     @Filter("ipv6-cidr-block-association.association-id")
-    public String getIpv6AssociationId() {
-        return ipv6AssociationId;
+    public String getIpv6CidrBlockAssociationId() {
+        return ipv6CidrBlockAssociationId;
     }
 
-    public void setIpv6AssociationId(String ipv6AssociationId) {
-        this.ipv6AssociationId = ipv6AssociationId;
+    public void setIpv6CidrBlockAssociationId(String ipv6CidrBlockAssociationId) {
+        this.ipv6CidrBlockAssociationId = ipv6CidrBlockAssociationId;
     }
 
     /**
      * The state of an IPv6 CIDR block associated with the subnet.
      */
     @Filter("ipv6-cidr-block-association.state")
-    public String getIpv6State() {
-        return ipv6State;
+    public String getIpv6CidrBlockAssociationState() {
+        return ipv6CidrBlockAssociationState;
     }
 
-    public void setIpv6State(String ipv6State) {
-        this.ipv6State = ipv6State;
+    public void setIpv6CidrBlockAssociationState(String ipv6CidrBlockAssociationState) {
+        this.ipv6CidrBlockAssociationState = ipv6CidrBlockAssociationState;
     }
 
     /**
