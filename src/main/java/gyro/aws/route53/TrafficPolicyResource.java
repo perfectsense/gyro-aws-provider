@@ -1,5 +1,7 @@
 package gyro.aws.route53;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -18,6 +20,7 @@ import software.amazon.awssdk.services.route53.model.NoSuchTrafficPolicyExceptio
 import software.amazon.awssdk.services.route53.model.TrafficPolicy;
 import software.amazon.awssdk.utils.IoUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -41,7 +44,6 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     private String name;
     private String comment;
     private String document;
-    private String documentPath;
     private String trafficPolicyId;
     private Integer version;
 
@@ -72,26 +74,28 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
      * The policy document. Required unless document path provided.
      */
     public String getDocument() {
-        return document;
+        if (document == null) {
+            return null;
+        } else if (document.endsWith(".json")) {
+            try (InputStream input = openInput(document)) {
+                document = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", document));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(document);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",document),ex);
+        }
     }
 
     public void setDocument(String document) {
         this.document = document;
-    }
-
-    /**
-     * The policy document file path. Required unless document provided.
-     */
-    public String getDocumentPath() {
-        return documentPath;
-    }
-
-    public void setDocumentPath(String documentPath) {
-        this.documentPath = documentPath;
-
-        if (documentPath != null) {
-            setDocumentFromPath();
-        }
     }
 
     /**
@@ -245,15 +249,6 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
         }
 
         return trafficPolicy;
-    }
-
-    private void setDocumentFromPath() {
-        try (InputStream input = openInput(getDocumentPath())) {
-            setDocument(IoUtils.toUtf8String(input));
-
-        } catch (Exception ignore) {
-            // ignore
-        }
     }
 
     private void validate(boolean isCreate) {
