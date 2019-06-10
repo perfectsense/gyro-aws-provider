@@ -19,6 +19,7 @@ import software.amazon.awssdk.services.ec2.model.NewDhcpConfiguration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,9 +46,9 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
 
     private String dhcpOptionsId;
     private String domainName;
-    private List<String> domainNameServers;
-    private List<String> ntpServers;
-    private List<String> netbiosNameServers;
+    private Set<String> domainNameServers;
+    private Set<String> ntpServers;
+    private Set<String> netbiosNameServers;
     private String netbiosNodeType;
 
     private static final String CONFIG_DOMAIN_NAME = "domain-name";
@@ -70,45 +71,45 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     /**
      * A list of domain name servers for the DHCP option set.
      */
-    public List<String> getDomainNameServers() {
+    public Set<String> getDomainNameServers() {
         if (domainNameServers == null) {
-            domainNameServers = new ArrayList<>();
+            domainNameServers = new HashSet<>();
         }
 
         return domainNameServers;
     }
 
-    public void setDomainNameServers(List<String> domainNameServers) {
+    public void setDomainNameServers(Set<String> domainNameServers) {
         this.domainNameServers = domainNameServers;
     }
 
     /**
      * A list of ntp servers for the DHCP option set.
      */
-    public List<String> getNtpServers() {
+    public Set<String> getNtpServers() {
         if (ntpServers == null) {
-            ntpServers = new ArrayList<>();
+            ntpServers = new HashSet<>();
         }
 
         return ntpServers;
     }
 
-    public void setNtpServers(List<String> ntpServers) {
+    public void setNtpServers(Set<String> ntpServers) {
         this.ntpServers = ntpServers;
     }
 
     /**
      * A list of ntp bios servers for the DHCP option set.
      */
-    public List<String> getNetbiosNameServers() {
+    public Set<String> getNetbiosNameServers() {
         if (netbiosNameServers == null) {
-            netbiosNameServers = new ArrayList<>();
+            netbiosNameServers = new HashSet<>();
         }
 
         return netbiosNameServers;
     }
 
-    public void setNetbiosNameServers(List<String> netbiosNameServers) {
+    public void setNetbiosNameServers(Set<String> netbiosNameServers) {
         this.netbiosNameServers = netbiosNameServers;
     }
 
@@ -150,13 +151,13 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
                 setDomainName(!config.values().isEmpty() ? config.values().get(0).value() : null);
             }
             if (config.key().equals(CONFIG_DOMAIN_NAME_SERVERS)) {
-                setDomainNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+                setDomainNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toSet()));
             }
             if (config.key().equals(CONFIG_NTP_SERVERS)) {
-                setNtpServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+                setNtpServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toSet()));
             }
             if (config.key().equals(CONFIG_NETBIOS_SERVERS)) {
-                setNetbiosNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toList()));
+                setNetbiosNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toSet()));
             }
             if (config.key().equals(CONFIG_NETBIOS_NODE_TYPE)) {
                 setNetbiosNodeType(!config.values().isEmpty() ? config.values().get(0).value() : null);
@@ -183,9 +184,9 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     protected void doCreate() {
         Collection<NewDhcpConfiguration> configs = new ArrayList<>();
         addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME, !ObjectUtils.isBlank(getDomainName()) ? Collections.singletonList(getDomainName()) : new ArrayList<>());
-        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, getDomainNameServers());
-        addDhcpConfiguration(configs, CONFIG_NTP_SERVERS, getNtpServers());
-        addDhcpConfiguration(configs, CONFIG_NETBIOS_SERVERS, getNetbiosNameServers());
+        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, new ArrayList<>(getDomainNameServers()));
+        addDhcpConfiguration(configs, CONFIG_NTP_SERVERS, new ArrayList<>(getNtpServers()));
+        addDhcpConfiguration(configs, CONFIG_NETBIOS_SERVERS, new ArrayList<>(getNetbiosNameServers()));
         addDhcpConfiguration(configs, CONFIG_NETBIOS_NODE_TYPE, !ObjectUtils.isBlank(getNetbiosNodeType()) ? Collections.singletonList(getNetbiosNodeType()) : new ArrayList<>());
 
         Ec2Client client = createClient(Ec2Client.class);
