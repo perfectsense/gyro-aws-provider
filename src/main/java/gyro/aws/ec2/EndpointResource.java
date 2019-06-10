@@ -356,6 +356,13 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         client.deleteVpcEndpoints(
             r -> r.vpcEndpointIds(getEndpointId())
         );
+
+        // Delay for residual dependency to be gone. 2 Min
+        try {
+            Thread.sleep(120000);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
