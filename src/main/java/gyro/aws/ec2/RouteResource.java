@@ -263,13 +263,9 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
             for (RouteTable routeTable : response.routeTables()) {
                 for (Route r : routeTable.routes()) {
-                    if (r.destinationCidrBlock() != null && r.destinationCidrBlock().equals(getDestinationCidrBlock())) {
-                        route = r;
-                        break;
-                    } else if (r.destinationIpv6CidrBlock() != null && r.destinationIpv6CidrBlock().equals(getDestinationCidrBlock())) {
-                        route = r;
-                        break;
-                    } else if (r.destinationPrefixListId() != null && r.destinationPrefixListId().equals(getDestinationPrefixListId())) {
+                    if ((r.destinationCidrBlock() != null && r.destinationCidrBlock().equals(getDestinationCidrBlock()))
+                        || (r.destinationIpv6CidrBlock() != null && r.destinationIpv6CidrBlock().equals(getDestinationCidrBlock()))
+                        || (r.destinationPrefixListId() != null && r.destinationPrefixListId().equals(getDestinationPrefixListId()))) {
                         route = r;
                         break;
                     }
