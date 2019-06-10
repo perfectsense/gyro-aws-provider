@@ -126,7 +126,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The snapshot from which to create the volume. Required id size is not mentioned.
+     * The snapshot from which to create the volume. Required if size is not mentioned.
      */
     public EbsSnapshotResource getSnapshot() {
         return snapshot;
