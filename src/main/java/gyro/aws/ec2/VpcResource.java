@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
 import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -120,7 +121,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html/>`_.
+     * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). Can only be modified to ``default``.  See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html/>`_.
      */
     @Updatable
     public String getInstanceTenancy() {
@@ -292,7 +293,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setOwnerId(vpc.ownerId());
         setInstanceTenancy(vpc.instanceTenancyAsString());
 
-        modifySettings(client);
+        modifySettings(client, new HashSet<>());
     }
 
     @Override
@@ -306,7 +307,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     protected void doUpdate(AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        modifySettings(client);
+        modifySettings(client, changedProperties);
     }
 
     @Override
@@ -362,9 +363,9 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         return vpc;
     }
 
-    private void modifySettings(Ec2Client client) {
+    private void modifySettings(Ec2Client client, Set<String> changedProperties) {
         // DNS Settings
-        if (getEnableDnsHostnames() != null) {
+        if (changedProperties.isEmpty() || changedProperties.contains("enable-dns-hostnames")) {
             ModifyVpcAttributeRequest request = ModifyVpcAttributeRequest.builder()
                     .vpcId(getVpcId())
                     .enableDnsHostnames(AttributeBooleanValue.builder().value(getEnableDnsHostnames()).build())
@@ -373,7 +374,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
             client.modifyVpcAttribute(request);
         }
 
-        if (getEnableDnsSupport() != null) {
+        if (changedProperties.isEmpty() || changedProperties.contains("enable-dns-support")) {
             ModifyVpcAttributeRequest request = ModifyVpcAttributeRequest.builder()
                     .vpcId(getVpcId())
                     .enableDnsSupport(AttributeBooleanValue.builder().value(getEnableDnsSupport()).build())
@@ -390,31 +391,43 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         }
 
         // DCHP Options
-        if (getDhcpOptions() != null) {
-            client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptions().getDhcpOptionsId()).vpcId(getVpcId()));
+        if (changedProperties.isEmpty() || changedProperties.contains("dhcp-options")) {
+            if (getDhcpOptions() != null) {
+                client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptions().getDhcpOptionsId()).vpcId(getVpcId()));
+            } else {
+                client.associateDhcpOptions(r -> r.vpcId(getVpcId()).dhcpOptionsId("default"));
+            }
         }
 
         // ClassicLink
-        try {
-            if (getEnableClassicLink()) {
-                client.enableVpcClassicLink(r -> r.vpcId(getVpcId()));
-            } else {
-                client.disableVpcClassicLink(r -> r.vpcId(getVpcId()));
-            }
+        if (changedProperties.isEmpty() || changedProperties.contains("enable-classic-link") || changedProperties.contains("enable-classic-link-dns-support")) {
+            try {
+                if (getEnableClassicLink()) {
+                    client.enableVpcClassicLink(r -> r.vpcId(getVpcId()));
+                } else {
+                    client.disableVpcClassicLink(r -> r.vpcId(getVpcId()));
+                }
 
-            if (getEnableClassicLinkDnsSupport()) {
-                client.enableVpcClassicLinkDnsSupport(r -> r.vpcId(getVpcId()));
-            } else {
-                client.disableVpcClassicLinkDnsSupport(r -> r.vpcId(getVpcId()));
-            }
-        } catch (Ec2Exception ex) {
-            if (!ex.getLocalizedMessage().contains("not available in this region")) {
-                throw ex;
+                if (getEnableClassicLinkDnsSupport()) {
+                    client.enableVpcClassicLinkDnsSupport(r -> r.vpcId(getVpcId()));
+                } else {
+                    client.disableVpcClassicLinkDnsSupport(r -> r.vpcId(getVpcId()));
+                }
+            } catch (Ec2Exception ex) {
+                if (!ex.getLocalizedMessage().contains("not available in this region")) {
+                    throw ex;
+                }
             }
         }
 
         // Tenancy
-        client.modifyVpcTenancy(r -> r.instanceTenancy(getInstanceTenancy()).vpcId(getVpcId()));
+        if (changedProperties.contains("instance-tenancy")) {
+            if (!ObjectUtils.isBlank(getInstanceTenancy()) && getInstanceTenancy().equals("default")) {
+                client.modifyVpcTenancy(r -> r.instanceTenancy(getInstanceTenancy()).vpcId(getVpcId()));
+            } else {
+                throw new GyroException("'instance-tenancy' can only be modified to `default`.");
+            }
+        }
     }
 
 }
