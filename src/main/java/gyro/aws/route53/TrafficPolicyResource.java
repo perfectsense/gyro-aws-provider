@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.route53.model.NoSuchTrafficPolicyExceptio
 import software.amazon.awssdk.services.route53.model.TrafficPolicy;
 import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -121,6 +120,15 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     @Override
+    public void copyFrom(TrafficPolicy trafficPolicy) {
+        setTrafficPolicyId(trafficPolicy.id());
+        setVersion(trafficPolicy.version());
+        setName(trafficPolicy.name());
+        setComment(trafficPolicy.comment());
+        setDocument(trafficPolicy.document());
+    }
+
+    @Override
     public boolean refresh() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
@@ -213,15 +221,6 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(TrafficPolicy trafficPolicy) {
-        setTrafficPolicyId(trafficPolicy.id());
-        setVersion(trafficPolicy.version());
-        setName(trafficPolicy.name());
-        setComment(trafficPolicy.comment());
-        setDocument(trafficPolicy.document());
     }
 
     private TrafficPolicy getTrafficPolicy(Route53Client client) {

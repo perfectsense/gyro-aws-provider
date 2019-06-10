@@ -86,11 +86,15 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
             .map(HealthCheckRegion::toString).collect(Collectors.toList())
     );
 
-    private static final String HealthCheckTypeCalculated = "CALCULATED";
-    private static final String HealthCheckTypeCloudWatch = "CLOUDWATCH_METRIC";
+    private static final String HEALTH_CHECK_TYPE_CALCULATED = "CALCULATED";
+    private static final String HEALTH_CHECK_TYPE_CLOUD_WATCH = "CLOUDWATCH_METRIC";
+    private static final String HEALTH_CHECK_TYPE_HTTP_STR_MATCH = "HTTP_STR_MATCH";
+    private static final String HEALTH_CHECK_TYPE_HTTPS_STR_MATCH = "HTTPS_STR_MATCH";
+    private static final String HEALTH_CHECK_TYPE_HTTPS = "HTTPS";
+    private static final String HEALTH_CHECK_TYPE_TCP = "TCP";
 
     /**
-     * The id of the health check.
+     * The ID of the health check.
      */
     @Id
     @Output
@@ -119,10 +123,14 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * Disable the health check.
+     * Disable the health check. Defaults to ``false``.
      */
     @Updatable
     public Boolean getDisabled() {
+        if (disabled == null) {
+            disabled = false;
+        }
+
         return disabled;
     }
 
@@ -143,10 +151,14 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * Set the failure threshold upon which the health check changes its status.
+     * Set the failure threshold upon which the health check changes its status. Defaults to ``3``.
      */
     @Updatable
     public Integer getFailureThreshold() {
+        if (failureThreshold == null) {
+            failureThreshold = 3;
+        }
+
         return failureThreshold;
     }
 
@@ -167,10 +179,14 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * Health check threshold.
+     * Health check threshold. Defaults to ``0``.
      */
     @Updatable
     public Integer getHealthThreshold() {
+        if (healthThreshold == null) {
+            healthThreshold = 0;
+        }
+
         return healthThreshold;
     }
 
@@ -179,7 +195,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * What status to give if there is insufficient data for the health check to analyze.
+     * What status to give if there is insufficient data for the health check to analyze. Valid values are ``HEALTHY`` or ``UNHEALTHY`` or ``LAST_KNOWN_STATUS``.
      */
     @Updatable
     public String getInsufficientDataHealthStatus() {
@@ -191,10 +207,14 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * Invert the health check.
+     * Invert the health check. Defaults to ``false``.
      */
     @Updatable
     public Boolean getInverted() {
+        if (inverted == null) {
+            inverted = false;
+        }
+
         return inverted;
     }
 
@@ -238,8 +258,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * Set the regions where the health check would be active.
-     * For types that support it, having an empty region would default to all regions being selected.
+     * Set the regions where the health check would be active. For types that support it, having an empty region would default to all regions being selected.
      */
     @Updatable
     public List<String> getRegions() {
@@ -248,7 +267,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
 
         if (regions.isEmpty() && getType() != null
-            && !getType().equals(HealthCheckTypeCalculated) && !getType().equals(HealthCheckTypeCloudWatch)) {
+            && !getType().equals(HEALTH_CHECK_TYPE_CALCULATED) && !getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             regions = new ArrayList<>(regionSet);
         }
 
@@ -260,9 +279,13 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The request interval upon which the health check would work.
+     * The request interval upon which the health check would work. Defaults to ``30``.
      */
     public Integer getRequestInterval() {
+        if (requestInterval == null) {
+            requestInterval = 30;
+        }
+
         return requestInterval;
     }
 
@@ -286,7 +309,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The search string if types 'HTTP_STR_MATCH' or 'HTTPS_STR_MATCH' is selected.
+     * The search string if type ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` is selected.
      */
     @Updatable
     public String getSearchString() {
@@ -298,7 +321,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The type of health check being created.
+     * The type of health check being created. Valid values are ``HTTP`` or ``HTTPS`` or ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` or ``TCP`` or ``CALCULATED`` or ``CLOUDWATCH_METRIC``. (Required)
      */
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -309,7 +332,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The alarm name to attach with the health check if type 'CLOUDWATCH_METRIC' selected.
+     * The alarm name to attach with the health check if type ``CLOUDWATCH_METRIC`` selected.
      */
     @Updatable
     public String getAlarmName() {
@@ -321,7 +344,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The alarm region to attach with the health check if type 'CLOUDWATCH_METRIC' selected.
+     * The alarm region to attach with the health check if type ``CLOUDWATCH_METRIC`` selected.
      */
     @Updatable
     public String getAlarmRegion() {
@@ -343,6 +366,45 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
 
     public void setTags(Map<String, String> tags) {
         this.tags = tags;
+    }
+
+    @Override
+    public void copyFrom(HealthCheck healthCheck) {
+        setHealthCheckId(healthCheck.id());
+        HealthCheckConfig healthCheckConfig = healthCheck.healthCheckConfig();
+        setChildHealthChecks(healthCheckConfig.childHealthChecks().stream().map(o -> findById(HealthCheckResource.class, o)).collect(Collectors.toSet()));
+        setDisabled(healthCheckConfig.disabled());
+        setEnableSni(healthCheckConfig.enableSNI());
+        setFailureThreshold(healthCheckConfig.failureThreshold());
+        setDomainName(healthCheckConfig.fullyQualifiedDomainName());
+        setHealthThreshold(healthCheckConfig.healthThreshold());
+        setInsufficientDataHealthStatus(healthCheckConfig.insufficientDataHealthStatusAsString());
+        setInverted(healthCheckConfig.inverted());
+        setIpAddress(healthCheckConfig.ipAddress());
+        setMeasureLatency(healthCheckConfig.measureLatency());
+        setPort(healthCheckConfig.port());
+
+        setRequestInterval(healthCheckConfig.requestInterval());
+        setResourcePath(healthCheckConfig.resourcePath());
+        setSearchString(healthCheckConfig.searchString());
+        setType(healthCheckConfig.typeAsString());
+
+        if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED) || getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
+            setRegions(new ArrayList<>());
+        } else {
+            if (healthCheckConfig.regionsAsStrings().isEmpty()) {
+                setRegions(new ArrayList<>(regionSet));
+            } else {
+                setRegions(healthCheckConfig.regionsAsStrings());
+            }
+        }
+
+        if (healthCheckConfig.alarmIdentifier() != null) {
+            setAlarmName(healthCheckConfig.alarmIdentifier().name());
+            setAlarmRegion(healthCheckConfig.alarmIdentifier().regionAsString());
+        }
+
+        loadTags(createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null));
     }
 
     @Override
@@ -418,45 +480,6 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         return sb.toString();
     }
 
-    @Override
-    public void copyFrom(HealthCheck healthCheck) {
-        setHealthCheckId(healthCheck.id());
-        HealthCheckConfig healthCheckConfig = healthCheck.healthCheckConfig();
-        setChildHealthChecks(healthCheckConfig.childHealthChecks().stream().map(o -> findById(HealthCheckResource.class, o)).collect(Collectors.toSet()));
-        setDisabled(healthCheckConfig.disabled());
-        setEnableSni(healthCheckConfig.enableSNI());
-        setFailureThreshold(healthCheckConfig.failureThreshold());
-        setDomainName(healthCheckConfig.fullyQualifiedDomainName());
-        setHealthThreshold(healthCheckConfig.healthThreshold());
-        setInsufficientDataHealthStatus(healthCheckConfig.insufficientDataHealthStatusAsString());
-        setInverted(healthCheckConfig.inverted());
-        setIpAddress(healthCheckConfig.ipAddress());
-        setMeasureLatency(healthCheckConfig.measureLatency());
-        setPort(healthCheckConfig.port());
-
-        setRequestInterval(healthCheckConfig.requestInterval());
-        setResourcePath(healthCheckConfig.resourcePath());
-        setSearchString(healthCheckConfig.searchString());
-        setType(healthCheckConfig.typeAsString());
-
-        if (getType().equals(HealthCheckTypeCalculated) || getType().equals(HealthCheckTypeCloudWatch)) {
-            setRegions(new ArrayList<>());
-        } else {
-            if (healthCheckConfig.regionsAsStrings().isEmpty()) {
-                setRegions(new ArrayList<>(regionSet));
-            } else {
-                setRegions(healthCheckConfig.regionsAsStrings());
-            }
-        }
-
-        if (healthCheckConfig.alarmIdentifier() != null) {
-            setAlarmName(healthCheckConfig.alarmIdentifier().name());
-            setAlarmRegion(healthCheckConfig.alarmIdentifier().regionAsString());
-        }
-
-        loadTags(createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null));
-    }
-
     private HealthCheck getHealthCheck(Route53Client client) {
         HealthCheck healthCheck;
 
@@ -479,7 +502,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     private HealthCheckConfig getCreateHealthCheckRequest() {
-        if (getType().equals(HealthCheckTypeCalculated)) {
+        if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             return HealthCheckConfig.builder()
                 .type(getType())
                 .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getHealthCheckId).collect(Collectors.toList()))
@@ -488,7 +511,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
                 .healthThreshold(getHealthThreshold())
                 .build();
 
-        } else if (getType().equals(HealthCheckTypeCloudWatch)) {
+        } else if (getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             return HealthCheckConfig.builder()
                 .type(getType())
                 .disabled(getDisabled())
@@ -521,7 +544,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     private UpdateHealthCheckRequest getUpdateHealthCheckRequest() {
-        if (getType().equals(HealthCheckTypeCalculated)) {
+        if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             return UpdateHealthCheckRequest.builder()
                 .healthCheckId(getHealthCheckId())
                 .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getHealthCheckId).collect(Collectors.toList()))
@@ -529,7 +552,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
                 .inverted(getInverted())
                 .healthThreshold(getHealthThreshold())
                 .build();
-        } else if (getType().equals(HealthCheckTypeCloudWatch)) {
+        } else if (getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             return UpdateHealthCheckRequest.builder()
                 .healthCheckId(getHealthCheckId())
                 .disabled(getDisabled())
@@ -630,7 +653,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
 
         //Attribute validation when type not CALCULATED
-        if (!getType().equals("CALCULATED")) {
+        if (!getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             if (!ObjectUtils.isBlank(getHealthThreshold())) {
                 throw new GyroException("The param 'health-threshold' is only allowed when"
                     + " 'type' is 'CALCULATED'.");
@@ -643,25 +666,25 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
 
         //Attribute validation when type not CLOUDWATCH_METRIC
-        if (!getType().equals("CLOUDWATCH_METRIC")) {
+        if (!getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (!ObjectUtils.isBlank(getInsufficientDataHealthStatus())) {
-                throw new GyroException("The param 'insufficient-data-health-status' is only allowed when"
-                    + " 'type' is 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'insufficient-data-health-status' is only allowed when"
+                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (!ObjectUtils.isBlank(getAlarmName())) {
-                throw new GyroException("The param 'alarm-name' is only allowed when"
-                    + " 'type' is 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'alarm-name' is only allowed when"
+                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (!ObjectUtils.isBlank(getAlarmRegion())) {
-                throw new GyroException("The param 'alarm-region' is only allowed when"
-                    + " 'type' is 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'alarm-region' is only allowed when"
+                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
         }
 
         //Attribute validation when type CALCULATED
-        if (getType().equals("CALCULATED")) {
+        if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             if (ObjectUtils.isBlank(getHealthThreshold()) || getHealthThreshold() < 0) {
                 throw new GyroException("The value - (" + getHealthThreshold()
                     + ") is invalid for parameter 'health-threshold'. Valid values [ Integer value grater or equal to 0. ]");
@@ -669,7 +692,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
 
         //Attribute validation when type CLOUDWATCH_METRIC
-        if (getType().equals(HealthCheckTypeCloudWatch)) {
+        if (getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (ObjectUtils.isBlank(getInsufficientDataHealthStatus())
                 || InsufficientDataHealthStatus.fromValue(getInsufficientDataHealthStatus())
                 .equals(InsufficientDataHealthStatus.UNKNOWN_TO_SDK_VERSION)) {
@@ -682,66 +705,66 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
 
         //Attribute validation when type is CALCULATED or CLOUDWATCH_METRIC
-        if (getType().equals(HealthCheckTypeCalculated) && getType().equals(HealthCheckTypeCloudWatch)) {
+        if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED) && getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (!getRegions().isEmpty()) {
-                throw new GyroException("The param 'regions' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'regions' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (!ObjectUtils.isBlank(getRequestInterval())) {
-                throw new GyroException("The param 'request-interval' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'request-interval' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (!ObjectUtils.isBlank(getResourcePath())) {
-                throw new GyroException("The param 'resource-path' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'resource-path' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (!ObjectUtils.isBlank(getIpAddress())) {
-                throw new GyroException("The param 'ip-address' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'ip-address' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (!ObjectUtils.isBlank(getDomainName())) {
-                throw new GyroException("The param 'domain-name' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'domain-name' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (getMeasureLatency() != null) {
-                throw new GyroException("The param 'measure-latency' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'measure-latency' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (getPort() != null) {
-                throw new GyroException("The param 'port' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'port' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
             if (getFailureThreshold() != null) {
-                throw new GyroException("The param 'failure-threshold' is not allowed when"
-                    + " 'type' is 'CALCULATED' or 'CLOUDWATCH_METRIC'.");
+                throw new GyroException(String.format("The param 'failure-threshold' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
         }
 
         //Attribute validation when type is HTTP_STR_MATCH or HTTPS_STR_MATCH
-        if (!getType().equals("HTTP_STR_MATCH") && !getType().equals("HTTPS_STR_MATCH")) {
+        if (!getType().equals(HEALTH_CHECK_TYPE_HTTP_STR_MATCH) && !getType().equals(HEALTH_CHECK_TYPE_HTTPS_STR_MATCH)) {
             if (getSearchString() != null) {
-                throw new GyroException("The param 'search-string' is only allowed when"
-                    + " 'type' is 'HTTP_STR_MATCH' or 'HTTPS_STR_MATCH'.");
+                throw new GyroException(String.format("The param 'search-string' is only allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_HTTP_STR_MATCH, HEALTH_CHECK_TYPE_HTTPS_STR_MATCH));
             }
         }
 
         //Attribute validation when type is HTTPS or HTTPS_STR_MATCH
-        if (!getType().equals("HTTPS") && !getType().equals("HTTPS_STR_MATCH")) {
+        if (!getType().equals(HEALTH_CHECK_TYPE_HTTPS) && !getType().equals(HEALTH_CHECK_TYPE_HTTPS_STR_MATCH)) {
             if (getEnableSni() != null) {
-                throw new GyroException("The param 'enable-sni' is only allowed when"
-                    + " 'type' is 'HTTPS' or 'HTTPS_STR_MATCH'.");
+                throw new GyroException(String.format("The param 'enable-sni' is only allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_HTTP_STR_MATCH, HEALTH_CHECK_TYPE_HTTPS_STR_MATCH));
             }
         }
 
         //Attribute validation when type is not CALCULATED or CLOUDWATCH_METRIC
-        if (!getType().equals("CALCULATED") && !getType().equals("CLOUDWATCH_METRIC")) {
+        if (!getType().equals(HEALTH_CHECK_TYPE_CALCULATED) && !getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (ObjectUtils.isBlank(getRequestInterval())
                 || (getRequestInterval() != 10 && getRequestInterval() != 30)) {
                 throw new GyroException("The value - (" + getRequestInterval()
@@ -757,10 +780,10 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
 
         //Attribute validation when type is not CALCULATED or CLOUDWATCH_METRIC
-        if (getType().equals("TCP")) {
+        if (getType().equals(HEALTH_CHECK_TYPE_TCP)) {
             if ((!ObjectUtils.isBlank(getIpAddress()) && !ObjectUtils.isBlank(getDomainName()))
                 || (ObjectUtils.isBlank(getIpAddress()) && ObjectUtils.isBlank(getDomainName()))) {
-                throw new GyroException("When parameter 'type' is 'TCP' either param 'ip-address' or 'domain-name' needs to be specified.");
+                throw new GyroException(String.format("When parameter 'type' is '%s' either param 'ip-address' or 'domain-name' needs to be specified.", HEALTH_CHECK_TYPE_TCP));
             }
         }
     }

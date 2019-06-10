@@ -4,11 +4,11 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRequest;
+import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -48,9 +48,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
     }
 
     /**
-     * The type of resource record set to begin the record listing from. (Required)
-     * Valid values for basic resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``NS`` or ``PTR`` or ``SOA`` or ``SPF`` or ``SRV`` or ``TXT``.
-     * Values for weighted, latency, geolocation, and failover resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SPF`` or ``SRV`` or ``TXT``.
+     * The type of resource record set to begin the record listing from. Valid values for basic resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``NS`` or ``PTR`` or ``SOA`` or ``SPF`` or ``SRV`` or ``TXT``. Values for weighted, latency, geolocation, and failover resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SPF`` or ``SRV`` or ``TXT``. (Required)
      */
     public String getStartRecordType() {
         return startRecordType;
@@ -62,7 +60,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
 
     @Override
     protected List<ResourceRecordSet> findAllAws(Route53Client client) {
-        return Collections.emptyList();
+        throw new IllegalArgumentException("Cannot query Recordsets without 'Hosted-zone-id'.");
     }
 
     @Override
@@ -74,12 +72,31 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
             ListResourceRecordSetsRequest.Builder builder = ListResourceRecordSetsRequest.builder();
             builder = builder.hostedZoneId(filters.get("hosted-zone-id"));
 
+            if (filters.containsKey("start-record-name")) {
+                builder = builder.startRecordName(filters.get("start-record-name"));
+            }
+
             if (filters.containsKey("start-record-name") && filters.containsKey("start-record-type")) {
-                builder = builder.startRecordName(filters.get("start-record-name")).startRecordType(filters.get("start-record-type"));
+                builder = builder.startRecordType(filters.get("start-record-type"));
+            }
+
+            if (!filters.containsKey("start-record-name") && filters.containsKey("start-record-type")) {
+                throw new IllegalArgumentException("If 'start-record-type' is provided, then 'start-record-name' also needs to be provided.");
             }
 
             try {
-                resourceRecordSets = client.listResourceRecordSets(builder.build()).resourceRecordSets();
+                String startRecordIdentifier = null;
+                ListResourceRecordSetsResponse response;
+                do {
+                    if (startRecordIdentifier == null) {
+                        response = client.listResourceRecordSets(builder.build());
+                    } else {
+                        response = client.listResourceRecordSets(builder.startRecordIdentifier(startRecordIdentifier).build());
+                    }
+                    startRecordIdentifier = response.nextRecordIdentifier();
+                    resourceRecordSets.addAll(response.resourceRecordSets());
+                } while (response.isTruncated());
+
             } catch (NoSuchHostedZoneException ignore) {
                 // ignore
             }

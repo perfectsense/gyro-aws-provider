@@ -1,5 +1,6 @@
 package gyro.aws.route53;
 
+import com.psddev.dari.util.StringUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
  * .. code-block:: gyro
  *
  *     aws::record-set record-set-example
- *         hosted-zone-name: $(aws::hosted-zone hosted-zone-record-set-example)
+ *         hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
  *         name: "record-set-example."
  *         type: "A"
  *         ttl: 300
@@ -74,7 +75,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private String aliasHostedZoneId;
     private String recordSetId;
 
-    private static final Set<String> RoutingPolicySet = ImmutableSet.of("geolocation","failover","multivalue","weighted","latency","simple");
+    private static final Set<String> ROUTING_POLICY_SET = ImmutableSet.of("geolocation", "failover", "multivalue", "weighted", "latency", "simple");
 
     /**
      * A comment when creating/updating/deleting a record set.
@@ -88,7 +89,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The continent code. At least one of continent code, country code or subdivision code required if type selected as 'geolocation'.
+     * The continent code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
      */
     @Updatable
     public String getContinentCode() {
@@ -100,7 +101,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The country code. At least one of continent code, country code or subdivision code required if 'type' selected as 'geolocation'.
+     * The country code. At least one of continent code, country code or subdivision code required if 'type' selected as ``geolocation``.
      */
     @Updatable
     public String getCountryCode() {
@@ -112,12 +113,13 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Dns name to associate with this record set. Required if 'enable alias' is set to 'true'.
+     * Dns name to associate with this record set. Required if 'enable alias' is set to ``true``.
      */
     @Updatable
     public String getDnsName() {
+
         if (dnsName != null) {
-            dnsName += dnsName.endsWith(".") ? "" : ".";
+            dnsName = StringUtils.ensureEnd(dnsName, ".");
         }
 
         return dnsName;
@@ -128,7 +130,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Enable target health evaluation with this record set. Required if 'enable alias' is set to 'true'.
+     * Enable target health evaluation with this record set. Required if 'enable alias' is set to ``true``.
      */
     @Updatable
     public Boolean getEvaluateTargetHealth() {
@@ -140,7 +142,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to 'failover'.
+     * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to ``failover``.
      */
     @Updatable
     public String getFailover() {
@@ -163,7 +165,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The health check to be associated with the record set. Required if 'failover' is set to 'primary'.
+     * The health check to be associated with the record set. Required if 'failover' is set to ``primary``.
      */
     @Updatable
     public HealthCheckResource getHealthCheck() {
@@ -175,7 +177,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Needs to be enabled if routing policy is 'multivalue'. Required if 'route policy' set to 'multivalue'.
+     * Needs to be enabled if routing policy is ``multivalue``. Required if 'route policy' set to ``multivalue``.
      */
     @Updatable
     public Boolean getMultiValueAnswer() {
@@ -199,7 +201,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The region where the records mentioned resides. Required if 'route policy' set to 'latency'.
+     * The region where the records mentioned resides. Required if 'route policy' set to ``latency``.
      */
     @Updatable
     public String getRegion() {
@@ -211,7 +213,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * a set identifier that differentiates this from other record set of the same type and routing policy. Required if 'enable alias' is set to 'false'.
+     * a set identifier that differentiates this from other record set of the same type and routing policy. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
     public String getSetIdentifier() {
@@ -223,7 +225,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The sub division code. At least one of continent code, country code or subdivision code required if type selected as 'geolocation'.
+     * The sub division code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
      */
     @Updatable
     public String getSubdivisionCode() {
@@ -247,7 +249,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The resource record cache time to live. Valid values [ 0 - 172800]. Required if 'enable alias' is set to 'false'.
+     * The resource record cache time to live. Valid values [ 0 - 172800]. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
     public Long getTtl() {
@@ -271,7 +273,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The weight value determines the probability of a record being selected. Valid values [ 0 - 255]. Required if 'route policy' set to 'weighted'.
+     * The weight value determines the probability of a record being selected. Valid values ``[ 0 - 255]``. Required if 'route policy' set to ``weighted``.
      */
     @Updatable
     public Long getWeight() {
@@ -283,7 +285,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * A list of ip addresses for the record set. Required if 'enable alias' is set to 'false'.
+     * A list of ip addresses for the record set. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
     public List<String> getRecords() {
@@ -332,7 +334,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The hosted zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to 'true'.
+     * The hosted zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to ``true``.
      */
     @Updatable
     public String getAliasHostedZoneId() {
@@ -354,6 +356,33 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     public void setRecordSetId(String recordSetId) {
         this.recordSetId = recordSetId;
+    }
+
+    @Override
+    public void copyFrom(ResourceRecordSet recordSet) {
+        setName(recordSet.name());
+        setType(recordSet.typeAsString());
+        setFailover(recordSet.failoverAsString());
+        setHealthCheck(findById(HealthCheckResource.class, recordSet.healthCheckId()));
+        setMultiValueAnswer(recordSet.multiValueAnswer());
+        setRegion(recordSet.regionAsString());
+        setWeight(recordSet.weight());
+        setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
+        setTtl(recordSet.ttl());
+        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toList()));
+        setRecordSetId(String.format("%s %s", getName(), getType()));
+
+        if (recordSet.aliasTarget() != null) {
+            setDnsName(recordSet.aliasTarget().dnsName());
+            setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
+            setAliasHostedZoneId(recordSet.aliasTarget().hostedZoneId());
+        }
+
+        if (recordSet.geoLocation() != null) {
+            setCountryCode(recordSet.geoLocation().countryCode());
+            setContinentCode(recordSet.geoLocation().continentCode());
+            setSubdivisionCode(recordSet.geoLocation().subdivisionCode());
+        }
     }
 
     @Override
@@ -429,34 +458,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         return sb.toString();
     }
 
-    @Override
-    public void copyFrom(ResourceRecordSet recordSet) {
-        setName(recordSet.name());
-        setType(recordSet.typeAsString());
-        setFailover(recordSet.failoverAsString());
-        setHealthCheck(findById(HealthCheckResource.class, recordSet.healthCheckId()));
-        setMultiValueAnswer(recordSet.multiValueAnswer());
-        setRegion(recordSet.regionAsString());
-        setWeight(recordSet.weight());
-        setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
-        setTtl(recordSet.ttl());
-        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toList()));
-        //setHostedZone(findById(HostedZoneResource.class,recordSet.aliasTarget().hostedZoneId()));
-        setRecordSetId(String.format("%s %s", getName(), getType()));
-
-        if (recordSet.aliasTarget() != null) {
-            setDnsName(recordSet.aliasTarget().dnsName());
-            setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
-            setAliasHostedZoneId(recordSet.aliasTarget().hostedZoneId());
-        }
-
-        if (recordSet.geoLocation() != null) {
-            setCountryCode(recordSet.geoLocation().countryCode());
-            setContinentCode(recordSet.geoLocation().continentCode());
-            setSubdivisionCode(recordSet.geoLocation().subdivisionCode());
-        }
-    }
-
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
         ListResourceRecordSetsResponse response = client.listResourceRecordSets(
             r -> r.hostedZoneId(getHostedZone().getHostedZoneId())
@@ -528,9 +529,9 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     private void validate() {
-        if (! RoutingPolicySet.contains(getRoutingPolicy())) {
+        if (! ROUTING_POLICY_SET.contains(getRoutingPolicy())) {
             throw new GyroException(String.format("The value - (%s) is invalid for parameter 'routing-policy'."
-                + " Valid values [ '%s' ].",getRoutingPolicy(),String.join("', '",RoutingPolicySet)));
+                + " Valid values [ '%s' ].",getRoutingPolicy(),String.join("', '", ROUTING_POLICY_SET)));
         }
 
         if (ObjectUtils.isBlank(getType())

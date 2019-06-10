@@ -72,7 +72,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * Id of the associated hosted zone. (Required)
+     * The associated hosted zone. (Required)
      */
     public HostedZoneResource getHostedZone() {
         return hostedZone;
@@ -141,6 +141,17 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
 
     public void setTrafficPolicyInstanceId(String trafficPolicyInstanceId) {
         this.trafficPolicyInstanceId = trafficPolicyInstanceId;
+    }
+
+    @Override
+    public void copyFrom(TrafficPolicyInstance trafficPolicyInstance) {
+        setTrafficPolicyInstanceId(trafficPolicyInstance.id());
+        setMessage(trafficPolicyInstance.message());
+        setHostedZone(findById(HostedZoneResource.class, trafficPolicyInstance.hostedZoneId()));
+        setType(trafficPolicyInstance.trafficPolicyTypeAsString());
+        setTtl(trafficPolicyInstance.ttl());
+        setState(trafficPolicyInstance.state());
+        setTrafficPolicy(findById(TrafficPolicyResource.class, trafficPolicyInstance.trafficPolicyId()));
     }
 
     @Override
@@ -225,17 +236,6 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(TrafficPolicyInstance trafficPolicyInstance) {
-        setTrafficPolicyInstanceId(trafficPolicyInstance.id());
-        setMessage(trafficPolicyInstance.message());
-        setHostedZone(findById(HostedZoneResource.class, trafficPolicyInstance.hostedZoneId()));
-        setType(trafficPolicyInstance.trafficPolicyTypeAsString());
-        setTtl(trafficPolicyInstance.ttl());
-        setState(trafficPolicyInstance.state());
-        setTrafficPolicy(findById(TrafficPolicyResource.class, trafficPolicyInstance.trafficPolicyId()));
     }
 
     private TrafficPolicyInstance getTrafficPolicyInstance(Route53Client client) {
