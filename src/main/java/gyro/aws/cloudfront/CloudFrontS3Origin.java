@@ -23,10 +23,9 @@ public class CloudFrontS3Origin extends Diffable implements Copyable<S3OriginCon
         this.originAccessIdentity = originAccessIdentity;
     }
 
-    public S3OriginConfig toS3OriginConfig() {
-        return S3OriginConfig.builder()
-            .originAccessIdentity(getOriginAccessIdentity())
-            .build();
+    @Override
+    public void copyFrom(S3OriginConfig s3OriginConfig) {
+        setOriginAccessIdentity(s3OriginConfig.originAccessIdentity());
     }
 
     @Override
@@ -39,8 +38,9 @@ public class CloudFrontS3Origin extends Diffable implements Copyable<S3OriginCon
         return "s3 origin";
     }
 
-    @Override
-    public void copyFrom(S3OriginConfig s3OriginConfig) {
-        setOriginAccessIdentity(s3OriginConfig.originAccessIdentity());
+    S3OriginConfig toS3OriginConfig() {
+        return S3OriginConfig.builder()
+            .originAccessIdentity(getOriginAccessIdentity())
+            .build();
     }
 }

@@ -1,7 +1,9 @@
 package gyro.aws.cloudfront;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.waf.global.WebAclResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -27,6 +29,7 @@ import software.amazon.awssdk.services.cloudfront.model.Tags;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,21 +69,21 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
     private Boolean enabled;
     private String comment;
-    private List<String> cnames;
+    private Set<String> cnames;
     private String httpVersion;
     private String priceClass;
     private String defaultRootObject;
     private String etag;
     private String callerReference;
     private Boolean isIpv6Enabled;
-    private String webAclId;
+    private WebAclResource webAcl;
     private Map<String, String> tags;
-    private List<CloudFrontOrigin> origin;
-    private List<CloudFrontCacheBehavior> behavior;
+    private Set<CloudFrontOrigin> origin;
+    private Set<CloudFrontCacheBehavior> behavior;
     private CloudFrontCacheBehavior defaultCacheBehavior;
     private CloudFrontViewerCertificate viewerCertificate;
     private CloudFrontLogging logging;
-    private List<CloudFrontCustomErrorResponse> customErrorResponse;
+    private Set<CloudFrontCustomErrorResponse> customErrorResponse;
     private CloudFrontGeoRestriction geoRestriction;
 
     // -- Read only
@@ -149,15 +152,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * CNAMES (aliases) for which this distribution will listen for.
      */
     @Updatable
-    public List<String> getCnames() {
+    public Set<String> getCnames() {
         if (cnames == null) {
-            cnames = new ArrayList<>();
+            cnames = new HashSet<>();
         }
 
         return cnames;
     }
 
-    public void setCnames(List<String> cnames) {
+    public void setCnames(Set<String> cnames) {
         this.cnames = cnames;
     }
 
@@ -245,16 +248,12 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * The Web ACL (WAF) ID to associate with this distribution.
      */
     @Updatable
-    public String getWebAclId() {
-        if (webAclId == null) {
-            return "";
-        }
-
-        return webAclId;
+    public WebAclResource getWebAcl() {
+        return webAcl;
     }
 
-    public void setWebAclId(String webAclId) {
-        this.webAclId = webAclId;
+    public void setWebAcl(WebAclResource webAcl) {
+        this.webAcl = webAcl;
     }
 
     /**
@@ -291,15 +290,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      *
      * @subresource gyro.aws.cloudfront.CloudFrontOrigin
      */
-    public List<CloudFrontOrigin> getOrigin() {
+    public Set<CloudFrontOrigin> getOrigin() {
         if (origin == null) {
-            origin = new ArrayList<>();
+            origin = new HashSet<>();
         }
 
         return origin;
     }
 
-    public void setOrigin(List<CloudFrontOrigin> origin) {
+    public void setOrigin(Set<CloudFrontOrigin> origin) {
         this.origin = origin;
     }
 
@@ -309,15 +308,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * @subresource gyro.aws.cloudfront.CloudFrontCacheBehavior
      */
     @Updatable
-    public List<CloudFrontCacheBehavior> getBehavior() {
+    public Set<CloudFrontCacheBehavior> getBehavior() {
         if (behavior == null) {
-            behavior = new ArrayList<>();
+            behavior = new HashSet<>();
         }
 
         return behavior;
     }
 
-    public void setBehavior(List<CloudFrontCacheBehavior> behavior) {
+    public void setBehavior(Set<CloudFrontCacheBehavior> behavior) {
         this.behavior = behavior;
     }
 
@@ -379,15 +378,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * @subresource gyro.aws.cloudfront.CloudFrontCustomErrorResponse
      */
     @Updatable
-    public List<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
+    public Set<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
         if (customErrorResponse == null) {
-            customErrorResponse = new ArrayList<>();
+            customErrorResponse = new HashSet<>();
         }
 
         return customErrorResponse;
     }
 
-    public void setCustomErrorResponse(List<CloudFrontCustomErrorResponse> customErrorResponses) {
+    public void setCustomErrorResponse(Set<CloudFrontCustomErrorResponse> customErrorResponses) {
         this.customErrorResponse = customErrorResponses;
     }
 
@@ -399,7 +398,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     @Updatable
     public CloudFrontGeoRestriction getGeoRestriction() {
         if (geoRestriction == null) {
-            return newSubresource(CloudFrontGeoRestriction.class);
+            geoRestriction = newSubresource(CloudFrontGeoRestriction.class);
         }
 
         return geoRestriction;
@@ -407,6 +406,86 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
     public void setGeoRestriction(CloudFrontGeoRestriction geoRestriction) {
         this.geoRestriction = geoRestriction;
+    }
+
+    @Override
+    public void copyFrom(Distribution distribution) {
+        setArn(distribution.arn());
+        setId(distribution.id());
+        DistributionConfig config = distribution.distributionConfig();
+
+        setEnabled(config.enabled());
+        setComment(config.comment());
+        setCnames(config.aliases().items().isEmpty() ? new HashSet<>() : new HashSet<>(config.aliases().items()));
+        setHttpVersion(config.httpVersionAsString());
+        setPriceClass(config.priceClassAsString());
+        setCallerReference(config.callerReference());
+        setIpv6Enabled(config.isIPV6Enabled());
+        setDomainName(distribution.domainName());
+        setWebAcl(!ObjectUtils.isBlank(config.webACLId()) ? findById(WebAclResource.class, config.webACLId()) : null);
+
+        getOrigin().clear();
+        if (config.origins() != null) {
+            for (Origin origin : config.origins().items()) {
+                CloudFrontOrigin originResource = newSubresource(CloudFrontOrigin.class);
+                originResource.copyFrom(origin);
+                getOrigin().add(originResource);
+            }
+        }
+
+        getBehavior().clear();
+        if (config.cacheBehaviors() != null) {
+            for (CacheBehavior behavior : config.cacheBehaviors().items()) {
+                CloudFrontCacheBehavior cacheBehavior = newSubresource(CloudFrontCacheBehavior.class);
+                cacheBehavior.copyFrom(behavior);
+                getBehavior().add(cacheBehavior);
+            }
+        }
+
+        CloudFrontCacheBehavior defaultCacheBehavior = newSubresource(CloudFrontCacheBehavior.class);
+        defaultCacheBehavior.copyFrom(CloudFrontCacheBehavior.getCacheBehaviorFromDefault(config.defaultCacheBehavior()));
+        setDefaultCacheBehavior(defaultCacheBehavior);
+
+
+        CloudFrontLogging logging = newSubresource(CloudFrontLogging.class);
+
+        if (config.logging() != null) {
+            logging.copyFrom(config.logging());
+        }
+
+        setLogging(logging);
+
+
+        CloudFrontViewerCertificate viewerCertificate = newSubresource(CloudFrontViewerCertificate.class);
+
+        if (config.viewerCertificate() != null) {
+            viewerCertificate.copyFrom(config.viewerCertificate());
+        }
+
+        setViewerCertificate(viewerCertificate);
+
+
+        CloudFrontGeoRestriction geoRestriction = newSubresource(CloudFrontGeoRestriction.class);
+        geoRestriction.copyFrom(config.restrictions().geoRestriction());
+        setGeoRestriction(geoRestriction);
+
+        getCustomErrorResponse().clear();
+        for (CustomErrorResponse errorResponse : config.customErrorResponses().items()) {
+            CloudFrontCustomErrorResponse customErrorResponse = newSubresource(CloudFrontCustomErrorResponse.class);
+            customErrorResponse.copyFrom(errorResponse);
+            getCustomErrorResponse().add(customErrorResponse);
+        }
+
+        CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
+
+        ListTagsForResourceResponse tagsForResource = client.listTagsForResource(r -> r.resource(getArn()));
+        getTags().clear();
+        for (Tag tag: tagsForResource.tags().items()) {
+            getTags().put(tag.key(), tag.value());
+        }
+
+        GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
+        setEtag(response.eTag());
     }
 
     @Override
@@ -488,84 +567,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         return "cloudfront";
     }
 
-    @Override
-    public void copyFrom(Distribution distribution) {
-        setId(distribution.id());
-        DistributionConfig config = distribution.distributionConfig();
-
-        setEnabled(config.enabled());
-        setComment(config.comment());
-        setCnames(config.aliases().items().isEmpty() ? new ArrayList<>() : config.aliases().items());
-        setHttpVersion(config.httpVersionAsString());
-        setPriceClass(config.priceClassAsString());
-        setCallerReference(config.callerReference());
-        setIpv6Enabled(config.isIPV6Enabled());
-        setDomainName(distribution.domainName());
-
-        getOrigin().clear();
-        if (config.origins() != null) {
-            for (Origin origin : config.origins().items()) {
-                CloudFrontOrigin originResource = newSubresource(CloudFrontOrigin.class);
-                originResource.copyFrom(origin);
-                getOrigin().add(originResource);
-            }
-        }
-
-        getBehavior().clear();
-        if (config.cacheBehaviors() != null) {
-            for (CacheBehavior behavior : config.cacheBehaviors().items()) {
-                CloudFrontCacheBehavior cacheBehavior = newSubresource(CloudFrontCacheBehavior.class);
-                cacheBehavior.copyFrom(behavior);
-                getBehavior().add(cacheBehavior);
-            }
-        }
-
-        CloudFrontCacheBehavior defaultCacheBehavior = newSubresource(CloudFrontCacheBehavior.class);
-        defaultCacheBehavior.copyFrom(CloudFrontCacheBehavior.getCacheBehaviorFromDefault(config.defaultCacheBehavior()));
-        setDefaultCacheBehavior(defaultCacheBehavior);
-
-
-        CloudFrontLogging logging = newSubresource(CloudFrontLogging.class);
-
-        if (config.logging() != null) {
-            logging.copyFrom(config.logging());
-        }
-
-        setLogging(logging);
-
-
-        CloudFrontViewerCertificate viewerCertificate = newSubresource(CloudFrontViewerCertificate.class);
-
-        if (config.viewerCertificate() != null) {
-            viewerCertificate.copyFrom(config.viewerCertificate());
-        }
-
-        setViewerCertificate(viewerCertificate);
-
-
-        CloudFrontGeoRestriction geoRestriction = newSubresource(CloudFrontGeoRestriction.class);
-        geoRestriction.copyFrom(config.restrictions().geoRestriction());
-        setGeoRestriction(geoRestriction);
-
-        getCustomErrorResponse().clear();
-        for (CustomErrorResponse errorResponse : config.customErrorResponses().items()) {
-            CloudFrontCustomErrorResponse customErrorResponse = newSubresource(CloudFrontCustomErrorResponse.class);
-            customErrorResponse.copyFrom(errorResponse);
-            getCustomErrorResponse().add(customErrorResponse);
-        }
-
-        CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
-
-        ListTagsForResourceResponse tagsForResource = client.listTagsForResource(r -> r.resource(getArn()));
-        getTags().clear();
-        for (Tag tag: tagsForResource.tags().items()) {
-            getTags().put(tag.key(), tag.value());
-        }
-
-        GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
-        setEtag(response.eTag());
-    }
-
     private void applyTags(CloudFrontClient client) {
         List<Tag> tags = new ArrayList<>();
         for (String key : getTags().keySet()) {
@@ -631,7 +632,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .priceClass(getPriceClass())
             .defaultRootObject(getDefaultRootObject())
             .isIPV6Enabled(getIpv6Enabled())
-            .webACLId(getWebAclId())
+            .webACLId(getWebAcl() != null ? getWebAcl().getWebAclId() : "")
             .aliases(a -> a.items(getCnames()).quantity(getCnames().size()))
             .restrictions(getGeoRestriction().toRestrictions())
             .customErrorResponses(customErrorResponses)

@@ -71,12 +71,12 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
         this.includeCookies = includeCookies;
     }
 
-    public LoggingConfig toLoggingConfig() {
-        return LoggingConfig.builder()
-            .bucket(getBucket())
-            .prefix(getBucketPrefix())
-            .includeCookies(getIncludeCookies())
-            .enabled(getEnabled()).build();
+    @Override
+    public void copyFrom(LoggingConfig loggingConfig) {
+        setBucket(loggingConfig.bucket());
+        setBucketPrefix(loggingConfig.prefix());
+        setEnabled(loggingConfig.enabled());
+        setIncludeCookies(loggingConfig.includeCookies());
     }
 
     @Override
@@ -89,11 +89,11 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
         return String.format("logging config - bucket: %s, prefix: %s", getBucket(), getBucketPrefix());
     }
 
-    @Override
-    public void copyFrom(LoggingConfig loggingConfig) {
-        setBucket(loggingConfig.bucket());
-        setBucketPrefix(loggingConfig.prefix());
-        setEnabled(loggingConfig.enabled());
-        setIncludeCookies(loggingConfig.includeCookies());
+    LoggingConfig toLoggingConfig() {
+        return LoggingConfig.builder()
+            .bucket(getBucket())
+            .prefix(getBucketPrefix())
+            .includeCookies(getIncludeCookies())
+            .enabled(getEnabled()).build();
     }
 }

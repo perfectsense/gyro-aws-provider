@@ -87,14 +87,13 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
         this.sslSupportMethod = sslSupportMethod;
     }
 
-    public ViewerCertificate toViewerCertificate() {
-        return ViewerCertificate.builder()
-            .acmCertificateArn(getAcmCertificateArn())
-            .iamCertificateId(getIamCertificateId())
-            .minimumProtocolVersion(getMinimumProtocolVersion())
-            .sslSupportMethod(getSslSupportMethod())
-            .cloudFrontDefaultCertificate(getCloudfrontDefaultCertificate())
-            .build();
+    @Override
+    public void copyFrom(ViewerCertificate viewerCertificate) {
+        setCloudfrontDefaultCertificate(viewerCertificate.cloudFrontDefaultCertificate());
+        setAcmCertificateArn(viewerCertificate.acmCertificateArn());
+        setIamCertificateId(viewerCertificate.iamCertificateId());
+        setMinimumProtocolVersion(viewerCertificate.minimumProtocolVersionAsString());
+        setSslSupportMethod(viewerCertificate.sslSupportMethodAsString());
     }
 
     @Override
@@ -107,12 +106,13 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
         return "viewer certificate";
     }
 
-    @Override
-    public void copyFrom(ViewerCertificate viewerCertificate) {
-        setCloudfrontDefaultCertificate(viewerCertificate.cloudFrontDefaultCertificate());
-        setAcmCertificateArn(viewerCertificate.acmCertificateArn());
-        setIamCertificateId(viewerCertificate.iamCertificateId());
-        setMinimumProtocolVersion(viewerCertificate.minimumProtocolVersionAsString());
-        setSslSupportMethod(viewerCertificate.sslSupportMethodAsString());
+    ViewerCertificate toViewerCertificate() {
+        return ViewerCertificate.builder()
+            .acmCertificateArn(getAcmCertificateArn())
+            .iamCertificateId(getIamCertificateId())
+            .minimumProtocolVersion(getMinimumProtocolVersion())
+            .sslSupportMethod(getSslSupportMethod())
+            .cloudFrontDefaultCertificate(getCloudfrontDefaultCertificate())
+            .build();
     }
 }

@@ -108,41 +108,6 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
         this.customOrigin = customOrigin;
     }
 
-    public Origin toOrigin() {
-        List<OriginCustomHeader> headers = getCustomHeaders().entrySet()
-            .stream()
-            .map(e -> OriginCustomHeader.builder().headerName(e.getKey()).headerValue(e.getValue()).build())
-            .collect(Collectors.toList());
-
-        CustomHeaders customHeaders = CustomHeaders.builder()
-            .items(headers)
-            .quantity(headers.size())
-            .build();
-
-        if (getCustomOrigin() == null && getS3Origin() == null) {
-            setS3Origin(newSubresource(CloudFrontS3Origin.class));
-        }
-
-        return Origin.builder()
-            .id(getId())
-            .domainName(getDomainName())
-            .originPath(getOriginPath())
-            .customHeaders(customHeaders)
-            .s3OriginConfig(getS3Origin() != null ? getS3Origin().toS3OriginConfig() : null)
-            .customOriginConfig(getCustomOrigin() != null ? getCustomOrigin().toCustomOriginConfig() : null)
-            .build();
-    }
-
-    @Override
-    public String primaryKey() {
-        return getId();
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "origin - targetId: " + getId();
-    }
-
     @Override
     public void copyFrom(Origin origin) {
         setId(origin.id());
@@ -166,5 +131,40 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
             cloudFrontS3Origin.copyFrom(origin.s3OriginConfig());
             setS3Origin(cloudFrontS3Origin);
         }
+    }
+
+    @Override
+    public String primaryKey() {
+        return getId();
+    }
+
+    @Override
+    public String toDisplayString() {
+        return "origin - targetId: " + getId();
+    }
+
+    Origin toOrigin() {
+        List<OriginCustomHeader> headers = getCustomHeaders().entrySet()
+            .stream()
+            .map(e -> OriginCustomHeader.builder().headerName(e.getKey()).headerValue(e.getValue()).build())
+            .collect(Collectors.toList());
+
+        CustomHeaders customHeaders = CustomHeaders.builder()
+            .items(headers)
+            .quantity(headers.size())
+            .build();
+
+        if (getCustomOrigin() == null && getS3Origin() == null) {
+            setS3Origin(newSubresource(CloudFrontS3Origin.class));
+        }
+
+        return Origin.builder()
+            .id(getId())
+            .domainName(getDomainName())
+            .originPath(getOriginPath())
+            .customHeaders(customHeaders)
+            .s3OriginConfig(getS3Origin() != null ? getS3Origin().toS3OriginConfig() : null)
+            .customOriginConfig(getCustomOrigin() != null ? getCustomOrigin().toCustomOriginConfig() : null)
+            .build();
     }
 }

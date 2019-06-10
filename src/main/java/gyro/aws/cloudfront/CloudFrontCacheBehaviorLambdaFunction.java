@@ -57,12 +57,11 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable implements C
         this.includeBody = includeBody;
     }
 
-    public LambdaFunctionAssociation toLambdaFunctionAssociation() {
-        return LambdaFunctionAssociation.builder()
-            .eventType(getEventType())
-            .includeBody(getIncludeBody())
-            .lambdaFunctionARN(getArn())
-            .build();
+    @Override
+    public void copyFrom(LambdaFunctionAssociation lambdaFunctionAssociation) {
+        setEventType(lambdaFunctionAssociation.eventTypeAsString());
+        setArn(lambdaFunctionAssociation.lambdaFunctionARN());
+        setIncludeBody(lambdaFunctionAssociation.includeBody());
     }
 
     @Override
@@ -75,10 +74,11 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable implements C
         return "Lambda Function Association " + getEventType();
     }
 
-    @Override
-    public void copyFrom(LambdaFunctionAssociation lambdaFunctionAssociation) {
-        setEventType(lambdaFunctionAssociation.eventTypeAsString());
-        setArn(lambdaFunctionAssociation.lambdaFunctionARN());
-        setIncludeBody(lambdaFunctionAssociation.includeBody());
+    LambdaFunctionAssociation toLambdaFunctionAssociation() {
+        return LambdaFunctionAssociation.builder()
+            .eventType(getEventType())
+            .includeBody(getIncludeBody())
+            .lambdaFunctionARN(getArn())
+            .build();
     }
 }

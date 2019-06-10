@@ -16,8 +16,6 @@ public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<
     private String responsePagePath;
     private Boolean customizeErrorResponse;
 
-    private static final Set<Integer> ERROR_CODE_LIST = new HashSet<>(Arrays.asList(400,403,404,405,414,416,500,501,502,503,504));
-
     /**
      * The minimum amount of time to cache this error code.
      */
@@ -82,12 +80,12 @@ public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<
         this.customizeErrorResponse = customizeErrorResponse;
     }
 
-    public CustomErrorResponse toCustomErrorResponse() {
-        return CustomErrorResponse.builder()
-            .errorCachingMinTTL(getTtl())
-            .errorCode(getErrorCode())
-            .responseCode(getResponseCode())
-            .responsePagePath(getResponsePagePath()).build();
+    @Override
+    public void copyFrom(CustomErrorResponse errorResponse) {
+        setTtl(errorResponse.errorCachingMinTTL());
+        setErrorCode(errorResponse.errorCode());
+        setResponseCode(errorResponse.responseCode());
+        setResponsePagePath(errorResponse.responsePagePath());
     }
 
     @Override
@@ -100,11 +98,11 @@ public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<
         return String.format("error response - code: %d, ttl: %d", getErrorCode(), getTtl());
     }
 
-    @Override
-    public void copyFrom(CustomErrorResponse errorResponse) {
-        setTtl(errorResponse.errorCachingMinTTL());
-        setErrorCode(errorResponse.errorCode());
-        setResponseCode(errorResponse.responseCode());
-        setResponsePagePath(errorResponse.responsePagePath());
+    CustomErrorResponse toCustomErrorResponse() {
+        return CustomErrorResponse.builder()
+            .errorCachingMinTTL(getTtl())
+            .errorCode(getErrorCode())
+            .responseCode(getResponseCode())
+            .responsePagePath(getResponsePagePath()).build();
     }
 }
