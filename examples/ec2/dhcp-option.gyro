@@ -1,9 +1,9 @@
 aws::dhcp-option example-dhcp
     domain-name-servers: ["10.2.9.0", "10.2.9.3"]
-    domain-name: ["example.com"]
+    domain-name: "example.com"
     ntp-servers: ["10.2.5.1"]
     netbios-name-servers: ["192.168.1.1", "192.168.1.2"]
-    netbios-node-type: ["3"]
+    netbios-node-type: "3"
 
     tags: {
         Name: "example-dhcp"
