@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.kms.KmsResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
@@ -48,7 +49,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     private Date createTime;
     private Boolean encrypted;
     private Integer iops;
-    private String kmsKeyId;
+    private KmsResource kms;
     private Integer size;
     private EbsSnapshotResource snapshot;
     private String state;
@@ -91,7 +92,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The number of I/O operations per second (IOPS) to provision for the volume. Only allowed when 'volume-type' set to 'iops'.
+     * The number of I/O operations per second (IOPS) to provision for the volume. Only allowed when 'volume-type' set to ``io1``.
      */
     @Updatable
     public Integer getIops() {
@@ -103,14 +104,14 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The kms key id, when using encrypted volume.
+     * The kms, when using encrypted volume.
      */
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsResource getKms() {
+        return kms;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKms(KmsResource kms) {
+        this.kms = kms;
     }
 
     /**
@@ -200,7 +201,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         setCreateTime(Date.from(volume.createTime()));
         setEncrypted(volume.encrypted());
         setIops(volume.iops());
-        setKmsKeyId(volume.kmsKeyId());
+        setKms(!ObjectUtils.isBlank(volume.kmsKeyId()) ? findById(KmsResource.class, volume.kmsKeyId()) : null);
         setSize(volume.size());
         setSnapshot(!ObjectUtils.isBlank(volume.snapshotId()) ? findById(EbsSnapshotResource.class, volume.snapshotId()) : null);
         setState(volume.stateAsString());
@@ -246,7 +247,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             r -> r.availabilityZone(getAvailabilityZone())
                 .encrypted(getEncrypted())
                 .iops(getVolumeType().equals("io1") ? getIops() : null)
-                .kmsKeyId(getKmsKeyId())
+                .kmsKeyId(getKms() != null ? getKms().getKeyId() : null)
                 .size(getSize())
                 .snapshotId(getSnapshot() != null ? getSnapshot().getSnapshotId() : null)
                 .volumeType(getVolumeType())
