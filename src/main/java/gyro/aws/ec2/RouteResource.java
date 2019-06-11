@@ -46,7 +46,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     private PeeringConnectionResource vpcPeeringConnection;
 
     /**
-     * The Route Table to add this route to.
+     * The Route Table to add this Route to.
      */
     public RouteTableResource getRouteTable() {
         return routeTable;
@@ -57,7 +57,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * An IPv4 destination CIDR block.
+     * An IPv4 destination CIDR block of the Route.
      */
     public String getDestinationCidrBlock() {
         return destinationCidrBlock;
@@ -68,7 +68,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * An IPv6 destination CIDR block.
+     * An IPv6 destination CIDR block of the Route.
      */
     public String getDestinationIpv6CidrBlock() {
         return destinationIpv6CidrBlock;
@@ -87,7 +87,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate an Egress Only Internet Gateway. Only valid with IPv6 destination CIDR.
+     * Associate an Egress Only Internet Gateway to the Route. Only valid with IPv6 destination CIDR.
      */
     @Updatable
     public EgressOnlyInternetGatewayResource getEgressGateway() {
@@ -99,7 +99,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate an Internet Gateway. Only valid with IPv4 destination CIDR.
+     * Associate an Internet Gateway to the Route. Only valid with IPv4 destination CIDR.
      */
     @Updatable
     public InternetGatewayResource getGateway() {
@@ -111,7 +111,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate a NAT instance running in your VPC.
+     * Associate a NAT instance running in your VPC to the Route.
      */
     @Updatable
     public InstanceResource getInstance() {
@@ -123,7 +123,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate a NAT Gateway. Only valid with IPv4 destination CIDR.
+     * Associate a NAT Gateway to the Route. Only valid with IPv4 destination CIDR.
      */
     @Updatable
     public NatGatewayResource getNatGateway() {
@@ -135,7 +135,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate a Network Interface.
+     * Associate a Network Interface to the Route.
      */
     @Updatable
     public NetworkInterfaceResource getNetworkInterface() {
@@ -147,7 +147,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * The ID of a transit gateway.
+     * The ID of a transit gateway to associate to the Route.
      */
     @Updatable
     public String getTransitGatewayId() {
@@ -159,7 +159,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate VPC Peering Connection.
+     * Associate a VPC Peering Connection to the Route.
      */
     @Updatable
     public PeeringConnectionResource getVpcPeeringConnection() {
