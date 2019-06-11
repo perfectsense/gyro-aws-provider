@@ -13,8 +13,6 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetResponse;
-import software.amazon.awssdk.services.ec2.model.DeleteSubnetRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSubnetsRequest;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -38,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  *
  *     aws::subnet example-subnet
  *         vpc: $(aws::vpc example-vpc)
- *         acl-id: $(aws::network-acl example-network-acl | network-acl-id)
+ *         network-acl: $(aws::network-acl example-network-acl)
  *         availability-zone: us-east-1a
  *         cidr-block: 10.0.0.0/24
  *     end
@@ -56,7 +54,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private String defaultAclId;
 
     /**
-     * The VPC to create the subnet in. (Required)
+     * The VPC to create the Subnet in. (Required)
      */
     public VpcResource getVpc() {
         return vpc;
@@ -67,7 +65,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * The IPv4 network range for the subnet, in CIDR notation. (Required)
+     * The IPv4 network range for the Subnet, in CIDR notation. (Required)
      */
     public String getCidrBlock() {
         return cidrBlock;
@@ -78,7 +76,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * The name of the availablity zone to create this subnet (ex. ``us-east-1a``).
+     * The name of the availability zone to create this Subnet (ex. ``us-east-1a``).
      */
     public String getAvailabilityZone() {
         return availabilityZone;
@@ -89,7 +87,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * Assign a public IPv4 address to network interfaces created in this subnet.
+     * Assign a public IPv4 address to Network Interfaces created in this Subnet.
      */
     @Updatable
     public Boolean getMapPublicIpOnLaunch() {
@@ -100,13 +98,8 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.mapPublicIpOnLaunch = mapPublicIpOnLaunch;
     }
 
-    @Override
-    public String getId() {
-        return getSubnetId();
-    }
-
     /**
-     * The ID of the Default Network ACL associated to the subnet.
+     * The ID of the Default Network ACL associated to the Subnet.
      */
     public String getDefaultAclId() {
         return defaultAclId;
@@ -129,7 +122,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * The Association ID of the Network ACL currently associated to the subnet.
+     * The Association ID of the Network ACL currently associated to the Subnet.
      */
     public String getAclAssociationId() {
         return aclAssociationId;
@@ -139,6 +132,9 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.aclAssociationId = aclAssociationId;
     }
 
+    /**
+     * The ID of the Subnet.
+     */
     @Id
     @Output
     public String getSubnetId() {
@@ -147,6 +143,11 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     public void setSubnetId(String subnetId) {
         this.subnetId = subnetId;
+    }
+
+    @Override
+    public String getId() {
+        return getSubnetId();
     }
 
     @Override
