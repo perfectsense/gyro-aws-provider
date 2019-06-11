@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstanceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfaceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Instance;
@@ -27,6 +28,7 @@ import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttribute;
 import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
@@ -584,10 +586,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("source-dest-check")) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
-                    .sourceDestCheck(o -> o.value(getSourceDestCheck()))
-            );
+            Instance instance = getInstance(client);
+
+            if (instance != null) {
+                client.modifyNetworkInterfaceAttribute(
+                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                        .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+                );
+            }
         }
 
         if (changedProperties.contains("security-groups")) {
@@ -708,10 +714,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         );
         setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
-        attributeResponse = client.describeInstanceAttribute(
-            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.SOURCE_DEST_CHECK)
+        DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
+            r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
         );
-        setSourceDestCheck(attributeResponse.sourceDestCheck().equals(AttributeBooleanValue.builder().value(true).build()));
+        setSourceDestCheck(response.sourceDestCheck().value());
 
         attributeResponse = client.describeInstanceAttribute(
             r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
