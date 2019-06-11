@@ -1,17 +1,20 @@
-aws::iam-instance-profile test-instance-profile
-    instance-profile-name: "test-instance-profile"
-    roles: [$(aws::iam-role example-role | role-name)]
+aws::instance-profile instance-profile-iam
+    name: "instance-profile-iam"
+    role: $(aws::role example-role-iam)
 end
 
-aws::iam-role example-role
-    role-name: "example-role"
+aws::role example-role-iam
+    name: "example-role-iam"
     description: "example-role description"
-    assume-role-policy-document-file: "examples/iam/role_example.json"
-    policy-arns: [$(aws::iam-policy example-policy | policy-arn)]
+    assume-role-policy: "role_example.json"
+    policies: [$(aws::policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
 end
 
-aws::iam-policy example-policy
-    policy-name: "example-policy"
+aws::policy example-policy-iam
+    name: "example-policy-iam"
     description: "example policy description"
-    policy-document-file: "examples/iam/example_policy.json"
+    policy-document: "example_policy.json"
 end
