@@ -6,6 +6,10 @@ aws::vpc vpc-example-for-nat-gateway
     }
 end
 
+aws::internet-gateway internet-gateway-example-for-nat-gateway
+    vpc: $(aws::vpc vpc-example-for-nat-gateway)
+end
+
 aws::subnet subnet-example-for-nat-gateway
     vpc: $(aws::vpc vpc-example-for-nat-gateway)
     availability-zone: "us-east-2a"
@@ -27,6 +31,7 @@ end
 aws::nat-gateway nat-gateway-example
     subnet: $(aws::subnet subnet-example-for-nat-gateway)
     elastic-ip: $(aws::elastic-ip elastic-ip-example-for-nat-gateway)
+    internet-gateway: $(aws::internet-gateway internet-gateway-example-for-nat-gateway)
 
     tags: {
         Name: "elastic-ip-example-for-nat-gateway"

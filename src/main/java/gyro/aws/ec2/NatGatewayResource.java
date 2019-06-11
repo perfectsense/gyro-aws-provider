@@ -5,6 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -12,8 +13,10 @@ import software.amazon.awssdk.services.ec2.model.CreateNatGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
+import software.amazon.awssdk.services.ec2.model.NatGatewayState;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a Nat Gateway with the specified elastic ip allocation id and subnet id.
@@ -38,6 +41,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     private String natGatewayId;
     private ElasticIpResource elasticIp;
     private SubnetResource subnet;
+    private InternetGatewayResource internetGateway;
 
     /**
      * Associated Elastic IP for the Nat Gateway. (Required)
@@ -59,6 +63,17 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
     public void setSubnet(SubnetResource subnet) {
         this.subnet = subnet;
+    }
+
+    /**
+     * The Internet Gateway required for the Nat Gateway to be created.
+     */
+    public InternetGatewayResource getInternetGateway() {
+        return internetGateway;
+    }
+
+    public void setInternetGateway(InternetGatewayResource internetGateway) {
+        this.internetGateway = internetGateway;
     }
 
     /**
@@ -105,6 +120,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     protected void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
 
+        validate();
+
         CreateNatGatewayResponse response = client.createNatGateway(
             r -> r.allocationId(getElasticIp().getAllocationId())
                 .subnetId(getSubnet().getSubnetId())
@@ -112,6 +129,11 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         NatGateway natGateway = response.natGateway();
         setNatGatewayId(natGateway.natGatewayId());
+
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
     }
 
     @Override
@@ -126,6 +148,11 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         client.deleteNatGateway(
             r -> r.natGatewayId(getNatGatewayId())
         );
+
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isDeleted(client));
     }
 
     @Override
@@ -166,5 +193,39 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         }
 
         return natGateway;
+    }
+
+    private boolean isAvailable(Ec2Client client) {
+        NatGateway natGateway = getNatGateway(client);
+
+        if (natGateway != null) {
+            if (natGateway.state().equals(NatGatewayState.FAILED)) {
+                throw new GyroException(String.format("Nat Gateway creation failed - %s", natGateway.failureMessage()));
+            } else {
+                return natGateway.state().equals(NatGatewayState.AVAILABLE);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isDeleted(Ec2Client client) {
+        NatGateway natGateway = getNatGateway(client);
+
+        return natGateway == null || natGateway.state().equals(NatGatewayState.DELETED);
+    }
+
+    private void validate() {
+        if (getSubnet() == null) {
+            throw new GyroException("subnet is required.");
+        }
+
+        if (getInternetGateway() == null) {
+            throw new GyroException("internet-gateway is required");
+        }
+
+        if (!getSubnet().getVpc().getVpcId().equals(getInternetGateway().getVpc().getVpcId())) {
+            throw new GyroException("The subnet and intern-gateway needs to belong to the same vpc.");
+        }
     }
 }
