@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *         name: "rta-test-role"
  *         description: "testing the role functionality"
  *         assume-role-policy: "role_example.json"
- *         instance-profile: (aws::instance-profile instance-profile)
+ *         policies: [(aws::policy policy)]
  *     end
  */
 @Type("role")
@@ -50,7 +50,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     private String arn;
     private String assumeRolePolicy;
     private String description;
-    private InstanceProfileResource instanceProfile;
+    private List<PolicyResource> policies;
     private Integer maxSessionDuration;
     private String name;
     private String path;
@@ -101,15 +101,19 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The instance profile that the role is associated with. (Optional)
+     * The policies associated with the role. (Optional)
      */
     @Updatable
-    public InstanceProfileResource getInstanceProfile() {
-        return instanceProfile;
+    public List<PolicyResource> getPolicies() {
+        if (policies == null) {
+            policies = new ArrayList<>();
+        }
+
+        return policies;
     }
 
-    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
-        this.instanceProfile = instanceProfile;
+    public void setPolicies(List<PolicyResource> policies) {
+        this.policies = policies;
     }
 
     /**
@@ -183,6 +187,10 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void copyFrom(Role role) {
+        IamClient client = IamClient.builder()
+                .region(Region.AWS_GLOBAL)
+                .build();
+
         setArn(role.arn());
         setName(role.roleName());
         setDescription(role.description());
@@ -192,6 +200,12 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         setPath(role.path());
         setPermissionsBoundaryArn(role.permissionsBoundary() != null ? role.permissionsBoundary().permissionsBoundaryArn() : null);
         getTags().entrySet().forEach(r -> getTags().put(r.getKey(), r.getValue()));
+
+        getPolicies().clear();
+        ListAttachedRolePoliciesResponse policyResponse = client.listAttachedRolePolicies(r -> r.roleName(getName()));
+        for (AttachedPolicy attachedPolicy: policyResponse.attachedPolicies()) {
+            getPolicies().add(findById(PolicyResource.class, attachedPolicy.policyArn()));
+        }
     }
 
     @Override
@@ -227,9 +241,13 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
         setArn(response.role().arn());
 
-        if (getInstanceProfile() != null) {
-            client.addRoleToInstanceProfile(r -> r.instanceProfileName(getInstanceProfile().name())
-                    .roleName(getName()));
+        try {
+            for (PolicyResource policy : getPolicies()) {
+                client.attachRolePolicy(r -> r.roleName(getName()).policyArn(policy.getArn()));
+            }
+        } catch (Exception err) {
+            delete();
+            throw new GyroException(err.getMessage());
         }
     }
 
@@ -239,8 +257,6 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
                 .region(Region.AWS_GLOBAL)
                 .build();
 
-        RoleResource currentResource = (RoleResource) current;
-
         client.updateAssumeRolePolicy(r -> r.policyDocument(formatPolicy(getAssumeRolePolicy()))
                                             .roleName(getName()));
 
@@ -248,13 +264,21 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
                                 .maxSessionDuration(getMaxSessionDuration())
                                 .roleName(getName()));
 
-        if (getInstanceProfile() != null) {
-            client.addRoleToInstanceProfile(r -> r.instanceProfileName(getInstanceProfile().getName())
+        RoleResource currentResource = (RoleResource) current;
+
+        List<PolicyResource> additions = new ArrayList<>(getPolicies());
+        additions.removeAll(currentResource.getPolicies());
+
+        List<PolicyResource> subtractions = new ArrayList<>(currentResource.getPolicies());
+        subtractions.removeAll(getPolicies());
+
+        for (PolicyResource addPolicyArn : additions) {
+            client.attachRolePolicy(r -> r.policyArn(addPolicyArn.getArn())
                     .roleName(getName()));
         }
 
-        if (currentResource.getInstanceProfile() != null && getInstanceProfile() == null) {
-            client.removeRoleFromInstanceProfile(r -> r.instanceProfileName(getName())
+        for (PolicyResource deletePolicyArn : subtractions) {
+            client.detachRolePolicy(r -> r.policyArn(deletePolicyArn.getArn())
                     .roleName(getName()));
         }
 
@@ -277,8 +301,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
         ListAttachedRolePoliciesResponse response = client.listAttachedRolePolicies(r -> r.roleName(getName()));
         for (AttachedPolicy policies : response.attachedPolicies()) {
-            client.detachRolePolicy(r -> r.policyArn(policies.policyArn())
-                                        .roleName(getName()));
+            client.detachRolePolicy(r -> r.policyArn(policies.policyArn()).roleName(getName()));
         }
 
         client.deleteRole(r -> r.roleName(getName()));
