@@ -56,7 +56,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private String ownerId;
 
     /**
-     * The name of the security group. (Required)
+     * The name of the Security Group. (Required)
      */
     public String getGroupName() {
         return groupName;
@@ -67,7 +67,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     /**
-     * The VPC to create the security group in. (Required)
+     * The VPC to create the Security Group in. (Required)
      */
     public VpcResource getVpc() {
         return vpc;
@@ -78,7 +78,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     /**
-     * The description of this security group.
+     * The description of this Security Group.
      */
     public String getDescription() {
         return description;
@@ -139,7 +139,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     /**
-     * The id of the security group.
+     * The ID of the Security Group.
      */
     @Id
     @Output
@@ -152,7 +152,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     /**
-     * The owner id of the security group.
+     * The owner ID of the Security Group.
      */
     @Output
     public String getOwnerId() {
@@ -259,18 +259,15 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        String groupId = getGroupId();
 
         sb.append("security group");
-        if (groupId != null) {
-            sb.append(" ").append(groupId);
+
+        if (!ObjectUtils.isBlank(getGroupName())) {
+            sb.append(" - ").append(getGroupName());
         }
 
-        String groupName = getGroupName();
-
-        if (groupName != null) {
-            sb.append(" - ");
-            sb.append(groupName);
+        if (!ObjectUtils.isBlank(getGroupId())) {
+            sb.append(" ").append(getGroupId());
         }
 
         return sb.toString();

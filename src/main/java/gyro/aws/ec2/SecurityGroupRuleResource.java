@@ -21,7 +21,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     private Integer toPort;
 
     /**
-     * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
+     * Protocol for this Security Group Rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
      */
     @Updatable
     public String getProtocol() {
@@ -37,7 +37,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * Description for this security group rule.
+     * Description for this Security Group Rule.
      */
     @Updatable
     public String getDescription() {
@@ -49,7 +49,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * Starting port for this rule. (Required)
+     * Starting port for this Security Group Rule. (Required)
      */
     @Updatable
     public Integer getFromPort() {
@@ -61,7 +61,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * Ending port for this rule. (Required)
+     * Ending port for this Security Group Rule. (Required)
      */
     @Updatable
     public Integer getToPort() {
@@ -73,7 +73,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * List of IPv4 cidr blocks to apply this rule to. Required if `ipv6-cidr-blocks` not mentioned.
+     * List of IPv4 CIDR blocks to apply this Security Group Rule to. Required if `ipv6-cidr-blocks` not mentioned.
      */
     @Updatable
     public List<String> getCidrBlocks() {
@@ -89,7 +89,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * List of IPv6 cidr blocks to apply this rule to. Required if `cidr-blocks` not mentioned.
+     * List of IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-blocks` not mentioned.
      */
     @Updatable
     public List<String> getIpv6CidrBlocks() {
