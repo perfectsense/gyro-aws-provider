@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -59,11 +60,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private String vpcId;
     private String ownerId;
     private Boolean defaultVpc;
-
-    @Override
-    public String getId() {
-        return getVpcId();
-    }
+    private String region;
 
     /**
      * The IPv4 network range for the VPC, in CIDR notation. (Required)
@@ -216,6 +213,23 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         this.ownerId = ownerId;
     }
 
+    /**
+     * The region where the VPC resides.
+     */
+    @Output
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    @Override
+    public String getId() {
+        return getVpcId();
+    }
+
     @Override
     public void copyFrom(Vpc vpc) {
         setVpcId(vpc.vpcId());
@@ -259,6 +273,8 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
                 throw ex;
             }
         }
+
+        setRegion(credentials(AwsCredentials.class).getRegion());
     }
 
     @Override
