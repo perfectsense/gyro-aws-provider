@@ -165,7 +165,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * The amazon provided ipv6 cidr block.
+     * The amazon provided ipv6 CIDR block.
      */
     public Boolean getProvideIpv6CidrBlock() {
         return provideIpv6CidrBlock;
@@ -176,7 +176,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * The ID of the vpc.
+     * The ID of the VPC.
      */
     @Id
     @Output
@@ -189,7 +189,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Is the current vpc default.
+     * Is the current VPC default.
      */
     @Output
     public Boolean getDefaultVpc() {
