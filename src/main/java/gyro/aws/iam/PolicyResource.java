@@ -46,7 +46,6 @@ public class PolicyResource extends AwsResource {
     private String pastVersionId;
     private String path;
     private String policyDocument;
-    private RoleResource role;
 
     @Output
     @Id
@@ -122,17 +121,6 @@ public class PolicyResource extends AwsResource {
         this.policyDocument = policyDocument;
     }
 
-    /**
-     * The role the policy is attached to. (Optional)
-     */
-    public RoleResource getRole() {
-        return role;
-    }
-
-    public void setRole(RoleResource role) {
-        this.role = role;
-    }
-
     @Override
     public boolean refresh() {
         IamClient client = IamClient.builder()
@@ -182,11 +170,6 @@ public class PolicyResource extends AwsResource {
         );
 
         setArn(response.policy().arn());
-
-        if (getRole() != null) {
-            client.attachRolePolicy(r -> r.roleName(getRole().getName())
-                    .policyArn(getArn()));
-        }
     }
 
     @Override
@@ -194,8 +177,6 @@ public class PolicyResource extends AwsResource {
         IamClient client = IamClient.builder()
                 .region(Region.AWS_GLOBAL)
                 .build();
-
-        PolicyResource currentResource = (PolicyResource) current;
 
         for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
             setPastVersionId(versions.versionId());
@@ -211,16 +192,6 @@ public class PolicyResource extends AwsResource {
             r -> r.policyArn(getArn())
                         .versionId(getPastVersionId())
         );
-
-        if (getRole() != null) {
-            client.attachRolePolicy(r -> r.roleName(getRole().getName())
-                    .policyArn(getArn()));
-        }
-
-        if (currentResource.getRole() != null && getRole() == null) {
-            client.detachRolePolicy(r -> r.roleName(getName())
-                    .policyArn(getArn()));
-        }
     }
 
     @Override
