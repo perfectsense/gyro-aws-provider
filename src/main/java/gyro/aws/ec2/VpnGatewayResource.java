@@ -57,7 +57,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     /**
-     * The VPC to create the security group in.
+     * The VPC to be attached with the VPN Gateway.
      */
     @Updatable
     public VpcResource getVpc() {
@@ -69,7 +69,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     /**
-     * The id of the vpn gateway.
+     * The ID of the VPN Gateway.
      */
     @Id
     @Output
