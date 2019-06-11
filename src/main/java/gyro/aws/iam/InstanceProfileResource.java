@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.Type;
 
 import software.amazon.awssdk.regions.Region;
@@ -12,7 +13,6 @@ import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreateInstanceProfileResponse;
 import software.amazon.awssdk.services.iam.model.GetInstanceProfileResponse;
 import software.amazon.awssdk.services.iam.model.InstanceProfile;
-import software.amazon.awssdk.services.iam.model.Role;
 
 import java.util.Set;
 
@@ -34,6 +34,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     private String arn;
     private String name;
     private String path;
+    private RoleResource role;
 
     @Output
     @Id
@@ -71,9 +72,25 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
         this.path = path;
     }
 
+    /**
+     * The role associated with the instance profile. (Optional)
+     */
+    @Updatable
+    public RoleResource getRole() {
+        return role;
+    }
+
+    public void setRole(RoleResource role) {
+        this.role = role;
+    }
+
     @Override
     public void copyFrom(InstanceProfile instanceProfile) {
         setArn(instanceProfile.arn());
+
+        if (!instanceProfile.roles().isEmpty()) {
+            findById(RoleResource.class, instanceProfile.roles().get(0).arn());
+        }
     }
 
     @Override
@@ -99,10 +116,14 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
                 .region(Region.AWS_GLOBAL)
                 .build();
 
-            CreateInstanceProfileResponse response =
-                    client.createInstanceProfile(r -> r.instanceProfileName(getName()).path(getPath()));
+        CreateInstanceProfileResponse response =
+                client.createInstanceProfile(r -> r.instanceProfileName(getName()).path(getPath()));
 
-            setArn(response.instanceProfile().arn());
+        setArn(response.instanceProfile().arn());
+
+        if (getRole() != null) {
+            client.addRoleToInstanceProfile(r -> r.instanceProfileName(getName()).roleName(getRole().getName()));
+        }
     }
 
     @Override
@@ -114,11 +135,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
                 .region(Region.AWS_GLOBAL)
                 .build();
 
-        GetInstanceProfileResponse response = client.getInstanceProfile(r -> r.instanceProfileName(getName()));
-        for (Role removeRole: response.instanceProfile().roles()) {
-            client.removeRoleFromInstanceProfile(r -> r.instanceProfileName(getName())
-                                                    .roleName(removeRole.roleName()));
-        }
+        client.removeRoleFromInstanceProfile(r -> r.roleName(getRole().getName()).instanceProfileName(getName()));
 
         client.deleteInstanceProfile(r -> r.instanceProfileName(getName()));
     }
