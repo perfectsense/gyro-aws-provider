@@ -41,7 +41,6 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     private VpcResource vpc;
     private VpcResource peerVpc;
-    private String region;
     private String peeringConnectionId;
 
     /**
@@ -67,18 +66,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * Accepter Region. (Required)
-     */
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    /**
-     * The id of the peering connection.
+     * The ID of the Peering Connection.
      */
     @Id
     @Output
@@ -125,7 +113,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
             r -> r.vpcId(getVpc().getVpcId())
                 .peerVpcId(getPeerVpc().getVpcId())
                 .peerOwnerId(getAccountNumber())
-                .peerRegion(getRegion())
+                .peerRegion(getPeerVpc().getRegion())
         );
 
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
