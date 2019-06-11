@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachment;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachmentChanges;
@@ -24,7 +23,6 @@ import software.amazon.awssdk.services.ec2.model.NetworkInterfacePrivateIpAddres
 import software.amazon.awssdk.services.ec2.model.PrivateIpAddressSpecification;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -45,7 +43,7 @@ import java.util.stream.Collectors;
  *          device-index: 1
  *          delete-on-termination: false
  *          source-dest-check: false
- *          security-group-ids: [
+ *          security-groups: [
  *                  $(aws::security-group security-group-nic-1),
  *                  $(aws::security-group security-group-nic-2),
  *                  $(aws::security-group security-group-nic-3)
@@ -78,7 +76,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private Boolean sourceDestCheck;
 
     /**
-     * The description of the Network Interface card that is being created.
+     * The description of the Network Interface that is being created.
      */
     @Updatable
     public String getDescription() {
@@ -118,7 +116,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The ID of the instance to which the Network Interface card will be attached.(Optional)
+     * The Instance to which the Network Interface will be attached.(Optional)
      */
     @Updatable
     public InstanceResource getInstance() {
@@ -130,7 +128,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The value of attachment order to the instance, this would be `1` since the default Network Interface index value is `0` when an instance is created.
+     * The index of the device for the Network Interface attachment. This will start from ``1`` as boot device is set at ``0``.
      */
     @Updatable
     public Integer getDeviceIndex() {
@@ -160,6 +158,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The ID generated when an Instance is attached to the Network Interface.
      */
+    @Output
     public String getAttachmentId() {
         return attachmentId;
     }
@@ -196,7 +195,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * Boolean value to enable/disable network traffic on instance that isn't specifically destined for the instance. Default is `true`
+     * Boolean value to enable/disable network traffic on instance that isn't specifically destined for the instance. Defaults to ``true``.
      */
     @Updatable
     public Boolean getSourceDestCheck() {
@@ -452,7 +451,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         }
 
         if (!ObjectUtils.isBlank(getNetworkInterfaceId())) {
-            sb.append(getNetworkInterfaceId());
+            sb.append(" - ").append(getNetworkInterfaceId());
         }
         return sb.toString();
     }
