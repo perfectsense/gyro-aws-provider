@@ -9,6 +9,8 @@ import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.CapacityReservationSpecification;
+import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateRequest;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
@@ -18,6 +20,8 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.GetLaunchTemplateDataResponse;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
+import software.amazon.awssdk.services.ec2.model.LaunchTemplateCapacityReservationSpecificationRequest;
+import software.amazon.awssdk.services.ec2.model.RequestLaunchTemplateData;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
@@ -73,19 +77,11 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private Boolean disableApiTermination;
     private String userData;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
+    private String capacityReservation;
 
-    /**
-     * The id of the launch template.
-     */
-    @Id
-    @Output
-    public String getLaunchTemplateId() {
-        return launchTemplateId;
-    }
+    private Long version;
 
-    public void setLaunchTemplateId(String launchTemplateId) {
-        this.launchTemplateId = launchTemplateId;
-    }
+
 
     /**
      * The name of the launch template. (Required)
@@ -289,6 +285,46 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
+    /**
+     * The capacity reservation for the instances being launched using this template.
+     */
+    public String getCapacityReservation() {
+        if (capacityReservation == null) {
+            capacityReservation = "none";
+        }
+
+        return capacityReservation;
+    }
+
+    public void setCapacityReservation(String capacityReservation) {
+        this.capacityReservation = capacityReservation;
+    }
+
+    /**
+     * The id of the launch template.
+     */
+    @Id
+    @Output
+    public String getLaunchTemplateId() {
+        return launchTemplateId;
+    }
+
+    public void setLaunchTemplateId(String launchTemplateId) {
+        this.launchTemplateId = launchTemplateId;
+    }
+
+    /**
+     * The version of the Launch Template.
+     */
+    @Output
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     @Override
     protected String getId() {
         return getLaunchTemplateId();
@@ -298,6 +334,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     public void copyFrom(LaunchTemplate launchTemplate) {
         setLaunchTemplateId(launchTemplate.launchTemplateId());
         setLaunchTemplateName(launchTemplate.launchTemplateName());
+        setVersion(launchTemplate.latestVersionNumber());
     }
 
     @Override
@@ -321,6 +358,20 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         validate(client);
 
+        RequestLaunchTemplateData.Builder builder = RequestLaunchTemplateData.builder()
+            .cpuOptions(getCoreCount() > 0
+                ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
+            .disableApiTermination(getDisableApiTermination())
+            .ebsOptimized(getEbsOptimized())
+            .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+            .imageId(getAmiId())
+            .instanceType(getInstanceType())
+            .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+            .keyName(getKeyName())
+            .monitoring(o -> o.enabled(getEnableMonitoring()))
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())));
+
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getLaunchTemplateName())
             .launchTemplateData(
@@ -336,16 +387,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                     .monitoring(o -> o.enabled(getEnableMonitoring()))
                     .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
                     .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                    .blockDeviceMappings(
+                    .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                         getBlockDeviceMapping()
                             .stream()
                             .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
-                            .collect(Collectors.toList())
+                            .collect(Collectors.toList()) : null
                     )
+                    .capacityReservationSpecification(getCapacityReservationSpecification())
             )
         );
 
         setLaunchTemplateId(response.launchTemplate().launchTemplateId());
+        setVersion(response.launchTemplate().latestVersionNumber());
     }
 
     @Override
@@ -382,6 +435,13 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (getSecurityGroups().isEmpty()) {
             throw new GyroException("At least one security group is required.");
+        }
+
+        if (!getCapacityReservation().equalsIgnoreCase("none")
+            && !getCapacityReservation().equalsIgnoreCase("open")
+            && !getCapacityReservation().startsWith("cr-")) {
+            throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
+                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
         DescribeImagesRequest amiRequest;
@@ -435,5 +495,17 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         }
 
         return launchTemplate;
+    }
+
+    private LaunchTemplateCapacityReservationSpecificationRequest getCapacityReservationSpecification() {
+        if (("none").equals(getCapacityReservation()) || ("open").equals(getCapacityReservation())) {
+            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
+                .capacityReservationPreference(getCapacityReservation().toLowerCase())
+                .build();
+        } else {
+            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
+                .capacityReservationTarget(r -> r.capacityReservationId(getCapacityReservation()))
+                .build();
+        }
     }
 }
