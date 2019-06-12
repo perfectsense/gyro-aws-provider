@@ -3,7 +3,6 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -33,7 +32,7 @@ import java.util.Set;
  *
  *     aws::elastic-ip elastic-ip-example
  *         public-ip: 52.20.183.53
- *         allow-reassociation : true
+ *         allow-re-association : true
  *         instance : $(aws::instance instance-example)
  *     end
  *
@@ -41,7 +40,7 @@ import java.util.Set;
  *
  *     aws::elastic-ip elastic-ip-example
  *         public-ip: 52.20.183.53
- *         allow-reassociation : true
+ *         allow-re-association : true
  *         network-interface : $(aws::network-interface network-interface-example)
  *     end
  */
@@ -54,7 +53,8 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     private InstanceResource instance;
     private NetworkInterfaceResource networkInterface;
     private String associationId;
-    private Boolean allowReassociation;
+    private Boolean allowReAssociation;
+    private String networkInterfaceAssociationPrivateIp;
 
     /**
      * Requested public ip for acquirement. See `Elastic IP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html/>`_.
@@ -68,7 +68,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Network Interface id required when the requested public ip is associated with a network interface.
+     * Network Interface required when the requested public ip is associated with a Network Interface.
      */
     @Updatable
     public NetworkInterfaceResource getNetworkInterface() {
@@ -80,7 +80,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Instance id required when the requested public ip is associated with an instance.
+     * Instance required when the requested public ip is associated with an Instance.
      */
     @Updatable
     public InstanceResource getInstance() {
@@ -89,19 +89,6 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
     public void setInstance(InstanceResource instance) {
         this.instance = instance;
-    }
-
-    /**
-     * Allocation id when the requested public ip is acquired.
-     */
-    @Id
-    @Output
-    public String getAllocationId() {
-        return allocationId;
-    }
-
-    public void setAllocationId(String allocationId) {
-        this.allocationId = allocationId;
     }
 
     /**
@@ -119,16 +106,16 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
      * Allows reassociation of elastic Ip with another resource.
      */
     @Updatable
-    public Boolean getAllowReassociation() {
-        if (allowReassociation == null) {
-            allowReassociation = false;
+    public Boolean getAllowReAssociation() {
+        if (allowReAssociation == null) {
+            allowReAssociation = false;
         }
 
-        return allowReassociation;
+        return allowReAssociation;
     }
 
-    public void setAllowReassociation(Boolean allowReassociation) {
-        this.allowReassociation = allowReassociation;
+    public void setAllowReAssociation(Boolean allowReAssociation) {
+        this.allowReAssociation = allowReAssociation;
     }
 
     /**
@@ -145,6 +132,30 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
     public void setIsStandardDomain(Boolean isStandardDomain) {
         this.isStandardDomain = isStandardDomain;
+    }
+
+    /**
+     * The private ip of the Network Interface being attached to.
+     */
+    public String getNetworkInterfaceAssociationPrivateIp() {
+        return networkInterfaceAssociationPrivateIp;
+    }
+
+    public void setNetworkInterfaceAssociationPrivateIp(String networkInterfaceAssociationPrivateIp) {
+        this.networkInterfaceAssociationPrivateIp = networkInterfaceAssociationPrivateIp;
+    }
+
+    /**
+     * Allocation ID when the requested public ip is acquired.
+     */
+    @Id
+    @Output
+    public String getAllocationId() {
+        return allocationId;
+    }
+
+    public void setAllocationId(String allocationId) {
+        this.allocationId = allocationId;
     }
 
     @Override
@@ -188,9 +199,22 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             );
             setAllocationId(response.allocationId());
             setPublicIp(response.publicIp());
-            if (getInstance() != null || getNetworkInterface() != null) {
-                GyroCore.ui().write("\n@|bold,blue Skipping association of elastic IP"
-                    + ", must be updated to associate with a resource|@");
+
+            if ((getInstance() != null || getNetworkInterface() != null) && (!getAllowReAssociation())) {
+                throw new GyroException("Please set 'allow-re-association' to true in order for any associations.");
+            }
+
+            if (getNetworkInterface() != null) {
+                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
+                    .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
+                    .allowReassociation(getAllowReAssociation())
+                    .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
+                setAssociationId(resp.associationId());
+            } else if (getInstance() != null) {
+                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
+                    .instanceId(getInstance().getInstanceId())
+                    .allowReassociation(getAllowReAssociation()));
+                setAssociationId(resp.associationId());
             }
         } catch (Ec2Exception eex) {
             if (eex.awsErrorDetails().errorCode().equals("InvalidAddress.NotFound")) {
@@ -216,15 +240,15 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         }
 
         if (changedProperties.contains("instance") || changedProperties.contains("network-interface")) {
-            if (!getAllowReassociation()) {
-                throw new GyroException("Please set the allow re-association to true in order for any associations.");
+            if (!getAllowReAssociation()) {
+                throw new GyroException("Please set the allow-re-association to true in order for any associations.");
             }
 
             if (changedProperties.contains("instance")) {
                 if (getInstance() != null) {
                     AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
                         .instanceId(getInstance().getInstanceId())
-                        .allowReassociation(getAllowReassociation()));
+                        .allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
                     if (!changedProperties.contains("network-interface")) {
@@ -237,7 +261,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
                 if (getNetworkInterface() != null) {
                     AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
                         .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
-                        .allowReassociation(getAllowReassociation()));
+                        .allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
                     if (!changedProperties.contains("instance")) {
