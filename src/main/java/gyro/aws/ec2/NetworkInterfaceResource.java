@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachment;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachmentChanges;
@@ -437,7 +438,16 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         Ec2Client client = createClient(Ec2Client.class);
 
         detachInstance(client);
+
         client.deleteNetworkInterface(d -> d.networkInterfaceId(getNetworkInterfaceId()));
+
+        //wait for the detachment from subnet.
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> client.describeNetworkInterfaces(
+                r -> r.filters(Filter.builder().name("subnet-id").values(getSubnet().getSubnetId()).build())
+            ).networkInterfaces().stream().noneMatch(o -> o.networkInterfaceId().equals(getNetworkInterfaceId())));
     }
 
     @Override

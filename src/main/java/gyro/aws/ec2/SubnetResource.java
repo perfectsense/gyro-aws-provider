@@ -287,15 +287,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        // Network interfaces may still be detaching, so check and wait
-        // before deleting the subnet.
-        Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(2, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> client.describeNetworkInterfaces(
-                r -> r.filters(Filter.builder().name("subnet-id").values(getSubnetId()).build())
-            ).networkInterfaces().isEmpty());
-
         client.deleteSubnet(r -> r.subnetId(getSubnetId()));
     }
 
