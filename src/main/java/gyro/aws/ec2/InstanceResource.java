@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.IamInstanceProfileResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
@@ -23,6 +24,7 @@ import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfaceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
@@ -50,15 +52,14 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::instance instance
+ *     aws::instance instance-example
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
- *         shutdown-behavior: "stop"
+ *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
- *         key: $(aws::key-pair key-pair-example)
- *         subnet: $(aws::subnet subnet-instance-example)
- *         security-group: [
- *             $(aws::security-group security-group-instance-example-1),
- *             $(aws::security-group security-group-instance-example-2)
+ *         key: "example"
+ *         subnet: $(aws::subnet subnet)
+ *         security-groups: [
+ *             $(aws::security-group security-group)
  *         ]
  *         disable-api-termination: false
  *         enable-ena-support: true
@@ -68,6 +69,19 @@ import java.util.stream.Collectors;
  *         tags: {
  *             Name: "instance-example"
  *         }
+ *
+ *         block-device-mapping
+ *             device-name: "/dev/sdb"
+ *             volume-size: 100
+ *             auto-enable-io: false
+ *         end
+ *
+ *         volume
+ *             device-name: "/dev/sde"
+ *             volume-id: $(aws::ebs-volume volume | volume-id)
+ *         end
+ *
+ *         capacity-reservation: "none"
  *     end
  */
 @Type("instance")
@@ -92,6 +106,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String capacityReservation;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
     private List<InstanceVolumeAttachment> volume;
+    private IamInstanceProfileResource instanceProfile;
 
     // -- Readonly
 
@@ -378,6 +393,17 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
+     * Attach IAM Instance profile.
+     */
+    public IamInstanceProfileResource getInstanceProfile() {
+        return instanceProfile;
+    }
+
+    public void setInstanceProfile(IamInstanceProfileResource instanceProfile) {
+        this.instanceProfile = instanceProfile;
+    }
+
+    /**
      * Instance ID of this instance.
      */
     @Id
@@ -531,7 +557,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .subnetId(getSubnet().getSubnetId())
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-            .capacityReservationSpecification(getCapacityReservationSpecification());
+            .capacityReservationSpecification(getCapacityReservationSpecification())
+            .iamInstanceProfile(getIamInstanceProfile());
 
         if (!getBlockDeviceMapping().isEmpty()) {
             builder = builder.blockDeviceMappings(
@@ -697,6 +724,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setPrivateIpAddress(instance.privateIpAddress());
         setInstanceState(instance.state().nameAsString());
         setInstanceLaunchDate(Date.from(instance.launchTime()));
+        setInstanceProfile(instance.iamInstanceProfile() != null ? findById(IamInstanceProfileResource.class, instance.iamInstanceProfile().arn()) : null);
 
         if (instance.capacityReservationSpecification() != null) {
             setCapacityReservation(
@@ -852,6 +880,16 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 .capacityReservationTarget(r -> r.capacityReservationId(getCapacityReservation()))
                 .build();
         }
+    }
+
+    private IamInstanceProfileSpecification getIamInstanceProfile() {
+        if (getInstanceProfile() == null) {
+            return null;
+        }
+
+        return IamInstanceProfileSpecification.builder()
+            .arn(getInstanceProfile().getInstanceProfileArn())
+            .build();
     }
 
     private void loadVolume(Instance instance) {
