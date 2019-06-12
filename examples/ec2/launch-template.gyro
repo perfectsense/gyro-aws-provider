@@ -72,10 +72,6 @@ aws::security-group security-group-launch-template-example-2
     }
 end
 
-aws::iam-instance-profile instance-profile-launch-template
-    instance-profile-name: "instance-profile-launch-template"
-end
-
 aws::network-interface nic-example-launch-template-1
      description: "test-nic-launch-template"
      subnet: $(aws::subnet subnet)
@@ -94,35 +90,33 @@ aws::network-interface nic-example-launch-template-2
      }
 end
 
-    aws::launch-template launch-template
-        launch-template-name: "launch-template-gyro-1"
-        ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
-        shutdown-behavior: "STOP"
-        instance-type: "t2.micro"
-        key-name: "example"
-        security-groups: [
-            $(aws::security-group security-group-launch-template-example-1),
-            $(aws::security-group security-group-launch-template-example-2)
-        ]
-        disable-api-termination: false
-        ebs-optimized: false
+aws::launch-template launch-template
+    launch-template-name: "launch-template-gyro-1"
+    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key-name: "example"
+    security-groups: [
+        $(aws::security-group security-group-launch-template-example-1),
+        $(aws::security-group security-group-launch-template-example-2)
+    ]
+    disable-api-termination: false
+    ebs-optimized: false
 
-        block-device-mapping
-            device-name: "/dev/sdb"
-            volume-size: 100
-            auto-enable-io: false
-        end
-
-        capacity-reservation: "open"
-
-        instance-profile: $(aws::iam-instance-profile instance-profile-launch-template)
-
-        network-interfaces:[
-            $(aws::network-interface nic-example-launch-template-1),
-            $(aws::network-interface nic-example-launch-template-2)
-        ]
-
-        tags: {
-            Name: "launch-template-example-1"
-        }
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
     end
+
+    capacity-reservation: "open"
+
+    network-interfaces:[
+        $(aws::network-interface nic-example-launch-template-1),
+        $(aws::network-interface nic-example-launch-template-2)
+    ]
+
+    tags: {
+        Name: "launch-template-example-1"
+    }
+end

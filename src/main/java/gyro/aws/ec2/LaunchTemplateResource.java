@@ -60,8 +60,6 @@ import java.util.stream.Collectors;
  *
  *         capacity-reservation: "open"
  *
- *         instance-profile: $(aws::iam-instance-profile instance-profile-launch-template)
- *
  *         network-interfaces:[
  *             $(aws::network-interface nic-example-launch-template-1),
  *             $(aws::network-interface nic-example-launch-template-2)
@@ -548,7 +546,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         return LaunchTemplateIamInstanceProfileSpecificationRequest.builder()
             .arn(getInstanceProfile().getInstanceProfileArn())
-            .name(getInstanceProfile().getInstanceProfileName())
             .build();
     }
 }
