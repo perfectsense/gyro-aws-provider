@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway = '')
+ *    internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway-id = '')
  */
 @Type("internet-gateway")
 public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway, InternetGatewayResource> {
