@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "stop"
  *         instance-type: "t2.micro"
- *         key-name: "instance-static"
+ *         key: $(aws::key-pair key-pair-example)
  *         subnet: $(aws::subnet subnet-instance-example)
  *         security-group: [
  *             $(aws::security-group security-group-instance-example-1),
@@ -81,7 +81,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Boolean configureHibernateOption;
     private String shutdownBehavior;
     private String instanceType;
-    private String keyName;
+    private KeyPairResource key;
     private Boolean enableMonitoring;
     private List<SecurityGroupResource> securityGroups;
     private SubnetResource subnet;
@@ -212,12 +212,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
-    public String getKeyName() {
-        return keyName;
+    public KeyPairResource getKey() {
+        return key;
     }
 
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
+    public void setKey(KeyPairResource key) {
+        this.key = key;
     }
 
     /**
@@ -521,7 +521,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
             .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
             .instanceType(getInstanceType())
-            .keyName(getKeyName())
+            .keyName(getKey().getKeyName())
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
@@ -685,7 +685,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setEbsOptimized(instance.ebsOptimized());
         setConfigureHibernateOption(instance.hibernationOptions().configured());
         setInstanceType(instance.instanceType().toString());
-        setKeyName(instance.keyName());
+        setKey(!ObjectUtils.isBlank(instance.keyName()) ? findById(KeyPairResource.class, instance.keyName()) : null);
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
         setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toList()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));

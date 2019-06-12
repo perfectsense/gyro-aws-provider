@@ -61,7 +61,7 @@ aws::instance instance-example
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "bar"
+    key: "example"
     subnet-id: $(aws::subnet subnet | subnet-id)
     security-group-ids: [
         $(aws::security-group security-group| group-id)
