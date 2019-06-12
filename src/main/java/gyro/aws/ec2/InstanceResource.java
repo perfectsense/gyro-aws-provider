@@ -512,7 +512,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     protected void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        validate(client, true);
+        validate(true);
+
+        loadAmi(client);
 
         RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
         builder = builder.imageId(getAmiId())
@@ -521,7 +523,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
             .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
             .instanceType(getInstanceType())
-            .keyName(getKey().getKeyName())
+            .keyName(getKey() != null ? getKey().getKeyName() : null)
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
@@ -569,7 +571,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     protected void doUpdate(AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        validate(client, false);
+        validate(false);
 
         if (changedProperties.contains("shutdown-behavior")) {
             client.modifyInstanceAttribute(
@@ -729,7 +731,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         loadVolume(instance);
     }
 
-    private void validate(Ec2Client client, boolean isCreate) {
+    private void validate(boolean isCreate) {
         if (ObjectUtils.isBlank(getShutdownBehavior())
             || ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION)) {
             throw new GyroException("The value - (" + getShutdownBehavior() + ") is invalid for parameter Shutdown Behavior.");
@@ -759,13 +761,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
+        if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
+        }
+    }
+
+    private void loadAmi(Ec2Client client) {
         DescribeImagesRequest amiRequest;
 
         if (ObjectUtils.isBlank(getAmiId())) {
-            if (ObjectUtils.isBlank(getAmiName())) {
-                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
-            }
-
             amiRequest = DescribeImagesRequest.builder().filters(
                 Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
             ).build();
@@ -856,15 +860,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .map(BlockDeviceMappingResource::getDeviceName)
             .collect(Collectors.toSet());
 
+        reservedDeviceNameSet.add(instance.rootDeviceName());
+
         getVolume().clear();
 
-        if (instance != null) {
-            reservedDeviceNameSet.add(instance.rootDeviceName());
-
-            setVolume(instance.blockDeviceMappings().stream()
-                .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-                .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
-                .collect(Collectors.toList()));
-        }
+        setVolume(instance.blockDeviceMappings().stream()
+            .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
+            .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+            .collect(Collectors.toList()));
     }
 }
