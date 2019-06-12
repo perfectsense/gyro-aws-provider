@@ -16,11 +16,18 @@ end
 
 aws::db-event-subscription db-event-subscription-example
     subscription-name: "db-event-subscription-example"
-    sns-topic-arn: "arn:aws:sns:us-east-2:242040583208:rds-topic-example"
+    sns-topic: $(aws::topic sns-topic-example)
     enabled: true
     source-type: "db-instance"
     event-categories: ["availability", "deletion"]
     tags: {
         Name: "db-event-subscription-example"
     }
+end
+
+aws::topic sns-topic-example
+    attributes: {
+        DisplayName: "sns-topic-example"
+    }
+    name: "sns-topic"
 end

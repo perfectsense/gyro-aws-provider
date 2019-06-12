@@ -1,6 +1,11 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.kms.KmsResource;
 import gyro.core.GyroException;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -8,18 +13,17 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
-import software.amazon.awssdk.services.rds.model.DBParameterGroupStatus;
+import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.rds.model.DBSecurityGroupMembership;
 import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 import software.amazon.awssdk.services.rds.model.DomainMembership;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
-import software.amazon.awssdk.services.rds.model.OptionGroupMembership;
-import software.amazon.awssdk.services.rds.model.VpcSecurityGroupMembership;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +48,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-instance")
-public class DbInstanceResource extends RdsTaggableResource {
+public class DbInstanceResource extends RdsTaggableResource implements Copyable<DBInstance> {
 
     private Integer allocatedStorage;
     private Boolean allowMajorVersionUpgrade;
@@ -54,13 +58,13 @@ public class DbInstanceResource extends RdsTaggableResource {
     private Integer backupRetentionPeriod;
     private String characterSetName;
     private Boolean copyTagsToSnapshot;
-    private String dbClusterIdentifier;
+    private DbClusterResource dbCluster;
     private String dbInstanceClass;
     private String dbInstanceIdentifier;
     private String dbName;
-    private String dbParameterGroupName;
+    private DbParameterGroupResource dbParameterGroup;
     private List<String> dbSecurityGroups;
-    private String dbSubnetGroupName;
+    private DbSubnetGroupResource dbSubnetGroup;
     private Boolean deleteAutomatedBackups;
     private Boolean deletionProtection;
     private String domain;
@@ -72,15 +76,15 @@ public class DbInstanceResource extends RdsTaggableResource {
     private String engineVersion;
     private String finalDbSnapshotIdentifier;
     private Integer iops;
-    private String kmsKeyId;
+    private KmsResource kmsKey;
     private String licenseModel;
     private String masterUserPassword;
     private String masterUsername;
     private Integer monitoringInterval;
     private String monitoringRoleArn;
     private Boolean multiAz;
-    private String optionGroupName;
-    private String performanceInsightsKmsKeyId;
+    private DbOptionGroupResource optionGroup;
+    private KmsResource performanceInsightsKmsKey;
     private Integer performanceInsightsRetentionPeriod;
     private Integer port;
     private String preferredBackupWindow;
@@ -93,7 +97,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     private String tdeCredentialArn;
     private String tdeCredentialPassword;
     private String timezone;
-    private List<String> vpcSecurityGroupIds;
+    private List<SecurityGroupResource> vpcSecurityGroups;
     private String endpointAddress;
 
     /**
@@ -122,7 +126,12 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
      */
+    @Updatable
     public Boolean getApplyImmediately() {
+        if (applyImmediately == null) {
+            applyImmediately = false;
+        }
+
         return applyImmediately;
     }
 
@@ -189,14 +198,14 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     /**
-     * The identifier of the existing DB cluster this DB instance belongs to. Only applies to Aurora engine.
+     * The existing DB cluster this DB instance belongs to. Only applies to Aurora engine.
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -214,6 +223,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * The unique name of the DB instance. (Required)
      */
+    @Id
     public String getDbInstanceIdentifier() {
         return dbInstanceIdentifier;
     }
@@ -234,15 +244,15 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     /**
-     * The name of the DB parameter group to use for this instance. The default DB Parameter Group is used if this is not set.
+     * The DB parameter group to use for this instance. The default DB Parameter Group is used if this is not set.
      */
     @Updatable
-    public String getDbParameterGroupName() {
-        return dbParameterGroupName;
+    public DbParameterGroupResource getDbParameterGroup() {
+        return dbParameterGroup;
     }
 
-    public void setDbParameterGroupName(String dbParameterGroupName) {
-        this.dbParameterGroupName = dbParameterGroupName;
+    public void setDbParameterGroup(DbParameterGroupResource dbParameterGroup) {
+        this.dbParameterGroup = dbParameterGroup;
     }
 
     /**
@@ -260,12 +270,12 @@ public class DbInstanceResource extends RdsTaggableResource {
     /**
      * A DB subnet group to use for this DB instance.
      */
-    public String getDbSubnetGroupName() {
-        return dbSubnetGroupName;
+    public DbSubnetGroupResource getDbSubnetGroup() {
+        return dbSubnetGroup;
     }
 
-    public void setDbSubnetGroupName(String dbSubnetGroupName) {
-        this.dbSubnetGroupName = dbSubnetGroupName;
+    public void setDbSubnetGroup(DbSubnetGroupResource dbSubnetGroup) {
+        this.dbSubnetGroup = dbSubnetGroup;
     }
 
     /**
@@ -399,14 +409,14 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     /**
-     * The AWS KMS key ARN to encrypt the DB instance.
+     * The AWS KMS key to encrypt the DB instance.
      */
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -481,27 +491,27 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     /**
-     * The name of the option group to associate with.
+     * The option group to associate with.
      */
     @Updatable
-    public String getOptionGroupName() {
-        return optionGroupName;
+    public DbOptionGroupResource getOptionGroup() {
+        return optionGroup;
     }
 
-    public void setOptionGroupName(String optionGroupName) {
-        this.optionGroupName = optionGroupName;
+    public void setOptionGroup(DbOptionGroupResource optionGroup) {
+        this.optionGroup = optionGroup;
     }
 
     /**
-     * The AWS KMS key ARN for encryption of Performance Insights data. Not applicable if `enable-performance-insights` is false.
+     * The AWS KMS key for encryption of Performance Insights data. Not applicable if `enable-performance-insights` is false.
      */
     @Updatable
-    public String getPerformanceInsightsKmsKeyId() {
-        return performanceInsightsKmsKeyId;
+    public KmsResource getPerformanceInsightsKmsKey() {
+        return performanceInsightsKmsKey;
     }
 
-    public void setPerformanceInsightsKmsKeyId(String performanceInsightsKmsKeyId) {
-        this.performanceInsightsKmsKeyId = performanceInsightsKmsKeyId;
+    public void setPerformanceInsightsKmsKey(KmsResource performanceInsightsKmsKey) {
+        this.performanceInsightsKmsKey = performanceInsightsKmsKey;
     }
 
     /**
@@ -613,7 +623,7 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     /**
-     * The ARN from the key store for TDE encryption.
+     * The ARN from the key store for Transparent data encryption.
      */
     public String getTdeCredentialArn() {
         return tdeCredentialArn;
@@ -649,12 +659,12 @@ public class DbInstanceResource extends RdsTaggableResource {
      * A list of Amazon VPC security groups to associate with.
      */
     @Updatable
-    public List<String> getVpcSecurityGroupIds() {
-        return vpcSecurityGroupIds;
+    public List<SecurityGroupResource> getVpcSecurityGroups() {
+        return vpcSecurityGroups;
     }
 
-    public void setVpcSecurityGroupIds(List<String> vpcSecurityGroupIds) {
-        this.vpcSecurityGroupIds = vpcSecurityGroupIds;
+    public void setVpcSecurityGroups(List<SecurityGroupResource> vpcSecurityGroups) {
+        this.vpcSecurityGroups = vpcSecurityGroups;
     }
 
     /**
@@ -670,6 +680,83 @@ public class DbInstanceResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBInstance instance) {
+        setAllocatedStorage(instance.allocatedStorage());
+        setAutoMinorVersionUpgrade(instance.autoMinorVersionUpgrade());
+        setAvailabilityZone(instance.availabilityZone());
+        setBackupRetentionPeriod(instance.backupRetentionPeriod());
+        setCharacterSetName(instance.characterSetName());
+        setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
+        setDbCluster(instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) : null);
+        setDbInstanceClass(instance.dbInstanceClass());
+        setDbInstanceIdentifier(instance.dbInstanceIdentifier());
+        setDbName(instance.dbName());
+
+        setDbParameterGroup(instance.dbParameterGroups().stream()
+            .findFirst().map(s -> findById(DbParameterGroupResource.class, s.dbParameterGroupName()))
+            .orElse(null));
+
+        setDbSecurityGroups(instance.dbSecurityGroups().stream()
+            .map(DBSecurityGroupMembership::dbSecurityGroupName)
+            .collect(Collectors.toList()));
+
+        setDbSubnetGroup(instance.dbSubnetGroup() != null ? findById(DbSubnetGroupResource.class, instance.dbSubnetGroup().dbSubnetGroupName()) : null);
+        setDeletionProtection(instance.deletionProtection());
+
+        setDomain(instance.domainMemberships().stream()
+            .findFirst().map(DomainMembership::domain)
+            .orElse(null));
+
+        setDomainIamRoleName(instance.domainMemberships().stream()
+            .findFirst().map(DomainMembership::iamRoleName)
+            .orElse(null));
+
+        List<String> cwLogsExports = instance.enabledCloudwatchLogsExports();
+        setEnableCloudwatchLogsExports(cwLogsExports.isEmpty() ? null : cwLogsExports);
+        setEnableIamDatabaseAuthentication(instance.iamDatabaseAuthenticationEnabled());
+        setEnablePerformanceInsights(instance.performanceInsightsEnabled());
+        setEngine(instance.engine());
+
+        String version = instance.engineVersion();
+        if (getEngineVersion() != null) {
+            version = version.substring(0, getEngineVersion().length());
+        }
+
+        setEngineVersion(version);
+        setIops(instance.iops());
+        setKmsKey(instance.kmsKeyId() != null ? findById(KmsResource.class, instance.kmsKeyId()) : null);
+        setLicenseModel(instance.licenseModel());
+        setMasterUsername(instance.masterUsername());
+        setMonitoringInterval(instance.monitoringInterval());
+        setMonitoringRoleArn(instance.monitoringRoleArn());
+        setMultiAz(instance.multiAZ());
+
+        setOptionGroup(instance.optionGroupMemberships().stream()
+            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName()))
+            .orElse(null));
+
+        setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ? findById(KmsResource.class, instance.performanceInsightsKMSKeyId()) : null);
+        setPerformanceInsightsRetentionPeriod(instance.performanceInsightsRetentionPeriod());
+        setPort(instance.dbInstancePort());
+        setPreferredBackupWindow(instance.preferredBackupWindow());
+        setPreferredMaintenanceWindow(instance.preferredMaintenanceWindow());
+        setPromotionTier(instance.promotionTier());
+        setPubliclyAccessible(instance.publiclyAccessible());
+        setStorageEncrypted(instance.storageEncrypted());
+        setStorageType(instance.storageType());
+        setTdeCredentialArn(instance.tdeCredentialArn());
+        setTimezone(instance.timezone());
+        setVpcSecurityGroups(instance.vpcSecurityGroups().stream()
+            .map(s -> findById(SecurityGroupResource.class, s.vpcSecurityGroupId()))
+            .collect(Collectors.toList()));
+        setArn(instance.dbInstanceArn());
+
+        if (instance.endpoint() != null) {
+            setEndpointAddress(instance.endpoint().address());
+        }
+    }
+
+    @Override
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -682,83 +769,7 @@ public class DbInstanceResource extends RdsTaggableResource {
                 r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
             );
 
-            response.dbInstances().stream()
-                .forEach(i -> {
-                    setAllocatedStorage(i.allocatedStorage());
-                    setAutoMinorVersionUpgrade(i.autoMinorVersionUpgrade());
-                    setAvailabilityZone(i.availabilityZone());
-                    setBackupRetentionPeriod(i.backupRetentionPeriod());
-                    setCharacterSetName(i.characterSetName());
-                    setCopyTagsToSnapshot(i.copyTagsToSnapshot());
-                    setDbClusterIdentifier(i.dbClusterIdentifier());
-                    setDbInstanceClass(i.dbInstanceClass());
-                    setDbInstanceIdentifier(i.dbInstanceIdentifier());
-                    setDbName(i.dbName());
-
-                    setDbParameterGroupName(i.dbParameterGroups().stream()
-                        .findFirst().map(DBParameterGroupStatus::dbParameterGroupName)
-                        .orElse(null));
-
-                    setDbSecurityGroups(i.dbSecurityGroups().stream()
-                        .map(DBSecurityGroupMembership::dbSecurityGroupName)
-                        .collect(Collectors.toList()));
-
-                    setDbSubnetGroupName(i.dbSubnetGroup() != null ? i.dbSubnetGroup().dbSubnetGroupName() : null);
-                    setDeletionProtection(i.deletionProtection());
-
-                    setDomain(i.domainMemberships().stream()
-                        .findFirst().map(DomainMembership::domain)
-                        .orElse(null));
-
-                    setDomainIamRoleName(i.domainMemberships().stream()
-                        .findFirst().map(DomainMembership::iamRoleName)
-                        .orElse(null));
-
-                    List<String> cwLogsExports = i.enabledCloudwatchLogsExports();
-                    setEnableCloudwatchLogsExports(cwLogsExports.isEmpty() ? null : cwLogsExports);
-                    setEnableIamDatabaseAuthentication(i.iamDatabaseAuthenticationEnabled());
-                    setEnablePerformanceInsights(i.performanceInsightsEnabled());
-                    setEngine(i.engine());
-
-                    String version = i.engineVersion();
-                    if (getEngineVersion() != null) {
-                        version = version.substring(0, getEngineVersion().length());
-                    }
-
-                    setEngineVersion(version);
-                    setIops(i.iops());
-                    setKmsKeyId(i.kmsKeyId());
-                    setLicenseModel(i.licenseModel());
-                    setMasterUsername(i.masterUsername());
-                    setMonitoringInterval(i.monitoringInterval());
-                    setMonitoringRoleArn(i.monitoringRoleArn());
-                    setMultiAz(i.multiAZ());
-
-                    setOptionGroupName(i.optionGroupMemberships().stream()
-                        .findFirst().map(OptionGroupMembership::optionGroupName)
-                        .orElse(null));
-
-                    setPerformanceInsightsKmsKeyId(i.performanceInsightsKMSKeyId());
-                    setPerformanceInsightsRetentionPeriod(i.performanceInsightsRetentionPeriod());
-                    setPort(i.dbInstancePort());
-                    setPreferredBackupWindow(i.preferredBackupWindow());
-                    setPreferredMaintenanceWindow(i.preferredMaintenanceWindow());
-                    setPromotionTier(i.promotionTier());
-                    setPubliclyAccessible(i.publiclyAccessible());
-                    setStorageEncrypted(i.storageEncrypted());
-                    setStorageType(i.storageType());
-                    setTdeCredentialArn(i.tdeCredentialArn());
-                    setTimezone(i.timezone());
-                    setVpcSecurityGroupIds(i.vpcSecurityGroups().stream()
-                        .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
-                        .collect(Collectors.toList()));
-                    setArn(i.dbInstanceArn());
-
-                    if (i.endpoint() != null) {
-                        setEndpointAddress(i.endpoint().address());
-                    }
-                }
-            );
+            response.dbInstances().forEach(this::copyFrom);
 
         } catch (DbInstanceNotFoundException ex) {
             return false;
@@ -777,13 +788,13 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbClusterIdentifier())
+                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getDbClusterIdentifier() : null)
                     .dbInstanceClass(getDbInstanceClass())
                     .dbInstanceIdentifier(getDbInstanceIdentifier())
                     .dbName(getDbName())
-                    .dbParameterGroupName(getDbParameterGroupName())
+                    .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
                     .dbSecurityGroups(getDbSecurityGroups())
-                    .dbSubnetGroupName(getDbSubnetGroupName())
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
                     .deletionProtection(getDeletionProtection())
                     .domain(getDomain())
                     .domainIAMRoleName(getDomainIamRoleName())
@@ -793,15 +804,15 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .iops(getIops())
-                    .kmsKeyId(getKmsKeyId())
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyArn() : null)
                     .licenseModel(getLicenseModel())
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
                     .monitoringInterval(getMonitoringInterval())
                     .monitoringRoleArn(getMonitoringRoleArn())
                     .multiAZ(getMultiAz())
-                    .optionGroupName(getOptionGroupName())
-                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKeyId())
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null)
                     .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
                     .port(getPort())
                     .preferredBackupWindow(getPreferredBackupWindow())
@@ -813,34 +824,48 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .tdeCredentialArn(getTdeCredentialArn())
                     .tdeCredentialPassword(getTdeCredentialPassword())
                     .timezone(getTimezone())
-                    .vpcSecurityGroupIds(getVpcSecurityGroupIds())
+                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                        .stream()
+                        .map(SecurityGroupResource::getGroupId)
+                        .collect(Collectors.toList()) : null)
         );
 
         setArn(response.dbInstance().dbInstanceArn());
+
+        Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isAvailable(client));
 
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
             r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
         );
 
-        while (describeResponse.dbInstances().get(0).dbInstanceStatus().equals("creating")) {
-            try {
-                Thread.sleep(15000);
-            } catch (InterruptedException ex) {
-                return;
-            }
-
-            describeResponse = client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
-            );
-        }
-
         setEndpointAddress(describeResponse.dbInstances().get(0).endpoint().address());
+    }
+
+    private boolean isAvailable(RdsClient client) {
+        DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
+            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+        );
+
+        return describeResponse.dbInstances().get(0).dbInstanceStatus().equals("available");
     }
 
     @Override
     public void doUpdate(Resource config, Set<String> changedProperties) {
         RdsClient client = createClient(RdsClient.class);
         DbInstanceResource current = (DbInstanceResource) config;
+
+        String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
+        String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null;
+        String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
+        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
+        List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+            .stream()
+            .map(SecurityGroupResource::getGroupId)
+            .collect(Collectors.toList()) : null;
+
         try {
             client.modifyDBInstance(
                 r -> r.allocatedStorage(Objects.equals(getAllocatedStorage(), current.getAllocatedStorage()) ? null : getAllocatedStorage())
@@ -855,10 +880,10 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .copyTagsToSnapshot(Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null : getCopyTagsToSnapshot())
                     .dbInstanceClass(Objects.equals(getDbInstanceClass(), current.getDbInstanceClass()) ? null : getDbInstanceClass())
                     .dbInstanceIdentifier(getDbInstanceIdentifier())
-                    .dbParameterGroupName(Objects.equals(getDbParameterGroupName(), current.getDbParameterGroupName())
-                        ? null : getDbParameterGroupName())
+                    .dbParameterGroupName(Objects.equals(getDbParameterGroup(), current.getDbParameterGroup())
+                        ? null : parameterGroupName)
                     .dbSecurityGroups(Objects.equals(getDbSecurityGroups(), current.getDbSecurityGroups()) ? null : getDbSecurityGroups())
-                    .dbSubnetGroupName(Objects.equals(getDbSubnetGroupName(), current.getDbSubnetGroupName()) ? null : getDbSubnetGroupName())
+                    .dbSubnetGroupName(Objects.equals(getDbSubnetGroup(), current.getDbSubnetGroup()) ? null : subnetGroupName)
                     .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null : getDeletionProtection())
                     .domain(Objects.equals(getDomain(), current.getDomain()) ? null : getDomain())
                     .domainIAMRoleName(Objects.equals(getDomainIamRoleName(), current.getDomainIamRoleName()) ? null : getDomainIamRoleName())
@@ -874,9 +899,9 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .monitoringInterval(Objects.equals(getMonitoringInterval(), current.getMonitoringInterval()) ? null : getMonitoringInterval())
                     .monitoringRoleArn(Objects.equals(getMonitoringRoleArn(), current.getMonitoringRoleArn()) ? null : getMonitoringRoleArn())
                     .multiAZ(Objects.equals(getMultiAz(), current.getMultiAz()) ? null : getMultiAz())
-                    .optionGroupName(Objects.equals(getOptionGroupName(), current.getOptionGroupName()) ? null : getOptionGroupName())
-                    .performanceInsightsKMSKeyId(Objects.equals(getPerformanceInsightsKmsKeyId(), current.getPerformanceInsightsKmsKeyId())
-                        ? null : getPerformanceInsightsKmsKeyId())
+                    .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
+                    .performanceInsightsKMSKeyId(Objects.equals(getPerformanceInsightsKmsKey(), current.getPerformanceInsightsKmsKey())
+                        ? null : performanceInsightsKmsKeyId)
                     .performanceInsightsRetentionPeriod(Objects.equals(
                         getPerformanceInsightsRetentionPeriod(), current.getPerformanceInsightsRetentionPeriod())
                         ? null : getPerformanceInsightsRetentionPeriod())
@@ -890,8 +915,8 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .tdeCredentialArn(Objects.equals(getTdeCredentialArn(), current.getTdeCredentialArn()) ? null : getTdeCredentialArn())
                     .tdeCredentialPassword(Objects.equals(getTdeCredentialPassword(), current.getTdeCredentialPassword())
                         ? null : getTdeCredentialPassword())
-                    .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroupIds(), current.getVpcSecurityGroupIds())
-                        ? null : getVpcSecurityGroupIds())
+                    .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
+                        ? null : vpcSecurityGroupIds)
             );
         } catch (InvalidDbInstanceStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());
@@ -907,6 +932,24 @@ public class DbInstanceResource extends RdsTaggableResource {
                     .skipFinalSnapshot(getSkipFinalSnapshot())
                     .deleteAutomatedBackups(getDeleteAutomatedBackups())
         );
+
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isDeleted(client));
+    }
+
+    private boolean isDeleted(RdsClient client) {
+        try {
+            client.describeDBInstances(
+                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            );
+
+        } catch (DbInstanceNotFoundException ex) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
