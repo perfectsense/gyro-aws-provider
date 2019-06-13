@@ -62,7 +62,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getField(), getValue());
+        return String.format("%s/%s", getField(), getValue());
     }
 
     @Override
