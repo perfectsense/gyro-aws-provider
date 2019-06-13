@@ -7,7 +7,7 @@ aws::vpc vpc
 end
 
 aws::subnet subnet-us-east-2a
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.0.0/24"
     tags: {
@@ -16,7 +16,7 @@ aws::subnet subnet-us-east-2a
 end
 
 aws::subnet subnet-us-east-2b
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2b"
     cidr-block: "10.0.1.0/24"
     tags: {
@@ -27,9 +27,9 @@ end
 aws::db-subnet-group db-subnet-group
     group-name: "db-subnet-group-example"
     description: "db subnet group description"
-    subnet-ids: [
-        $(aws::subnet subnet-us-east-2a | subnet-id),
-        $(aws::subnet subnet-us-east-2b | subnet-id)
+    subnets: [
+        $(aws::subnet subnet-us-east-2a),
+        $(aws::subnet subnet-us-east-2b)
     ]
 
     tags: {

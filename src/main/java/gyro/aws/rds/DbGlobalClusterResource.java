@@ -1,13 +1,16 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DescribeGlobalClustersResponse;
+import software.amazon.awssdk.services.rds.model.GlobalCluster;
 import software.amazon.awssdk.services.rds.model.GlobalClusterNotFoundException;
 
 import java.util.Set;
@@ -23,14 +26,14 @@ import java.util.Set;
  *    end
  */
 @Type("db-global-cluster")
-public class DbGlobalClusterResource extends AwsResource {
+public class DbGlobalClusterResource extends AwsResource implements Copyable<GlobalCluster> {
 
     private String databaseName;
     private Boolean deletionProtection;
     private String engine;
     private String engineVersion;
     private String globalClusterIdentifier;
-    private String sourceDbClusterIdentifier;
+    private DbClusterResource sourceDbCluster;
     private Boolean storageEncrypted;
 
     /**
@@ -81,6 +84,7 @@ public class DbGlobalClusterResource extends AwsResource {
     /**
      * The unique identifier of the global database cluster. (Required)
      */
+    @Id
     public String getGlobalClusterIdentifier() {
         return globalClusterIdentifier;
     }
@@ -90,14 +94,14 @@ public class DbGlobalClusterResource extends AwsResource {
     }
 
     /**
-     * The primary cluster ARN of the global database.
+     * The primary cluster of the global database.
      */
-    public String getSourceDbClusterIdentifier() {
-        return sourceDbClusterIdentifier;
+    public DbClusterResource getSourceDbCluster() {
+        return sourceDbCluster;
     }
 
-    public void setSourceDbClusterIdentifier(String sourceDbClusterIdentifier) {
-        this.sourceDbClusterIdentifier = sourceDbClusterIdentifier;
+    public void setSourceDbCluster(DbClusterResource sourceDbCluster) {
+        this.sourceDbCluster = sourceDbCluster;
     }
 
     /**
@@ -109,6 +113,21 @@ public class DbGlobalClusterResource extends AwsResource {
 
     public void setStorageEncrypted(Boolean storageEncrypted) {
         this.storageEncrypted = storageEncrypted;
+    }
+
+    @Override
+    public void copyFrom(GlobalCluster cluster) {
+        setDatabaseName(cluster.databaseName());
+        setDeletionProtection(cluster.deletionProtection());
+        setEngine(cluster.engine());
+
+        String version = cluster.engineVersion();
+        if (getEngineVersion() != null) {
+            version = version.substring(0, getEngineVersion().length());
+        }
+
+        setEngineVersion(version);
+        setStorageEncrypted(cluster.storageEncrypted());
     }
 
     @Override
@@ -124,21 +143,7 @@ public class DbGlobalClusterResource extends AwsResource {
                 r -> r.globalClusterIdentifier(getGlobalClusterIdentifier())
             );
 
-            response.globalClusters().stream()
-                .forEach(c -> {
-                    setDatabaseName(c.databaseName());
-                    setDeletionProtection(c.deletionProtection());
-                    setEngine(c.engine());
-
-                    String version = c.engineVersion();
-                    if (getEngineVersion() != null) {
-                        version = version.substring(0, getEngineVersion().length());
-                    }
-
-                    setEngineVersion(version);
-                    setStorageEncrypted(c.storageEncrypted());
-                }
-            );
+            response.globalClusters().forEach(this::copyFrom);
 
         } catch (GlobalClusterNotFoundException ex) {
             return false;
@@ -156,7 +161,7 @@ public class DbGlobalClusterResource extends AwsResource {
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .globalClusterIdentifier(getGlobalClusterIdentifier())
-                    .sourceDBClusterIdentifier(getSourceDbClusterIdentifier())
+                    .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
                     .storageEncrypted(getStorageEncrypted())
         );
     }
