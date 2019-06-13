@@ -9,7 +9,7 @@ abstract public class GeoMatchSetFinder<T extends SdkClient, U extends AwsResour
     private String GeoMatchSetId;
 
     /**
-     * The id of geo match set.
+     * The ID of geo match set.
      */
     public String getGeoMatchSetId() {
         return GeoMatchSetId;

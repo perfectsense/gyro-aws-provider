@@ -9,7 +9,7 @@ abstract public class SqlInjectionMatchSetFinder<T extends SdkClient, U extends 
     private String SqlInjectionMatchSetId;
 
     /**
-     * The id of sql injection match set.
+     * The ID of sql injection match set.
      */
     public String getSqlInjectionMatchSetId() {
         return SqlInjectionMatchSetId;

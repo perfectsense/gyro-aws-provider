@@ -9,7 +9,7 @@ abstract public class SizeConstraintSetFinder<T extends SdkClient, U extends Aws
     private String SizeConstraintSetId;
 
     /**
-     * The id of size constraint set.
+     * The ID of size constraint set.
      */
     public String getSizeConstraintSetId() {
         return SizeConstraintSetId;

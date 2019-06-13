@@ -9,7 +9,7 @@ abstract public class WebAclFinder<T extends SdkClient, U extends AwsResource> e
     private String webAclId;
 
     /**
-     * The id of web acl.
+     * The ID of web acl.
      */
     public String getWebAclId() {
         return webAclId;

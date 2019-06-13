@@ -9,7 +9,7 @@ abstract public class RegexMatchSetFinder<T extends SdkClient, U extends AwsReso
     private String RegexMatchSetId;
 
     /**
-     * The id of regex match set.
+     * The ID of regex match set.
      */
     public String getRegexMatchSetId() {
         return RegexMatchSetId;

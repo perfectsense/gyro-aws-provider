@@ -9,7 +9,7 @@ abstract public class RuleFinder<T extends SdkClient, U extends AwsResource> ext
     private String ruleId;
 
     /**
-     * The id of rule.
+     * The ID of rule.
      */
     public String getRuleId() {
         return ruleId;

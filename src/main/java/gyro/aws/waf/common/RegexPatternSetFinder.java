@@ -9,7 +9,7 @@ abstract public class RegexPatternSetFinder<T extends SdkClient, U extends AwsRe
     private String RegexPatternSetId;
 
     /**
-     * The id of regex pattern set.
+     * The ID of regex pattern set.
      */
     public String getRegexPatternSetId() {
         return RegexPatternSetId;

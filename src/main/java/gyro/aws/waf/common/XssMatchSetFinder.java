@@ -9,7 +9,7 @@ abstract public class XssMatchSetFinder<T extends SdkClient, U extends AwsResour
     private String XssMatchSetId;
 
     /**
-     * The id of xss match set.
+     * The ID of xss match set.
      */
     public String getXssMatchSetId() {
         return XssMatchSetId;

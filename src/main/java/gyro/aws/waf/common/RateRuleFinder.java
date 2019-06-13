@@ -9,7 +9,7 @@ abstract public class RateRuleFinder<T extends SdkClient, U extends AwsResource>
     private String ruleId;
 
     /**
-     * The id of rate rule.
+     * The ID of rate rule.
      */
     public String getRuleId() {
         return ruleId;
