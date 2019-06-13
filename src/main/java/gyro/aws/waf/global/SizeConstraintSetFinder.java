@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSetSummary;
@@ -40,5 +41,10 @@ public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintS
         }
 
         return sizeConstraintSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

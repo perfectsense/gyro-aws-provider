@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
@@ -40,5 +41,10 @@ public class RegexMatchSetFinder extends gyro.aws.waf.common.RegexMatchSetFinder
         }
 
         return regexMatchSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

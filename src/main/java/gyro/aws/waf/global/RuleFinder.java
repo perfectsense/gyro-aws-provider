@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.Rule;
 import software.amazon.awssdk.services.waf.model.RuleSummary;
@@ -39,5 +40,10 @@ public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafClient, RuleRe
         }
 
         return rules;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

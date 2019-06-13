@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.GeoMatchSet;
 import software.amazon.awssdk.services.waf.model.GeoMatchSetSummary;
@@ -40,5 +41,10 @@ public class GeoMatchSetFinder extends gyro.aws.waf.common.GeoMatchSetFinder<Waf
         }
 
         return geoMatchSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

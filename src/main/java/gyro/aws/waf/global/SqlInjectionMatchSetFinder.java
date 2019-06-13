@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSetSummary;
@@ -40,5 +41,10 @@ public class SqlInjectionMatchSetFinder extends gyro.aws.waf.common.SqlInjection
         }
 
         return sqlInjectionMatchSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

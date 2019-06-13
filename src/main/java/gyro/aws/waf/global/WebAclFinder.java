@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.WebACL;
 import software.amazon.awssdk.services.waf.model.WebACLSummary;
@@ -41,5 +42,10 @@ public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafClient, We
         }
 
         return webACLS;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

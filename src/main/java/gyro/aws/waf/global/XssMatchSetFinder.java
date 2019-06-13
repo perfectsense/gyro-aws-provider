@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.XssMatchSet;
 import software.amazon.awssdk.services.waf.model.XssMatchSetSummary;
@@ -40,5 +41,10 @@ public class XssMatchSetFinder extends gyro.aws.waf.common.XssMatchSetFinder<Waf
         }
 
         return xssMatchSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }
