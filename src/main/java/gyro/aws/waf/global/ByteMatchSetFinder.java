@@ -2,6 +2,7 @@ package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetSummary;
@@ -46,5 +47,10 @@ public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<W
         }
 
         return byteMatchSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }

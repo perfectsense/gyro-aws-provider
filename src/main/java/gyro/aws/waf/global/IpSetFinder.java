@@ -1,9 +1,12 @@
 package gyro.aws.waf.global;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.IPSet;
 import software.amazon.awssdk.services.waf.model.IPSetSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +38,19 @@ public class IpSetFinder extends gyro.aws.waf.common.IpSetFinder<WafClient, IpSe
     protected List<IPSet> findAws(WafClient client, Map<String, String> filters) {
         List<IPSet> ipSets = new ArrayList<>();
 
-        if (filters.containsKey("ip-set-id")) {
-            ipSets.add(client.getIPSet(r -> r.ipSetId(filters.get("ip-set-id"))).ipSet());
+        if (filters.containsKey("ip-set-id") && !ObjectUtils.isBlank(filters.get("ip-set-id"))) {
+            try {
+                ipSets.add(client.getIPSet(r -> r.ipSetId(filters.get("ip-set-id"))).ipSet());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return ipSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }
