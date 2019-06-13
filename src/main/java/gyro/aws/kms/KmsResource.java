@@ -154,6 +154,7 @@ public class KmsResource extends AwsResource {
     /**
      * The arn for this key.
      */
+    @Id
     @Output
     public String getKeyArn() {
         return keyArn;

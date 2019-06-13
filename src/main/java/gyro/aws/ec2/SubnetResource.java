@@ -3,7 +3,6 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
-import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -24,7 +23,6 @@ import software.amazon.awssdk.services.ec2.model.ReplaceNetworkAclAssociationRes
 import software.amazon.awssdk.services.ec2.model.Subnet;
 
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Create a subnet in a VPC.

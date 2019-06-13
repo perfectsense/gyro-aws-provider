@@ -1,12 +1,15 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterParameterGroupResponse;
+import software.amazon.awssdk.services.rds.model.DBClusterParameterGroup;
 import software.amazon.awssdk.services.rds.model.DbParameterGroupNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterParametersResponse;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-cluster-parameter-group")
-public class DbClusterParameterGroupResource extends RdsTaggableResource {
+public class DbClusterParameterGroupResource extends RdsTaggableResource implements Copyable<DBClusterParameterGroup> {
 
     private String description;
     private String family;
@@ -74,6 +77,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
     /**
      * The name of the cluster parameter group. (Required)
      */
+    @Id
     public String getName() {
         return name;
     }
@@ -101,6 +105,14 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBClusterParameterGroup group) {
+        setFamily(group.dbParameterGroupFamily());
+        setName(group.dbClusterParameterGroupName());
+        setDescription(group.description());
+        setArn(group.dbClusterParameterGroupArn());
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -113,14 +125,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
                 r -> r.dbClusterParameterGroupName(getName())
             );
 
-            response.dbClusterParameterGroups().stream()
-                .forEach(g -> {
-                    setFamily(g.dbParameterGroupFamily());
-                    setName(g.dbClusterParameterGroupName());
-                    setDescription(g.description());
-                    setArn(g.dbClusterParameterGroupArn());
-                    }
-            );
+            response.dbClusterParameterGroups().forEach(this::copyFrom);
 
             DescribeDbClusterParametersResponse parametersResponse = client.describeDBClusterParameters(
                 r -> r.dbClusterParameterGroupName(getName())
@@ -171,6 +176,11 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
         client.deleteDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()));
     }
 
+    @Override
+    public String toDisplayString() {
+        return "db cluster parameter group " + getName();
+    }
+
     private void modifyClusterParameterGroup() {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterParameterGroup(
@@ -183,10 +193,5 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource {
                         .build())
                     .collect(Collectors.toList()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "db cluster parameter group " + getName();
     }
 }
