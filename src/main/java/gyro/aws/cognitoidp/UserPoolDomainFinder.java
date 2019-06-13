@@ -5,6 +5,7 @@ import gyro.core.Type;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DomainDescriptionType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.ListUserPoolsResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolDescriptionType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolType;
 
@@ -48,10 +49,16 @@ public class UserPoolDomainFinder extends AwsFinder<CognitoIdentityProviderClien
     protected List<DomainDescriptionType> findAllAws(CognitoIdentityProviderClient client) {
         List<DomainDescriptionType> domainDescriptionType = new ArrayList<>();
 
-        for (UserPoolDescriptionType descriptionType : client.listUserPools(r -> r.maxResults(60)).userPools()) {
-            UserPoolType userPoolType = client.describeUserPool(r -> r.userPoolId(descriptionType.id())).userPool();
-            domainDescriptionType.add(client.describeUserPoolDomain(r -> r.domain(userPoolType.domain())).domainDescription());
-        }
+        String token;
+        do {
+            ListUserPoolsResponse listUserPoolsResponse = client.listUserPools(r -> r.maxResults(60));
+            for (UserPoolDescriptionType descriptionType : listUserPoolsResponse.userPools()) {
+                UserPoolType userPoolType = client.describeUserPool(r -> r.userPoolId(descriptionType.id())).userPool();
+                domainDescriptionType.add(client.describeUserPoolDomain(r -> r.domain(userPoolType.domain())).domainDescription());
+            }
+
+            token = listUserPoolsResponse.nextToken();
+        } while (token != null);
 
         return domainDescriptionType;
     }
