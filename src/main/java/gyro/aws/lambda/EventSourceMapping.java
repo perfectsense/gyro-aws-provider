@@ -3,7 +3,6 @@ package gyro.aws.lambda;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
