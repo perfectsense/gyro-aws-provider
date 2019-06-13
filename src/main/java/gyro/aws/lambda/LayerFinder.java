@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    lambda-layer: $(aws::lambda-layer EXTERNAL/* | layer-name = '' | version = '')
+ *    lambda-layer: $(aws::lambda-layer EXTERNAL/* | layer-name = '' and version = '')
  */
 @Type("lambda-layer")
 public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse, LayerResource> {

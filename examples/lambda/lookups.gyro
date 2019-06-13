@@ -1,4 +1,4 @@
-lambda-layer: $(aws::lambda-layer EXTERNAL/* | layer-name = '' | version = '')
+lambda-layer: $(aws::lambda-layer EXTERNAL/* | layer-name = '' and version = '')
 lambda-function: $(aws::lambda-function EXTERNAL/* | function-name = '')
 lambda-alias: $(aws::lambda-alias EXTERNAL/* | function-name = '' | alias-name = '')
 event-source-mapping: $(aws::event-source-mapping EXTERNAL/* | event-source-mapping-id = '')
