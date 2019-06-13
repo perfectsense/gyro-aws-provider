@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
 /**
  *
  * Example
@@ -28,7 +27,7 @@ import java.util.Set;
  *
  *     aws::user-pool-client client
  *         client-name: "clientname"
- *         user-pool: $(aws::authenticate-cognito-user-pool cognito)
+ *         user-pool: $(aws::user-pool cognito)
  *     end
  */
 @Type("user-pool-client")
@@ -150,6 +149,9 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
         this.generateSecret = generateSecret;
     }
 
+    /**
+     *  The id of the user pool client.
+     */
     @Output
     @Id
     public String getId() {

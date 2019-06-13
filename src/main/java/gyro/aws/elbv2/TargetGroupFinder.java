@@ -11,7 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Type("elbv2-target-group")
+/**
+ * Query target groups.
+ *
+ * .. code-block:: gyro
+ *
+ *    target-group: $(aws::target-group EXTERNAL/* | arn = '')
+ */
+@Type("target-group")
 public class TargetGroupFinder extends AwsFinder<ElasticLoadBalancingV2Client, TargetGroup, TargetGroupResource> {
 
     private String arn;

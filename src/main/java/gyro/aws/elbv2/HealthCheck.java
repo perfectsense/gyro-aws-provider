@@ -61,8 +61,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  The port used when an alb performs health checks on targets.
-     *  Required when used with ``instance`` and ``ip`` target types. (Optional)
+     *  The port used when an alb performs health checks on targets. Required when used with ``instance`` and ``ip`` target types. (Optional)
      */
     @Updatable
     public String getPort() {
@@ -138,7 +137,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     public String primaryKey() {
-        return String.format("%s", getPath());
+        return getPath();
     }
 
     @Override

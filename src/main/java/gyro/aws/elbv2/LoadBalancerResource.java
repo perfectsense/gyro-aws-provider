@@ -57,6 +57,9 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
         this.ipAddressType = ipAddressType;
     }
 
+    /**
+     *  The arn of the load balancer.
+     */
     @Output
     @Id
     public String getArn() {

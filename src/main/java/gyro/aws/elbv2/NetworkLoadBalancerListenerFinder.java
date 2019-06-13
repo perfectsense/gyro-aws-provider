@@ -2,6 +2,13 @@ package gyro.aws.elbv2;
 
 import gyro.core.Type;
 
-@Type("elbv2-nlb-listener")
+/**
+ * Query network load balancer listeners.
+ *
+ * .. code-block:: gyro
+ *
+ *    nlb-listener: $(aws::nlb-listener EXTERNAL/* | arn = '')
+ */
+@Type("nlb-listener")
 public class NetworkLoadBalancerListenerFinder extends ListenerFinder<NetworkLoadBalancerListenerResource> {
 }

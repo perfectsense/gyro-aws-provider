@@ -105,7 +105,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  Priority of the rule (Required)
+     *  Priority of the rule. (Required)
      */
     public Integer getPriority() {
         return priority;
@@ -115,6 +115,10 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
         this.priority = priority;
     }
 
+
+    /**
+     *  The arn of the rule.
+     */
     @Output
     @Id
     public String getArn() {

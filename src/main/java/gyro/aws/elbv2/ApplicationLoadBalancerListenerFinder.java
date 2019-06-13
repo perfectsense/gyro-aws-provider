@@ -2,6 +2,13 @@ package gyro.aws.elbv2;
 
 import gyro.core.Type;
 
-@Type("elbv2-alb-listener")
+/**
+ * Query application load balancer listeners.
+ *
+ * .. code-block:: gyro
+ *
+ *    alb-listener: $(aws::alb-listener EXTERNAL/* | arn = '')
+ */
+@Type("alb-listener")
 public class ApplicationLoadBalancerListenerFinder extends ListenerFinder<ApplicationLoadBalancerListenerResource> {
 }

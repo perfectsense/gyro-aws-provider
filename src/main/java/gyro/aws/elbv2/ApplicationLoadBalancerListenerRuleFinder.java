@@ -12,11 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Type("elbv2-alb-listener-rule")
+/**
+ * Query application load balancer listener rules.
+ *
+ * .. code-block:: gyro
+ *
+ *    alb-listener-rule: $(aws::alb-listener-rule EXTERNAL/* | arn = '')
+ */
+@Type("alb-listener-rule")
 public class ApplicationLoadBalancerListenerRuleFinder extends AwsFinder<ElasticLoadBalancingV2Client, Rule, ApplicationLoadBalancerListenerRuleResource> {
 
     private String arn;
 
+    /**
+     *  The arn of the application listener rule to find.
+     */
     public String getArn() {
         return arn;
     }

@@ -103,8 +103,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs.
-     *  Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types. (Optional)
      */
     public String getProtocol() {
         return protocol;
@@ -134,6 +133,9 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
         }
     }
 
+    /**
+     *  The arn of the target group.
+     */
     @Output
     @Id
     public String getArn() {

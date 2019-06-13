@@ -11,13 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Type("cognitoidp-user-pool")
+/**
+ * Query user pools.
+ *
+ * .. code-block:: gyro
+ *
+ *    user-pool: $(aws::user-pool EXTERNAL/* | id = '')
+ */
+@Type("user-pool")
 public class UserPoolFinder extends AwsFinder<CognitoIdentityProviderClient, UserPoolType, UserPoolResource> {
 
     private String id;
 
     /**
-     *  The user pool client name.
+     *  The user pool id.
      */
     public String getId() {
         return id;

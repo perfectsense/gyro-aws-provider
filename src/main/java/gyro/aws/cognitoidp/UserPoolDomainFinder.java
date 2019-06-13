@@ -12,7 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Type("cognitoidp-user-pool-domain")
+/**
+ * Query user pool clients.
+ *
+ * .. code-block:: gyro
+ *
+ *    user-pool-domain: $(aws::user-pool-domain EXTERNAL/* | domain = '')
+ */
+@Type("user-pool-domain")
 public class UserPoolDomainFinder extends AwsFinder<CognitoIdentityProviderClient, DomainDescriptionType, UserPoolDomainResource> {
 
     private String domain;

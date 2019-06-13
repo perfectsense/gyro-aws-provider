@@ -23,7 +23,7 @@ import java.util.Set;
  *
  *     aws::user-pool-domain domain
  *         domain: "domainsecond"
- *         user-pool: $(aws::authenticate-cognito-user-pool cognito)
+ *         user-pool: $(aws::user-pool cognito)
  *     end
  */
 @Type("user-pool-domain")
