@@ -6,6 +6,14 @@ aws::vpc vpc-example
     }
 end
 
+aws::internet-gateway ig-example
+    vpc: $(aws::vpc vpc-example)
+
+    tags: {
+        Name: "ig-example"
+    }
+end
+
 aws::subnet subnet-public-us-east-2a
     vpc: $(aws::vpc vpc-example)
     cidr-block: "10.0.0.0/26"
@@ -33,14 +41,6 @@ aws::subnet subnet-public-us-east-2c
 
     tags: {
         Name: "subnet-public-us-east-2c"
-    }
-end
-
-aws::internet-gateway ig-example
-    vpc: $(aws::vpc vpc-example)
-
-    tags: {
-        Name: "ig-example"
     }
 end
 
