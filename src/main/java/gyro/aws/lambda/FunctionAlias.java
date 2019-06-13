@@ -49,7 +49,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     private String revisionId;
 
     /**
-     * Name of the alias. (Required)
+     * Name of the Lambda Alias. (Required)
      */
     public String getAliasName() {
         return aliasName;
@@ -60,7 +60,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * Name of the function for the alias. (Required)
+     * Name of the Lambda Function for the Lambda Alias. (Required)
      */
     public String getFunctionName() {
         return functionName;
@@ -71,7 +71,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The function version for the alias. (Required)
+     * The Lambda Function version for the Lambda Alias. (Required)
      */
     @Updatable
     public String getFunctionVersion() {
@@ -83,7 +83,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The description for the alias.
+     * The description for the Lambda Alias.
      */
     @Updatable
     public String getDescription() {
@@ -95,7 +95,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * Secondary function for the alias.
+     * Secondary Lambda Function versions for the Lambda Alias.
      */
     @Updatable
     public String getAdditionalVersion() {
@@ -119,7 +119,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The arn of the alias.
+     * The arn of the Lambda Alias.
      */
     @Id
     @Output
@@ -132,7 +132,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The revision id of the alias.
+     * The revision ID of the Lambda Alias.
      */
     @Output
     public String getRevisionId() {

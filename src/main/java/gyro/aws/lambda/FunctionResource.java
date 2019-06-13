@@ -95,7 +95,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private String codeHash;
 
     /**
-     * The name of the function. (Required)
+     * The name of the Lambda Function. (Required)
      */
     @Id
     public String getFunctionName() {
@@ -107,7 +107,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The description of the function.
+     * The description of the Lambda Function.
      */
     @Updatable
     public String getDescription() {
@@ -119,7 +119,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The s3 bucket name where the function code resides. Required if field 'content-zip-path' not set.
+     * The S3 bucket name where the Lambda Function code resides. Required if field 'content-zip-path' not set.
      */
     @Updatable
     public String getS3Bucket() {
@@ -131,7 +131,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The s3 object key where the function code resides. Required if field 'content-zip-path' not set.
+     * The S3 object key where the Lambda Function code resides. Required if field 'content-zip-path' not set.
      */
     @Updatable
     public String getS3Key() {
@@ -143,7 +143,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The s3 object version where the function code resides. Required if field 'content-zip-path' not set.
+     * The S3 object version where the Lambda Function code resides. Required if field 'content-zip-path' not set.
      */
     @Updatable
     public String getS3ObjectVersion() {
@@ -155,7 +155,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The zip file location where the function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
+     * The zip file location where the Lambda Function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
      */
     @Updatable
     public String getContentZipPath() {
@@ -171,7 +171,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The role arn to be associated with this function. (Required)
+     * The role arn to be associated with this Lambda Function. (Required)
      */
     @Updatable
     public String getRoleArn() {
@@ -183,7 +183,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The runtime language for this function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     * The runtime language for this Lambda Function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
      */
     @Updatable
     public String getRuntime() {
@@ -195,7 +195,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The name of the method within your code that Lambda calls to execute the function. (Required)
+     * The name of the method within your code that Lambda calls to execute the Lambda Function. (Required)
      */
     @Updatable
     public String getHandler() {
@@ -207,7 +207,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The amount of time that Lambda allows a function to run before stopping it. Defaults to 3. Valid values between ``3`` and ``900``.
+     * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``. Valid values between ``3`` and ``900``.
      */
     @Updatable
     public Integer getTimeout() {
@@ -223,7 +223,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The amount of memory that the function has access to. Defaults to 128. valid values are multiple of ``64``.
+     * The amount of memory that the Lambda Function has access to. Defaults to ``128``. valid values are multiple of ``64``.
      */
     @Updatable
     public Integer getMemorySize() {
@@ -239,7 +239,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The tracking mode of the function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
+     * The tracking mode of the Lambda Function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
      */
     @Updatable
     public String getTrackingConfig() {
@@ -255,7 +255,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn of SQS queue or an SNS topic to be associated with the function.
+     * The arn of SQS queue or an SNS topic to be associated with the Lambda Function.
      */
     @Updatable
     public String getDeadLetterConfigArn() {
@@ -271,7 +271,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn of KMS key to be associated with the function.
+     * The arn of KMS key to be associated with the Lambda Function.
      */
     @Updatable
     public String getKmsKeyArn() {
@@ -283,7 +283,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * A map of key value pair acting as variables accessible from the code of with the function.
+     * A map of key value pair acting as variables accessible from the code of with the Lambda Function.
      */
     @Updatable
     public Map<String, String> getEnvironment() {
@@ -299,7 +299,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The set of tags be associated with the function.
+     * The set of tags to be associated with the Lambda Function.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -315,7 +315,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The set of security group be associated with the function.
+     * The set of security group be associated with the Lambda Function.
      */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
@@ -331,7 +331,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The set of subnet be associated with the function.
+     * The set of subnet be associated with the Lambda Function.
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {
@@ -347,7 +347,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The set of version arns of lambda layers to be associated with the function.
+     * The set of version arns of Lambda Layers to be associated with the Lambda Function.
      */
     @Updatable
     public Set<LayerResource> getLambdaLayers() {
@@ -363,7 +363,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The number of simultaneous executions to reserve for the function.
+     * The number of simultaneous executions to reserve for the Lambda Function.
      */
     @Updatable
     public Integer getReservedConcurrentExecutions() {
@@ -405,7 +405,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn for the lambda function resource including the version.
+     * The arn for the lambda Lambda Function resource including the version.
      */
     @Output
     public String getArn() {
@@ -417,7 +417,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn for the lambda function resource without the version.
+     * The arn for the lambda Lambda Function resource without the version.
      */
     @Output
     public String getArnNoVersion() {
@@ -429,7 +429,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The revision id for the lambda function.
+     * The revision ID for the Lambda Function.
      */
     @Output
     public String getRevisionId() {
@@ -441,7 +441,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn for the master function of the lambda function.
+     * The arn for the master function of the Lambda Function.
      */
     @Output
     public String getMasterArn() {
@@ -453,7 +453,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The date and time that the function was last updated.
+     * The date and time that the Lambda Function was last updated.
      */
     @Output
     public String getLastModified() {
@@ -465,7 +465,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The version of the Lambda function.
+     * The version of the Lambda Function.
      */
     @Output
     public String getVersion() {

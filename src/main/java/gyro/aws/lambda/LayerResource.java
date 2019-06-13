@@ -18,8 +18,7 @@ import software.amazon.awssdk.services.lambda.model.Runtime;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     private String layerName;
     private String description;
     private String licenseInfo;
-    private List<String> compatibleRuntimes;
+    private Set<String> compatibleRuntimes;
     private String s3Bucket;
     private String s3Key;
     private String s3ObjectVersion;
@@ -59,7 +58,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     private String createdDate;
 
     /**
-     * The name of the layer. (Required)
+     * The name of the Lambda Layer. (Required)
      */
     public String getLayerName() {
         return layerName;
@@ -70,7 +69,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The description of the layer.
+     * The description of the Lambda Layer.
      */
     public String getDescription() {
         return description;
@@ -81,7 +80,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The software license for the layer.
+     * The software license for the Lambda Layer.
      */
     public String getLicenseInfo() {
         return licenseInfo;
@@ -92,22 +91,22 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The list of runtime language for the function using this layer. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     * The list of runtime language for the function using this Lambda Layer. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
      */
-    public List<String> getCompatibleRuntimes() {
+    public Set<String> getCompatibleRuntimes() {
         return compatibleRuntimes;
     }
 
-    public void setCompatibleRuntimes(List<String> compatibleRuntimes) {
+    public void setCompatibleRuntimes(Set<String> compatibleRuntimes) {
         if (compatibleRuntimes == null) {
-            compatibleRuntimes = new ArrayList<>();
+            compatibleRuntimes = new HashSet<>();
         }
 
         this.compatibleRuntimes = compatibleRuntimes;
     }
 
     /**
-     * The s3 bucket name where the code for the function using this layer resides. Required if field 'content-zip-path' not set.
+     * The S3 Bucket name where the code for the function using this Lambda Layer resides. Required if field 'content-zip-path' not set.
      */
     public String getS3Bucket() {
         return s3Bucket;
@@ -118,7 +117,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The s3 object key where the code for the function using this layer resides. Required if field 'content-zip-path' not set.
+     * The S3 object key where the code for the function using this Lambda Layer resides. Required if field 'content-zip-path' not set.
      */
     public String getS3Key() {
         return s3Key;
@@ -129,7 +128,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The s3 object version where the code for the function using this layer resides. Required if field 'content-zip-path' not set.
+     * The S3 object version where the code for the function using this Lambda Layer resides. Required if field 'content-zip-path' not set.
      */
     public String getS3ObjectVersion() {
         return s3ObjectVersion;
@@ -140,7 +139,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The zip file location where the code for the function using this layer resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
+     * The zip file location where the code for the function using this Lambda Layer resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
      */
     public String getContentZipPath() {
         return contentZipPath;
@@ -151,7 +150,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The ARN of the lambda layer.
+     * The ARN of the Lambda Layer.
      */
     @Output
     public String getArn() {
@@ -163,7 +162,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The ARN of the lambda layer version specific.
+     * The ARN of the Lambda Layer version specific.
      */
     @Id
     @Output
@@ -176,7 +175,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The version of the lambda layer.
+     * The version of the Lambda Layer.
      */
     @Output
     public Long getVersion() {
@@ -188,7 +187,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The date that the layer version was created.
+     * The date that the Lambda Layer version was created.
      */
     @Output
     public String getCreatedDate() {
@@ -202,7 +201,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     @Override
     public void copyFrom(GetLayerVersionResponse response) {
         setVersion(response.version());
-        setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
+        setCompatibleRuntimes(new HashSet<>(response.compatibleRuntimesAsStrings()));
         setCreatedDate(response.createdDate());
         setDescription(response.description());
         setArn(response.layerArn());

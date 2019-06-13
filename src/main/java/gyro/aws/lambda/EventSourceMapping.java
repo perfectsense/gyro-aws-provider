@@ -54,9 +54,8 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     private String arn;
     private String functionArn;
 
-
     /**
-     * The name / arn / partial arn of the function to be associated with. (Required)
+     * The name / arn / partial arn of the Lambda Function to be associated with. (Required)
      */
     @Updatable
     public String getFunctionName() {
@@ -68,7 +67,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * The batch size for the event to invoke the function. (Required)
+     * The batch size for the event to invoke the Lambda Function. (Required)
      */
     @Updatable
     public Integer getBatchSize() {
@@ -80,7 +79,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * Enable or disable the event mapping. Defaults to ``True``.
+     * Enable or disable the Lambda Event Source Mapping. Defaults to ``True``.
      */
     @Updatable
     public Boolean getEnabled() {
@@ -107,7 +106,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * The starting position in terms of the connected resource for the function to be invoked. Required if source event is DynamoDb or Kinesis. Valid values are ``TRIM_HORIZON`` or ``LATEST`` or ``AT_TIMESTAMP``
+     * The starting position in terms of the connected resource for the Lambda Function to be invoked. Required if source event is DynamoDb or Kinesis. Valid values are ``TRIM_HORIZON`` or ``LATEST`` or ``AT_TIMESTAMP``
      */
     public String getStartingPosition() {
         return startingPosition != null ? startingPosition.toUpperCase() : null;
@@ -118,7 +117,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * Starting timestamp to invoke the function. Required only if `starting-position` set to ``AT_TIMESTAMP``.
+     * Starting timestamp to invoke the Lambda Function. Required only if `starting-position` set to ``AT_TIMESTAMP``.
      */
     public String getStartingPositionTimestamp() {
         return startingPositionTimestamp;
@@ -129,7 +128,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * The id of the event mapping.
+     * The ID of the Lambda Event Source Mapping.
      */
     @Id
     @Output
@@ -142,7 +141,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * Last modified date of the event mapping.
+     * Last modified date of the Lambda Event Source Mapping.
      */
     @Output
     public Date getLastModified() {
@@ -154,7 +153,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * Last processing of the event mapping.
+     * Last processing of the Lambda Event Source Mapping.
      */
     @Output
     public String getLastProcessingResult() {
@@ -166,7 +165,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * Current state of the event mapping.
+     * Current state of the Lambda Event Source Mapping.
      */
     @Output
     public String getState() {
@@ -190,7 +189,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * The arn for the event mapping.
+     * The arn for the Lambda Event Source Mapping.
      */
     @Output
     public String getArn() {
@@ -202,7 +201,7 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     /**
-     * The arn of the function associated the event mapping.
+     * The arn of the Lambda Function associated the Lambda Event Source Mapping.
      */
     @Output
     public String getFunctionArn() {
