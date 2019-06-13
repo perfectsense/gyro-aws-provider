@@ -142,14 +142,16 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
             return Action.builder()
                     .type(getDefaultAction() != null ? getDefaultAction().getType() : null)
                     .targetGroupArn(getDefaultAction() != null ? getDefaultAction().getTargetGroup().getArn() : null)
-                .build();
+                    .build();
     }
 
     private NetworkActionResource fromDefaultActions(List<Action> defaultAction) {
         NetworkActionResource actionResource = new NetworkActionResource();
 
         for (Action action : defaultAction) {
-            actionResource.setTargetGroup(findById(TargetGroupResource.class, action.targetGroupArn()));
+            if (action.targetGroupArn() != null) {
+                actionResource.setTargetGroup(findById(TargetGroupResource.class, action.targetGroupArn()));
+            }
             actionResource.setType(action.typeAsString());
         }
 
