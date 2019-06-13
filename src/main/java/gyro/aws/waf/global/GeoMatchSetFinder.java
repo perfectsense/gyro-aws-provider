@@ -1,10 +1,12 @@
 package gyro.aws.waf.global;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.GeoMatchSet;
 import software.amazon.awssdk.services.waf.model.GeoMatchSetSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +38,12 @@ public class GeoMatchSetFinder extends gyro.aws.waf.common.GeoMatchSetFinder<Waf
     protected List<GeoMatchSet> findAws(WafClient client, Map<String, String> filters) {
         List<GeoMatchSet> geoMatchSets = new ArrayList<>();
 
-        if (filters.containsKey("geo-match-set-id")) {
-            geoMatchSets.add(client.getGeoMatchSet(r -> r.geoMatchSetId(filters.get("geo-match-set-id"))).geoMatchSet());
+        if (filters.containsKey("geo-match-set-id") && !ObjectUtils.isBlank(filters.get("geo-match-set-id"))) {
+            try {
+                geoMatchSets.add(client.getGeoMatchSet(r -> r.geoMatchSetId(filters.get("geo-match-set-id"))).geoMatchSet());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return geoMatchSets;

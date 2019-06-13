@@ -1,8 +1,10 @@
 package gyro.aws.waf.regional;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
@@ -35,8 +37,12 @@ public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<W
     protected List<ByteMatchSet> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<ByteMatchSet> byteMatchSets = new ArrayList<>();
 
-        if (filters.containsKey("byte-match-set-id")) {
-            byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(filters.get("byte-match-set-id"))).byteMatchSet());
+        if (filters.containsKey("byte-match-set-id") && !ObjectUtils.isBlank(filters.get("byte-match-set-id"))) {
+            try {
+                byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(filters.get("byte-match-set-id"))).byteMatchSet());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return byteMatchSets;

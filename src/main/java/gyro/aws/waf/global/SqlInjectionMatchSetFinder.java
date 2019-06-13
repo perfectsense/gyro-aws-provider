@@ -1,10 +1,12 @@
 package gyro.aws.waf.global;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSetSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +38,12 @@ public class SqlInjectionMatchSetFinder extends gyro.aws.waf.common.SqlInjection
     protected List<SqlInjectionMatchSet> findAws(WafClient client, Map<String, String> filters) {
         List<SqlInjectionMatchSet> sqlInjectionMatchSets = new ArrayList<>();
 
-        if (filters.containsKey("sql-injection-match-set-id")) {
-            sqlInjectionMatchSets.add(client.getSqlInjectionMatchSet(r -> r.sqlInjectionMatchSetId(filters.get("sql-injection-match-set-id"))).sqlInjectionMatchSet());
+        if (filters.containsKey("sql-injection-match-set-id") && !ObjectUtils.isBlank(filters.get("sql-injection-match-set-id"))) {
+            try {
+                sqlInjectionMatchSets.add(client.getSqlInjectionMatchSet(r -> r.sqlInjectionMatchSetId(filters.get("sql-injection-match-set-id"))).sqlInjectionMatchSet());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return sqlInjectionMatchSets;

@@ -1,6 +1,8 @@
 package gyro.aws.waf.regional;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.model.WebACL;
 import software.amazon.awssdk.services.waf.model.WebACLSummary;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
@@ -36,8 +38,12 @@ public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafRegionalCl
     protected List<WebACL> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<WebACL> webACLS = new ArrayList<>();
 
-        if (filters.containsKey("web-acl-id")) {
-            webACLS.add(client.getWebACL(r -> r.webACLId(filters.get("web-acl-id"))).webACL());
+        if (filters.containsKey("web-acl-id") && !ObjectUtils.isBlank(filters.get("web-acl-id"))) {
+            try {
+                webACLS.add(client.getWebACL(r -> r.webACLId(filters.get("web-acl-id"))).webACL());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return webACLS;

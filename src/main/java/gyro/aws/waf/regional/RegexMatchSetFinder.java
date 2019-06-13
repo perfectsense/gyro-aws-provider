@@ -1,8 +1,10 @@
 package gyro.aws.waf.regional;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
@@ -35,8 +37,12 @@ public class RegexMatchSetFinder extends gyro.aws.waf.common.RegexMatchSetFinder
     protected List<RegexMatchSet> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<RegexMatchSet> regexMatchSets = new ArrayList<>();
 
-        if (filters.containsKey("regex-match-set-id")) {
-            regexMatchSets.add(client.getRegexMatchSet(r -> r.regexMatchSetId(filters.get("regex-match-set-id"))).regexMatchSet());
+        if (filters.containsKey("regex-match-set-id") && !ObjectUtils.isBlank(filters.get("regex-match-set-id"))) {
+            try {
+                regexMatchSets.add(client.getRegexMatchSet(r -> r.regexMatchSetId(filters.get("regex-match-set-id"))).regexMatchSet());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return regexMatchSets;

@@ -1,10 +1,12 @@
 package gyro.aws.waf.global;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.Rule;
 import software.amazon.awssdk.services.waf.model.RuleSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +37,12 @@ public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafClient, RuleRe
     protected List<Rule> findAws(WafClient client, Map<String, String> filters) {
         List<Rule> rules = new ArrayList<>();
 
-        if (filters.containsKey("rule-id")) {
-            rules.add(client.getRule(r -> r.ruleId(filters.get("rule-id"))).rule());
+        if (filters.containsKey("rule-id") && !ObjectUtils.isBlank(filters.get("rule-id"))) {
+            try {
+                rules.add(client.getRule(r -> r.ruleId(filters.get("rule-id"))).rule());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return rules;

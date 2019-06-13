@@ -1,8 +1,10 @@
 package gyro.aws.waf.regional;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSetSummary;
+import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
@@ -35,8 +37,12 @@ public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintS
     protected List<SizeConstraintSet> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<SizeConstraintSet> sizeConstraintSets = new ArrayList<>();
 
-        if (filters.containsKey("size-constraint-set-id")) {
-            sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(filters.get("size-constraint-set-id"))).sizeConstraintSet());
+        if (filters.containsKey("size-constraint-set-id") && !ObjectUtils.isBlank(filters.get("size-constraint-set-id"))) {
+            try {
+                sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(filters.get("size-constraint-set-id"))).sizeConstraintSet());
+            } catch (WafNonexistentItemException ignore) {
+                //ignore
+            }
         }
 
         return sizeConstraintSets;
