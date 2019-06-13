@@ -99,6 +99,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.mapPublicIpOnLaunch = mapPublicIpOnLaunch;
     }
 
+    @Id
     @Output
     @Id
     public String getSubnetId() {
