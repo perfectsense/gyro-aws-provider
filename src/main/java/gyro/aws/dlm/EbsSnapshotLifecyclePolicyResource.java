@@ -289,6 +289,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements C
         setState(policy.stateAsString());
 
         PolicyDetails policyDetails = policy.policyDetails();
+        setResourceType(policyDetails.resourceTypesAsStrings().get(0));
 
         if (!policyDetails.schedules().isEmpty()) {
             Schedule schedule = policyDetails.schedules().get(0);
