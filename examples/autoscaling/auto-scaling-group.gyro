@@ -141,8 +141,6 @@ workflow 'deploy'
         @swap 'aws::launch-configuration', $(aws::launch-configuration * | instance-id = $(CURRENT.instance-id)), 'verify-launch-configuration'
         @swap 'aws::auto-scaling-group', $(aws::auto-scaling-group * | launch-configuration-name = $(aws::launch-configuration * | instance-id = $(CURRENT.instance-id) | launch-configuration-name)), 'verify-auto-scaling-group'
 
-        confirm-diff: true
-
         transition 'revert'
             to: 'finished'
             description: 'Revert the new verification instances into the production load balancer and deregister old instances.'
