@@ -15,8 +15,6 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,7 +38,8 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
 
     private VpcResource vpc;
     private String networkAclId;
-    private List<NetworkAclRuleResource> rule;
+    private Set<NetworkAclIngressRuleResource> ingressRule;
+    private Set<NetworkAclEgressRuleResource> egressRule;
 
     /**
      * The VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_. (Required)
@@ -54,20 +53,31 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     }
 
     /**
-     * A list of rules for the Network ACL.
+     * A set of ingress rules for the Network ACL.
      *
-     * @subresource gyro.aws.ec2.NetworkAclRuleResource
+     * @subresource gyro.aws.ec2.NetworkAclIngressRuleResource
      */
     @Updatable
-    public List<NetworkAclRuleResource> getRule() {
-        if (rule == null) {
-            rule = new ArrayList<>();
-        }
-        return rule;
+    public Set<NetworkAclIngressRuleResource> getIngressRule() {
+        return ingressRule;
     }
 
-    public void setRule(List<NetworkAclRuleResource> ruleEntries) {
-        this.rule = ruleEntries;
+    public void setIngressRule(Set<NetworkAclIngressRuleResource> ingressRule) {
+        this.ingressRule = ingressRule;
+    }
+
+    /**
+     * A list of egress rules for the Network ACL.
+     *
+     * @subresource gyro.aws.ec2.NetworkAclEgressRuleResource
+     */
+    @Updatable
+    public Set<NetworkAclEgressRuleResource> getEgressRule() {
+        return egressRule;
+    }
+
+    public void setEgressRule(Set<NetworkAclEgressRuleResource> egressRule) {
+        this.egressRule = egressRule;
     }
 
     /**
@@ -100,9 +110,15 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
                 continue;
             }
 
-            NetworkAclRuleResource rule = newSubresource(NetworkAclRuleResource.class);
-            rule.copyFrom(e);
-            getRule().add(rule);
+            if (e.egress()) {
+                NetworkAclEgressRuleResource egressRule = newSubresource(NetworkAclEgressRuleResource.class);
+                egressRule.copyFrom(e);
+                getEgressRule().add(egressRule);
+            } else {
+                NetworkAclIngressRuleResource ingressRule = newSubresource(NetworkAclIngressRuleResource.class);
+                ingressRule.copyFrom(e);
+                getIngressRule().add(ingressRule);
+            }
         }
 
         setVpc(findById(VpcResource.class, networkAcl.vpcId()));

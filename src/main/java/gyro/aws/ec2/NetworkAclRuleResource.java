@@ -4,48 +4,17 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
-import java.util.Set;
-
-/**
- * Create a Network ACL rule.
- *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *    aws::network-acl network-acl-example
- *       vpc-id: $(aws::vpc vpc-example-for-network-acl | vpc-id)
-
- *       tags: {
- *           Name: "network-acl-example"
- *       }
-
- *       rule
- *           cidr-block: ["0.0.0.0/0"]
- *           protocol : "6"
- *           rule-action : "allow"
- *           rule-number : 103
- *           egress-rule : false
- *           from-port: 443
- *           to-port: 443
- *       end
- *    end
- *
- */
-public class NetworkAclRuleResource extends AwsResource implements Copyable<NetworkAclEntry> {
+public abstract class NetworkAclRuleResource extends AwsResource implements Copyable<NetworkAclEntry> {
 
     private Integer ruleNumber;
     private String ruleAction;
     private String protocol;
     private Integer fromPort;
     private Integer toPort;
-    private Boolean egressRule;
     private String cidrBlock;
     private String ipv6CidrBlock;
     private Integer icmpType;
@@ -84,17 +53,6 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
-    }
-
-    /**
-     * Indicate whether the rule is an egress rule. (Required)
-     */
-    public Boolean getEgressRule() {
-        return egressRule;
-    }
-
-    public void setEgressRule(Boolean egressRule) {
-        this.egressRule = egressRule;
     }
 
     /**
@@ -173,7 +131,6 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
     public void copyFrom(NetworkAclEntry networkAclEntry) {
         setCidrBlock(networkAclEntry.cidrBlock());
         setIpv6CidrBlock(networkAclEntry.ipv6CidrBlock());
-        setEgressRule(networkAclEntry.egress());
         setProtocol(networkAclEntry.protocol());
 
         if (networkAclEntry.portRange() != null) {
@@ -195,13 +152,7 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
         return false;
     }
 
-    @Override
-    public String primaryKey() {
-        return String.format("%s, %s", getRuleNumber(), getEgressRule());
-    }
-
-    @Override
-    public void create() {
+    public void create(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
         
         if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
@@ -211,7 +162,7 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
                     .ipv6CidrBlock(getIpv6CidrBlock())
                     .ruleNumber(getRuleNumber())
                     .ruleAction(getRuleAction())
-                    .egress(getEgressRule())
+                    .egress(egress)
                     .protocol(getProtocol())
                     .icmpTypeCode(c -> c.type(getIcmpType())
                         .code(getIcmpCode()))
@@ -226,14 +177,13 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
                     .ipv6CidrBlock(getIpv6CidrBlock())
                     .ruleNumber(getRuleNumber())
                     .ruleAction(getRuleAction())
-                    .egress(getEgressRule())
+                    .egress(egress)
                     .protocol(getProtocol()));
             }
         }
     }
 
-    @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
@@ -241,26 +191,24 @@ public class NetworkAclRuleResource extends AwsResource implements Copyable<Netw
             .ruleAction(getRuleAction())
             .cidrBlock(getCidrBlock())
             .ipv6CidrBlock(getIpv6CidrBlock())
-            .egress(getEgressRule())
+            .egress(egress)
             .protocol(getProtocol())
             .icmpTypeCode(c -> c.type(getIcmpType())
                 .code(getIcmpCode()))
             .portRange(r1 -> r1.from(getFromPort()).to(getToPort())));
     }
 
-    @Override
-    public void delete() {
+    public void delete(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
         client.deleteNetworkAclEntry(d -> d.networkAclId(getNetworkAclId())
-            .egress(getEgressRule())
+            .egress(egress)
             .ruleNumber(getRuleNumber()));
     }
 
-    @Override
-    public String toDisplayString() {
+    public String toDisplayString(boolean egress) {
         StringBuilder sb = new StringBuilder();
 
-        if (getEgressRule().equals(true)) {
+        if (egress) {
             sb.append("Outbound entry");
         } else {
             sb.append("Inbound entry");
