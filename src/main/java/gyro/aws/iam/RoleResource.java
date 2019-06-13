@@ -56,6 +56,9 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     private String permissionsBoundaryArn;
     private Map<String, String> tags;
 
+    /**
+     * The arn of the role.
+     */
     @Output
     @Id
     public String getArn() {

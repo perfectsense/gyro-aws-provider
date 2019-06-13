@@ -36,6 +36,9 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     private String path;
     private RoleResource role;
 
+    /**
+     * The arn of the instance profile. (Required)
+     */
     @Output
     @Id
     public String getArn() {

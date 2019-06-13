@@ -47,6 +47,9 @@ public class PolicyResource extends AwsResource {
     private String path;
     private String policyDocument;
 
+    /**
+     * The arn of the policy.
+     */
     @Output
     @Id
     public String getArn() {
@@ -80,6 +83,9 @@ public class PolicyResource extends AwsResource {
         this.name = name;
     }
 
+    /**
+     * The past version id.
+     */
     @Output
     public String getPastVersionId() {
         return this.pastVersionId;
