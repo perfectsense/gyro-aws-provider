@@ -17,7 +17,6 @@ end
 aws::peering-connection peering-connection-example
     vpc: $(aws::vpc vpc-example-for-peering-connection-1)
     peer-vpc: $(aws::vpc vpc-example-for-peering-connection-2)
-    region: 'us-east-2'
 
     tags: {
         Name: "peering-connection-example"
