@@ -9,7 +9,6 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
@@ -187,9 +186,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void copyFrom(Role role) {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         setArn(role.arn());
         setName(role.roleName());
@@ -210,9 +207,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public boolean refresh() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         Role role = client.getRole(r -> r.roleName(getName())).role();
 
@@ -227,9 +222,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void create() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreateRoleResponse response = client.createRole(r -> r.assumeRolePolicyDocument(getAssumeRolePolicy())
                 .description(getDescription())
@@ -253,9 +246,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         client.updateAssumeRolePolicy(r -> r.policyDocument(formatPolicy(getAssumeRolePolicy()))
                                             .roleName(getName()));
@@ -295,9 +286,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void delete() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         ListAttachedRolePoliciesResponse response = client.listAttachedRolePolicies(r -> r.roleName(getName()));
         for (AttachedPolicy policies : response.attachedPolicies()) {

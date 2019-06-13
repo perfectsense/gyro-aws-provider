@@ -95,9 +95,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
 
     @Override
     public boolean refresh() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         GetInstanceProfileResponse response = client.getInstanceProfile(r -> r.instanceProfileName(getName()));
 
@@ -112,9 +110,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
 
     @Override
     public void create() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreateInstanceProfileResponse response =
                 client.createInstanceProfile(r -> r.instanceProfileName(getName()).path(getPath()));
@@ -131,9 +127,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
 
     @Override
     public void delete() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         client.removeRoleFromInstanceProfile(r -> r.roleName(getRole().getName()).instanceProfileName(getName()));
 

@@ -123,9 +123,7 @@ public class PolicyResource extends AwsResource {
 
     @Override
     public boolean refresh() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         GetPolicyResponse response = client.getPolicy(
             r -> r.policyArn(getArn())
@@ -158,9 +156,7 @@ public class PolicyResource extends AwsResource {
 
     @Override
     public void create() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreatePolicyResponse response = client.createPolicy(
             r -> r.policyName(getName())
@@ -174,9 +170,7 @@ public class PolicyResource extends AwsResource {
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
             setPastVersionId(versions.versionId());
@@ -196,9 +190,7 @@ public class PolicyResource extends AwsResource {
 
     @Override
     public void delete() {
-        IamClient client = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         client.deletePolicy(r -> r.policyArn(this.getArn()));
     }
