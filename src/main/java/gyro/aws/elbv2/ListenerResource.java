@@ -8,7 +8,6 @@ import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
-import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenerCertificatesResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ListenerNotFoundException;
@@ -106,7 +105,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
 
     @Override
     public void copyFrom(Listener listener) {
-        if (listener.certificates().size() > 0) {
+        if (!listener.certificates().isEmpty()) {
             setDefaultCertificate(listener.certificates().get(0).certificateArn());
         }
 
@@ -114,23 +113,6 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
         setPort(listener.port());
         setProtocol(listener.protocolAsString());
         setSslPolicy(listener.sslPolicy());
-
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-
-        if (this instanceof ApplicationLoadBalancerListenerResource) {
-            getCertificate().clear();
-            DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
-            if (certResponse != null) {
-                for (Certificate certificate : certResponse.certificates()) {
-                    if (!certificate.isDefault()) {
-                        CertificateResource cert = new CertificateResource();
-                        cert.setArn(certificate.certificateArn());
-                        cert.setIsDefault(certificate.isDefault());
-                        getCertificate().add(cert);
-                    }
-                }
-            }
-        }
     }
 
     public Listener internalRefresh() {

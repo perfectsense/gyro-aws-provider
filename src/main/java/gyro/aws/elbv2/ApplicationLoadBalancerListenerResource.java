@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalanci
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateListenerResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenerCertificatesResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
 
 import java.util.ArrayList;
@@ -71,9 +72,24 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
 
     @Override
     public void copyFrom(Listener listener) {
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
         setDefaultAction(fromDefaultActions(listener.defaultActions()));
         ApplicationLoadBalancerResource alb = (ApplicationLoadBalancerResource) findById(LoadBalancerResource.class, listener.loadBalancerArn());
         setAlb(alb);
+
+        getCertificate().clear();
+        DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
+        if (certResponse != null) {
+            for (Certificate certificate : certResponse.certificates()) {
+                if (!certificate.isDefault()) {
+                    CertificateResource cert = new CertificateResource();
+                    cert.setArn(certificate.certificateArn());
+                    cert.setIsDefault(certificate.isDefault());
+                    getCertificate().add(cert);
+                }
+            }
+        }
     }
 
     @Override
@@ -82,7 +98,6 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
 
         if (listener != null) {
 
-            super.copyFrom(listener);
             this.copyFrom(listener);
 
             return true;
