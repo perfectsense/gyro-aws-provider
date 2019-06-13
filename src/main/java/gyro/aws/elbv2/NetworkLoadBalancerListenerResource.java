@@ -76,7 +76,6 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
 
         if (listener != null) {
 
-            super.copyFrom(listener);
             this.copyFrom(listener);
 
             return true;

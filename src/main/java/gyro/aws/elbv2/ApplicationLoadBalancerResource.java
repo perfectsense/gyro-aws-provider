@@ -92,7 +92,6 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
 
         if (loadBalancer != null) {
 
-            super.copyFrom(loadBalancer);
             this.copyFrom(loadBalancer);
 
             return true;
