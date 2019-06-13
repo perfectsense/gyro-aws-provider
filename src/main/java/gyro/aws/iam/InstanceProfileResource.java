@@ -129,7 +129,9 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     public void delete() {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
-        client.removeRoleFromInstanceProfile(r -> r.roleName(getRole().getName()).instanceProfileName(getName()));
+        if (getRole() != null) {
+            client.removeRoleFromInstanceProfile(r -> r.roleName(getRole().getName()).instanceProfileName(getName()));
+        }
 
         client.deleteInstanceProfile(r -> r.instanceProfileName(getName()));
     }
