@@ -254,7 +254,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
-
     @Updatable
     public List<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
@@ -710,7 +709,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setInstanceType(instance.instanceType().toString());
         setKeyName(instance.keyName());
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class,r)).collect(Collectors.toList()));
+        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r)).collect(Collectors.toList()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));
         setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
