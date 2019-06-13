@@ -52,6 +52,19 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     }
 
     @Override
+    public void copyFrom(SqlInjectionMatchSet sqlInjectionMatchSet) {
+        setId(sqlInjectionMatchSet.sqlInjectionMatchSetId());
+        setName(sqlInjectionMatchSet.name());
+
+        getSqlInjectionMatchTuple().clear();
+        for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
+            SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = newSubresource(SqlInjectionMatchTupleResource.class);
+            sqlInjectionMatchTupleResource.copyFrom(sqlInjectionMatchTuple);
+            getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
+        }
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getId())) {
             return false;
@@ -86,18 +99,5 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .sqlInjectionMatchSetId(getId())
         );
-    }
-
-    @Override
-    public void copyFrom(SqlInjectionMatchSet sqlInjectionMatchSet) {
-        setId(sqlInjectionMatchSet.sqlInjectionMatchSetId());
-        setName(sqlInjectionMatchSet.name());
-
-        getSqlInjectionMatchTuple().clear();
-        for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
-            SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = newSubresource(SqlInjectionMatchTupleResource.class);
-            sqlInjectionMatchTupleResource.copyFrom(sqlInjectionMatchTuple);
-            getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
-        }
     }
 }

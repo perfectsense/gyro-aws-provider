@@ -49,6 +49,13 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
     }
 
     @Override
+    public void copyFrom(SqlInjectionMatchTuple sqlInjectionMatchTuple) {
+        setData(sqlInjectionMatchTuple.fieldToMatch().data());
+        setType(sqlInjectionMatchTuple.fieldToMatch().typeAsString());
+        setTextTransformation(sqlInjectionMatchTuple.textTransformationAsString());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -92,13 +99,6 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
-    }
-
-    @Override
-    public void copyFrom(SqlInjectionMatchTuple sqlInjectionMatchTuple) {
-        setData(sqlInjectionMatchTuple.fieldToMatch().data());
-        setType(sqlInjectionMatchTuple.fieldToMatch().typeAsString());
-        setTextTransformation(sqlInjectionMatchTuple.textTransformationAsString());
     }
 
     protected abstract void saveSqlInjectionMatchTuple(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete);

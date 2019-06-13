@@ -61,6 +61,14 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     @Override
+    public void copyFrom(RegexMatchTuple regexMatchTuple) {
+        setType(regexMatchTuple.fieldToMatch().typeAsString());
+        setData(regexMatchTuple.fieldToMatch().data());
+        setRegexPatternSet(findById(CommonRegexPatternSet.class, regexMatchTuple.regexPatternSetId()));
+        setTextTransformation(regexMatchTuple.textTransformationAsString());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -108,14 +116,6 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     @Override
     public String primaryKey() {
         return String.format("%s %s %s %s", getData(), getType(), getTextTransformation(), getRegexPatternSet() != null ? getRegexPatternSet().getRegexPatternSetId() : null);
-    }
-
-    @Override
-    public void copyFrom(RegexMatchTuple regexMatchTuple) {
-        setType(regexMatchTuple.fieldToMatch().typeAsString());
-        setData(regexMatchTuple.fieldToMatch().data());
-        setRegexPatternSet(findById(CommonRegexPatternSet.class, regexMatchTuple.regexPatternSetId()));
-        setTextTransformation(regexMatchTuple.textTransformationAsString());
     }
 
     private RegexMatchTuple getRegexMatchTuple() {

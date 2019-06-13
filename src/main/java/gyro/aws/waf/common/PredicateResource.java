@@ -52,6 +52,13 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     @Override
+    public void copyFrom(Predicate predicate) {
+        setCondition(findById(ConditionResource.class, predicate.dataId()));
+        setNegated(predicate.negated());
+        setType(predicate.typeAsString());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -129,12 +136,5 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             .ruleId(parent.getRuleId())
             .rateLimit(parent.getRateLimit())
             .updates(getRuleUpdate(predicate, isDelete));
-    }
-
-    @Override
-    public void copyFrom(Predicate predicate) {
-        setCondition(findById(ConditionResource.class, predicate.dataId()));
-        setNegated(predicate.negated());
-        setType(predicate.typeAsString());
     }
 }

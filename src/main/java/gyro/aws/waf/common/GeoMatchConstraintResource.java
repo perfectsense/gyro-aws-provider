@@ -37,6 +37,12 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
     }
 
     @Override
+    public void copyFrom(GeoMatchConstraint geoMatchConstraint) {
+        setType(geoMatchConstraint.typeAsString());
+        setValue(geoMatchConstraint.valueAsString());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -98,11 +104,5 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
         return UpdateGeoMatchSetRequest.builder()
             .geoMatchSetId(parent.getId())
             .updates(geoMatchSetUpdate);
-    }
-
-    @Override
-    public void copyFrom(GeoMatchConstraint geoMatchConstraint) {
-        setType(geoMatchConstraint.typeAsString());
-        setValue(geoMatchConstraint.valueAsString());
     }
 }

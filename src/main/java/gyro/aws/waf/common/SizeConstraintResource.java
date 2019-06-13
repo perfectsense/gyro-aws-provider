@@ -73,6 +73,15 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     @Override
+    public void copyFrom(SizeConstraint sizeConstraint) {
+        setComparisonOperator(sizeConstraint.comparisonOperatorAsString());
+        setData(sizeConstraint.fieldToMatch().data());
+        setType(sizeConstraint.fieldToMatch().typeAsString());
+        setSize(sizeConstraint.size());
+        setTextTransformation(sizeConstraint.textTransformationAsString());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -124,15 +133,6 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     @Override
     public String primaryKey() {
         return String.format("%s %s %s %s %s", getData(), getType(), getComparisonOperator(), getTextTransformation(), getSize());
-    }
-
-    @Override
-    public void copyFrom(SizeConstraint sizeConstraint) {
-        setComparisonOperator(sizeConstraint.comparisonOperatorAsString());
-        setData(sizeConstraint.fieldToMatch().data());
-        setType(sizeConstraint.fieldToMatch().typeAsString());
-        setSize(sizeConstraint.size());
-        setTextTransformation(sizeConstraint.textTransformationAsString());
     }
 
     protected abstract void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete);

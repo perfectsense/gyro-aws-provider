@@ -49,6 +49,13 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
     }
 
     @Override
+    public void copyFrom(XssMatchTuple xssMatchTuple) {
+        setData(xssMatchTuple.fieldToMatch().data());
+        setType(xssMatchTuple.fieldToMatch().typeAsString());
+        setTextTransformation(xssMatchTuple.textTransformationAsString());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -92,13 +99,6 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
     @Override
     public String primaryKey() {
         return String.format("%s %s %s", getData(), getType(), getTextTransformation());
-    }
-
-    @Override
-    public void copyFrom(XssMatchTuple xssMatchTuple) {
-        setData(xssMatchTuple.fieldToMatch().data());
-        setType(xssMatchTuple.fieldToMatch().typeAsString());
-        setTextTransformation(xssMatchTuple.textTransformationAsString());
     }
 
     protected abstract void saveXssMatchTuple(XssMatchTuple xssMatchTuple, boolean isDelete);

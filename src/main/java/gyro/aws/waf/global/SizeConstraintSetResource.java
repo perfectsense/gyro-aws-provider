@@ -51,6 +51,20 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     public void setSizeConstraint(List<SizeConstraintResource> sizeConstraint) {
         this.sizeConstraint = sizeConstraint;
     }
+
+    @Override
+    public void copyFrom(SizeConstraintSet sizeConstraintSet) {
+        setId(sizeConstraintSet.sizeConstraintSetId());
+        setName(sizeConstraintSet.name());
+
+        getSizeConstraint().clear();
+        for (SizeConstraint sizeConstraint : sizeConstraintSet.sizeConstraints()) {
+            SizeConstraintResource sizeConstraintResource = newSubresource(SizeConstraintResource.class);
+            sizeConstraintResource.copyFrom(sizeConstraint);
+            getSizeConstraint().add(sizeConstraintResource);
+        }
+    }
+
     @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getId())) {
@@ -86,18 +100,5 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .sizeConstraintSetId(getId())
         );
-    }
-
-    @Override
-    public void copyFrom(SizeConstraintSet sizeConstraintSet) {
-        setId(sizeConstraintSet.sizeConstraintSetId());
-        setName(sizeConstraintSet.name());
-
-        getSizeConstraint().clear();
-        for (SizeConstraint sizeConstraint : sizeConstraintSet.sizeConstraints()) {
-            SizeConstraintResource sizeConstraintResource = newSubresource(SizeConstraintResource.class);
-            sizeConstraintResource.copyFrom(sizeConstraint);
-            getSizeConstraint().add(sizeConstraintResource);
-        }
     }
 }

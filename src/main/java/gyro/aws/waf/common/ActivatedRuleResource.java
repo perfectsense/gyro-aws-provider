@@ -85,10 +85,18 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
+    public void copyFrom(ActivatedRule activatedRule) {
+        setAction(activatedRule.action().typeAsString());
+        setPriority(activatedRule.priority());
+        setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
+        setType(activatedRule.typeAsString());
+        setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
-
 
     @Override
     public void create() {
@@ -135,15 +143,6 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     @Override
     public String primaryKey() {
         return String.format("%s %s", getRule() != null ? getRule().getRuleId() : null, getType());
-    }
-
-    @Override
-    public void copyFrom(ActivatedRule activatedRule) {
-        setAction(activatedRule.action().typeAsString());
-        setPriority(activatedRule.priority());
-        setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
-        setType(activatedRule.typeAsString());
-        setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
     }
 
     protected ActivatedRule getActivatedRule() {

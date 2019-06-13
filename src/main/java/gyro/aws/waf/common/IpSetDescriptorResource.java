@@ -43,6 +43,12 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     }
 
     @Override
+    public void copyFrom(IPSetDescriptor ipSetDescriptor) {
+        setType(ipSetDescriptor.typeAsString());
+        setValue(ipSetDescriptor.value());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -151,11 +157,5 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
         }
 
         return cidr;
-    }
-
-    @Override
-    public void copyFrom(IPSetDescriptor ipSetDescriptor) {
-        setType(ipSetDescriptor.typeAsString());
-        setValue(ipSetDescriptor.value());
     }
 }

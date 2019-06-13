@@ -52,6 +52,19 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
     }
 
     @Override
+    public void copyFrom(GeoMatchSet geoMatchSet) {
+        setId(geoMatchSet.geoMatchSetId());
+        setName(geoMatchSet.name());
+
+        getGeoMatchConstraint().clear();
+        for (GeoMatchConstraint geoMatchConstraint : geoMatchSet.geoMatchConstraints()) {
+            GeoMatchConstraintResource geoMatchConstraintResource = newSubresource(GeoMatchConstraintResource.class);
+            geoMatchConstraintResource.copyFrom(geoMatchConstraint);
+            getGeoMatchConstraint().add(geoMatchConstraintResource);
+        }
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getId())) {
             return false;
@@ -86,18 +99,5 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
             r -> r.geoMatchSetId(getId())
                 .changeToken(client.getChangeToken().changeToken())
         );
-    }
-
-    @Override
-    public void copyFrom(GeoMatchSet geoMatchSet) {
-        setId(geoMatchSet.geoMatchSetId());
-        setName(geoMatchSet.name());
-
-        getGeoMatchConstraint().clear();
-        for (GeoMatchConstraint geoMatchConstraint : geoMatchSet.geoMatchConstraints()) {
-            GeoMatchConstraintResource geoMatchConstraintResource = newSubresource(GeoMatchConstraintResource.class);
-            geoMatchConstraintResource.copyFrom(geoMatchConstraint);
-            getGeoMatchConstraint().add(geoMatchConstraintResource);
-        }
     }
 }

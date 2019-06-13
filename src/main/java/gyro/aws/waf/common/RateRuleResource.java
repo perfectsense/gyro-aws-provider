@@ -35,6 +35,16 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     protected abstract RateBasedRule getRule();
 
     @Override
+    public void copyFrom(RateBasedRule rule) {
+        setRuleId(rule.ruleId());
+        setName(rule.name());
+        setMetricName(rule.metricName());
+        setRateKey(rule.rateKeyAsString());
+        setRateLimit(rule.rateLimit());
+        loadPredicates(rule.matchPredicates());
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getRuleId())) {
             return false;
@@ -48,15 +58,5 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     @Override
     public boolean isRateRule() {
         return true;
-    }
-
-    @Override
-    public void copyFrom(RateBasedRule rule) {
-        setRuleId(rule.ruleId());
-        setName(rule.name());
-        setMetricName(rule.metricName());
-        setRateKey(rule.rateKeyAsString());
-        setRateLimit(rule.rateLimit());
-        loadPredicates(rule.matchPredicates());
     }
 }

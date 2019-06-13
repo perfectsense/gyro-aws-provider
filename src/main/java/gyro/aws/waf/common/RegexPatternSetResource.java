@@ -67,6 +67,13 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     }
 
     @Override
+    public void copyFrom(RegexPatternSet regexPatternSet) {
+        setRegexPatternSetId(regexPatternSet.regexPatternSetId());
+        setName(regexPatternSet.name());
+        setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getRegexPatternSetId())) {
             return false;
@@ -149,13 +156,6 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(RegexPatternSet regexPatternSet) {
-        setRegexPatternSetId(regexPatternSet.regexPatternSetId());
-        setName(regexPatternSet.name());
-        setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
     }
 
     protected abstract void savePatterns(List<String> oldPatterns, List<String> newPatterns);

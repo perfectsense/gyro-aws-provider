@@ -83,6 +83,24 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
 
     protected abstract List<Integer> getActivatedRulesPriority();
 
+    protected abstract CreateWebAclResponse doCreate(CreateWebAclRequest.Builder builder);
+
+    protected abstract void doUpdate(UpdateWebAclRequest.Builder builder);
+
+    @Override
+    public void copyFrom(WebACL webAcl) {
+        setWebAclId(webAcl.webACLId());
+        setArn(webAcl.webACLArn());
+        setDefaultAction(webAcl.defaultAction().typeAsString());
+        setMetricName(webAcl.metricName());
+        setName(webAcl.name());
+
+        clearActivatedRules();
+        for (ActivatedRule activatedRule : webAcl.rules()) {
+            setActivatedRules(activatedRule);
+        }
+    }
+
     @Override
     public boolean refresh() {
         WebACL webAcl = getWebAcl();
@@ -95,8 +113,6 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
 
         return true;
     }
-
-    protected abstract CreateWebAclResponse doCreate(CreateWebAclRequest.Builder builder);
 
     @Override
     public void create() {
@@ -117,8 +133,6 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
         setArn(webAcl.webACLArn());
         setWebAclId(webAcl.webACLId());
     }
-
-    protected abstract void doUpdate(UpdateWebAclRequest.Builder builder);
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
@@ -148,20 +162,6 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(WebACL webAcl) {
-        setWebAclId(webAcl.webACLId());
-        setArn(webAcl.webACLArn());
-        setDefaultAction(webAcl.defaultAction().typeAsString());
-        setMetricName(webAcl.metricName());
-        setName(webAcl.name());
-
-        clearActivatedRules();
-        for (ActivatedRule activatedRule : webAcl.rules()) {
-            setActivatedRules(activatedRule);
-        }
     }
 
     protected void validateActivatedRule() {

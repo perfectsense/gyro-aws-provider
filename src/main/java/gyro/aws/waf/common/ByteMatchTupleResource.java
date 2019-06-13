@@ -53,7 +53,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     /**
-     * the target string to filter on for the byte match filter. (Required)
+     * The target string to filter on for the byte match filter. (Required)
      */
     public String getTargetString() {
         return targetString;
@@ -72,6 +72,15 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
 
     public void setTextTransformation(String textTransformation) {
         this.textTransformation = textTransformation;
+    }
+
+    @Override
+    public void copyFrom(ByteMatchTuple byteMatchTuple) {
+        setType(byteMatchTuple.fieldToMatch().typeAsString());
+        setData(byteMatchTuple.fieldToMatch().data());
+        setPositionalConstraint(byteMatchTuple.positionalConstraintAsString());
+        setTargetString(byteMatchTuple.targetString().asString(StandardCharsets.UTF_8));
+        setTextTransformation(byteMatchTuple.textTransformationAsString());
     }
 
     @Override
@@ -126,15 +135,6 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     @Override
     public String primaryKey() {
         return String.format("%s %s %s %s %s", getData(), getType(), getTextTransformation(), getPositionalConstraint(), getTargetString());
-    }
-
-    @Override
-    public void copyFrom(ByteMatchTuple byteMatchTuple) {
-        setType(byteMatchTuple.fieldToMatch().typeAsString());
-        setData(byteMatchTuple.fieldToMatch().data());
-        setPositionalConstraint(byteMatchTuple.positionalConstraintAsString());
-        setTargetString(byteMatchTuple.targetString().asString(StandardCharsets.UTF_8));
-        setTextTransformation(byteMatchTuple.textTransformationAsString());
     }
 
     protected abstract void saveByteMatchTuple(ByteMatchTuple byteMatchTuple, boolean isDelete);

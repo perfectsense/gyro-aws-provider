@@ -11,6 +11,14 @@ public abstract class RuleResource extends CommonRuleResource implements Copyabl
     protected abstract Rule getRule();
 
     @Override
+    public void copyFrom(Rule rule) {
+        setRuleId(rule.ruleId());
+        setMetricName(rule.metricName());
+        setName(rule.name());
+        loadPredicates(rule.predicates());
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getRuleId())) {
             return false;
@@ -29,13 +37,5 @@ public abstract class RuleResource extends CommonRuleResource implements Copyabl
     @Override
     public boolean isRateRule() {
         return false;
-    }
-
-    @Override
-    public void copyFrom(Rule rule) {
-        setRuleId(rule.ruleId());
-        setMetricName(rule.metricName());
-        setName(rule.name());
-        loadPredicates(rule.predicates());
     }
 }

@@ -55,6 +55,20 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     }
 
     @Override
+    public void copyFrom(ByteMatchSet byteMatchSet) {
+        setId(byteMatchSet.byteMatchSetId());
+        setName(byteMatchSet.name());
+
+        getByteMatchTuple().clear();
+
+        for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
+            ByteMatchTupleResource byteMatchTupleResource = newSubresource(ByteMatchTupleResource.class);
+            byteMatchTupleResource.copyFrom(byteMatchTuple);
+            getByteMatchTuple().add(byteMatchTupleResource);
+        }
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getId())) {
             return false;
@@ -87,19 +101,5 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .byteMatchSetId(getId())
         );
-    }
-
-    @Override
-    public void copyFrom(ByteMatchSet byteMatchSet) {
-        setId(byteMatchSet.byteMatchSetId());
-        setName(byteMatchSet.name());
-
-        getByteMatchTuple().clear();
-
-        for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
-            ByteMatchTupleResource byteMatchTupleResource = newSubresource(ByteMatchTupleResource.class);
-            byteMatchTupleResource.copyFrom(byteMatchTuple);
-            getByteMatchTuple().add(byteMatchTupleResource);
-        }
     }
 }
