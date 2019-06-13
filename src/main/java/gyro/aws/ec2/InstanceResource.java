@@ -514,7 +514,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public void copyFrom(Instance instance) {
         Ec2Client client = createClient(Ec2Client.class);
-        setInstanceId(getInstanceId());
+        setInstanceId(instance.instanceId());
         init(instance, client);
     }
 
