@@ -200,6 +200,17 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     @Override
+    public void copyFrom(GetLayerVersionResponse response) {
+        setVersion(response.version());
+        setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
+        setCreatedDate(response.createdDate());
+        setDescription(response.description());
+        setArn(response.layerArn());
+        setVersionArn(response.layerVersionArn());
+        setLicenseInfo(response.licenseInfo());
+    }
+
+    @Override
     public boolean refresh() {
         if (ObjectUtils.isBlank(getLayerName()) || getVersion() == null) {
             throw new GyroException("layer-name and/or version is missing, unable to load lambda layer.");
@@ -280,17 +291,6 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(GetLayerVersionResponse response) {
-        setVersion(response.version());
-        setCompatibleRuntimes(response.compatibleRuntimesAsStrings());
-        setCreatedDate(response.createdDate());
-        setDescription(response.description());
-        setArn(response.layerArn());
-        setVersionArn(response.layerVersionArn());
-        setLicenseInfo(response.licenseInfo());
     }
 
     private SdkBytes getZipFile() {

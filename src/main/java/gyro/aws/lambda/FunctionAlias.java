@@ -144,6 +144,19 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     @Override
+    public void copyFrom(GetAliasResponse response) {
+        setAliasName(response.name());
+        setArn(response.aliasArn());
+        setDescription(response.description());
+        setFunctionVersion(response.functionVersion());
+        setRevisionId(response.revisionId());
+        if (response.routingConfig() != null && response.routingConfig().additionalVersionWeights().isEmpty()) {
+            setAdditionalVersion(response.routingConfig().additionalVersionWeights().keySet().iterator().next());
+            setWeight(response.routingConfig().additionalVersionWeights().get(getAdditionalVersion()));
+        }
+    }
+
+    @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
@@ -232,18 +245,5 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(GetAliasResponse response) {
-        setAliasName(response.name());
-        setArn(response.aliasArn());
-        setDescription(response.description());
-        setFunctionVersion(response.functionVersion());
-        setRevisionId(response.revisionId());
-        if (response.routingConfig() != null && response.routingConfig().additionalVersionWeights().isEmpty()) {
-            setAdditionalVersion(response.routingConfig().additionalVersionWeights().keySet().iterator().next());
-            setWeight(response.routingConfig().additionalVersionWeights().get(getAdditionalVersion()));
-        }
     }
 }

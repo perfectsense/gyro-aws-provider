@@ -502,6 +502,65 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
+    public void copyFrom(FunctionConfiguration configuration) {
+        setFunctionName(configuration.functionName());
+        setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
+        setDescription(configuration.description());
+        setRuntime(configuration.runtimeAsString());
+        setRoleArn(configuration.role());
+        setHandler(configuration.handler());
+        setTimeout(configuration.timeout());
+        setMemorySize(configuration.memorySize());
+        setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
+        setKmsKeyArn(configuration.kmsKeyArn());
+        setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
+        setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
+
+        setArn(configuration.functionArn());
+        setArnNoVersion(getArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
+        setLastModified(configuration.lastModified());
+        setMasterArn(configuration.masterArn());
+        setRevisionId(configuration.revisionId());
+        setVersion(configuration.version());
+        setCodeHash(configuration.codeSha256());
+
+        setSecurityGroups(
+            configuration.vpcConfig() != null ?
+                configuration.vpcConfig()
+                    .securityGroupIds().stream()
+                    .map(o -> findById(SecurityGroupResource.class, o))
+                    .collect(Collectors.toSet())
+                : null);
+        setSubnets(
+            configuration.vpcConfig() != null ?
+                configuration.vpcConfig()
+                    .subnetIds().stream()
+                    .map(o -> findById(SubnetResource.class, o))
+                    .collect(Collectors.toSet())
+                : null);
+
+        LambdaClient client = createClient(LambdaClient.class);
+
+        ListTagsResponse tagResponse = client.listTags(
+            r -> r.resource(getArnNoVersion())
+        );
+
+        setTags(tagResponse.tags());
+
+        if (!ObjectUtils.isBlank(getContentZipPath())) {
+            setFileHashFromPath();
+        }
+
+        setVersions(client);
+
+        GetFunctionResponse response = client.getFunction(
+            r -> r.functionName(getFunctionName())
+        );
+
+        setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
+    }
+
+    @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
@@ -759,64 +818,5 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                 }
             }
         }
-    }
-
-    @Override
-    public void copyFrom(FunctionConfiguration configuration) {
-        setFunctionName(configuration.functionName());
-        setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
-        setDescription(configuration.description());
-        setRuntime(configuration.runtimeAsString());
-        setRoleArn(configuration.role());
-        setHandler(configuration.handler());
-        setTimeout(configuration.timeout());
-        setMemorySize(configuration.memorySize());
-        setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-        setKmsKeyArn(configuration.kmsKeyArn());
-        setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
-        setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
-
-        setArn(configuration.functionArn());
-        setArnNoVersion(getArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
-        setLastModified(configuration.lastModified());
-        setMasterArn(configuration.masterArn());
-        setRevisionId(configuration.revisionId());
-        setVersion(configuration.version());
-        setCodeHash(configuration.codeSha256());
-
-        setSecurityGroups(
-            configuration.vpcConfig() != null ?
-                configuration.vpcConfig()
-                    .securityGroupIds().stream()
-                    .map(o -> findById(SecurityGroupResource.class, o))
-                    .collect(Collectors.toSet())
-                : null);
-        setSubnets(
-            configuration.vpcConfig() != null ?
-                configuration.vpcConfig()
-                    .subnetIds().stream()
-                    .map(o -> findById(SubnetResource.class, o))
-                    .collect(Collectors.toSet())
-                : null);
-
-        LambdaClient client = createClient(LambdaClient.class);
-
-        ListTagsResponse tagResponse = client.listTags(
-            r -> r.resource(getArnNoVersion())
-        );
-
-        setTags(tagResponse.tags());
-
-        if (!ObjectUtils.isBlank(getContentZipPath())) {
-            setFileHashFromPath();
-        }
-
-        setVersions(client);
-
-        GetFunctionResponse response = client.getFunction(
-            r -> r.functionName(getFunctionName())
-        );
-
-        setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
     }
 }

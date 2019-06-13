@@ -215,6 +215,20 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     @Override
+    public void copyFrom(GetEventSourceMappingResponse response) {
+        setId(response.uuid());
+        setBatchSize(response.batchSize());
+        setEventSourceArn(response.eventSourceArn());
+        setLastModified(Date.from(response.lastModified()));
+        setLastProcessingResult(response.lastProcessingResult());
+        setState(response.state());
+        setStateTransitionReason(response.stateTransitionReason());
+        setEnabled(getState().equals("Enabled"));
+        setFunctionArn(response.functionArn());
+        setFunctionName(getFunctionArn());
+    }
+
+    @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
@@ -337,19 +351,5 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
 
             return true;
         }
-    }
-
-    @Override
-    public void copyFrom(GetEventSourceMappingResponse response) {
-        setId(response.uuid());
-        setBatchSize(response.batchSize());
-        setEventSourceArn(response.eventSourceArn());
-        setLastModified(Date.from(response.lastModified()));
-        setLastProcessingResult(response.lastProcessingResult());
-        setState(response.state());
-        setStateTransitionReason(response.stateTransitionReason());
-        setEnabled(getState().equals("Enabled"));
-        setFunctionArn(response.functionArn());
-        setFunctionName(getFunctionArn());
     }
 }
