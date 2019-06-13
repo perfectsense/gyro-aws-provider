@@ -10,6 +10,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpnGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implements Copyable<VpnGateway> {
     private Long amazonSideAsn;
     private VpcResource vpc;
+    private String availabilityZone;
 
     // Read-only
     private String vpnGatewayId;
@@ -66,6 +68,17 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
     public void setVpc(VpcResource vpc) {
         this.vpc = vpc;
+    }
+
+    /**
+     * The availability zone for the gateway.
+     */
+    public String getAvailabilityZone() {
+        return availabilityZone;
+    }
+
+    public void setAvailabilityZone(String availabilityZone) {
+        this.availabilityZone = availabilityZone;
     }
 
     /**
@@ -119,12 +132,17 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     protected void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateVpnGatewayResponse response;
+        CreateVpnGatewayRequest.Builder builder = CreateVpnGatewayRequest.builder().type(GatewayType.IPSEC_1);
+
         if (getAmazonSideAsn() > 0) {
-            response = client.createVpnGateway(r -> r.type(GatewayType.IPSEC_1).amazonSideAsn(getAmazonSideAsn()));
-        } else {
-            response = client.createVpnGateway(r -> r.type(GatewayType.IPSEC_1));
+            builder = builder.amazonSideAsn(getAmazonSideAsn());
         }
+
+        if (!ObjectUtils.isBlank(getAvailabilityZone())) {
+            builder = builder.availabilityZone(getAvailabilityZone());
+        }
+
+        CreateVpnGatewayResponse response = client.createVpnGateway(builder.build());
 
         setVpnGatewayId(response.vpnGateway().vpnGatewayId());
 
