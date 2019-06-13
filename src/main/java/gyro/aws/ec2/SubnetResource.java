@@ -87,12 +87,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * Assign a public IPv4 address to Network Interfaces created in this Subnet. Defaults to ``true``.
+     * Assign a public IPv4 address to Network Interfaces created in this Subnet. Defaults to ``false``.
      */
     @Updatable
     public Boolean getMapPublicIpOnLaunch() {
         if (mapPublicIpOnLaunch == null) {
-            mapPublicIpOnLaunch = true;
+            mapPublicIpOnLaunch = false;
         }
 
         return mapPublicIpOnLaunch;
