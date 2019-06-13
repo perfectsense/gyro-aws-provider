@@ -24,6 +24,8 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcAttributeRequest;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
 import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,6 +63,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private String ownerId;
     private Boolean defaultVpc;
     private String region;
+    private String account;
 
     /**
      * The IPv4 network range for the VPC, in CIDR notation. (Required)
@@ -225,6 +228,18 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         this.region = region;
     }
 
+    /**
+     * The account under which the VPC was created.
+     */
+    @Output
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
     @Override
     public String getId() {
         return getVpcId();
@@ -275,6 +290,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         }
 
         setRegion(credentials(AwsCredentials.class).getRegion());
+        setAccount(getAccountNumber());
     }
 
     @Override
@@ -444,6 +460,12 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
                 throw new GyroException("'instance-tenancy' can only be modified to `default`.");
             }
         }
+    }
+
+    private String getAccountNumber() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
     }
 
 }
