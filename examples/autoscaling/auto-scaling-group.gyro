@@ -155,9 +155,9 @@ workflow 'deploy'
     end
 
     stage 'finished'
-        @delete 'verify-instance'
-        @delete 'verify-launch-configuration'
-        @delete 'verify-auto-scaling-group'
+        @delete 'aws::instance', 'verify-instance'
+        @delete 'aws::launch-configuration', 'verify-launch-configuration'
+        @delete 'aws::auto-scaling-group', 'verify-auto-scaling-group'
     end
 end
 
