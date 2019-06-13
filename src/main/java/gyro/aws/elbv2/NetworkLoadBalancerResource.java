@@ -93,7 +93,6 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
 
         if (loadBalancer != null) {
 
-            super.copyFrom(loadBalancer);
             this.copyFrom(loadBalancer);
 
             return true;
@@ -119,7 +118,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
-                .until(() -> isActiveState(client).equalsIgnoreCase("Active"));
+                .until(() -> isActiveState(client) == true);
 
         super.create();
     }
@@ -138,7 +137,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
-                .until(() -> isDeleted(client) == null);
+                .until(() -> isDeleted(client) == true);
     }
 
     @Override
@@ -158,11 +157,12 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         return subnetMappings;
     }
 
-    private String isActiveState(ElasticLoadBalancingV2Client client) {
-        return client.describeLoadBalancers(r -> r.loadBalancerArns(getArn())).loadBalancers().get(0).state().codeAsString();
+    private boolean isActiveState(ElasticLoadBalancingV2Client client) {
+        String result = client.describeLoadBalancers(r -> r.loadBalancerArns(getArn())).loadBalancers().get(0).state().codeAsString();
+        return result.equalsIgnoreCase("Active");
     }
 
-    private LoadBalancer isDeleted(ElasticLoadBalancingV2Client client) {
+    private boolean isDeleted(ElasticLoadBalancingV2Client client) {
         LoadBalancer loadBalancer = null;
 
         if (ObjectUtils.isBlank(getArn())) {
@@ -179,6 +179,6 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         } catch (LoadBalancerNotFoundException ex) {
         }
 
-        return loadBalancer;
+        return loadBalancer == null;
     }
 }
