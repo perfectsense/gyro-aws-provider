@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  *         function-name: "testFunction"
  *         handler: "index.handler"
  *         runtime: "nodejs8.10"
- *         role-arn: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
+ *         role: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
  *         content-zip-path: "example-function.zip"
  *
  *         tags: {
