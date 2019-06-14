@@ -5,6 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.aws.iam.IamRoleResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
@@ -66,7 +67,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private String s3Key;
     private String s3ObjectVersion;
     private String contentZipPath;
-    private String roleArn;
+    private IamRoleResource role;
     private String runtime;
     private String handler;
     private Integer timeout;
@@ -171,15 +172,15 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The role arn to be associated with this Lambda Function. (Required)
+     * The IAM Role to be associated with this Lambda Function. (Required)
      */
     @Updatable
-    public String getRoleArn() {
-        return roleArn;
+    public IamRoleResource getRole() {
+        return role;
     }
 
-    public void setRoleArn(String roleArn) {
-        this.roleArn = roleArn;
+    public void setRole(IamRoleResource role) {
+        this.role = role;
     }
 
     /**
@@ -503,7 +504,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
         setDescription(configuration.description());
         setRuntime(configuration.runtimeAsString());
-        setRoleArn(configuration.role());
+        setRole(!ObjectUtils.isBlank(configuration.role()) ? findById(IamRoleResource.class, configuration.role()) : null );
         setHandler(configuration.handler());
         setTimeout(configuration.timeout());
         setMemorySize(configuration.memorySize());
@@ -584,7 +585,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             .functionName(getFunctionName())
             .description(getDescription())
             .runtime(getRuntime())
-            .role(getRoleArn())
+            .role(getRole().getRoleArn())
             .handler(getHandler())
             .timeout(getTimeout())
             .memorySize(getMemorySize())
@@ -717,7 +718,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                 r -> r.functionName(getFunctionName())
                     .description(getDescription())
                     .runtime(getRuntime())
-                    .role(getRoleArn())
+                    .role(getRole().getRoleArn())
                     .handler(getHandler())
                     .timeout(getTimeout())
                     .memorySize(getMemorySize())
