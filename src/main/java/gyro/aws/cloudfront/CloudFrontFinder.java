@@ -74,4 +74,14 @@ public class CloudFrontFinder extends AwsFinder<CloudFrontClient, Distribution, 
 
         return distributions;
     }
+
+    @Override
+    protected String getRegion() {
+        return "us-east-1";
+    }
+
+    @Override
+    protected String getEndpoint() {
+        return "https://cloudfront.amazonaws.com";
+    }
 }
