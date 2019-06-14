@@ -811,7 +811,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         if (versionsResponse != null && !versionsResponse.versions().isEmpty()) {
             for (FunctionConfiguration functionConfiguration : versionsResponse.versions()) {
                 if (!functionConfiguration.version().equals("$LATEST")) {
-                    getVersionMap().put(functionConfiguration.version(), functionConfiguration.functionArn());
+                    getVersionMap().put("v" + functionConfiguration.version(), functionConfiguration.functionArn());
                 }
             }
         }
