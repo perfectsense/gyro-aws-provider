@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequ
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.GetEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.lambda.model.UpdateEventSourceMappingRequest;
 
 import java.time.Instant;
 import java.util.Date;
@@ -30,14 +31,16 @@ import java.util.concurrent.TimeUnit;
  * .. code-block:: gyro
  *
  *     aws::event-source-mapping event-source-mapping-example
- *         function-name: $(aws::lambda-function lambda-function-event-source-mapping-example | function-name)
+ *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         batch-size: 10
  *         event-source-arn: "$(aws::sqs sqs-event-source-mapping-example | queue-arn)"
  *     end
  */
 @Type("event-source-mapping")
 public class EventSourceMapping extends AwsResource implements Copyable<GetEventSourceMappingResponse> {
-    private String functionName;
+    private FunctionResource function;
+    private Integer functionVersion;
+    private FunctionAlias alias;
     private Integer batchSize;
     private Boolean enabled;
     private String eventSourceArn;
@@ -55,15 +58,39 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     private String functionArn;
 
     /**
-     * The name / arn / partial arn of the Lambda Function to be associated with. (Required)
+     * The Lambda Function to be associated with. Required if Alias is not provided.
      */
     @Updatable
-    public String getFunctionName() {
-        return isFunctionArnSame() ? getFunctionArn() : functionName;
+    public FunctionResource getFunction() {
+        return function;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public void setFunction(FunctionResource function) {
+        this.function = function;
+    }
+
+    /**
+     * The Lambda Function version to be associated with.
+     */
+    @Updatable
+    public Integer getFunctionVersion() {
+        return functionVersion;
+    }
+
+    public void setFunctionVersion(Integer functionVersion) {
+        this.functionVersion = functionVersion;
+    }
+
+    /**
+     * The Lambda Function to be associated with. Required if function is not provided.
+     */
+    @Updatable
+    public FunctionAlias getAlias() {
+        return alias;
+    }
+
+    public void setAlias(FunctionAlias alias) {
+        this.alias = alias;
     }
 
     /**
@@ -223,7 +250,22 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
         setStateTransitionReason(response.stateTransitionReason());
         setEnabled(getState().equals("Enabled"));
         setFunctionArn(response.functionArn());
-        setFunctionName(getFunctionArn());
+        String versionOrAlias = getFunctionArn().split(":function:")[1].split(":").length > 1 ? getFunctionArn().split(":function:")[1].split(":")[1] : "";
+        Integer version = getIntVal(versionOrAlias);
+        if (!ObjectUtils.isBlank(versionOrAlias) && version == null ) {
+            setAlias(findById(FunctionAlias.class, response.functionArn()));
+        } else {
+            setFunction(findById(FunctionResource.class, getFunctionArn().split(":function:")[1].split(":")[0]));
+            setFunctionVersion(version);
+        }
+    }
+
+    private Integer getIntVal(String val) {
+        try {
+            return Integer.parseInt(val);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     @Override
@@ -248,10 +290,19 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateEventSourceMappingRequest.Builder builder = CreateEventSourceMappingRequest.builder()
-            .functionName(getFunctionName())
             .batchSize(getBatchSize())
             .enabled(getEnabled())
             .eventSourceArn(getEventSourceArn());
+
+        if (getAlias() != null) {
+            builder = builder.functionName(getAlias().getArn());
+        } else {
+            if (getFunctionVersion() == null) {
+                builder = builder.functionName(getFunction().getFunctionName());
+            } else {
+                builder = builder.functionName(getFunction().getArnNoVersion() + ":" + getFunctionVersion());
+            }
+        }
 
         if (!ObjectUtils.isBlank(getStartingPosition())) {
             builder = builder.startingPosition(getStartingPosition());
@@ -276,12 +327,22 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
 
         LambdaClient client = createClient(LambdaClient.class);
 
-        client.updateEventSourceMapping(
-            r -> r.uuid(getId())
-                .enabled(getEnabled())
-                .batchSize(getBatchSize())
-                .functionName(getFunctionName())
-        );
+        UpdateEventSourceMappingRequest.Builder builder = UpdateEventSourceMappingRequest.builder()
+            .uuid(getId())
+            .enabled(getEnabled())
+            .batchSize(getBatchSize());
+
+        if (getAlias() != null) {
+            builder = builder.functionName(getAlias().getArn());
+        } else {
+            if (getFunctionVersion() == null) {
+                builder = builder.functionName(getFunction().getFunctionName());
+            } else {
+                builder = builder.functionName(getFunction().getArnNoVersion() + ":" + getFunctionVersion());
+            }
+        }
+
+        client.updateEventSourceMapping(builder.build());
 
         waitToSave(client);
     }
@@ -301,12 +362,20 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
 
         sb.append("event source mapping");
 
-        if (!ObjectUtils.isBlank(getFunctionName())) {
-            sb.append(" function - ").append(getFunctionName());
+        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
+            sb.append(", function - ").append(getFunction().getFunctionName());
+
+            if (getFunctionVersion() != null) {
+                sb.append(", version - ").append(getFunctionVersion());
+            }
+        } else if (getAlias() != null && !ObjectUtils.isBlank(getAlias().getArn())) {
+            String functionAlias = getAlias().getArn().split(":function:")[1];
+            sb.append(", function - ").append(functionAlias.split(":")[0]);
+            sb.append(", alias - ").append(functionAlias.split(":")[1]);
         }
 
         if (!ObjectUtils.isBlank(getEventSourceArn())) {
-            sb.append(" source - ").append(getEventSourceArn());
+            sb.append(", source - ").append(getEventSourceArn());
         }
 
         return sb.toString();
@@ -322,32 +391,5 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
             );
 
         copyFrom(client.getEventSourceMapping(r -> r.uuid(getId())));
-    }
-
-    private boolean isFunctionArnSame() {
-        if (ObjectUtils.isBlank(getFunctionArn())) {
-            return false;
-        } else if (functionName.equals(getFunctionArn())) {
-            return true;
-        } else {
-            if (!functionName.contains(":")) {
-                // Just function name
-                return getFunctionArn().endsWith(functionName);
-            } else if (functionName.startsWith("arn:aws:lambda")) {
-                // Full Arn
-                return functionName.equals(getFunctionArn());
-            } else if (functionName.contains(":function:")) {
-                // Partial
-                String partialName = functionName.split(":function:").length == 2 ? functionName.split(":function:")[1] : null;
-                String partialArn = getFunctionArn().split(":function:").length == 2 ? getFunctionArn().split(":function:")[1] : null;
-                if (partialName == null || !partialName.equals(partialArn)) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-            return true;
-        }
     }
 }
