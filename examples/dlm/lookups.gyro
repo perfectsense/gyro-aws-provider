@@ -1,0 +1,1 @@
+ebs-snapshot-lifecycle-policy: $(aws::ebs-snapshot-lifecycle-policy EXTERNAL/* | policy-id = '')
