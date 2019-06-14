@@ -29,7 +29,7 @@ import java.util.Set;
  *
  *     aws::lambda-alias lambda-alias-example
  *         alias-name: "lambda-alias-example"
- *         function-name: "testFunction"
+ *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         function-version: "10"
  *         description: "lambda-alias-example"
  *         additional-version: "9"
@@ -39,7 +39,7 @@ import java.util.Set;
 @Type("lambda-alias")
 public class FunctionAlias extends AwsResource implements Copyable<GetAliasResponse> {
     private String aliasName;
-    private String functionName;
+    private FunctionResource function;
     private String functionVersion;
     private String description;
     private String additionalVersion;
@@ -60,14 +60,14 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * Name of the Lambda Function for the Lambda Alias. (Required)
+     * The Lambda Function for the Lambda Alias. (Required)
      */
-    public String getFunctionName() {
-        return functionName;
+    public FunctionResource getFunction() {
+        return function;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public void setFunction(FunctionResource function) {
+        this.function = function;
     }
 
     /**
@@ -163,7 +163,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         try {
             GetAliasResponse response = client.getAlias(
                 r -> r.name(getAliasName())
-                    .functionName(getFunctionName())
+                    .functionName(getFunction().getFunctionName())
             );
 
             copyFrom(response);
@@ -181,7 +181,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         CreateAliasRequest.Builder builder = CreateAliasRequest.builder()
             .name(getAliasName())
             .description(getDescription())
-            .functionName(getFunctionName())
+            .functionName(getFunction().getFunctionName())
             .functionVersion(getFunctionVersion());
 
         if (!ObjectUtils.isBlank(getAdditionalVersion())) {
@@ -206,7 +206,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
             .revisionId(getRevisionId())
             .name(getAliasName())
             .description(getDescription())
-            .functionName(getFunctionName())
+            .functionName(getFunction().getFunctionName())
             .functionVersion(getFunctionVersion());
 
         if (!ObjectUtils.isBlank(getAdditionalVersion())) {
@@ -226,7 +226,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
 
         client.deleteAlias(
             r -> r.name(getAliasName())
-                .functionName(getFunctionName())
+                .functionName(getFunction().getFunctionName())
         );
     }
 
@@ -240,8 +240,8 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
             sb.append(" - ").append(getAliasName());
         }
 
-        if (!ObjectUtils.isBlank(getFunctionName())) {
-            sb.append(", function - ").append(getFunctionName());
+        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
+            sb.append(", function - ").append(getFunction().getFunctionName());
         }
 
         return sb.toString();
