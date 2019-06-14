@@ -97,6 +97,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     public void copyFrom(UserPoolType model) {
         setArn(model.arn());
         setId(model.id());
+        setName(model.name());
         setTags(model.userPoolTags());
     }
 

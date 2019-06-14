@@ -271,6 +271,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
 
     @Override
     public void copyFrom(UserPoolClientType model) {
+        setId(model.clientId());
         setAllowedOAuthFlowsClient(model.allowedOAuthFlowsUserPoolClient());
 
         getAllowedOAuthFlows().clear();
