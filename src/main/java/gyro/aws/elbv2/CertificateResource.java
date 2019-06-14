@@ -38,6 +38,9 @@ public class CertificateResource extends AwsResource {
         this.arn = arn;
     }
 
+    /**
+     *  Determines if the certificate is default. (Optional)
+     */
     @Updatable
     public Boolean getIsDefault() {
         return isDefault;
