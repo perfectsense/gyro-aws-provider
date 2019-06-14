@@ -6,6 +6,7 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
 import software.amazon.awssdk.services.lambda.model.LayerVersionsListItem;
+import software.amazon.awssdk.services.lambda.model.ListLayerVersionsRequest;
 import software.amazon.awssdk.services.lambda.model.ListLayerVersionsResponse;
 
 import java.util.ArrayList;
@@ -78,8 +79,21 @@ public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse
 
     private List<GetLayerVersionResponse> getAllLayerVersions(LambdaClient client, String layerName) {
         List<GetLayerVersionResponse> getLayerVersions = new ArrayList<>();
-        ListLayerVersionsResponse versionsResponse = client.listLayerVersions(r -> r.layerName(layerName));
-        List<Long> versions = versionsResponse.layerVersions().stream().map(LayerVersionsListItem::version).collect(Collectors.toList());
+        List<Long> versions = new ArrayList<>();
+        ListLayerVersionsResponse response;
+        String marker = "";
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listLayerVersions(ListLayerVersionsRequest.builder().layerName(layerName).build());
+            } else {
+                response = client.listLayerVersions(ListLayerVersionsRequest.builder().layerName(layerName).marker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            versions.addAll(response.layerVersions().stream().map(LayerVersionsListItem::version).collect(Collectors.toList()));
+        } while (!ObjectUtils.isBlank(marker));
+
         for (Long version : versions) {
             getLayerVersions.add(client.getLayerVersion(r -> r.layerName(layerName).versionNumber(version)));
         }
