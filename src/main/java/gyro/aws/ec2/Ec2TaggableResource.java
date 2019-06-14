@@ -74,7 +74,9 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
                 .build());
 
         for (TagDescription tagDescription : response.tags()) {
-            tags.put(tagDescription.key(), tagDescription.value());
+            if (!tagDescription.key().startsWith("aws:")) {
+                tags.put(tagDescription.key(), tagDescription.value());
+            }
         }
 
         return tags;

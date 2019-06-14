@@ -1,6 +1,63 @@
+aws::vpc vpc-connection-notification-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "connection-notification-example"
+    }
+end
+
+aws::internet-gateway internet-gateway-example
+    vpc: $(aws::vpc vpc-connection-notification-example)
+end
+
+aws::subnet subnet-us-east-2a
+    vpc: $(aws::vpc vpc-connection-notification-example)
+    availability-zone: 'us-east-2a'
+    cidr-block: '10.0.0.0/24'
+
+    tags: {
+        Name: "connection-notification-example us-east-2a"
+    }
+end
+
+aws::subnet subnet-us-east-2b
+    vpc: $(aws::vpc vpc-connection-notification-example)
+    availability-zone: 'us-east-2b'
+    cidr-block: '10.0.1.0/24'
+
+    tags: {
+        Name: "connection-notification-example us-east-2b"
+    }
+end
+
+aws::nlb nlb-example
+    name: "nlb-CN-example"
+    ip-address-type: "ipv4"
+    scheme: "internet-facing"
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+    end
+
+    subnet-mappings
+        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+    end
+
+    tags: {
+            Name: "nlb-example"
+        }
+end
+
+aws::endpoint-service endpoint-service-connection-notification-example
+    network-load-balancers: [
+        $(aws::nlb nlb-example-2)
+    ]
+end
+
 aws::connection-notification connection-notification-example
-    vpc-endpoint-id: $(aws::endpoint endpoint-example-interface | endpoint-id)
-    connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
+    endpoint-service: $(aws::endpoint-service endpoint-service-connection-notification-example)
+    connection-notification-arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
     connection-events: [
         "Accept"
     ]

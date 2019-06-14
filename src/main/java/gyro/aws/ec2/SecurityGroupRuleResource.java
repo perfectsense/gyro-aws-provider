@@ -1,6 +1,8 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
@@ -9,7 +11,7 @@ import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SecurityGroupRuleResource extends AwsResource {
+public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
 
     private List<String> cidrBlocks;
     private List<String> ipv6CidrBlocks;
@@ -18,10 +20,92 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     private Integer fromPort;
     private Integer toPort;
 
-    public SecurityGroupRuleResource() {
+    /**
+     * Protocol for this Security Group Rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
+     */
+    @Updatable
+    public String getProtocol() {
+        if (protocol != null) {
+            return protocol.toLowerCase();
+        }
+
+        return "tcp";
     }
 
-    public SecurityGroupRuleResource(IpPermission permission) {
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    /**
+     * Description for this Security Group Rule.
+     */
+    @Updatable
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Starting port for this Security Group Rule. (Required)
+     */
+    @Updatable
+    public Integer getFromPort() {
+        return fromPort;
+    }
+
+    public void setFromPort(Integer fromPort) {
+        this.fromPort = fromPort;
+    }
+
+    /**
+     * Ending port for this Security Group Rule. (Required)
+     */
+    @Updatable
+    public Integer getToPort() {
+        return toPort;
+    }
+
+    public void setToPort(Integer toPort) {
+        this.toPort = toPort;
+    }
+
+    /**
+     * List of IPv4 CIDR blocks to apply this Security Group Rule to. Required if `ipv6-cidr-blocks` not mentioned.
+     */
+    @Updatable
+    public List<String> getCidrBlocks() {
+        if (cidrBlocks == null) {
+            cidrBlocks = new ArrayList<>();
+        }
+
+        return cidrBlocks;
+    }
+
+    public void setCidrBlocks(List<String> cidrBlocks) {
+        this.cidrBlocks = cidrBlocks;
+    }
+
+    /**
+     * List of IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-blocks` not mentioned.
+     */
+    @Updatable
+    public List<String> getIpv6CidrBlocks() {
+        if (ipv6CidrBlocks == null) {
+            ipv6CidrBlocks = new ArrayList<>();
+        }
+
+        return ipv6CidrBlocks;
+    }
+
+    public void setIpv6CidrBlocks(List<String> ipv6CidrBlocks) {
+        this.ipv6CidrBlocks = ipv6CidrBlocks;
+    }
+
+    @Override
+    public void copyFrom(IpPermission permission) {
         setProtocol(permission.ipProtocol());
         setFromPort(permission.fromPort());
         setToPort(permission.toPort());
@@ -39,99 +123,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
                 setDescription(range.description());
             }
         }
-    }
-
-    public String getGroupId() {
-        SecurityGroupResource parent = (SecurityGroupResource) parent();
-        if (parent != null) {
-            return parent.getGroupId();
-        }
-
-        return null;
-    }
-
-    /**
-     * Protocol for this rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp".
-     */
-    @Updatable
-    public String getProtocol() {
-        if (protocol != null) {
-            return protocol.toLowerCase();
-        }
-
-        return "tcp";
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    /**
-     * Description for this security group rule.
-     */
-    @Updatable
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Starting port for this rule.
-     */
-    @Updatable
-    public Integer getFromPort() {
-        return fromPort;
-    }
-
-    public void setFromPort(Integer fromPort) {
-        this.fromPort = fromPort;
-    }
-
-    /**
-     * Ending port for this rule.
-     */
-    @Updatable
-    public Integer getToPort() {
-        return toPort;
-    }
-
-    public void setToPort(Integer toPort) {
-        this.toPort = toPort;
-    }
-
-    /**
-     * List of IPv4 cidr blocks to apply this rule to.
-     */
-    @Updatable
-    public List<String> getCidrBlocks() {
-        if (cidrBlocks == null) {
-            cidrBlocks = new ArrayList<>();
-        }
-
-        return cidrBlocks;
-    }
-
-    public void setCidrBlocks(List<String> cidrBlocks) {
-        this.cidrBlocks = cidrBlocks;
-    }
-
-    /**
-     * List of IPv6 cidr blocks to apply this rule to.
-     */
-    @Updatable
-    public List<String> getIpv6CidrBlocks() {
-        if (ipv6CidrBlocks == null) {
-            ipv6CidrBlocks = new ArrayList<>();
-        }
-
-        return ipv6CidrBlocks;
-    }
-
-    public void setIpv6CidrBlocks(List<String> ipv6CidrBlocks) {
-        this.ipv6CidrBlocks = ipv6CidrBlocks;
     }
 
     @Override
@@ -167,13 +158,24 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             sb.append(getIpv6CidrBlocks());
         }
 
-        sb.append(" ");
-        sb.append(getDescription());
+        if (!ObjectUtils.isBlank(getDescription())) {
+            sb.append(" ");
+            sb.append(getDescription());
+        }
 
         return sb.toString();
     }
 
-    protected IpPermission getIpPermissionRequest() {
+    public String getGroupId() {
+        SecurityGroupResource parent = (SecurityGroupResource) parent();
+        if (parent != null) {
+            return parent.getGroupId();
+        }
+
+        return null;
+    }
+
+    IpPermission getIpPermissionRequest() {
         IpPermission.Builder permissionBuilder = IpPermission.builder();
 
         if (!getCidrBlocks().isEmpty()) {
@@ -196,13 +198,11 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             permissionBuilder.ipv6Ranges(ipv6builder.build());
         }
 
-        IpPermission permission = permissionBuilder
+        return permissionBuilder
             .fromPort(getFromPort())
             .ipProtocol(getProtocol())
             .toPort(getToPort())
             .build();
-
-        return permission;
     }
 
 }

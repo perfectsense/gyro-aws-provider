@@ -1,13 +1,18 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.CustomerGateway;
 import software.amazon.awssdk.services.ec2.model.DescribeCustomerGatewaysResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.GatewayType;
 
 import java.util.Set;
@@ -29,20 +34,11 @@ import java.util.Set;
  *     end
  */
 @Type("customer-gateway")
-public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> {
+public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> implements Copyable<CustomerGateway> {
 
     private String customerGatewayId;
     private String publicIp;
     private Integer bgpAsn;
-
-    @Output
-    public String getCustomerGatewayId() {
-        return customerGatewayId;
-    }
-
-    public void setCustomerGatewayId(String customerGatewayId) {
-        this.customerGatewayId = customerGatewayId;
-    }
 
     /**
      * Public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html/>`_. (Required)
@@ -59,6 +55,10 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
      * the Border Gateway Protocol Autonomous System Number of the gateway.
      */
     public Integer getBgpAsn() {
+        if (bgpAsn == null) {
+            bgpAsn = 0;
+        }
+
         return bgpAsn;
     }
 
@@ -71,20 +71,39 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
         return getCustomerGatewayId();
     }
 
+    /**
+     * The ID of the Customer Gateway.
+     */
+    @Id
+    @Output
+    public String getCustomerGatewayId() {
+        return customerGatewayId;
+    }
+
+    public void setCustomerGatewayId(String customerGatewayId) {
+        this.customerGatewayId = customerGatewayId;
+    }
+
+    @Override
+    public void copyFrom(CustomerGateway customerGateway) {
+        setCustomerGatewayId(customerGateway.customerGatewayId());
+        setPublicIp(customerGateway.ipAddress());
+        setBgpAsn(!ObjectUtils.isBlank(customerGateway.bgpAsn()) ? Integer.parseInt(customerGateway.bgpAsn()) : null);
+    }
+
     @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getCustomerGatewayId()));
+        CustomerGateway customerGateway = getCustomerGateway(client);
 
-        if (!response.customerGateways().isEmpty()) {
-            CustomerGateway customerGateway = response.customerGateways().get(0);
-            setPublicIp(customerGateway.ipAddress());
-
-            return true;
+        if (customerGateway == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(customerGateway);
+
+        return true;
     }
 
     @Override
@@ -122,13 +141,35 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getCustomerGatewayId() != null) {
-            sb.append(getCustomerGatewayId());
+        sb.append("customer gateway");
 
-        } else {
-            sb.append("customer gateway");
+        if (!ObjectUtils.isBlank(getCustomerGatewayId())) {
+            sb.append(getCustomerGatewayId());
         }
 
         return sb.toString();
+    }
+
+    private CustomerGateway getCustomerGateway(Ec2Client client) {
+        CustomerGateway customerGateway = null;
+
+        if (ObjectUtils.isBlank(getCustomerGatewayId())) {
+            throw new GyroException("customer-gateway-id is missing, unable to load customer gateway.");
+        }
+
+        try {
+            DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getCustomerGatewayId()));
+
+            if (!response.customerGateways().isEmpty()) {
+                customerGateway = response.customerGateways().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return customerGateway;
     }
 }

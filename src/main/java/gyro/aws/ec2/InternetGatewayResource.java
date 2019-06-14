@@ -1,14 +1,17 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
-import software.amazon.awssdk.services.ec2.model.InternetGatewayAttachment;
 
 import java.util.Set;
 
@@ -21,15 +24,30 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::internet-gateway example-gateway
- *         vpc-id: $(aws::vpc vpc-example | vpc-id)
+ *         vpc: $(aws::vpc vpc-example)
  *     end
  */
 @Type("internet-gateway")
-public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway> {
+public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway> implements Copyable<InternetGateway> {
 
     private String internetGatewayId;
-    private String vpcId;
+    private VpcResource vpc;
 
+    /**
+     * The VPC to create an internet gateway in. (Required)
+     */
+    public VpcResource getVpc() {
+        return vpc;
+    }
+
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
+    }
+
+    /**
+     * The ID of the Internet Gateway.
+     */
+    @Id
     @Output
     public String getInternetGatewayId() {
         return internetGatewayId;
@@ -39,45 +57,33 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         this.internetGatewayId = internetGatewayId;
     }
 
-    /**
-     * The ID of the VPC to create an internet gateway in.
-     */
-    public String getVpcId() {
-        return vpcId;
-    }
-
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
-    }
-
     @Override
     protected String getId() {
         return getInternetGatewayId();
     }
 
     @Override
+    public void copyFrom(InternetGateway internetGateway) {
+        setInternetGatewayId(internetGateway.internetGatewayId());
+
+        if (!internetGateway.attachments().isEmpty() && !ObjectUtils.isBlank(internetGateway.attachments().get(0).vpcId())) {
+            setVpc(findById(VpcResource.class, internetGateway.attachments().get(0).vpcId()));
+        } else {
+            setVpc(null);
+        }
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        try {
-            DescribeInternetGatewaysResponse response = client.describeInternetGateways(
-                r -> r.internetGatewayIds(getInternetGatewayId())
-            );
+        InternetGateway internetGateway = getInternetGateway(client);
 
-            for (InternetGateway gateway : response.internetGateways()) {
-                for (InternetGatewayAttachment attachment : gateway.attachments()) {
-                    setVpcId(attachment.vpcId());
-
-                    break;
-                }
-            }
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
+        if (internetGateway == null) {
+            return false;
         }
+
+        copyFrom(internetGateway);
 
         return true;
     }
@@ -90,9 +96,9 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         setInternetGatewayId(response.internetGateway().internetGatewayId());
 
-        if (getVpcId() != null) {
+        if (getVpc() != null) {
             client.attachInternetGateway(r -> r.internetGatewayId(getInternetGatewayId())
-                    .vpcId(getVpcId())
+                    .vpcId(getVpc().getVpcId())
             );
         }
     }
@@ -106,12 +112,12 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        for (InternetGateway gateway : client.describeInternetGateways(r -> r.internetGatewayIds(getInternetGatewayId())).internetGateways()) {
-            for (InternetGatewayAttachment attachment : gateway.attachments()) {
-                client.detachInternetGateway(
-                    r -> r.internetGatewayId(getInternetGatewayId()).vpcId(attachment.vpcId())
-                );
-            }
+        InternetGateway internetGateway = getInternetGateway(client);
+
+        if (internetGateway != null && !internetGateway.attachments().isEmpty()) {
+            client.detachInternetGateway(
+                r -> r.internetGatewayId(getInternetGatewayId()).vpcId(internetGateway.attachments().get(0).vpcId())
+            );
         }
 
         client.deleteInternetGateway(r -> r.internetGatewayId(getInternetGatewayId()));
@@ -121,14 +127,38 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getInternetGatewayId() != null) {
-            sb.append(getInternetGatewayId());
+        sb.append("internet gateway");
 
-        } else {
-            sb.append("internet gateway");
+        if (getInternetGatewayId() != null) {
+            sb.append(" - ").append(getInternetGatewayId());
+
         }
 
         return sb.toString();
     }
 
+    private InternetGateway getInternetGateway(Ec2Client client) {
+        InternetGateway internetGateway = null;
+
+        if (ObjectUtils.isBlank(getInternetGatewayId())) {
+            throw new GyroException("internet-gateway-id is missing, unable to load internet gateway.");
+        }
+
+        try {
+            DescribeInternetGatewaysResponse response = client.describeInternetGateways(
+                r -> r.internetGatewayIds(getInternetGatewayId())
+            );
+
+            if (!response.internetGateways().isEmpty()) {
+                internetGateway = response.internetGateways().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return internetGateway;
+    }
 }

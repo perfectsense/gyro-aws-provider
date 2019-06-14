@@ -1,14 +1,18 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
-import software.amazon.awssdk.services.ec2.model.InternetGatewayAttachment;
 
 import java.util.Set;
 
@@ -21,26 +25,30 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::egress-gateway example-egress-gateway
- *         vpc-id: $(aws::vpc vpc-example | vpc-id)
+ *         vpc: $(aws::vpc vpc-example)
  *     end
  */
 @Type("egress-gateway")
-public class EgressOnlyInternetGatewayResource extends AwsResource {
+public class EgressOnlyInternetGatewayResource extends AwsResource implements Copyable<EgressOnlyInternetGateway> {
 
-    private String vpcId;
+    private VpcResource vpc;
     private String gatewayId;
 
     /**
-     * The ID of the VPC to create the egress only internet gateway in. (Required)
+     * The VPC to create the egress only internet gateway in. (Required)
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
+    /**
+     * The id of the egress only internet gateway.
+     */
+    @Id
     @Output
     public String getGatewayId() {
         return gatewayId;
@@ -51,30 +59,35 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(EgressOnlyInternetGateway egressOnlyInternetGateway) {
+        setGatewayId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
+
+        if (!egressOnlyInternetGateway.attachments().isEmpty()) {
+            setVpc(findById(VpcResource.class, egressOnlyInternetGateway.attachments().get(0).vpcId()));
+        }
+    }
+
+    @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeEgressOnlyInternetGatewaysResponse response = client.describeEgressOnlyInternetGateways(
-            r -> r.egressOnlyInternetGatewayIds(getGatewayId())
-        );
+        EgressOnlyInternetGateway egressOnlyInternetGateway = getEgressOnlyInternetGateway(client);
 
-        for (EgressOnlyInternetGateway gateway : response.egressOnlyInternetGateways()) {
-            for (InternetGatewayAttachment attachment : gateway.attachments()) {
-                setVpcId(attachment.vpcId());
-
-                return true;
-            }
+        if (egressOnlyInternetGateway == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(egressOnlyInternetGateway);
+
+        return true;
     }
 
     @Override
     public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getVpcId() != null) {
-            CreateEgressOnlyInternetGatewayResponse response = client.createEgressOnlyInternetGateway(r -> r.vpcId(getVpcId()));
+        if (getVpc() != null) {
+            CreateEgressOnlyInternetGatewayResponse response = client.createEgressOnlyInternetGateway(r -> r.vpcId(getVpc().getVpcId()));
             EgressOnlyInternetGateway gateway = response.egressOnlyInternetGateway();
             setGatewayId(gateway.egressOnlyInternetGatewayId());
         }
@@ -95,12 +108,36 @@ public class EgressOnlyInternetGatewayResource extends AwsResource {
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("egress gateway");
+
         if (getGatewayId() != null) {
-            sb.append(getGatewayId());
-        } else {
-            sb.append("egress gateway");
+            sb.append(" - ").append(getGatewayId());
         }
 
         return sb.toString();
+    }
+
+    private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {
+        EgressOnlyInternetGateway egressOnlyInternetGateway = null;
+
+        if (ObjectUtils.isBlank(getGatewayId())) {
+            throw new GyroException("gateway-id is missing, unable to load egress gateway.");
+        }
+
+        try {
+            DescribeEgressOnlyInternetGatewaysResponse response = client.describeEgressOnlyInternetGateways(
+                r -> r.egressOnlyInternetGatewayIds(getGatewayId())
+            );
+
+            if (!response.egressOnlyInternetGateways().isEmpty()) {
+                egressOnlyInternetGateway = response.egressOnlyInternetGateways().get(0);
+            }
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return egressOnlyInternetGateway;
     }
 }
