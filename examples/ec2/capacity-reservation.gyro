@@ -1,7 +1,8 @@
 aws::capacity-reservation capacity-reservation-example
     availability-zone: "us-east-2a"
     ebs-optimized: false
-    end-date-type: "unlimited"
+    end-date-type: "limited"
+    end-date: "Wed May 29 21:54:06 EDT 2019"
     ephemeral-storage: false
     instance-count: 1
     instance-match-criteria: "targeted"

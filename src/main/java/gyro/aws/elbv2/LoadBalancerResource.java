@@ -1,6 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -50,6 +51,7 @@ public abstract class LoadBalancerResource extends AwsResource {
         this.ipAddressType = ipAddressType;
     }
 
+    @Id
     @Output
     public String getArn() {
         return arn;

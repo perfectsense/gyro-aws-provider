@@ -1,0 +1,11 @@
+aws::vpc vpc-example
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-internet-gateway-example"
+    }
+end
+
+aws::internet-gateway internet-gateway-example
+    vpc: $(aws::vpc vpc-example)
+end

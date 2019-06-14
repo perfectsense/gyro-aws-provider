@@ -2,6 +2,7 @@ package gyro.aws.sns;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -101,6 +102,7 @@ public class TopicResource extends AwsResource {
         this.name = name;
     }
 
+    @Id
     @Output
     public String getTopicArn() {
         return topicArn;

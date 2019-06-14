@@ -1,5 +1,6 @@
 package gyro.aws.ec2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -7,7 +8,7 @@ import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
 
-public class BlockDeviceMappingResource extends Diffable {
+public class BlockDeviceMappingResource extends Diffable implements Copyable<LaunchTemplateBlockDeviceMapping> {
     private String deviceName;
     private Boolean deleteOnTermination;
     private Boolean encrypted;
@@ -18,20 +19,6 @@ public class BlockDeviceMappingResource extends Diffable {
     private String state;
     private String volumeType;
     private Boolean autoEnableIo;
-
-    public BlockDeviceMappingResource() {
-    }
-
-    public BlockDeviceMappingResource(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
-        setDeviceName(blockDeviceMapping.deviceName());
-        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
-        setEncrypted(blockDeviceMapping.ebs().encrypted());
-        setIops(blockDeviceMapping.ebs().iops());
-        setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
-        setVolumeSize(blockDeviceMapping.ebs().volumeSize());
-        setSnapshotId(blockDeviceMapping.ebs().snapshotId());
-        setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
-    }
 
     /**
      * Name of the drive to attach this volume to. (Required)
@@ -173,6 +160,18 @@ public class BlockDeviceMappingResource extends Diffable {
     @Override
     public String toDisplayString() {
         return String.format("Device %s", getDeviceName());
+    }
+
+    @Override
+    public void copyFrom(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
+        setDeviceName(blockDeviceMapping.deviceName());
+        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
+        setEncrypted(blockDeviceMapping.ebs().encrypted());
+        setIops(blockDeviceMapping.ebs().iops());
+        setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
+        setVolumeSize(blockDeviceMapping.ebs().volumeSize());
+        setSnapshotId(blockDeviceMapping.ebs().snapshotId());
+        setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
     }
 
     BlockDeviceMapping getBlockDeviceMapping() {
