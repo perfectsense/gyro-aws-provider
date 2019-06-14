@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMappin
  *         subnet: $(aws::subnet subnet-example)
  *     end
  */
-
 public class SubnetMappings extends Diffable {
 
     private String allocationId;

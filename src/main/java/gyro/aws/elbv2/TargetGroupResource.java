@@ -66,7 +66,6 @@ import java.util.Set;
  *             }
  *     end
  */
-
 @Type("target-group")
 public class TargetGroupResource extends AwsResource implements Copyable<TargetGroup> {
 

@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit;
  *             }
  *     end
  */
-
 @Type("nlb")
 public class NetworkLoadBalancerResource extends LoadBalancerResource implements Copyable<LoadBalancer> {
 

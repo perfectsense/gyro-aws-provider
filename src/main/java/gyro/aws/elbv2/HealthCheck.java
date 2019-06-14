@@ -24,7 +24,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
  *         unhealthy-threshold: "2"
  *     end
  */
-
 public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
 
     private Integer interval;

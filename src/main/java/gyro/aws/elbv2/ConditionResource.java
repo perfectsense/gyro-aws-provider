@@ -26,7 +26,6 @@ import java.util.Set;
  *         value: ["www.example.net"]
  *     end
  */
-
 public class ConditionResource extends AwsResource implements Copyable<RuleCondition> {
 
     private String field;

@@ -135,7 +135,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> {
         this.keepDefaultEgressRules = keepDefaultEgressRules;
     }
 
-    @Id
     @Output
     @Id
     public String getGroupId() {

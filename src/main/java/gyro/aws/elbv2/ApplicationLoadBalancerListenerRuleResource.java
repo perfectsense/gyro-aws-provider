@@ -47,7 +47,6 @@ import java.util.Set;
  *         end
  *     end
  */
-
 @Type("alb-listener-rule")
 public class ApplicationLoadBalancerListenerRuleResource extends AwsResource implements Copyable<Rule> {
 
