@@ -1,7 +1,9 @@
 package gyro.aws.route53;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRequest;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
@@ -67,7 +69,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
     protected List<ResourceRecordSet> findAws(Route53Client client, Map<String, String> filters) {
         List<ResourceRecordSet> resourceRecordSets = new ArrayList<>();
 
-        if (filters.containsKey("hosted-zone-id")) {
+        if (filters.containsKey("hosted-zone-id") && !ObjectUtils.isBlank(filters.get("hosted-zone-id"))) {
 
             ListResourceRecordSetsRequest.Builder builder = ListResourceRecordSetsRequest.builder();
             builder = builder.hostedZoneId(filters.get("hosted-zone-id"));
@@ -103,5 +105,10 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
         }
 
         return resourceRecordSets;
+    }
+
+    @Override
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
     }
 }
