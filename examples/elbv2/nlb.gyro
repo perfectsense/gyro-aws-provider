@@ -70,7 +70,7 @@ aws::vpc vpc
 end
 
 aws::internet-gateway internet-gateway
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
 end
 
 aws::subnet subnet-us-east-2a
@@ -87,7 +87,7 @@ aws::instance instance-us-east-2a
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "jc-pair-example"
+    key: "jc-pair-example"
     subnet: $(aws::subnet "subnet-us-east-2a")
     security-groups: [
         $(aws::security-group security-group)
@@ -116,7 +116,7 @@ aws::instance instance-us-east-2b
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "jc-pair-example"
+    key: "jc-pair-example"
     subnet: $(aws::subnet "subnet-us-east-2b")
     security-groups: [
         $(aws::security-group security-group)

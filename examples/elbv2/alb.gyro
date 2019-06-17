@@ -79,7 +79,7 @@ aws::security-group other-security-group
 end
 
 aws::internet-gateway internet-gateway
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
 end
 
 aws::target-group target-group-example
