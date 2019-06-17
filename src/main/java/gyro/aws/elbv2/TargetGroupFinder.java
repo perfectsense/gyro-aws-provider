@@ -6,6 +6,8 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
+import software.amazon.awssdk.services.elasticloadbalancingv2.paginators.DescribeLoadBalancersIterable;
+import software.amazon.awssdk.services.elasticloadbalancingv2.paginators.DescribeTargetGroupsIterable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +45,13 @@ public class TargetGroupFinder extends AwsFinder<ElasticLoadBalancingV2Client, T
     public List<TargetGroup> findAllAws(ElasticLoadBalancingV2Client client) {
         List<TargetGroup> targetGroups = new ArrayList<>();
 
-        for (LoadBalancer loadBalancer : client.describeLoadBalancers().loadBalancers()) {
-            targetGroups.addAll(client.describeTargetGroups(r -> r.loadBalancerArn(loadBalancer.loadBalancerArn())).targetGroups());
+        List<LoadBalancer> loadBalancers = new ArrayList<>();
+        DescribeLoadBalancersIterable iterable = client.describeLoadBalancersPaginator();
+        iterable.stream().forEach(r -> loadBalancers.addAll(r.loadBalancers()));
+
+        for (LoadBalancer loadBalancer : loadBalancers) {
+            DescribeTargetGroupsIterable targetGroupsIterable = client.describeTargetGroupsPaginator(r -> r.loadBalancerArn(loadBalancer.loadBalancerArn()));
+            targetGroupsIterable.stream().forEach(r -> targetGroups.addAll(r.targetGroups()));
         }
 
         return targetGroups;

@@ -5,6 +5,8 @@ import gyro.aws.AwsFinder;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.elasticloadbalancingv2.paginators.DescribeListenersIterable;
+import software.amazon.awssdk.services.elasticloadbalancingv2.paginators.DescribeLoadBalancersIterable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +36,13 @@ public abstract class ListenerFinder<R extends ListenerResource> extends AwsFind
     public List<Listener> findAllAws(ElasticLoadBalancingV2Client client) {
         List<Listener> listeners = new ArrayList<>();
 
-        for (LoadBalancer loadBalancer : client.describeLoadBalancers().loadBalancers()) {
-            listeners.addAll(client.describeListeners(r -> r.loadBalancerArn(loadBalancer.loadBalancerArn())).listeners());
+        List<LoadBalancer> loadBalancers = new ArrayList<>();
+        DescribeLoadBalancersIterable iterable = client.describeLoadBalancersPaginator();
+        iterable.stream().forEach(r -> loadBalancers.addAll(r.loadBalancers()));
+
+        for (LoadBalancer loadBalancer : loadBalancers) {
+            DescribeListenersIterable listenerIterable = client.describeListenersPaginator(r -> r.loadBalancerArn(loadBalancer.loadBalancerArn()));
+            listenerIterable.stream().forEach(r -> listeners.addAll(r.listeners()));
         }
 
         return listeners;

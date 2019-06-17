@@ -4,7 +4,9 @@ import gyro.aws.AwsFinder;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.elasticloadbalancingv2.paginators.DescribeLoadBalancersIterable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +48,9 @@ public abstract class LoadBalancerFinder<R extends LoadBalancerResource> extends
 
     @Override
     public List<LoadBalancer> findAllAws(ElasticLoadBalancingV2Client client) {
-        return client.describeLoadBalancers().loadBalancers();
+        List<LoadBalancer> loadBalancers = new ArrayList<>();
+        DescribeLoadBalancersIterable iterable = client.describeLoadBalancersPaginator();
+        iterable.stream().forEach(r -> loadBalancers.addAll(r.loadBalancers()));
+        return loadBalancers;
     }
 }
