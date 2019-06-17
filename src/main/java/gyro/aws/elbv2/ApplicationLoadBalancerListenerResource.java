@@ -75,11 +75,11 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         setDefaultAction(fromDefaultActions(listener.defaultActions()));
-        ApplicationLoadBalancerResource alb = (ApplicationLoadBalancerResource) findById(LoadBalancerResource.class, listener.loadBalancerArn());
+        ApplicationLoadBalancerResource alb = findById(ApplicationLoadBalancerResource.class, listener.loadBalancerArn());
         setAlb(alb);
 
         getCertificate().clear();
-        DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
+        DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(listener.listenerArn()));
         if (certResponse != null) {
             for (Certificate certificate : certResponse.certificates()) {
                 if (!certificate.isDefault()) {
