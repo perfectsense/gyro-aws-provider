@@ -1,19 +1,25 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.RouteTable;
 import software.amazon.awssdk.services.ec2.model.RouteTableAssociation;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a VPC route table.
@@ -23,7 +29,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *     aws::route-table route-table-example
- *         vpc-id: $(aws::vpc vpc-example | vpc-id)
+ *         vpc: $(aws::vpc vpc-example)
  *
  *         tags:
  *             Name: route-table-example
@@ -31,40 +37,44 @@ import java.util.Set;
  *     end
  */
 @Type("route-table")
-public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
+public class RouteTableResource extends Ec2TaggableResource<RouteTable> implements Copyable<RouteTable> {
 
-    private String vpcId;
-    private List<String> subnetIds;
+    private VpcResource vpc;
+    private Set<SubnetResource> subnets;
     private String routeTableId;
     private String ownerId;
 
     /**
-     * The id of the VPC to create a route table for.
+     * The VPC to create a Route Table for. (Required)
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     /**
-     * Subnet IDs to associate with this route table.
+     * Subnets to associate with this Route Table.
      */
     @Updatable
-    public List<String> getSubnetIds() {
-        if (subnetIds == null) {
-            subnetIds = new ArrayList<>();
+    public Set<SubnetResource> getSubnets() {
+        if (subnets == null) {
+            subnets = new HashSet<>();
         }
 
-        return subnetIds;
+        return subnets;
     }
 
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
+    public void setSubnets(Set<SubnetResource> subnets) {
+        this.subnets = subnets;
     }
 
+    /**
+     * The ID of the Route Table.
+     */
+    @Id
     @Output
     public String getRouteTableId() {
         return routeTableId;
@@ -74,6 +84,9 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
         this.routeTableId = routeTableId;
     }
 
+    /**
+     * The owner ID of the Route Table.
+     */
     @Output
     public String getOwnerId() {
         return ownerId;
@@ -89,40 +102,44 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
     }
 
     @Override
+    public void copyFrom(RouteTable routeTable) {
+        setRouteTableId(routeTable.routeTableId());
+        setVpc(!ObjectUtils.isBlank(routeTable.vpcId()) ? findById(VpcResource.class, routeTable.vpcId()) : null);
+        setOwnerId(routeTable.ownerId());
+
+        getSubnets().clear();
+        for (RouteTableAssociation rta : routeTable.associations()) {
+            if (!rta.main()) {
+                getSubnets().add(!ObjectUtils.isBlank(rta.subnetId()) ? findById(SubnetResource.class, rta.subnetId()) : null);
+            }
+        }
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTableId()).build()
-        ));
+        RouteTable routeTable = getRouteTable(client);
 
-        for (RouteTable routeTable : response.routeTables()) {
-            setVpcId(routeTable.vpcId());
-            setOwnerId(routeTable.ownerId());
-
-            getSubnetIds().clear();
-            for (RouteTableAssociation rta : routeTable.associations()) {
-                if (!rta.main()) {
-                    getSubnetIds().add(rta.subnetId());
-                }
-            }
-
-            return true;
+        if (routeTable == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(routeTable);
+
+        return true;
     }
 
     @Override
     protected void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpcId()));
+        CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getVpcId()));
 
         setRouteTableId(response.routeTable().routeTableId());
         setOwnerId(response.routeTable().ownerId());
 
-        for (String subnetId : getSubnetIds()) {
+        for (String subnetId : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())) {
             client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
         }
     }
@@ -133,63 +150,76 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> {
 
         RouteTableResource currentResource = (RouteTableResource) current;
 
-        List<String> additions = new ArrayList<>(getSubnetIds());
-        additions.removeAll(currentResource.getSubnetIds());
+        List<String> additions = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList());
+        additions.removeAll(currentResource.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
 
-        List<String> subtractions = new ArrayList<>(currentResource.getSubnetIds());
-        subtractions.removeAll(getSubnetIds());
+        Set<String> subtractions = currentResource.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
+        subtractions.removeAll(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()));
 
         for (String subnetId : additions) {
             client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
         }
 
-        for (String subnetId : subtractions) {
-            DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTableId()).build()
-            ));
+        RouteTable routeTable = getRouteTable(client);
 
-            for (RouteTable routeTable : response.routeTables()) {
-                for (RouteTableAssociation rta : routeTable.associations()) {
-                    if (!rta.main() && rta.subnetId().equals(subnetId)) {
+        List<String> routeTableAssociations = routeTable.associations().stream()
+            .filter(o -> !o.main() && subtractions.contains(o.subnetId()))
+            .map(RouteTableAssociation::routeTableAssociationId)
+            .collect(Collectors.toList());
 
-                        client.disassociateRouteTable(r -> r.associationId(rta.routeTableAssociationId()));
-                    }
-                }
-            }
-
-        }
+        routeTableAssociations.forEach(o ->  client.disassociateRouteTable(r -> r.associationId(o)));
     }
 
     @Override
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-            Filter.builder().name("route-table-id").values(getRouteTableId()).build()
-        ));
+        RouteTable routeTable = getRouteTable(client);
 
-        for (RouteTable routeTable : response.routeTables()) {
+        if (routeTable != null) {
             for (RouteTableAssociation rta : routeTable.associations()) {
                 client.disassociateRouteTable(r -> r.associationId(rta.routeTableAssociationId()));
             }
-        }
 
-        client.deleteRouteTable(r -> r.routeTableId(getRouteTableId()));
+            client.deleteRouteTable(r -> r.routeTableId(getRouteTableId()));
+        }
     }
 
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        String routeTableId = getRouteTableId();
 
-        if (routeTableId != null) {
-            sb.append(routeTableId);
+        sb.append("route table");
 
-        } else {
-            sb.append("route table");
+        if (!ObjectUtils.isBlank(getRouteTableId())) {
+            sb.append(" - ").append(routeTableId);
         }
 
         return sb.toString();
     }
 
+    private RouteTable getRouteTable(Ec2Client client) {
+        RouteTable routeTable = null;
+
+        if (ObjectUtils.isBlank(getRouteTableId())) {
+            throw new GyroException("route-table-id is missing, unable to load route table.");
+        }
+
+        try {
+            DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
+                Filter.builder().name("route-table-id").values(getRouteTableId()).build()
+            ));
+
+            if (!response.routeTables().isEmpty()) {
+                routeTable = response.routeTables().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return routeTable;
+    }
 }

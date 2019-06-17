@@ -2,6 +2,8 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 
@@ -102,6 +104,8 @@ public class IamRoleResource extends AwsResource {
         this.policyArns = policyArns;
     }
 
+    @Id
+    @Output
     public String getRoleArn() {
         return roleArn;
     }

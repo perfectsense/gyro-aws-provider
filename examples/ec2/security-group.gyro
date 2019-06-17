@@ -9,7 +9,7 @@ end
 
 aws::security-group security-group-example
     group-name: "$(project) $(environment) - Allow web traffic only"
-    vpc-id: $(aws::vpc vpc-security-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-security-group-example)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 

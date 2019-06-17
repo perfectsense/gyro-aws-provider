@@ -7,7 +7,6 @@ aws::db-cluster db-cluster-example
     master-user-password: "password"
     backup-retention-period: 5
     preferred-backup-window: "07:00-09:00"
-    delete-automated-backups: true
     skip-final-snapshot: true
     tags: {
         Name: "aurora-mysql-cluster"
@@ -17,7 +16,7 @@ end
 aws::db-instance db-instance-example
     db-instance-identifier: "aurora-mysql-cluster-instance"
     db-instance-class: "db.t2.small"
-    db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+    db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
     apply-immediately: true
     tags: {
@@ -43,7 +42,6 @@ aws::db-cluster db-cluster-serverless-example
     master-user-password: "password"
     backup-retention-period: 5
     preferred-backup-window: "07:00-09:00"
-    delete-automated-backups: true
     skip-final-snapshot: true
     tags: {
         Name: "aurora-serverless-cluster"
