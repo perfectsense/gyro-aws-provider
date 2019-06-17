@@ -118,8 +118,8 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     /**
      *  The arn of the rule.
      */
-    @Output
     @Id
+    @Output
     public String getArn() {
         return arn;
     }

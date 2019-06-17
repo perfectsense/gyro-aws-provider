@@ -135,8 +135,8 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     /**
      *  The arn of the target group.
      */
-    @Output
     @Id
+    @Output
     public String getArn() {
         return arn;
     }

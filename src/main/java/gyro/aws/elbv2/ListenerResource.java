@@ -57,8 +57,8 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     /**
      *  The arn of the listener.
      */
-    @Output
     @Id
+    @Output
     public String getArn() {
         return arn;
     }
