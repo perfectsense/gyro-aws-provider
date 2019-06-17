@@ -60,8 +60,8 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     /**
      *  The arn of the load balancer.
      */
-    @Output
     @Id
+    @Output
     public String getArn() {
         return arn;
     }

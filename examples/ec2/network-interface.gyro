@@ -19,7 +19,7 @@ end
 
 aws::security-group nic-security-group-example
     group-name: "$(project) $(environment) - Allow web traffic only"
-    vpc-id: $(aws::vpc vpc| vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -44,16 +44,16 @@ end
 
 aws::network-interface nic-example-1
      description: "test-nic"
-     subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
+     subnet: $(aws::subnet subnet-example-nic)
 
      tags: {
         Name: "nic-example"
      }
 end
 
-aws::network-interface nic-example-with-instance
+aws::network-interface nic-example-with-secondary-ips
      description: "test-nic-with-secondary-ips"
-     subnet-id: $(aws::subnet subnet-example-nic | subnet-id)
+     subnet: $(aws::subnet subnet-example-nic)
      primary-ipv4-address: "10.0.0.22"
      ipv4-addresses: [
          "10.0.0.18",

@@ -8,14 +8,6 @@ import software.amazon.awssdk.services.ec2.model.IpPermission;
 import java.util.Set;
 
 public class SecurityGroupEgressRuleResource extends SecurityGroupRuleResource {
-
-    public SecurityGroupEgressRuleResource() {
-    }
-
-    public SecurityGroupEgressRuleResource(IpPermission permission) {
-        super(permission);
-    }
-
     @Override
     public void create() {
         Ec2Client client = createClient(Ec2Client.class);
@@ -39,8 +31,12 @@ public class SecurityGroupEgressRuleResource extends SecurityGroupRuleResource {
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
+        delete(client, getGroupId());
+    }
+
+    void delete(Ec2Client client, String securityGroupId) {
         try {
-            client.revokeSecurityGroupEgress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
+            client.revokeSecurityGroupEgress(r -> r.groupId(securityGroupId).ipPermissions(getIpPermissionRequest()));
         } catch (Ec2Exception eex) {
             if (!eex.awsErrorDetails().errorCode().equals("InvalidPermission.NotFound")) {
                 throw eex;
