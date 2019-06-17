@@ -3,15 +3,15 @@ aws::alb alb-example
     ip-address-type: "ipv4"
     scheme: "internal"
     security-groups: [
-            $(aws::security-group security-group),
-            $(aws::security-group other-security-group)
-        ]
+        $(aws::security-group security-group),
+        $(aws::security-group other-security-group)
+    ]
     subnets: [
-            $(aws::subnet subnet-us-east-2a),
-            $(aws::subnet subnet-us-east-2b)
-        ]
+        $(aws::subnet subnet-us-east-2a),
+        $(aws::subnet subnet-us-east-2b)
+    ]
     tags: {
-            Name: "alb-example"
+        Name: "alb-example"
     }
 end
 
@@ -125,7 +125,7 @@ end
 aws::user-pool pool-example
     name: "user-pool-name"
     tags: {
-            Name: "user-pool-example"
+        Name: "user-pool-example"
     }
 end
 

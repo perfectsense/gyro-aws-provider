@@ -12,7 +12,7 @@ aws::nlb nlb-example
     end
 
     tags: {
-            Name: "nlb-example"
+        Name: "nlb-example"
     }
 end
 
