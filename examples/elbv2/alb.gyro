@@ -24,6 +24,10 @@ aws::vpc vpc
     }
 end
 
+aws::internet-gateway internet-gateway
+    vpc: $(aws::vpc vpc)
+end
+
 aws::subnet subnet-us-east-2a
     vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2a'
@@ -76,10 +80,6 @@ aws::security-group other-security-group
             to-port: $(port)
         end
     end
-end
-
-aws::internet-gateway internet-gateway
-    vpc: $(aws::vpc vpc)
 end
 
 aws::target-group target-group-example
