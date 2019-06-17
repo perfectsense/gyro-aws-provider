@@ -36,16 +36,16 @@ import java.util.concurrent.TimeUnit;
  *         scheme: "internet-facing"
  *
  *         subnet-mapping
- *             subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+ *             subnet: $(aws::subnet subnet-us-east-2a)
  *         end
  *
  *         subnet-mapping
- *             subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+ *             subnet: $(aws::subnet subnet-us-east-2b)
  *         end
  *
  *         tags: {
- *                 Name: "nlb-example"
- *             }
+ *             Name: "nlb-example"
+ *         }
  *     end
  */
 @Type("nlb")
