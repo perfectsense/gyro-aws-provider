@@ -58,10 +58,10 @@ aws::instance instance-us-east-2a
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "foo"
-    subnet-id: $(aws::subnet "subnet-us-east-2a" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    key: "example"
+    subnet: $(aws::subnet "subnet-us-east-2a")
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
@@ -87,10 +87,10 @@ aws::instance instance-us-east-2b
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "foo"
-    subnet-id: $(aws::subnet "subnet-us-east-2b" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    key: "example"
+    subnet: $(aws::subnet "subnet-us-east-2b")
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
@@ -104,7 +104,7 @@ end
 
 aws::security-group security-group
     group-name: "elb example - allow web traffic"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -120,6 +120,6 @@ aws::security-group security-group
 end
 
 aws::internet-gateway internet-gateway
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
 end
 
