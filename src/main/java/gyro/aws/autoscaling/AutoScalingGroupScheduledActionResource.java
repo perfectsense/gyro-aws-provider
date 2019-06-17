@@ -134,6 +134,19 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
+    public void copyFrom(ScheduledUpdateGroupAction scheduledUpdateGroupAction) {
+        setScheduledActionName(scheduledUpdateGroupAction.scheduledActionName());
+        setAutoScalingGroupName(scheduledUpdateGroupAction.autoScalingGroupName());
+        setDesiredCapacity(scheduledUpdateGroupAction.desiredCapacity());
+        setMaxSize(scheduledUpdateGroupAction.maxSize());
+        setMinSize(scheduledUpdateGroupAction.minSize());
+        setRecurrence(scheduledUpdateGroupAction.recurrence());
+        setStartTime(scheduledUpdateGroupAction.startTime() != null ? Date.from(scheduledUpdateGroupAction.startTime()) : null);
+        setEndTime(scheduledUpdateGroupAction.endTime() != null ? Date.from(scheduledUpdateGroupAction.endTime()) : null);
+        setArn(scheduledUpdateGroupAction.scheduledActionARN());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -191,19 +204,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     @Override
     public String primaryKey() {
         return String.format("%s", getScheduledActionName());
-    }
-
-    @Override
-    public void copyFrom(ScheduledUpdateGroupAction scheduledUpdateGroupAction) {
-        setScheduledActionName(scheduledUpdateGroupAction.scheduledActionName());
-        setAutoScalingGroupName(scheduledUpdateGroupAction.autoScalingGroupName());
-        setDesiredCapacity(scheduledUpdateGroupAction.desiredCapacity());
-        setMaxSize(scheduledUpdateGroupAction.maxSize());
-        setMinSize(scheduledUpdateGroupAction.minSize());
-        setRecurrence(scheduledUpdateGroupAction.recurrence());
-        setStartTime(scheduledUpdateGroupAction.startTime() != null ? Date.from(scheduledUpdateGroupAction.startTime()) : null);
-        setEndTime(scheduledUpdateGroupAction.endTime() != null ? Date.from(scheduledUpdateGroupAction.endTime()) : null);
-        setArn(scheduledUpdateGroupAction.scheduledActionARN());
     }
 
     private String getParentId() {

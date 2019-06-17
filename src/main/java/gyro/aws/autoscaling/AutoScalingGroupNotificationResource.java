@@ -62,6 +62,13 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     @Override
+    public void copyFrom(NotificationConfiguration notificationConfiguration) {
+        setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
+        setTopicArn(notificationConfiguration.topicARN());
+        setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -117,13 +124,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
         return parent.getAutoScalingGroupName();
-    }
-
-    @Override
-    public void copyFrom(NotificationConfiguration notificationConfiguration) {
-        setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
-        setTopicArn(notificationConfiguration.topicARN());
-        setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
     }
 
     private void saveNotification(AutoScalingClient client) {

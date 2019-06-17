@@ -224,6 +224,19 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
+    public void copyFrom(LaunchConfiguration launchConfiguration) {
+        setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
+        setInstanceType(launchConfiguration.instanceType());
+        setKeyName(launchConfiguration.keyName());
+        setUserData(launchConfiguration.userData());
+        setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
+        setEbsOptimized(launchConfiguration.ebsOptimized());
+        setArn(launchConfiguration.launchConfigurationARN());
+        setLaunchConfigurationName(launchConfiguration.launchConfigurationName());
+        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
+    }
+
+    @Override
     public boolean refresh() {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
@@ -282,19 +295,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void copyFrom(LaunchConfiguration launchConfiguration) {
-        setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
-        setInstanceType(launchConfiguration.instanceType());
-        setKeyName(launchConfiguration.keyName());
-        setUserData(launchConfiguration.userData());
-        setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
-        setEbsOptimized(launchConfiguration.ebsOptimized());
-        setArn(launchConfiguration.launchConfigurationARN());
-        setLaunchConfigurationName(launchConfiguration.launchConfigurationName());
-        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
     }
 
     private LaunchConfiguration getLaunchConfiguration(AutoScalingClient client) {

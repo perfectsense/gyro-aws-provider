@@ -224,6 +224,39 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     @Override
+    public void copyFrom(ScalingPolicy scalingPolicy) {
+        setAdjustmentType(scalingPolicy.adjustmentType());
+        setPolicyName(scalingPolicy.policyName());
+        setAutoScalingGroupName(scalingPolicy.autoScalingGroupName());
+        setCooldown(scalingPolicy.cooldown());
+        setEstimatedInstanceWarmup(scalingPolicy.estimatedInstanceWarmup());
+        setMetricAggregationType(scalingPolicy.metricAggregationType());
+        setMinAdjustmentMagnitude(scalingPolicy.minAdjustmentMagnitude());
+        setPolicyType(scalingPolicy.policyType());
+        setScalingAdjustment(scalingPolicy.scalingAdjustment());
+        setPolicyArn(scalingPolicy.policyARN());
+
+        getStepAdjustment().clear();
+        if (scalingPolicy.stepAdjustments() != null && !scalingPolicy.stepAdjustments().isEmpty()) {
+            for (StepAdjustment stepAdjustment : scalingPolicy.stepAdjustments()) {
+                AutoScalingPolicyStepAdjustment policyStepAdjustment = newSubresource(AutoScalingPolicyStepAdjustment.class);
+                policyStepAdjustment.copyFrom(stepAdjustment);
+                getStepAdjustment().add(policyStepAdjustment);
+            }
+        }
+
+        if (scalingPolicy.targetTrackingConfiguration() != null) {
+            setDisableScaleIn(scalingPolicy.targetTrackingConfiguration().disableScaleIn());
+            setTargetValue(scalingPolicy.targetTrackingConfiguration().targetValue());
+
+            if (scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification() != null) {
+                setPredefinedMetricType(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().predefinedMetricTypeAsString());
+                setPredefinedMetricResourceLabel(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().resourceLabel());
+            }
+        }
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -275,39 +308,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     @Override
     public String primaryKey() {
         return String.format("%s %s", getPolicyName(), getPolicyType());
-    }
-
-    @Override
-    public void copyFrom(ScalingPolicy scalingPolicy) {
-        setAdjustmentType(scalingPolicy.adjustmentType());
-        setPolicyName(scalingPolicy.policyName());
-        setAutoScalingGroupName(scalingPolicy.autoScalingGroupName());
-        setCooldown(scalingPolicy.cooldown());
-        setEstimatedInstanceWarmup(scalingPolicy.estimatedInstanceWarmup());
-        setMetricAggregationType(scalingPolicy.metricAggregationType());
-        setMinAdjustmentMagnitude(scalingPolicy.minAdjustmentMagnitude());
-        setPolicyType(scalingPolicy.policyType());
-        setScalingAdjustment(scalingPolicy.scalingAdjustment());
-        setPolicyArn(scalingPolicy.policyARN());
-
-        getStepAdjustment().clear();
-        if (scalingPolicy.stepAdjustments() != null && !scalingPolicy.stepAdjustments().isEmpty()) {
-            for (StepAdjustment stepAdjustment : scalingPolicy.stepAdjustments()) {
-                AutoScalingPolicyStepAdjustment policyStepAdjustment = newSubresource(AutoScalingPolicyStepAdjustment.class);
-                policyStepAdjustment.copyFrom(stepAdjustment);
-                getStepAdjustment().add(policyStepAdjustment);
-            }
-        }
-
-        if (scalingPolicy.targetTrackingConfiguration() != null) {
-            setDisableScaleIn(scalingPolicy.targetTrackingConfiguration().disableScaleIn());
-            setTargetValue(scalingPolicy.targetTrackingConfiguration().targetValue());
-
-            if (scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification() != null) {
-                setPredefinedMetricType(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().predefinedMetricTypeAsString());
-                setPredefinedMetricResourceLabel(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().resourceLabel());
-            }
-        }
     }
 
     private void savePolicy(AutoScalingClient client) {

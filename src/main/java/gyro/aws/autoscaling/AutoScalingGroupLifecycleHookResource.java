@@ -145,6 +145,19 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
+    public void copyFrom(LifecycleHook lifecycleHook) {
+        setLifecycleHookName(lifecycleHook.lifecycleHookName());
+        setAutoScalingGroupName(lifecycleHook.autoScalingGroupName());
+        setDefaultResult(lifecycleHook.defaultResult());
+        setHeartbeatTimeout(lifecycleHook.heartbeatTimeout());
+        setLifecycleTransition(lifecycleHook.lifecycleTransition());
+        setNotificationMetadata(lifecycleHook.notificationMetadata());
+        setNotificationTargetArn(lifecycleHook.notificationTargetARN());
+        setRoleArn(lifecycleHook.roleARN());
+        setGlobalTimeout(lifecycleHook.globalTimeout());
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
@@ -192,19 +205,6 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     @Override
     public String primaryKey() {
         return String.format("%s", getLifecycleHookName());
-    }
-
-    @Override
-    public void copyFrom(LifecycleHook lifecycleHook) {
-        setLifecycleHookName(lifecycleHook.lifecycleHookName());
-        setAutoScalingGroupName(lifecycleHook.autoScalingGroupName());
-        setDefaultResult(lifecycleHook.defaultResult());
-        setHeartbeatTimeout(lifecycleHook.heartbeatTimeout());
-        setLifecycleTransition(lifecycleHook.lifecycleTransition());
-        setNotificationMetadata(lifecycleHook.notificationMetadata());
-        setNotificationTargetArn(lifecycleHook.notificationTargetARN());
-        setRoleArn(lifecycleHook.roleARN());
-        setGlobalTimeout(lifecycleHook.globalTimeout());
     }
 
     private String getParentId() {
