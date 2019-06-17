@@ -117,7 +117,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
-                .until(() -> isActiveState(client) == true);
+                .until(() -> isActiveState(client));
 
         super.create();
     }
@@ -136,7 +136,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
-                .until(() -> isDeleted(client) == true);
+                .until(() -> isDeleted(client));
     }
 
     @Override
