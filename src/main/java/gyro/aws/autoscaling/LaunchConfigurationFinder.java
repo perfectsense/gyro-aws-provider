@@ -4,6 +4,9 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
+import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
+import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsRequest;
+import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsResponse;
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
     private String launchConfigurationName;
 
     /**
-     * The launch configuration name.
+     * The Launch Configuration Name.
      */
     public String getLaunchConfigurationName() {
         return launchConfigurationName;
@@ -35,19 +38,58 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
 
     @Override
     protected List<LaunchConfiguration> findAllAws(AutoScalingClient client) {
-        return client.describeLaunchConfigurations().launchConfigurations();
+        List<LaunchConfiguration> launchConfigurations = new ArrayList<>();
+
+        String marker = null;
+        DescribeLaunchConfigurationsResponse response;
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeLaunchConfigurations();
+            } else {
+                response = client.describeLaunchConfigurations(DescribeLaunchConfigurationsRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            launchConfigurations.addAll(response.launchConfigurations());
+
+        } while (!ObjectUtils.isBlank(marker));
+
+        return launchConfigurations;
     }
 
     @Override
     protected List<LaunchConfiguration> findAws(AutoScalingClient client, Map<String, String> filters) {
         List<LaunchConfiguration> launchConfigurations = new ArrayList<>();
+        String marker = null;
+        DescribeLaunchConfigurationsResponse response;
 
         if (filters.containsKey("launch-configuration-name") && !ObjectUtils.isBlank(filters.get("launch-configuration-name"))) {
-            launchConfigurations.addAll(
-                client.describeLaunchConfigurations(
-                    r -> r.launchConfigurationNames(Collections.singleton(filters.get("launch-configuration-name")))
-                ).launchConfigurations()
-            );
+            try {
+                do {
+                    if (ObjectUtils.isBlank(marker)) {
+                        response = client.describeLaunchConfigurations(
+                            DescribeLaunchConfigurationsRequest.builder()
+                                .launchConfigurationNames(Collections.singleton(filters.get("launch-configuration-name")))
+                                .build()
+                        );
+                    } else {
+                        response = client.describeLaunchConfigurations(
+                            DescribeLaunchConfigurationsRequest.builder()
+                                .launchConfigurationNames(Collections.singleton(filters.get("launch-configuration-name")))
+                                .nextToken(marker)
+                                .build()
+                        );
+                    }
+
+                    marker = response.nextToken();
+                    launchConfigurations.addAll(response.launchConfigurations());
+
+                } while (!ObjectUtils.isBlank(marker));
+            } catch (AutoScalingException ex) {
+                if (!ex.getLocalizedMessage().contains("does not exist")) {
+                    throw ex;
+                }
+            }
         }
 
         return launchConfigurations;
