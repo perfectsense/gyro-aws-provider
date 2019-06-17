@@ -2,9 +2,11 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.ec2.BlockDeviceMappingResource;
 import gyro.aws.ec2.InstanceResource;
+import gyro.aws.ec2.KeyPairResource;
 import gyro.aws.ec2.SecurityGroupResource;
-import gyro.aws.ec2.SubnetResource;
+import gyro.aws.iam.IamInstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -36,7 +38,7 @@ import java.util.stream.Collectors;
  *         launch-configuration-name: "launch-configuration-gyro-1"
  *         ami-id: "ami-01e24be29428c15b2"
  *         instance-type: "t2.micro"
- *         key-name: "instance-static"
+ *         key: "key-example"
  *         security-groups: [
  *             $(aws::security-group security-group-launch-configuration-example-1),
  *             $(aws::security-group security-group-launch-configuration-example-2)
@@ -72,11 +74,13 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private String amiId;
     private Boolean ebsOptimized;
     private String instanceType;
-    private String keyName;
+    private KeyPairResource key;
     private Boolean enableMonitoring;
     private Set<SecurityGroupResource> securityGroups;
     private String userData;
     private Boolean associatePublicIp;
+    private List<BlockDeviceMappingResource> blockDeviceMapping;
+    private IamInstanceProfileResource instanceProfile;
 
     private String arn;
 
@@ -141,14 +145,14 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
+     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
-    public String getKeyName() {
-        return keyName;
+    public KeyPairResource getKey() {
+        return key;
     }
 
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
+    public void setKey(KeyPairResource key) {
+        this.key = key;
     }
 
     /**
@@ -211,6 +215,26 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         this.associatePublicIp = associatePublicIp;
     }
 
+    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new ArrayList<>();
+        }
+
+        return blockDeviceMapping;
+    }
+
+    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+        this.blockDeviceMapping = blockDeviceMapping;
+    }
+
+    public IamInstanceProfileResource getInstanceProfile() {
+        return instanceProfile;
+    }
+
+    public void setInstanceProfile(IamInstanceProfileResource instanceProfile) {
+        this.instanceProfile = instanceProfile;
+    }
+
     /**
      * The arn of the launch configuration
      */
@@ -227,13 +251,14 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     public void copyFrom(LaunchConfiguration launchConfiguration) {
         setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
         setInstanceType(launchConfiguration.instanceType());
-        setKeyName(launchConfiguration.keyName());
+        setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(KeyPairResource.class, launchConfiguration.keyName()) : null);
         setUserData(launchConfiguration.userData());
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
         setEbsOptimized(launchConfiguration.ebsOptimized());
         setArn(launchConfiguration.launchConfigurationARN());
         setLaunchConfigurationName(launchConfiguration.launchConfigurationName());
         setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
+        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(IamInstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
 
     @Override
@@ -264,10 +289,16 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
                 .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
                 .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
                 .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                .keyName(getKeyName())
+                .keyName(getKey() != null ? getKey().getKeyName() : null)
                 .instanceType(getInstance() == null ? getInstanceType() : null)
                 .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
                 .associatePublicIpAddress(getAssociatePublicIp())
+                .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
+                    getBlockDeviceMapping()
+                        .stream()
+                        .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
+                        .collect(Collectors.toList()) : null)
+                .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getInstanceProfileArn() : null)
         );
     }
 
