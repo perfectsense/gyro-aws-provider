@@ -57,7 +57,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     private Set<VpcResource> vpcs;
 
     /**
-     * The id of a delegation set.
+     * The ID of a delegation set.
      */
     public String getDelegationSetId() {
         return delegationSetId;
@@ -68,7 +68,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     /**
-     * Comment for the hosted Zone.
+     * Comment for the Hosted Zone.
      */
     @Updatable
     public String getComment() {
@@ -80,7 +80,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     /**
-     * Is the the hosted zone private.
+     * Is the the Hosted Zone private.
      */
     public Boolean getPrivateZone() {
         return privateZone;
@@ -91,20 +91,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     /**
-     * The id of the hosted zone.
-     */
-    @Id
-    @Output
-    public String getHostedZoneId() {
-        return hostedZoneId;
-    }
-
-    public void setHostedZoneId(String hostedZoneId) {
-        this.hostedZoneId = hostedZoneId;
-    }
-
-    /**
-     * The name of the hosted zone.
+     * The name of the Hosted Zone.
      */
     public String getHostedZoneName() {
         if (hostedZoneName != null) {
@@ -119,43 +106,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     /**
-     * The record count of the hosted zone.
-     */
-    @Output
-    public Long getResourceRecordSetCount() {
-        return resourceRecordSetCount;
-    }
-
-    public void setResourceRecordSetCount(Long resourceRecordSetCount) {
-        this.resourceRecordSetCount = resourceRecordSetCount;
-    }
-
-    /**
-     * The description of a linked service to the hosted zone.
-     */
-    @Output
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * The service principal of the hosted zone.
-     */
-    @Output
-    public String getServicePrincipal() {
-        return servicePrincipal;
-    }
-
-    public void setServicePrincipal(String servicePrincipal) {
-        this.servicePrincipal = servicePrincipal;
-    }
-
-    /**
-     * A set of Vpcs to be associated with the hosed zone
+     * A set of Vpcs to be associated with the Hosted Zone.
      *
      * @subresource gyro.aws.route53.Route53VpcResource
      */
@@ -170,6 +121,55 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
     public void setVpcs(Set<VpcResource> vpcs) {
         this.vpcs = vpcs;
+    }
+
+    /**
+     * The ID of the Hosted Zone.
+     */
+    @Id
+    @Output
+    public String getHostedZoneId() {
+        return hostedZoneId;
+    }
+
+    public void setHostedZoneId(String hostedZoneId) {
+        this.hostedZoneId = hostedZoneId;
+    }
+
+    /**
+     * The record count of the Hosted Zone.
+     */
+    @Output
+    public Long getResourceRecordSetCount() {
+        return resourceRecordSetCount;
+    }
+
+    public void setResourceRecordSetCount(Long resourceRecordSetCount) {
+        this.resourceRecordSetCount = resourceRecordSetCount;
+    }
+
+    /**
+     * The description of a linked service to the Hosted Zone.
+     */
+    @Output
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * The service principal of the Hosted Zone.
+     */
+    @Output
+    public String getServicePrincipal() {
+        return servicePrincipal;
+    }
+
+    public void setServicePrincipal(String servicePrincipal) {
+        this.servicePrincipal = servicePrincipal;
     }
 
     @Override
@@ -320,28 +320,6 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         }
 
         return hostedZoneResponse;
-    }
-
-    void saveVpc(String vpcId, String vpcRegion, boolean isAttach) {
-        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
-
-        if (isAttach) {
-            client.associateVPCWithHostedZone(
-                r -> r.hostedZoneId(getHostedZoneId())
-                    .vpc(
-                        o -> o.vpcId(vpcId)
-                            .vpcRegion(vpcRegion)
-                    )
-            );
-        } else {
-            client.disassociateVPCFromHostedZone(
-                r -> r.hostedZoneId(getHostedZoneId())
-                    .vpc(
-                        o -> o.vpcId(vpcId)
-                            .vpcRegion(vpcRegion)
-                    )
-            );
-        }
     }
 
     private void validate() {

@@ -72,7 +72,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     private String ipAddress;
     private Boolean measureLatency;
     private Integer port;
-    private List<String> regions;
+    private Set<String> regions;
     private Integer requestInterval;
     private String resourcePath;
     private String searchString;
@@ -92,19 +92,6 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     private static final String HEALTH_CHECK_TYPE_HTTPS_STR_MATCH = "HTTPS_STR_MATCH";
     private static final String HEALTH_CHECK_TYPE_HTTPS = "HTTPS";
     private static final String HEALTH_CHECK_TYPE_TCP = "TCP";
-
-    /**
-     * The ID of the health check.
-     */
-    @Id
-    @Output
-    public String getHealthCheckId() {
-        return healthCheckId;
-    }
-
-    public void setHealthCheckId(String healthCheckId) {
-        this.healthCheckId = healthCheckId;
-    }
 
     /**
      * A list of children health checks.
@@ -261,20 +248,20 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
      * Set the regions where the health check would be active. For types that support it, having an empty region would default to all regions being selected.
      */
     @Updatable
-    public List<String> getRegions() {
+    public Set<String> getRegions() {
         if (regions == null) {
-            regions = new ArrayList<>();
+            regions = new HashSet<>();
         }
 
         if (regions.isEmpty() && getType() != null
             && !getType().equals(HEALTH_CHECK_TYPE_CALCULATED) && !getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
-            regions = new ArrayList<>(regionSet);
+            regions = new HashSet<>(regionSet);
         }
 
         return regions;
     }
 
-    public void setRegions(List<String> regions) {
+    public void setRegions(Set<String> regions) {
         this.regions = regions;
     }
 
@@ -368,6 +355,19 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         this.tags = tags;
     }
 
+    /**
+     * The ID of the health check.
+     */
+    @Id
+    @Output
+    public String getHealthCheckId() {
+        return healthCheckId;
+    }
+
+    public void setHealthCheckId(String healthCheckId) {
+        this.healthCheckId = healthCheckId;
+    }
+
     @Override
     public void copyFrom(HealthCheck healthCheck) {
         setHealthCheckId(healthCheck.id());
@@ -390,12 +390,12 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         setType(healthCheckConfig.typeAsString());
 
         if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED) || getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
-            setRegions(new ArrayList<>());
+            setRegions(new HashSet<>());
         } else {
             if (healthCheckConfig.regionsAsStrings().isEmpty()) {
-                setRegions(new ArrayList<>(regionSet));
+                setRegions(new HashSet<>(regionSet));
             } else {
-                setRegions(healthCheckConfig.regionsAsStrings());
+                setRegions(new HashSet<>(healthCheckConfig.regionsAsStrings()));
             }
         }
 

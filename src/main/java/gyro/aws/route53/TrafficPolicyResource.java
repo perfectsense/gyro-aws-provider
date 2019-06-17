@@ -48,7 +48,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     private Integer version;
 
     /**
-     * The name of the traffic policy. (Required)
+     * The name of the Traffic Policy. (Required)
      */
     public String getName() {
         return name;
@@ -59,7 +59,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     /**
-     * The comment you want to put with the policy.
+     * The comment you want to put with the Traffic Policy.
      */
     @Updatable
     public String getComment() {
@@ -99,7 +99,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     /**
-     * The ID of the traffic policy.
+     * The ID of the Traffic Policy.
      */
     @Id
     @Output
@@ -112,7 +112,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     /**
-     * The version of the policy.
+     * The version of the Traffic Policy.
      */
     @Output
     public Integer getVersion() {

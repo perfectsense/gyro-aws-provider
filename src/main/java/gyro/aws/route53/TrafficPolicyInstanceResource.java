@@ -50,7 +50,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     private String trafficPolicyInstanceId;
 
     /**
-     * Name of the traffic policy instance. (Required)
+     * Name of the Traffic Policy Instance. (Required)
      */
     public String getName() {
         return name;
@@ -61,7 +61,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * Message for the traffic policy instance.
+     * Message for the Traffic Policy Instance.
      */
     public String getMessage() {
         return message;
@@ -72,7 +72,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The associated hosted zone. (Required)
+     * The associated Hosted Zone. (Required)
      */
     public HostedZoneResource getHostedZone() {
         return hostedZone;
@@ -83,7 +83,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The traffic policy to be associated. (Required)
+     * The Traffic Policy to be associated. (Required)
      */
     @Updatable
     public TrafficPolicyResource getTrafficPolicy() {
@@ -95,7 +95,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     *  The type of the traffic policy instance.
+     *  The type of the Traffic Policy Instance.
      */
     @Output
     public String getType() {
@@ -107,7 +107,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The TTL that you want to assign to all of the resource record sets that the policy creates in the specified hosted zone.
+     * The TTL that you want to assign to all of the resource Record Sets that the Traffic Policy Instance creates in the specified hosted zone.
      */
     @Updatable
     public Long getTtl() {
@@ -119,7 +119,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The state of the traffic policy instance.
+     * The state of the Traffic Policy Instance.
      */
     @Output
     public String getState() {
@@ -131,7 +131,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The ID of the traffic policy instance.
+     * The ID of the Traffic Policy Instance.
      */
     @Id
     @Output

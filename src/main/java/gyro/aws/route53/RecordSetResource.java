@@ -20,9 +20,7 @@ import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,7 +67,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private Long ttl;
     private String type;
     private Long weight;
-    private List<String> records;
+    private Set<String> records;
     private String routingPolicy;
     private Boolean enableAlias;
     private String aliasHostedZoneId;
@@ -78,7 +76,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private static final Set<String> ROUTING_POLICY_SET = ImmutableSet.of("geolocation", "failover", "multivalue", "weighted", "latency", "simple");
 
     /**
-     * A comment when creating/updating/deleting a record set.
+     * A comment when creating/updating/deleting a Record Set.
      */
     public String getComment() {
         return comment;
@@ -113,7 +111,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Dns name to associate with this record set. Required if 'enable alias' is set to ``true``.
+     * Dns name to associate with this Record Set. Required if 'enable alias' is set to ``true``.
      */
     @Updatable
     public String getDnsName() {
@@ -130,7 +128,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Enable target health evaluation with this record set. Required if 'enable alias' is set to ``true``.
+     * Enable target health evaluation with this Record Set. Required if 'enable alias' is set to ``true``.
      */
     @Updatable
     public Boolean getEvaluateTargetHealth() {
@@ -154,7 +152,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The hosted zone under which the the record set is to be created. (Required)
+     * The Hosted Zone under which the the Record Set is to be created. (Required)
      */
     public HostedZoneResource getHostedZone() {
         return hostedZone;
@@ -165,7 +163,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The health check to be associated with the record set. Required if 'failover' is set to ``primary``.
+     * The health check to be associated with the Record Set. Required if 'failover' is set to ``primary``.
      */
     @Updatable
     public HealthCheckResource getHealthCheck() {
@@ -177,7 +175,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Needs to be enabled if routing policy is ``multivalue``. Required if 'route policy' set to ``multivalue``.
+     * Needs to be enabled if Routing Policy is ``multivalue``. Required if 'route policy' set to ``multivalue``.
      */
     @Updatable
     public Boolean getMultiValueAnswer() {
@@ -189,7 +187,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The name of the record set being created. (Required)
+     * The name of the Record Set being created. (Required)
      */
     @Updatable
     public String getName() {
@@ -213,7 +211,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * a set identifier that differentiates this from other record set of the same type and routing policy. Required if 'enable alias' is set to ``false``.
+     * A set identifier that differentiates this from other Record Set of the same type and Routing Policy. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
     public String getSetIdentifier() {
@@ -237,7 +235,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The traffic policy instance to be associated with the record set.
+     * The Traffic Policy instance to be associated with the record set.
      */
     @Updatable
     public TrafficPolicyInstanceResource getTrafficPolicyInstance() {
@@ -261,7 +259,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The type of record set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``. (Required)
+     * The type of Record Set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``. (Required)
      */
     @Updatable
     public String getType() {
@@ -273,7 +271,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The weight value determines the probability of a record being selected. Valid values ``[ 0 - 255]``. Required if 'route policy' set to ``weighted``.
+     * The weight value determines the probability of a Record Set being selected. Valid values ``[ 0 - 255]``. Required if 'route policy' set to ``weighted``.
      */
     @Updatable
     public Long getWeight() {
@@ -285,24 +283,23 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * A list of ip addresses for the record set. Required if 'enable alias' is set to ``false``.
+     * A list of ip addresses for the Record Set. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
-    public List<String> getRecords() {
+    public Set<String> getRecords() {
         if (records == null) {
-            records = new ArrayList<>();
+            records = new HashSet<>();
         }
 
-        Collections.sort(records);
         return records;
     }
 
-    public void setRecords(List<String> records) {
+    public void setRecords(Set<String> records) {
         this.records = records;
     }
 
     /**
-     * Routing policy type the record set is going to be. Defaults to Simple. Valid Values are ``geolocation`` or ``failover`` or ``multivalue`` or ``weighted`` or ``latency`` or ``simple``.
+     * Routing policy type the Record Set is going to be. Defaults to Simple. Valid Values are ``geolocation`` or ``failover`` or ``multivalue`` or ``weighted`` or ``latency`` or ``simple``.
      */
     @Updatable
     public String getRoutingPolicy() {
@@ -334,7 +331,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The hosted zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to ``true``.
+     * The Hosted Zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to ``true``.
      */
     @Updatable
     public String getAliasHostedZoneId() {
@@ -346,7 +343,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The Id of the record set.
+     * The ID of the Record Set.
      */
     @Id
     @Output
@@ -369,7 +366,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         setWeight(recordSet.weight());
         setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
         setTtl(recordSet.ttl());
-        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toList()));
+        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toSet()));
         setRecordSetId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
