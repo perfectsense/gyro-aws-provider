@@ -189,6 +189,13 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
                 .until(() -> getLoadBalancer(client) == null);
+
+        // Delay for resources has this load balancer as a dependency.
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private LoadBalancer getLoadBalancer(ElasticLoadBalancingV2Client client) {
