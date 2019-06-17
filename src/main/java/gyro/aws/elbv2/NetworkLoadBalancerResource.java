@@ -2,6 +2,7 @@ package gyro.aws.elbv2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.aws.ec2.ElasticIpResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
@@ -78,8 +79,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
             subnet.setSubnet(findById(SubnetResource.class, zone.subnetId()));
 
             for (LoadBalancerAddress address : zone.loadBalancerAddresses()) {
-                subnet.setAllocationId(address.allocationId());
-                subnet.setIpAddress(address.ipAddress());
+                subnet.setIpAddress(address.allocationId() != null ? findById(ElasticIpResource.class, address.allocationId()) : null);
             }
 
             getSubnetMapping().add(subnet);

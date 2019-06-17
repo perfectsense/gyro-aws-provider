@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.ec2.ElasticIpResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.resource.Diffable;
 
@@ -13,36 +14,23 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMappin
  * .. code-block:: gyro
  *
  *     subnet-mapping
- *         allocation-id: $(aws::elastic-ip elastic-ip-example | allocation-id)
- *         ip-address: $(aws::elastic-ip elastic-ip-example | public-ip)
+ *         ip-address: $(aws::elastic-ip elastic-ip-example)
  *         subnet: $(aws::subnet subnet-example)
  *     end
  */
 public class SubnetMappings extends Diffable {
 
-    private String allocationId;
-    private String ipAddress;
+    private ElasticIpResource ipAddress;
     private SubnetResource subnet;
 
     /**
-     *  The allocation id associated with the elastic ip. (Optional)
+     *  The elastic ip associated with the nlb. (Optional)
      */
-    public String getAllocationId() {
-        return allocationId;
-    }
-
-    public void setAllocationId(String allocationId) {
-        this.allocationId = allocationId;
-    }
-
-    /**
-     *  The public ip associated with the elastic ip. (Optional)
-     */
-    public String getIpAddress() {
+    public ElasticIpResource getIpAddress() {
         return ipAddress;
     }
 
-    public void setIpAddress(String ipAddress) {
+    public void setIpAddress(ElasticIpResource ipAddress) {
         this.ipAddress = ipAddress;
     }
 
@@ -59,14 +47,14 @@ public class SubnetMappings extends Diffable {
 
     @Override
     public String primaryKey() {
-        return String.format("%s/%s/%s", getAllocationId(), getIpAddress(), getSubnet().getSubnetId());
+        return String.format("%s/%s", getIpAddress() != null ? getIpAddress().getAllocationId() : null, getSubnet().getSubnetId());
     }
 
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getAllocationId() != null) {
-            sb.append("subnet mapping - " + getAllocationId());
+        if (getIpAddress() != null && getIpAddress().getAllocationId() != null) {
+            sb.append("subnet mapping - " + getIpAddress().getAllocationId());
         } else {
             sb.append("subnet mapping ");
         }
@@ -76,7 +64,7 @@ public class SubnetMappings extends Diffable {
 
     public SubnetMapping toSubnetMappings() {
         return SubnetMapping.builder()
-                .allocationId(getAllocationId())
+                .allocationId(getIpAddress() != null ? getIpAddress().getAllocationId() : null)
                 .subnetId(getSubnet() != null ? getSubnet().getSubnetId() : null)
                 .build();
     }
