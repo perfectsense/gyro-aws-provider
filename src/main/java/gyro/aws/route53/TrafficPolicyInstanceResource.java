@@ -214,6 +214,11 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         client.deleteTrafficPolicyInstance(
             r -> r.id(getTrafficPolicyInstanceId())
         );
+
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> getTrafficPolicyInstance(client) == null);
     }
 
     @Override
