@@ -1,31 +1,28 @@
-example-name: "record-from-instance"
-
 aws::vpc vpc
     cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: $(example-name)
+        Name: "record-from-instance"
     }
 end
 
 aws::subnet subnet
     vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2a"
-    cidr-block: "10.0.1.0/16"
+    cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: $(example-name)
+        Name: "record-from-instance"
     }
 end
 
 aws::hosted-zone hosted-zone
-    hosted-zone-name: "$(example-name).psdops.com"
+    hosted-zone-name: "record-from-instance.psdops.com"
     private-zone: true
-    vpc
-        vpc: $(aws::vpc vpc)
-        vpc-region: "us-east-2"
-    end
-    comment: "$(example)"
+    vpcs: [
+        $(aws::vpc vpc)
+    ]
+    comment: "record-from-instance"
 end
 
 aws::security-group security-group
@@ -43,14 +40,14 @@ aws::security-group security-group
     end
 
     tags: {
-        Name: "instance example"
+        Name: "record-from-instance"
     }
 end
 
 aws::instance instance
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     instance-type: "t2.micro"
-    key-name: "example"
+    key: "example"
 
     security-groups: [
         $(aws::security-group security-group)
@@ -59,7 +56,7 @@ aws::instance instance
     subnet: $(aws::subnet subnet)
 
     tags: {
-        Name: $(example-name)
+        Name: "record-from-instance"
     }
 end
 

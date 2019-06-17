@@ -9,17 +9,16 @@ end
 aws::hosted-zone hosted-zone-traffic-policy-instance-example
     hosted-zone-name: "hosted-zone-traffic-policy-instance-example.com"
     private-zone: true
-    vpc
-        vpc: $(aws::vpc vpc-traffic-policy-instance-example)
-        vpc-region: "us-east-2"
-    end
+    vpcs: [
+        $(aws::vpc vpc-traffic-policy-instance-example)
+    ]
     comment: "hosted-zone-traffic-policy-instance-example.comment"
 end
 
 aws::traffic-policy traffic-policy-example-instance
     name: "traffic-policy-example-instance"
     comment: "traffic-policy-example-instance Comment"
-    document-path: "policy.json"
+    document: "policy.json"
 end
 
 aws::traffic-policy-instance traffic-policy-instance-example
