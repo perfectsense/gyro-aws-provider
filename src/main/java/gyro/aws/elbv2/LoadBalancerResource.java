@@ -202,10 +202,11 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
             DescribeLoadBalancersResponse describeLoadBalancersResponse =
                     client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
 
-            if (describeLoadBalancersResponse.loadBalancers().isEmpty()) {
+            if (!describeLoadBalancersResponse.loadBalancers().isEmpty()) {
                 loadBalancer = describeLoadBalancersResponse.loadBalancers().get(0);
             }
         } catch (LoadBalancerNotFoundException ex) {
+            // Ignore
         }
 
         return loadBalancer;
