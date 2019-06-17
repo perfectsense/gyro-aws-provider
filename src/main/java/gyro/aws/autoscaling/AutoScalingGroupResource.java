@@ -34,6 +34,7 @@ import software.amazon.awssdk.services.autoscaling.model.Tag;
 import software.amazon.awssdk.services.autoscaling.model.TagDescription;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Reservation;
 
 import java.util.ArrayList;
@@ -771,7 +772,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         List<String> instanceIds = group.instances()
             .stream()
-            .map(i -> i.instanceId())
+            .map(software.amazon.awssdk.services.autoscaling.model.Instance::instanceId)
             .collect(Collectors.toList());
 
         Ec2Client ec2Client = createClient(Ec2Client.class);
@@ -781,11 +782,17 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         for (Reservation reservation : instancesResponse.reservations()) {
             instances.addAll(reservation.instances()
                 .stream()
-                .map(i -> new InstanceResource(i, ec2Client))
+                .map(this::getGyroInstance)
                 .collect(Collectors.toList()));
         }
 
         return instances;
+    }
+
+    private GyroInstance getGyroInstance(Instance instance) {
+        InstanceResource instanceResource = newSubresource(InstanceResource.class);
+        instanceResource.copyFrom(instance);
+        return instanceResource;
     }
 
     private List<Tag> getAutoScaleGroupTags(Map<String, String> localTags, List<String> passToInstanceTags) {

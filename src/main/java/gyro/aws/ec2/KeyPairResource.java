@@ -1,8 +1,11 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -10,6 +13,7 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeKeyPairsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.ImportKeyPairResponse;
+import software.amazon.awssdk.services.ec2.model.KeyPairInfo;
 import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
@@ -41,7 +45,7 @@ import java.util.Set;
  *     end
  */
 @Type("key-pair")
-public class KeyPairResource extends AwsResource {
+public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo> {
 
     private String keyName;
     private String publicKeyPath;
@@ -51,6 +55,7 @@ public class KeyPairResource extends AwsResource {
     /**
      * The key name that you want to assign for your key pair. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
+    @Id
     public String getKeyName() {
         return keyName;
     }
@@ -81,6 +86,10 @@ public class KeyPairResource extends AwsResource {
         this.publicKey = publicKey;
     }
 
+    /**
+     * The fingerprint for the key pair.
+     */
+    @Output
     public String getKeyFingerPrint() {
         return keyFingerPrint;
     }
@@ -90,23 +99,22 @@ public class KeyPairResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(KeyPairInfo keyPairInfo) {
+        setKeyName(keyPairInfo.keyName());
+        setKeyFingerPrint(keyPairInfo.keyFingerprint());
+    }
+
+    @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (ObjectUtils.isBlank(getKeyName())) {
-            throw new GyroException("key-name is missing, unable to load key pair.");
+        KeyPairInfo keyPairInfo = getKeyPairInfo(client);
+
+        if (keyPairInfo == null) {
+            return false;
         }
 
-        try {
-            DescribeKeyPairsResponse response = client.describeKeyPairs(r -> r.keyNames(Collections.singleton(getKeyName())));
-            setKeyFingerPrint(response.keyPairs().get(0).keyFingerprint());
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
+        copyFrom(keyPairInfo);
 
         return true;
     }
@@ -159,5 +167,28 @@ public class KeyPairResource extends AwsResource {
         } catch (IOException ioex) {
             throw new GyroException("Unable to read public key from file.");
         }
+    }
+
+    private KeyPairInfo getKeyPairInfo(Ec2Client client) {
+        KeyPairInfo keyPairInfo = null;
+
+        if (ObjectUtils.isBlank(getKeyName())) {
+            throw new GyroException("key-name is missing, unable to load key pair.");
+        }
+
+        try {
+            DescribeKeyPairsResponse response = client.describeKeyPairs(r -> r.keyNames(Collections.singleton(getKeyName())));
+
+            if (!response.keyPairs().isEmpty()) {
+                keyPairInfo = response.keyPairs().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return keyPairInfo;
     }
 }

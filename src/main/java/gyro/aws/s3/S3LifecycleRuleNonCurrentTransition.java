@@ -1,21 +1,13 @@
 package gyro.aws.s3;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 
-public class S3LifecycleRuleNonCurrentTransition extends Diffable {
+public class S3LifecycleRuleNonCurrentTransition extends Diffable implements Copyable<NoncurrentVersionTransition> {
     private Integer days;
     private String storageClass;
-
-    public S3LifecycleRuleNonCurrentTransition() {
-
-    }
-
-    public S3LifecycleRuleNonCurrentTransition(NoncurrentVersionTransition noncurrentVersionTransition) {
-        setDays(noncurrentVersionTransition.noncurrentDays());
-        setStorageClass(noncurrentVersionTransition.storageClassAsString());
-    }
 
     /**
      * Days after creation that versioning would start. Min value 30. (Required)
@@ -48,6 +40,12 @@ public class S3LifecycleRuleNonCurrentTransition extends Diffable {
     @Override
     public String toDisplayString() {
         return String.format("non current transition - days [%s], storage-class [%s]", getDays(), getStorageClass());
+    }
+
+    @Override
+    public void copyFrom(NoncurrentVersionTransition noncurrentVersionTransition) {
+        setDays(noncurrentVersionTransition.noncurrentDays());
+        setStorageClass(noncurrentVersionTransition.storageClassAsString());
     }
 
     NoncurrentVersionTransition toNoncurrentVersionTransition() {

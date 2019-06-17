@@ -2,8 +2,10 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.GyroCore;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -13,10 +15,12 @@ import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequ
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.GetEventSourceMappingResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.lambda.model.UpdateEventSourceMappingRequest;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates an event source mapping.
@@ -27,14 +31,16 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::event-source-mapping event-source-mapping-example
- *         function-name: $(aws::lambda-function lambda-function-event-source-mapping-example | function-name)
+ *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         batch-size: 10
  *         event-source-arn: "$(aws::sqs sqs-event-source-mapping-example | queue-arn)"
  *     end
  */
 @Type("event-source-mapping")
-public class EventSourceMapping extends AwsResource {
-    private String functionName;
+public class EventSourceMapping extends AwsResource implements Copyable<GetEventSourceMappingResponse> {
+    private FunctionResource function;
+    private Integer functionVersion;
+    private FunctionAlias alias;
     private Integer batchSize;
     private Boolean enabled;
     private String eventSourceArn;
@@ -51,21 +57,44 @@ public class EventSourceMapping extends AwsResource {
     private String arn;
     private String functionArn;
 
-
     /**
-     * The name / arn / partial arn of the function to be associated with. (Required)
+     * The Lambda Function to be associated with. Required if Alias is not provided.
      */
     @Updatable
-    public String getFunctionName() {
-        return isFunctionArnSame() ? getFunctionArn() : functionName;
+    public FunctionResource getFunction() {
+        return function;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public void setFunction(FunctionResource function) {
+        this.function = function;
     }
 
     /**
-     * The batch size for the event to invoke the function. (Required)
+     * The Lambda Function version to be associated with.
+     */
+    @Updatable
+    public Integer getFunctionVersion() {
+        return functionVersion;
+    }
+
+    public void setFunctionVersion(Integer functionVersion) {
+        this.functionVersion = functionVersion;
+    }
+
+    /**
+     * The Lambda Function to be associated with. Required if function is not provided.
+     */
+    @Updatable
+    public FunctionAlias getAlias() {
+        return alias;
+    }
+
+    public void setAlias(FunctionAlias alias) {
+        this.alias = alias;
+    }
+
+    /**
+     * The batch size for the event to invoke the Lambda Function. (Required)
      */
     @Updatable
     public Integer getBatchSize() {
@@ -77,7 +106,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * Enable or disable the event mapping. Defaults to ``True``.
+     * Enable or disable the Lambda Event Source Mapping. Defaults to ``True``.
      */
     @Updatable
     public Boolean getEnabled() {
@@ -104,7 +133,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * The starting position in terms of the connected resource for the function to be invoked. Required if source event is DynamoDb or Kinesis. Valid values are ``TRIM_HORIZON`` or ``LATEST`` or ``AT_TIMESTAMP``
+     * The starting position in terms of the connected resource for the Lambda Function to be invoked. Required if source event is DynamoDb or Kinesis. Valid values are ``TRIM_HORIZON`` or ``LATEST`` or ``AT_TIMESTAMP``
      */
     public String getStartingPosition() {
         return startingPosition != null ? startingPosition.toUpperCase() : null;
@@ -115,7 +144,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * Starting timestamp to invoke the function. Required only if `starting-position` set to ``AT_TIMESTAMP``.
+     * Starting timestamp to invoke the Lambda Function. Required only if `starting-position` set to ``AT_TIMESTAMP``.
      */
     public String getStartingPositionTimestamp() {
         return startingPositionTimestamp;
@@ -126,8 +155,9 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * The id of the event mapping.
+     * The ID of the Lambda Event Source Mapping.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -138,7 +168,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * Last modified date of the event mapping.
+     * Last modified date of the Lambda Event Source Mapping.
      */
     @Output
     public Date getLastModified() {
@@ -150,7 +180,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * Last processing of the event mapping.
+     * Last processing of the Lambda Event Source Mapping.
      */
     @Output
     public String getLastProcessingResult() {
@@ -162,7 +192,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * Current state of the event mapping.
+     * Current state of the Lambda Event Source Mapping.
      */
     @Output
     public String getState() {
@@ -186,7 +216,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * The arn for the event mapping.
+     * The arn for the Lambda Event Source Mapping.
      */
     @Output
     public String getArn() {
@@ -198,7 +228,7 @@ public class EventSourceMapping extends AwsResource {
     }
 
     /**
-     * The arn of the function associated the event mapping.
+     * The arn of the Lambda Function associated the Lambda Event Source Mapping.
      */
     @Output
     public String getFunctionArn() {
@@ -210,6 +240,35 @@ public class EventSourceMapping extends AwsResource {
     }
 
     @Override
+    public void copyFrom(GetEventSourceMappingResponse response) {
+        setId(response.uuid());
+        setBatchSize(response.batchSize());
+        setEventSourceArn(response.eventSourceArn());
+        setLastModified(Date.from(response.lastModified()));
+        setLastProcessingResult(response.lastProcessingResult());
+        setState(response.state());
+        setStateTransitionReason(response.stateTransitionReason());
+        setEnabled(getState().equals("Enabled"));
+        setFunctionArn(response.functionArn());
+        String versionOrAlias = getFunctionArn().split(":function:")[1].split(":").length > 1 ? getFunctionArn().split(":function:")[1].split(":")[1] : "";
+        Integer version = getIntVal(versionOrAlias);
+        if (!ObjectUtils.isBlank(versionOrAlias) && version == null ) {
+            setAlias(findById(FunctionAlias.class, response.functionArn()));
+        } else {
+            setFunction(findById(FunctionResource.class, getFunctionArn().split(":function:")[1].split(":")[0]));
+            setFunctionVersion(version);
+        }
+    }
+
+    private Integer getIntVal(String val) {
+        try {
+            return Integer.parseInt(val);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
@@ -218,21 +277,12 @@ public class EventSourceMapping extends AwsResource {
                 r -> r.uuid(getId())
             );
 
-            setBatchSize(response.batchSize());
-            setEventSourceArn(response.eventSourceArn());
-            setLastModified(Date.from(response.lastModified()));
-            setLastProcessingResult(response.lastProcessingResult());
-            setState(response.state());
-            setStateTransitionReason(response.stateTransitionReason());
-            setEnabled(getState().equals("Enabled"));
-            setFunctionArn(response.functionArn());
-            setFunctionName(getFunctionArn());
+            copyFrom(response);
         } catch (ResourceNotFoundException ex) {
             return false;
         }
 
         return true;
-
     }
 
     @Override
@@ -240,10 +290,19 @@ public class EventSourceMapping extends AwsResource {
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateEventSourceMappingRequest.Builder builder = CreateEventSourceMappingRequest.builder()
-            .functionName(getFunctionName())
             .batchSize(getBatchSize())
             .enabled(getEnabled())
             .eventSourceArn(getEventSourceArn());
+
+        if (getAlias() != null) {
+            builder = builder.functionName(getAlias().getArn());
+        } else {
+            if (getFunctionVersion() == null) {
+                builder = builder.functionName(getFunction().getFunctionName());
+            } else {
+                builder = builder.functionName(getFunction().getArnNoVersion() + ":" + getFunctionVersion());
+            }
+        }
 
         if (!ObjectUtils.isBlank(getStartingPosition())) {
             builder = builder.startingPosition(getStartingPosition());
@@ -257,7 +316,7 @@ public class EventSourceMapping extends AwsResource {
 
         setId(response.uuid());
 
-        saveEventSourceMapping(client);
+        waitToSave(client);
     }
 
     @Override
@@ -268,14 +327,24 @@ public class EventSourceMapping extends AwsResource {
 
         LambdaClient client = createClient(LambdaClient.class);
 
-        client.updateEventSourceMapping(
-            r -> r.uuid(getId())
-                .enabled(getEnabled())
-                .batchSize(getBatchSize())
-                .functionName(getFunctionName())
-        );
+        UpdateEventSourceMappingRequest.Builder builder = UpdateEventSourceMappingRequest.builder()
+            .uuid(getId())
+            .enabled(getEnabled())
+            .batchSize(getBatchSize());
 
-        saveEventSourceMapping(client);
+        if (getAlias() != null) {
+            builder = builder.functionName(getAlias().getArn());
+        } else {
+            if (getFunctionVersion() == null) {
+                builder = builder.functionName(getFunction().getFunctionName());
+            } else {
+                builder = builder.functionName(getFunction().getArnNoVersion() + ":" + getFunctionVersion());
+            }
+        }
+
+        client.updateEventSourceMapping(builder.build());
+
+        waitToSave(client);
     }
 
     @Override
@@ -293,74 +362,34 @@ public class EventSourceMapping extends AwsResource {
 
         sb.append("event source mapping");
 
-        if (!ObjectUtils.isBlank(getFunctionName())) {
-            sb.append(" function - ").append(getFunctionName());
+        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
+            sb.append(", function - ").append(getFunction().getFunctionName());
+
+            if (getFunctionVersion() != null) {
+                sb.append(", version - ").append(getFunctionVersion());
+            }
+        } else if (getAlias() != null && !ObjectUtils.isBlank(getAlias().getArn())) {
+            String functionAlias = getAlias().getArn().split(":function:")[1];
+            sb.append(", function - ").append(functionAlias.split(":")[0]);
+            sb.append(", alias - ").append(functionAlias.split(":")[1]);
         }
 
         if (!ObjectUtils.isBlank(getEventSourceArn())) {
-            sb.append(" source - ").append(getEventSourceArn());
+            sb.append(", source - ").append(getEventSourceArn());
         }
 
         return sb.toString();
     }
 
-    private boolean isFunctionArnSame() {
-        if (ObjectUtils.isBlank(getFunctionArn())) {
-            return false;
-        } else if (functionName.equals(getFunctionArn())) {
-            return true;
-        } else {
-            if (!functionName.contains(":")) {
-                // Just function name
-                return getFunctionArn().endsWith(functionName);
-            } else if (functionName.startsWith("arn:aws:lambda")) {
-                // Full Arn
-                return functionName.equals(getFunctionArn());
-            } else if (functionName.contains(":function:")) {
-                // Partial
-                String partialName = functionName.split(":function:").length == 2 ? functionName.split(":function:")[1] : null;
-                String partialArn = getFunctionArn().split(":function:").length == 2 ? getFunctionArn().split(":function:")[1] : null;
-                if (partialName == null || !partialName.equals(partialArn)) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
+    private void waitToSave(LambdaClient client) {
+        Wait.atMost(3, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> client.getEventSourceMapping(
+                r -> r.uuid(getId()))
+                .state().equals(getEnabled() ? "Enabled" : "Disabled")
+            );
 
-            return true;
-        }
-    }
-
-    private void saveEventSourceMapping(LambdaClient client) {
-        long time = 20000;
-        int count = 0;
-        boolean wait = true;
-        GetEventSourceMappingResponse response = null;
-
-        while(wait && count < 20) {
-            count++;
-            response = client.getEventSourceMapping(r -> r.uuid(getId()));
-            if (response.state().equals(getEnabled() ? "Enabled" : "Disabled")) {
-                break;
-            }
-
-            try {
-                Thread.sleep(time);
-            } catch (InterruptedException e) {
-                break;
-            }
-
-            if (count % 5 == 0) {
-                wait = GyroCore.ui().readBoolean(Boolean.FALSE, "\nWait for completion?..... ");
-            }
-        }
-
-        setLastModified(Date.from(response.lastModified()));
-        setLastProcessingResult(response.lastProcessingResult());
-        setState(response.state());
-        setStateTransitionReason(response.stateTransitionReason());
-        setFunctionArn(response.functionArn());
-        setEventSourceArn(response.eventSourceArn());
-        setFunctionName(getFunctionArn());
+        copyFrom(client.getEventSourceMapping(r -> r.uuid(getId())));
     }
 }

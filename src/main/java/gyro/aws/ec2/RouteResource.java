@@ -1,11 +1,15 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.CreateRouteResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Route;
 import software.amazon.awssdk.services.ec2.model.RouteTable;
@@ -22,39 +26,38 @@ import java.util.Set;
  *
  *     aws::route route-example
  *         destination-cidr-block: 0.0.0.0/0
- *         route-table-id: $(aws::route-table route-table-example | route-table-id)
- *         gateway-id: $(aws::internet-gateway ig-example | internet-gateway-id)
+ *         route-table: $(aws::route-table route-table-example)
+ *         gateway: $(aws::internet-gateway ig-example)
  *     end
  */
 @Type("route")
-public class RouteResource extends AwsResource {
+public class RouteResource extends AwsResource implements Copyable<Route> {
 
-    private String routeTableId;
+    private RouteTableResource routeTable;
     private String destinationCidrBlock;
     private String destinationIpv6CidrBlock;
     private String destinationPrefixListId;
-    private String egressOnlyInternetGatewayId;
-    private String gatewayId;
-    private String instanceId;
-    private String instanceOwnerId;
-    private String natGatewayId;
-    private String networkInterfaceId;
+    private EgressOnlyInternetGatewayResource egressGateway;
+    private InternetGatewayResource gateway;
+    private InstanceResource instance;
+    private NatGatewayResource natGateway;
+    private NetworkInterfaceResource networkInterface;
     private String transitGatewayId;
-    private String vpcPeeringConnectionId;
+    private PeeringConnectionResource vpcPeeringConnection;
 
     /**
-     * The ID of the route table to add this route to.
+     * The Route Table to add this Route to.
      */
-    public String getRouteTableId() {
-        return routeTableId;
+    public RouteTableResource getRouteTable() {
+        return routeTable;
     }
 
-    public void setRouteTableId(String routeTableId) {
-        this.routeTableId = routeTableId;
+    public void setRouteTable(RouteTableResource routeTable) {
+        this.routeTable = routeTable;
     }
 
     /**
-     * An IPv4 destination CIDR block.
+     * An IPv4 destination CIDR block of the Route.
      */
     public String getDestinationCidrBlock() {
         return destinationCidrBlock;
@@ -65,7 +68,7 @@ public class RouteResource extends AwsResource {
     }
 
     /**
-     * An IPv6 destination CIDR block.
+     * An IPv6 destination CIDR block of the Route.
      */
     public String getDestinationIpv6CidrBlock() {
         return destinationIpv6CidrBlock;
@@ -84,71 +87,69 @@ public class RouteResource extends AwsResource {
     }
 
     /**
-     * The ID of an egress only internet gateway. Only valid with IPv6 destination CIDR.
+     * Associate an Egress Only Internet Gateway to the Route. Only valid with IPv6 destination CIDR.
      */
-    public String getEgressOnlyInternetGatewayId() {
-        return egressOnlyInternetGatewayId;
+    @Updatable
+    public EgressOnlyInternetGatewayResource getEgressGateway() {
+        return egressGateway;
     }
 
-    public void setEgressOnlyInternetGatewayId(String egressOnlyInternetGatewayId) {
-        this.egressOnlyInternetGatewayId = egressOnlyInternetGatewayId;
+    public void setEgressGateway(EgressOnlyInternetGatewayResource egressGateway) {
+        this.egressGateway = egressGateway;
     }
 
     /**
-     * The ID of an internat gateway. Only valid with IPv4 destination CIDR.
+     * Associate an Internet Gateway to the Route. Only valid with IPv4 destination CIDR.
      */
-    public String getGatewayId() {
-        return gatewayId;
+    @Updatable
+    public InternetGatewayResource getGateway() {
+        return gateway;
     }
 
-    public void setGatewayId(String gatewayId) {
-        this.gatewayId = gatewayId;
+    public void setGateway(InternetGatewayResource gateway) {
+        this.gateway = gateway;
     }
 
     /**
-     * The ID of a NAT instance running in your VPC.
+     * Associate a NAT instance running in your VPC to the Route.
      */
-    public String getInstanceId() {
-        return instanceId;
+    @Updatable
+    public InstanceResource getInstance() {
+        return instance;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
-    public String getInstanceOwnerId() {
-        return instanceOwnerId;
-    }
-
-    public void setInstanceOwnerId(String instanceOwnerId) {
-        this.instanceOwnerId = instanceOwnerId;
+    public void setInstance(InstanceResource instance) {
+        this.instance = instance;
     }
 
     /**
-     * The ID of a NAT gateway. Only valid with IPv4 destination CIDR.
+     * Associate a NAT Gateway to the Route. Only valid with IPv4 destination CIDR.
      */
-    public String getNatGatewayId() {
-        return natGatewayId;
+    @Updatable
+    public NatGatewayResource getNatGateway() {
+        return natGateway;
     }
 
-    public void setNatGatewayId(String natGatewayId) {
-        this.natGatewayId = natGatewayId;
+    public void setNatGateway(NatGatewayResource natGateway) {
+        this.natGateway = natGateway;
     }
 
     /**
-     * The ID of a network interface.
+     * Associate a Network Interface to the Route.
      */
-    public String getNetworkInterfaceId() {
-        return networkInterfaceId;
+    @Updatable
+    public NetworkInterfaceResource getNetworkInterface() {
+        return networkInterface;
     }
 
-    public void setNetworkInterfaceId(String networkInterfaceId) {
-        this.networkInterfaceId = networkInterfaceId;
+    public void setNetworkInterface(NetworkInterfaceResource networkInterface) {
+        this.networkInterface = networkInterface;
     }
 
     /**
-     * The ID of a transit gateway.
+     * The ID of a transit gateway to associate to the Route.
      */
+    @Updatable
     public String getTransitGatewayId() {
         return transitGatewayId;
     }
@@ -158,69 +159,60 @@ public class RouteResource extends AwsResource {
     }
 
     /**
-     * The ID of a VPC peering connection.
+     * Associate a VPC Peering Connection to the Route.
      */
-    public String getVpcPeeringConnectionId() {
-        return vpcPeeringConnectionId;
+    @Updatable
+    public PeeringConnectionResource getVpcPeeringConnection() {
+        return vpcPeeringConnection;
     }
 
-    public void setVpcPeeringConnectionId(String vpcPeeringConnectionId) {
-        this.vpcPeeringConnectionId = vpcPeeringConnectionId;
+    public void setVpcPeeringConnection(PeeringConnectionResource vpcPeeringConnection) {
+        this.vpcPeeringConnection = vpcPeeringConnection;
+    }
+
+    @Override
+    public void copyFrom(Route route) {
+        setEgressGateway(!ObjectUtils.isBlank(route.egressOnlyInternetGatewayId()) ? findById(EgressOnlyInternetGatewayResource.class, route.egressOnlyInternetGatewayId()) : null);
+        setGateway(!ObjectUtils.isBlank(route.gatewayId()) ? findById(InternetGatewayResource.class, route.gatewayId()) : null);
+        setInstance(!ObjectUtils.isBlank(route.instanceId()) ? findById(InstanceResource.class, route.instanceId()) : null);
+        setNatGateway(!ObjectUtils.isBlank(route.natGatewayId()) ? findById(NatGatewayResource.class, route.natGatewayId()) : null);
+        setNetworkInterface(!ObjectUtils.isBlank(route.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, route.networkInterfaceId()) : null);
+        setTransitGatewayId(route.transitGatewayId());
+        setVpcPeeringConnection(!ObjectUtils.isBlank(route.vpcPeeringConnectionId()) ? findById(PeeringConnectionResource.class, route.vpcPeeringConnectionId()) : null);
+        setDestinationCidrBlock(route.destinationCidrBlock());
+        setDestinationIpv6CidrBlock(route.destinationIpv6CidrBlock());
+        setDestinationPrefixListId(route.destinationPrefixListId());
     }
 
     @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTableId()).build()
-        ));
+        Route route = getRoute(client);
 
-        Route route = null;
-        for (RouteTable routeTable : response.routeTables()) {
-            for (Route r : routeTable.routes()) {
-                if (r.destinationCidrBlock() != null && r.destinationCidrBlock().equals(getDestinationCidrBlock())) {
-                    route = r;
-                    break;
-                } else if (r.destinationIpv6CidrBlock() != null && r.destinationIpv6CidrBlock().equals(getDestinationCidrBlock())) {
-                    route = r;
-                    break;
-                } else if (r.destinationPrefixListId() != null && r.destinationPrefixListId().equals(getDestinationPrefixListId())) {
-                    route = r;
-                    break;
-                }
-            }
-
-            if (route != null) {
-                setEgressOnlyInternetGatewayId(route.egressOnlyInternetGatewayId());
-                setGatewayId(route.gatewayId());
-                setInstanceId(route.instanceId());
-                setInstanceOwnerId(route.instanceOwnerId());
-                setNatGatewayId(route.natGatewayId());
-                setNetworkInterfaceId(route.networkInterfaceId());
-                setTransitGatewayId(route.transitGatewayId());
-                setVpcPeeringConnectionId(route.vpcPeeringConnectionId());
-            }
-
-            return true;
+        if (route == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(route);
+
+        return true;
     }
 
     @Override
     public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateRouteResponse response = client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
+        client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .gatewayId(getGatewayId())
-                .instanceId(getInstanceId())
-                .natGatewayId(getNatGatewayId())
-                .networkInterfaceId(getNetworkInterfaceId())
+                .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
+                .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+                .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
+                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
                 .transitGatewayId(getTransitGatewayId())
-                .vpcPeeringConnectionId(getVpcPeeringConnectionId())
-                .routeTableId(getRouteTableId())
+                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
+                .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
+                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
         );
     }
 
@@ -229,14 +221,15 @@ public class RouteResource extends AwsResource {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
-                .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .gatewayId(getGatewayId())
-                .instanceId(getInstanceId())
-                .natGatewayId(getNatGatewayId())
-                .networkInterfaceId(getNetworkInterfaceId())
-                .transitGatewayId(getTransitGatewayId())
-                .vpcPeeringConnectionId(getVpcPeeringConnectionId())
-                .routeTableId(getRouteTableId())
+            .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
+            .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
+            .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+            .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
+            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
+            .transitGatewayId(getTransitGatewayId())
+            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
+            .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
+            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
         );
     }
 
@@ -246,7 +239,7 @@ public class RouteResource extends AwsResource {
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .routeTableId(getRouteTableId())
+                .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
         );
     }
 
@@ -257,27 +250,57 @@ public class RouteResource extends AwsResource {
         sb.append("route ");
         sb.append(getDestinationCidrBlock());
 
-        if (getGatewayId() != null) {
+        if (getGateway() != null && !ObjectUtils.isBlank(getGateway().getInternetGatewayId())) {
             sb.append(" through gateway ");
-            sb.append(getGatewayId());
-        } else if (getInstanceId() != null) {
+            sb.append(getGateway().getInternetGatewayId());
+        } else if (getInstance() != null && !ObjectUtils.isBlank(getInstance().getInstanceId())) {
             sb.append(" through instance ");
-            sb.append(getInstanceId());
-        } else if (getGatewayId() != null) {
+            sb.append(getInstance().getInstanceId());
+        } else if (getNatGateway() != null && !ObjectUtils.isBlank(getNatGateway().getNatGatewayId())) {
             sb.append(" through nat gateway");
-            sb.append(getNatGatewayId());
-        } else if (getNetworkInterfaceId() != null) {
+            sb.append(getNatGateway().getNatGatewayId());
+        } else if (getNetworkInterface() != null && !ObjectUtils.isBlank(getNetworkInterface().getNetworkInterfaceId())) {
             sb.append(" through network interface ");
-            sb.append(getNetworkInterfaceId());
-        } else if (getTransitGatewayId() != null) {
+            sb.append(getNetworkInterface().getNetworkInterfaceId());
+        } else if (!ObjectUtils.isBlank(getTransitGatewayId())) {
             sb.append(" through transit gateway ");
             sb.append(getTransitGatewayId());
-        } else if (getVpcPeeringConnectionId() != null) {
+        } else if (getVpcPeeringConnection() != null && !ObjectUtils.isBlank(getVpcPeeringConnection().getPeeringConnectionId())) {
             sb.append(" through vpc peering connection ");
-            sb.append(getVpcPeeringConnectionId());
+            sb.append(getVpcPeeringConnection().getPeeringConnectionId());
         }
 
         return sb.toString();
     }
 
+    private Route getRoute(Ec2Client client) {
+        Route route = null;
+
+        if (getRouteTable() == null) {
+            throw new GyroException("route-table is missing, unable to load route.");
+        }
+
+        try {
+            DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
+                Filter.builder().name("route-table-id").values(getRouteTable().getRouteTableId()).build()
+            ));
+
+            for (RouteTable routeTable : response.routeTables()) {
+                for (Route r : routeTable.routes()) {
+                    if ((r.destinationCidrBlock() != null && r.destinationCidrBlock().equals(getDestinationCidrBlock()))
+                        || (r.destinationIpv6CidrBlock() != null && r.destinationIpv6CidrBlock().equals(getDestinationCidrBlock()))
+                        || (r.destinationPrefixListId() != null && r.destinationPrefixListId().equals(getDestinationPrefixListId()))) {
+                        route = r;
+                        break;
+                    }
+                }
+            }
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return route;
+    }
 }
