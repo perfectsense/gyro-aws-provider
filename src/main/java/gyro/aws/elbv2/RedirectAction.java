@@ -92,7 +92,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The HTTP redirect code. Valid values are 301 and 302. (Optional)
+     *  The HTTP redirect code. Valid values are ``HTTP_301`` and ``HTTP_302``. (Optional)
      */
     @Updatable
     public String getStatusCode() {

@@ -17,9 +17,10 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedRespons
  *         type: “fixed-response”
  *
  *         fixed-response-action
- *         content-type: "text/plain"
- *         message-body: "fixed response message"
- *         status-code: "200"
+ *             content-type: "text/plain"
+ *             message-body: "fixed response message"
+ *             status-code: "200"
+ *         end
  *     end
  */
 public class FixedResponseAction extends Diffable implements Copyable<FixedResponseActionConfig> {
