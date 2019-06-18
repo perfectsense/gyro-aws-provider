@@ -1,15 +1,15 @@
+
 aws::load-balancer elb
     load-balancer-name: "elb"
     security-groups: [
-        $(aws::security-group security-group | group-id)
+        $(aws::security-group security-group)
     ]
     subnets: [
-        $(aws::subnet subnet-us-east-2a | subnet-id),
-        $(aws::subnet subnet-us-east-2b | subnet-id)
+        $(aws::subnet subnet-us-east-2a)
     ]
     instances: [
-        $(aws::instance instance-us-east-2a | instance-id),
-        $(aws::instance instance-us-east-2b | instance-id)
+        $(aws::instance instance-us-east-2a),
+        $(aws::instance instance-us-east-2b)
     ]
 
     health-check
@@ -122,4 +122,3 @@ end
 aws::internet-gateway internet-gateway
     vpc: $(aws::vpc vpc)
 end
-

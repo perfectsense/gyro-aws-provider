@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::elastic-load-balancer elb-example
+ *     aws::load-balancer elb-example
  *         load-balancer-name: "elb-example"
  *         security-groups: ["sg-3c0dfa46"]
  *         scheme: "internal"
