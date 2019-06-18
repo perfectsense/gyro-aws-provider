@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.kms.model.Tag;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 @Type("kms")
 public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
-    private List<String> aliases;
+    private Set<String> aliases;
     private Boolean bypassPolicyLockoutSafetyCheck;
     private String description;
     private Boolean enabled;
@@ -77,20 +77,18 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     private Map<String, String> tags;
 
     /**
-     * The list of aliases associated with the key. (Required)
+     * The set of aliases associated with the key. (Required)
      */
     @Updatable
-    public List<String> getAliases() {
+    public Set<String> getAliases() {
         if (aliases == null) {
-            aliases = new ArrayList<>();
+            aliases = new LinkedHashSet<>();
         }
-
-        Collections.sort(aliases);
 
         return aliases;
     }
 
-    public void setAliases(List<String> aliases) {
+    public void setAliases(Set<String> aliases) {
         this.aliases = aliases;
     }
 
@@ -470,7 +468,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("kms key with alias " + getAliases().get(0));
+        sb.append("kms key with alias " + getAliases());
         return sb.toString();
     }
 
