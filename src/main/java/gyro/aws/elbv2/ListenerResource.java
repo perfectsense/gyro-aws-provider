@@ -1,10 +1,13 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
-import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenerCertificatesResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ListenerNotFoundException;
@@ -12,18 +15,17 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.ListenerNotF
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ListenerResource extends AwsResource {
+public abstract class ListenerResource extends AwsResource implements Copyable<Listener> {
 
     private List<CertificateResource> certificate;
     private String defaultCertificate;
     private String arn;
-    private String loadBalancerArn;
     private Integer port;
     private String protocol;
     private String sslPolicy;
 
     /**
-     *  List of certificates associated with the listener (Optional)
+     *  List of certificates associated with the listener. (Optional)
      *
      *  @subresource gyro.aws.elbv2.CertificateResource
      */
@@ -41,7 +43,7 @@ public abstract class ListenerResource extends AwsResource {
     }
 
     /**
-     *  The default certificate ARN associated with the listener (Optional)
+     *  The default certificate ARN associated with the listener. Required with ``HTTPS`` protocol. (Optional)
      */
     @Updatable
     public String getDefaultCertificate() {
@@ -52,6 +54,11 @@ public abstract class ListenerResource extends AwsResource {
         this.defaultCertificate = defaultCertificate;
     }
 
+    /**
+     *  The arn of the listener.
+     */
+    @Id
+    @Output
     public String getArn() {
         return arn;
     }
@@ -60,16 +67,8 @@ public abstract class ListenerResource extends AwsResource {
         this.arn = arn;
     }
 
-    public String getLoadBalancerArn() {
-        return loadBalancerArn;
-    }
-
-    public void setLoadBalancerArn(String loadBalancerArn) {
-        this.loadBalancerArn = loadBalancerArn;
-    }
-
     /**
-     *  Connection port between client and the load balancer (Required)
+     *  Connection port between client and the load balancer. (Required)
      */
     @Updatable
     public Integer getPort() {
@@ -81,7 +80,7 @@ public abstract class ListenerResource extends AwsResource {
     }
 
     /**
-     *  Connection protocol between client and the load balancer (Required)
+     *  Connection protocol between client and the load balancer. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. (Required)
      */
     @Updatable
     public String getProtocol() {
@@ -93,7 +92,7 @@ public abstract class ListenerResource extends AwsResource {
     }
 
     /**
-     *  Security policy that defines supported protocols and ciphers (Optional)
+     *  Security policy that defines supported protocols and ciphers. (Optional)
      */
     @Updatable
     public String getSslPolicy() {
@@ -104,6 +103,18 @@ public abstract class ListenerResource extends AwsResource {
         this.sslPolicy = sslPolicy;
     }
 
+    @Override
+    public void copyFrom(Listener listener) {
+        if (!listener.certificates().isEmpty()) {
+            setDefaultCertificate(listener.certificates().get(0).certificateArn());
+        }
+
+        setArn(listener.listenerArn());
+        setPort(listener.port());
+        setProtocol(listener.protocolAsString());
+        setSslPolicy(listener.sslPolicy());
+    }
+
     public Listener internalRefresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
@@ -111,29 +122,7 @@ public abstract class ListenerResource extends AwsResource {
 
             Listener listener = lstResponse.listeners().get(0);
 
-            if (listener.certificates().size() > 0) {
-                setDefaultCertificate(listener.certificates().get(0).certificateArn());
-            }
-            setArn(listener.listenerArn());
-            setLoadBalancerArn(listener.loadBalancerArn());
-            setPort(listener.port());
-            setProtocol(listener.protocolAsString());
-            setSslPolicy(listener.sslPolicy());
-
-            if (this instanceof ApplicationLoadBalancerListenerResource) {
-                getCertificate().clear();
-                DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(getArn()));
-                if (certResponse != null) {
-                    for (Certificate certificate : certResponse.certificates()) {
-                        if (!certificate.isDefault()) {
-                            CertificateResource cert = new CertificateResource();
-                            cert.setArn(certificate.certificateArn());
-                            cert.setIsDefault(certificate.isDefault());
-                            getCertificate().add(cert);
-                        }
-                    }
-                }
-            }
+            this.copyFrom(listener);
 
             return listener;
 

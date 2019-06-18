@@ -1,12 +1,16 @@
-package gyro.aws.elbv2;
+package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolDomainResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.DomainDescriptionType;
 
 import java.util.Set;
 
@@ -17,18 +21,21 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::authenticate-cognito-user-pool-domain domain
+ *     aws::user-pool-domain domain
  *         domain: "domainsecond"
- *         user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
+ *         user-pool: $(aws::user-pool cognito)
  *     end
  */
-@Type("authenticate-cognito-user-pool-domain")
-public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
+@Type("user-pool-domain")
+public class UserPoolDomainResource extends AwsResource implements Copyable<DomainDescriptionType> {
 
     private String certificateArn;
     private String domain;
-    private String userPoolId;
+    private UserPoolResource userPool;
 
+    /**
+     *  The certificate arn for the subdomain of the custom domain. (Optional)
+     */
     @Updatable
     public String getCertificateArn() {
         return certificateArn;
@@ -38,7 +45,11 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         this.certificateArn = certificateArn;
     }
 
+    /**
+     *  The domain. (Required)
+     */
     @Updatable
+    @Id
     public String getDomain() {
         return domain;
     }
@@ -47,12 +58,22 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         this.domain = domain;
     }
 
-    public String getUserPoolId() {
-        return userPoolId;
+    /**
+     *  The id of the user pool. (Required)
+     */
+    public UserPoolResource getUserPool() {
+        return userPool;
     }
 
-    public void setUserPoolId(String userPoolId) {
-        this.userPoolId = userPoolId;
+    public void setUserPool(UserPoolResource userPool) {
+        this.userPool = userPool;
+    }
+
+    @Override
+    public void copyFrom(DomainDescriptionType model) {
+        setCertificateArn(model.customDomainConfig().certificateArn());
+        setDomain(model.domain());
+        setUserPool(findById(UserPoolResource.class, model.userPoolId()));
     }
 
     @Override
@@ -62,8 +83,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
 
             DescribeUserPoolDomainResponse response = client.describeUserPoolDomain(r -> r.domain(getDomain()));
 
-            setUserPoolId(response.domainDescription().userPoolId());
-            setCertificateArn(response.domainDescription().customDomainConfig().certificateArn());
+            this.copyFrom(response.domainDescription());
 
             return true;
         } catch (CognitoIdentityProviderException ex) {
@@ -79,11 +99,11 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
 
         if (getCertificateArn() != null) {
             client.createUserPoolDomain(r -> r.domain(getDomain())
-                    .userPoolId(getUserPoolId())
+                    .userPoolId(getUserPool().getId())
                     .customDomainConfig(c -> c.certificateArn(getCertificateArn())));
         } else {
             client.createUserPoolDomain(r -> r.domain(getDomain())
-                    .userPoolId(getUserPoolId()));
+                    .userPoolId(getUserPool().getId()));
         }
     }
 
@@ -92,7 +112,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.updateUserPoolDomain(r -> r.domain(getDomain())
-                .userPoolId(getUserPoolId()));
+                .userPoolId(getUserPool().getId()));
 
         if (getCertificateArn() != null) {
             client.updateUserPoolDomain(r -> r.customDomainConfig(c -> c.certificateArn(getCertificateArn())));
@@ -104,7 +124,7 @@ public class AuthenticateCognitoUserPoolDomainResource extends AwsResource {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.deleteUserPoolDomain(r -> r.domain(getDomain())
-                                            .userPoolId(getUserPoolId()));
+                                            .userPoolId(getUserPool().getId()));
     }
 
     @Override

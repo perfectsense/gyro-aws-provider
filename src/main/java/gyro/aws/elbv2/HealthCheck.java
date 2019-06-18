@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -23,8 +24,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
  *         unhealthy-threshold: "2"
  *     end
  */
-
-public class HealthCheck extends Diffable {
+public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
 
     private Integer interval;
     private String path;
@@ -35,23 +35,8 @@ public class HealthCheck extends Diffable {
     private String matcher;
     private Integer unhealthyThreshold;
 
-    public HealthCheck() {}
-
-    public HealthCheck(TargetGroup targetGroup) {
-        setInterval(targetGroup.healthCheckIntervalSeconds());
-        setPath(targetGroup.healthCheckPath());
-        setPort(targetGroup.healthCheckPort());
-        setProtocol(targetGroup.healthCheckProtocolAsString());
-        setTimeout(targetGroup.healthCheckTimeoutSeconds());
-        setHealthyThreshold(targetGroup.healthyThresholdCount());
-        if (targetGroup.matcher() != null) {
-            setMatcher(targetGroup.matcher().httpCode());
-        }
-        setUnhealthyThreshold(targetGroup.unhealthyThresholdCount());
-    }
-
     /**
-     *  The approximate amount of time between health checks of a target (Optional)
+     *  The approximate amount of time between health checks of a target. (Optional)
      */
     @Updatable
     public Integer getInterval() {
@@ -63,7 +48,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  The ping path destination on targets for health checks (Optional)
+     *  The ping path destination on targets for health checks. (Optional)
      */
     @Updatable
     public String getPath() {
@@ -75,7 +60,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  The port used when an alb performs health checks on targets (Optional)
+     *  The port used when an alb performs health checks on targets. Required when used with ``instance`` and ``ip`` target types. (Optional)
      */
     @Updatable
     public String getPort() {
@@ -87,7 +72,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  The port used when an alb performs health checks on targets (Optional)
+     *  The port used when an alb performs health checks on targets. (Optional)
      */
     @Updatable
     public String getProtocol() {
@@ -99,7 +84,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  The amount of time, in seconds, an unresponsive target means a failed health check (Optional)
+     *  The amount of time, in seconds, an unresponsive target means a failed health check. (Optional)
      */
     @Updatable
     public Integer getTimeout() {
@@ -111,7 +96,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  Health check successes required for an unhealthy target to be considered healthy (Optional)
+     *  Health check successes required for an unhealthy target to be considered healthy. (Optional)
      */
     @Updatable
     public Integer getHealthyThreshold() {
@@ -123,7 +108,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  HTTP code that signals a successful response from a target (Optional)
+     *  HTTP code that signals a successful response from a target. (Optional)
      */
     @Updatable
     public String getMatcher() {
@@ -135,7 +120,7 @@ public class HealthCheck extends Diffable {
     }
 
     /**
-     *  Health check failures required by an unhealthy target to be considered unhealthy (Optional)
+     *  Health check failures required by an unhealthy target to be considered unhealthy. (Optional)
      */
     @Updatable
     public Integer getUnhealthyThreshold() {
@@ -151,6 +136,20 @@ public class HealthCheck extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getInterval(), getPort(), getProtocol());
+        return getPath();
+    }
+
+    @Override
+    public void copyFrom(TargetGroup targetGroup) {
+        setInterval(targetGroup.healthCheckIntervalSeconds());
+        setPath(targetGroup.healthCheckPath());
+        setPort(targetGroup.healthCheckPort());
+        setProtocol(targetGroup.healthCheckProtocolAsString());
+        setTimeout(targetGroup.healthCheckTimeoutSeconds());
+        setHealthyThreshold(targetGroup.healthyThresholdCount());
+        if (targetGroup.matcher() != null) {
+            setMatcher(targetGroup.matcher().httpCode());
+        }
+        setUnhealthyThreshold(targetGroup.unhealthyThresholdCount());
     }
 }

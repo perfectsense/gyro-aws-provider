@@ -1,5 +1,6 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -22,7 +23,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActi
  *         end
  *     end
  */
-public class RedirectAction extends Diffable {
+public class RedirectAction extends Diffable implements Copyable<RedirectActionConfig> {
     private String host;
     private String path;
     private String port;
@@ -30,19 +31,9 @@ public class RedirectAction extends Diffable {
     private String query;
     private String statusCode;
 
-    public RedirectAction() {
-
-    }
-
-    public RedirectAction(RedirectActionConfig redirect) {
-        setHost(redirect.host());
-        setPath(redirect.path());
-        setPort(redirect.port());
-        setProtocol(redirect.protocol());
-        setQuery(redirect.query());
-        setStatusCode(redirect.statusCodeAsString());
-    }
-
+    /**
+     *  The hostname. (Optional)
+     */
     @Updatable
     public String getHost() {
         return host;
@@ -52,6 +43,9 @@ public class RedirectAction extends Diffable {
         this.host = host;
     }
 
+    /**
+     *  The absolute path starting with "/". (Optional)
+     */
     @Updatable
     public String getPath() {
         return path;
@@ -61,6 +55,9 @@ public class RedirectAction extends Diffable {
         this.path = path;
     }
 
+    /**
+     *  The port. Valid values range from 1 - 65536. (Optional)
+     */
     @Updatable
     public String getPort() {
         return port;
@@ -70,6 +67,9 @@ public class RedirectAction extends Diffable {
         this.port = port;
     }
 
+    /**
+     *  The protocol. (Optional)
+     */
     @Updatable
     public String getProtocol() {
         return protocol;
@@ -79,6 +79,9 @@ public class RedirectAction extends Diffable {
         this.protocol = protocol;
     }
 
+    /**
+     *  The query parameters. (Optional)
+     */
     @Updatable
     public String getQuery() {
         return query;
@@ -88,6 +91,9 @@ public class RedirectAction extends Diffable {
         this.query = query;
     }
 
+    /**
+     *  The HTTP redirect code. Valid values are ``HTTP_301`` and ``HTTP_302``. (Optional)
+     */
     @Updatable
     public String getStatusCode() {
         return statusCode;
@@ -99,6 +105,16 @@ public class RedirectAction extends Diffable {
 
     public String primaryKey() {
         return String.format("%s/%s/%s", getPort(), getProtocol(), getStatusCode());
+    }
+
+    @Override
+    public void copyFrom(RedirectActionConfig redirect) {
+        setHost(redirect.host());
+        setPath(redirect.path());
+        setPort(redirect.port());
+        setProtocol(redirect.protocol());
+        setQuery(redirect.query());
+        setStatusCode(redirect.statusCodeAsString());
     }
 
     public String toDisplayString() {

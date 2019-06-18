@@ -1,8 +1,10 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.InvalidTargetException;
@@ -20,27 +22,22 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *         aws::target target
- *             id: "i-5543455454435"
- *             port: 81
- *             target-group-arn: $(aws::target-group webserver-rta-1 | arn)
- *         end
+ *      aws::target target
+ *          id: "i-5543455454435"
+ *          port: 81
+ *          target-group: $(aws::target-group tg-example)
+ *      end
  */
-
 @Type("target")
-public class TargetResource extends AwsResource {
+public class TargetResource extends AwsResource implements Copyable<TargetDescription> {
 
     private String availabilityZone;
     private String id;
     private Integer port;
-    private String targetGroupArn;
-
-    public TargetResource() {
-
-    }
+    private TargetGroupResource targetGroup;
 
     /**
-     *   The availability zone from where the target receives traffic (Optional)
+     *  The availability zone from where the target receives traffic. (Optional)
      */
     public String getAvailabilityZone() {
         return availabilityZone;
@@ -51,7 +48,7 @@ public class TargetResource extends AwsResource {
     }
 
     /**
-     *  The ID of the target (Required)
+     *  The ID of the target. (Required)
      */
     public String getId() {
         return id;
@@ -62,7 +59,7 @@ public class TargetResource extends AwsResource {
     }
 
     /**
-     *  The port on which the target is listening (Required)
+     *  The port on which the target is listening. (Required)
      */
     public Integer getPort() {
         return port;
@@ -73,19 +70,21 @@ public class TargetResource extends AwsResource {
     }
 
     /**
-     *  The arn of the target group that the target is associated with (Required)
+     *  The target group that the target is associated with. (Required)
      */
-    public String getTargetGroupArn() {
-        return targetGroupArn;
+    public TargetGroupResource getTargetGroup() {
+        return targetGroup;
     }
 
-    public void setTargetGroupArn(String targetGroupArn) {
-        this.targetGroupArn = targetGroupArn;
+    public void setTargetGroup(TargetGroupResource targetGroup) {
+        this.targetGroup = targetGroup;
     }
 
     @Override
-    public String primaryKey() {
-        return String.format("%s %d", getId(), getPort());
+    public void copyFrom(TargetDescription description) {
+        setAvailabilityZone(description.availabilityZone());
+        setPort(description.port());
+        setId(description.id());
     }
 
     @Override
@@ -94,15 +93,13 @@ public class TargetResource extends AwsResource {
 
         try {
             DescribeTargetHealthResponse response = client.describeTargetHealth(r -> r.targets(toTarget())
-                    .targetGroupArn(getTargetGroupArn()));
+                    .targetGroupArn(getTargetGroup().getArn()));
 
             for (TargetHealthDescription targetHealthDescription : response.targetHealthDescriptions()) {
                 TargetHealth health = targetHealthDescription.targetHealth();
                 if (health.state() != TargetHealthStateEnum.DRAINING) {
                     TargetDescription description = targetHealthDescription.target();
-                    setAvailabilityZone(description.availabilityZone());
-                    setPort(description.port());
-                    setId(description.id());
+                    this.copyFrom(description);
                 }
             }
 
@@ -116,7 +113,7 @@ public class TargetResource extends AwsResource {
     public void create() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.registerTargets(r -> r.targets(toTarget())
-                                    .targetGroupArn(getTargetGroupArn()));
+                                    .targetGroupArn(getTargetGroup().getArn()));
     }
 
     @Override
@@ -126,7 +123,7 @@ public class TargetResource extends AwsResource {
     public void delete() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deregisterTargets(r -> r.targets(toTarget())
-                                        .targetGroupArn(getTargetGroupArn()));
+                                        .targetGroupArn(getTargetGroup().getArn()));
     }
 
     @Override
