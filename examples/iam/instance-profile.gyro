@@ -1,3 +1,0 @@
-aws::instance-profile test-instance-profile
-    name: "test-instance-profile"
-end
