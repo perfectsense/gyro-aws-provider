@@ -1,6 +1,9 @@
 package gyro.aws.kms;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -21,15 +24,16 @@ import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
 import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
 import software.amazon.awssdk.services.kms.model.NotFoundException;
 import software.amazon.awssdk.services.kms.model.Tag;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 /**
  *
@@ -50,17 +54,16 @@ import java.util.stream.Collectors;
  *         pending-window: "7"
  *         policy: "gyro-providers/gyro-aws-provider/examples/kms/kms-policy.json"
  *         tags: {
- *               Name: "kms-example"
+ *             Name: "kms-example"
  *         }
  * end
  */
 
 @Type("kms")
-public class KmsResource extends AwsResource {
+public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
-    private List<String> aliases;
+    private Set<String> aliases;
     private Boolean bypassPolicyLockoutSafetyCheck;
-    private String customKeyStoreId;
     private String description;
     private Boolean enabled;
     private String keyArn;
@@ -72,30 +75,32 @@ public class KmsResource extends AwsResource {
     private String origin;
     private String pendingWindow;
     private String policy;
-    private String policyContents;
     private Map<String, String> tags;
 
     /**
-     * The list of aliases associated with the key.
+     * The set of aliases associated with the key. (Required)
      */
     @Updatable
-    public List<String> getAliases() {
+    public Set<String> getAliases() {
         if (aliases == null) {
-            aliases = new ArrayList<>();
+            aliases = new LinkedHashSet<>();
         }
 
         return aliases;
     }
 
-    public void setAliases(List<String> aliases) {
+    public void setAliases(Set<String> aliases) {
         this.aliases = aliases;
     }
 
     /**
-     * Determines whether to bypass the key policy lockout safety check.
+     * Determines whether to bypass the key policy lockout safety check. Defaults to false. (Optional)
      */
-    @Updatable
     public Boolean getBypassPolicyLockoutSafetyCheck() {
+        if (bypassPolicyLockoutSafetyCheck == null) {
+            bypassPolicyLockoutSafetyCheck = false;
+        }
+
         return bypassPolicyLockoutSafetyCheck;
     }
 
@@ -104,19 +109,7 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * Creates the key in the specified custom key store.
-     */
-    @Updatable
-    public String getCustomKeyStoreId() {
-        return customKeyStoreId;
-    }
-
-    public void setCustomKeyStoreId(String customKeyStoreId) {
-        this.customKeyStoreId = customKeyStoreId;
-    }
-
-    /**
-     * The description of the key.
+     * The description of the key. (Optional)
      */
     @Updatable
     public String getDescription() {
@@ -128,10 +121,14 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * Determines whether the key is enabled.
+     * Determines whether the key is enabled. Defaults to ``enabled``. (Optional)
      */
     @Updatable
     public Boolean getEnabled() {
+        if (enabled == null) {
+            enabled = true;
+        }
+
         return enabled;
     }
 
@@ -140,10 +137,14 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * Determines whether the backing key is rotated each year.
+     * Determines whether the backing key is rotated each year. Defaults to ``false``. (Optional)
      */
     @Updatable
     public Boolean getKeyRotation() {
+        if (keyRotation == null) {
+            keyRotation = true;
+        }
+
         return keyRotation;
     }
 
@@ -167,7 +168,6 @@ public class KmsResource extends AwsResource {
     /**
      * The id for this key.
      */
-    @Id
     @Output
     public String getKeyId() {
         return keyId;
@@ -178,9 +178,9 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * The manager of the key, either AWS or customer. (Optional)
+     * The manager of the key, either AWS or customer.
      */
-    @Updatable
+    @Output
     public String getKeyManager() {
         return keyManager;
     }
@@ -189,6 +189,10 @@ public class KmsResource extends AwsResource {
         this.keyManager = keyManager;
     }
 
+    /**
+     * The current state of the key.
+     */
+    @Output
     public String getKeyState() {
         return keyState;
     }
@@ -198,10 +202,13 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * The usage of the key, which is encryption and decryption. (Required)
+     * The usage of the key. The only valid value is ``ENCRYPT_DECRYPT``. Defaults to ``ENCRYPT_DECRYPT``. (Required)
      */
-    @Updatable
     public String getKeyUsage() {
+        if (keyUsage == null) {
+            keyUsage = "ENCRYPT_DECRYPT";
+        }
+
         return keyUsage;
     }
 
@@ -210,10 +217,13 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * The source of the key material. (Required)
+     * The source of the key material. Defaults to ``AWS_KMS``. (Optional)
      */
-    @Updatable
     public String getOrigin() {
+        if (origin == null) {
+            origin = "AWS_KMS";
+        }
+
         return origin;
     }
 
@@ -222,9 +232,13 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * The number of days until the key will be deleted. (Required)
+     * The number of days until the key will be deleted. Defaults to 30. (Optional)
      */
     public String getPendingWindow() {
+        if (pendingWindow == null) {
+            pendingWindow = "30";
+        }
+
         return pendingWindow;
     }
 
@@ -233,37 +247,16 @@ public class KmsResource extends AwsResource {
     }
 
     /**
-     * The policy associated with the key. (Optional)
+     * The path to the policy associated with the key. (Optional)
      */
     @Updatable
     public String getPolicy() {
+        policy = getProcessedPolicy(policy);
         return policy;
     }
 
     public void setPolicy(String policy) {
         this.policy = policy;
-    }
-
-    @Updatable
-    public String getPolicyContents() {
-        if (policyContents != null) {
-            return this.policyContents;
-        } else {
-            if (getPolicy() != null) {
-                try {
-                    String encode = new String(Files.readAllBytes(Paths.get(getPolicy())), "UTF-8");
-                    return formatPolicy(encode);
-                } catch (Exception err) {
-                    throw new GyroException(err.getMessage());
-                }
-            } else {
-                return null;
-            }
-        }
-    }
-
-    public void setPolicyContents(String policyContents) {
-        this.policyContents = policyContents;
     }
 
     /**
@@ -287,35 +280,42 @@ public class KmsResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(KeyMetadata keyMetadata) {
+        setDescription(keyMetadata.description());
+        setEnabled(keyMetadata.enabled());
+        setKeyArn(keyMetadata.arn());
+        setKeyId(keyMetadata.keyId());
+        setKeyManager(keyMetadata.keyManagerAsString());
+        setKeyState(keyMetadata.keyStateAsString());
+        setKeyUsage(keyMetadata.keyUsageAsString());
+        setOrigin(keyMetadata.originAsString());
+
+        KmsClient client = createClient(KmsClient.class);
+
+        getAliases().clear();
+        ListAliasesResponse aliasResponse = client.listAliases(r -> r.keyId(getKeyId()));
+        if (aliasResponse != null) {
+            for (AliasListEntry alias : aliasResponse.aliases()) {
+                getAliases().add(alias.aliasName());
+            }
+        }
+
+        GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getKeyId()).policyName("default"));
+        if (policyResponse != null) {
+            setPolicy(policyResponse.policy());
+        }
+    }
+
+    @Override
     public boolean refresh() {
         KmsClient client = createClient(KmsClient.class);
 
         try {
             DescribeKeyResponse keyResponse = client.describeKey(r -> r.keyId(getKeyId()));
             KeyMetadata keyMetadata = keyResponse.keyMetadata();
+
             if (!keyMetadata.keyStateAsString().equals("PENDING_DELETION")) {
-
-                setCustomKeyStoreId(keyMetadata.customKeyStoreId());
-                setDescription(keyMetadata.description());
-                setEnabled(keyMetadata.enabled());
-                setKeyArn(keyMetadata.arn());
-                setKeyManager(keyMetadata.keyManagerAsString());
-                setKeyState(keyMetadata.keyStateAsString());
-                setKeyUsage(keyMetadata.keyUsageAsString());
-                setOrigin(keyMetadata.originAsString());
-
-                getAliases().clear();
-                ListAliasesResponse aliasResponse = client.listAliases(r -> r.keyId(getKeyId()));
-                if (aliasResponse != null) {
-                    for (AliasListEntry alias : aliasResponse.aliases()) {
-                        getAliases().add(alias.aliasName());
-                    }
-                }
-
-                GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getKeyId()).policyName("default"));
-                if (policyResponse != null) {
-                    setPolicyContents(formatPolicy(policyResponse.policy()));
-                }
+                this.copyFrom(keyMetadata);
             }
 
             return true;
@@ -329,6 +329,10 @@ public class KmsResource extends AwsResource {
     public void create() {
         KmsClient client = createClient(KmsClient.class);
 
+        if (getAliases().isEmpty()) {
+            throw new GyroException("At least one alias must be provided.");
+        }
+
         List<String> newList = getAliases().stream()
                 .distinct()
                 .collect(Collectors.toList());
@@ -337,11 +341,10 @@ public class KmsResource extends AwsResource {
 
             CreateKeyResponse response = client.createKey(
                 r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
-                            .customKeyStoreId(getCustomKeyStoreId())
                             .description(getDescription())
                             .keyUsage(getKeyUsage())
                             .origin(getOrigin())
-                            .policy(getPolicyContents())
+                            .policy(getPolicy())
                             .tags(toTag())
             );
 
@@ -362,11 +365,11 @@ public class KmsResource extends AwsResource {
                 throw new GyroException(ex.getMessage());
             }
 
-            if (getKeyRotation() != null && getKeyRotation() == true) {
+            if (getKeyRotation() != null && getKeyRotation()) {
                 client.enableKeyRotation(r -> r.keyId(getKeyId()));
             }
 
-            if (getEnabled() != null && getEnabled() == false) {
+            if (getEnabled() != null && !getEnabled()) {
                 client.disableKey(r -> r.keyId(getKeyId()));
             }
         } else {
@@ -380,9 +383,9 @@ public class KmsResource extends AwsResource {
         KmsResource currentResource = (KmsResource) current;
 
         try {
-            if (getEnabled() == true && currentResource.getEnabled() == false) {
+            if (getEnabled() && !currentResource.getEnabled()) {
                 client.enableKey(r -> r.keyId(getKeyId()));
-            } else if (getEnabled() == false && currentResource.getEnabled() == true) {
+            } else if (!getEnabled() && currentResource.getEnabled()) {
                 client.disableKey(r -> r.keyId(getKeyId()));
             }
         } catch (KmsInvalidStateException ex) {
@@ -391,9 +394,9 @@ public class KmsResource extends AwsResource {
         }
 
         try {
-            if (getKeyRotation() == true && currentResource.getKeyRotation() == false) {
+            if (getKeyRotation() && !currentResource.getKeyRotation()) {
                 client.enableKeyRotation(r -> r.keyId(getKeyId()));
-            } else if (getKeyRotation() == false && currentResource.getKeyRotation() == true) {
+            } else if (!getKeyRotation() && currentResource.getKeyRotation()) {
                 client.disableKeyRotation(r -> r.keyId(getKeyId()));
             }
         } catch (KmsException ex) {
@@ -401,13 +404,16 @@ public class KmsResource extends AwsResource {
         }
 
         try {
-            List<String> aliasAdditions = new ArrayList<>(getAliases());
-            aliasAdditions.removeAll(currentResource.getAliases());
-
             try {
-                for (String add : aliasAdditions) {
-                    client.createAlias(r -> r.aliasName(add).targetKeyId(getKeyId()));
-                }
+                List<String> aliasSubtractions = new ArrayList<>(currentResource.getAliases());
+                aliasSubtractions.removeAll(getAliases());
+
+                aliasSubtractions.forEach(alias -> client.deleteAlias(r -> r.aliasName(alias)));
+
+                List<String> aliasAdditions = new ArrayList<>(getAliases());
+                aliasAdditions.removeAll(currentResource.getAliases());
+
+                aliasAdditions.forEach(alias -> client.createAlias(r -> r.aliasName(alias).targetKeyId(getKeyId())));
 
             } catch (AlreadyExistsException ex) {
                 throw new GyroException(ex.getMessage());
@@ -419,19 +425,12 @@ public class KmsResource extends AwsResource {
 
             client.updateKeyDescription(r -> r.description(getDescription())
                     .keyId(getKeyId()));
+
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
         }
 
-        List<String> aliasSubtractions = new ArrayList<>(currentResource.getAliases());
-        aliasSubtractions.removeAll(getAliases());
-
-        for (String sub : aliasSubtractions) {
-            client.deleteAlias(
-                r -> r.aliasName(sub));
-        }
-
-        client.putKeyPolicy(r -> r.policy(getPolicyContents())
+        client.putKeyPolicy(r -> r.policy(getPolicy())
                 .policyName("default")
                 .keyId(getKeyId()));
     }
@@ -439,15 +438,12 @@ public class KmsResource extends AwsResource {
     @Override
     public void delete() {
         KmsClient client = createClient(KmsClient.class);
-        client.scheduleKeyDeletion(r -> r.keyId(getKeyId())
-                                        .pendingWindowInDays(Integer.valueOf(getPendingWindow())));
+        client.scheduleKeyDeletion(r -> r.keyId(getKeyId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
     }
 
     @Override
     public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("kms key with alias " + getAliases().get(0));
-        return sb.toString();
+        return "kms key with alias " + getAliases();
     }
 
     private List<Tag> toTag() {
@@ -456,7 +452,24 @@ public class KmsResource extends AwsResource {
         return tag;
     }
 
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+        }
     }
 }
