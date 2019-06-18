@@ -2,9 +2,10 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Create;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Update;
+import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 
 import java.util.Set;
@@ -17,24 +18,24 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     default-action
- *        target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+ *        target-group: $(aws::target-group target-group-example)
  *        type: "forward"
  *     end
  */
 public class NetworkActionResource extends AwsResource {
 
-    private String targetGroupArn;
+    private TargetGroupResource targetGroup;
     private String type;
 
     /**
-     *  The target group arn that this action is associated with  (Optional)
+     *  The target group that this action is associated with  (Optional)
      */
-    public String getTargetGroupArn() {
-        return targetGroupArn;
+    public TargetGroupResource getTargetGroup() {
+        return targetGroup;
     }
 
-    public void setTargetGroupArn(String targetGroupArn) {
-        this.targetGroupArn = targetGroupArn;
+    public void setTargetGroup(TargetGroupResource targetGroup) {
+        this.targetGroup = targetGroup;
     }
 
     /**
@@ -51,7 +52,7 @@ public class NetworkActionResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", getTargetGroupArn(), getType());
+        return String.format("%s %s", getTargetGroup(), getType());
     }
 
     @Override
@@ -91,7 +92,7 @@ public class NetworkActionResource extends AwsResource {
 
     public Action toAction() {
         return Action.builder()
-                .targetGroupArn(getTargetGroupArn())
+                .targetGroupArn(getTargetGroup().getArn())
                 .type(getType())
                 .build();
     }

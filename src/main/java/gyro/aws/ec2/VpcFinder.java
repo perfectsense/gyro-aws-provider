@@ -10,14 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query vpc.
+ *
+ * .. code-block:: gyro
+ *
+ *    vpc: $(aws::vpc EXTERNAL/* | tag.Name = "vpc-example-for-network-acl")
+ */
 @Type("vpc")
 public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;
-    private String dhcpOptionsId;
     private String ipv4CidrBlock;
-    private String ipv4CidrBlockAssociationId;
-    private String ipv4CidrBlockAssociationState;
+    private String ipv4AssociationId;
+    private String ipv4AssociationState;
+    private String dhcpOptionsId;
     private String ipv6CidrBlock;
     private String ipv6CidrBlockAssociationId;
     private String ipv6CidrBlockAssociationState;
@@ -28,6 +35,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
     private String tagKey;
     private String vpcId;
 
+    /**
+     * The primary IPv4 CIDR block of the VPC. The CIDR block you specify must exactly match the VPC's CIDR block for information to be returned for the VPC. Must contain the slash followed by one or two digits (for example, /28).
+     */
     public String getCidr() {
         return cidr;
     }
@@ -36,14 +46,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.cidr = cidr;
     }
 
-    public String getDhcpOptionsId() {
-        return dhcpOptionsId;
-    }
-
-    public void setDhcpOptionsId(String dhcpOptionsId) {
-        this.dhcpOptionsId = dhcpOptionsId;
-    }
-
+    /**
+     * An IPv4 CIDR block associated with the VPC.
+     */
     @Filter("cidr-block-association.cidr-block")
     public String getIpv4CidrBlock() {
         return ipv4CidrBlock;
@@ -53,24 +58,44 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.ipv4CidrBlock = ipv4CidrBlock;
     }
 
+    /**
+     * The association ID for an IPv4 CIDR block associated with the VPC.
+     */
     @Filter("cidr-block-association.association-id")
-    public String getIpv4CidrBlockAssociationId() {
-        return ipv4CidrBlockAssociationId;
+    public String getIpv4AssociationId() {
+        return ipv4AssociationId;
     }
 
-    public void setIpv4CidrBlockAssociationId(String ipv4CidrBlockAssociationId) {
-        this.ipv4CidrBlockAssociationId = ipv4CidrBlockAssociationId;
+    public void setIpv4AssociationId(String ipv4AssociationId) {
+        this.ipv4AssociationId = ipv4AssociationId;
     }
 
+    /**
+     * The state of an IPv4 CIDR block associated with the VPC.
+     */
     @Filter("cidr-block-association.state")
-    public String getIpv4CidrBlockAssociationState() {
-        return ipv4CidrBlockAssociationState;
+    public String getIpv4AssociationState() {
+        return ipv4AssociationState;
     }
 
-    public void setIpv4CidrBlockAssociationState(String ipv4CidrBlockAssociationState) {
-        this.ipv4CidrBlockAssociationState = ipv4CidrBlockAssociationState;
+    public void setIpv4AssociationState(String ipv4AssociationState) {
+        this.ipv4AssociationState = ipv4AssociationState;
     }
 
+    /**
+     * The ID of a set of DHCP options.
+     */
+    public String getDhcpOptionsId() {
+        return dhcpOptionsId;
+    }
+
+    public void setDhcpOptionsId(String dhcpOptionsId) {
+        this.dhcpOptionsId = dhcpOptionsId;
+    }
+
+    /**
+     * An IPv6 CIDR block associated with the VPC.
+     */
     @Filter("ipv6-cidr-block-association.ipv6-cidr-block")
     public String getIpv6CidrBlock() {
         return ipv6CidrBlock;
@@ -80,6 +105,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
+    /**
+     * The association ID for an IPv6 CIDR block associated with the VPC.
+     */
     @Filter("ipv6-cidr-block-association.association-id")
     public String getIpv6CidrBlockAssociationId() {
         return ipv6CidrBlockAssociationId;
@@ -89,6 +117,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.ipv6CidrBlockAssociationId = ipv6CidrBlockAssociationId;
     }
 
+    /**
+     * The state of an IPv6 CIDR block associated with the VPC.
+     */
     @Filter("ipv6-cidr-block-association.state")
     public String getIpv6CidrBlockAssociationState() {
         return ipv6CidrBlockAssociationState;
@@ -98,6 +129,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.ipv6CidrBlockAssociationState = ipv6CidrBlockAssociationState;
     }
 
+    /**
+     * Indicates whether the VPC is the default VPC.
+     */
     @Filter("isDefault")
     public String getIsDefault() {
         return isDefault;
@@ -107,6 +141,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.isDefault = isDefault;
     }
 
+    /**
+     * The ID of the AWS account that owns the VPC.
+     */
     public String getOwnerId() {
         return ownerId;
     }
@@ -115,6 +152,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.ownerId = ownerId;
     }
 
+    /**
+     * The state of the VPC . Valid values are ``pending `` or `` available``.
+     */
     public String getState() {
         return state;
     }
@@ -123,6 +163,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.state = state;
     }
 
+    /**
+     * The key/value combination of a tag assigned to the resource.
+     */
     public Map<String, String> getTag() {
         if (tag == null) {
             tag = new HashMap<>();
@@ -135,6 +178,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.tag = tag;
     }
 
+    /**
+     * The key of a tag assigned to the resource. Use this filter to find all resources assigned a tag with a specific key, regardless of the tag value.
+     */
     public String getTagKey() {
         return tagKey;
     }
@@ -143,6 +189,9 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         this.tagKey = tagKey;
     }
 
+    /**
+     * The ID of the VPC.
+     */
     public String getVpcId() {
         return vpcId;
     }
@@ -152,12 +201,12 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
     }
 
     @Override
-    public List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcs(r -> r.filters(createFilters(filters))).vpcs();
+    protected List<Vpc> findAllAws(Ec2Client client) {
+        return client.describeVpcs().vpcs();
     }
 
     @Override
-    public List<Vpc> findAllAws(Ec2Client client) {
-        return client.describeVpcs().vpcs();
+    protected List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
+        return client.describeVpcs(r -> r.filters(createFilters(filters))).vpcs();
     }
 }

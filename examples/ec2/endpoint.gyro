@@ -97,11 +97,11 @@ aws::subnet subnet-public-us-east-2c-example-for-endpoint-3
 end
 
 aws::route-table route-table-example-for-endpoint-1
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
-    subnet-ids: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-1 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-1 | subnet-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
+    subnets: [
+        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1),
+        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-1),
+        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-1)
     ]
 
     tags: {
@@ -110,11 +110,11 @@ aws::route-table route-table-example-for-endpoint-1
 end
 
 aws::route-table route-table-example-for-endpoint-2
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
-    subnet-ids: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-2 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-2 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-2 | subnet-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
+    subnets: [
+        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-2),
+        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-2),
+        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-2)
     ]
 
     tags: {
@@ -123,11 +123,11 @@ aws::route-table route-table-example-for-endpoint-2
 end
 
 aws::route-table route-table-example-for-endpoint-3
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
-    subnet-ids: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-3 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-3 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-3 | subnet-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
+    subnets: [
+        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-3),
+        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-3),
+        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-3)
     ]
 
     tags: {
@@ -137,7 +137,7 @@ end
 
 aws::security-group security-group-example-for-endpoint-1
     group-name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-1"
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -162,7 +162,7 @@ end
 
 aws::security-group security-group-example-for-endpoint-2
     group-name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-2"
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -187,7 +187,7 @@ end
 
 aws::security-group security-group-example-for-endpoint-3
     group-name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-3"
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -211,30 +211,30 @@ aws::security-group security-group-example-for-endpoint-3
 end
 
 aws::endpoint endpoint-example-gateway
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.s3'
-    policy-doc-path: 'policy.json'
+    policy: 'endpoint-policy-1.json'
     type-interface: false
-    route-table-ids: [
-        $(aws::route-table route-table-example-for-endpoint-1 | route-table-id),
-        $(aws::route-table route-table-example-for-endpoint-2 | route-table-id),
-        $(aws::route-table route-table-example-for-endpoint-3 | route-table-id)
+    route-tables: [
+        $(aws::route-table route-table-example-for-endpoint-1),
+        $(aws::route-table route-table-example-for-endpoint-2),
+        $(aws::route-table route-table-example-for-endpoint-3)
     ]
 end
 
 aws::endpoint endpoint-example-interface
-    vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+    vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.ec2'
-    policy-doc-path: 'policy.json'
+    policy: 'endpoint-policy-2.json'
     type-interface: true
-    subnet-ids: [
-        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-1 | subnet-id),
-        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-1 | subnet-id)
+    subnets: [
+        $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1),
+        $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-1),
+        $(aws::subnet subnet-public-us-east-2c-example-for-endpoint-1)
     ]
-    security-group-ids: [
-        $(aws::security-group security-group-example-for-endpoint-1 | group-id),
-        $(aws::security-group security-group-example-for-endpoint-2 | group-id),
-        $(aws::security-group security-group-example-for-endpoint-3 | group-id)
+    security-groups: [
+        $(aws::security-group security-group-example-for-endpoint-1),
+        $(aws::security-group security-group-example-for-endpoint-2),
+        $(aws::security-group security-group-example-for-endpoint-3)
     ]
 end

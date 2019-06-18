@@ -2,8 +2,13 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.ec2.SubnetResource;
+import gyro.aws.iam.IamRoleResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -15,7 +20,6 @@ import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.lambda.model.GetFunctionResponse;
-import software.amazon.awssdk.services.lambda.model.Layer;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
 import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
@@ -24,12 +28,9 @@ import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
  *         function-name: "testFunction"
  *         handler: "index.handler"
  *         runtime: "nodejs8.10"
- *         role-arn: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
+ *         role: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
  *         content-zip-path: "example-function.zip"
  *
  *         tags: {
@@ -54,19 +55,19 @@ import java.util.stream.Collectors;
  *         }
  *
  *         lambda-layers: [
- *             $(aws::lambda-layer lambda-layer-for-function-example-1 | version-arn)
+ *             $(aws::lambda-layer lambda-layer-for-function-example-1)
  *         ]
  *     end
  */
 @Type("lambda-function")
-public class FunctionResource extends AwsResource {
+public class FunctionResource extends AwsResource implements Copyable<FunctionConfiguration> {
     private String functionName;
     private String description;
     private String s3Bucket;
     private String s3Key;
     private String s3ObjectVersion;
     private String contentZipPath;
-    private String roleArn;
+    private IamRoleResource role;
     private String runtime;
     private String handler;
     private Integer timeout;
@@ -76,9 +77,9 @@ public class FunctionResource extends AwsResource {
     private String kmsKeyArn;
     private Map<String, String> environment;
     private Map<String, String> tags;
-    private List<String> securityGroupIds;
-    private List<String> subnetIds;
-    private List<String> lambdaLayers;
+    private Set<SecurityGroupResource> securityGroups;
+    private Set<SubnetResource> subnets;
+    private Set<LayerResource> lambdaLayers;
     private Integer reservedConcurrentExecutions;
     private String fileHash;
     private Map<String, String> versionMap;
@@ -95,8 +96,9 @@ public class FunctionResource extends AwsResource {
     private String codeHash;
 
     /**
-     * The name of the function. (Required)
+     * The name of the Lambda Function. (Required)
      */
+    @Id
     public String getFunctionName() {
         return functionName;
     }
@@ -106,7 +108,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The description of the function.
+     * The description of the Lambda Function.
      */
     @Updatable
     public String getDescription() {
@@ -118,7 +120,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The s3 bucket name where the function code resides. Required if field 'content-zip-path' not set.
+     * The S3 bucket name where the Lambda Function code resides. Required if field 'content-zip-path' not set.
      */
     @Updatable
     public String getS3Bucket() {
@@ -130,7 +132,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The s3 object key where the function code resides. Required if field 'content-zip-path' not set.
+     * The S3 object key where the Lambda Function code resides. Required if field 'content-zip-path' not set.
      */
     @Updatable
     public String getS3Key() {
@@ -142,7 +144,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The s3 object version where the function code resides. Required if field 'content-zip-path' not set.
+     * The S3 object version where the Lambda Function code resides. Required if field 'content-zip-path' not set.
      */
     @Updatable
     public String getS3ObjectVersion() {
@@ -154,7 +156,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The zip file location where the function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
+     * The zip file location where the Lambda Function code resides. Required if fields 's3-bucket', 's3-key' and 's3-object-version' not set.
      */
     @Updatable
     public String getContentZipPath() {
@@ -170,19 +172,19 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The role arn to be associated with this function. (Required)
+     * The IAM Role to be associated with this Lambda Function. (Required)
      */
     @Updatable
-    public String getRoleArn() {
-        return roleArn;
+    public IamRoleResource getRole() {
+        return role;
     }
 
-    public void setRoleArn(String roleArn) {
-        this.roleArn = roleArn;
+    public void setRole(IamRoleResource role) {
+        this.role = role;
     }
 
     /**
-     * The runtime language for this function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     * The runtime language for this Lambda Function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
      */
     @Updatable
     public String getRuntime() {
@@ -194,7 +196,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The name of the method within your code that Lambda calls to execute the function. (Required)
+     * The name of the method within your code that Lambda calls to execute the Lambda Function. (Required)
      */
     @Updatable
     public String getHandler() {
@@ -206,7 +208,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The amount of time that Lambda allows a function to run before stopping it. Defaults to 3. Valid values between ``3`` and ``900``.
+     * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``. Valid values between ``3`` and ``900``.
      */
     @Updatable
     public Integer getTimeout() {
@@ -222,7 +224,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The amount of memory that the function has access to. Defaults to 128. valid values are multiple of ``64``.
+     * The amount of memory that the Lambda Function has access to. Defaults to ``128``. valid values are multiple of ``64``.
      */
     @Updatable
     public Integer getMemorySize() {
@@ -238,7 +240,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The tracking mode of the function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
+     * The tracking mode of the Lambda Function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
      */
     @Updatable
     public String getTrackingConfig() {
@@ -254,7 +256,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The arn of SQS queue or an SNS topic to be associated with the function.
+     * The arn of SQS queue or an SNS topic to be associated with the Lambda Function.
      */
     @Updatable
     public String getDeadLetterConfigArn() {
@@ -270,7 +272,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The arn of KMS key to be associated with the function.
+     * The arn of KMS key to be associated with the Lambda Function.
      */
     @Updatable
     public String getKmsKeyArn() {
@@ -282,7 +284,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * A map of key value pair acting as variables accessible from the code of with the function.
+     * A map of key value pair acting as variables accessible from the code of with the Lambda Function.
      */
     @Updatable
     public Map<String, String> getEnvironment() {
@@ -298,7 +300,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The set of tags be associated with the function.
+     * The set of tags to be associated with the Lambda Function.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -314,67 +316,55 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The set of security group be associated with the function.
+     * The set of security group be associated with the Lambda Function.
      */
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
-        } else {
-            if (!securityGroupIds.contains(null)) {
-                Collections.sort(securityGroupIds);
-            }
+    public Set<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new HashSet<>();
         }
 
-        return securityGroupIds;
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
-     * The set of subnet be associated with the function.
+     * The set of subnet be associated with the Lambda Function.
      */
     @Updatable
-    public List<String> getSubnetIds() {
-        if (subnetIds == null) {
-            subnetIds = new ArrayList<>();
-        } else {
-            if (!subnetIds.contains(null)) {
-                Collections.sort(subnetIds);
-            }
+    public Set<SubnetResource> getSubnets() {
+        if (subnets == null) {
+            subnets = new HashSet<>();
         }
 
-        return subnetIds;
+        return subnets;
     }
 
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
+    public void setSubnets(Set<SubnetResource> subnets) {
+        this.subnets = subnets;
     }
 
     /**
-     * The set of version arns of lambda layers to be associated with the function.
+     * The set of version arns of Lambda Layers to be associated with the Lambda Function.
      */
     @Updatable
-    public List<String> getLambdaLayers() {
+    public Set<LayerResource> getLambdaLayers() {
         if (lambdaLayers == null) {
-            lambdaLayers = new ArrayList<>();
-        } else {
-            if (!lambdaLayers.contains(null)) {
-                Collections.sort(lambdaLayers);
-            }
+            lambdaLayers = new HashSet<>();
         }
 
         return lambdaLayers;
     }
 
-    public void setLambdaLayers(List<String> lambdaLayers) {
+    public void setLambdaLayers(Set<LayerResource> lambdaLayers) {
         this.lambdaLayers = lambdaLayers;
     }
 
     /**
-     * The number of simultaneous executions to reserve for the function.
+     * The number of simultaneous executions to reserve for the Lambda Function.
      */
     @Updatable
     public Integer getReservedConcurrentExecutions() {
@@ -416,7 +406,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The arn for the lambda function resource including the version.
+     * The arn for the lambda Lambda Function resource including the version.
      */
     @Output
     public String getArn() {
@@ -428,7 +418,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The arn for the lambda function resource without the version.
+     * The arn for the lambda Lambda Function resource without the version.
      */
     @Output
     public String getArnNoVersion() {
@@ -440,7 +430,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The revision id for the lambda function.
+     * The revision ID for the Lambda Function.
      */
     @Output
     public String getRevisionId() {
@@ -452,7 +442,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The arn for the master function of the lambda function.
+     * The arn for the master function of the Lambda Function.
      */
     @Output
     public String getMasterArn() {
@@ -464,7 +454,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The date and time that the function was last updated.
+     * The date and time that the Lambda Function was last updated.
      */
     @Output
     public String getLastModified() {
@@ -476,7 +466,7 @@ public class FunctionResource extends AwsResource {
     }
 
     /**
-     * The version of the Lambda function.
+     * The version of the Lambda Function.
      */
     @Output
     public String getVersion() {
@@ -509,6 +499,65 @@ public class FunctionResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(FunctionConfiguration configuration) {
+        setFunctionName(configuration.functionName());
+        setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
+        setDescription(configuration.description());
+        setRuntime(configuration.runtimeAsString());
+        setRole(!ObjectUtils.isBlank(configuration.role()) ? findById(IamRoleResource.class, configuration.role()) : null );
+        setHandler(configuration.handler());
+        setTimeout(configuration.timeout());
+        setMemorySize(configuration.memorySize());
+        setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
+        setKmsKeyArn(configuration.kmsKeyArn());
+        setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
+        setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
+
+        setArn(configuration.functionArn());
+        setArnNoVersion(getArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
+        setLastModified(configuration.lastModified());
+        setMasterArn(configuration.masterArn());
+        setRevisionId(configuration.revisionId());
+        setVersion(configuration.version());
+        setCodeHash(configuration.codeSha256());
+
+        setSecurityGroups(
+            configuration.vpcConfig() != null ?
+                configuration.vpcConfig()
+                    .securityGroupIds().stream()
+                    .map(o -> findById(SecurityGroupResource.class, o))
+                    .collect(Collectors.toSet())
+                : null);
+        setSubnets(
+            configuration.vpcConfig() != null ?
+                configuration.vpcConfig()
+                    .subnetIds().stream()
+                    .map(o -> findById(SubnetResource.class, o))
+                    .collect(Collectors.toSet())
+                : null);
+
+        LambdaClient client = createClient(LambdaClient.class);
+
+        ListTagsResponse tagResponse = client.listTags(
+            r -> r.resource(getArnNoVersion())
+        );
+
+        setTags(tagResponse.tags());
+
+        if (!ObjectUtils.isBlank(getContentZipPath())) {
+            setFileHashFromPath();
+        }
+
+        setVersions(client);
+
+        GetFunctionResponse response = client.getFunction(
+            r -> r.functionName(getFunctionName())
+        );
+
+        setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
+    }
+
+    @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
@@ -517,41 +566,7 @@ public class FunctionResource extends AwsResource {
                 r -> r.functionName(getFunctionName())
             );
 
-            setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
-
-            FunctionConfiguration configuration = response.configuration();
-            setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
-            setDescription(configuration.description());
-            setRuntime(configuration.runtimeAsString());
-            setRoleArn(configuration.role());
-            setHandler(configuration.handler());
-            setTimeout(configuration.timeout());
-            setMemorySize(configuration.memorySize());
-            setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-            setKmsKeyArn(configuration.kmsKeyArn());
-            setLambdaLayers(configuration.layers().stream().map(Layer::arn).collect(Collectors.toList()));
-            setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
-            setSecurityGroupIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().securityGroupIds()) : null);
-            setSubnetIds(configuration.vpcConfig() != null ? new ArrayList<>(configuration.vpcConfig().subnetIds()) : null);
-            setArn(configuration.functionArn());
-            setArnNoVersion(getArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
-            setLastModified(configuration.lastModified());
-            setMasterArn(configuration.masterArn());
-            setRevisionId(configuration.revisionId());
-            setVersion(configuration.version());
-            setCodeHash(configuration.codeSha256());
-
-            ListTagsResponse tagResponse = client.listTags(
-                r -> r.resource(getArnNoVersion())
-            );
-
-            setTags(tagResponse.tags());
-
-            if (!ObjectUtils.isBlank(getContentZipPath())) {
-                setFileHashFromPath();
-            }
-
-            setVersions(client);
+            copyFrom(response.configuration());
 
         } catch (ResourceNotFoundException ex) {
             return false;
@@ -570,7 +585,7 @@ public class FunctionResource extends AwsResource {
             .functionName(getFunctionName())
             .description(getDescription())
             .runtime(getRuntime())
-            .role(getRoleArn())
+            .role(getRole().getRoleArn())
             .handler(getHandler())
             .timeout(getTimeout())
             .memorySize(getMemorySize())
@@ -578,7 +593,7 @@ public class FunctionResource extends AwsResource {
             .kmsKeyArn(getKmsKeyArn())
             .tags(getTags())
             .publish(getPublish())
-            .layers(getLambdaLayers());
+            .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()));
 
         if (!ObjectUtils.isBlank(getContentZipPath())) {
             builder = builder.code(c -> c.zipFile(getZipFile()));
@@ -595,8 +610,17 @@ public class FunctionResource extends AwsResource {
             builder = builder.environment(e -> e.variables(getEnvironment()));
         }
 
-        if (!getSecurityGroupIds().isEmpty() && !getSubnetIds().isEmpty()) {
-            builder = builder.vpcConfig(v -> v.securityGroupIds(getSecurityGroupIds()).subnetIds(getSubnetIds()));
+        if (!getSecurityGroups().isEmpty() && !getSubnets().isEmpty()) {
+            builder = builder.vpcConfig(
+                v -> v.securityGroupIds(
+                        getSecurityGroups().stream()
+                            .map(SecurityGroupResource::getGroupId)
+                            .collect(Collectors.toList()))
+                    .subnetIds(
+                        getSubnets().stream()
+                            .map(SubnetResource::getSubnetId)
+                            .collect(Collectors.toList()))
+            );
         }
 
         CreateFunctionResponse response = client.createFunction(builder.build());
@@ -694,15 +718,24 @@ public class FunctionResource extends AwsResource {
                 r -> r.functionName(getFunctionName())
                     .description(getDescription())
                     .runtime(getRuntime())
-                    .role(getRoleArn())
+                    .role(getRole().getRoleArn())
                     .handler(getHandler())
                     .timeout(getTimeout())
                     .memorySize(getMemorySize())
                     .tracingConfig(t -> t.mode(getTrackingConfig()))
                     .kmsKeyArn(getKmsKeyArn())
-                    .layers(getLambdaLayers())
+                    .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()))
                     .environment(e -> e.variables(getEnvironment()))
-                    .vpcConfig(v -> v.securityGroupIds(getSecurityGroupIds()).subnetIds(getSubnetIds()))
+                    .vpcConfig(
+                        v -> v.securityGroupIds(
+                            getSecurityGroups().stream()
+                                .map(SecurityGroupResource::getGroupId)
+                                .collect(Collectors.toList()))
+                            .subnetIds(
+                                getSubnets().stream()
+                                    .map(SubnetResource::getSubnetId)
+                                    .collect(Collectors.toList()))
+                    )
                     .deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()))
             );
         }
@@ -747,8 +780,8 @@ public class FunctionResource extends AwsResource {
         try (InputStream input = openInput(getContentZipPath())) {
             setFileHash(DigestUtils.sha256Hex(input));
 
-        } catch (IOException ex) {
-            throw new GyroException(String.format("File not found - %s",getContentZipPath()));
+        } catch (Exception ignore) {
+            // ignore
         }
 
     }
@@ -778,7 +811,7 @@ public class FunctionResource extends AwsResource {
         if (versionsResponse != null && !versionsResponse.versions().isEmpty()) {
             for (FunctionConfiguration functionConfiguration : versionsResponse.versions()) {
                 if (!functionConfiguration.version().equals("$LATEST")) {
-                    getVersionMap().put(functionConfiguration.version(), functionConfiguration.functionArn());
+                    getVersionMap().put("v" + functionConfiguration.version(), functionConfiguration.functionArn());
                 }
             }
         }

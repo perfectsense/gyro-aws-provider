@@ -1,11 +1,15 @@
 package gyro.aws.elbv2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
-import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -13,13 +17,15 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerNotFoundException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Tag;
 
+import com.psddev.dari.util.CompactMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-public abstract class LoadBalancerResource extends AwsResource {
+public abstract class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancer> {
 
     private String dnsName;
     private String ipAddressType;
@@ -29,10 +35,11 @@ public abstract class LoadBalancerResource extends AwsResource {
     private Map<String, String> tags;
 
     /**
-     *  Public DNS name for the alb
+     *  Public DNS name for the alb.
      */
+    @Output
     public String getDnsName() {
-        return ipAddressType;
+        return dnsName;
     }
 
     public void setDnsName(String dnsName) {
@@ -40,7 +47,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     }
 
     /**
-     *  Type of IP address used by the subnets of the alb (Required)
+     *  Type of IP address used by the subnets of the alb. (Optional)
      */
     public String getIpAddressType() {
         return ipAddressType;
@@ -50,6 +57,10 @@ public abstract class LoadBalancerResource extends AwsResource {
         this.ipAddressType = ipAddressType;
     }
 
+    /**
+     *  The arn of the load balancer.
+     */
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -60,7 +71,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     }
 
     /**
-     *  The name of the load balancer (Required)
+     *  The name of the load balancer. (Required)
      */
     public String getName() {
         return name;
@@ -71,7 +82,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     }
 
     /**
-     *  Type of nodes used by the alb (Optional)
+     *  Type of nodes used by the alb. (Optional)
      */
     public String getScheme() {
         return scheme;
@@ -82,7 +93,7 @@ public abstract class LoadBalancerResource extends AwsResource {
     }
 
     /**
-     *  List of tags associated with the alb (Optional)
+     *  List of tags associated with the alb. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -101,34 +112,35 @@ public abstract class LoadBalancerResource extends AwsResource {
         }
     }
 
+    @Override
+    public void copyFrom(LoadBalancer loadBalancer) {
+        setDnsName(loadBalancer.dnsName());
+        setIpAddressType(loadBalancer.ipAddressTypeAsString());
+        setArn(loadBalancer.loadBalancerArn());
+        setName(loadBalancer.loadBalancerName());
+        setScheme(loadBalancer.schemeAsString());
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        DescribeTagsResponse describeTagsResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        describeTagsResponse.tagDescriptions().forEach(tag -> tag.tags().forEach(t -> getTags().put(t.key(), t.value())));
+    }
+
     public LoadBalancer internalRefresh() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         try {
             DescribeLoadBalancersResponse lbResponse = client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
 
-            LoadBalancer lb = lbResponse.loadBalancers().get(0);
-            setDnsName(lb.dnsName());
-            setIpAddressType(lb.ipAddressTypeAsString());
-            setArn(lb.loadBalancerArn());
-            setName(lb.loadBalancerName());
-            setScheme(lb.schemeAsString());
+            LoadBalancer loadBalancer = lbResponse.loadBalancers().get(0);
 
-            getTags().clear();
-            DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-            if (tagResponse != null) {
-                List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-                for (Tag tag : tags) {
-                    getTags().put(tag.key(), tag.value());
-                }
-            }
+            this.copyFrom(loadBalancer);
 
-            return lb;
+            return loadBalancer;
 
         } catch (LoadBalancerNotFoundException ex) {
             return null;
         }
     }
-
 
     @Override
     public void create() {
@@ -172,6 +184,39 @@ public abstract class LoadBalancerResource extends AwsResource {
     public void delete() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteLoadBalancer(r -> r.loadBalancerArn(getArn()));
+
+        Wait.atMost(2, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(true)
+                .until(() -> getLoadBalancer(client) == null);
+
+        // Delay for resources has this load balancer as a dependency.
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private LoadBalancer getLoadBalancer(ElasticLoadBalancingV2Client client) {
+        LoadBalancer loadBalancer = null;
+
+        if (ObjectUtils.isBlank(getArn())) {
+            throw new GyroException("the arn is missing, unable to load the load balancer.");
+        }
+
+        try {
+            DescribeLoadBalancersResponse describeLoadBalancersResponse =
+                    client.describeLoadBalancers(r -> r.loadBalancerArns(getArn()));
+
+            if (!describeLoadBalancersResponse.loadBalancers().isEmpty()) {
+                loadBalancer = describeLoadBalancersResponse.loadBalancers().get(0);
+            }
+        } catch (LoadBalancerNotFoundException ex) {
+            // Ignore
+        }
+
+        return loadBalancer;
     }
 
     @Override

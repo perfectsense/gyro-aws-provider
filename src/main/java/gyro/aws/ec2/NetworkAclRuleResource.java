@@ -1,77 +1,24 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
-import java.util.Set;
-
-/**
- * Create a Network ACL rule.
- *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *    aws::network-acl network-acl-example
- *       vpc-id: $(aws::vpc vpc-example-for-network-acl | vpc-id)
-
- *       tags: {
- *           Name: "network-acl-example"
- *       }
-
- *       rule
- *           cidr-block: ["0.0.0.0/0"]
- *           protocol : "6"
- *           rule-action : "allow"
- *           rule-number : 103
- *           egress-rule : false
- *           from-port: 443
- *           to-port: 443
- *       end
- *    end
- *
- */
-public class NetworkAclRuleResource extends AwsResource {
+public abstract class NetworkAclRuleResource extends AwsResource implements Copyable<NetworkAclEntry> {
 
     private Integer ruleNumber;
     private String ruleAction;
     private String protocol;
     private Integer fromPort;
     private Integer toPort;
-    private Boolean egressRule;
     private String cidrBlock;
     private String ipv6CidrBlock;
     private Integer icmpType;
     private Integer icmpCode;
-
-    public NetworkAclRuleResource() {
-    }
-
-    public NetworkAclRuleResource(NetworkAclEntry e) {
-        setCidrBlock(e.cidrBlock());
-        setIpv6CidrBlock(e.ipv6CidrBlock());
-        setEgressRule(e.egress());
-        setProtocol(e.protocol());
-
-        if (e.portRange() != null) {
-            setFromPort(e.portRange().from());
-            setToPort(e.portRange().to());
-        }
-
-        if (e.icmpTypeCode() != null) {
-            setIcmpCode(e.icmpTypeCode().code());
-            setIcmpType(e.icmpTypeCode().type());
-        }
-
-        setRuleAction(e.ruleActionAsString());
-        setRuleNumber(e.ruleNumber());
-    }
 
     /**
      * A number that determines the rule's processing order. (Required)
@@ -106,17 +53,6 @@ public class NetworkAclRuleResource extends AwsResource {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
-    }
-
-    /**
-     * Indicate whether the rule is an egress rule. (Required)
-     */
-    public Boolean getEgressRule() {
-        return egressRule;
-    }
-
-    public void setEgressRule(Boolean egressRule) {
-        this.egressRule = egressRule;
     }
 
     /**
@@ -191,15 +127,24 @@ public class NetworkAclRuleResource extends AwsResource {
         this.icmpCode = icmpCode;
     }
 
-    /**
-     * The Id of the network ACL.
-     */
-    public String getNetworkAclId() {
-        NetworkAclResource parent = (NetworkAclResource) parentResource();
-        if (parent != null) {
-            return parent.getNetworkAclId();
+    @Override
+    public void copyFrom(NetworkAclEntry networkAclEntry) {
+        setCidrBlock(networkAclEntry.cidrBlock());
+        setIpv6CidrBlock(networkAclEntry.ipv6CidrBlock());
+        setProtocol(networkAclEntry.protocol());
+
+        if (networkAclEntry.portRange() != null) {
+            setFromPort(networkAclEntry.portRange().from());
+            setToPort(networkAclEntry.portRange().to());
         }
-        return null;
+
+        if (networkAclEntry.icmpTypeCode() != null) {
+            setIcmpCode(networkAclEntry.icmpTypeCode().code());
+            setIcmpType(networkAclEntry.icmpTypeCode().type());
+        }
+
+        setRuleAction(networkAclEntry.ruleActionAsString());
+        setRuleNumber(networkAclEntry.ruleNumber());
     }
 
     @Override
@@ -207,8 +152,7 @@ public class NetworkAclRuleResource extends AwsResource {
         return false;
     }
 
-    @Override
-    public void create() {
+    public void create(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
         
         if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
@@ -218,7 +162,7 @@ public class NetworkAclRuleResource extends AwsResource {
                     .ipv6CidrBlock(getIpv6CidrBlock())
                     .ruleNumber(getRuleNumber())
                     .ruleAction(getRuleAction())
-                    .egress(getEgressRule())
+                    .egress(egress)
                     .protocol(getProtocol())
                     .icmpTypeCode(c -> c.type(getIcmpType())
                         .code(getIcmpCode()))
@@ -233,19 +177,13 @@ public class NetworkAclRuleResource extends AwsResource {
                     .ipv6CidrBlock(getIpv6CidrBlock())
                     .ruleNumber(getRuleNumber())
                     .ruleAction(getRuleAction())
-                    .egress(getEgressRule())
+                    .egress(egress)
                     .protocol(getProtocol()));
             }
         }
     }
 
-    @Override
-    public String primaryKey() {
-        return String.format("%s, %s", getRuleNumber(), getEgressRule());
-    }
-
-    @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
@@ -253,32 +191,30 @@ public class NetworkAclRuleResource extends AwsResource {
             .ruleAction(getRuleAction())
             .cidrBlock(getCidrBlock())
             .ipv6CidrBlock(getIpv6CidrBlock())
-            .egress(getEgressRule())
+            .egress(egress)
             .protocol(getProtocol())
             .icmpTypeCode(c -> c.type(getIcmpType())
                 .code(getIcmpCode()))
             .portRange(r1 -> r1.from(getFromPort()).to(getToPort())));
     }
 
-    @Override
-    public void delete() {
+    public void delete(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
         client.deleteNetworkAclEntry(d -> d.networkAclId(getNetworkAclId())
-            .egress(getEgressRule())
+            .egress(egress)
             .ruleNumber(getRuleNumber()));
     }
 
-    @Override
-    public String toDisplayString() {
+    public String toDisplayString(boolean egress) {
         StringBuilder sb = new StringBuilder();
 
-        if (getEgressRule().equals(true)) {
+        if (egress) {
             sb.append("Outbound entry");
         } else {
             sb.append("Inbound entry");
         }
 
-        sb.append(" rule #" + getRuleNumber());
+        sb.append(" rule #").append(getRuleNumber());
 
         if (getProtocol().equals("6") || getProtocol().equals("17")) {
             sb.append(" TCP/UDP on ports ");
@@ -309,5 +245,13 @@ public class NetworkAclRuleResource extends AwsResource {
         sb.append(" ");
 
         return sb.toString();
+    }
+
+    private String getNetworkAclId() {
+        NetworkAclResource parent = (NetworkAclResource) parentResource();
+        if (parent != null) {
+            return parent.getNetworkAclId();
+        }
+        return null;
     }
 }

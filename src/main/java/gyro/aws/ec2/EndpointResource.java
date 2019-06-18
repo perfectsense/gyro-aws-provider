@@ -1,7 +1,12 @@
 package gyro.aws.ec2;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -11,17 +16,16 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointsResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointRequest;
-import software.amazon.awssdk.services.ec2.model.SecurityGroupIdentifier;
 import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 import software.amazon.awssdk.services.ec2.model.VpcEndpointType;
 import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,48 +39,51 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::endpoint endpoint-example-gateway
- *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+ *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         service-name: 'com.amazonaws.us-east-1.s3'
- *         policy-doc-path: 'policy.json'
+ *         policy: 'policy.json'
  *         type-interface: false
- *         route-table-ids: [
- *             $(aws::route-table route-table-example-for-endpoint-1 | route-table-id),
- *             $(aws::route-table route-table-example-for-endpoint-2 | route-table-id),
- *             $(aws::route-table route-table-example-for-endpoint-3 | route-table-id)
-*          ]
+ *         route-tables: [
+ *             $(aws::route-table route-table-example-for-endpoint-1),
+ *             $(aws::route-table route-table-example-for-endpoint-2),
+ *             $(aws::route-table route-table-example-for-endpoint-3)
+ *          ]
  *     end
  *
  *     aws::endpoint endpoint-example-interface
  *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
  *         service-name: 'com.amazonaws.us-east-1.ec2'
- *         policy-doc-path: 'policy.json'
+ *         policy: 'policy.json'
  *         type-interface: true
- *         subnet-ids: [
- *             $(aws::subnet subnet-public-us-east-1a-example-for-endpoint-1 | subnet-id),
- *             $(aws::subnet subnet-public-us-east-1b-example-for-endpoint-1 | subnet-id),
- *             $(aws::subnet subnet-public-us-east-1c-example-for-endpoint-1 | subnet-id)
+ *         subnets: [
+ *             $(aws::subnet subnet-public-us-east-1a-example-for-endpoint-1),
+ *             $(aws::subnet subnet-public-us-east-1b-example-for-endpoint-1),
+ *             $(aws::subnet subnet-public-us-east-1c-example-for-endpoint-1)
  *         ]
- *         security-group-ids: [
- *             $(aws::security-group security-group-example-for-endpoint-1 | group-id),
- *             $(aws::security-group security-group-example-for-endpoint-2 | group-id),
- *             $(aws::security-group security-group-example-for-endpoint-3 | group-id)
+ *         security-groups: [
+ *             $(aws::security-group security-group-example-for-endpoint-1),
+ *             $(aws::security-group security-group-example-for-endpoint-2),
+ *             $(aws::security-group security-group-example-for-endpoint-3)
  *         ]
  *     end
  */
 @Type("endpoint")
-public class EndpointResource extends AwsResource {
+public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
 
     private String endpointId;
     private String serviceName;
-    private String vpcId;
+    private VpcResource vpc;
     private Boolean typeInterface;
-    private List<String> routeTableIds;
-    private List<String> subnetIds;
-    private List<String> securityGroupIds;
+    private Set<RouteTableResource> routeTables;
+    private Set<SubnetResource> subnets;
+    private Set<SecurityGroupResource> securityGroups;
     private Boolean enablePrivateDns;
-    private String policyDocPath;
     private String policy;
 
+    /**
+     * The ID of the endpoint.
+     */
+    @Id
     @Output
     public String getEndpointId() {
         return endpointId;
@@ -98,14 +105,14 @@ public class EndpointResource extends AwsResource {
     }
 
     /**
-     * The ID of the VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_. (Required)
+     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_. (Required)
      */
-    public String getVpcId() {
-        return vpcId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     /**
@@ -120,50 +127,51 @@ public class EndpointResource extends AwsResource {
     }
 
     /**
-     * The list of Route Table ID being associated with the Endpoint. (Required if typeInterface set to true.)
+     * The set of Route Tables being associated with the Endpoint. (Required if ```type-interface``` set to true.)
      */
     @Updatable
-    public List<String> getRouteTableIds() {
-        if (routeTableIds == null) {
-            routeTableIds = new ArrayList<>();
+    public Set<RouteTableResource> getRouteTables() {
+        if (routeTables == null) {
+            routeTables = new HashSet<>();
         }
 
-        return routeTableIds;
+        return routeTables;
     }
 
-    public void setRouteTableIds(List<String> routeTableIds) {
-        this.routeTableIds = routeTableIds;
+    public void setRouteTables(Set<RouteTableResource> routeTables) {
+        this.routeTables = routeTables;
     }
 
     /**
-     * The list of Subnet ID being associated with the Endpoint. (Required if typeInterface set to false.)
+     * The set of Subnets being associated with the Endpoint. (Required if ``type-interface`` set to false.)
      */
     @Updatable
-    public List<String> getSubnetIds() {
-        if (subnetIds == null) {
-            subnetIds = new ArrayList<>();
+    public Set<SubnetResource> getSubnets() {
+        if (subnets == null) {
+            subnets = new HashSet<>();
         }
 
-        return subnetIds;
+        return subnets;
     }
 
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
+    public void setSubnets(Set<SubnetResource> subnets) {
+        this.subnets = subnets;
     }
 
     /**
-     * The list of Security Group ID being associated with the Endpoint. (Required if typeInterface set to false.)
+     * The set of of Security Groups being associated with the Endpoint. (Required if ``type-interface`` set to false.)
      */
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public Set<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new HashSet<>();
         }
-        return securityGroupIds;
+
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
@@ -179,52 +187,65 @@ public class EndpointResource extends AwsResource {
     }
 
     /**
-     * Path to the file that contains the policy.
+     * The content of the policy.
      */
     @Updatable
-    public String getPolicyDocPath() {
-        return policyDocPath;
-    }
-
-    public void setPolicyDocPath(String policyDocPath) {
-        this.policyDocPath = policyDocPath;
-
-        if (policyDocPath != null) {
-            setPolicyFromPath();
-        }
-    }
-
-    @Updatable
     public String getPolicy() {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+        policy = getProcessedPolicy(policy);
+        return policy;
     }
 
     public void setPolicy(String policy) {
         this.policy = policy;
     }
 
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+        }
+    }
+
+    @Override
+    public void copyFrom(VpcEndpoint vpcEndpoint) {
+        setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
+        setServiceName(vpcEndpoint.serviceName());
+        setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
+        setEndpointId(vpcEndpoint.vpcEndpointId());
+        setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
+        setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
+        setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
+        setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
+        setPolicy(vpcEndpoint.policyDocument());
+    }
+
     @Override
     public boolean refresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
-        Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpcId()).build();
-        DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
+        VpcEndpoint endpoint = getVpcEndpoint(client);
 
-        if (!response.vpcEndpoints().isEmpty()) {
-            VpcEndpoint endpoint = response.vpcEndpoints().get(0);
-            setSecurityGroupIds(endpoint.groups().stream().map(SecurityGroupIdentifier::groupId).collect(Collectors.toList()));
-            setEndpointId(endpoint.vpcEndpointId());
-            setTypeInterface(endpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
-            setEnablePrivateDns(endpoint.privateDnsEnabled());
-            setRouteTableIds(new ArrayList<>(endpoint.routeTableIds()));
-            setSubnetIds(new ArrayList<>(endpoint.subnetIds()));
-            setPolicy(endpoint.policyDocument());
-
-            return true;
+        if (endpoint == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(endpoint);
+
+        return true;
     }
 
     @Override
@@ -234,16 +255,16 @@ public class EndpointResource extends AwsResource {
 
         CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
 
-        builder.vpcId(getVpcId());
+        builder.vpcId(getVpc().getVpcId());
         builder.vpcEndpointType(getTypeInterface() ? VpcEndpointType.INTERFACE : VpcEndpointType.GATEWAY);
         builder.privateDnsEnabled(getEnablePrivateDns());
         builder.serviceName(getServiceName());
 
         if (getTypeInterface()) {
-            builder.subnetIds(getSubnetIds().isEmpty() ? null : getSubnetIds());
-            builder.securityGroupIds(getSecurityGroupIds().isEmpty() ? null : getSecurityGroupIds());
+            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
+            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
         } else {
-            builder.routeTableIds(getRouteTableIds().isEmpty() ? null : getRouteTableIds());
+            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toList()));
             builder.policyDocument(getPolicy());
         }
 
@@ -265,14 +286,14 @@ public class EndpointResource extends AwsResource {
         builder.vpcEndpointId(getEndpointId());
 
         EndpointResource oldEndpoint = (EndpointResource) current;
-        EndpointResource newEndpoint = this;
 
+        if (changedFieldNames.contains("route-tables")) {
 
-        if (changedFieldNames.contains("route-table-ids")) {
-            List<String> removeRouteTableIds = oldEndpoint.getRouteTableIds().stream()
-                .filter(f -> !newEndpoint.getRouteTableIds().contains(f)).collect(Collectors.toList());
-            List<String> addRouteTableIds = newEndpoint.getRouteTableIds().stream()
-                .filter(f -> !oldEndpoint.getRouteTableIds().contains(f)).collect(Collectors.toList());
+            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
+            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
+
+            List<String> removeRouteTableIds = currentRouteTableIds.stream().filter(o -> !pendingRouteTableIds.contains(o)).collect(Collectors.toList());
+            List<String> addRouteTableIds = pendingRouteTableIds.stream().filter(o -> !currentRouteTableIds.contains(o)).collect(Collectors.toList());
 
             if (!addRouteTableIds.isEmpty()) {
                 builder.addRouteTableIds(addRouteTableIds);
@@ -283,11 +304,12 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedFieldNames.contains("subnet-ids")) {
-            List<String> removeSubnetIds = oldEndpoint.getSubnetIds().stream()
-                .filter(f -> !newEndpoint.getSubnetIds().contains(f)).collect(Collectors.toList());
-            List<String> addSubnetIds = newEndpoint.getSubnetIds().stream()
-                .filter(f -> !oldEndpoint.getSubnetIds().contains(f)).collect(Collectors.toList());
+        if (changedFieldNames.contains("subnets")) {
+            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
+            Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
+
+            List<String> removeSubnetIds = currentSubnetIds.stream().filter(o -> !pendingSubnetIds.contains(o)).collect(Collectors.toList());
+            List<String> addSubnetIds = pendingSubnetIds.stream().filter(o -> !currentSubnetIds.contains(o)).collect(Collectors.toList());
 
             if (!addSubnetIds.isEmpty()) {
                 builder.addSubnetIds(addSubnetIds);
@@ -298,11 +320,12 @@ public class EndpointResource extends AwsResource {
             }
         }
 
-        if (changedFieldNames.contains("security-group-ids")) {
-            List<String> removeSecurityGroupIds = oldEndpoint.getSecurityGroupIds().stream()
-                .filter(f -> !newEndpoint.getSecurityGroupIds().contains(f)).collect(Collectors.toList());
-            List<String> addSecurityGroupIds = newEndpoint.getSecurityGroupIds().stream()
-                .filter(f -> !oldEndpoint.getSecurityGroupIds().contains(f)).collect(Collectors.toList());
+        if (changedFieldNames.contains("security-groups")) {
+            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
+            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
+
+            List<String> removeSecurityGroupIds = currentSecurityGroupIds.stream().filter(o -> !pendingSecurityGroupIds.contains(o)).collect(Collectors.toList());
+            List<String> addSecurityGroupIds = pendingSecurityGroupIds.stream().filter(o -> !currentSecurityGroupIds.contains(o)).collect(Collectors.toList());
 
             if (!addSecurityGroupIds.isEmpty()) {
                 builder.addSecurityGroupIds(addSecurityGroupIds);
@@ -314,7 +337,6 @@ public class EndpointResource extends AwsResource {
         }
 
         if (changedFieldNames.contains("policy-doc-path")) {
-            setPolicyFromPath();
             builder.policyDocument(getPolicy());
         }
 
@@ -334,6 +356,13 @@ public class EndpointResource extends AwsResource {
         client.deleteVpcEndpoints(
             r -> r.vpcEndpointIds(getEndpointId())
         );
+
+        // Delay for residual dependency to be gone. 2 Min
+        try {
+            Thread.sleep(120000);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
@@ -355,29 +384,48 @@ public class EndpointResource extends AwsResource {
         return sb.toString();
     }
 
-    private void setPolicyFromPath() {
-        try (InputStream input = openInput(getPolicyDocPath())) {
-            setPolicy(IoUtils.toUtf8String(input));
+    private void validate() {
+        if (getTypeInterface()) {
+            if (!getRouteTables().isEmpty()) {
+                throw new GyroException("The param 'route-tables' cannot be set when the param 'type-interface' is set to 'True'");
+            }
+        } else {
+            if (!getSecurityGroups().isEmpty()) {
+                throw new GyroException("The param 'security-groups' cannot be set when the param 'type-interface' is set to 'False'");
+            }
 
-        } catch (IOException ioex) {
-            throw new GyroException(MessageFormat
-                .format("Endpoint - {0} policy error. Unable to read policy from path [{1}]", getServiceName(), getPolicyDocPath()));
+            if (!getSubnets().isEmpty()) {
+                throw new GyroException("The param 'subnets' cannot be set when the param 'type-interface' is set to 'False'");
+            }
         }
     }
 
-    private void validate() {
-        if (getTypeInterface()) {
-            if (!getRouteTableIds().isEmpty()) {
-                throw new GyroException("The param 'route-table-ids' cannot be set when the param 'type-interface' is set to 'True'");
-            }
-        } else {
-            if (!getSecurityGroupIds().isEmpty()) {
-                throw new GyroException("The param 'security-group-ids' cannot be set when the param 'type-interface' is set to 'False'");
+    private VpcEndpoint getVpcEndpoint(Ec2Client client) {
+        VpcEndpoint vpcEndpoint = null;
+
+        if (ObjectUtils.isBlank(getServiceName())) {
+            throw new GyroException("service-name is missing, unable to load endpoint.");
+        }
+
+        if (getVpc() == null) {
+            throw new GyroException("vpc is missing, unable to load endpoint.");
+        }
+
+        try {
+            Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
+            Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getVpcId()).build();
+            DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
+
+            if (!response.vpcEndpoints().isEmpty()) {
+                vpcEndpoint = response.vpcEndpoints().get(0);
             }
 
-            if (!getSubnetIds().isEmpty()) {
-                throw new GyroException("The param 'subnet-ids' cannot be set when the param 'type-interface' is set to 'False'");
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
         }
+
+        return vpcEndpoint;
     }
 }

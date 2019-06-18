@@ -1,23 +1,28 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
 import software.amazon.awssdk.services.ec2.model.CreateDhcpOptionsResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeDhcpOptionsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeDhcpOptionsResponse;
 import software.amazon.awssdk.services.ec2.model.DhcpConfiguration;
 import software.amazon.awssdk.services.ec2.model.DhcpOptions;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NewDhcpConfiguration;
-import software.amazon.awssdk.services.ec2.model.Vpc;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a DHCP option set with the specified options.
@@ -28,27 +33,101 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::dhcp-option example-dhcp
- *         domain-name: [example.com]
+ *         domain-name: example.com
  *         domain-name-servers: [192.168.1.1, 192.168.1.2]
  *         ntp-servers: [10.2.5.1]
  *         netbios-name-servers: [192.168.1.1, 192.168.1.2]
- *         netbios-node-type: [2]
+ *         netbios-node-type: 2
  *     end
  */
 
 @Type("dhcp-option")
-public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
+public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> implements Copyable<DhcpOptions> {
 
     private String dhcpOptionsId;
-    private List<String> domainName;
-    private List<String> domainNameServers;
-    private List<String> ntpServers;
-    private List<String> netbiosNameServers;
-    private List<String> netbiosNodeType;
+    private String domainName;
+    private Set<String> domainNameServers;
+    private Set<String> ntpServers;
+    private Set<String> netbiosNameServers;
+    private String netbiosNodeType;
+
+    private static final String CONFIG_DOMAIN_NAME = "domain-name";
+    private static final String CONFIG_DOMAIN_NAME_SERVERS = "domain-name-servers";
+    private static final String CONFIG_NTP_SERVERS = "ntp-servers";
+    private static final String CONFIG_NETBIOS_SERVERS = "netbios-name-servers";
+    private static final String CONFIG_NETBIOS_NODE_TYPE = "netbios-node-type";
+
+    /**
+     * The domain name for the DHCP option set.
+     */
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
+    /**
+     * A list of domain name servers for the DHCP option set.
+     */
+    public Set<String> getDomainNameServers() {
+        if (domainNameServers == null) {
+            domainNameServers = new HashSet<>();
+        }
+
+        return domainNameServers;
+    }
+
+    public void setDomainNameServers(Set<String> domainNameServers) {
+        this.domainNameServers = domainNameServers;
+    }
+
+    /**
+     * A list of ntp servers for the DHCP option set.
+     */
+    public Set<String> getNtpServers() {
+        if (ntpServers == null) {
+            ntpServers = new HashSet<>();
+        }
+
+        return ntpServers;
+    }
+
+    public void setNtpServers(Set<String> ntpServers) {
+        this.ntpServers = ntpServers;
+    }
+
+    /**
+     * A list of ntp bios servers for the DHCP option set.
+     */
+    public Set<String> getNetbiosNameServers() {
+        if (netbiosNameServers == null) {
+            netbiosNameServers = new HashSet<>();
+        }
+
+        return netbiosNameServers;
+    }
+
+    public void setNetbiosNameServers(Set<String> netbiosNameServers) {
+        this.netbiosNameServers = netbiosNameServers;
+    }
+
+    /**
+     * The ntp bios node type for the DHCP option set.
+     */
+    public String getNetbiosNodeType() {
+        return netbiosNodeType;
+    }
+
+    public void setNetbiosNodeType(String netbiosNodeType) {
+        this.netbiosNodeType = netbiosNodeType;
+    }
 
     /**
      * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
      */
+    @Id
     @Output
     public String getDhcpOptionsId() {
         return dhcpOptionsId;
@@ -58,123 +137,57 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
         this.dhcpOptionsId = dhcpOptionsId;
     }
 
-    public List<String> getDomainName() {
-        if (domainName == null) {
-            domainName = new ArrayList<>();
-        }
-
-        return domainName;
-    }
-
-    public void setDomainName(List<String> domainName) {
-        this.domainName = domainName;
-    }
-
-    public List<String> getDomainNameServers() {
-        if (domainNameServers == null) {
-            domainNameServers = new ArrayList<>();
-        }
-
-        return domainNameServers;
-    }
-
-    public void setDomainNameServers(List<String> domainNameServers) {
-        this.domainNameServers = domainNameServers;
-    }
-
-    public List<String> getNtpServers() {
-        if (ntpServers == null) {
-            ntpServers = new ArrayList<>();
-        }
-
-        return ntpServers;
-    }
-
-    public void setNtpServers(List<String> ntpServers) {
-        this.ntpServers = ntpServers;
-    }
-
-    public List<String> getNetbiosNameServers() {
-        if (netbiosNameServers == null) {
-            netbiosNameServers = new ArrayList<>();
-        }
-
-        return netbiosNameServers;
-    }
-
-    public void setNetbiosNameServers(List<String> netbiosNameServers) {
-        this.netbiosNameServers = netbiosNameServers;
-    }
-
-    public List<String> getNetbiosNodeType() {
-        if (netbiosNodeType == null) {
-            netbiosNodeType = new ArrayList<>();
-        }
-
-        return netbiosNodeType;
-    }
-
-    public void setNetbiosNodeType(List<String> netbiosNodeType) {
-        this.netbiosNodeType = netbiosNodeType;
-    }
-
     @Override
     protected String getId() {
         return getDhcpOptionsId();
     }
 
-    public List<String> convertString(Collection<AttributeValue> toConvert) {
-        List<String> convertedList = new ArrayList<>();
-        for (AttributeValue str : toConvert) {
-            convertedList.add(str.value());
+    @Override
+    public void copyFrom(DhcpOptions dhcpOptions) {
+        setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
+
+        for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
+            if (config.key().equals(CONFIG_DOMAIN_NAME)) {
+                setDomainName(!config.values().isEmpty() ? config.values().get(0).value() : null);
+            }
+            if (config.key().equals(CONFIG_DOMAIN_NAME_SERVERS)) {
+                setDomainNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toSet()));
+            }
+            if (config.key().equals(CONFIG_NTP_SERVERS)) {
+                setNtpServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toSet()));
+            }
+            if (config.key().equals(CONFIG_NETBIOS_SERVERS)) {
+                setNetbiosNameServers(config.values().stream().map(AttributeValue::value).collect(Collectors.toSet()));
+            }
+            if (config.key().equals(CONFIG_NETBIOS_NODE_TYPE)) {
+                setNetbiosNodeType(!config.values().isEmpty() ? config.values().get(0).value() : null);
+            }
         }
-        return convertedList;
     }
 
     @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeDhcpOptionsRequest request = DescribeDhcpOptionsRequest.builder()
-                .dhcpOptionsIds(getDhcpOptionsId())
-                .build();
+        DhcpOptions dhcpOptions = getDhcpOptions(client);
 
-        for (DhcpOptions options : client.describeDhcpOptions(request).dhcpOptions()) {
-            String optionsId = options.dhcpOptionsId();
-            setDhcpOptionsId(optionsId);
-
-            for (DhcpConfiguration config : options.dhcpConfigurations()) {
-                if (config.key().equals("domain-name")) {
-                    setDomainName(convertString(config.values()));
-                }
-                if (config.key().equals("domain-name-servers")) {
-                    setDomainNameServers(convertString(config.values()));
-                }
-                if (config.key().equals("ntp-servers")) {
-                    setNtpServers(convertString(config.values()));
-                }
-                if (config.key().equals("netbios-name-servers")) {
-                    setNetbiosNameServers(convertString(config.values()));
-                }
-                if (config.key().equals("netbios-node-type")) {
-                    setNetbiosNodeType(convertString(config.values()));
-                }
-            }
-
-            return true;
+        if (dhcpOptions == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(dhcpOptions);
+
+        return true;
     }
 
     @Override
     protected void doCreate() {
         Collection<NewDhcpConfiguration> configs = new ArrayList<>();
-        addDhcpConfiguration(configs, "domain-name", getDomainName());
-        addDhcpConfiguration(configs, "domain-name-servers", getDomainNameServers());
-        addDhcpConfiguration(configs, "ntp-servers", getNtpServers());
-        addDhcpConfiguration(configs, "netbios-name-servers", getNetbiosNameServers());
-        addDhcpConfiguration(configs, "netbios-node-type", getNetbiosNodeType());
+        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME, !ObjectUtils.isBlank(getDomainName()) ? Collections.singletonList(getDomainName()) : new ArrayList<>());
+        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, new ArrayList<>(getDomainNameServers()));
+        addDhcpConfiguration(configs, CONFIG_NTP_SERVERS, new ArrayList<>(getNtpServers()));
+        addDhcpConfiguration(configs, CONFIG_NETBIOS_SERVERS, new ArrayList<>(getNetbiosNameServers()));
+        addDhcpConfiguration(configs, CONFIG_NETBIOS_NODE_TYPE, !ObjectUtils.isBlank(getNetbiosNodeType()) ? Collections.singletonList(getNetbiosNodeType()) : new ArrayList<>());
 
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -193,23 +206,18 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
     @Override
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
-        try {
-            client.deleteDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()));
 
-        } catch (Ec2Exception err) {
-            throw new GyroException("This option set has dependencies and cannot be deleted.");
-        }
+        client.deleteDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()));
     }
 
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        if (getDhcpOptionsId() != null) {
-            sb.append(getDhcpOptionsId());
+        sb.append("dhcp options");
 
-        } else {
-            sb.append("dhcp options");
+        if (!ObjectUtils.isBlank(getDhcpOptionsId())) {
+            sb.append(" - ").append(getDhcpOptionsId());
         }
 
         return sb.toString();
@@ -223,7 +231,28 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<Vpc> {
                 .build();
             dhcpConfigurations.add(dhcpConfiguration);
         }
-
     }
 
+    private DhcpOptions getDhcpOptions(Ec2Client client) {
+        DhcpOptions dhcpOptions = null;
+
+        if (ObjectUtils.isBlank(getDhcpOptionsId())) {
+            throw new GyroException("dhcp-options-id is missing, unable to load dhcp options.");
+        }
+
+        try {
+            DescribeDhcpOptionsResponse response = client.describeDhcpOptions(r -> r.dhcpOptionsIds(getDhcpOptionsId()));
+
+            if (!response.dhcpOptions().isEmpty()) {
+                dhcpOptions = response.dhcpOptions().get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return dhcpOptions;
+    }
 }

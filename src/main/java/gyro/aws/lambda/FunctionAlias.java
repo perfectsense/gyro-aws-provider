@@ -2,6 +2,8 @@ package gyro.aws.lambda;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -27,7 +29,7 @@ import java.util.Set;
  *
  *     aws::lambda-alias lambda-alias-example
  *         alias-name: "lambda-alias-example"
- *         function-name: "testFunction"
+ *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         function-version: "10"
  *         description: "lambda-alias-example"
  *         additional-version: "9"
@@ -35,9 +37,9 @@ import java.util.Set;
  *     end
  */
 @Type("lambda-alias")
-public class FunctionAlias extends AwsResource {
+public class FunctionAlias extends AwsResource implements Copyable<GetAliasResponse> {
     private String aliasName;
-    private String functionName;
+    private FunctionResource function;
     private String functionVersion;
     private String description;
     private String additionalVersion;
@@ -47,7 +49,7 @@ public class FunctionAlias extends AwsResource {
     private String revisionId;
 
     /**
-     * Name of the alias. (Required)
+     * Name of the Lambda Alias. (Required)
      */
     public String getAliasName() {
         return aliasName;
@@ -58,18 +60,18 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * Name of the function for the alias. (Required)
+     * The Lambda Function for the Lambda Alias. (Required)
      */
-    public String getFunctionName() {
-        return functionName;
+    public FunctionResource getFunction() {
+        return function;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public void setFunction(FunctionResource function) {
+        this.function = function;
     }
 
     /**
-     * The function version for the alias. (Required)
+     * The Lambda Function version for the Lambda Alias. (Required)
      */
     @Updatable
     public String getFunctionVersion() {
@@ -81,7 +83,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * The description for the alias.
+     * The description for the Lambda Alias.
      */
     @Updatable
     public String getDescription() {
@@ -93,7 +95,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * Secondary function for the alias.
+     * Secondary Lambda Function versions for the Lambda Alias.
      */
     @Updatable
     public String getAdditionalVersion() {
@@ -105,7 +107,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * The weight to switch between the secondary version. Required if additional version set. Valid values between ``0.0`` to ``1.0``
+     * The weight to switch between the secondary version. Required if additional version set. Valid values are between ``0.0`` to ``1.0``
      */
     @Updatable
     public Double getWeight() {
@@ -117,8 +119,9 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * The arn of the alias.
+     * The arn of the Lambda Alias.
      */
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -129,7 +132,7 @@ public class FunctionAlias extends AwsResource {
     }
 
     /**
-     * The revision id of the alias.
+     * The revision ID of the Lambda Alias.
      */
     @Output
     public String getRevisionId() {
@@ -141,23 +144,29 @@ public class FunctionAlias extends AwsResource {
     }
 
     @Override
+    public void copyFrom(GetAliasResponse response) {
+        setAliasName(response.name());
+        setArn(response.aliasArn());
+        setDescription(response.description());
+        setFunctionVersion(response.functionVersion());
+        setRevisionId(response.revisionId());
+        if (response.routingConfig() != null && response.routingConfig().additionalVersionWeights().isEmpty()) {
+            setAdditionalVersion(response.routingConfig().additionalVersionWeights().keySet().iterator().next());
+            setWeight(response.routingConfig().additionalVersionWeights().get(getAdditionalVersion()));
+        }
+    }
+
+    @Override
     public boolean refresh() {
         LambdaClient client = createClient(LambdaClient.class);
 
         try {
             GetAliasResponse response = client.getAlias(
                 r -> r.name(getAliasName())
-                    .functionName(getFunctionName())
+                    .functionName(getFunction().getFunctionName())
             );
 
-            setArn(response.aliasArn());
-            setDescription(response.description());
-            setFunctionVersion(response.functionVersion());
-            setRevisionId(response.revisionId());
-            if (response.routingConfig() != null && response.routingConfig().additionalVersionWeights().isEmpty()) {
-                setAdditionalVersion(response.routingConfig().additionalVersionWeights().keySet().iterator().next());
-                setWeight(response.routingConfig().additionalVersionWeights().get(getAdditionalVersion()));
-            }
+            copyFrom(response);
         } catch (ResourceNotFoundException ex) {
             return false;
         }
@@ -172,7 +181,7 @@ public class FunctionAlias extends AwsResource {
         CreateAliasRequest.Builder builder = CreateAliasRequest.builder()
             .name(getAliasName())
             .description(getDescription())
-            .functionName(getFunctionName())
+            .functionName(getFunction().getFunctionName())
             .functionVersion(getFunctionVersion());
 
         if (!ObjectUtils.isBlank(getAdditionalVersion())) {
@@ -197,7 +206,7 @@ public class FunctionAlias extends AwsResource {
             .revisionId(getRevisionId())
             .name(getAliasName())
             .description(getDescription())
-            .functionName(getFunctionName())
+            .functionName(getFunction().getFunctionName())
             .functionVersion(getFunctionVersion());
 
         if (!ObjectUtils.isBlank(getAdditionalVersion())) {
@@ -217,7 +226,7 @@ public class FunctionAlias extends AwsResource {
 
         client.deleteAlias(
             r -> r.name(getAliasName())
-                .functionName(getFunctionName())
+                .functionName(getFunction().getFunctionName())
         );
     }
 
@@ -231,8 +240,8 @@ public class FunctionAlias extends AwsResource {
             sb.append(" - ").append(getAliasName());
         }
 
-        if (!ObjectUtils.isBlank(getFunctionName())) {
-            sb.append(", function - ").append(getFunctionName());
+        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
+            sb.append(", function - ").append(getFunction().getFunctionName());
         }
 
         return sb.toString();

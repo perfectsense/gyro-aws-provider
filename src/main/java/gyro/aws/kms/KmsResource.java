@@ -155,6 +155,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     /**
      * The arn for this key.
      */
+    @Id
     @Output
     public String getKeyArn() {
         return keyArn;
