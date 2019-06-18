@@ -25,6 +25,7 @@ import java.util.Map;
 public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
 
     private String arn;
+    private String path;
 
     /**
      * The arn of the policy.
@@ -37,13 +38,30 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
         this.arn = arn;
     }
 
+    /**
+     * A prefix path to search for policies.
+     */
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     @Override
     protected List<Policy> findAws(IamClient client, Map<String, String> filters) {
         client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
 
         List<Policy> policy = new ArrayList<>();
-        GetPolicyResponse response = client.getPolicy(r -> r.policyArn(filters.get("arn")));
-        policy.add(response.policy());
+
+        if (filters.containsKey("arn")) {
+            policy.add(client.getPolicy(r -> r.policyArn(filters.get("arn"))).policy());
+        }
+
+        if (filters.containsKey("path")) {
+            policy.addAll(client.listPolicies(r -> r.pathPrefix(filters.get("path"))).policies());
+        }
 
         return policy;
     }
