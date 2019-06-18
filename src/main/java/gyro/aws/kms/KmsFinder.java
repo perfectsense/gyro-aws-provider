@@ -4,8 +4,8 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.awssdk.services.kms.model.KeyListEntry;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
+import software.amazon.awssdk.services.kms.paginators.ListKeysIterable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +40,8 @@ public class KmsFinder extends AwsFinder<KmsClient, KeyMetadata, KmsResource> {
     protected List<KeyMetadata> findAllAws(KmsClient client) {
         List<KeyMetadata> keys = new ArrayList<>();
 
-        for (KeyListEntry keyListEntry : client.listKeys().keys()) {
-            keys.add(client.describeKey(r -> r.keyId(keyListEntry.keyId())).keyMetadata());
-        }
+        ListKeysIterable iterable = client.listKeysPaginator();
+        iterable.stream().forEach(r -> r.keys().forEach(k -> keys.add(client.describeKey(s -> s.keyId(k.keyId())).keyMetadata())));
 
         return keys;
     }
