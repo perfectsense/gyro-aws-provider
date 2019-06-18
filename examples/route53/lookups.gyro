@@ -1,5 +1,5 @@
 health-check: $(aws::health-check EXTERNAL/* | health-check-id = 'dfc0046d-3243-4847-8075-e0ff8d6a7af9')
 hosted-zone: $(aws::hosted-zone EXTERNAL/* | hosted-zone-id = '')
-traffic-policy: $(aws::traffic-policy EXTERNAL/* | traffic-policy-id = '' | traffic-policy-version = '')
+traffic-policy: $(aws::traffic-policy EXTERNAL/* | traffic-policy-id = '' and traffic-policy-version = '')
 traffic-policy-instance: $(aws::traffic-policy-instance EXTERNAL/* | traffic-policy-instance-id = '')
 record-set: $(aws::record-set EXTERNAL/* | hosted-zone-id = 'Z02039552QJUEATW9W5AS' and start-record-name = '' and start-record-type = '')
