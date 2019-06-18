@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.iam.model.InstanceProfile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query instance profiles.
@@ -59,7 +60,10 @@ public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile,
         }
 
         if (filters.containsKey("path")) {
-            instanceProfile.addAll(client.listInstanceProfiles(r -> r.pathPrefix(filters.get("path"))).instanceProfiles());
+            instanceProfile.addAll(client.listInstanceProfilesPaginator(r -> r.pathPrefix(filters.get("path")))
+                .instanceProfiles()
+                .stream()
+                .collect(Collectors.toList()));
         }
 
         return instanceProfile;
@@ -68,6 +72,6 @@ public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile,
     @Override
     protected List<InstanceProfile> findAllAws(IamClient client) {
         client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
-        return client.listInstanceProfiles().instanceProfiles();
+        return client.listInstanceProfilesPaginator().instanceProfiles().stream().collect(Collectors.toList());
     }
 }

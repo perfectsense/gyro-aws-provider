@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.iam.model.Policy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query policies.
@@ -60,7 +61,10 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
         }
 
         if (filters.containsKey("path")) {
-            policy.addAll(client.listPolicies(r -> r.pathPrefix(filters.get("path"))).policies());
+            policy.addAll(client.listPoliciesPaginator(r -> r.pathPrefix(filters.get("path")))
+                .policies()
+                .stream()
+                .collect(Collectors.toList()));
         }
 
         return policy;
@@ -69,6 +73,6 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
     @Override
     protected List<Policy> findAllAws(IamClient client) {
         client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
-        return client.listPolicies().policies();
+        return client.listPoliciesPaginator().policies().stream().collect(Collectors.toList());
     }
 }

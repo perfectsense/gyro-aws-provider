@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.iam.model.Role;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query iam roles.
@@ -60,7 +61,10 @@ public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {
         }
 
         if (filters.containsKey("path")) {
-            role.addAll(client.listRoles(r -> r.pathPrefix(filters.get("path"))).roles());
+            role.addAll(client.listRoles(r -> r.pathPrefix(filters.get("path")))
+                .roles()
+                .stream()
+                .collect(Collectors.toList()));
         }
 
         return role;
@@ -69,6 +73,6 @@ public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {
     @Override
     protected List<Role> findAllAws(IamClient client) {
         client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
-        return client.listRoles().roles();
+        return client.listRolesPaginator().roles().stream().collect(Collectors.toList());
     }
 }
