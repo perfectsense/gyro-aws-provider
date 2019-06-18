@@ -1,35 +1,27 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.ViewerCertificate;
 
-public class CloudFrontViewerCertificate extends Diffable {
+public class CloudFrontViewerCertificate extends Diffable implements Copyable<ViewerCertificate> {
 
-    private boolean cloudfrontDefaultCertificate;
+    private Boolean cloudfrontDefaultCertificate;
     private String acmCertificateArn;
     private String iamCertificateId;
     private String minimumProtocolVersion;
     private String sslSupportMethod;
-
-    public CloudFrontViewerCertificate() {
-        setCloudfrontDefaultCertificate(true);
-        setMinimumProtocolVersion("TLSv1");
-    }
-
-    public CloudFrontViewerCertificate(ViewerCertificate viewerCertificate) {
-        setCloudfrontDefaultCertificate(viewerCertificate.cloudFrontDefaultCertificate());
-        setAcmCertificateArn(viewerCertificate.acmCertificateArn());
-        setIamCertificateId(viewerCertificate.iamCertificateId());
-        setMinimumProtocolVersion(viewerCertificate.minimumProtocolVersionAsString());
-        setSslSupportMethod(viewerCertificate.sslSupportMethodAsString());
-    }
 
     /**
      * Use the default CloudFront SSL certificate (i.e. ``*.cloudfront.net``).
      */
     @Updatable
     public boolean getCloudfrontDefaultCertificate() {
+        if (cloudfrontDefaultCertificate == null) {
+            cloudfrontDefaultCertificate = true;
+        }
+
         return cloudfrontDefaultCertificate;
     }
 
@@ -66,6 +58,10 @@ public class CloudFrontViewerCertificate extends Diffable {
      */
     @Updatable
     public String getMinimumProtocolVersion() {
+        if (minimumProtocolVersion == null) {
+            minimumProtocolVersion = "TLSv1";
+        }
+
         return minimumProtocolVersion;
     }
 
@@ -91,14 +87,13 @@ public class CloudFrontViewerCertificate extends Diffable {
         this.sslSupportMethod = sslSupportMethod;
     }
 
-    public ViewerCertificate toViewerCertificate() {
-        return ViewerCertificate.builder()
-            .acmCertificateArn(getAcmCertificateArn())
-            .iamCertificateId(getIamCertificateId())
-            .minimumProtocolVersion(getMinimumProtocolVersion())
-            .sslSupportMethod(getSslSupportMethod())
-            .cloudFrontDefaultCertificate(getCloudfrontDefaultCertificate())
-            .build();
+    @Override
+    public void copyFrom(ViewerCertificate viewerCertificate) {
+        setCloudfrontDefaultCertificate(viewerCertificate.cloudFrontDefaultCertificate());
+        setAcmCertificateArn(viewerCertificate.acmCertificateArn());
+        setIamCertificateId(viewerCertificate.iamCertificateId());
+        setMinimumProtocolVersion(viewerCertificate.minimumProtocolVersionAsString());
+        setSslSupportMethod(viewerCertificate.sslSupportMethodAsString());
     }
 
     @Override
@@ -109,5 +104,15 @@ public class CloudFrontViewerCertificate extends Diffable {
     @Override
     public String toDisplayString() {
         return "viewer certificate";
+    }
+
+    ViewerCertificate toViewerCertificate() {
+        return ViewerCertificate.builder()
+            .acmCertificateArn(getAcmCertificateArn())
+            .iamCertificateId(getIamCertificateId())
+            .minimumProtocolVersion(getMinimumProtocolVersion())
+            .sslSupportMethod(getSslSupportMethod())
+            .cloudFrontDefaultCertificate(getCloudfrontDefaultCertificate())
+            .build();
     }
 }

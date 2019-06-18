@@ -1,44 +1,34 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomOriginConfig;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class CloudFrontCustomOrigin extends Diffable {
+public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomOriginConfig> {
 
     private Integer httpPort;
     private Integer httpsPort;
     private Integer originKeepAliveTimeout;
     private Integer originReadTimeout;
     private String originProtocolPolicy;
-    private List<String> originSslProtocols;
-
-    public CloudFrontCustomOrigin() {
-        setHttpPort(80);
-        setHttpsPort(443);
-        setOriginKeepAliveTimeout(5);
-        setOriginReadTimeout(30);
-        setOriginProtocolPolicy("http-only");
-        setOriginSslProtocols(Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2"));
-    }
-
-    public CloudFrontCustomOrigin(CustomOriginConfig originConfig) {
-        setHttpPort(originConfig.httpPort());
-        setHttpsPort(originConfig.httpsPort());
-        setOriginKeepAliveTimeout(originConfig.originKeepaliveTimeout());
-        setOriginProtocolPolicy(originConfig.originProtocolPolicyAsString());
-        setOriginReadTimeout(originConfig.originReadTimeout());
-        setOriginSslProtocols(originConfig.originSslProtocols().itemsAsStrings());
-    }
+    private Set<String> originSslProtocols;
 
     /**
      * The port the origin listens for http.
      */
     @Updatable
     public Integer getHttpPort() {
+        if (httpPort == null) {
+            httpPort = 80;
+        }
+
         return httpPort;
     }
 
@@ -51,6 +41,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public Integer getHttpsPort() {
+        if (httpsPort == null) {
+            httpsPort = 443;
+        }
+
         return httpsPort;
     }
 
@@ -63,6 +57,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public Integer getOriginKeepAliveTimeout() {
+        if (originKeepAliveTimeout == null) {
+            originKeepAliveTimeout = 5;
+        }
+
         return originKeepAliveTimeout;
     }
 
@@ -75,6 +73,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public Integer getOriginReadTimeout() {
+        if (originReadTimeout == null) {
+            originReadTimeout = 30;
+        }
+
         return originReadTimeout;
     }
 
@@ -87,6 +89,10 @@ public class CloudFrontCustomOrigin extends Diffable {
      */
     @Updatable
     public String getOriginProtocolPolicy() {
+        if (originProtocolPolicy == null) {
+            originProtocolPolicy = "http-only";
+        }
+
         return originProtocolPolicy;
     }
 
@@ -98,23 +104,26 @@ public class CloudFrontCustomOrigin extends Diffable {
      * SSL protocols CloudFront is allow to connect to the origin with. Valid values are ``SSLv3``, ``TLSv1``, ``TLSv1.1``, ``TLSv1.2``.
      */
     @Updatable
-    public List<String> getOriginSslProtocols() {
+    public Set<String> getOriginSslProtocols() {
+        if (originSslProtocols == null) {
+            originSslProtocols = new HashSet<>(Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2"));
+        }
+
         return originSslProtocols;
     }
 
-    public void setOriginSslProtocols(List<String> originSslProtocols) {
+    public void setOriginSslProtocols(Set<String> originSslProtocols) {
         this.originSslProtocols = originSslProtocols;
     }
 
-    public CustomOriginConfig toCustomOriginConfig() {
-        return CustomOriginConfig.builder()
-            .httpPort(getHttpPort())
-            .httpsPort(getHttpsPort())
-            .originKeepaliveTimeout(getOriginKeepAliveTimeout())
-            .originProtocolPolicy(getOriginProtocolPolicy())
-            .originReadTimeout(getOriginReadTimeout())
-            .originSslProtocols(o -> o.itemsWithStrings(getOriginSslProtocols()).quantity(getOriginSslProtocols().size()))
-            .build();
+    @Override
+    public void copyFrom(CustomOriginConfig originConfig) {
+        setHttpPort(originConfig.httpPort());
+        setHttpsPort(originConfig.httpsPort());
+        setOriginKeepAliveTimeout(originConfig.originKeepaliveTimeout());
+        setOriginProtocolPolicy(originConfig.originProtocolPolicyAsString());
+        setOriginReadTimeout(originConfig.originReadTimeout());
+        setOriginSslProtocols(new HashSet<>(originConfig.originSslProtocols().itemsAsStrings()));
     }
 
     @Override
@@ -125,5 +134,16 @@ public class CloudFrontCustomOrigin extends Diffable {
     @Override
     public String toDisplayString() {
         return "custom origin config";
+    }
+
+    CustomOriginConfig toCustomOriginConfig() {
+        return CustomOriginConfig.builder()
+            .httpPort(getHttpPort())
+            .httpsPort(getHttpsPort())
+            .originKeepaliveTimeout(getOriginKeepAliveTimeout())
+            .originProtocolPolicy(getOriginProtocolPolicy())
+            .originReadTimeout(getOriginReadTimeout())
+            .originSslProtocols(o -> o.itemsWithStrings(getOriginSslProtocols()).quantity(getOriginSslProtocols().size()))
+            .build();
     }
 }

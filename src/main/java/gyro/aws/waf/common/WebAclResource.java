@@ -2,6 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -56,6 +57,7 @@ public abstract class WebAclResource extends AbstractWafResource {
         this.defaultAction = defaultAction;
     }
 
+    @Id
     @Output
     public String getWebAclId() {
         return webAclId;
