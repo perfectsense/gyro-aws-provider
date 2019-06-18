@@ -1,5 +1,9 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
+import gyro.aws.cognitoidp.UserPoolClientResource;
+import gyro.aws.cognitoidp.UserPoolDomainResource;
+import gyro.aws.cognitoidp.UserPoolResource;
 import gyro.core.resource.Diffable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -22,10 +26,8 @@ import java.util.Map;
  *             user-pool-domain: $(aws::authenticate-cognito-user-pool-domain domain | domain)
  *         end
  *     end
- *
- *
  */
-public class AuthenticateCognitoAction extends Diffable {
+public class AuthenticateCognitoAction extends Diffable implements Copyable<AuthenticateCognitoActionConfig> {
 
     private Map<String, String> extraParams;
     private String onUnauthenticatedRequest;
@@ -33,24 +35,11 @@ public class AuthenticateCognitoAction extends Diffable {
     private String sessionCookieName;
     private Long sessionTimeout;
     private String userPoolArn;
-    private String userPoolClientId;
-    private String userPoolDomain;
-
-    public AuthenticateCognitoAction() {
-
-    }
-
-    public AuthenticateCognitoAction(AuthenticateCognitoActionConfig cognito) {
-        setExtraParams(cognito.authenticationRequestExtraParams());
-        setOnUnauthenticatedRequest(cognito.onUnauthenticatedRequestAsString());
-        setScope(cognito.scope());
-        setSessionCookieName(cognito.sessionCookieName());
-        setSessionTimeout(cognito.sessionTimeout());
-        setUserPoolArn(cognito.userPoolArn());
-        setUserPoolClientId(cognito.userPoolClientId());
-        setUserPoolDomain(cognito.userPoolDomain());
-    }
-
+    private UserPoolClientResource userPoolClient;
+    private UserPoolDomainResource userPoolDomain;
+    /**
+     *  Up to 10 query parameters to include in the redirect request to the authorization endpoint. (Optional)
+     */
     public Map<String, String> getExtraParams() {
         return extraParams;
     }
@@ -59,7 +48,15 @@ public class AuthenticateCognitoAction extends Diffable {
         this.extraParams = extraParams;
     }
 
+    /**
+     *  The behavior if the use is not authenticated. Valid values are ``deny``, ``allow``, and ``authenticate``.
+     *  Defaults to ``authenticate``. (Optional)
+     */
     public String getOnUnauthenticatedRequest() {
+        if (onUnauthenticatedRequest == null) {
+            onUnauthenticatedRequest = "authenticate";
+        }
+
         return onUnauthenticatedRequest;
     }
 
@@ -67,6 +64,9 @@ public class AuthenticateCognitoAction extends Diffable {
         this.onUnauthenticatedRequest = onUnauthenticatedRequest;
     }
 
+    /**
+     *  The set of user claims to be request from th IdP. Defaults to ``openid``. (Optional)
+     */
     public String getScope() {
         return scope;
     }
@@ -75,6 +75,9 @@ public class AuthenticateCognitoAction extends Diffable {
         this.scope = scope;
     }
 
+    /**
+     *  The name of the cookie used to maintain session information. Defaults to ``AWSELBAuthSessionCookie``. (Optional)
+     */
     public String getSessionCookieName() {
         return sessionCookieName;
     }
@@ -83,6 +86,9 @@ public class AuthenticateCognitoAction extends Diffable {
         this.sessionCookieName = sessionCookieName;
     }
 
+    /**
+     *  The maximum duration of the authentication session. Defaults to 604800 seconds. (Optional)
+     */
     public Long getSessionTimeout() {
         return sessionTimeout;
     }
@@ -91,6 +97,9 @@ public class AuthenticateCognitoAction extends Diffable {
         this.sessionTimeout = sessionTimeout;
     }
 
+    /**
+     *  The arn of the cognito user pool associated with the action. (Required)
+     */
     public String getUserPoolArn() {
         return userPoolArn;
     }
@@ -99,24 +108,42 @@ public class AuthenticateCognitoAction extends Diffable {
         this.userPoolArn = userPoolArn;
     }
 
-    public String getUserPoolClientId() {
-        return userPoolClientId;
+    /**
+     *  The cognito user pool client resource associated with the action. (Required)
+     */
+    public UserPoolClientResource getUserPoolClient() {
+        return userPoolClient;
     }
 
-    public void setUserPoolClientId(String userPoolClientId) {
-        this.userPoolClientId = userPoolClientId;
+    public void setUserPoolClient(UserPoolClientResource userPoolClient) {
+        this.userPoolClient = userPoolClient;
     }
 
-    public String getUserPoolDomain() {
+    /**
+     *  The user pool domain resource associated with the user pool. (Required)
+     */
+    public UserPoolDomainResource getUserPoolDomain() {
         return userPoolDomain;
     }
 
-    public void setUserPoolDomain(String userPoolDomain) {
+    public void setUserPoolDomain(UserPoolDomainResource userPoolDomain) {
         this.userPoolDomain = userPoolDomain;
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClientId(), getUserPoolDomain());
+        return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClient().getId(), getUserPoolDomain().getDomain());
+    }
+
+    @Override
+    public void copyFrom(AuthenticateCognitoActionConfig cognito) {
+        setExtraParams(cognito.authenticationRequestExtraParams());
+        setOnUnauthenticatedRequest(cognito.onUnauthenticatedRequestAsString());
+        setScope(cognito.scope());
+        setSessionCookieName(cognito.sessionCookieName());
+        setSessionTimeout(cognito.sessionTimeout());
+        setUserPoolArn(cognito.userPoolArn());
+        setUserPoolClient(findById(UserPoolClientResource.class, cognito.userPoolClientId()));
+        setUserPoolDomain(findById(UserPoolDomainResource.class, cognito.userPoolDomain()));
     }
 
     public String toDisplayString() {
@@ -131,8 +158,8 @@ public class AuthenticateCognitoAction extends Diffable {
                 .sessionCookieName(getSessionCookieName())
                 .sessionTimeout(getSessionTimeout())
                 .userPoolArn(getUserPoolArn())
-                .userPoolClientId(getUserPoolClientId())
-                .userPoolDomain(getUserPoolDomain())
+                .userPoolClientId(getUserPoolClient().getId())
+                .userPoolDomain(getUserPoolDomain().getDomain())
                 .build();
     }
 }

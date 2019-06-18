@@ -1,12 +1,15 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSnapshotResponse;
+import software.amazon.awssdk.services.rds.model.DBSnapshot;
 import software.amazon.awssdk.services.rds.model.DbSnapshotNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbSnapshotsResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
@@ -19,7 +22,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *    aws::db-snapshot db-snapshot-example
- *        db-instance-identifier: $(aws::db-instance db-instance-example | db-instance-identifier)
+ *        db-instance: $(aws::db-instance db-instance-example)
  *        db-snapshot-identifier: "db-snapshot-example"
  *        tags: {
  *            Name: "db-snapshot-example"
@@ -27,27 +30,28 @@ import java.util.Set;
  *    end
  */
 @Type("db-snapshot")
-public class DbSnapshotResource extends RdsTaggableResource {
+public class DbSnapshotResource extends RdsTaggableResource implements Copyable<DBSnapshot> {
 
-    private String dbInstanceIdentifier;
+    private DbInstanceResource dbInstance;
     private String dbSnapshotIdentifier;
     private String engineVersion;
-    private String optionGroupName;
+    private DbOptionGroupResource optionGroup;
 
     /**
-     * The identifier of the DB instance to create a snapshot for. (Required)
+     * The DB instance to create a snapshot for. (Required)
      */
-    public String getDbInstanceIdentifier() {
-        return dbInstanceIdentifier;
+    public DbInstanceResource getDbInstance() {
+        return dbInstance;
     }
 
-    public void setDbInstanceIdentifier(String dbInstanceIdentifier) {
-        this.dbInstanceIdentifier = dbInstanceIdentifier;
+    public void setDbInstance(DbInstanceResource dbInstance) {
+        this.dbInstance = dbInstance;
     }
 
     /**
      * The unique identifier of the DB instance snapshot. (Required)
      */
+    @Id
     public String getDbSnapshotIdentifier() {
         return dbSnapshotIdentifier;
     }
@@ -72,12 +76,20 @@ public class DbSnapshotResource extends RdsTaggableResource {
      * The option group associate with the upgraded DB snapshot. Only applicable when upgrading an Oracle DB snapshot.
      */
     @Updatable
-    public String getOptionGroupName() {
-        return optionGroupName;
+    public DbOptionGroupResource getOptionGroup() {
+        return optionGroup;
     }
 
-    public void setOptionGroupName(String optionGroupName) {
-        this.optionGroupName = optionGroupName;
+    public void setOptionGroup(DbOptionGroupResource optionGroup) {
+        this.optionGroup = optionGroup;
+    }
+
+    @Override
+    public void copyFrom(DBSnapshot snapshot) {
+        setDbInstance(findById(DbInstanceResource.class, snapshot.dbInstanceIdentifier()));
+        setEngineVersion(snapshot.engineVersion());
+        setOptionGroup(findById(DbOptionGroupResource.class, snapshot.optionGroupName()));
+        setArn(snapshot.dbSnapshotArn());
     }
 
     @Override
@@ -93,14 +105,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
                 r -> r.dbSnapshotIdentifier(getDbSnapshotIdentifier())
             );
 
-            response.dbSnapshots().stream()
-                .forEach(s -> {
-                    setDbInstanceIdentifier(s.dbInstanceIdentifier());
-                    setEngineVersion(s.engineVersion());
-                    setOptionGroupName(s.optionGroupName());
-                    setArn(s.dbSnapshotArn());
-                }
-            );
+            response.dbSnapshots().forEach(this::copyFrom);
 
         } catch (DbSnapshotNotFoundException ex) {
             return false;
@@ -114,7 +119,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbSnapshotResponse response = client.createDBSnapshot(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getDbInstance().getDbInstanceIdentifier())
                     .dbSnapshotIdentifier(getDbSnapshotIdentifier())
             );
 
@@ -130,7 +135,7 @@ public class DbSnapshotResource extends RdsTaggableResource {
         client.modifyDBSnapshot(
             r -> r.dbSnapshotIdentifier(getDbSnapshotIdentifier())
                     .engineVersion(getEngineVersion())
-                    .optionGroupName(getOptionGroupName())
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
         );
     }
 

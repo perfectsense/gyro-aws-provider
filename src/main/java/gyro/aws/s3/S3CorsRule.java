@@ -1,32 +1,21 @@
 package gyro.aws.s3;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 
 import java.util.List;
 
-public class S3CorsRule extends Diffable {
+public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
     private List<String> allowedHeaders;
     private List<String> allowedMethods;
     private List<String> allowedOrigins;
     private List<String> exposeHeaders;
     private Integer maxAgeSeconds;
 
-    public S3CorsRule() {
-
-    }
-
-    public S3CorsRule(CORSRule corsRule) {
-        setAllowedHeaders(corsRule.allowedHeaders());
-        setAllowedMethods(corsRule.allowedMethods());
-        setAllowedOrigins(corsRule.allowedOrigins());
-        setExposeHeaders(corsRule.exposeHeaders());
-        setMaxAgeSeconds(corsRule.maxAgeSeconds());
-    }
-
     /**
-     * Allowed headers for the rule.
+     * List of allowed headers for the rule.
      */
     @Updatable
     public List<String> getAllowedHeaders() {
@@ -38,7 +27,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Allowed methods for the rule. Ex. ``GET``, ``PUT`` etc.
+     * Allowed HTTP methods for the rule. Valid values are ``GET``, ``PUT``, ``POST``, ``DELETE`` and ``HEAD``.
      */
     @Updatable
     public List<String> getAllowedMethods() {
@@ -50,7 +39,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Allowed origins for the rule.
+     * Allowed origins for the rule that requires bucket access.
      */
     @Updatable
     public List<String> getAllowedOrigins() {
@@ -74,7 +63,7 @@ public class S3CorsRule extends Diffable {
     }
 
     /**
-     * Max age seconds for the rule.
+     * Max age in seconds that specifies the cache duration of the response.
      */
     @Updatable
     public Integer getMaxAgeSeconds() {
@@ -93,6 +82,15 @@ public class S3CorsRule extends Diffable {
     @Override
     public String toDisplayString() {
         return getUniqueName();
+    }
+
+    @Override
+    public void copyFrom(CORSRule corsRule) {
+        setAllowedHeaders(corsRule.allowedHeaders());
+        setAllowedMethods(corsRule.allowedMethods());
+        setAllowedOrigins(corsRule.allowedOrigins());
+        setExposeHeaders(corsRule.exposeHeaders());
+        setMaxAgeSeconds(corsRule.maxAgeSeconds());
     }
 
     CORSRule toCorsRule() {

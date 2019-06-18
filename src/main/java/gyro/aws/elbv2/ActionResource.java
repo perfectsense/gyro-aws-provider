@@ -1,10 +1,12 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Update;
+import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
@@ -21,58 +23,22 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     action
- *         target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+ *         target-group: $(aws::target-group target-group-example)
  *         type: "forward"
  *     end
  */
-public class ActionResource extends NetworkActionResource {
+public class ActionResource extends NetworkActionResource implements Copyable<Action> {
 
     private AuthenticateCognitoAction authenticateCognitoAction;
     private AuthenticateOidcAction authenticateOidcAction;
     private FixedResponseAction fixedResponseAction;
     private Integer order;
     private RedirectAction redirectAction;
-    private String targetGroupArn;
+    private TargetGroupResource targetGroup;
     private String type;
 
-    public ActionResource() {
-
-    }
-
-    public ActionResource(Action action) {
-
-        AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
-        if (cognitoConfig != null) {
-            AuthenticateCognitoAction cognito = new AuthenticateCognitoAction(cognitoConfig);
-            setAuthenticateCognitoAction(cognito);
-        }
-
-        AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
-        if (oidcConfig != null) {
-            AuthenticateOidcAction oidc = new AuthenticateOidcAction(oidcConfig);
-            setAuthenticateOidcAction(oidc);
-        }
-
-        FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
-        if (fixedConfig != null) {
-            FixedResponseAction fixed = new FixedResponseAction(fixedConfig);
-            setFixedResponseAction(fixed);
-        }
-
-        RedirectActionConfig redirectConfig = action.redirectConfig();
-        if (redirectConfig != null) {
-            RedirectAction redirect = new RedirectAction(redirectConfig);
-            setRedirectAction(redirect);
-        }
-
-        setOrder(action.order());
-        setTargetGroupArn(action.targetGroupArn());
-        setType(action.typeAsString());
-    }
-
-
     /**
-     *  Authentication through user pools supported by Amazon Cognito (Optional)
+     *  Authentication through user pools supported by Amazon Cognito. (Optional)
      */
     @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
@@ -84,7 +50,7 @@ public class ActionResource extends NetworkActionResource {
     }
 
     /**
-     *  Authentication through provider that is OpenID Connect (OIDC) compliant (Optional)
+     *  Authentication through provider that is OpenID Connect (OIDC) compliant. (Optional)
      */
     @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
@@ -96,7 +62,7 @@ public class ActionResource extends NetworkActionResource {
     }
 
     /**
-     *  Used to specify a custom response for an action  (Optional)
+     *  Used to specify a custom response for an action. (Optional)
      */
     @Updatable
     public FixedResponseAction getFixedResponseAction() {
@@ -108,7 +74,7 @@ public class ActionResource extends NetworkActionResource {
     }
 
     /**
-     *  The order in which the action should take place (Optional)
+     *  The order in which the action should take place. (Optional)
      */
     @Updatable
     public Integer getOrder() {
@@ -120,7 +86,7 @@ public class ActionResource extends NetworkActionResource {
     }
 
     /**
-     *  Redirect requests from one URL to another (Optional)
+     *  Redirect requests from one URL to another. (Optional)
      */
     @Updatable
     public RedirectAction getRedirectAction() {
@@ -132,18 +98,18 @@ public class ActionResource extends NetworkActionResource {
     }
 
     /**
-     *  The target group arn that this action is associated with  (Optional)
+     *  The target group that this action is associated with. (Required)
      */
-    public String getTargetGroupArn() {
-        return targetGroupArn;
+    public TargetGroupResource getTargetGroup() {
+        return targetGroup;
     }
 
-    public void setTargetGroupArn(String targetGroupArn) {
-        this.targetGroupArn = targetGroupArn;
+    public void setTargetGroup(TargetGroupResource targetGroup) {
+        this.targetGroup = targetGroup;
     }
 
     /**
-     *  The type of action to perform  (Required)
+     *  The type of action to perform. (Required)
      */
     @Updatable
     public String getType() {
@@ -157,6 +123,41 @@ public class ActionResource extends NetworkActionResource {
     @Override
     public String primaryKey() {
         return String.format("%d %s", getOrder(), getType());
+    }
+
+    @Override
+    public void copyFrom(Action action) {
+        AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
+        if (cognitoConfig != null) {
+            AuthenticateCognitoAction cognito = newSubresource(AuthenticateCognitoAction.class);
+            cognito.copyFrom(cognitoConfig);
+            setAuthenticateCognitoAction(cognito);
+        }
+
+        AuthenticateOidcActionConfig oidcConfig = action.authenticateOidcConfig();
+        if (oidcConfig != null) {
+            AuthenticateOidcAction oidc = newSubresource(AuthenticateOidcAction.class);
+            oidc.copyFrom(oidcConfig);
+            setAuthenticateOidcAction(oidc);
+        }
+
+        FixedResponseActionConfig fixedConfig = action.fixedResponseConfig();
+        if (fixedConfig != null) {
+            FixedResponseAction fixed = newSubresource(FixedResponseAction.class);
+            fixed.copyFrom(fixedConfig);
+            setFixedResponseAction(fixed);
+        }
+
+        RedirectActionConfig redirectConfig = action.redirectConfig();
+        if (redirectConfig != null) {
+            RedirectAction redirect = newSubresource(RedirectAction.class);
+            redirect.copyFrom(redirectConfig);
+            setRedirectAction(redirect);
+        }
+
+        setOrder(action.order());
+        setTargetGroup(action.targetGroupArn() != null ? parentResource().findById(TargetGroupResource.class, action.targetGroupArn()) : null);
+        setType(action.typeAsString());
     }
 
     @Override
@@ -214,7 +215,7 @@ public class ActionResource extends NetworkActionResource {
         StringBuilder sb = new StringBuilder();
 
         if (parentResource() instanceof ListenerResource) {
-            sb.append("default action");
+            sb.append(getType() + " default action");
         } else {
             sb.append("rule action - type: " + getType());
         }
@@ -229,7 +230,7 @@ public class ActionResource extends NetworkActionResource {
                 .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
                 .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
                 .order(getOrder())
-                .targetGroupArn(getTargetGroupArn())
+                .targetGroupArn(getTargetGroup() != null ? getTargetGroup().getArn() : null)
                 .type(getType())
                 .build();
     }

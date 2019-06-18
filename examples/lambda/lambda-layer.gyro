@@ -1,5 +1,3 @@
-import ../init as _
-
 aws::lambda-layer lambda-layer-example
     layer-name: "lambda-layer-example"
     description: "lambda-layer-example-desc"

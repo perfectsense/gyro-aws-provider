@@ -8,14 +8,6 @@ import software.amazon.awssdk.services.ec2.model.IpPermission;
 import java.util.Set;
 
 public class SecurityGroupIngressRuleResource extends SecurityGroupRuleResource {
-
-    public SecurityGroupIngressRuleResource() {
-    }
-
-    public SecurityGroupIngressRuleResource(IpPermission permission) {
-        super(permission);
-    }
-
     @Override
     public void create() {
         Ec2Client client = createClient(Ec2Client.class);
@@ -47,5 +39,4 @@ public class SecurityGroupIngressRuleResource extends SecurityGroupRuleResource 
             }
         }
     }
-
 }

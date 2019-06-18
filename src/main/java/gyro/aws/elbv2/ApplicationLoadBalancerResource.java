@@ -1,17 +1,20 @@
 package gyro.aws.elbv2;
 
+import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.ec2.SubnetResource;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
-import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerTypeEnum;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -25,52 +28,62 @@ import java.util.Set;
  *         ip-address-type: "ipv4"
  *         scheme: "internal"
  *         security-groups: [
- *                 $(aws::security-group security-group | group-id)
+ *                 $(aws::security-group security-group)
  *             ]
- *         subnet-ids: [
- *                 $(aws::subnet subnet-us-east-2a | subnet-id),
- *                 $(aws::subnet subnet-us-east-2b | subnet-id)
+ *         subnets: [
+ *                 $(aws::subnet subnet-us-east-2a),
+ *                 $(aws::subnet subnet-us-east-2b)
  *             ]
  *         tags: {
  *                 Name: "alb-example"
  *             }
  *     end
  */
-
 @Type("alb")
-public class ApplicationLoadBalancerResource extends LoadBalancerResource {
+public class ApplicationLoadBalancerResource extends LoadBalancerResource implements Copyable<LoadBalancer> {
 
-    private List<String> securityGroups;
-    private List<String> subnetIds;
+    private Set<SecurityGroupResource> securityGroups;
+    private Set<SubnetResource> subnets;
 
     /**
-     *  List of security groups associated with the alb (Optional)
+     *  List of security groups associated with the alb. (Optional)
      */
-    public List<String> getSecurityGroups() {
+    @Updatable
+    public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
+            securityGroups = new HashSet<>();
         }
 
         return securityGroups;
     }
 
-    public void setSecurityGroups(List<String> securityGroups) {
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
         this.securityGroups = securityGroups;
     }
 
     /**
-     *  List of subnets associated with the alb (Optional)
+     *  List of subnets associated with the alb. (Required)
      */
-    public List<String> getSubnetIds() {
-        if (subnetIds == null) {
-            subnetIds = new ArrayList<>();
+    @Updatable
+    public Set<SubnetResource> getSubnets() {
+        if (subnets == null) {
+            subnets = new HashSet<>();
         }
 
-        return subnetIds;
+        return subnets;
     }
 
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
+    public void setSubnets(Set<SubnetResource> subnets) {
+        this.subnets = subnets;
+    }
+
+    @Override
+    public void copyFrom(LoadBalancer loadBalancer) {
+        getSecurityGroups().clear();
+        loadBalancer.securityGroups().forEach(r -> getSecurityGroups().add(findById(SecurityGroupResource.class, r)));
+
+        getSubnets().clear();
+        loadBalancer.availabilityZones().forEach(az -> getSubnets().add(findById(SubnetResource.class, az.subnetId())));
     }
 
     @Override
@@ -78,12 +91,8 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
         LoadBalancer loadBalancer = super.internalRefresh();
 
         if (loadBalancer != null) {
-            setSecurityGroups(loadBalancer.securityGroups());
 
-            getSubnetIds().clear();
-            for (AvailabilityZone az: loadBalancer.availabilityZones()) {
-                getSubnetIds().add(az.subnetId());
-            }
+            this.copyFrom(loadBalancer);
 
             return true;
         }
@@ -98,8 +107,8 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
                 .name(getName())
                 .scheme(getScheme())
-                .securityGroups(getSecurityGroups())
-                .subnets(getSubnetIds())
+                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()))
                 .type(LoadBalancerTypeEnum.APPLICATION)
         );
 
@@ -111,6 +120,13 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource {
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        client.setSecurityGroups(r -> r.loadBalancerArn(getArn())
+                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList())));
+        client.setSubnets(r -> r.loadBalancerArn(getArn())
+                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())));
+
         super.update(current, changedFieldNames);
     }
 

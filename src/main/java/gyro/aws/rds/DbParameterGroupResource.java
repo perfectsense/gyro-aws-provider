@@ -1,12 +1,15 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbParameterGroupResponse;
+import software.amazon.awssdk.services.rds.model.DBParameterGroup;
 import software.amazon.awssdk.services.rds.model.DbParameterGroupNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbParameterGroupsResponse;
 import software.amazon.awssdk.services.rds.model.Parameter;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-parameter-group")
-public class DbParameterGroupResource extends RdsTaggableResource {
+public class DbParameterGroupResource extends RdsTaggableResource implements Copyable<DBParameterGroup> {
 
     private String description;
     private String family;
@@ -74,6 +77,7 @@ public class DbParameterGroupResource extends RdsTaggableResource {
     /**
      * The name of the DB parameter group. (Required)
      */
+    @Id
     public String getName() {
         return name;
     }
@@ -101,6 +105,14 @@ public class DbParameterGroupResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(DBParameterGroup group) {
+        setFamily(group.dbParameterGroupFamily());
+        setName(group.dbParameterGroupName());
+        setDescription(group.description());
+        setArn(group.dbParameterGroupArn());
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -113,14 +125,7 @@ public class DbParameterGroupResource extends RdsTaggableResource {
                 r -> r.dbParameterGroupName(getName())
             );
 
-            response.dbParameterGroups().stream()
-                .forEach(g -> {
-                    setFamily(g.dbParameterGroupFamily());
-                    setName(g.dbParameterGroupName());
-                    setDescription(g.description());
-                    setArn(g.dbParameterGroupArn());
-                }
-            );
+            response.dbParameterGroups().forEach(this::copyFrom);
 
             DescribeDBParametersIterable iterable = client.describeDBParametersPaginator(
                 r -> r.dbParameterGroupName(getName())
@@ -174,6 +179,11 @@ public class DbParameterGroupResource extends RdsTaggableResource {
         client.deleteDBParameterGroup(r -> r.dbParameterGroupName(getName()));
     }
 
+    @Override
+    public String toDisplayString() {
+        return "db parameter group " + getName();
+    }
+
     private void modifyParameterGroup() {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBParameterGroup(
@@ -186,10 +196,5 @@ public class DbParameterGroupResource extends RdsTaggableResource {
                         .build())
                     .collect(Collectors.toList()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "db parameter group " + getName();
     }
 }

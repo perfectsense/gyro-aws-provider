@@ -1,6 +1,9 @@
 package gyro.aws.rds;
 
+import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -8,6 +11,7 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateOptionGroupResponse;
 import software.amazon.awssdk.services.rds.model.DescribeOptionGroupsResponse;
+import software.amazon.awssdk.services.rds.model.OptionGroup;
 import software.amazon.awssdk.services.rds.model.OptionGroupNotFoundException;
 import software.amazon.awssdk.services.rds.model.VpcSecurityGroupMembership;
 
@@ -47,7 +51,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("db-option-group")
-public class DbOptionGroupResource extends RdsTaggableResource {
+public class DbOptionGroupResource extends RdsTaggableResource implements Copyable<OptionGroup> {
 
     private String name;
     private String description;
@@ -58,6 +62,7 @@ public class DbOptionGroupResource extends RdsTaggableResource {
     /**
      * The name of the option group.
      */
+    @Id
     public String getName() {
         return name;
     }
@@ -118,6 +123,44 @@ public class DbOptionGroupResource extends RdsTaggableResource {
     }
 
     @Override
+    public void copyFrom(OptionGroup group) {
+        setDescription(group.optionGroupDescription());
+        setEngine(group.engineName());
+        setMajorEngineVersion(group.majorEngineVersion());
+        setOption(group.options().stream()
+            .map(o -> {
+                OptionConfiguration current = getOption().stream().filter(
+                    c -> c.getOptionName().equals(o.optionName())).findFirst().orElse(new OptionConfiguration());
+                OptionConfiguration optionConfiguration = new OptionConfiguration();
+                optionConfiguration.setOptionName(o.optionName());
+                optionConfiguration.setPort(o.port());
+                optionConfiguration.setVersion(o.optionVersion());
+
+                optionConfiguration.setVpcSecurityGroups(
+                    o.vpcSecurityGroupMemberships().stream()
+                        .map(g -> findById(SecurityGroupResource.class, g.vpcSecurityGroupId()))
+                        .collect(Collectors.toSet()));
+
+                optionConfiguration.setOptionSettings(o.optionSettings().stream()
+                    .filter(s -> current.getOptionSettings().stream()
+                        .map(OptionSettings::getName)
+                        .collect(Collectors.toSet()).contains(s.name()))
+                    .map(s -> {
+                        OptionSettings optionSettings = new OptionSettings();
+                        optionSettings.setName(s.name());
+                        optionSettings.setValue(s.value());
+                        return optionSettings;
+                    })
+                    .collect(Collectors.toSet()));
+
+                return optionConfiguration;
+            })
+            .collect(Collectors.toList()));
+
+        setArn(group.optionGroupArn());
+    }
+
+    @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
@@ -130,44 +173,7 @@ public class DbOptionGroupResource extends RdsTaggableResource {
                 r -> r.optionGroupName(getName())
             );
 
-            response.optionGroupsList().stream()
-                .forEach(g -> {
-                    setDescription(g.optionGroupDescription());
-                    setEngine(g.engineName());
-                    setMajorEngineVersion(g.majorEngineVersion());
-                    setOption(g.options().stream()
-                        .map(o -> {
-                            OptionConfiguration current = getOption().stream().filter(
-                                c -> c.getOptionName().equals(o.optionName())).findFirst().orElse(new OptionConfiguration());
-                            OptionConfiguration optionConfiguration = new OptionConfiguration();
-                            optionConfiguration.setOptionName(o.optionName());
-                            optionConfiguration.setPort(o.port());
-                            optionConfiguration.setVersion(o.optionVersion());
-
-                            optionConfiguration.setVpcSecurityGroupMemberships(
-                                o.vpcSecurityGroupMemberships().stream()
-                                    .map(VpcSecurityGroupMembership::vpcSecurityGroupId)
-                                    .collect(Collectors.toList()));
-
-                            optionConfiguration.setOptionSettings(o.optionSettings().stream()
-                                .filter(s -> current.getOptionSettings().stream()
-                                    .map(OptionSettings::getName)
-                                    .collect(Collectors.toSet()).contains(s.name()))
-                                .map(s -> {
-                                    OptionSettings optionSettings = new OptionSettings();
-                                    optionSettings.setName(s.name());
-                                    optionSettings.setValue(s.value());
-                                    return optionSettings;
-                                })
-                                .collect(Collectors.toList()));
-
-                            return optionConfiguration;
-                        })
-                        .collect(Collectors.toList()));
-
-                    setArn(g.optionGroupArn());
-                }
-            );
+            response.optionGroupsList().forEach(this::copyFrom);
 
         } catch (OptionGroupNotFoundException ex) {
             return false;
@@ -212,6 +218,11 @@ public class DbOptionGroupResource extends RdsTaggableResource {
         );
     }
 
+    @Override
+    public String toDisplayString() {
+        return "db option group " + getName();
+    }
+
     private void modifyOptionGroup(List<OptionConfiguration> removeList) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyOptionGroup(
@@ -221,7 +232,10 @@ public class DbOptionGroupResource extends RdsTaggableResource {
                         .optionName(o.getOptionName())
                         .optionVersion(o.getVersion())
                         .port(o.getPort())
-                        .vpcSecurityGroupMemberships(o.getVpcSecurityGroupMemberships())
+                        .vpcSecurityGroupMemberships(o.getVpcSecurityGroups()
+                            .stream()
+                            .map(SecurityGroupResource::getGroupId)
+                            .collect(Collectors.toList()))
                         .optionSettings(o.getOptionSettings().stream()
                             .map(s -> software.amazon.awssdk.services.rds.model.OptionSetting.builder()
                                 .name(s.getName())
@@ -235,10 +249,5 @@ public class DbOptionGroupResource extends RdsTaggableResource {
                     .map(OptionConfiguration::getOptionName)
                     .collect(Collectors.toList()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "db option group " + getName();
     }
 }

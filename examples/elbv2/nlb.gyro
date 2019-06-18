@@ -1,53 +1,63 @@
 aws::nlb nlb-example
-    load-balancer-name: "nlb-example"
+    name: "nlb-example"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
     subnet-mapping
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+        subnet: $(aws::subnet subnet-us-east-2a)
     end
 
     subnet-mapping
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+        subnet: $(aws::subnet subnet-us-east-2b)
     end
 
     tags: {
-            Name: "nlb-example"
-        }
+        Name: "nlb-example"
+    }
 end
 
 aws::nlb-listener listener-example
     port: "80"
     protocol: "TCP"
-    load-balancer-arn: $(aws::nlb nlb-example | load-balancer-arn)
+    nlb: $(aws::nlb nlb-example)
 
     default-action
-        target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+        target-group: $(aws::target-group target-group-example)
         type: "forward"
     end
 end
 
 aws::target-group target-group-example
-    target-group-name: "test-target-group"
-    health-check-enabled: "true"
+    name: "test-target-group"
     port: "80"
     protocol: "TCP"
     target-type: "instance"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
 
-    target
-        id: $(aws::instance instance-us-east-2a | instance-id)
-        port: "80"
-    end
-
-    target
-        id: $(aws::instance instance-us-east-2b | instance-id)
-        port: "443"
+    health-check
+        interval: "30"
+        path: "/hi"
+        port: "traffic-port"
+        protocol: "HTTP"
+        healthy-threshold: "3"
+        unhealthy-threshold: "3"
     end
 
     tags: {
         Name: "nlb-example-target-group"
     }
+end
+
+aws::target target-ex-one
+    id: $(aws::instance instance-us-east-2a | instance-id)
+    port: "80"
+    target-group: $(aws::target-group target-group-example)
+end
+
+aws::target target-ex-two
+    id: $(aws::instance instance-us-east-2b | instance-id)
+    port: "443"
+    target-group: $(aws::target-group target-group-example)
 end
 
 aws::vpc vpc
@@ -59,8 +69,12 @@ aws::vpc vpc
     }
 end
 
+aws::internet-gateway internet-gateway
+    vpc: $(aws::vpc vpc)
+end
+
 aws::subnet subnet-us-east-2a
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2a'
     cidr-block: '10.0.0.0/24'
 
@@ -73,10 +87,10 @@ aws::instance instance-us-east-2a
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "jc-pair-example"
-    subnet-id: $(aws::subnet "subnet-us-east-2a" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    key: "jc-pair-example"
+    subnet: $(aws::subnet "subnet-us-east-2a")
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
@@ -89,7 +103,7 @@ aws::instance instance-us-east-2a
 end
 
 aws::subnet subnet-us-east-2b
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2b'
     cidr-block: '10.0.1.0/24'
 
@@ -102,10 +116,10 @@ aws::instance instance-us-east-2b
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key-name: "jc-pair-example"
-    subnet-id: $(aws::subnet "subnet-us-east-2b" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    key: "jc-pair-example"
+    subnet: $(aws::subnet "subnet-us-east-2b")
+    security-groups: [
+        $(aws::security-group security-group)
     ]
     disable-api-termination: false
     enable-ena-support: true
@@ -119,7 +133,7 @@ end
 
 aws::security-group security-group
     group-name: "nlb example - allow web traffic"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -132,8 +146,4 @@ aws::security-group security-group
             to-port: $(port)
         end
     end
-end
-
-aws::internet-gateway internet-gateway
-    vpc-id: $(aws::vpc vpc | vpc-id)
 end

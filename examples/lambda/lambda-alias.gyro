@@ -1,8 +1,18 @@
-import ../init as _
+aws::lambda-function lambda-function-alias-example
+    function-name: "lambda-function-alias-example"
+    handler: "index.handler"
+    runtime: "nodejs8.10"
+    role: "arn:aws:iam::242040583208:role/service-role/testFunction-role-pa0mec3c"
+    content-zip-path: "example-function.zip"
+
+    tags: {
+        Name: "lambda-function-example-1"
+    }
+end
 
 aws::lambda-alias lambda-alias-example
     alias-name: "lambda-alias-example"
-    function-name: "testFunction"
+    function: $(aws::lambda-function lambda-function-alias-example)
     function-version: "10"
     description: "lambda-alias-example"
     additional-version: "9"
