@@ -2,7 +2,7 @@ package gyro.aws.dlm;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.aws.iam.IamRoleResource;
+import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -57,7 +57,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements C
 
     private String policyId;
     private String description;
-    private IamRoleResource executionRole;
+    private RoleResource executionRole;
     private String resourceType;
     private Map<String, String> targetTags;
     private String state;
@@ -87,11 +87,11 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements C
      * The permission role for the snapshot policy. (Required)
      */
     @Updatable
-    public IamRoleResource getExecutionRole() {
+    public RoleResource getExecutionRole() {
         return executionRole;
     }
 
-    public void setExecutionRole(IamRoleResource executionRole) {
+    public void setExecutionRole(RoleResource executionRole) {
         this.executionRole = executionRole;
     }
 
@@ -284,7 +284,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements C
         setDateCreated(Date.from(policy.dateCreated()));
         setDateModified(Date.from(policy.dateModified()));
         setDescription(policy.description());
-        setExecutionRole(!ObjectUtils.isBlank(policy.executionRoleArn()) ? findById(IamRoleResource.class, policy.executionRoleArn()) : null);
+        setExecutionRole(!ObjectUtils.isBlank(policy.executionRoleArn()) ? findById(RoleResource.class, policy.executionRoleArn()) : null);
         setPolicyId(policy.policyId());
         setState(policy.stateAsString());
 
@@ -341,7 +341,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements C
 
         CreateLifecyclePolicyResponse response = client.createLifecyclePolicy(
             r -> r.description(getDescription())
-                .executionRoleArn(getExecutionRole().getRoleArn())
+                .executionRoleArn(getExecutionRole().getArn())
                 .policyDetails(
                     pd -> pd.resourceTypesWithStrings(Collections.singletonList(getResourceType()))
                         .schedules(Collections.singleton(getSchedule()))
@@ -364,7 +364,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements C
         client.updateLifecyclePolicy(
             r -> r.policyId(getPolicyId())
                 .description(getDescription())
-                .executionRoleArn(getExecutionRole().getRoleArn())
+                .executionRoleArn(getExecutionRole().getArn())
                 .policyDetails(
                     pd -> pd.resourceTypesWithStrings(Collections.singletonList(getResourceType()))
                         .schedules(Collections.singleton(getSchedule()))
