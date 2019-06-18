@@ -324,6 +324,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setVpcId(response.vpc().vpcId());
         setOwnerId(vpc.ownerId());
         setInstanceTenancy(vpc.instanceTenancyAsString());
+        setRegion(credentials(AwsCredentials.class).getRegion());
 
         modifySettings(client, new HashSet<>());
     }

@@ -9,9 +9,9 @@ end
 aws::hosted-zone hosted-zone-example
     hosted-zone-name: "hosted-zone-example.com"
     private-zone: true
-    vpc
-        vpc-id: $(aws::vpc vpc-hosted-zone-example | vpc-id)
-        vpc-region: $(aws::credentials default | region)
-    end
-    comment: "hosted-zone-example.co comment"
+    vpcs: [
+        $(aws::vpc vpc-hosted-zone-example)
+    ]
+
+    comment: "hosted-zone-example.comment"
 end
