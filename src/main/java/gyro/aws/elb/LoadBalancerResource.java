@@ -56,7 +56,6 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * The public DNS name of this load balancer.
      */
-    @Id
     @Output
     public String getDnsName() {
         return dnsName;
@@ -111,6 +110,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * The load balancer name. (Required)
      */
+    @Id
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
