@@ -168,7 +168,6 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     /**
      * The id for this key.
      */
-    @Id
     @Output
     public String getKeyId() {
         return keyId;
