@@ -1,5 +1,7 @@
 package gyro.aws.kms;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -22,17 +24,16 @@ import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
 import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
 import software.amazon.awssdk.services.kms.model.NotFoundException;
 import software.amazon.awssdk.services.kms.model.Tag;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 /**
  *
@@ -74,7 +75,6 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     private String origin;
     private String pendingWindow;
     private String policy;
-    private String policyContents;
     private Map<String, String> tags;
 
     /**
@@ -251,36 +251,12 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
      */
     @Updatable
     public String getPolicy() {
+        policy = getProcessedPolicy(policy);
         return policy;
     }
 
     public void setPolicy(String policy) {
         this.policy = policy;
-    }
-
-    /**
-     * The path to the policy associated with the key.
-     */
-    @Updatable
-    public String getPolicyContents() {
-        if (policyContents != null) {
-            return this.policyContents;
-        } else {
-            if (getPolicy() != null) {
-                try {
-                    String encode = new String(Files.readAllBytes(Paths.get(getPolicy())), StandardCharsets.UTF_8);
-                    return formatPolicy(encode);
-                } catch (Exception err) {
-                    throw new GyroException(err.getMessage());
-                }
-            } else {
-                return null;
-            }
-        }
-    }
-
-    public void setPolicyContents(String policyContents) {
-        this.policyContents = policyContents;
     }
 
     /**
@@ -326,7 +302,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
 
         GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getKeyId()).policyName("default"));
         if (policyResponse != null) {
-            setPolicyContents(formatPolicy(policyResponse.policy()));
+            setPolicy(policyResponse.policy());
         }
     }
 
@@ -368,7 +344,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
                             .description(getDescription())
                             .keyUsage(getKeyUsage())
                             .origin(getOrigin())
-                            .policy(getPolicyContents())
+                            .policy(getPolicy())
                             .tags(toTag())
             );
 
@@ -454,7 +430,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
         }
 
-        client.putKeyPolicy(r -> r.policy(getPolicyContents())
+        client.putKeyPolicy(r -> r.policy(getPolicy())
                 .policyName("default")
                 .keyId(getKeyId()));
     }
@@ -476,7 +452,24 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         return tag;
     }
 
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+        }
     }
 }

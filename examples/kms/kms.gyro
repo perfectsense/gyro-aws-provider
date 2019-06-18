@@ -5,7 +5,7 @@ aws::kms kms-example
     description: "sample kms key"
     enabled: "true"
     key-rotation: "true"
-    policy: "kms/kms-policy.json"
+    policy: "kms-policy.json"
     tags: {
         Name: "kms-example"
     }
