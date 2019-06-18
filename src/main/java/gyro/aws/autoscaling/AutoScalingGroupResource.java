@@ -135,7 +135,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     private List<AutoScalingGroupScheduledActionResource> scheduledAction;
     private List<AutoScalingGroupNotificationResource> autoScalingNotification;
 
-    private final Set<String> masterMetricSet = new HashSet<>(Arrays.asList(
+    private final Set<String> MASTER_METRIC_SET = new HashSet<>(Arrays.asList(
         "GroupMinSize",
         "GroupMaxSize",
         "GroupDesiredCapacity",
@@ -919,7 +919,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             throw new GyroException("When Enabled Metrics Collection is set to false, disabled metrics can't have items in it.");
         }
 
-        if (!masterMetricSet.containsAll(getDisabledMetrics())) {
+        if (!MASTER_METRIC_SET.containsAll(getDisabledMetrics())) {
             throw new GyroException("Invalid values for parameter Disabled Metrics.");
         }
 
@@ -930,13 +930,13 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     private void loadMetrics(List<EnabledMetric> enabledMetrics) {
         setEnableMetricsCollection(!enabledMetrics.isEmpty());
-        Set<String> allMetrics = new HashSet<>(masterMetricSet);
+        Set<String> allMetrics = new HashSet<>(MASTER_METRIC_SET);
         allMetrics.removeAll(enabledMetrics.stream().map(EnabledMetric::metric).collect(Collectors.toSet()));
-        setDisabledMetrics(allMetrics.size() == masterMetricSet.size() ? new ArrayList<>() : new ArrayList<>(allMetrics));
+        setDisabledMetrics(allMetrics.size() == MASTER_METRIC_SET.size() ? new ArrayList<>() : new ArrayList<>(allMetrics));
     }
 
     private void saveMetrics(AutoScalingClient client) {
-        Set<String> metrics = new HashSet<>(masterMetricSet);
+        Set<String> metrics = new HashSet<>(MASTER_METRIC_SET);
         metrics.removeAll(getDisabledMetrics());
 
         client.enableMetricsCollection(
