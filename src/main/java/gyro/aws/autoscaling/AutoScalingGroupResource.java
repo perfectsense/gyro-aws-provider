@@ -881,8 +881,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     private void validate() {
-        if (getLaunchTemplate() == null && getLaunchConfiguration() == null) {
-            throw new GyroException("Either Launch template id or a launch configuration name is required.");
+        if (getLaunchTemplate() == null && getLaunchConfiguration() == null && getInstance() == null) {
+            throw new GyroException("Either Launch template or a launch configuration or an instance is required.");
         }
 
         if (!getHealthCheckType().equals("ELB") && !getHealthCheckType().equals("EC2")) {

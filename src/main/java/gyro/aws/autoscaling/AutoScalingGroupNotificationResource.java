@@ -2,6 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
@@ -18,19 +19,19 @@ import java.util.Set;
 
 public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
 
-    private String topicArn;
+    private TopicResource topic;
     private String autoScalingGroupName;
     private List<String> notificationTypes;
 
     /**
-     * The ARN of the SNS topic to notify. (Required)
+     * The SNS topic to notify. (Required)
      */
-    public String getTopicArn() {
-        return topicArn;
+    public TopicResource getTopic() {
+        return topic;
     }
 
-    public void setTopicArn(String topicArn) {
-        this.topicArn = topicArn;
+    public void setTopic(TopicResource topic) {
+        this.topic = topic;
     }
 
     /**
@@ -64,7 +65,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     @Override
     public void copyFrom(NotificationConfiguration notificationConfiguration) {
         setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
-        setTopicArn(notificationConfiguration.topicARN());
+        setTopic(!ObjectUtils.isBlank(notificationConfiguration.topicARN()) ? findById(TopicResource.class, notificationConfiguration.topicARN()) : null);
         setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
     }
 
@@ -96,7 +97,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
         client.deleteNotificationConfiguration(
             r -> r.autoScalingGroupName(getAutoScalingGroupName())
-            .topicARN(getTopicArn())
+            .topicARN(getTopic().getTopicArn())
         );
     }
 
@@ -106,8 +107,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
         sb.append("auto scale notification");
 
-        if (!ObjectUtils.isBlank(getTopicArn())) {
-            sb.append(" - ").append(getTopicArn());
+        if (getTopic() != null && !ObjectUtils.isBlank(getTopic().getTopicArn())) {
+            sb.append(" - ").append(getTopic().getTopicArn());
         }
 
         return sb.toString();
@@ -115,7 +116,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getTopicArn());
+        return getTopic().getTopicArn();
     }
 
     private String getParentId() {
@@ -130,7 +131,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         client.putNotificationConfiguration(
             r -> r.autoScalingGroupName(getAutoScalingGroupName())
                 .notificationTypes(getNotificationTypes())
-                .topicARN(getTopicArn())
+                .topicARN(getTopic().getTopicArn())
         );
     }
 

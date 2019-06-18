@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  *     aws::launch-configuration launch-configuration
  *         launch-configuration-name: "launch-configuration-gyro-1"
  *         instance: $(aws:instance instance)
- *         key-name: "instance-static"
+ *         key: "instance-static"
  *         security-groups: [
  *             $(aws::security-group security-group-launch-configuration-example-1),
  *             $(aws::security-group security-group-launch-configuration-example-2)
@@ -215,6 +215,9 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         this.associatePublicIp = associatePublicIp;
     }
 
+    /**
+     * The block device mapping to initialize the instances with.
+     */
     public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();
@@ -227,6 +230,9 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
+    /**
+     * Iam instance profile to be linked with the instances being launched using this.
+     */
     public IamInstanceProfileResource getInstanceProfile() {
         return instanceProfile;
     }
