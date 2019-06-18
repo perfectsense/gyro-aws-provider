@@ -36,9 +36,7 @@ public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile,
 
     @Override
     protected List<InstanceProfile> findAws(IamClient client, Map<String, String> filters) {
-        IamClient toUse = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
 
         List<InstanceProfile> instanceProfile = new ArrayList<>();
 
@@ -49,10 +47,7 @@ public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile,
 
     @Override
     protected List<InstanceProfile> findAllAws(IamClient client) {
-        IamClient toUse = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
-
-        return toUse.listInstanceProfiles().instanceProfiles();
+        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
+        return client.listInstanceProfiles().instanceProfiles();
     }
 }
