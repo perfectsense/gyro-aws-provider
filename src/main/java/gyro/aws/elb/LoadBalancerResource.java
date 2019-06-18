@@ -10,6 +10,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancersResponse;
@@ -79,6 +80,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * The instances to associate with this load balancer. (Required)
      */
+    @Updatable
     public Set<InstanceResource> getInstances() {
         if (instances == null) {
             instances = new LinkedHashSet<>();
@@ -131,6 +133,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * The security groups to associate with this load balancer. (Required)
      */
+    @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new LinkedHashSet<>();
@@ -146,6 +149,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * Subnet IDs to associate with this load balancer. (Required)
      */
+    @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
             subnets = new LinkedHashSet<>();
