@@ -62,7 +62,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
 
     @Override
     protected List<ResourceRecordSet> findAllAws(Route53Client client) {
-        throw new IllegalArgumentException("Cannot query Recordsets without 'Hosted-zone-id'.");
+        throw new IllegalArgumentException("Cannot query Recordsets without 'hosted-zone-id'.");
     }
 
     @Override
