@@ -1,6 +1,7 @@
 package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -38,7 +39,7 @@ import java.util.Set;
  *     end
  */
 @Type("policy")
-public class PolicyResource extends AwsResource {
+public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     private String arn;
     private String description;
@@ -138,21 +139,7 @@ public class PolicyResource extends AwsResource {
         Policy policy = response.policy();
 
         if (policy != null) {
-            setName(policy.policyName());
-            setDescription(policy.description());
-            setArn(policy.arn());
-
-            for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
-                setPastVersionId(versions.versionId());
-            }
-
-            GetPolicyVersionResponse versionResponse = client.getPolicyVersion(
-                r -> r.versionId(getPastVersionId())
-                            .policyArn(getArn())
-            );
-
-            String encode = URLDecoder.decode(versionResponse.policyVersion().document());
-            setPolicyDocument(formatPolicy(encode));
+            copyFrom(policy);
 
             return true;
         }
@@ -217,5 +204,26 @@ public class PolicyResource extends AwsResource {
 
     public String formatPolicy(String policy) {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    }
+
+    @Override
+    public void copyFrom(Policy policy) {
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+
+        setName(policy.policyName());
+        setDescription(policy.description());
+        setArn(policy.arn());
+
+        for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
+            setPastVersionId(versions.versionId());
+        }
+
+        GetPolicyVersionResponse versionResponse = client.getPolicyVersion(
+            r -> r.versionId(getPastVersionId())
+                .policyArn(getArn())
+        );
+
+        String encode = URLDecoder.decode(versionResponse.policyVersion().document());
+        setPolicyDocument(formatPolicy(encode));
     }
 }
