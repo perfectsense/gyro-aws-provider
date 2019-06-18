@@ -6,6 +6,7 @@ import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -54,6 +55,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * The public DNS name of this load balancer.
      */
+    @Id
     @Output
     public String getDnsName() {
         return dnsName;
