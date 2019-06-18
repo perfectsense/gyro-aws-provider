@@ -19,7 +19,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    record-set: $(aws::record-set EXTERNAL/* | hosted-zone-id = '' | start-record-name = '' | start-record-type = '')
+ *    record-set: $(aws::record-set EXTERNAL/* | hosted-zone-id = '' and start-record-name = '' and start-record-type = '')
  */
 @Type("record-set")
 public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet, RecordSetResource> {
