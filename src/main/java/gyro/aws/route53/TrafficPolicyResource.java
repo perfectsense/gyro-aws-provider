@@ -35,7 +35,7 @@ import java.util.Set;
  *     aws::traffic-policy traffic-policy-example
  *         name: "traffic-policy-example"
  *         comment: "traffic-policy-example Comment"
- *         document-path: "policy.json"
+ *         document: "policy.json"
  *     end
  *
  */
