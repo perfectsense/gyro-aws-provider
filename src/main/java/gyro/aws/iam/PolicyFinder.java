@@ -1,6 +1,8 @@
 package gyro.aws.iam;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsFinder;
+import gyro.aws.AwsResource;
 import gyro.core.Type;
 
 import software.amazon.awssdk.regions.Region;
@@ -37,16 +39,10 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
 
     @Override
     protected List<Policy> findAws(IamClient client, Map<String, String> filters) {
-        IamClient toUse = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
+        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
 
         List<Policy> policy = new ArrayList<>();
-
-        GetPolicyResponse response = toUse.getPolicy(
-                r -> r.policyArn(filters.get("arn"))
-        );
-
+        GetPolicyResponse response = client.getPolicy(r -> r.policyArn(filters.get("arn")));
         policy.add(response.policy());
 
         return policy;
@@ -54,10 +50,7 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
 
     @Override
     protected List<Policy> findAllAws(IamClient client) {
-        IamClient toUse = IamClient.builder()
-                .region(Region.AWS_GLOBAL)
-                .build();
-
-        return toUse.listPolicies().policies();
+        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
+        return client.listPolicies().policies();
     }
 }
