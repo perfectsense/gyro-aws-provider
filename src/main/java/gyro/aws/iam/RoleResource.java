@@ -3,12 +3,11 @@ package gyro.aws.iam;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.Type;
-
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
@@ -20,7 +19,6 @@ import software.amazon.awssdk.utils.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
