@@ -51,9 +51,12 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
     }
 
     @Override
-    protected List<Policy> findAws(IamClient client, Map<String, String> filters) {
-        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
+    }
 
+    @Override
+    protected List<Policy> findAws(IamClient client, Map<String, String> filters) {
         List<Policy> policy = new ArrayList<>();
 
         if (filters.containsKey("arn")) {
@@ -72,7 +75,6 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
 
     @Override
     protected List<Policy> findAllAws(IamClient client) {
-        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
         return client.listPoliciesPaginator().policies().stream().collect(Collectors.toList());
     }
 }

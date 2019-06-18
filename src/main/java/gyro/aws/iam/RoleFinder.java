@@ -51,9 +51,12 @@ public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {
     }
 
     @Override
-    protected List<Role> findAws(IamClient client, Map<String, String> filters) {
-        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
+    protected String getRegion() {
+        return Region.AWS_GLOBAL.toString();
+    }
 
+    @Override
+    protected List<Role> findAws(IamClient client, Map<String, String> filters) {
         List<Role> role = new ArrayList<>();
 
         if (filters.containsKey("name")) {
@@ -72,7 +75,6 @@ public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {
 
     @Override
     protected List<Role> findAllAws(IamClient client) {
-        client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
         return client.listRolesPaginator().roles().stream().collect(Collectors.toList());
     }
 }
