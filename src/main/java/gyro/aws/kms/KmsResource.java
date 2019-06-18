@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
 import software.amazon.awssdk.services.kms.model.NotFoundException;
 import software.amazon.awssdk.services.kms.model.Tag;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
  *         pending-window: "7"
  *         policy: "gyro-providers/gyro-aws-provider/examples/kms/kms-policy.json"
  *         tags: {
- *               Name: "kms-example"
+ *             Name: "kms-example"
  *         }
  * end
  */
@@ -166,8 +167,8 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     /**
      * The id for this key.
      */
-    @Output
     @Id
+    @Output
     public String getKeyId() {
         return keyId;
     }
@@ -267,7 +268,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         } else {
             if (getPolicy() != null) {
                 try {
-                    String encode = new String(Files.readAllBytes(Paths.get(getPolicy())), "UTF-8");
+                    String encode = new String(Files.readAllBytes(Paths.get(getPolicy())), StandardCharsets.UTF_8);
                     return formatPolicy(encode);
                 } catch (Exception err) {
                     throw new GyroException(err.getMessage());
@@ -388,11 +389,11 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
                 throw new GyroException(ex.getMessage());
             }
 
-            if (getKeyRotation() != null && getKeyRotation() == true) {
+            if (getKeyRotation() != null && getKeyRotation()) {
                 client.enableKeyRotation(r -> r.keyId(getKeyId()));
             }
 
-            if (getEnabled() != null && getEnabled() == false) {
+            if (getEnabled() != null && !getEnabled()) {
                 client.disableKey(r -> r.keyId(getKeyId()));
             }
         } else {
@@ -406,9 +407,9 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         KmsResource currentResource = (KmsResource) current;
 
         try {
-            if (getEnabled() == true && currentResource.getEnabled() == false) {
+            if (getEnabled() && !currentResource.getEnabled()) {
                 client.enableKey(r -> r.keyId(getKeyId()));
-            } else if (getEnabled() == false && currentResource.getEnabled() == true) {
+            } else if (!getEnabled() && currentResource.getEnabled()) {
                 client.disableKey(r -> r.keyId(getKeyId()));
             }
         } catch (KmsInvalidStateException ex) {
@@ -417,9 +418,9 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
         }
 
         try {
-            if (getKeyRotation() == true && currentResource.getKeyRotation() == false) {
+            if (getKeyRotation() && !currentResource.getKeyRotation()) {
                 client.enableKeyRotation(r -> r.keyId(getKeyId()));
-            } else if (getKeyRotation() == false && currentResource.getKeyRotation() == true) {
+            } else if (!getKeyRotation() && currentResource.getKeyRotation()) {
                 client.disableKeyRotation(r -> r.keyId(getKeyId()));
             }
         } catch (KmsException ex) {
@@ -461,15 +462,12 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     @Override
     public void delete() {
         KmsClient client = createClient(KmsClient.class);
-        client.scheduleKeyDeletion(r -> r.keyId(getKeyId())
-                                        .pendingWindowInDays(Integer.valueOf(getPendingWindow())));
+        client.scheduleKeyDeletion(r -> r.keyId(getKeyId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
     }
 
     @Override
     public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("kms key with alias " + getAliases());
-        return sb.toString();
+        return "kms key with alias " + getAliases();
     }
 
     private List<Tag> toTag() {
