@@ -35,10 +35,9 @@ import java.util.stream.Collectors;
  *     aws::hosted-zone hosted-zone-example
  *         hosted-zone-name: "hosted-zone-example.com"
  *         private-zone: true
- *         vpc
- *             vpc: $(aws::vpc vpc-hosted-zone-example)
- *             vpc-region: "us-east-2"
- *         end
+ *         vpcs: [
+ *             $(aws::vpc vpc-hosted-zone-example)
+ *         ]
  *         comment: "hosted-zone-example.comment modified"
  *     end
  *
