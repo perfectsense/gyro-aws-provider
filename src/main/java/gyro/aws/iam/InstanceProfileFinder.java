@@ -1,6 +1,8 @@
 package gyro.aws.iam;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsFinder;
+import gyro.aws.AwsResource;
 import gyro.core.Type;
 
 import software.amazon.awssdk.regions.Region;
@@ -22,6 +24,7 @@ import java.util.Map;
 public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile, InstanceProfileResource> {
 
     private String name;
+    private String path;
 
     /**
      * The name of the instance profile.
@@ -34,13 +37,30 @@ public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile,
         this.name = name;
     }
 
+    /**
+     * A prefix path to search for instance profiles.
+     */
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     @Override
     protected List<InstanceProfile> findAws(IamClient client, Map<String, String> filters) {
         client = AwsResource.createClient(IamClient.class, credentials(AwsCredentials.class), Region.AWS_GLOBAL.toString(), null);
 
         List<InstanceProfile> instanceProfile = new ArrayList<>();
 
-        instanceProfile.add(toUse.getInstanceProfile(r -> r.instanceProfileName(filters.get("name"))).instanceProfile());
+        if (filters.containsKey("name")) {
+            instanceProfile.add(client.getInstanceProfile(r -> r.instanceProfileName(filters.get("name"))).instanceProfile());
+        }
+
+        if (filters.containsKey("path")) {
+            instanceProfile.addAll(client.listInstanceProfiles(r -> r.pathPrefix(filters.get("path"))).instanceProfiles());
+        }
 
         return instanceProfile;
     }
