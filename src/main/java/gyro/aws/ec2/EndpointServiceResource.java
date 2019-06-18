@@ -5,7 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.elbv2.LoadBalancerResource;
 import gyro.aws.elbv2.NetworkLoadBalancerResource;
-import gyro.aws.iam.IamRoleResource;
+import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class EndpointServiceResource extends AwsResource implements Copyable<ServiceConfiguration> {
     private Boolean acceptanceRequired;
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;
-    private Set<IamRoleResource> principals;
+    private Set<RoleResource> principals;
 
     private String serviceId;
     private String serviceName;
@@ -89,7 +89,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
      * A list of IAM Roles.
      */
     @Updatable
-    public Set<IamRoleResource> getPrincipals() {
+    public Set<RoleResource> getPrincipals() {
         if (principals == null) {
             principals = new HashSet<>();
         }
@@ -97,7 +97,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         return principals;
     }
 
-    public void setPrincipals(Set<IamRoleResource> principals) {
+    public void setPrincipals(Set<RoleResource> principals) {
         this.principals = principals;
     }
 
@@ -199,7 +199,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         getPrincipals().clear();
 
         for (AllowedPrincipal allowedPrincipal: response.allowedPrincipals()) {
-            getPrincipals().add(findById(IamRoleResource.class,allowedPrincipal.principal()));
+            getPrincipals().add(findById(RoleResource.class,allowedPrincipal.principal()));
         }
     }
 
@@ -232,7 +232,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         if (!getPrincipals().isEmpty()) {
             client.modifyVpcEndpointServicePermissions(
                 r -> r.serviceId(getServiceId())
-                    .addAllowedPrincipals(getPrincipals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toList()))
+                    .addAllowedPrincipals(getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toList()))
             );
         }
     }
@@ -274,8 +274,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
             ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
                 .serviceId(getServiceId());
 
-            Set<String> currentIamArns = currentEndpointService.getPrincipals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
-            Set<String> pendingIamArns = getPrincipals().stream().map(IamRoleResource::getRoleArn).collect(Collectors.toSet());
+            Set<String> currentIamArns = currentEndpointService.getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
+            Set<String> pendingIamArns = getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
 
             Set<String> deleteIamRoleArns = new HashSet<>(currentIamArns);
             deleteIamRoleArns.removeAll(pendingIamArns);

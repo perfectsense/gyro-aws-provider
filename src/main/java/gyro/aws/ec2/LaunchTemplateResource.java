@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.aws.iam.IamInstanceProfileResource;
+import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -92,7 +92,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String userData;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
     private String capacityReservation;
-    private IamInstanceProfileResource instanceProfile;
+    private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
 
     private Long version;
@@ -317,11 +317,11 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * Iam instance profile to be linked with the instances being launched using this template.
      */
-    public IamInstanceProfileResource getInstanceProfile() {
+    public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
     }
 
-    public void setInstanceProfile(IamInstanceProfileResource instanceProfile) {
+    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
         this.instanceProfile = instanceProfile;
     }
 
@@ -545,7 +545,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         }
 
         return LaunchTemplateIamInstanceProfileSpecificationRequest.builder()
-            .arn(getInstanceProfile().getInstanceProfileArn())
+            .arn(getInstanceProfile().getArn())
             .build();
     }
 }
