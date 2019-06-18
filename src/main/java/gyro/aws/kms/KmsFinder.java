@@ -11,6 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query kms key.
+ *
+ * .. code-block:: gyro
+ *
+ *    keys: $(aws::kms EXTERNAL/* | key-id = '')
+ */
 @Type("kms")
 public class KmsFinder extends AwsFinder<KmsClient, KeyMetadata, KmsResource> {
 
