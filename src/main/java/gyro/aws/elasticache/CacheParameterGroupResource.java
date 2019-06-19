@@ -48,6 +48,9 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     private String description;
     private List<CacheParameter> parameters;
 
+    // Internals
+    private Set<String> configParamSet;
+
     /**
      * The name of the cache parameter group. (Required)
      */
@@ -109,15 +112,13 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
             r -> r.cacheParameterGroupName(getCacheParamGroupName())
         );
 
-        Set<String> configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
+        configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
         getParameters().clear();
         for (Parameter parameter : paramResponse.parameters()) {
             if (parameter.isModifiable()) {
                 getParameters().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
             }
         }
-
-        removeDefaultParams(getParameters(), configParamSet);
     }
 
     @Override
@@ -131,6 +132,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
         }
 
         copyFrom(cacheParameterGroup);
+        removeDefaultParams(getParameters(), configParamSet);
         return true;
     }
 
