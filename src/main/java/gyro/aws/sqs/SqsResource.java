@@ -9,7 +9,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 
@@ -68,6 +67,7 @@ import java.util.Set;
 
 @Type("sqs")
 public class SqsResource extends AwsResource implements Copyable<String> {
+
     private String name;
     private String queueArn;
     private String queueUrl;
@@ -82,8 +82,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     private String contentBasedDeduplication;
     private Integer kmsMasterKeyId;
     private Integer kmsDataKeyReusePeriodSeconds;
-    private transient String policyDocPath;
-    private String policy;
+    private String policyDocument;
     private String accountNo;
 
     /**
@@ -280,32 +279,25 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * Enables setting up the valid IAM policies and permissions for the queue. (Optional)
+     * The policy document. A policy path or policy string is allowed. (Required)
      */
     @Updatable
-    public String getPolicyDocPath() {
-        return policyDocPath;
-    }
-
-    public void setPolicyDocPath(String policyDocPath) {
-        this.policyDocPath = policyDocPath;
-
-        if (!ObjectUtils.isBlank(policyDocPath)) {
-            setPolicyFromPath();
+    public String getPolicyDocument() {
+        if (this.policyDocument != null && this.policyDocument.contains(".json")) {
+            try (InputStream input = openInput(this.policyDocument)) {
+                this.policyDocument = formatPolicy(IoUtils.toUtf8String(input));
+                return this.policyDocument;
+            } catch (IOException err) {
+                throw new GyroException(MessageFormat
+                        .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), policyDocument));
+            }
+        } else {
+            return this.policyDocument;
         }
     }
 
-    /**
-     * Need to change when code changes
-     * This method removes all the spaces from the policy content even from the values, the better way to do it would be by using the Jackson's API
-     */
-    @Updatable
-    public String getPolicy() {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
-    }
-
-    public void setPolicy(String policy) {
-        this.policy = policy;
+    public void setPolicyDocument(String policyDocument) {
+        this.policyDocument = policyDocument;
     }
 
     @Override
@@ -333,7 +325,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
                 .get(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS)));
 
         if (response.attributes().get(QueueAttributeName.POLICY) != null) {
-            setPolicy(response.attributes().get(QueueAttributeName.POLICY));
+            setPolicyDocument(response.attributes().get(QueueAttributeName.POLICY));
         }
 
         if (response.attributes().get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION) != null) {
@@ -370,9 +362,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
             return false;
         }
 
-        if (!queues.queueUrls().isEmpty()) {
-            this.copyFrom(queues.queueUrls().get(0));
-        }
+        this.copyFrom(queues.queueUrls().get(0));
 
         return true;
     }
@@ -421,10 +411,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
             attributeMap.put(QueueAttributeName.REDRIVE_POLICY, policy);
         }
 
-        if (policyDocPath != null) {
-            setPolicyFromPath();
-            attributeMap.put(QueueAttributeName.POLICY, getPolicy());
-        }
+        attributeMap.put(QueueAttributeName.POLICY, getPolicyDocument());
 
         client.createQueue(r -> r.queueName(getName()).attributes(attributeMap));
         setQueueUrl(client.createQueue(r -> r.queueName(getName()).attributes(attributeMap)).queueUrl());
@@ -448,7 +435,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId().toString() : null);
 
         attributeUpdate.put(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS, getKmsDataKeyReusePeriodSeconds().toString());
-        attributeUpdate.put(QueueAttributeName.POLICY, getPolicy());
+        attributeUpdate.put(QueueAttributeName.POLICY, getPolicyDocument());
 
         if (getName().contains(".fifo")) {
             attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
@@ -471,16 +458,6 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         return getName();
     }
 
-    private void setPolicyFromPath() {
-        try (InputStream input = openInput(getPolicyDocPath())) {
-            setPolicy(IoUtils.toUtf8String(input));
-
-        } catch (IOException ioex) {
-            throw new GyroException(MessageFormat
-                .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), getPolicyDocPath()));
-        }
-    }
-
     /**
      * Adding the account number in the config is a temporary fix, need to change when code changes
      */
@@ -494,5 +471,9 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         if (value != null) {
             request.put(name, value.toString());
         }
+    }
+
+    private String formatPolicy(String policy) {
+        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }

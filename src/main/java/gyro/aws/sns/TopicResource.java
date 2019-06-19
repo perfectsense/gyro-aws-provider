@@ -17,9 +17,10 @@ import software.amazon.awssdk.services.sns.model.GetTopicAttributesResponse;
 import software.amazon.awssdk.services.sns.model.InvalidParameterException;
 import software.amazon.awssdk.services.sns.model.NotFoundException;
 import software.amazon.awssdk.services.sns.model.Topic;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ import java.util.Set;
  *     aws::topic sns-topic-example
  *         attributes: {
  *             DisplayName: "sns-topic-example",
- *             Policy: "sns/sns-policy.json"
+ *             Policy: "sns-policy.json"
  *         }
  *         name: "sns-topic"
  *     end
@@ -73,19 +74,19 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
             attributes = new CompactMap<>();
         }
 
-        if (attributes.get("Policy") != null && attributes.get("Policy").endsWith(".json")) {
+        if (attributes.get("DeliveryPolicy") != null && attributes.get("DeliveryPolicy").endsWith(".json")) {
             try {
-                String encode = new String(Files.readAllBytes(Paths.get(attributes.get("Policy"))), "UTF-8");
-                attributes.put("Policy", formatPolicy(encode));
+                String encode = policyDocument(attributes.get("DeliveryPolicy"));
+                attributes.put("DeliveryPolicy", formatPolicy(encode));
             } catch (Exception err) {
                 throw new GyroException(err.getMessage());
             }
         }
 
-        if (attributes.get("DeliveryPolicy") != null && attributes.get("DeliveryPolicy").endsWith(".json")) {
+        if (attributes.get("Policy") != null && attributes.get("Policy").endsWith(".json")) {
             try {
-                String encode = new String(Files.readAllBytes(Paths.get(attributes.get("DeliveryPolicy"))), "UTF-8");
-                attributes.put("DeliveryPolicy", formatPolicy(encode));
+                String encode = policyDocument(attributes.get("Policy"));
+                attributes.put("Policy", formatPolicy(encode));
             } catch (Exception err) {
                 throw new GyroException(err.getMessage());
             }
@@ -187,6 +188,19 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     @Override
     public String toDisplayString() {
         return "sns topic " + getName();
+    }
+
+    private String policyDocument(String policy) {
+        if (policy != null && policy.contains(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = formatPolicy(IoUtils.toUtf8String(input));
+                return policy;
+            } catch (IOException err) {
+                throw new GyroException(err.getMessage());
+            }
+        } else {
+            return policy;
+        }
     }
 
     private String formatPolicy(String policy) {
