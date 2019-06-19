@@ -11,11 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query cache cluster.
+ *
+ * .. code-block:: gyro
+ *
+ *    cache-clusters: $(aws::cache-cluster EXTERNAL/* | cache-cluster-id = 'cache-cluster-ex-1')
+ */
 @Type("cache-cluster")
 public class CacheClusterFinder extends AwsFinder<ElastiCacheClient, CacheCluster, CacheClusterResource> {
 
     private String cacheClusterId;
 
+    /**
+     * The identifier of the cache cluster.
+     */
     public String getCacheClusterId() {
         return cacheClusterId;
     }

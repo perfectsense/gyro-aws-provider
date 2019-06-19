@@ -11,11 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query cache parameter group.
+ *
+ * .. code-block:: gyro
+ *
+ *    cache-param-groups: $(aws::cache-param-group EXTERNAL/* | cache-param-group-name = 'cache-param-group-example')
+ */
 @Type("cache-param-group")
 public class CacheParameterGroupFinder extends AwsFinder<ElastiCacheClient, CacheParameterGroup, CacheParameterGroupResource> {
 
     private String cacheParamGroupName;
 
+    /**
+     * The name of the cache parameter group.
+     */
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
     }

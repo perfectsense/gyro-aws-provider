@@ -11,11 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query cache snapshot.
+ *
+ * .. code-block:: gyro
+ *
+ *    cache-snapshots: $(aws::cache-snapshot EXTERNAL/* | snapshot-name = 'cache-snapshot-example')
+ */
 @Type("cache-snapshot")
 public class SnapshotFinder extends AwsFinder<ElastiCacheClient, Snapshot, SnapshotResource> {
 
     private String snapshotName;
 
+    /**
+     * Name of the snapshot.
+     */
     public String getSnapshotName() {
         return snapshotName;
     }

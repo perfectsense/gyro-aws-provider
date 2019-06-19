@@ -11,11 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query cache subnet group.
+ *
+ * .. code-block:: gyro
+ *
+ *    cache-subnet-groups: $(aws::cache-subnet-group EXTERNAL/* | cache-subnet-group-name = 'cache-subnet-group-example')
+ */
 @Type("cache-subnet-group")
 public class CacheSubnetGroupFinder extends AwsFinder<ElastiCacheClient, CacheSubnetGroup, CacheSubnetGroupResource> {
 
     private String cacheSubnetGroupName;
 
+    /**
+     * The name of the cache subnet group.
+     */
     public String getCacheSubnetGroupName() {
         return cacheSubnetGroupName;
     }
