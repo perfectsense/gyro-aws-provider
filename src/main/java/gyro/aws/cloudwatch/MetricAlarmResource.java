@@ -1,7 +1,9 @@
 package gyro.aws.cloudwatch;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -11,11 +13,11 @@ import software.amazon.awssdk.services.cloudwatch.model.CloudWatchException;
 import software.amazon.awssdk.services.cloudwatch.model.DescribeAlarmsResponse;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricAlarm;
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricAlarmRequest;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,9 +30,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::metric-alarm metric-alarm-example
- *         alarm-name: "metric-alarm-example"
- *         alarm-description: "metric-alarm-example-update"
+ *     aws::metric-alarm metric-alarm-example-1
+ *         alarm-name: "metric-alarm-example-1"
+ *         alarm-description: "metric-alarm-example-1"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
  *         evaluation-periods: 1
@@ -39,13 +41,37 @@ import java.util.stream.Collectors;
  *         namespace: "AWS/EC2"
  *         statistic: "SampleCount"
  *     end
+ *
+ *     aws::metric-alarm metric-alarm-example-2
+ *         alarm-name: "metric-alarm-example-2"
+ *         alarm-description: "metric-alarm-example-2"
+ *         comparison-operator: "GreaterThanOrEqualToThreshold"
+ *         threshold: 0.1
+ *         evaluation-periods: 1
+ *
+ *         metric
+ *             id: "e1"
+ *             expression: "SUM(METRICS())"
+ *             label: "Expression1"
+ *             return-data: true
+ *         end
+ *
+ *         metric
+ *             id: "m1"
+ *             metric-name: "CPUUtilization"
+ *             namespace: "AWS/EC2"
+ *             period: 120
+ *             stat: "SampleCount"
+ *             return-data: false
+ *         end
+ *     end
  */
 @Type("metric-alarm")
-public class CloudWatchMetricAlarmResource extends AwsResource {
+public class MetricAlarmResource extends AwsResource implements Copyable<MetricAlarm> {
 
     private String alarmName;
     private Boolean actionsEnabled;
-    private List<String> alarmActions;
+    private Set<String> alarmActions;
     private String alarmDescription;
     private String comparisonOperator;
     private Integer datapointsToAlarm;
@@ -53,20 +79,20 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     private String evaluateLowSampleCountPercentile;
     private Integer evaluationPeriods;
     private String extendedStatistic;
-    private List<String> insufficientDataActions;
+    private Set<String> insufficientDataActions;
     private String metricName;
     private String namespace;
-    private List<String> okActions;
+    private Set<String> okActions;
     private Integer period;
     private String statistic;
     private Double threshold;
     private String treatMissingData;
     private String unit;
     private String arn;
-    private List<MetricDataQueryResource> metrics;
+    private Set<MetricDataQueryResource> metric;
 
     /**
-     * The name of the alarm. (Required)
+     * The name of the Metric Alarm. (Required)
      */
     public String getAlarmName() {
         return alarmName;
@@ -77,8 +103,9 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * Indicates if actions are to be executed when reaches the alarm state. Defaults to true.
+     * Indicates if actions are to be executed when reaches the Metric Alarm state. Defaults to true.
      */
+    @Updatable
     public Boolean getActionsEnabled() {
         if (actionsEnabled == null) {
             actionsEnabled = true;
@@ -92,23 +119,23 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * A set of actions to be executed when this alarm transitions to the ALARM state. Each action is a resource ARN.
+     * A set of actions to be executed when this Metric Alarm transitions to the ALARM state. Each action is a resource ARN.
      */
     @Updatable
-    public List<String> getAlarmActions() {
+    public Set<String> getAlarmActions() {
         if (alarmActions == null) {
-            alarmActions = new ArrayList<>();
+            alarmActions = new HashSet<>();
         }
 
         return alarmActions;
     }
 
-    public void setAlarmActions(List<String> alarmActions) {
+    public void setAlarmActions(Set<String> alarmActions) {
         this.alarmActions = alarmActions;
     }
 
     /**
-     * A description for the alarm.
+     * A description for the Metric Alarm.
      */
     @Updatable
     public String getAlarmDescription() {
@@ -120,9 +147,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * The operation to use when comparing using threshold and statistics.
-     *
-     * Valid values are ``GreaterThanOrEqualToThreshold``, ``GreaterThanThreshold``, ``LessThanThreshold``, ``LessThanOrEqualToThreshold``.
+     * The operation to use when comparing using threshold and statistics. Valid values are ``GreaterThanOrEqualToThreshold`` or ``GreaterThanThreshold`` or ``LessThanThreshold`` or ``LessThanOrEqualToThreshold``.
      */
     @Updatable
     public String getComparisonOperator() {
@@ -134,7 +159,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * Number of data points to breach to trigger this alarm. Valid values [ Integer greater than 0 ].
+     * Number of data points to breach to trigger this Metric Alarm. Valid values [ Integer greater than 0 ].
      */
     @Updatable
     public Integer getDatapointsToAlarm() {
@@ -162,8 +187,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * This value indicates if less data points are present to evaluate a trigger, should it ignore or evaluate.
-     * Setting 'ignore' would ignore the data at that point. Valid values [ 'evaluate', 'ignore' ].
+     * This value indicates if less data points are present to evaluate a trigger, should it ignore or evaluate. Setting 'ignore' would ignore the data at that point. Valid values are ``evaluate`` or ``ignore``.
      */
     @Updatable
     public String getEvaluateLowSampleCountPercentile() {
@@ -175,7 +199,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * The number of period over which the data point's are evaluated. Valid values [ Integer greater than 0 ].
+     * The number of period over which the data point's are evaluated. Valid values are any Integer greater than ``0``.
      */
     @Updatable
     public Integer getEvaluationPeriods() {
@@ -187,7 +211,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * The percentile statistic for the metric specified in MetricName. Valid values [ Between p0.0 and p100 ].
+     * The percentile statistic for the metric specified in MetricName. Valid values are between ``p0.0`` and ``p100``.
      */
     @Updatable
     public String getExtendedStatistic() {
@@ -199,25 +223,24 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * A set of actions to execute when this alarm transitions to the INSUFFICIENT_DATA state. ach action is a resource ARN.
+     * A set of actions to execute when this Metric Alarm transitions to the INSUFFICIENT_DATA state. ach action is a resource ARN.
      */
     @Updatable
-    public List<String> getInsufficientDataActions() {
+    public Set<String> getInsufficientDataActions() {
         if (insufficientDataActions == null) {
-            insufficientDataActions = new ArrayList<>();
+            insufficientDataActions = new HashSet<>();
         }
 
         return insufficientDataActions;
     }
 
     @Updatable
-    public void setInsufficientDataActions(List<String> insufficientDataActions) {
+    public void setInsufficientDataActions(Set<String> insufficientDataActions) {
         this.insufficientDataActions = insufficientDataActions;
     }
 
     /**
-     * The name of the metric associated with the alarm.
-     * See `AWS Services That Publish CloudWatch Metrics <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/aws-services-cloudwatch-metrics.html/>`_.
+     * The name of the metric associated with the Metric Alarm. Required if 'metric' not set. See `AWS Services That Publish CloudWatch Metrics <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/aws-services-cloudwatch-metrics.html/>`_.
      */
     @Updatable
     public String getMetricName() {
@@ -229,7 +252,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * The namespace associated with the metric specified in 'metric-name' provided.
+     * The namespace associated with the metric specified in 'metric-name' provided. Required if 'metric' not set.
      */
     @Updatable
     public String getNamespace() {
@@ -241,23 +264,23 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * A set of actions to execute when this alarm transitions to the OK state. ach action is a resource ARN.
+     * A set of actions to execute when this Metric Alarm transitions to the OK state. ach action is a resource ARN.
      */
     @Updatable
-    public List<String> getOkActions() {
+    public Set<String> getOkActions() {
         if (okActions == null) {
-            okActions = new ArrayList<>();
+            okActions = new HashSet<>();
         }
 
         return okActions;
     }
 
-    public void setOkActions(List<String> okActions) {
+    public void setOkActions(Set<String> okActions) {
         this.okActions = okActions;
     }
 
     /**
-     * The length, in seconds, used each time the metric specified in 'metric-name' is evaluated.
+     * The length, in seconds, used each time the metric specified in 'metric-name' is evaluated. Required if 'metric' not set.
      */
     @Updatable
     public Integer getPeriod() {
@@ -269,8 +292,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * The namespace associated with the metric specified in 'metric-name' provided.
-     * Valid values [ 'SampleCount', 'Average', 'Sum', 'Minimum', 'Maximum' ].
+     * The namespace associated with the metric specified in 'metric-name' provided. Valid values are ``SampleCount`` or ``Average`` or ``Sum`` or ``Minimum`` or ``Maximum``. Can only be set if 'metric' not set.
      */
     @Updatable
     public String getStatistic() {
@@ -294,7 +316,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     /**
-     * How the metric handles missing data. Defaults to 'missing'. Valid values [ 'breaching', 'notBreaching', 'ignore', 'missing' ].
+     * How the metric handles missing data. Defaults to 'missing'. Valid values are ``breaching`` or ``notBreaching`` or ``ignore`` or ``missing``.
      */
     @Updatable
     public String getTreatMissingData() {
@@ -321,6 +343,26 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
         this.unit = unit;
     }
 
+    /**
+     * A set of metric queries. If set 'metric-name', 'namespace', 'period' and 'dimensions' cannot be set.
+     */
+    @Updatable
+    public Set<MetricDataQueryResource> getMetric() {
+        if (metric == null) {
+            metric = new HashSet<>();
+        }
+
+        return metric;
+    }
+
+    public void setMetric(Set<MetricDataQueryResource> metric) {
+        this.metric = metric;
+    }
+
+    /**
+     * The arn for the Metric Alarm.
+     */
+    @Output
     public String getArn() {
         return arn;
     }
@@ -329,17 +371,37 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
         this.arn = arn;
     }
 
-    @Updatable
-    public List<MetricDataQueryResource> getMetrics() {
-        if (metrics == null) {
-            metrics = new ArrayList<>();
+    @Override
+    public void copyFrom(MetricAlarm metricAlarm) {
+        setActionsEnabled(metricAlarm.actionsEnabled());
+        setAlarmActions(new HashSet<>(metricAlarm.alarmActions()));
+        setAlarmDescription(metricAlarm.alarmDescription());
+        setComparisonOperator(metricAlarm.comparisonOperator() != null ? metricAlarm.comparisonOperator().toString() : null);
+        setDatapointsToAlarm(metricAlarm.datapointsToAlarm());
+        setEvaluateLowSampleCountPercentile(metricAlarm.evaluateLowSampleCountPercentile());
+        setEvaluationPeriods(metricAlarm.evaluationPeriods());
+        setExtendedStatistic(metricAlarm.extendedStatistic());
+        setInsufficientDataActions(new HashSet<>(metricAlarm.insufficientDataActions()));
+        setMetricName(metricAlarm.metricName());
+        setNamespace(metricAlarm.namespace());
+        setOkActions(new HashSet<>(metricAlarm.okActions()));
+        setPeriod(metricAlarm.period());
+        setStatistic(metricAlarm.statistic() != null ? metricAlarm.statistic().toString() : null);
+        setThreshold(metricAlarm.threshold());
+        setTreatMissingData(metricAlarm.treatMissingData());
+        setUnit(metricAlarm.unit() != null ? metricAlarm.unit().toString() : null);
+        setArn(metricAlarm.alarmArn());
+
+        for (Dimension dimension : metricAlarm.dimensions()) {
+            getDimensions().put(dimension.name(), dimension.value());
         }
 
-        return metrics;
-    }
-
-    public void setMetrics(List<MetricDataQueryResource> metrics) {
-        this.metrics = metrics;
+        getMetric().clear();
+        for (software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery metricDataQuery : metricAlarm.metrics()) {
+            MetricDataQueryResource metricDataQueryResource = newSubresource(MetricDataQueryResource.class);
+            metricDataQueryResource.copyFrom(metricDataQuery);
+            getMetric().add(metricDataQueryResource);
+        }
     }
 
     @Override
@@ -352,34 +414,7 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
             return false;
         }
 
-        setActionsEnabled(metricAlarm.actionsEnabled());
-        setAlarmActions(metricAlarm.alarmActions());
-        setAlarmDescription(metricAlarm.alarmDescription());
-        setComparisonOperator(metricAlarm.comparisonOperator() != null ? metricAlarm.comparisonOperator().toString() : null);
-        setDatapointsToAlarm(metricAlarm.datapointsToAlarm());
-        setEvaluateLowSampleCountPercentile(metricAlarm.evaluateLowSampleCountPercentile());
-        setEvaluationPeriods(metricAlarm.evaluationPeriods());
-        setExtendedStatistic(metricAlarm.extendedStatistic());
-        setInsufficientDataActions(metricAlarm.insufficientDataActions());
-        setMetricName(metricAlarm.metricName());
-        setNamespace(metricAlarm.namespace());
-        setOkActions(metricAlarm.okActions());
-        setPeriod(metricAlarm.period());
-        setStatistic(metricAlarm.statistic() != null ? metricAlarm.statistic().toString() : null);
-        setThreshold(metricAlarm.threshold());
-        setTreatMissingData(metricAlarm.treatMissingData());
-        setUnit(metricAlarm.unit() != null ? metricAlarm.unit().toString() : null);
-        setArn(metricAlarm.alarmArn());
-
-        for (Dimension dimension : metricAlarm.dimensions()) {
-            getDimensions().put(dimension.name(), dimension.value());
-        }
-
-        getMetrics().clear();
-        for (software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery metricDataQuery : metricAlarm.metrics()) {
-            MetricDataQueryResource metricDataQueryResource = new MetricDataQueryResource(metricDataQuery);
-            getMetrics().add(metricDataQueryResource);
-        }
+        copyFrom(metricAlarm);
 
         return true;
     }
@@ -441,32 +476,62 @@ public class CloudWatchMetricAlarmResource extends AwsResource {
     }
 
     private void saveMetricAlarm(CloudWatchClient client) {
-        client.putMetricAlarm(
-            r -> r.alarmName(getAlarmName())
-                .actionsEnabled(getActionsEnabled())
-                .alarmActions(getAlarmActions())
-                .alarmDescription(getAlarmDescription())
-                .comparisonOperator(getComparisonOperator())
-                .datapointsToAlarm(getDatapointsToAlarm())
-                .evaluateLowSampleCountPercentile(getEvaluateLowSampleCountPercentile())
-                .evaluationPeriods(getEvaluationPeriods())
-                .extendedStatistic(getExtendedStatistic())
-                .insufficientDataActions(getInsufficientDataActions())
-                .metricName(getMetricName())
+        validate();
+
+        PutMetricAlarmRequest.Builder builder = PutMetricAlarmRequest.builder();
+        builder = builder.alarmName(getAlarmName())
+            .actionsEnabled(getActionsEnabled())
+            .alarmActions(getAlarmActions())
+            .alarmDescription(getAlarmDescription())
+            .comparisonOperator(getComparisonOperator())
+            .datapointsToAlarm(getDatapointsToAlarm())
+            .evaluateLowSampleCountPercentile(getEvaluateLowSampleCountPercentile())
+            .evaluationPeriods(getEvaluationPeriods())
+            .extendedStatistic(getExtendedStatistic())
+            .insufficientDataActions(getInsufficientDataActions())
+            .okActions(getOkActions())
+            .threshold(getThreshold())
+            .treatMissingData(getTreatMissingData())
+            .unit(getUnit());
+
+        if (!getMetric().isEmpty()) {
+            builder = builder.metrics(getMetric().stream()
+                .map(MetricDataQueryResource::getMetricDataQuery)
+                .collect(Collectors.toList()));
+        } else {
+            builder = builder.metricName(getMetricName())
                 .namespace(getNamespace())
-                .okActions(getOkActions())
                 .period(getPeriod())
                 .statistic(getStatistic())
-                .threshold(getThreshold())
-                .treatMissingData(getTreatMissingData())
-                .unit(getUnit())
                 .dimensions(getDimensions().entrySet().stream().map(m -> Dimension.builder()
-                    .name(m.getKey()).value(m.getValue()).build()).collect(Collectors.toList()))
+                    .name(m.getKey()).value(m.getValue()).build()).collect(Collectors.toList()));
+        }
 
-                .metrics(!getMetrics().isEmpty()
-                    ? getMetrics().stream()
-                    .map(MetricDataQueryResource::getMetricDataQuery)
-                    .collect(Collectors.toList()) : null)
-        );
+        client.putMetricAlarm(builder.build());
+    }
+
+    private void validate() {
+        boolean flatMetricPresent = !ObjectUtils.isBlank(getNamespace()) || !ObjectUtils.isBlank(getPeriod())
+            || !ObjectUtils.isBlank(getStatistic()) || !getDimensions().isEmpty();
+
+        boolean metricSetPresent = !getMetric().isEmpty();
+
+        if ((flatMetricPresent && metricSetPresent) || (!flatMetricPresent && !metricSetPresent)) {
+            throw new GyroException("Either the param 'metric' or the collection of 'namespace', 'period', 'statistic' and optionally 'dimensions' must be specified. Not both together. ");
+        }
+
+        if (flatMetricPresent) {
+            if (ObjectUtils.isBlank(getNamespace())) {
+                throw new GyroException("The param 'namespace' is required when param 'metric' is not set.");
+            }
+
+            if (ObjectUtils.isBlank(getPeriod())) {
+                throw new GyroException("The param 'period' is required when param 'metric' is not set.");
+            }
+
+            if (ObjectUtils.isBlank(getStatistic())) {
+                throw new GyroException("The param 'statistic' is required when param 'metric' is not set.");
+            }
+        }
     }
 }

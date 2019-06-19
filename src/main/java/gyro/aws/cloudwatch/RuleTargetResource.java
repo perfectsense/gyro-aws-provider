@@ -2,6 +2,8 @@ package gyro.aws.cloudwatch;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
@@ -12,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class CloudWatchRuleTargetResource extends AwsResource {
+public class RuleTargetResource extends AwsResource implements Copyable<Target> {
 
     private String targetId;
     private String targetArn;
-    private String roleArn;
+    private RoleResource role;
     private String messageGroupId;
     private Integer ecsTaskCount;
     private String ecsTaskDefinitionArn;
@@ -26,37 +28,8 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     private String inputTransformerTemplate;
     private String kinesisPartitionKeyPath;
 
-    public CloudWatchRuleTargetResource() {}
-
-    public CloudWatchRuleTargetResource(Target target) {
-        setTargetId(target.id());
-        setTargetArn(target.arn());
-        setRoleArn(target.roleArn());
-        setMessageGroupId(target.sqsParameters().messageGroupId());
-        setInput(target.input());
-        setInputPath(target.inputPath());
-
-        setKinesisPartitionKeyPath(target.kinesisParameters() != null ? target.kinesisParameters().partitionKeyPath() : null);
-
-        if (target.ecsParameters() != null) {
-            setEcsTaskCount(target.ecsParameters().taskCount());
-            setEcsTaskDefinitionArn(target.ecsParameters().taskDefinitionArn());
-        }
-
-        if (target.inputTransformer() != null) {
-            setInputTransformerTemplate(target.inputTransformer().inputTemplate());
-            Set<Map.Entry<String, String>> entrySet = target.inputTransformer().inputPathsMap().entrySet();
-
-            for (Map.Entry<String, String> entry: entrySet) {
-                getInputTransformerPathMap().put(entry.getKey(),entry.getValue());
-            }
-        }
-    }
-
     /**
      * The identifier of the target resource. (Required)
-     *
-     * It can include alphanumeric characters, periods (.), hyphens (-), and underscores (_).
      */
     public String getTargetId() {
         return targetId;
@@ -67,7 +40,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * The arn of the target resource, also served as its identifier and thus unique. (Required)
+     * The arn of the target resource. (Required)
      */
     @Updatable
     public String getTargetArn() {
@@ -82,12 +55,12 @@ public class CloudWatchRuleTargetResource extends AwsResource {
      * The IAM role arn that gives permission to invoke actions on the target resource. (Optional)
      */
     @Updatable
-    public String getRoleArn() {
-        return roleArn;
+    public RoleResource getRole() {
+        return role;
     }
 
-    public void setRoleArn(String roleArn) {
-        this.roleArn = roleArn;
+    public void setRole(RoleResource role) {
+        this.role = role;
     }
 
     /**
@@ -115,9 +88,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * Thes SQS queue message group id which will be the destination for the target when triggered.
-     *
-     * The SQS queue must be a FIFO type and should have content-based-deduplication enabled.
+     * The SQS queue message group id which will be the destination for the target when triggered. The SQS queue must be a FIFO type and should have content-based-deduplication enabled.
      */
     @Updatable
     public String getMessageGroupId() {
@@ -129,7 +100,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * The number of tasks created when the target is an Amazon ECS task. (Default is `1`)
+     * The number of tasks created when the target is an Amazon ECS task.
      */
     @Updatable
     public Integer getEcsTaskCount() {
@@ -153,9 +124,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * The map of customized inputs that can be used to configure cloudwatch event targets.
-     *
-     * See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
+     * The map of customized inputs that can be used to configure cloudwatch event targets. See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
      */
     @Updatable
     public Map<String, String> getInputTransformerPathMap() {
@@ -170,9 +139,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * The input template which contains the values of the keys of the input path maps.
-     *
-     * See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
+     * The input template which contains the values of the keys of the input path maps. See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
      */
     @Updatable
     public String getInputTransformerTemplate() {
@@ -184,9 +151,7 @@ public class CloudWatchRuleTargetResource extends AwsResource {
     }
 
     /**
-     * The path of the kinesis data stream target.
-     *
-     * See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html/>`_.
+     * The path of the kinesis data stream target. See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html/>`_.
      *
      */
     @Updatable
@@ -198,18 +163,35 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         this.kinesisPartitionKeyPath = kinesisPartitionKeyPath;
     }
 
-    public String getRuleName() {
-        CloudWatchEventRuleResource ruleResource = (CloudWatchEventRuleResource) parent();
-
-        if (ruleResource != null) {
-            return ruleResource.getRuleName();
-        }
-        return null;
-    }
-
     @Override
     public String primaryKey() {
         return String.format("%s", getTargetId());
+    }
+
+    @Override
+    public void copyFrom(Target target) {
+        setTargetId(target.id());
+        setTargetArn(target.arn());
+        setRole(!ObjectUtils.isBlank(target.roleArn()) ? findById(RoleResource.class, target.roleArn()) : null);
+        setMessageGroupId(target.sqsParameters() != null ? target.sqsParameters().messageGroupId() : null);
+        setInput(target.input());
+        setInputPath(target.inputPath());
+
+        setKinesisPartitionKeyPath(target.kinesisParameters() != null ? target.kinesisParameters().partitionKeyPath() : null);
+
+        if (target.ecsParameters() != null) {
+            setEcsTaskCount(target.ecsParameters().taskCount());
+            setEcsTaskDefinitionArn(target.ecsParameters().taskDefinitionArn());
+        }
+
+        if (target.inputTransformer() != null) {
+            setInputTransformerTemplate(target.inputTransformer().inputTemplate());
+            Set<Map.Entry<String, String>> entrySet = target.inputTransformer().inputPathsMap().entrySet();
+
+            for (Map.Entry<String, String> entry: entrySet) {
+                getInputTransformerPathMap().put(entry.getKey(),entry.getValue());
+            }
+        }
     }
 
     @Override
@@ -250,13 +232,22 @@ public class CloudWatchRuleTargetResource extends AwsResource {
         return sb.toString();
     }
 
+    private String getRuleName() {
+        EventRuleResource ruleResource = (EventRuleResource) parent();
+
+        if (ruleResource != null) {
+            return ruleResource.getRuleName();
+        }
+        return null;
+    }
+
     private void saveTarget(CloudWatchEventsClient client) {
 
         Target.Builder builder = Target.builder();
 
         builder = builder.arn(getTargetArn())
                 .id(getTargetId())
-                .roleArn(getRoleArn())
+                .roleArn(getRole() != null ? getRole().getArn() : null)
                 .sqsParameters(
                         g -> g.messageGroupId(getMessageGroupId())
                 )
