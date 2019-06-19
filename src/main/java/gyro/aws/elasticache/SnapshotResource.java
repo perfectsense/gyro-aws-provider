@@ -26,7 +26,7 @@ import java.util.Set;
  *     aws::cache-snapshot cache-snapshot-example
  *         snapshot-name: "cache-snapshot-example"
  *         replication-group-id: "replication-group-example"
- *         cache-cluster-id: $(aws::cache-cluster cache-cluster-example | cache-cluster-id)
+ *         cache-cluster: $(aws::cache-cluster cache-cluster-example)
  *     end
  */
 @Type("cache-snapshot")

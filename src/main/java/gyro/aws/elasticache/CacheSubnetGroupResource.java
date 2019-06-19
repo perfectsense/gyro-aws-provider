@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
  *         cache-subnet-group-name: "cache-subnet-group-example"
  *         description: "cache-subnet-group-desc"
  *         subnets: [
- *             $(aws::subnet subnet-cache-subnet-group-example-1 | subnet-id),
- *             $(aws::subnet subnet-cache-subnet-group-example-2 | subnet-id),
- *             $(aws::subnet subnet-cache-subnet-group-example-3 | subnet-id)
+ *             $(aws::subnet subnet-cache-subnet-group-example-1),
+ *             $(aws::subnet subnet-cache-subnet-group-example-2),
+ *             $(aws::subnet subnet-cache-subnet-group-example-3)
  *         ]
  *     end
  */

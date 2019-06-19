@@ -8,7 +8,7 @@ aws::vpc vpc-cache-subnet-group-example
 end
 
 aws::internet-gateway internet-gateway-cache-subnet-group-example
-    vpc-id: $(aws::vpc vpc-cache-subnet-group-example | vpc-id)
+    vpc: $(aws::vpc vpc-cache-subnet-group-example)
 end
 
 aws::subnet subnet-cache-subnet-group-example-1
@@ -45,8 +45,8 @@ aws::cache-subnet-group cache-subnet-group-example
     cache-subnet-group-name: "cache-subnet-group-example"
     description: "cache-subnet-group-desc"
     subnets: [
-        $(aws::subnet subnet-cache-subnet-group-example-1 | subnet-id),
-        $(aws::subnet subnet-cache-subnet-group-example-2 | subnet-id),
-        $(aws::subnet subnet-cache-subnet-group-example-3 | subnet-id)
+        $(aws::subnet subnet-cache-subnet-group-example-1),
+        $(aws::subnet subnet-cache-subnet-group-example-2),
+        $(aws::subnet subnet-cache-subnet-group-example-3)
     ]
 end

@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
  *         az-mode: "cross-az"
  *         cache-cluster-id: "cache-cluster-ex-1"
  *         cache-node-type: "cache.r5.large"
- *         cache-param-group-name: $(aws::cache-param-group cache-param-group-group-cache-cluster-example | cache-param-group-name)
- *         cache-subnet-group-name: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example | cache-subnet-group-name)
+ *         cache-param-group: $(aws::cache-param-group cache-param-group-group-cache-cluster-example)
+ *         cache-subnet-group: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example)
  *         engine: "memcached"
  *         engine-version: "1.5.10"
  *         num-cache-nodes: 1
@@ -60,8 +60,8 @@ import java.util.stream.Collectors;
  *         ]
  *         port: 11211
  *         preferred-maintenance-window: "thu:01:00-thu:02:00"
- *         security-group-ids: [
- *             $(aws::security-group security-group-cache-cluster-example-1 | group-id)
+ *         security-groups: [
+ *             $(aws::security-group security-group-cache-cluster-example-1)
  *         ]
  *         account-number: "242040583208"
  *
