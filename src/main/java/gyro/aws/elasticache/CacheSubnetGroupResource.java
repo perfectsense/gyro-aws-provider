@@ -2,6 +2,7 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("cache-subnet-group")
-public class CacheSubnetGroupResource extends AwsResource {
+public class CacheSubnetGroupResource extends AwsResource implements Copyable<CacheSubnetGroup> {
     private String cacheSubnetGroupName;
     private String description;
     private Set<String> subnets;
@@ -80,6 +81,13 @@ public class CacheSubnetGroupResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(CacheSubnetGroup cacheSubnetGroup) {
+        setCacheSubnetGroupName(cacheSubnetGroup.cacheSubnetGroupName());
+        setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
+        setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
+    }
+
+    @Override
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
@@ -89,9 +97,7 @@ public class CacheSubnetGroupResource extends AwsResource {
             return false;
         }
 
-        setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
-        setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
-
+        copyFrom(cacheSubnetGroup);
         return true;
     }
 

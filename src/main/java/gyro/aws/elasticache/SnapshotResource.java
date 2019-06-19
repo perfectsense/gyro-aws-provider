@@ -2,6 +2,7 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -28,7 +29,7 @@ import java.util.Set;
  *     end
  */
 @Type("cache-snapshot")
-public class SnapshotResource extends AwsResource {
+public class SnapshotResource extends AwsResource implements Copyable<Snapshot> {
     private String snapshotName;
     private String replicationGroupId;
     private String cacheClusterId;
@@ -83,6 +84,14 @@ public class SnapshotResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(Snapshot snapshot) {
+        setSnapshotName(snapshot.snapshotName());
+        setReplicationGroupId(snapshot.replicationGroupId());
+        setCacheClusterId(snapshot.cacheClusterId());
+        setStatus(snapshot.snapshotStatus());
+    }
+
+    @Override
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
@@ -91,10 +100,7 @@ public class SnapshotResource extends AwsResource {
             return false;
         }
 
-        setReplicationGroupId(snapshot.replicationGroupId());
-        setCacheClusterId(snapshot.cacheClusterId());
-        setStatus(snapshot.snapshotStatus());
-
+        copyFrom(snapshot);
         return true;
     }
 

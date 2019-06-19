@@ -2,6 +2,7 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("cache-param-group")
-public class CacheParameterGroupResource extends AwsResource {
+public class CacheParameterGroupResource extends AwsResource implements Copyable<CacheParameterGroup> {
     private String cacheParamGroupName;
     private String cacheParamGroupFamily;
     private String description;
@@ -96,18 +97,12 @@ public class CacheParameterGroupResource extends AwsResource {
     }
 
     @Override
-    public boolean refresh() {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        CacheParameterGroup cacheParameterGroup = getCacheParameterGroup(client);
-
-        if (cacheParameterGroup == null) {
-            return false;
-        }
-
+    public void copyFrom(CacheParameterGroup cacheParameterGroup) {
         setCacheParamGroupFamily(cacheParameterGroup.cacheParameterGroupFamily());
         setDescription(cacheParameterGroup.description());
+        setCacheParamGroupName(cacheParameterGroup.cacheParameterGroupName());
 
+        ElastiCacheClient client = createClient(ElastiCacheClient.class);
         DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
             r -> r.cacheParameterGroupName(getCacheParamGroupName())
         );
@@ -121,7 +116,19 @@ public class CacheParameterGroupResource extends AwsResource {
         }
 
         removeDefaultParams(getParameters(), configParamSet);
+    }
 
+    @Override
+    public boolean refresh() {
+        ElastiCacheClient client = createClient(ElastiCacheClient.class);
+
+        CacheParameterGroup cacheParameterGroup = getCacheParameterGroup(client);
+
+        if (cacheParameterGroup == null) {
+            return false;
+        }
+
+        copyFrom(cacheParameterGroup);
         return true;
     }
 

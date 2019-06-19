@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -67,7 +68,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("cache-cluster")
-public class CacheClusterResource extends AwsResource {
+public class CacheClusterResource extends AwsResource implements Copyable<CacheCluster> {
     private String azMode;
     private String cacheClusterId;
     private String cacheNodeType;
@@ -413,15 +414,7 @@ public class CacheClusterResource extends AwsResource {
     }
 
     @Override
-    public boolean refresh() {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        CacheCluster cacheCluster = getCacheCluster(client);
-
-        if (cacheCluster == null) {
-            return false;
-        }
-
+    public void copyFrom(CacheCluster cacheCluster) {
         setCacheClusterId(cacheCluster.cacheClusterId());
         setCacheNodeType(cacheCluster.cacheNodeType());
         setCacheParamGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
@@ -440,13 +433,27 @@ public class CacheClusterResource extends AwsResource {
         setSnapshotWindow(cacheCluster.snapshotWindow());
         setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
         setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
+        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
 
+        ElastiCacheClient client = createClient(ElastiCacheClient.class);
         ListTagsForResourceResponse tagResponse = client.listTagsForResource(
             r -> r.resourceName(getArn())
         );
 
         loadTags(tagResponse.tagList());
+    }
 
+    @Override
+    public boolean refresh() {
+        ElastiCacheClient client = createClient(ElastiCacheClient.class);
+
+        CacheCluster cacheCluster = getCacheCluster(client);
+
+        if (cacheCluster == null) {
+            return false;
+        }
+
+        copyFrom(cacheCluster);
         return true;
     }
 
