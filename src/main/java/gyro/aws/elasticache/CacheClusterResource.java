@@ -31,6 +31,7 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -504,24 +505,20 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     @Override
     public void update(Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
+        Set<String> properties = new HashSet<>(changedProperties);
 
         CacheClusterResource currentCacheClusterResource = (CacheClusterResource) current;
 
-        if (getPreferredAvailabilityZones().size() != getNumCacheNodes()) {
-            throw new GyroException("Field 'preferred-availability-zones' needs to have same number of elements as the value specified for 'num-cache-nodes'.");
-        }
-
-        if (changedProperties.contains("tags")) {
+        if (properties.contains("tags")) {
             Map<String, String> pendingTags = getTags();
             Map<String, String> currentTags = currentCacheClusterResource.getTags();
 
             saveTags(pendingTags, currentTags, client);
+
+            properties.remove("tags");
         }
 
-        if ((changedProperties.contains("tags") && changedProperties.size() > 1) || !changedProperties.isEmpty()) {
-
-            //Can only specify new availability zones or AZ mode when adding cache nodes. (Condition)
-
+        if (!properties.isEmpty()) {
             ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
                 .cacheClusterId(getCacheClusterId())
                 .cacheNodeType(getCacheNodeType())
@@ -530,20 +527,16 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
                 .engineVersion(getEngineVersion())
                 .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getTopicArn() : null)
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
+                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .numCacheNodes(getNumCacheNodes());
 
-            if (changedProperties.contains("num-cache-nodes")) {
-                List<String> oldPreferredAvailabilityZones = currentCacheClusterResource.getPreferredAvailabilityZones();
+            if (properties.contains("preferred-availability-zones")) {
+                List<String> newAvailabilityZones = currentCacheClusterResource.getPreferredAvailabilityZones();
+                newAvailabilityZones.removeAll(getPreferredAvailabilityZones());
 
-                List<String> updatedPreferredAvailabilityZones = new ArrayList<>(getPreferredAvailabilityZones());
-
-                for (String az : oldPreferredAvailabilityZones) {
-                    updatedPreferredAvailabilityZones.remove(az);
+                if (newAvailabilityZones.size() > 0) {
+                    builder.newAvailabilityZones(newAvailabilityZones);
                 }
-
-                builder = builder.azMode(getAzMode())
-                    .numCacheNodes(getNumCacheNodes())
-                    .newAvailabilityZones(updatedPreferredAvailabilityZones);
             }
 
             if (("redis").equalsIgnoreCase(getEngine())) {
