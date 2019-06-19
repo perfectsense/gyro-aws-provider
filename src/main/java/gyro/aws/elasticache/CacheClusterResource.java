@@ -438,6 +438,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
         setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
         setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
+        setStatus(cacheCluster.cacheClusterStatus());
 
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
         ListTagsForResourceResponse tagResponse = client.listTagsForResource(
