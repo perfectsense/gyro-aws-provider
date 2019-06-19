@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  *     aws::cache-cluster cache-cluster-example
  *         az-mode: "cross-az"
  *         cache-cluster-id: "cache-cluster-ex-1"
- *         cache-node-type: "cache.r5.large"
+ *         cache-node-type: "cache.t2.micro"
  *         cache-param-group: $(aws::cache-param-group cache-param-group-group-cache-cluster-example)
  *         cache-subnet-group: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example)
  *         engine: "memcached"
@@ -124,7 +124,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The type of the cache cluster. Valid value is ``memcached`` or ``redis`` (Required)
+     * The type of the cache cluster nodes. (Required)
      */
     @Updatable
     public String getCacheNodeType() {
