@@ -48,7 +48,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     private String engine;
     private String preferredMaintenanceWindow;
     private Integer promotionTier;
-    private String dbClusterIdentifier;
+    private DbClusterResource dbCluster;
 
     private String status;
     private String arn;
@@ -135,14 +135,14 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Set the name of the parent db cluster. (Required)
+     * The parent db cluster. (Required)
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -201,7 +201,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
                 .engine(getEngine())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
-                .dbClusterIdentifier(getDbClusterIdentifier())
+                .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
         );
 
         setArn(response.dbInstance().dbInstanceArn());
@@ -269,6 +269,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
         setPromotionTier(dbInstance.promotionTier());
         setArn(dbInstance.dbInstanceArn());
         setStatus(dbInstance.dbInstanceStatus());
+        setDbCluster(findById(DbClusterResource.class, dbInstance.dbClusterIdentifier()));
     }
 
     private boolean isAvailable(DocDbClient client) {

@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -54,6 +55,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     /**
      * Name of the db cluster parameter group. (Required)
      */
+    @Id
     public String getDbClusterParamGroupName() {
         return dbClusterParamGroupName;
     }
