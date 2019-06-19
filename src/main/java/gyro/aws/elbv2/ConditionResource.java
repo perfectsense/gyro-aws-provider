@@ -1,11 +1,13 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Update;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Update;
+import gyro.core.resource.Updatable;
+
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
 import java.util.ArrayList;
@@ -24,23 +26,13 @@ import java.util.Set;
  *         value: ["www.example.net"]
  *     end
  */
-
-public class ConditionResource extends AwsResource {
+public class ConditionResource extends AwsResource implements Copyable<RuleCondition> {
 
     private String field;
     private List<String> value;
 
-    public ConditionResource() {
-
-    }
-
-    public ConditionResource(RuleCondition ruleCondition) {
-        setField(ruleCondition.field());
-        setValue(ruleCondition.values());
-    }
-
     /**
-     *  Condition field name  (Required)
+     *  Condition field name. (Required)
      */
     @Updatable
     public String getField() {
@@ -52,7 +44,7 @@ public class ConditionResource extends AwsResource {
     }
 
     /**
-     *  Condition value (Required)
+     *  Condition value. (Required)
      */
     @Updatable
     public List<String> getValue() {
@@ -69,7 +61,13 @@ public class ConditionResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getField(), getValue());
+        return String.format("%s/%s", getField(), getValue());
+    }
+
+    @Override
+    public void copyFrom(RuleCondition ruleCondition) {
+        setField(ruleCondition.field());
+        setValue(ruleCondition.values());
     }
 
     @Override

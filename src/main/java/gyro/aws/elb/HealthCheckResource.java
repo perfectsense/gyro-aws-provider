@@ -32,8 +32,6 @@ public class HealthCheckResource extends AwsResource {
     private Integer timeout;
     private Integer unhealthyThreshold;
 
-    public HealthCheckResource(){}
-
     /**
      * The number of health check successes required to move an instance to the 'Healthy' state.
      */
@@ -94,18 +92,6 @@ public class HealthCheckResource extends AwsResource {
         this.unhealthyThreshold = unhealthyThreshold;
     }
 
-    public HealthCheck toHealthCheck() {
-        HealthCheck healthCheck = HealthCheck.builder()
-                .healthyThreshold(getHealthyThreshold())
-                .interval(getInterval())
-                .target(getTarget())
-                .timeout(getTimeout())
-                .unhealthyThreshold(getUnhealthyThreshold())
-                .build();
-
-        return healthCheck;
-    }
-
     public String getLoadBalancer() {
         LoadBalancerResource parent = (LoadBalancerResource) parent();
         if (parent != null) {
@@ -143,4 +129,17 @@ public class HealthCheckResource extends AwsResource {
                 "load balancer health check %s",
                 getTarget());
     }
+
+    private HealthCheck toHealthCheck() {
+        HealthCheck healthCheck = HealthCheck.builder()
+            .healthyThreshold(getHealthyThreshold())
+            .interval(getInterval())
+            .target(getTarget())
+            .timeout(getTimeout())
+            .unhealthyThreshold(getUnhealthyThreshold())
+            .build();
+
+        return healthCheck;
+    }
+
 }

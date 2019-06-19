@@ -33,8 +33,6 @@ public class ListenerResource extends AwsResource {
     private String protocol;
     private String sslCertificateId;
 
-    public ListenerResource(){}
-
     /**
      * The port on which the instance is listening.
      */
@@ -105,18 +103,6 @@ public class ListenerResource extends AwsResource {
         return null;
     }
 
-    public Listener toListener() {
-        Listener newListener = Listener.builder()
-                    .instancePort(getInstancePort())
-                    .instanceProtocol(getInstanceProtocol())
-                    .loadBalancerPort(getLoadBalancerPort())
-                    .protocol(getProtocol())
-                    .sslCertificateId(getSslCertificateId())
-                    .build();
-
-        return newListener;
-    }
-
     @Override
     public String primaryKey() {
         return String.format("%d", getLoadBalancerPort());
@@ -164,6 +150,18 @@ public class ListenerResource extends AwsResource {
             getLoadBalancerPort(),
             getInstanceProtocol(),
             getInstancePort());
+    }
+
+    private Listener toListener() {
+        Listener newListener = Listener.builder()
+            .instancePort(getInstancePort())
+            .instanceProtocol(getInstanceProtocol())
+            .loadBalancerPort(getLoadBalancerPort())
+            .protocol(getProtocol())
+            .sslCertificateId(getSslCertificateId())
+            .build();
+
+        return newListener;
     }
 
 }

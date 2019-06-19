@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.aws.iam.IamInstanceProfileResource;
+import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
@@ -107,7 +107,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String capacityReservation;
     private Set<BlockDeviceMappingResource> blockDeviceMapping;
     private Set<InstanceVolumeAttachment> volume;
-    private IamInstanceProfileResource instanceProfile;
+    private InstanceProfileResource instanceProfile;
 
     // -- Readonly
 
@@ -396,11 +396,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Attach IAM Instance profile.
      */
-    public IamInstanceProfileResource getInstanceProfile() {
+    public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
     }
 
-    public void setInstanceProfile(IamInstanceProfileResource instanceProfile) {
+    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
         this.instanceProfile = instanceProfile;
     }
 
@@ -725,7 +725,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setPrivateIpAddress(instance.privateIpAddress());
         setInstanceState(instance.state().nameAsString());
         setInstanceLaunchDate(Date.from(instance.launchTime()));
-        setInstanceProfile(instance.iamInstanceProfile() != null ? findById(IamInstanceProfileResource.class, instance.iamInstanceProfile().arn()) : null);
+        setInstanceProfile(instance.iamInstanceProfile() != null ? findById(InstanceProfileResource.class, instance.iamInstanceProfile().arn()) : null);
 
         if (instance.capacityReservationSpecification() != null) {
             setCapacityReservation(
@@ -889,7 +889,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         return IamInstanceProfileSpecification.builder()
-            .arn(getInstanceProfile().getInstanceProfileArn())
+            .arn(getInstanceProfile().getArn())
             .build();
     }
 
