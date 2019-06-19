@@ -267,7 +267,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
             }
 
         } catch (CacheParameterGroupNotFoundException ex) {
-
+            // Ignore
         }
 
         return cacheParameterGroup;

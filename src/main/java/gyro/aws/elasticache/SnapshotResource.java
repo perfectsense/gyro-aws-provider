@@ -159,7 +159,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
             }
 
         } catch (SnapshotNotFoundException ex) {
-
+            // Ignore
         }
 
         return snapshot;

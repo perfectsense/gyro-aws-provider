@@ -168,7 +168,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
             }
 
         } catch (CacheSubnetGroupNotFoundException ex) {
-
+            // Ignore
         }
 
         return cacheSubnetGroup;

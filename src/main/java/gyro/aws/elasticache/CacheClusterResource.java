@@ -672,7 +672,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             }
 
         } catch (CacheClusterNotFoundException ex) {
-
+            // Ignore
         }
 
         return cacheCluster;
