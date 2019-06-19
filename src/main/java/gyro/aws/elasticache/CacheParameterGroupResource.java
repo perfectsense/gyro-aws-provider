@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -50,6 +51,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     /**
      * The name of the cache parameter group. (Required)
      */
+    @Id
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
     }

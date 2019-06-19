@@ -3,6 +3,7 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -32,13 +33,14 @@ import java.util.Set;
 public class SnapshotResource extends AwsResource implements Copyable<Snapshot> {
     private String snapshotName;
     private String replicationGroupId;
-    private String cacheClusterId;
+    private CacheClusterResource cacheCluster;
 
     private String status;
 
     /**
      * Name of the snapshot. (Required)
      */
+    @Id
     public String getSnapshotName() {
         return snapshotName;
     }
@@ -59,14 +61,14 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     /**
-     * Id of the cache cluster. (Required)
+     * The cache cluster to snapshot from. (Required)
      */
-    public String getCacheClusterId() {
-        return cacheClusterId;
+    public CacheClusterResource getCacheCluster() {
+        return cacheCluster;
     }
 
-    public void setCacheClusterId(String cacheClusterId) {
-        this.cacheClusterId = cacheClusterId;
+    public void setCacheCluster(CacheClusterResource cacheCluster) {
+        this.cacheCluster = cacheCluster;
     }
 
     /**
@@ -87,7 +89,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     public void copyFrom(Snapshot snapshot) {
         setSnapshotName(snapshot.snapshotName());
         setReplicationGroupId(snapshot.replicationGroupId());
-        setCacheClusterId(snapshot.cacheClusterId());
+        setCacheCluster(snapshot.cacheClusterId() != null ? findById(CacheClusterResource.class, snapshot.cacheClusterId()) : null);
         setStatus(snapshot.snapshotStatus());
     }
 
@@ -111,7 +113,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
         CreateSnapshotResponse response = client.createSnapshot(
             r -> r.snapshotName(getSnapshotName())
                 .replicationGroupId(getReplicationGroupId())
-                .cacheClusterId(getCacheClusterId())
+                .cacheClusterId(getCacheCluster() != null ? getCacheCluster().getCacheClusterId() : null)
         );
 
         setStatus(response.snapshot().snapshotStatus());

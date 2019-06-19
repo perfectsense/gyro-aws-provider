@@ -3,7 +3,9 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -11,7 +13,6 @@ import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheSubnetGroupsResponse;
-import software.amazon.awssdk.services.elasticache.model.Subnet;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,11 +40,12 @@ import java.util.stream.Collectors;
 public class CacheSubnetGroupResource extends AwsResource implements Copyable<CacheSubnetGroup> {
     private String cacheSubnetGroupName;
     private String description;
-    private Set<String> subnets;
+    private Set<SubnetResource> subnets;
 
     /**
      * The name of the cache subnet group. (Required)
      */
+    @Id
     public String getCacheSubnetGroupName() {
         return cacheSubnetGroupName;
     }
@@ -65,10 +67,10 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     /**
-     * A list of subnet id's. (Required)
+     * A list of subnets. (Required)
      */
     @Updatable
-    public Set<String> getSubnets() {
+    public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
             subnets = new HashSet<>();
         }
@@ -76,7 +78,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         return subnets;
     }
 
-    public void setSubnets(Set<String> subnets) {
+    public void setSubnets(Set<SubnetResource> subnets) {
         this.subnets = subnets;
     }
 
@@ -84,7 +86,10 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     public void copyFrom(CacheSubnetGroup cacheSubnetGroup) {
         setCacheSubnetGroupName(cacheSubnetGroup.cacheSubnetGroupName());
         setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
-        setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
+        setSubnets(cacheSubnetGroup.subnets()
+            .stream()
+            .map(s -> findById(SubnetResource.class, s.subnetIdentifier()))
+            .collect(Collectors.toSet()));
     }
 
     @Override
@@ -108,7 +113,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         client.createCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
                 .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets())
+                .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
         );
 
     }
@@ -120,7 +125,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         client.modifyCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
                 .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets())
+                .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
         );
     }
 

@@ -6,8 +6,11 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
 import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -22,13 +25,13 @@ import software.amazon.awssdk.services.elasticache.model.CreateCacheClusterRespo
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheClustersResponse;
 import software.amazon.awssdk.services.elasticache.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.elasticache.model.ModifyCacheClusterRequest;
-import software.amazon.awssdk.services.elasticache.model.SecurityGroupMembership;
 import software.amazon.awssdk.services.elasticache.model.Tag;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,17 +75,17 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     private String azMode;
     private String cacheClusterId;
     private String cacheNodeType;
-    private String cacheParamGroupName;
+    private CacheParameterGroupResource cacheParamGroup;
     private List<String> cacheSecurityGroupNames;
-    private String cacheSubnetGroupName;
+    private CacheSubnetGroupResource cacheSubnetGroup;
     private String engine;
     private String engineVersion;
-    private String notificationTopicArn;
+    private TopicResource notificationTopic;
     private Integer numCacheNodes;
     private Integer port;
     private String preferredMaintenanceWindow;
     private String replicationGroupId;
-    private List<String> securityGroupIds;
+    private Set<SecurityGroupResource> securityGroups;
     private List<String> snapshotArns;
     private Integer snapshotRetentionLimit;
     private String snapshotWindow;
@@ -110,6 +113,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     /**
      * The name of the cache cluster. (Required)
      */
+    @Id
     public String getCacheClusterId() {
         return cacheClusterId;
     }
@@ -131,15 +135,15 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The name of the cache parameter group to be associated. (Required)
+     * The cache parameter group to be associated. (Required)
      */
     @Updatable
-    public String getCacheParamGroupName() {
-        return cacheParamGroupName;
+    public CacheParameterGroupResource getCacheParamGroup() {
+        return cacheParamGroup;
     }
 
-    public void setCacheParamGroupName(String cacheParamGroupName) {
-        this.cacheParamGroupName = cacheParamGroupName;
+    public void setCacheParamGroup(CacheParameterGroupResource cacheParamGroup) {
+        this.cacheParamGroup = cacheParamGroup;
     }
 
     /**
@@ -159,14 +163,14 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The name of the cache subnet group to be associated. (Required)
+     * The cache subnet group to be associated. (Required)
      */
-    public String getCacheSubnetGroupName() {
-        return cacheSubnetGroupName;
+    public CacheSubnetGroupResource getCacheSubnetGroup() {
+        return cacheSubnetGroup;
     }
 
-    public void setCacheSubnetGroupName(String cacheSubnetGroupName) {
-        this.cacheSubnetGroupName = cacheSubnetGroupName;
+    public void setCacheSubnetGroup(CacheSubnetGroupResource cacheSubnetGroup) {
+        this.cacheSubnetGroup = cacheSubnetGroup;
     }
 
     /**
@@ -193,15 +197,15 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The notification arn to be associated with the cluster.
+     * The sns topic to be associated with the cluster.
      */
     @Updatable
-    public String getNotificationTopicArn() {
-        return notificationTopicArn;
+    public TopicResource getNotificationTopic() {
+        return notificationTopic;
     }
 
-    public void setNotificationTopicArn(String notificationTopicArn) {
-        this.notificationTopicArn = notificationTopicArn;
+    public void setNotificationTopic(TopicResource notificationTopic) {
+        this.notificationTopic = notificationTopic;
     }
 
     /**
@@ -254,16 +258,16 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
      * The list of ec2 security groups to be associated.
      */
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public Set<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new LinkedHashSet<>();
         }
 
-        return securityGroupIds;
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
@@ -417,18 +421,18 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     public void copyFrom(CacheCluster cacheCluster) {
         setCacheClusterId(cacheCluster.cacheClusterId());
         setCacheNodeType(cacheCluster.cacheNodeType());
-        setCacheParamGroupName(cacheCluster.cacheParameterGroup().cacheParameterGroupName());
+        setCacheParamGroup(findById(CacheParameterGroupResource.class, cacheCluster.cacheParameterGroup().cacheParameterGroupName()));
         setCacheSecurityGroupNames(cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
-        setCacheSubnetGroupName(cacheCluster.cacheSubnetGroupName());
+        setCacheSubnetGroup(findById(CacheSubnetGroupResource.class, cacheCluster.cacheSubnetGroupName()));
         setEngine(cacheCluster.engine());
         setEngineVersion(cacheCluster.engineVersion());
-        setNotificationTopicArn(cacheCluster.notificationConfiguration() != null ? cacheCluster.notificationConfiguration().topicArn() : null);
+        setNotificationTopic(cacheCluster.notificationConfiguration() != null ? findById(TopicResource.class, cacheCluster.notificationConfiguration().topicArn()) : null);
         setNumCacheNodes(cacheCluster.pendingModifiedValues().numCacheNodes() != null ? cacheCluster.pendingModifiedValues().numCacheNodes() : cacheCluster.numCacheNodes());
         setPort(cacheCluster.configurationEndpoint().port());
         setPreferredAvailabilityZone(cacheCluster.preferredAvailabilityZone());
         setPreferredMaintenanceWindow(cacheCluster.preferredMaintenanceWindow());
         setReplicationGroupId(cacheCluster.replicationGroupId());
-        setSecurityGroupIds(cacheCluster.securityGroups().stream().map(SecurityGroupMembership::securityGroupId).collect(Collectors.toList()));
+        setSecurityGroups(cacheCluster.securityGroups().stream().map(s -> findById(SecurityGroupResource.class, s.securityGroupId())).collect(Collectors.toSet()));
         setSnapshotRetentionLimit(cacheCluster.snapshotRetentionLimit());
         setSnapshotWindow(cacheCluster.snapshotWindow());
         setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
@@ -465,17 +469,17 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .azMode(getAzMode())
             .cacheClusterId(getCacheClusterId())
             .cacheNodeType(getCacheNodeType())
-            .cacheParameterGroupName(getCacheParamGroupName())
+            .cacheParameterGroupName(getCacheParamGroup().getCacheParamGroupName())
             .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-            .cacheSubnetGroupName(getCacheSubnetGroupName())
+            .cacheSubnetGroupName(getCacheSubnetGroup().getCacheSubnetGroupName())
             .engine(getEngine())
             .engineVersion(getEngineVersion())
-            .notificationTopicArn(getNotificationTopicArn())
+            .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getTopicArn() : null)
             .numCacheNodes(getNumCacheNodes())
             .port(getPort())
             .preferredAvailabilityZones(getPreferredAvailabilityZones())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroupIds())
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
             .tags(toCacheTags(getTags()));
 
         if (("redis").equalsIgnoreCase(getEngine())) {
@@ -520,12 +524,12 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
                 .cacheClusterId(getCacheClusterId())
                 .cacheNodeType(getCacheNodeType())
-                .cacheParameterGroupName(getCacheParamGroupName())
+                .cacheParameterGroupName(getCacheParamGroup().getCacheParamGroupName())
                 .cacheSecurityGroupNames(getCacheSecurityGroupNames())
                 .engineVersion(getEngineVersion())
-                .notificationTopicArn(getNotificationTopicArn())
+                .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getTopicArn() : null)
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .securityGroupIds(getSecurityGroupIds());
+                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
 
             if (changedProperties.contains("num-cache-nodes")) {
                 List<String> oldPreferredAvailabilityZones = currentCacheClusterResource.getPreferredAvailabilityZones();
