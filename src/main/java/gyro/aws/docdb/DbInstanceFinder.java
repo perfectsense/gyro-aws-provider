@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Type("docdb-instance")
-public class DbInstanceFinder extends DocDbFinder<DocDbClient, DBInstance, DbInstance> {
+public class DbInstanceFinder extends DocDbFinder<DocDbClient, DBInstance, DbInstanceResource> {
 
     private String dbClusterId;
     private String dbInstanceId;
