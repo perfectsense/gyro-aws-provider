@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("docdb-subnet-group")
-public class DbSubnetGroupResource extends DocDbTaggableResource {
+public class DbSubnetGroupResource extends DocDbTaggableResource implements Copyable<DBSubnetGroup> {
     private String dbSubnetGroupDescription;
     private String dbSubnetGroupName;
     private List<String> subnetIds;
@@ -118,9 +119,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
             return false;
         }
 
-        setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
-        setArn(dbSubnetGroup.dbSubnetGroupArn());
-        setSubnetIds(dbSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
+        copyFrom(dbSubnetGroup);
 
         return true;
     }
@@ -171,6 +170,13 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBSubnetGroup dbSubnetGroup) {
+        setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
+        setArn(dbSubnetGroup.dbSubnetGroupArn());
+        setSubnetIds(dbSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toList()));
+    }
+
     private DBSubnetGroup getDbSubnetGroup(DocDbClient client) {
         DBSubnetGroup dbSubnetGroup = null;
 
@@ -192,4 +198,5 @@ public class DbSubnetGroupResource extends DocDbTaggableResource {
 
         return dbSubnetGroup;
     }
+
 }

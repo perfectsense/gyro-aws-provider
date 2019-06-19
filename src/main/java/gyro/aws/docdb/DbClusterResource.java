@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("docdb-cluster")
-public class DbClusterResource extends DocDbTaggableResource {
+public class DbClusterResource extends DocDbTaggableResource implements Copyable<DBCluster> {
     private Integer backupRetentionPeriod;
     private String dbClusterIdentifier;
     private String dbSubnetGroupName;
@@ -328,24 +329,7 @@ public class DbClusterResource extends DocDbTaggableResource {
             return false;
         }
 
-        setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
-        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-        setDbSubnetGroupName(dbCluster.dbSubnetGroup());
-        setEngine(dbCluster.engine());
-        setEngineVersion(dbCluster.engineVersion());
-        setDbClusterParamGroupName(dbCluster.dbClusterParameterGroup());
-        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-        setKmsKeyId(dbCluster.kmsKeyId());
-        setMasterUsername(dbCluster.masterUsername());
-        setPort(dbCluster.port());
-        setPreferredBackupWindow(dbCluster.preferredBackupWindow());
-        setPreferredMaintenanceWindow(dbCluster.preferredMaintenanceWindow());
-        setVpcSecurityGroupIds(dbCluster.vpcSecurityGroups().stream().map(VpcSecurityGroupMembership::vpcSecurityGroupId).collect(Collectors.toList()));
-        setStorageEncrypted(dbCluster.storageEncrypted());
-        setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
-        setStatus(dbCluster.status());
-        setDbClusterResourceId(dbCluster.dbClusterResourceId());
-        setArn(dbCluster.dbClusterArn());
+        copyFrom(dbCluster);
 
         return true;
     }
@@ -447,6 +431,29 @@ public class DbClusterResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBCluster dbCluster) {
+
+        setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
+        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setDbSubnetGroupName(dbCluster.dbSubnetGroup());
+        setEngine(dbCluster.engine());
+        setEngineVersion(dbCluster.engineVersion());
+        setDbClusterParamGroupName(dbCluster.dbClusterParameterGroup());
+        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setKmsKeyId(dbCluster.kmsKeyId());
+        setMasterUsername(dbCluster.masterUsername());
+        setPort(dbCluster.port());
+        setPreferredBackupWindow(dbCluster.preferredBackupWindow());
+        setPreferredMaintenanceWindow(dbCluster.preferredMaintenanceWindow());
+        setVpcSecurityGroupIds(dbCluster.vpcSecurityGroups().stream().map(VpcSecurityGroupMembership::vpcSecurityGroupId).collect(Collectors.toList()));
+        setStorageEncrypted(dbCluster.storageEncrypted());
+        setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
+        setStatus(dbCluster.status());
+        setDbClusterResourceId(dbCluster.dbClusterResourceId());
+        setArn(dbCluster.dbClusterArn());
+    }
+
     private boolean isAvailable(DocDbClient client) {
         DBCluster dbCluster = getDbCluster(client);
 
@@ -475,4 +482,5 @@ public class DbClusterResource extends DocDbTaggableResource {
 
         return dbCluster;
     }
+
 }

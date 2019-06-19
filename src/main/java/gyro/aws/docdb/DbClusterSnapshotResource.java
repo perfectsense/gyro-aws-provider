@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("docdb-cluster-snapshot")
-public class DbClusterSnapshotResource extends DocDbTaggableResource {
+public class DbClusterSnapshotResource extends DocDbTaggableResource implements Copyable<DBClusterSnapshot> {
     private String dbClusterIdentifier;
     private String dbClusterSnapshotIdentifier;
 
@@ -88,7 +89,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
             return false;
         }
 
-        setArn(dbClusterSnapshot.dbClusterSnapshotArn());
+        copyFrom(dbClusterSnapshot);
 
         return true;
     }
@@ -142,6 +143,11 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBClusterSnapshot dbClusterSnapshot) {
+        setArn(dbClusterSnapshot.dbClusterSnapshotArn());
+    }
+
     private boolean isAvailable(DocDbClient client) {
         DBClusterSnapshot dbClusterSnapshot = getDbClusterSnapshot(client);
 
@@ -175,4 +181,5 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
 
         return dbClusterSnapshot;
     }
+
 }

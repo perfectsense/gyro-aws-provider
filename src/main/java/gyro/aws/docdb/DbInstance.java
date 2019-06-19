@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("docdb-instance")
-public class DbInstance extends DocDbTaggableResource {
+public class DbInstance extends DocDbTaggableResource implements Copyable<DBInstance> {
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
     private String dbInstanceClass;
@@ -183,14 +184,7 @@ public class DbInstance extends DocDbTaggableResource {
             return false;
         }
 
-        setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
-        setAvailabilityZone(dbInstance.availabilityZone());
-        setDbInstanceClass(dbInstance.dbInstanceClass());
-        setEngine(dbInstance.engine());
-        setPreferredMaintenanceWindow(dbInstance.preferredMaintenanceWindow());
-        setPromotionTier(dbInstance.promotionTier());
-        setArn(dbInstance.dbInstanceArn());
-        setStatus(dbInstance.dbInstanceStatus());
+        copyFrom(dbInstance);
 
         return true;
     }
@@ -265,6 +259,18 @@ public class DbInstance extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBInstance dbInstance) {
+        setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
+        setAvailabilityZone(dbInstance.availabilityZone());
+        setDbInstanceClass(dbInstance.dbInstanceClass());
+        setEngine(dbInstance.engine());
+        setPreferredMaintenanceWindow(dbInstance.preferredMaintenanceWindow());
+        setPromotionTier(dbInstance.promotionTier());
+        setArn(dbInstance.dbInstanceArn());
+        setStatus(dbInstance.dbInstanceStatus());
+    }
+
     private boolean isAvailable(DocDbClient client) {
         DBInstance dbInstance = getDbInstance(client);
 
@@ -292,4 +298,5 @@ public class DbInstance extends DocDbTaggableResource {
 
         return dbInstance;
     }
+
 }
