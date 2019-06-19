@@ -1,7 +1,7 @@
 aws::topic sns-topic-example
     attributes: {
         DisplayName: "sns-topic-example-ex",
-        Policy: "sns/sns-policy.json"
+        Policy: "sns-policy.json"
     }
     name: "sns-topic"
 end
@@ -9,15 +9,15 @@ end
 aws::subscriber sns-subscriber-example
     protocol: "sqs"
     endpoint: $(aws::sqs sqs-example | queue-arn)
-    attributes: {
-        FilterPolicy: "sns/filter-policy.json",
+    subscription-attributes: {
+        FilterPolicy: "filter-policy.json",
         RawMessageDelivery: "true"
     }
     topic: $(aws::topic sns-topic-example)
 end
 
 aws::sqs sqs-example
-     name : "sns-example"
+     name : "sqs-sns-example"
      visibility-timeout : 400
      message-retention-period : 864000
      maximum-message-size : 258048
@@ -25,6 +25,6 @@ aws::sqs sqs-example
      receive-message-wait-time-seconds : 5
      kms-master-key-id : 23
      kms-data-key-reuse-period-seconds : 200
-     policy-doc-path: 'examples/sqs/policy.json'
+     policy-document: 'policy.json'
 end
 
