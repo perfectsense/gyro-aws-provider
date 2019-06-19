@@ -35,9 +35,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Type("docdb-cluster-snapshot")
 public class DbClusterSnapshotResource extends DocDbTaggableResource implements Copyable<DBClusterSnapshot> {
+
     private String dbClusterIdentifier;
     private String dbClusterSnapshotIdentifier;
-
     private String arn;
 
     /**
@@ -146,6 +146,8 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     @Override
     public void copyFrom(DBClusterSnapshot dbClusterSnapshot) {
         setArn(dbClusterSnapshot.dbClusterSnapshotArn());
+        setDbClusterIdentifier(dbClusterSnapshot.dbClusterIdentifier());
+        setDbClusterSnapshotIdentifier(dbClusterSnapshot.dbClusterSnapshotIdentifier());
     }
 
     private boolean isAvailable(DocDbClient client) {

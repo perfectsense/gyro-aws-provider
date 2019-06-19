@@ -239,6 +239,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         DocDbClient client = createClient(DocDbClient.class);
 
         setArn(dbClusterParameterGroup.dbClusterParameterGroupArn());
+        setDbClusterParamGroupName(dbClusterParameterGroup.dbClusterParameterGroupName());
         setDbParamGroupFamily(dbClusterParameterGroup.dbParameterGroupFamily());
         setDescription(dbClusterParameterGroup.description());
 
