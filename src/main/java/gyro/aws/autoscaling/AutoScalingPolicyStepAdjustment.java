@@ -9,6 +9,9 @@ public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyabl
     private Double metricIntervalLowerBound;
     private Double metricIntervalUpperBound;
 
+    /**
+     * The amount of scaling adjustment.
+     */
     public Integer getScalingAdjustment() {
         return scalingAdjustment;
     }
@@ -17,6 +20,9 @@ public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyabl
         this.scalingAdjustment = scalingAdjustment;
     }
 
+    /**
+     * The lower bound for the scaling adjustment.
+     */
     public Double getMetricIntervalLowerBound() {
         return metricIntervalLowerBound;
     }
@@ -25,6 +31,9 @@ public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyabl
         this.metricIntervalLowerBound = metricIntervalLowerBound;
     }
 
+    /**
+     * The upper bound for the scaling adjustment.
+     */
     public Double getMetricIntervalUpperBound() {
         return metricIntervalUpperBound;
     }

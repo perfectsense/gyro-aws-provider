@@ -98,7 +98,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     /**
-     * The time for this action to start
+     * The time for this action to start.
      */
     @Updatable
     public Date getStartTime() {
@@ -110,7 +110,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     /**
-     * The time for this action to start
+     * The time for this action to stop.
      */
     @Updatable
     public Date getEndTime() {

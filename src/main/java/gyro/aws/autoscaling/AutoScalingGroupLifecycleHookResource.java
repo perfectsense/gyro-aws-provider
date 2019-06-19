@@ -47,8 +47,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON.
-     * Valid values [ 'ABANDON', 'CONTINUE' ].
+     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON. Valid values are ``ABANDON`` or ``CONTINUE``.
      */
     @Updatable
     public String getDefaultResult() {
@@ -64,7 +63,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values [ Integer between 30 and 7200 ].
+     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values are Integer between ``30`` and ``7200``.
      */
     @Updatable
     public Integer getHeartbeatTimeout() {
@@ -80,8 +79,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'.
-     * Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCHING', 'autoscaling:EC2_INSTANCE_TERMINATING' ].
+     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCHING`` or ``autoscaling:EC2_INSTANCE_TERMINATING``.
      */
     @Updatable
     public String getLifecycleTransition() {

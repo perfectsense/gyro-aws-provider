@@ -3,6 +3,7 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +33,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     private String predefinedMetricType;
     private String predefinedMetricResourceLabel;
     private String policyArn;
-    private List<AutoScalingPolicyStepAdjustment> stepAdjustment;
+    private Set<AutoScalingPolicyStepAdjustment> stepAdjustment;
 
     /**
      * The name of the policy. (Required)
@@ -80,8 +82,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics.
-     * Valid values is any integer greater than 0.
+     * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics. Valid values are Integers greater than ``0``.
      */
     @Updatable
     public Integer getEstimatedInstanceWarmup() {
@@ -200,27 +201,31 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         this.predefinedMetricResourceLabel = predefinedMetricResourceLabel;
     }
 
+    /**
+     * A set of adjustments that enable you to scale based on the size of the alarm breach.
+     */
+    @Updatable
+    public Set<AutoScalingPolicyStepAdjustment> getStepAdjustment() {
+        if (stepAdjustment == null) {
+            stepAdjustment = new HashSet<>();
+        }
+        return stepAdjustment;
+    }
+
+    public void setStepAdjustment(Set<AutoScalingPolicyStepAdjustment> stepAdjustment) {
+        this.stepAdjustment = stepAdjustment;
+    }
+
+    /**
+     * The arn of the policy.
+     */
+    @Output
     public String getPolicyArn() {
         return policyArn;
     }
 
     public void setPolicyArn(String policyArn) {
         this.policyArn = policyArn;
-    }
-
-    /**
-     * A set of adjustments that enable you to scale based on the size of the alarm breach.
-     */
-    @Updatable
-    public List<AutoScalingPolicyStepAdjustment> getStepAdjustment() {
-        if (stepAdjustment == null) {
-            stepAdjustment = new ArrayList<>();
-        }
-        return stepAdjustment;
-    }
-
-    public void setStepAdjustment(List<AutoScalingPolicyStepAdjustment> stepAdjustment) {
-        this.stepAdjustment = stepAdjustment;
     }
 
     @Override

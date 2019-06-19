@@ -220,9 +220,7 @@ aws::auto-scaling-group auto-scaling-group-example
 
     auto-scaling-notification
         topic: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
-        notification-types: [
-            "autoscaling:EC2_INSTANCE_LAUNCH_ERROR"
-        ]
+        notification-type: "autoscaling:EC2_INSTANCE_LAUNCH_ERROR"
     end
 
     termination-policies: [

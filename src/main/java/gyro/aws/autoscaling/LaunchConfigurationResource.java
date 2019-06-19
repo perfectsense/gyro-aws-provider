@@ -6,7 +6,7 @@ import gyro.aws.ec2.BlockDeviceMappingResource;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.KeyPairResource;
 import gyro.aws.ec2.SecurityGroupResource;
-import gyro.aws.iam.IamInstanceProfileResource;
+import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -79,8 +79,8 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private Set<SecurityGroupResource> securityGroups;
     private String userData;
     private Boolean associatePublicIp;
-    private List<BlockDeviceMappingResource> blockDeviceMapping;
-    private IamInstanceProfileResource instanceProfile;
+    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private InstanceProfileResource instanceProfile;
 
     private String arn;
 
@@ -218,31 +218,31 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The block device mapping to initialize the instances with.
      */
-    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
-            blockDeviceMapping = new ArrayList<>();
+            blockDeviceMapping = new HashSet<>();
         }
 
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
     /**
      * Iam instance profile to be linked with the instances being launched using this.
      */
-    public IamInstanceProfileResource getInstanceProfile() {
+    public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
     }
 
-    public void setInstanceProfile(IamInstanceProfileResource instanceProfile) {
+    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
         this.instanceProfile = instanceProfile;
     }
 
     /**
-     * The arn of the launch configuration
+     * The arn of the launch configuration.
      */
     @Output
     public String getArn() {
@@ -264,7 +264,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         setArn(launchConfiguration.launchConfigurationARN());
         setLaunchConfigurationName(launchConfiguration.launchConfigurationName());
         setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
-        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(IamInstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
+        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
 
     @Override
@@ -304,7 +304,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
                         .stream()
                         .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
                         .collect(Collectors.toList()) : null)
-                .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getInstanceProfileArn() : null)
+                .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
         );
     }
 

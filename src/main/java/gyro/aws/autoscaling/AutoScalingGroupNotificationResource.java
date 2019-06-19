@@ -10,18 +10,15 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.NotificationConfiguration;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
 
     private TopicResource topic;
     private String autoScalingGroupName;
-    private List<String> notificationTypes;
+    private String notificationType;
 
     /**
      * The SNS topic to notify. (Required)
@@ -46,27 +43,22 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     /**
-     * The event on which to notify. Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR'
-     * 'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR' ].
+     * The event on which to notify. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCH`` or ``autoscaling:EC2_INSTANCE_LAUNCH_ERROR`` or ``autoscaling:EC2_INSTANCE_TERMINATE`` or ``autoscaling:EC2_INSTANCE_TERMINATE_ERROR``. (Required)
      */
     @Updatable
-    public List<String> getNotificationTypes() {
-        if (notificationTypes == null) {
-            notificationTypes = new ArrayList<>();
-        }
-
-        return notificationTypes;
+    public String getNotificationType() {
+        return notificationType;
     }
 
-    public void setNotificationTypes(List<String> notificationTypes) {
-        this.notificationTypes = notificationTypes;
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
     }
 
     @Override
     public void copyFrom(NotificationConfiguration notificationConfiguration) {
         setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
         setTopic(!ObjectUtils.isBlank(notificationConfiguration.topicARN()) ? findById(TopicResource.class, notificationConfiguration.topicARN()) : null);
-        setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
+        setNotificationType(notificationConfiguration.notificationType());
     }
 
     @Override
@@ -130,7 +122,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     private void saveNotification(AutoScalingClient client) {
         client.putNotificationConfiguration(
             r -> r.autoScalingGroupName(getAutoScalingGroupName())
-                .notificationTypes(getNotificationTypes())
+                .notificationTypes(getNotificationType())
                 .topicARN(getTopic().getTopicArn())
         );
     }
@@ -145,8 +137,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
             )
         );
 
-        if (getNotificationTypes().isEmpty() || getNotificationTypes().size() > 1 || !validNotificationSet.contains(getNotificationTypes().get(0))) {
-            throw new GyroException("The param 'notification-types' needs one value."
+        if (ObjectUtils.isBlank(getNotificationType()) || !validNotificationSet.contains(getNotificationType())) {
+            throw new GyroException("The param 'notification-type' has invalid values."
                 + " Valid values [ '" + String.join("', '", validNotificationSet) + "' ].");
         }
     }
