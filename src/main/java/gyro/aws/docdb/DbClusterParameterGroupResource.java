@@ -43,12 +43,15 @@ import java.util.concurrent.TimeUnit;
  */
 @Type("docdb-cluster-param-group")
 public class DbClusterParameterGroupResource extends DocDbTaggableResource implements Copyable<DBClusterParameterGroup> {
+
     private String dbClusterParamGroupName;
     private String dbParamGroupFamily;
     private String description;
     private Boolean enableAuditLogs;
     private Boolean enableTls;
     private Boolean enableTtlMonitor;
+
+    //-- Read-only Attributes
 
     private String arn;
 

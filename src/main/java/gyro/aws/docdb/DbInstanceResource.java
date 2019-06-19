@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Type("docdb-instance")
 public class DbInstanceResource extends DocDbTaggableResource implements Copyable<DBInstance> {
+
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
     private String dbInstanceClass;
@@ -49,6 +50,8 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     private String preferredMaintenanceWindow;
     private Integer promotionTier;
     private DbClusterResource dbCluster;
+
+    //-- Read-only Attributes
 
     private String status;
     private String arn;

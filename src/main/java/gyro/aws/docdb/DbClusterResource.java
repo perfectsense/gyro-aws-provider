@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
  */
 @Type("docdb-cluster")
 public class DbClusterResource extends DocDbTaggableResource implements Copyable<DBCluster> {
+
     private Integer backupRetentionPeriod;
     private String dbClusterIdentifier;
     private DbSubnetGroupResource dbSubnetGroup;
@@ -76,6 +77,8 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private Boolean storageEncrypted;
     private List<String> enableCloudwatchLogsExports;
     private String postDeleteSnapshotIdentifier;
+
+    //-- Read-only Attributes
 
     private String dbClusterResourceId;
     private String status;

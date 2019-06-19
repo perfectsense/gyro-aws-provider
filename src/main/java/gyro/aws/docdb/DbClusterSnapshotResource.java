@@ -38,6 +38,9 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
     private DbClusterResource dbCluster;
     private String dbClusterSnapshotIdentifier;
+
+    //-- Read-only Attributes
+
     private String arn;
 
     /**

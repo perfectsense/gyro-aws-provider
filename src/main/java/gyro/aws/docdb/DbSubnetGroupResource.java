@@ -50,6 +50,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     private String dbSubnetGroupDescription;
     private String dbSubnetGroupName;
     private Set<SubnetResource> subnets;
+
+    //-- Read-only Attributes
+
     private String arn;
 
     /**
