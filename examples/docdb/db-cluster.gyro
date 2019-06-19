@@ -9,7 +9,7 @@ end
 
 aws::security-group security-group-db-cluster-example-1
     group-name: "db-cluster-example-1"
-    vpc-id: $(aws::vpc vpc-db-cluster-example | vpc-id)
+    vpc: $(aws::vpc vpc-db-cluster-example)
     description: "db-cluster-example-1"
     keep-default-egress-rules: true
 
@@ -28,7 +28,7 @@ end
 
 aws::security-group security-group-db-cluster-example-2
     group-name: "db-cluster-example-2"
-    vpc-id: $(aws::vpc vpc-db-cluster-example | vpc-id)
+    vpc: $(aws::vpc vpc-db-cluster-example)
     description: "db-cluster-example-2"
     keep-default-egress-rules: true
 

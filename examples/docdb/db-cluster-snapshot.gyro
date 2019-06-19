@@ -9,7 +9,7 @@ end
 
 aws::security-group security-group-db-cluster-snapshot-example-1
     group-name: "db-cluster-snapshot-example-1"
-    vpc-id: $(aws::vpc vpc-db-cluster-snapshot-example | vpc-id)
+    vpc: $(aws::vpc vpc-db-cluster-snapshot-example)
     description: "db-cluster-snapshot-example-1"
     keep-default-egress-rules: true
 
@@ -28,7 +28,7 @@ end
 
 aws::security-group security-group-db-cluster-snapshot-example-2
     group-name: "db-cluster-snapshot-example-2"
-    vpc-id: $(aws::vpc vpc-db-cluster-snapshot-example | vpc-id)
+    vpc: $(aws::vpc vpc-db-cluster-snapshot-example)
     description: "db-cluster-snapshot-example-2"
     keep-default-egress-rules: true
 
