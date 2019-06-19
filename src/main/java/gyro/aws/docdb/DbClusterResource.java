@@ -348,7 +348,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
                 .engine(getEngine())
                 .engineVersion(getEngineVersion())
                 .dbClusterParameterGroupName(getDbClusterParamGroup().getDbClusterParamGroupName())
-                .kmsKeyId(getKmsKey().getKeyId())
+                .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyId() : null)
                 .masterUsername(getMasterUsername())
                 .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
