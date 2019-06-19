@@ -1,0 +1,21 @@
+endpoints: $(aws::db-cluster-endpoint EXTERNAL/* | db-cluster-endpoint-type = 'reader')
+
+clusters: $(aws::db-cluster EXTERNAL/* | db-cluster-id = 'aurora-mysql-cluster')
+
+cluster-parameter-groups: $(aws::db-cluster-parameter-group EXTERNAL/* | name = 'cluster-parameter-group-example')
+
+cluster-snapshots: $(aws::db-cluster-snapshot EXTERNAL/* | db-cluster-snapshot-identifier = 'db-cluster-snapshot-example')
+
+subscriptions: $(aws::db-event-subscription EXTERNAL/* | subscription-name = 'db-event-subscription-example')
+
+global-clusters: $(aws::db-global-cluster EXTERNAL/* | db-cluster-id = 'aurora-global-cluster')
+
+db-instances: $(aws::db-instance EXTERNAL/* | db-instance-id = 'db-instance-example')
+
+option-groups: $(aws::db-option-group EXTERNAL/* | name = 'option-group-example')
+
+db-parameter-groups: $(aws::db-parameter-group EXTERNAL/* | name = 'db-parameter-group-example')
+
+db-snapshots: $(aws::db-snapshot EXTERNAL/* | db-snapshot-identifier = 'db-snapshot-example')
+
+db-subnet-group: $(aws::db-subnet-group EXTERNAL/* | group-name = 'db-subnet-group-db-cluster-example')

@@ -1,8 +1,11 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -13,14 +16,17 @@ import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
-import software.amazon.awssdk.services.ec2.model.GetLaunchTemplateDataResponse;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
+import software.amazon.awssdk.services.ec2.model.LaunchTemplateCapacityReservationSpecificationRequest;
+import software.amazon.awssdk.services.ec2.model.LaunchTemplateIamInstanceProfileSpecificationRequest;
+import software.amazon.awssdk.services.ec2.model.LaunchTemplateInstanceNetworkInterfaceSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,40 +39,40 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::launch-template launch-template-1
+ *     aws::launch-template launch-template
  *         launch-template-name: "launch-template-gyro-1"
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
- *         key-name: "instance-static"
- *         security-group-ids: [
- *             $(aws::security-group security-group-launch-template-example-1 | group-id),
- *             $(aws::security-group security-group-launch-template-example-2 | group-id)
+ *         key-name: "example"
+ *         security-groups: [
+ *             $(aws::security-group security-group-launch-template-example-1),
+ *             $(aws::security-group security-group-launch-template-example-2)
  *         ]
  *         disable-api-termination: false
  *         ebs-optimized: false
+ *
+ *         block-device-mapping
+ *             device-name: "/dev/sdb"
+ *             volume-size: 100
+ *             auto-enable-io: false
+ *         end
+ *
+ *         capacity-reservation: "open"
+ *
+ *         network-interfaces:[
+ *             $(aws::network-interface nic-example-launch-template-1),
+ *             $(aws::network-interface nic-example-launch-template-2)
+ *         ]
  *
  *         tags: {
  *             Name: "launch-template-example-1"
  *         }
  *     end
  *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *     aws::launch-template launch-template-2
- *         launch-template-name: "launch-template-gyro-2"
- *         instance-id : "in-instanceid"
- *
- *         tags: {
- *             Name: "launch-template-example-2"
- *         }
- *     end
  */
 @Type("launch-template")
-public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> {
+public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> implements Copyable<LaunchTemplate> {
 
     private String launchTemplateId;
     private String launchTemplateName;
@@ -81,22 +87,19 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String instanceType;
     private String keyName;
     private Boolean enableMonitoring;
-    private List<String> securityGroupIds;
+    private List<SecurityGroupResource> securityGroups;
     private Boolean disableApiTermination;
     private String userData;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
+    private String capacityReservation;
+    private InstanceProfileResource instanceProfile;
+    private Set<NetworkInterfaceResource> networkInterfaces;
 
-    private String instanceId;
+    private Long version;
 
-    @Output
-    public String getLaunchTemplateId() {
-        return launchTemplateId;
-    }
-
-    public void setLaunchTemplateId(String launchTemplateId) {
-        this.launchTemplateId = launchTemplateId;
-    }
-
+    /**
+     * The name of the launch template. (Required)
+     */
     public String getLaunchTemplateName() {
         return launchTemplateName;
     }
@@ -237,15 +240,16 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public List<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
         }
-        return securityGroupIds;
+
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
@@ -296,14 +300,69 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * The id of the instance from which the details of the launch template will be extracted and used to make this one.
+     * The capacity reservation for the instances being launched using this template.
      */
-    public String getInstanceId() {
-        return instanceId;
+    public String getCapacityReservation() {
+        if (capacityReservation == null) {
+            capacityReservation = "none";
+        }
+
+        return capacityReservation;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
+    public void setCapacityReservation(String capacityReservation) {
+        this.capacityReservation = capacityReservation;
+    }
+
+    /**
+     * Iam instance profile to be linked with the instances being launched using this template.
+     */
+    public InstanceProfileResource getInstanceProfile() {
+        return instanceProfile;
+    }
+
+    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
+        this.instanceProfile = instanceProfile;
+    }
+
+    /**
+     * A set of Network Interfaces to be attached to the instances being launched using this template.
+     */
+    public Set<NetworkInterfaceResource> getNetworkInterfaces() {
+        if (networkInterfaces == null) {
+            networkInterfaces = new HashSet<>();
+        }
+
+        return networkInterfaces;
+    }
+
+    public void setNetworkInterfaces(Set<NetworkInterfaceResource> networkInterfaces) {
+        this.networkInterfaces = networkInterfaces;
+    }
+
+    /**
+     * The ID of the launch template.
+     */
+    @Id
+    @Output
+    public String getLaunchTemplateId() {
+        return launchTemplateId;
+    }
+
+    public void setLaunchTemplateId(String launchTemplateId) {
+        this.launchTemplateId = launchTemplateId;
+    }
+
+    /**
+     * The version of the Launch Template.
+     */
+    @Output
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
@@ -312,26 +371,23 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
+    public void copyFrom(LaunchTemplate launchTemplate) {
+        setLaunchTemplateId(launchTemplate.launchTemplateId());
+        setLaunchTemplateName(launchTemplate.launchTemplateName());
+        setVersion(launchTemplate.latestVersionNumber());
+    }
+
+    @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (ObjectUtils.isBlank(getLaunchTemplateId())) {
-            throw new GyroException("launch-template-id is missing, unable to load instance.");
+        LaunchTemplate launchTemplate = getLaunchTemplate(client);
+
+        if (launchTemplate == null) {
+            return false;
         }
 
-        try {
-            DescribeLaunchTemplatesResponse response = client.describeLaunchTemplates(r -> r.launchTemplateIds(getLaunchTemplateId()));
-            for (LaunchTemplate launchTemplate : response.launchTemplates()) {
-                setLaunchTemplateName(launchTemplate.launchTemplateName());
-                break;
-            }
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
+        copyFrom(launchTemplate);
 
         return true;
     }
@@ -341,30 +397,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(client);
-
-        if (!ObjectUtils.isBlank(getInstanceId())) {
-            GetLaunchTemplateDataResponse response = client.getLaunchTemplateData(r -> r.instanceId(getInstanceId()));
-            setDisableApiTermination(response.launchTemplateData().disableApiTermination());
-            setEbsOptimized(response.launchTemplateData().ebsOptimized());
-            setConfigureHibernateOption(response.launchTemplateData().hibernationOptions().configured());
-            setAmiId(response.launchTemplateData().imageId());
-            setInstanceType(response.launchTemplateData().instanceType().toString());
-            setShutdownBehavior(response.launchTemplateData().instanceInitiatedShutdownBehaviorAsString());
-            setKeyName(response.launchTemplateData().keyName());
-            setEnableMonitoring(response.launchTemplateData().monitoring().enabled());
-            setSecurityGroupIds(response.launchTemplateData().securityGroupIds());
-            setUserData(response.launchTemplateData().userData());
-            setBlockDeviceMapping(
-                response.launchTemplateData().blockDeviceMappings()
-                    .stream()
-                    .map(BlockDeviceMappingResource::new)
-                    .collect(Collectors.toList())
-            );
-
-            //temp fix until we resolve a way to verify by instance types.
-            //setCoreCount(response.launchTemplateData().cpuOptions().coreCount());
-            //setThreadPerCore(response.launchTemplateData().cpuOptions().threadsPerCore());
-        }
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getLaunchTemplateName())
@@ -379,18 +411,24 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                     .instanceInitiatedShutdownBehavior(getShutdownBehavior())
                     .keyName(getKeyName())
                     .monitoring(o -> o.enabled(getEnableMonitoring()))
-                    .securityGroupIds(getSecurityGroupIds())
+                    .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
                     .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                    .blockDeviceMappings(
+                    .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                         getBlockDeviceMapping()
                             .stream()
                             .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
-                            .collect(Collectors.toList())
+                            .collect(Collectors.toList()) : null
                     )
-            )
-        );
+                    .capacityReservationSpecification(getCapacityReservationSpecification())
+                    .iamInstanceProfile(getLaunchTemplateInstanceProfile())
+                    .networkInterfaces(!getNetworkInterfaces().isEmpty()
+                        ? getNetworkInterfaces().stream()
+                            .map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest.builder()
+                                    .networkInterfaceId(o.getNetworkInterfaceId()).build())
+                            .collect(Collectors.toList()) : null)));
 
         setLaunchTemplateId(response.launchTemplate().launchTemplateId());
+        setVersion(response.launchTemplate().latestVersionNumber());
     }
 
     @Override
@@ -421,45 +459,93 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     private void validate(Ec2Client client) {
+        if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
+            throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+        }
 
-        if (ObjectUtils.isBlank(getInstanceId())) {
+        if (getSecurityGroups().isEmpty()) {
+            throw new GyroException("At least one security group is required.");
+        }
 
-            if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+        if (!getCapacityReservation().equalsIgnoreCase("none")
+            && !getCapacityReservation().equalsIgnoreCase("open")
+            && !getCapacityReservation().startsWith("cr-")) {
+            throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
+                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
+        }
+
+        DescribeImagesRequest amiRequest;
+
+        if (ObjectUtils.isBlank(getAmiId())) {
+            if (ObjectUtils.isBlank(getAmiName())) {
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
             }
 
-            if (getSecurityGroupIds().isEmpty()) {
-                throw new GyroException("At least one security group is required.");
+            amiRequest = DescribeImagesRequest.builder().filters(
+                Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
+            ).build();
+
+        } else {
+            amiRequest = DescribeImagesRequest.builder().imageIds(getAmiId()).build();
+        }
+
+        try {
+            DescribeImagesResponse response = client.describeImages(amiRequest);
+            if (response.images().isEmpty()) {
+                throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
+            }
+            setAmiId(response.images().get(0).imageId());
+        } catch (Ec2Exception ex) {
+            if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
+                throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
             }
 
-            DescribeImagesRequest amiRequest;
+            throw ex;
+        }
+    }
 
-            if (ObjectUtils.isBlank(getAmiId())) {
-                if (ObjectUtils.isBlank(getAmiName())) {
-                    throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
-                }
+    private LaunchTemplate getLaunchTemplate(Ec2Client client) {
+        LaunchTemplate launchTemplate = null;
 
-                amiRequest = DescribeImagesRequest.builder().filters(
-                    Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
-                ).build();
+        if (ObjectUtils.isBlank(getLaunchTemplateId())) {
+            throw new GyroException("launch-template-id is missing, unable to load instance.");
+        }
 
-            } else {
-                amiRequest = DescribeImagesRequest.builder().imageIds(getAmiId()).build();
+        try {
+            DescribeLaunchTemplatesResponse response = client.describeLaunchTemplates(r -> r.launchTemplateIds(getLaunchTemplateId()));
+
+            if (!response.launchTemplates().isEmpty()) {
+                launchTemplate = response.launchTemplates().get(0);
             }
 
-            try {
-                DescribeImagesResponse response = client.describeImages(amiRequest);
-                if (response.images().isEmpty()) {
-                    throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
-                }
-                setAmiId(response.images().get(0).imageId());
-            } catch (Ec2Exception ex) {
-                if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
-                    throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
-                }
-
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
                 throw ex;
             }
         }
+
+        return launchTemplate;
+    }
+
+    private LaunchTemplateCapacityReservationSpecificationRequest getCapacityReservationSpecification() {
+        if (("none").equals(getCapacityReservation()) || ("open").equals(getCapacityReservation())) {
+            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
+                .capacityReservationPreference(getCapacityReservation().toLowerCase())
+                .build();
+        } else {
+            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
+                .capacityReservationTarget(r -> r.capacityReservationId(getCapacityReservation()))
+                .build();
+        }
+    }
+
+    private LaunchTemplateIamInstanceProfileSpecificationRequest getLaunchTemplateInstanceProfile() {
+        if (getInstanceProfile() == null) {
+            return null;
+        }
+
+        return LaunchTemplateIamInstanceProfileSpecificationRequest.builder()
+            .arn(getInstanceProfile().getArn())
+            .build();
     }
 }

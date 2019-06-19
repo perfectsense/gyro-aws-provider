@@ -1,13 +1,15 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateListenerResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenerCertificatesResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
 
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ import java.util.Set;
  *     aws::alb-listener listener-example
  *         port: "80"
  *         protocol: "HTTPS"
- *         load-balancer-arn: $(aws::alb alb-example | load-balancer-arn)
+ *         alb: $(aws::alb alb-example)
  *         default-certificate: "arn:aws:acm:us-east-2:acct:certificate/certificate-arn"
  *
  *         default-action
@@ -34,12 +36,24 @@ import java.util.Set;
  *     end
  */
 @Type("alb-listener")
-public class ApplicationLoadBalancerListenerResource extends ListenerResource {
+public class ApplicationLoadBalancerListenerResource extends ListenerResource implements Copyable<Listener> {
 
+    private ApplicationLoadBalancerResource alb;
     private List<ActionResource> defaultAction;
 
     /**
-     *  List of default actions associated with the listener (Optional)
+     *  The alb that the listener is attached to. (Required)
+     **/
+    public ApplicationLoadBalancerResource getAlb() {
+        return alb;
+    }
+
+    public void setAlb(ApplicationLoadBalancerResource alb) {
+        this.alb = alb;
+    }
+
+    /**
+     *  List of default actions associated with the listener. (Required)
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -57,11 +71,35 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
     }
 
     @Override
+    public void copyFrom(Listener listener) {
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        setDefaultAction(fromDefaultActions(listener.defaultActions()));
+        ApplicationLoadBalancerResource alb = findById(ApplicationLoadBalancerResource.class, listener.loadBalancerArn());
+        setAlb(alb);
+
+        getCertificate().clear();
+        DescribeListenerCertificatesResponse certResponse = client.describeListenerCertificates(r -> r.listenerArn(listener.listenerArn()));
+        if (certResponse != null) {
+            for (Certificate certificate : certResponse.certificates()) {
+                if (!certificate.isDefault()) {
+                    CertificateResource cert = new CertificateResource();
+                    cert.setArn(certificate.certificateArn());
+                    cert.setIsDefault(certificate.isDefault());
+                    getCertificate().add(cert);
+                }
+            }
+        }
+    }
+
+    @Override
     public boolean refresh() {
         Listener listener = super.internalRefresh();
 
         if (listener != null) {
-            setDefaultAction(fromDefaultActions(listener.defaultActions()));
+
+            this.copyFrom(listener);
+
             return true;
         }
 
@@ -75,7 +113,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         CreateListenerResponse response =
                 client.createListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                         .defaultActions(toDefaultActions())
-                        .loadBalancerArn(getLoadBalancerArn())
+                        .loadBalancerArn(getAlb().getArn())
                         .port(getPort())
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));
@@ -136,7 +174,8 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource {
         List<ActionResource> actions = new ArrayList<>();
 
         for (Action action : actionList) {
-            ActionResource actionResource = new ActionResource(action);
+            ActionResource actionResource = newSubresource(ActionResource.class);
+            actionResource.copyFrom(action);
             actions.add(actionResource);
         }
 

@@ -1,0 +1,20 @@
+aws::instance-profile instance-profile-iam
+    name: "instance-profile-iam"
+    role: $(aws::role example-role-iam)
+end
+
+aws::role example-role-iam
+    name: "example-role-iam"
+    description: "example-role description"
+    assume-role-policy: "role_example.json"
+    policies: [$(aws::policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::policy example-policy-iam
+    name: "example-policy-iam"
+    description: "example policy description"
+    policy-document: "example_policy.json"
+end

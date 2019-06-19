@@ -1,5 +1,5 @@
 aws::vpc vpc
-    cidr-block: "10.0.0.0/16"
+    cidr-block: "10.0.1.0/16"
 
     tags: {
         Name: "vpc-example"
@@ -9,26 +9,13 @@ end
 workflow 'replace-vpc'
     for-type: 'aws::vpc'
 
-    stage 'create-temp-vpc'
-        create
-            aws::vpc "$(NAME)-temp"
-                _extends: $(PENDING)
-            end
-        end
-
-        transition-prompt: 'What next?'
-
-        transition 'swap'
-            to: 'swap-vpcs'
-            description: 'Swap the VPCs'
+    stage 'create-temporary-vpc'
+        @create aws::vpc "temporary-$(NAME)"
+            @extends $(PENDING)
         end
     end
 
     stage 'swap-vpcs'
-        swap
-            type: 'aws::vpc'
-            x: "$(NAME)"
-            y: "$(NAME)-temp"
-        end
+        @swap 'aws::vpc', "$(NAME)", "temporary-$(NAME)"
     end
 end

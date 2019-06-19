@@ -1,9 +1,13 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -17,15 +21,16 @@ import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstanceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfaceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
-import software.amazon.awssdk.services.ec2.model.GroupIdentifier;
+import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
-import software.amazon.awssdk.services.ec2.model.Reservation;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttribute;
 import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
@@ -36,6 +41,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -46,15 +52,14 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::instance instance
+ *     aws::instance instance-example
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
- *         shutdown-behavior: "stop"
+ *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
- *         key-name: "instance-static"
- *         subnet-id: $(aws::subnet subnet-instance-example | subnet-id)
- *         security-group-ids: [
- *             $(aws::security-group security-group-instance-example-1 | group-id),
- *             $(aws::security-group security-group-instance-example-2 | group-id)
+ *         key: "example"
+ *         subnet: $(aws::subnet subnet)
+ *         security-groups: [
+ *             $(aws::security-group security-group)
  *         ]
  *         disable-api-termination: false
  *         enable-ena-support: true
@@ -64,10 +69,23 @@ import java.util.stream.Collectors;
  *         tags: {
  *             Name: "instance-example"
  *         }
+ *
+ *         block-device-mapping
+ *             device-name: "/dev/sdb"
+ *             volume-size: 100
+ *             auto-enable-io: false
+ *         end
+ *
+ *         volume
+ *             device-name: "/dev/sde"
+ *             volume-id: $(aws::ebs-volume volume | volume-id)
+ *         end
+ *
+ *         capacity-reservation: "none"
  *     end
  */
 @Type("instance")
-public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance {
+public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance, Copyable<Instance> {
 
     private String amiId;
     private String amiName;
@@ -77,10 +95,10 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Boolean configureHibernateOption;
     private String shutdownBehavior;
     private String instanceType;
-    private String keyName;
+    private KeyPairResource key;
     private Boolean enableMonitoring;
-    private List<String> securityGroupIds;
-    private String subnetId;
+    private List<SecurityGroupResource> securityGroups;
+    private SubnetResource subnet;
     private Boolean disableApiTermination;
     private Boolean enableEnaSupport;
     private Boolean sourceDestCheck;
@@ -88,6 +106,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String capacityReservation;
     private List<BlockDeviceMappingResource> blockDeviceMapping;
     private List<InstanceVolumeAttachment> volume;
+    private InstanceProfileResource instanceProfile;
 
     // -- Readonly
 
@@ -97,27 +116,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String publicDnsName;
     private String instanceState;
     private Date launchDate;
-
-    public InstanceResource() {
-
-    }
-
-    public InstanceResource(Instance instance, Ec2Client client) {
-        init(instance, client);
-    }
-
-    /**
-     * Instance ID of this instance.
-     *
-     */
-    @Output
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
 
     /**
      * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
@@ -229,12 +227,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
-    public String getKeyName() {
-        return keyName;
+    public KeyPairResource getKey() {
+        return key;
     }
 
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
+    public void setKey(KeyPairResource key) {
+        this.key = key;
     }
 
     /**
@@ -254,27 +252,29 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
+
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public List<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
+
         }
-        return securityGroupIds;
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
      * Launch instance with the subnet specified. See `Vpcs and Subnets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html/>`_. (Required)
      */
-    public String getSubnetId() {
-        return subnetId;
+    public SubnetResource getSubnet() {
+        return subnet;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setSubnet(SubnetResource subnet) {
+        this.subnet = subnet;
     }
 
     /**
@@ -359,6 +359,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     /**
      * Set Block device Mapping for the instance.
+     *
+     * @subresource gyro.core.ec2.BlockDeviceMappingResource
      */
     public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
@@ -391,10 +393,33 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * The private IP of this instance.
-     *
-     * @output
+     * Attach IAM Instance profile.
      */
+    public InstanceProfileResource getInstanceProfile() {
+        return instanceProfile;
+    }
+
+    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
+        this.instanceProfile = instanceProfile;
+    }
+
+    /**
+     * Instance ID of this instance.
+     */
+    @Id
+    @Output
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    /**
+     * The private IP of this instance.
+     */
+    @Output
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -405,9 +430,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     /**
      * The public IP of this instance, if launched in a public subnet.
-     *
-     * @output
      */
+    @Output
     public String getPublicIpAddress() {
         return publicIpAddress;
     }
@@ -418,9 +442,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     /**
      * The public dns name of this instance, if launched in a public subnet.
-     *
-     * @output
      */
+    @Output
     public String getPublicDnsName() {
         return publicDnsName;
     }
@@ -431,9 +454,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     /**
      * Current state of this instance (running, pending, terminated, stopped).
-     *
-     * @output
      */
+    @Output
     public String getInstanceState() {
         return instanceState;
     }
@@ -448,9 +470,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     /**
      * The date and time this instance was launched.
-     *
-     * @output
      */
+    @Output
     public Date getInstanceLaunchDate() {
         return launchDate;
     }
@@ -491,6 +512,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
+    public void copyFrom(Instance instance) {
+        Ec2Client client = createClient(Ec2Client.class);
+        setInstanceId(instance.instanceId());
+        init(instance, client);
+    }
+
+    @Override
     protected boolean doRefresh() {
 
         Ec2Client client = createClient(Ec2Client.class);
@@ -501,37 +529,18 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             return false;
         }
 
-        init(instance, client);
+        copyFrom(instance);
 
         return true;
-    }
-
-    private Instance getInstance(Ec2Client client) {
-        if (ObjectUtils.isBlank(getInstanceId())) {
-            throw new GyroException("instance-id is missing, unable to load instance.");
-        }
-
-        try {
-            DescribeInstancesResponse response = client.describeInstances(r -> r.instanceIds(getInstanceId()));
-
-            if (!response.reservations().isEmpty() && !response.reservations().get(0).instances().isEmpty()) {
-                return response.reservations().get(0).instances().get(0);
-            }
-
-        } catch (Ec2Exception ex) {
-            if (!ex.getLocalizedMessage().contains("does not exist")) {
-                throw ex;
-            }
-        }
-
-        return null;
     }
 
     @Override
     protected void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        validate(client, true);
+        validate(true);
+
+        loadAmi(client);
 
         RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
         builder = builder.imageId(getAmiId())
@@ -540,15 +549,16 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
             .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
             .instanceType(getInstanceType())
-            .keyName(getKeyName())
+            .keyName(getKey() != null ? getKey().getKeyName() : null)
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(getSecurityGroupIds())
-            .subnetId(getSubnetId())
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .subnetId(getSubnet().getSubnetId())
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-            .capacityReservationSpecification(getCapacityReservationSpecification());
+            .capacityReservationSpecification(getCapacityReservationSpecification())
+            .iamInstanceProfile(getIamInstanceProfile());
 
         if (!getBlockDeviceMapping().isEmpty()) {
             builder = builder.blockDeviceMappings(
@@ -562,25 +572,33 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         for (Instance instance : response.instances()) {
             setInstanceId(instance.instanceId());
+            break;
+        }
+
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isInstanceRunning(client));
+
+        Instance instance = getInstance(client);
+
+        if (instance != null) {
+
             setPublicDnsName(instance.publicDnsName());
             setPublicIpAddress(instance.publicIpAddress());
             setPrivateIpAddress(instance.privateIpAddress());
             setInstanceState(instance.state().nameAsString());
             setInstanceLaunchDate(Date.from(instance.launchTime()));
 
-            break;
+            loadVolume(instance);
         }
-
-        waitForRunningInstances(client);
-
-        loadVolume(getInstance(client));
     }
 
     @Override
     protected void doUpdate(AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        validate(client, false);
+        validate(false);
 
         if (changedProperties.contains("shutdown-behavior")) {
             client.modifyInstanceAttribute(
@@ -597,16 +615,23 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("source-dest-check")) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
-                    .sourceDestCheck(o -> o.value(getSourceDestCheck()))
-            );
+            Instance instance = getInstance(client);
+
+            if (instance != null) {
+                client.modifyNetworkInterfaceAttribute(
+                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                        .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+                );
+            }
         }
 
-        if (changedProperties.contains("security-group-ids")) {
+        if (changedProperties.contains("security-groups")) {
+            List<String> securityGroupIds = new ArrayList<>();
+            getSecurityGroups().forEach(r -> securityGroupIds.add(r.getGroupId()));
+
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
-                    .groups(getSecurityGroupIds())
+                    .groups(securityGroupIds)
             );
         }
 
@@ -663,24 +688,10 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         client.terminateInstances(r -> r.instanceIds(Collections.singletonList(getInstanceId())));
 
-        // Wait for the instance to be really terminated.
-        boolean terminated = false;
-        while (!terminated) {
-            for (Reservation reservation : client.describeInstances(r -> r.instanceIds(getInstanceId())).reservations()) {
-                for (Instance instance : reservation.instances()) {
-                    if ("terminated".equals(instance.state().nameAsString())) {
-                        terminated = true;
-                    }
-                }
-            }
-
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException error) {
-                return;
-            }
-        }
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(true)
+            .until(() -> isInstanceTerminated(client));
     }
 
     @Override
@@ -703,16 +714,17 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setEbsOptimized(instance.ebsOptimized());
         setConfigureHibernateOption(instance.hibernationOptions().configured());
         setInstanceType(instance.instanceType().toString());
-        setKeyName(instance.keyName());
+        setKey(!ObjectUtils.isBlank(instance.keyName()) ? findById(KeyPairResource.class, instance.keyName()) : null);
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-        setSecurityGroupIds(instance.securityGroups().stream().map(GroupIdentifier::groupId).collect(Collectors.toList()));
-        setSubnetId(instance.subnetId());
+        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toList()));
+        setSubnet(findById(SubnetResource.class, instance.subnetId()));
         setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
         setPublicIpAddress(instance.publicIpAddress());
         setPrivateIpAddress(instance.privateIpAddress());
         setInstanceState(instance.state().nameAsString());
         setInstanceLaunchDate(Date.from(instance.launchTime()));
+        setInstanceProfile(instance.iamInstanceProfile() != null ? findById(InstanceProfileResource.class, instance.iamInstanceProfile().arn()) : null);
 
         if (instance.capacityReservationSpecification() != null) {
             setCapacityReservation(
@@ -732,10 +744,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         );
         setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
-        attributeResponse = client.describeInstanceAttribute(
-            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.SOURCE_DEST_CHECK)
+        DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
+            r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
         );
-        setSourceDestCheck(attributeResponse.sourceDestCheck().equals(AttributeBooleanValue.builder().value(true).build()));
+        setSourceDestCheck(response.sourceDestCheck().value());
 
         attributeResponse = client.describeInstanceAttribute(
             r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
@@ -746,7 +759,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         loadVolume(instance);
     }
 
-    private void validate(Ec2Client client, boolean isCreate) {
+    private void validate(boolean isCreate) {
         if (ObjectUtils.isBlank(getShutdownBehavior())
             || ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION)) {
             throw new GyroException("The value - (" + getShutdownBehavior() + ") is invalid for parameter Shutdown Behavior.");
@@ -765,7 +778,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             throw new GyroException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
-        if (getSecurityGroupIds().isEmpty()) {
+        if (getSecurityGroups().isEmpty()) {
             throw new GyroException("At least one security group is required.");
         }
 
@@ -776,13 +789,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
+        if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
+        }
+    }
+
+    private void loadAmi(Ec2Client client) {
         DescribeImagesRequest amiRequest;
 
         if (ObjectUtils.isBlank(getAmiId())) {
-            if (ObjectUtils.isBlank(getAmiName())) {
-                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
-            }
-
             amiRequest = DescribeImagesRequest.builder().filters(
                 Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
             ).build();
@@ -806,39 +821,43 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
     }
 
-    private void waitForRunningInstances(Ec2Client client) {
-        // Wait for the instance to be not pending.
-        boolean running = false;
-        while (!running) {
-            try {
-                for (Reservation reservation : client.describeInstances(r -> r.instanceIds(getInstanceId())).reservations()) {
-                    for (Instance instance : reservation.instances()) {
-                        if ("running".equals(instance.state().nameAsString())) {
-                            running = true;
-                        }
+    private Instance getInstance(Ec2Client client) {
+        if (ObjectUtils.isBlank(getInstanceId())) {
+            throw new GyroException("instance-id is missing, unable to load instance.");
+        }
 
-                        setPublicDnsName(instance.publicDnsName());
-                        setPublicIpAddress(instance.publicIpAddress());
-                        setPrivateIpAddress(instance.privateIpAddress());
-                        setInstanceState(instance.state().nameAsString());
-                        setInstanceLaunchDate(Date.from(instance.launchTime()));
-                    }
-                }
-            } catch (Ec2Exception error) {
-                // Amazon sometimes doesn't make the instances available
-                // immediately for API requests.
-                if (!"InvalidInstanceID.NotFound".equals(error.awsErrorDetails().errorCode())) {
-                    throw error;
-                }
+        try {
+            DescribeInstancesResponse response = client.describeInstances(r -> r.instanceIds(getInstanceId()));
+
+            if (!response.reservations().isEmpty() && !response.reservations().get(0).instances().isEmpty()) {
+                return response.reservations().get(0).instances().get(0);
             }
 
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException error) {
-                return;
+        } catch (Ec2Exception ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
         }
+
+        return null;
+    }
+
+    private boolean isInstanceRunning(Ec2Client client) {
+        Instance instance = getInstance(client);
+
+        return instance != null && "running".equals(instance.state().nameAsString());
+    }
+
+    private boolean isInstanceStopped(Ec2Client client) {
+        Instance instance = getInstance(client);
+
+        return instance != null && "stopped".equals(instance.state().nameAsString());
+    }
+
+    private boolean isInstanceTerminated(Ec2Client client) {
+        Instance instance = getInstance(client);
+
+        return instance != null && "terminated".equals(instance.state().nameAsString());
     }
 
     private boolean validateInstanceStop(boolean instanceStopped, String param, String value) {
@@ -851,20 +870,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return true;
     }
 
-    private boolean isInstanceStopped(Ec2Client client) {
-        for (Reservation reservation : client.describeInstances(r -> r.instanceIds(getInstanceId())).reservations()) {
-            for (Instance instance : reservation.instances()) {
-                return ("stopped".equals(instance.state().nameAsString()));
-            }
-
-            return false;
-        }
-
-        return false;
-    }
-
     private CapacityReservationSpecification getCapacityReservationSpecification() {
-        if (getCapacityReservation().equals("none") || getCapacityReservation().equals("open")) {
+        if (("none").equals(getCapacityReservation()) || ("open").equals(getCapacityReservation())) {
             return CapacityReservationSpecification.builder()
                 .capacityReservationPreference(getCapacityReservation().toLowerCase())
                 .build();
@@ -875,21 +882,29 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
     }
 
+    private IamInstanceProfileSpecification getIamInstanceProfile() {
+        if (getInstanceProfile() == null) {
+            return null;
+        }
+
+        return IamInstanceProfileSpecification.builder()
+            .arn(getInstanceProfile().getArn())
+            .build();
+    }
+
     private void loadVolume(Instance instance) {
         Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
             .stream()
             .map(BlockDeviceMappingResource::getDeviceName)
             .collect(Collectors.toSet());
 
+        reservedDeviceNameSet.add(instance.rootDeviceName());
+
         getVolume().clear();
 
-        if (instance != null) {
-            reservedDeviceNameSet.add(instance.rootDeviceName());
-
-            setVolume(instance.blockDeviceMappings().stream()
-                .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-                .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
-                .collect(Collectors.toList()));
-        }
+        setVolume(instance.blockDeviceMappings().stream()
+            .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
+            .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+            .collect(Collectors.toList()));
     }
 }

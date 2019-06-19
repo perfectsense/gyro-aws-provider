@@ -1,8 +1,9 @@
 package gyro.aws.elbv2;
 
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
@@ -23,7 +24,7 @@ import java.util.Set;
  *     aws::nlb-listener listener-example
  *         port: "80"
  *         protocol: "TCP"
- *         load-balancer-arn: $(aws::nlb nlb-example | load-balancer-arn)
+ *         nlb: $(aws::nlb nlb-example | load-balancer)
  *
  *         default-action
  *             target-group-arn: $(aws::target-group target-group-example | target-group-arn)
@@ -33,12 +34,13 @@ import java.util.Set;
  */
 
 @Type("nlb-listener")
-public class NetworkLoadBalancerListenerResource extends ListenerResource {
+public class NetworkLoadBalancerListenerResource extends ListenerResource implements Copyable<Listener> {
 
     private NetworkActionResource defaultAction;
+    private NetworkLoadBalancerResource nlb;
 
     /**
-     *  List of default actions associated with the listener (Optional)
+     *  The default action associated with the listener. (Required)
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -51,12 +53,31 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         this.defaultAction = defaultAction;
     }
 
+    /**
+     *  The nlb that the listener is attached to. (Required)
+     **/
+    public NetworkLoadBalancerResource getNlb() {
+        return nlb;
+    }
+
+    public void setNlb(NetworkLoadBalancerResource nlb) {
+        this.nlb = nlb;
+    }
+
+    @Override
+    public void copyFrom(Listener listener) {
+        setDefaultAction(fromDefaultActions(listener.defaultActions()));
+        setNlb(findById(NetworkLoadBalancerResource.class, listener.loadBalancerArn()));
+    }
+
     @Override
     public boolean refresh() {
         Listener listener = super.internalRefresh();
 
         if (listener != null) {
-            setDefaultAction(fromDefaultActions(listener.defaultActions()));
+
+            this.copyFrom(listener);
+
             return true;
         }
 
@@ -70,7 +91,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
         CreateListenerResponse response =
                 client.createListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
                         .defaultActions(toDefaultActions())
-                        .loadBalancerArn(getLoadBalancerArn())
+                        .loadBalancerArn(getNlb().getArn())
                         .port(getPort())
                         .protocol(getProtocol())
                         .sslPolicy(getSslPolicy()));
@@ -118,17 +139,19 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource {
     }
 
     private Action toDefaultActions() {
-        return Action.builder()
-                .type(defaultAction.getType())
-                .targetGroupArn(defaultAction.getTargetGroupArn())
-                .build();
+            return Action.builder()
+                    .type(getDefaultAction() != null ? getDefaultAction().getType() : null)
+                    .targetGroupArn(getDefaultAction() != null ? getDefaultAction().getTargetGroup().getArn() : null)
+                    .build();
     }
 
     private NetworkActionResource fromDefaultActions(List<Action> defaultAction) {
         NetworkActionResource actionResource = new NetworkActionResource();
 
         for (Action action : defaultAction) {
-            actionResource.setTargetGroupArn(action.targetGroupArn());
+            if (action.targetGroupArn() != null) {
+                actionResource.setTargetGroup(findById(TargetGroupResource.class, action.targetGroupArn()));
+            }
             actionResource.setType(action.typeAsString());
         }
 

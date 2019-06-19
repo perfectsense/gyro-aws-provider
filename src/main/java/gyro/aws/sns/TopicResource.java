@@ -114,7 +114,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     @Override
     public void copyFrom(Topic topic) {
         SnsClient client = createClient(SnsClient.class);

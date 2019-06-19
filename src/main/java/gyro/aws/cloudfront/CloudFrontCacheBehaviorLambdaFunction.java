@@ -1,5 +1,6 @@
 package gyro.aws.cloudfront;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
@@ -8,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CloudFrontCacheBehaviorLambdaFunction extends Diffable {
+public class CloudFrontCacheBehaviorLambdaFunction extends Diffable implements Copyable<LambdaFunctionAssociation> {
 
     private String eventType;
     private String arn;
@@ -56,12 +57,11 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable {
         this.includeBody = includeBody;
     }
 
-    public LambdaFunctionAssociation toLambdaFunctionAssociation() {
-        return LambdaFunctionAssociation.builder()
-            .eventType(getEventType())
-            .includeBody(getIncludeBody())
-            .lambdaFunctionARN(getArn())
-            .build();
+    @Override
+    public void copyFrom(LambdaFunctionAssociation lambdaFunctionAssociation) {
+        setEventType(lambdaFunctionAssociation.eventTypeAsString());
+        setArn(lambdaFunctionAssociation.lambdaFunctionARN());
+        setIncludeBody(lambdaFunctionAssociation.includeBody());
     }
 
     @Override
@@ -72,5 +72,13 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable {
     @Override
     public String toDisplayString() {
         return "Lambda Function Association " + getEventType();
+    }
+
+    LambdaFunctionAssociation toLambdaFunctionAssociation() {
+        return LambdaFunctionAssociation.builder()
+            .eventType(getEventType())
+            .includeBody(getIncludeBody())
+            .lambdaFunctionARN(getArn())
+            .build();
     }
 }

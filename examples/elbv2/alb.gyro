@@ -1,137 +1,17 @@
 aws::alb alb-example
-    load-balancer-name: "alb-example"
+    name: "alb-example"
     ip-address-type: "ipv4"
     scheme: "internal"
     security-groups: [
-            $(aws::security-group security-group | group-id)
-        ]
+        $(aws::security-group security-group),
+        $(aws::security-group other-security-group)
+    ]
     subnets: [
-            $(aws::subnet subnet-us-east-2a | subnet-id),
-            $(aws::subnet subnet-us-east-2b | subnet-id)
-        ]
+        $(aws::subnet subnet-us-east-2a),
+        $(aws::subnet subnet-us-east-2b)
+    ]
     tags: {
-            Name: "alb-example"
-    }
-end
-
-aws::authenticate-cognito-user-pool cognito
-    user-pool-name: "user pool name"
-    tags: {
-            Name: "user-pool-example"
-    }
-end
-
-aws::authenticate-cognito-user-pool-client client
-    allowed-o-auth-flows-client: true
-    allowed-o-auth-flows: ["code"]
-    allowed-o-auth-scopes: ["openid"]
-    callback-urls: ["https://example.com/callback?code=AUTHORIZATION_CODE"]
-    generate-secret: true
-    user-pool-client-name: "clientname"
-    user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
-end
-
-aws::authenticate-cognito-user-pool-domain domain
-    domain: "domainsecond"
-    user-pool-id: $(aws::authenticate-cognito-user-pool cognito | user-pool-id)
-end
-
-aws::alb-listener listener-example
-    port: "80"
-    protocol: "HTTPS"
-    load-balancer-arn: $(aws::alb alb-example | load-balancer-arn)
-    default-certificate: "arn:aws:acm:us-east-2:242040583208:certificate/d3ca878d-fc0c-49ab-bdfa-a93dc2bcbda8"
-
-    default-action
-        type: "forward"
-        target-group-arn: $(aws::target-group target-group-example | target-group-arn)
-        order: 2
-    end
-
-    default-action
-        type: "authenticate-oidc"
-        order: 1
-
-        authenticate-oidc-action
-            authorization-endpoint: "https://example.com/authorization_endpoint"
-            client-id: "client_id"
-            client-secret: "client_secret"
-            issuer: "https://example.com"
-            token-endpoint: "https://example.com/token_endpoint"
-            user-info-endpoint: "https://example.com/user_info_endpoint"
-        end
-    end
-end
-
-aws::alb-listener-rule listener-rule-example
-    listener-arn: $(aws::alb-listener listener-example | listener-arn)
-    priority: "1"
-
-    action
-        type: "fixed-response"
-        order: 2
-
-        fixed-response-action
-            content-type: "text/plain"
-            message-body: "Fixed response content"
-            status-code: "200"
-        end
-    end
-
-    action
-        type: "authenticate-cognito"
-        order: 1
-
-        authenticate-cognito-action
-            user-pool-arn: $(aws::authenticate-cognito-user-pool cognito | user-pool-arn)
-            user-pool-client-id: $(aws::authenticate-cognito-user-pool-client client | user-pool-client-id)
-            user-pool-domain: $(aws::authenticate-cognito-user-pool-domain domain | domain)
-        end
-    end
-
-    condition
-        field: "path-pattern"
-        value: ["/applespice"]
-    end
-
-    condition
-        field: "host-header"
-        value: ["www.example.net"]
-    end
-end
-
-
-aws::target-group target-group-example
-    target-group-name: "test-target-group"
-    health-check-enabled: "true"
-    port: "80"
-    protocol: "HTTP"
-    target-type: "instance"
-    vpc-id: $(aws::vpc vpc | vpc-id)
-
-    target
-        id: $(aws::instance instance-us-east-2a | instance-id)
-        port: "80"
-    end
-
-    target
-        id: $(aws::instance instance-us-east-2b | instance-id)
-        port: "443"
-    end
-
-    health-check
-        health-check-interval: "90"
-        health-check-path: "/"
-        health-check-port: "traffic-port"
-        health-check-protocol: "HTTP"
-        health-check-timeout: "30"
-        healthy-threshold: "2"
-        matcher: "200"
-        unhealthy-threshold: "2"
-    end
-
-    tags: {
-        Name: "alb-example-target-group"
+        Name: "alb-example"
     }
 end
 
@@ -144,8 +24,12 @@ aws::vpc vpc
     }
 end
 
+aws::internet-gateway internet-gateway
+    vpc: $(aws::vpc vpc)
+end
+
 aws::subnet subnet-us-east-2a
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2a'
     cidr-block: '10.0.0.0/24'
 
@@ -154,27 +38,8 @@ aws::subnet subnet-us-east-2a
     }
 end
 
-aws::instance instance-us-east-2a
-    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
-    shutdown-behavior: "STOP"
-    instance-type: "t2.micro"
-    key-name: "jc-pair-example"
-    subnet-id: $(aws::subnet "subnet-us-east-2a" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
-    ]
-    disable-api-termination: false
-    enable-ena-support: true
-    ebs-optimized: false
-    source-dest-check: true
-
-    tags: {
-        Name: "alb example - us-east-2a"
-    }
-end
-
 aws::subnet subnet-us-east-2b
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: 'us-east-2b'
     cidr-block: '10.0.1.0/24'
 
@@ -183,28 +48,9 @@ aws::subnet subnet-us-east-2b
     }
 end
 
-aws::instance instance-us-east-2b
-    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
-    shutdown-behavior: "STOP"
-    instance-type: "t2.micro"
-    key-name: "jc-pair-example"
-    subnet-id: $(aws::subnet "subnet-us-east-2b" | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
-    ]
-    disable-api-termination: false
-    enable-ena-support: true
-    ebs-optimized: false
-    source-dest-check: true
-
-    tags: {
-        Name: "alb example - us-east-2b"
-    }
-end
-
 aws::security-group security-group
     group-name: "alb example - allow web traffic"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
@@ -219,6 +65,117 @@ aws::security-group security-group
     end
 end
 
-aws::internet-gateway internet-gateway
-    vpc-id: $(aws::vpc vpc | vpc-id)
+aws::security-group other-security-group
+    group-name: "alb example - other - allow web traffic"
+    vpc: $(aws::vpc vpc)
+    description: "Allow web traffic only"
+    keep-default-egress-rules: true
+
+    for port, type in [80, 'http', 443, 'https']
+        ingress
+            description: "allow inbound $(type) traffic, ipv4 only"
+            cidr-blocks: ["0.0.0.0/0"]
+            protocol: "TCP"
+            from-port: $(port)
+            to-port: $(port)
+        end
+    end
+end
+
+aws::target-group target-group-example
+    name: "test-target-group"
+    port: "80"
+    protocol: "HTTP"
+    target-type: "instance"
+    vpc: $(aws::vpc vpc)
+
+    health-check
+        interval: "91"
+        path: "/alb"
+        port: "traffic-port"
+        protocol: "HTTP"
+        timeout: "32"
+        healthy-threshold: "3"
+        matcher: "200"
+        unhealthy-threshold: "3"
+    end
+
+    tags: {
+        Name: "alb-example-target-group"
+    }
+end
+
+aws::alb-listener listener-example
+    port: "80"
+    protocol: "HTTPS"
+    alb: $(aws::alb alb-example)
+    default-certificate: "arn:aws:acm:us-east-2:242040583208:certificate/d3ca878d-fc0c-49ab-bdfa-a93dc2bcbda8"
+
+    certificate
+        arn: "arn:aws:acm:us-east-2:242040583208:certificate/3c4b2cf2-e1c2-4c7c-b3e9-49e0875694f3"
+    end
+
+    default-action
+        type: "forward"
+        target-group: $(aws::target-group target-group-example)
+        order: 2
+    end
+end
+
+aws::user-pool pool-example
+    name: "user-pool-name"
+    tags: {
+        Name: "user-pool-example"
+    }
+end
+
+aws::user-pool-client client-example
+    allowed-o-auth-flows-client: true
+    allowed-o-auth-flows: ["code"]
+    allowed-o-auth-scopes: ["openid"]
+    callback-urls: ["https://example.com/callback?code=AUTHORIZATION_CODE/"]
+    generate-secret: true
+    name: "clientname"
+    user-pool: $(aws::user-pool pool-example)
+end
+
+aws::user-pool-domain domain-example
+    domain: "domainexample"
+    user-pool: $(aws::user-pool pool-example)
+end
+
+aws::alb-listener-rule listener-rule-example
+    alb-listener: $(aws::alb-listener listener-example)
+    priority: "1"
+
+    action
+        type: "fixed-response"
+        order: 2
+
+        fixed-response-action
+            content-type: "text/plain"
+            message-body: "Fixed response content"
+            status-code: "200"
+        end
+    end
+    action
+        type: "authenticate-cognito"
+        order: 1
+
+        authenticate-cognito-action
+            user-pool-arn: $(aws::user-pool pool-example | arn)
+            user-pool-client: $(aws::user-pool-client client-example)
+            user-pool-domain: $(aws::user-pool-domain domain-example)
+        end
+    end
+
+    condition
+        field: "path-pattern"
+        value: ["/pathpath"]
+    end
+
+    condition
+        field: "host-header"
+        value: ["www.example.net"]
+    end
 end

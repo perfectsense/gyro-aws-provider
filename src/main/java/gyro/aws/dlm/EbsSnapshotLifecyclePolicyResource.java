@@ -1,7 +1,10 @@
 package gyro.aws.dlm;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -13,6 +16,7 @@ import software.amazon.awssdk.services.dlm.model.CreateRule;
 import software.amazon.awssdk.services.dlm.model.GetLifecyclePolicyResponse;
 import software.amazon.awssdk.services.dlm.model.LifecyclePolicy;
 import software.amazon.awssdk.services.dlm.model.PolicyDetails;
+import software.amazon.awssdk.services.dlm.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.dlm.model.RetainRule;
 import software.amazon.awssdk.services.dlm.model.Schedule;
 import software.amazon.awssdk.services.dlm.model.Tag;
@@ -35,7 +39,7 @@ import java.util.stream.Collectors;
  *
  *     aws::ebs-snapshot-lifecycle-policy ebs-snapshot-lifecycle-policy-example
  *         description: "ebs-snapshot-lifecycle-policy-example"
- *         execution-role-arn: "arn:aws:iam::242040583208:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+ *         execution-role: "arn:aws:iam::242040583208:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
  *         schedule-name: "ebs-snapshot-lifecycle-policy-example-schedule"
  *         retain-rule-count: 1000
  *         rule-time: "09:00"
@@ -49,11 +53,11 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("ebs-snapshot-lifecycle-policy")
-public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
+public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements Copyable<LifecyclePolicy> {
 
     private String policyId;
     private String description;
-    private String executionRoleArn;
+    private RoleResource executionRole;
     private String resourceType;
     private Map<String, String> targetTags;
     private String state;
@@ -66,15 +70,6 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     private String ruleTime;
     private Integer retainRuleCount;
     private Map<String, String> tagsToAdd;
-
-    @Output
-    public String getPolicyId() {
-        return policyId;
-    }
-
-    public void setPolicyId(String policyId) {
-        this.policyId = policyId;
-    }
 
     /**
      * The description of the snapshot policy. (Required)
@@ -89,21 +84,20 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     }
 
     /**
-     * The permission role arn for the snapshot policy. (Required)
+     * The permission role for the snapshot policy. (Required)
      */
     @Updatable
-    public String getExecutionRoleArn() {
-        return executionRoleArn;
+    public RoleResource getExecutionRole() {
+        return executionRole;
     }
 
-    public void setExecutionRoleArn(String executionRoleArn) {
-        this.executionRoleArn = executionRoleArn;
+    public void setExecutionRole(RoleResource executionRole) {
+        this.executionRole = executionRole;
     }
 
     /**
-     * The resource type of the snapshot policy. Currently only supported value is ``VOLUME``. Defaults to ``VOLUME``.
+     * The resource type of the snapshot policy. Valid values are ``VOLUME`` or ``INSTANCE``. Defaults to ``VOLUME``.
      */
-    @Updatable
     public String getResourceType() {
         if (resourceType == null) {
             resourceType = "VOLUME";
@@ -148,24 +142,6 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         this.state = state;
     }
 
-    @Output
-    public Date getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    @Output
-    public Date getDateModified() {
-        return dateModified;
-    }
-
-    public void setDateModified(Date dateModified) {
-        this.dateModified = dateModified;
-    }
-
     /**
      * Copy tags to volumes created using this snapshot policy. Defaults to ``false``
      */
@@ -195,7 +171,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     }
 
     /**
-     * The name of the schedule for the snapshot policy. Valid values are ``2``,``3``,``4``,``6``,``8``, ``12`` and ``24``  (Required)
+     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``  (Required)
      */
     @Updatable
     public Integer getRuleInterval() {
@@ -266,22 +242,57 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         this.tagsToAdd = tagsToAdd;
     }
 
-    @Override
-    public boolean refresh() {
-        DlmClient client = createClient(DlmClient.class);
+    /**
+     * The policy id.
+     */
+    @Id
+    @Output
+    public String getPolicyId() {
+        return policyId;
+    }
 
-        LifecyclePolicy policy = getPolicy(client);
+    public void setPolicyId(String policyId) {
+        this.policyId = policyId;
+    }
+
+    /**
+     * The creation date of the policy.
+     */
+    @Output
+    public Date getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    /**
+     * The last update date of the policy.
+     */
+    @Output
+    public Date getDateModified() {
+        return dateModified;
+    }
+
+    public void setDateModified(Date dateModified) {
+        this.dateModified = dateModified;
+    }
+
+    @Override
+    public void copyFrom(LifecyclePolicy policy) {
         setDateCreated(Date.from(policy.dateCreated()));
         setDateModified(Date.from(policy.dateModified()));
         setDescription(policy.description());
-        setExecutionRoleArn(policy.executionRoleArn());
+        setExecutionRole(!ObjectUtils.isBlank(policy.executionRoleArn()) ? findById(RoleResource.class, policy.executionRoleArn()) : null);
         setPolicyId(policy.policyId());
         setState(policy.stateAsString());
 
         PolicyDetails policyDetails = policy.policyDetails();
-        setResourceType(policyDetails.resourceTypes().get(0).name());
+        setResourceType(policyDetails.resourceTypesAsStrings().get(0));
 
-        for (Schedule schedule : policyDetails.schedules()) {
+        if (!policyDetails.schedules().isEmpty()) {
+            Schedule schedule = policyDetails.schedules().get(0);
             setCopyTags(schedule.copyTags());
             setScheduleName(schedule.name());
 
@@ -301,14 +312,25 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
             if (retainRule != null) {
                 setRetainRuleCount(retainRule.count());
             }
-
-            break;
         }
 
         getTargetTags().clear();
         for (Tag tag : policyDetails.targetTags()) {
             getTargetTags().put(tag.key(), tag.value());
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        DlmClient client = createClient(DlmClient.class);
+
+        LifecyclePolicy policy = getPolicy(client);
+
+        if (policy == null) {
+            return false;
+        }
+
+        copyFrom(policy);
 
         return true;
     }
@@ -319,7 +341,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
 
         CreateLifecyclePolicyResponse response = client.createLifecyclePolicy(
             r -> r.description(getDescription())
-                .executionRoleArn(getExecutionRoleArn())
+                .executionRoleArn(getExecutionRole().getArn())
                 .policyDetails(
                     pd -> pd.resourceTypesWithStrings(Collections.singletonList(getResourceType()))
                         .schedules(Collections.singleton(getSchedule()))
@@ -342,7 +364,7 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
         client.updateLifecyclePolicy(
             r -> r.policyId(getPolicyId())
                 .description(getDescription())
-                .executionRoleArn(getExecutionRoleArn())
+                .executionRoleArn(getExecutionRole().getArn())
                 .policyDetails(
                     pd -> pd.resourceTypesWithStrings(Collections.singletonList(getResourceType()))
                         .schedules(Collections.singleton(getSchedule()))
@@ -395,14 +417,22 @@ public class EbsSnapshotLifecyclePolicyResource extends AwsResource {
     }
 
     private LifecyclePolicy getPolicy(DlmClient client) {
+        LifecyclePolicy lifecyclePolicy = null;
+
         if (ObjectUtils.isBlank(getPolicyId())) {
             throw new GyroException("policy-id is missing, unable to load ebs snapshot policy.");
         }
 
-        GetLifecyclePolicyResponse response = client.getLifecyclePolicy(
-            r -> r.policyId(getPolicyId())
-        );
+        try {
+            GetLifecyclePolicyResponse response = client.getLifecyclePolicy(
+                r -> r.policyId(getPolicyId())
+            );
 
-        return response.policy();
+            lifecyclePolicy = response.policy();
+        } catch (ResourceNotFoundException ignore) {
+            //ignore
+        }
+
+        return lifecyclePolicy;
     }
 }

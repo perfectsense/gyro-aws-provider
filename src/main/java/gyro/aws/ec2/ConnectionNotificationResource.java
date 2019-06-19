@@ -1,7 +1,9 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -13,12 +15,11 @@ import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNoti
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a connection notification for an endpoint or an endpoint service.
@@ -29,7 +30,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::connection-notification connection-notification-example
- *         vpc-endpoint-id: $(aws::endpoint endpoint-example-interface | endpoint-id)
+ *         vpc-endpoint: $(aws::endpoint endpoint-example-interface)
  *         connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
  *         connection-events: [
  *             "Accept"
@@ -38,12 +39,12 @@ import java.util.Set;
  *
  */
 @Type("connection-notification")
-public class ConnectionNotificationResource extends AwsResource {
+public class ConnectionNotificationResource extends AwsResource implements Copyable<ConnectionNotification> {
 
-    private String serviceId;
-    private String vpcEndpointId;
+    private EndpointServiceResource endpointService;
+    private EndpointResource endpoint;
     private String connectionNotificationArn;
-    private List<String> connectionEvents;
+    private Set<String> connectionEvents;
     private String connectionNotificationId;
     private String connectionNotificationState;
     private String connectionNotificationType;
@@ -51,30 +52,30 @@ public class ConnectionNotificationResource extends AwsResource {
     private final Set<String> masterEventSet = new HashSet<>(Arrays.asList(
         "Accept",
         "Connect",
-        "Delete"
+        "Delete",
+        "Reject"
     ));
 
     /**
-     * The id of the endpoint service. Either endpoint id or endpoint service id is required.
+     * Endpoint Service. Either Endpoint or Endpoint Service is required.
      */
-    @Output
-    public String getServiceId() {
-        return serviceId;
+    public EndpointServiceResource getEndpointService() {
+        return endpointService;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setEndpointService(EndpointServiceResource endpointService) {
+        this.endpointService = endpointService;
     }
 
     /**
-     * The id of the vpc endpoint. Either endpoint id or endpoint service id is required.
+     * Endpoint. Either Endpoint or Endpoint Service is required.
      */
-    public String getVpcEndpointId() {
-        return vpcEndpointId;
+    public EndpointResource getEndpoint() {
+        return endpoint;
     }
 
-    public void setVpcEndpointId(String vpcEndpointId) {
-        this.vpcEndpointId = vpcEndpointId;
+    public void setEndpoint(EndpointResource endpoint) {
+        this.endpoint = endpoint;
     }
 
     /**
@@ -93,18 +94,23 @@ public class ConnectionNotificationResource extends AwsResource {
      * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
      */
     @Updatable
-    public List<String> getConnectionEvents() {
+    public Set<String> getConnectionEvents() {
         if (connectionEvents == null) {
-            connectionEvents = new ArrayList<>(masterEventSet);
+            connectionEvents = new HashSet<>(masterEventSet);
         }
 
         return connectionEvents;
     }
 
-    public void setConnectionEvents(List<String> connectionEvents) {
+    public void setConnectionEvents(Set<String> connectionEvents) {
         this.connectionEvents = connectionEvents;
     }
 
+    /**
+     * The ID of the Connection Notification.
+     */
+    @Id
+    @Output
     public String getConnectionNotificationId() {
         return connectionNotificationId;
     }
@@ -113,6 +119,10 @@ public class ConnectionNotificationResource extends AwsResource {
         this.connectionNotificationId = connectionNotificationId;
     }
 
+    /**
+     * The state of the Connection Notification.
+     */
+    @Output
     public String getConnectionNotificationState() {
         return connectionNotificationState;
     }
@@ -121,12 +131,28 @@ public class ConnectionNotificationResource extends AwsResource {
         this.connectionNotificationState = connectionNotificationState;
     }
 
+    /**
+     * The notification type of the Connection Notification.
+     */
+    @Output
     public String getConnectionNotificationType() {
         return connectionNotificationType;
     }
 
     public void setConnectionNotificationType(String connectionNotificationType) {
         this.connectionNotificationType = connectionNotificationType;
+    }
+
+    @Override
+    public void copyFrom(ConnectionNotification connectionNotification) {
+        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setConnectionEvents(connectionNotification.connectionEvents() != null ? new HashSet<>(connectionNotification.connectionEvents()) : null);
+        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
+        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
+        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
+        setEndpoint(!ObjectUtils.isBlank(connectionNotification.vpcEndpointId()) ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
+        setEndpointService(!ObjectUtils.isBlank(connectionNotification.serviceId()) ? findById(EndpointServiceResource.class, connectionNotification.serviceId()) : null);
     }
 
     @Override
@@ -139,13 +165,7 @@ public class ConnectionNotificationResource extends AwsResource {
             return false;
         }
 
-        setConnectionEvents(connectionNotification.connectionEvents());
-        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
-        setConnectionNotificationId(connectionNotification.connectionNotificationId());
-        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
-        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
-        setVpcEndpointId(connectionNotification.vpcEndpointId());
-        setServiceId(connectionNotification.serviceId());
+        copyFrom(connectionNotification);
 
         return true;
     }
@@ -158,20 +178,20 @@ public class ConnectionNotificationResource extends AwsResource {
 
         CreateVpcEndpointConnectionNotificationResponse response = null;
 
-        if (!ObjectUtils.isBlank(getVpcEndpointId())) {
+        if (getEndpoint() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getVpcEndpointId())
+                r -> r.vpcEndpointId(getEndpoint().getEndpointId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
-        } else if (!ObjectUtils.isBlank(getServiceId())) {
+        } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.serviceId(getServiceId())
+                r -> r.serviceId(getEndpointService().getServiceId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else {
-            throw new GyroException("Neither endpoint id nor service id found.");
+            throw new GyroException("vpc-endpoint or service-id required.");
         }
 
         setConnectionNotificationId(response.connectionNotification().connectionNotificationId());
@@ -215,6 +235,8 @@ public class ConnectionNotificationResource extends AwsResource {
     }
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {
+        ConnectionNotification connectionNotification = null;
+
         if (ObjectUtils.isBlank(getConnectionNotificationId())) {
             throw new GyroException("connection-notification-id is missing, unable to load connection notification.");
         }
@@ -224,29 +246,28 @@ public class ConnectionNotificationResource extends AwsResource {
                 r -> r.connectionNotificationId(getConnectionNotificationId())
             );
 
-            if (response.connectionNotificationSet().isEmpty()) {
-                return null;
+            if (!response.connectionNotificationSet().isEmpty()) {
+                connectionNotification = response.connectionNotificationSet().get(0);
             }
 
-            return response.connectionNotificationSet().get(0);
         } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return null;
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
             }
-
-            throw ex;
         }
+
+        return connectionNotification;
     }
 
     private void validate() {
-        if ((ObjectUtils.isBlank(getVpcEndpointId()) && ObjectUtils.isBlank(getServiceId()))
-            || (!ObjectUtils.isBlank(getVpcEndpointId()) && !ObjectUtils.isBlank(getServiceId()))) {
-            throw new GyroException("Either 'vpc-endpoint-id' or 'service-id' needs to be set. Not both at a time.");
+        if ((getEndpoint() == null && getEndpointService() == null)
+            || (getEndpoint() != null && getEndpointService() != null)) {
+            throw new GyroException("Either 'endpoint' or 'endpoint-service' needs to be set. Not both at a time.");
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {
-            throw new GyroException("The values - (" + String.join(" , ", getConnectionEvents())
-                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '") + "' ].");
+            throw new GyroException("The values - (" + getConnectionEvents().stream().filter(o -> !masterEventSet.contains(o)).collect(Collectors.joining(" , "))
+                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '", masterEventSet) + "' ].");
         }
     }
 }

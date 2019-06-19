@@ -1,36 +1,33 @@
-example-name: "record-from-instance"
-
 aws::vpc vpc
     cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: $(example-name)
+        Name: "record-from-instance"
     }
 end
 
 aws::subnet subnet
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     availability-zone: "us-east-2a"
-    cidr-block: "10.0.1.0/16"
+    cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: $(example-name)
+        Name: "record-from-instance"
     }
 end
 
 aws::hosted-zone hosted-zone
-    hosted-zone-name: "$(example-name).psdops.com"
+    hosted-zone-name: "record-from-instance.psdops.com"
     private-zone: true
-    vpc
-        vpc-id: $(aws::vpc vpc | vpc-id)
-        vpc-region: $(aws::credentials default | region)
-    end
-    comment: "$(example)"
+    vpcs: [
+        $(aws::vpc vpc)
+    ]
+    comment: "record-from-instance"
 end
 
 aws::security-group security-group
     group-name: "instance-example"
-    vpc-id: $(aws::vpc vpc | vpc-id)
+    vpc: $(aws::vpc vpc)
     description: "instance example"
     keep-default-egress-rules: true
 
@@ -43,28 +40,28 @@ aws::security-group security-group
     end
 
     tags: {
-        Name: "instance example"
+        Name: "record-from-instance"
     }
 end
 
 aws::instance instance
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     instance-type: "t2.micro"
-    key-name: "example"
+    key: "example"
 
-    security-group-ids: [
-        $(aws::security-group security-group | group-id)
+    security-groups: [
+        $(aws::security-group security-group)
     ]
 
-    subnet-id: $(aws::subnet subnet | subnet-id)
+    subnet: $(aws::subnet subnet)
 
     tags: {
-        Name: $(example-name)
+        Name: "record-from-instance"
     }
 end
 
 aws::record-set record-set-example
-    hosted-zone-id: $(aws::hosted-zone hosted-zone | hosted-zone-id)
+    hosted-zone: $(aws::hosted-zone hosted-zone)
     name: "instance.$(aws::hosted-zone hosted-zone | hosted-zone-name)"
     type: "A"
     ttl: 60

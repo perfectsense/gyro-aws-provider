@@ -1,11 +1,15 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Updatable;
+import gyro.aws.Copyable;
+import gyro.aws.ec2.VpcResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
-
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+
 import com.psddev.dari.util.CompactMap;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
@@ -33,7 +37,7 @@ import java.util.Set;
  *         port: "80"
  *         protocol: "HTTP"
  *         target-type: "instance"
- *         vpc-id: $(aws::vpc vpc | vpc-id)
+ *         vpc: $(aws::vpc vpc)
  *         enabled: "true"
  *
  *         health-check
@@ -62,23 +66,22 @@ import java.util.Set;
  *             }
  *     end
  */
-
 @Type("target-group")
-public class TargetGroupResource extends AwsResource {
+public class TargetGroupResource extends AwsResource implements Copyable<TargetGroup> {
 
     private HealthCheck healthCheck;
-    private Boolean healthCheckEnabled;
     private Integer port;
     private String protocol;
     private Map<String, String> tags;
     private String arn;
     private String name;
     private String targetType;
-    private String vpcId;
+    private VpcResource vpc;
 
     /**
-     *  The health check associated with the target group (Optional)
+     *  The health check associated with the target group. Required for use with ``instance`` and ``ip`` target types. (Optional)
      */
+    @Updatable
     public HealthCheck getHealthCheck() {
         return healthCheck;
     }
@@ -88,21 +91,8 @@ public class TargetGroupResource extends AwsResource {
     }
 
     /**
-     *  Indicates if health checks are enabled. Required if target type is instance. (Required)
+     *  Port on which traffic is received by targets. Required for use ``instance`` and ``ip`` target types. (Optional)
      */
-    @Updatable
-    public Boolean getHealthCheckEnabled() {
-        return healthCheckEnabled;
-    }
-
-    public void setHealthCheckEnabled(Boolean healthCheckEnabled) {
-        this.healthCheckEnabled = healthCheckEnabled;
-    }
-
-    /**
-     *  Port on which traffic is received by targets (Optional)
-     */
-    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -112,9 +102,8 @@ public class TargetGroupResource extends AwsResource {
     }
 
     /**
-     *  Protocol used to route traffic to targets (Optional)
+     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types. (Optional)
      */
-    @Updatable
     public String getProtocol() {
         return protocol;
     }
@@ -124,7 +113,7 @@ public class TargetGroupResource extends AwsResource {
     }
 
     /**
-     *  List of tags associated with the target group (Optional)
+     *  List of tags associated with the target group. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -143,6 +132,10 @@ public class TargetGroupResource extends AwsResource {
         }
     }
 
+    /**
+     *  The arn of the target group.
+     */
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -153,7 +146,7 @@ public class TargetGroupResource extends AwsResource {
     }
 
     /**
-     *  The name of the target group (Required)
+     *  The name of the target group. (Required)
      */
     public String getName() {
         return name;
@@ -164,10 +157,14 @@ public class TargetGroupResource extends AwsResource {
     }
 
     /**
-     *  The type of the target. Options include instance, ip, and lambda (Optional)
+     *  The type of the target. Valid values are ``instance``, ``ip``, and ``lambda``. Will default to ``instance``. (Optional)
      */
     @Updatable
     public String getTargetType() {
+        if (targetType == null) {
+            targetType = "instance";
+        }
+
         return targetType;
     }
 
@@ -175,12 +172,42 @@ public class TargetGroupResource extends AwsResource {
         this.targetType = targetType;
     }
 
-    public String getVpcId() {
-        return vpcId;
+    /**
+     *  The vpc where the target group resides. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     */
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
+    }
+
+    @Override
+    public void copyFrom(TargetGroup targetGroup) {
+        if (getHealthCheck() != null) {
+            HealthCheck healthCheck = new HealthCheck();
+            healthCheck.copyFrom(targetGroup);
+            setHealthCheck(healthCheck);
+        }
+
+        setPort(targetGroup.port());
+        setProtocol(targetGroup.protocolAsString());
+        setArn(targetGroup.targetGroupArn());
+        setName(targetGroup.targetGroupName());
+        setTargetType(targetGroup.targetTypeAsString());
+        setVpc(targetGroup.vpcId() != null ? findById(VpcResource.class, targetGroup.vpcId()) : null);
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+
+        getTags().clear();
+        DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
+        if (tagResponse != null) {
+            List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
+            for (Tag tag : tags) {
+                getTags().put(tag.key(), tag.value());
+            }
+        }
     }
 
     @Override
@@ -191,23 +218,8 @@ public class TargetGroupResource extends AwsResource {
 
         if (tgResponse != null) {
             TargetGroup tg = tgResponse.targetGroups().get(0);
-            setHealthCheck(new HealthCheck(tg));
-            setHealthCheckEnabled(tg.healthCheckEnabled());
-            setPort(tg.port());
-            setProtocol(tg.healthCheckProtocolAsString());
-            setArn(tg.targetGroupArn());
-            setName(tg.targetGroupName());
-            setTargetType(tg.targetTypeAsString());
-            setVpcId(tg.vpcId());
 
-            getTags().clear();
-            DescribeTagsResponse tagResponse = client.describeTags(r -> r.resourceArns(getArn()));
-            if (tagResponse != null) {
-                List<Tag> tags = tagResponse.tagDescriptions().get(0).tags();
-                for (Tag tag : tags) {
-                    getTags().put(tag.key(), tag.value());
-                }
-            }
+            this.copyFrom(tg);
 
             return true;
         }
@@ -219,10 +231,14 @@ public class TargetGroupResource extends AwsResource {
     public void create() {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
-        CreateTargetGroupResponse response;
+        CreateTargetGroupResponse response = null;
 
-        if (getHealthCheck() != null && getHealthCheckEnabled() == true) {
-            response = client.createTargetGroup(r -> r.healthCheckEnabled(getHealthCheckEnabled())
+        if (!getTargetType().equals("lambda") && getHealthCheck() == null) {
+            throw new GyroException("A health check must be provided for instance and ip target types.");
+        }
+
+        if (getHealthCheck() != null) {
+            response = client.createTargetGroup(r -> r.healthCheckEnabled(true)
                     .healthCheckIntervalSeconds(getHealthCheck().getInterval())
                     .healthCheckPath(getHealthCheck().getPath())
                     .healthCheckPort(getHealthCheck().getPort())
@@ -235,15 +251,12 @@ public class TargetGroupResource extends AwsResource {
                     .name(getName())
                     .targetType(getTargetType())
                     .unhealthyThresholdCount(getHealthCheck().getUnhealthyThreshold())
-                    .vpcId(getVpcId())
+                    .vpcId(getVpc() != null ? getVpc().getVpcId() : null)
             );
-        } else {
-            response = client.createTargetGroup(r -> r.healthCheckEnabled(getHealthCheckEnabled())
-                    .port(getPort())
-                    .protocol(getProtocol())
+        } else if (getTargetType().equals("lambda") && getHealthCheck() == null) {
+            response = client.createTargetGroup(r -> r.healthCheckEnabled(false)
                     .name(getName())
-                    .targetType(getTargetType())
-                    .vpcId(getVpcId()));
+                    .targetType(getTargetType()));
         }
 
         setArn(response.targetGroups().get(0).targetGroupArn());
@@ -260,8 +273,8 @@ public class TargetGroupResource extends AwsResource {
     public void update(Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
-        if (getHealthCheck() != null && getHealthCheckEnabled() == true) {
-            client.modifyTargetGroup(r -> r.healthCheckEnabled(getHealthCheckEnabled())
+        if (getHealthCheck() != null) {
+            client.modifyTargetGroup(r -> r.healthCheckEnabled(true)
                     .healthCheckIntervalSeconds(getHealthCheck().getInterval())
                     .healthCheckPath(getHealthCheck().getPath())
                     .healthCheckPort(getHealthCheck().getPort())
@@ -272,6 +285,9 @@ public class TargetGroupResource extends AwsResource {
                     .targetGroupArn(getArn())
                     .unhealthyThresholdCount(getHealthCheck().getUnhealthyThreshold())
             );
+        } else if (getTargetType().equals("lambda") && getHealthCheck() == null) {
+            client.modifyTargetGroup(r -> r.healthCheckEnabled(false)
+                    .targetGroupArn(getArn()));
         }
 
         TargetGroupResource currentResource = (TargetGroupResource) current;

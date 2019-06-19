@@ -7,7 +7,6 @@ aws::db-cluster db-cluster-example
     master-user-password: "password"
     backup-retention-period: 5
     preferred-backup-window: "07:00-09:00"
-    delete-automated-backups: true
     skip-final-snapshot: true
     tags: {
         Name: "db-cluster-endpoint-cluster"
@@ -17,7 +16,7 @@ end
 aws::db-instance db-instance-example1
     db-instance-identifier: "db-cluster-endpoint-instance1"
     db-instance-class: "db.t2.small"
-    db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+    db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
     apply-immediately: true
     tags: {
@@ -28,7 +27,7 @@ end
 aws::db-instance db-instance-example2
     db-instance-identifier: "db-cluster-endpoint-instance2"
     db-instance-class: "db.t2.small"
-    db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+    db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
     apply-immediately: true
     tags: {
@@ -38,14 +37,14 @@ end
 
 aws::db-cluster-endpoint endpoint-example1
     cluster-endpoint-identifier: "endpoint1"
-    db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+    db-cluster: $(aws::db-cluster db-cluster-example)
     endpoint-type: "READER"
-    static-members: [$(aws::db-instance db-instance-example1 | db-instance-identifier)]
+    static-members: [$(aws::db-instance db-instance-example2)]
 end
 
 aws::db-cluster-endpoint endpoint-example2
     cluster-endpoint-identifier: "endpoint2"
-    db-cluster-identifier: $(aws::db-cluster db-cluster-example | db-cluster-identifier)
+    db-cluster: $(aws::db-cluster db-cluster-example)
     endpoint-type: "READER"
-    excluded-members: [$(aws::db-instance db-instance-example2 | db-instance-identifier)]
+    excluded-members: [$(aws::db-instance db-instance-example2)]
 end
