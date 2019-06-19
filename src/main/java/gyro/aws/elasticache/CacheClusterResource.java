@@ -123,7 +123,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The type of the cache cluster. Valid value is ``memcached`` or ``redis`` (Required)
+     * The type of the cache cluster nodes. (Required)
      */
     @Updatable
     public String getCacheNodeType() {
