@@ -14,12 +14,8 @@ import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
 import software.amazon.awssdk.services.docdb.model.DbSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbSubnetGroupsResponse;
-import software.amazon.awssdk.services.docdb.model.Subnet;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
