@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public abstract class ActivatedRuleResource extends AbstractWafResource implements Copyable<ActivatedRule> {
     private CommonRuleResource rule;
     private String action;
+    private String type;
     private Integer priority;
     private List<String> excludedRules;
 
@@ -44,6 +45,17 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    /**
+     * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``. (Required)
+     */
+    public String getType() {
+        return type != null ? type.toUpperCase() : null;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**
@@ -78,6 +90,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         setAction(activatedRule.action().typeAsString());
         setPriority(activatedRule.priority());
         setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
+        setType(activatedRule.typeAsString());
         setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
     }
 
@@ -121,8 +134,10 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
             sb.append(" - ").append(getRule().getRuleId());
         }
 
-        if (getType() != null) {
-            sb.append(" - ").append(getType().toString());
+        if (!ObjectUtils.isBlank(getType())) {
+            sb.append(" - ").append(getType());
+        } else if (!ObjectUtils.isBlank(inferType())) {
+            sb.append(" - ").append(inferType());
         }
 
         return sb.toString();
@@ -137,7 +152,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
             .priority(getPriority())
-            .type(getType())
+            .type(!ObjectUtils.isBlank(getType()) ? getType() : inferType())
             .ruleId(getRule().getRuleId())
             .excludedRules(
                 getExcludedRules().stream()
@@ -165,13 +180,13 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
             .updates(Collections.singleton(webAclUpdate));
     }
 
-    private WafRuleType getType() {
-        WafRuleType ruleType = null;
+    private String inferType() {
+        String ruleType = null;
 
         if (getRule() instanceof RuleResource) {
-            ruleType = WafRuleType.REGULAR;
+            ruleType = WafRuleType.REGULAR.name();
         } else if (getRule() instanceof RateRuleResource) {
-            ruleType = WafRuleType.RATE_BASED;
+            ruleType = WafRuleType.RATE_BASED.name();
         }
 
         return ruleType;

@@ -80,36 +80,43 @@ aws::rule-regional rule-example-waf
 
     predicate
         condition:$(aws::regex-match-set-regional regex-match-set-example-waf)
+        type: "RegexMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::geo-match-set-regional geo-match-set-example-waf)
+        type: "GeoMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::xss-match-set-regional xss-match-set-example-waf)
+        type: "XssMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::size-constraint-set-regional size-constraint-set-example-waf)
+        type: "SizeConstraint"
         negated: false
     end
 
     predicate
         condition:$(aws::ip-set-regional ip-set-example-waf)
+        type: "IPMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::byte-match-set-regional byte-match-set-example-waf)
+        type: "ByteMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::sql-injection-match-set-regional sql-injection-match-set-example-waf)
+        type: "SqlInjectionMatch"
         negated: false
     end
 end
@@ -122,36 +129,43 @@ aws::rate-rule-regional rate-rule-example-waf
 
     predicate
         condition:$(aws::regex-match-set-regional regex-match-set-example-waf)
+        type: "RegexMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::geo-match-set-regional geo-match-set-example-waf)
+        type: "GeoMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::xss-match-set-regional xss-match-set-example-waf)
+        type: "XssMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::size-constraint-set-regional size-constraint-set-example-waf)
+        type: "SizeConstraint"
         negated: false
     end
 
     predicate
         condition:$(aws::ip-set-regional ip-set-example-waf)
+        type: "IPMatch"
         negated: false
     end
 
     predicate
         condition:$(aws::byte-match-set-regional byte-match-set-example-waf)
+        type: "ByteMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::sql-injection-match-set-regional sql-injection-match-set-example-waf)
+        type: "SqlInjectionMatch"
         negated: false
     end
 end

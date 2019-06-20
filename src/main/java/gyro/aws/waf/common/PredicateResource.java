@@ -16,6 +16,7 @@ import java.util.Set;
 public abstract class PredicateResource extends AbstractWafResource implements Copyable<Predicate> {
     private ConditionResource condition;
     private Boolean negated;
+    private String type;
 
     /**
      * The condition to be attached with the rule. (Required)
@@ -40,11 +41,22 @@ public abstract class PredicateResource extends AbstractWafResource implements C
         this.negated = negated;
     }
 
+    /**
+     * The type of condition being attached. Valid values are ``XssMatch`` or ``GeoMatch`` or ``SqlInjectionMatch`` or ``ByteMatch`` or ``RegexMatch`` or ``SizeConstraint`` or ``IPMatch``. (Required)
+     */
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public void copyFrom(Predicate predicate) {
         setCondition(findById(ConditionResource.class, predicate.dataId()));
         setNegated(predicate.negated());
-        //setType(predicate.typeAsString());
+        setType(predicate.typeAsString());
     }
 
     @Override
@@ -81,8 +93,10 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             sb.append(" - ").append(getCondition().getId());
         }
 
-        if (getType() != null) {
-            sb.append(" - ").append(getType().toString());
+        if (!ObjectUtils.isBlank(getType())) {
+            sb.append(" - ").append(getType());
+        } else if (!ObjectUtils.isBlank(inferType())) {
+            sb.append(" - ").append(inferType());
         }
 
         return sb.toString();
@@ -99,7 +113,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
         return Predicate.builder()
             .dataId(getCondition().getId())
             .negated(getNegated())
-            .type(getType())
+            .type(!ObjectUtils.isBlank(getType()) ? getType() : inferType())
             .build();
     }
 
@@ -127,22 +141,22 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             .updates(getRuleUpdate(predicate, isDelete));
     }
 
-    private PredicateType getType() {
-        PredicateType predicateType = null;
+    private String inferType() {
+        String predicateType = null;
         if (getCondition() instanceof ByteMatchSetResource) {
-            predicateType = PredicateType.BYTE_MATCH;
+            predicateType = PredicateType.BYTE_MATCH.toString();
         } else if (getCondition() instanceof GeoMatchSetResource) {
-            predicateType = PredicateType.GEO_MATCH;
+            predicateType = PredicateType.GEO_MATCH.toString();
         } else if (getCondition() instanceof RegexMatchSetResource) {
-            predicateType = PredicateType.REGEX_MATCH;
+            predicateType = PredicateType.REGEX_MATCH.toString();
         } else if (getCondition() instanceof IpSetResource) {
-            predicateType = PredicateType.IP_MATCH;
+            predicateType = PredicateType.IP_MATCH.toString();
         } else if (getCondition() instanceof SizeConstraintSetResource) {
-            predicateType = PredicateType.SIZE_CONSTRAINT;
+            predicateType = PredicateType.SIZE_CONSTRAINT.toString();
         } else if (getCondition() instanceof XssMatchSetResource) {
-            predicateType = PredicateType.XSS_MATCH;
+            predicateType = PredicateType.XSS_MATCH.toString();
         } else if (getCondition() instanceof SqlInjectionMatchSetResource) {
-            predicateType = PredicateType.SQL_INJECTION_MATCH;
+            predicateType = PredicateType.SQL_INJECTION_MATCH.toString();
         }
 
         return predicateType;
