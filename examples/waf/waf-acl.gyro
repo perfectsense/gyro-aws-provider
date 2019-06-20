@@ -163,14 +163,12 @@ aws::waf-acl waf-acl-example
 
     activated-rule
         action: "ALLOW"
-        type: "REGULAR"
         priority: 1
         rule: $(aws::rule rule-example-waf)
     end
 
     activated-rule
         action: "ALLOW"
-        type: "RATE_BASED"
         priority: 2
         rule: $(aws::rate-rule rate-rule-example-waf)
     end

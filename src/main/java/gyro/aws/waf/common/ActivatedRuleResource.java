@@ -1,6 +1,5 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -8,6 +7,7 @@ import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
 import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
+import software.amazon.awssdk.services.waf.model.WafRuleType;
 import software.amazon.awssdk.services.waf.model.WebACLUpdate;
 
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public abstract class ActivatedRuleResource extends AbstractWafResource implements Copyable<ActivatedRule> {
     private CommonRuleResource rule;
     private String action;
-    private String type;
     private Integer priority;
     private List<String> excludedRules;
 
@@ -44,17 +43,6 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     public void setAction(String action) {
         this.action = action;
-    }
-
-    /**
-     * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``. (Required)
-     */
-    public String getType() {
-        return type != null ? type.toUpperCase() : null;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     /**
@@ -89,7 +77,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         setAction(activatedRule.action().typeAsString());
         setPriority(activatedRule.priority());
         setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
-        setType(activatedRule.typeAsString());
+        //setType(activatedRule.typeAsString());
         setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
     }
 
@@ -133,8 +121,8 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
             sb.append(" - ").append(getRule().getRuleId());
         }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+        if (getType() != null) {
+            sb.append(" - ").append(getType().toString());
         }
 
         return sb.toString();
@@ -175,5 +163,17 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
             .webACLId(parent.getWebAclId())
             .defaultAction(da -> da.type(parent.getDefaultAction()))
             .updates(Collections.singleton(webAclUpdate));
+    }
+
+    private WafRuleType getType() {
+        WafRuleType ruleType = null;
+
+        if (getRule() instanceof RuleResource) {
+            ruleType = WafRuleType.REGULAR;
+        } else if (getRule() instanceof RateRuleResource) {
+            ruleType = WafRuleType.RATE_BASED;
+        }
+
+        return ruleType;
     }
 }
