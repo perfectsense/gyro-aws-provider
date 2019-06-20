@@ -193,6 +193,8 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         setDbSubnetGroupName(dbSubnetGroup.dbSubnetGroupName());
         setStatus(dbSubnetGroup.subnetGroupStatus());
         setSubnets(dbSubnetGroup.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
+
+        loadTags();
     }
 
     private DBSubnetGroup getDbSubnetGroup(DocDbClient client) {

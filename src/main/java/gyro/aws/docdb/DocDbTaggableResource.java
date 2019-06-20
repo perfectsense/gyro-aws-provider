@@ -3,6 +3,7 @@ package gyro.aws.docdb;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
@@ -100,7 +101,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
         }
     }
 
-    private void loadTags() {
+    protected void loadTags() {
         setTags(getDocDbTags());
     }
 
@@ -131,4 +132,5 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
 
         return tags;
     }
+
 }
