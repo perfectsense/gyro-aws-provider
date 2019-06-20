@@ -15,6 +15,7 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
 import software.amazon.awssdk.services.sqs.model.ListQueuesResponse;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
@@ -417,8 +418,8 @@ public class SqsResource extends AwsResource implements Copyable<String> {
 
         attributeMap.put(QueueAttributeName.POLICY, getPolicy());
 
-        client.createQueue(r -> r.queueName(getName()).attributes(attributeMap));
-        setQueueUrl(client.createQueue(r -> r.queueName(getName()).attributes(attributeMap)).queueUrl());
+        CreateQueueResponse queueResponse = client.createQueue(r -> r.queueName(getName()).attributes(attributeMap));
+        setQueueUrl(queueResponse.queueUrl());
 
         GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(getQueueUrl())
                 .attributeNames(QueueAttributeName.QUEUE_ARN));

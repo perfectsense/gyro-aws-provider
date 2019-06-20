@@ -1,1 +1,2 @@
-$(aws::topic EXTERNAL/* | arn = '')
+sns: $(aws::topic EXTERNAL/* | arn = '')
+subscriber: $(aws::subscriber EXTERNAL/* | arn = '')

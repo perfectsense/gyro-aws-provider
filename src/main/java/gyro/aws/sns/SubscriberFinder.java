@@ -1,5 +1,6 @@
 package gyro.aws.sns;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 
@@ -9,6 +10,7 @@ import software.amazon.awssdk.services.sns.model.Subscription;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query subscriptions.
@@ -37,18 +39,18 @@ public class SubscriberFinder extends AwsFinder<SnsClient, Subscription, Subscri
     protected List<Subscription> findAws(SnsClient client, Map<String, String> filters) {
         List<Subscription> targetSubscription = new ArrayList<>();
 
-        for (Subscription target : client.listSubscriptions().subscriptions()) {
-            if (target.subscriptionArn().equals(filters.get("arn"))) {
-                targetSubscription.add(target);
-                return targetSubscription;
-            }
+        if (filters.containsKey("arn") && !ObjectUtils.isBlank(filters.get("arn"))) {
+            targetSubscription.addAll(client.listSubscriptionsPaginator()
+                .subscriptions().stream()
+                .filter(o -> o.subscriptionArn().equals(filters.get("arn")))
+                .collect(Collectors.toList()));
         }
 
-        return null;
+        return targetSubscription;
     }
 
     @Override
     protected List<Subscription> findAllAws(SnsClient client) {
-        return client.listSubscriptions().subscriptions();
+        return client.listSubscriptionsPaginator().subscriptions().stream().collect(Collectors.toList());
     }
 }

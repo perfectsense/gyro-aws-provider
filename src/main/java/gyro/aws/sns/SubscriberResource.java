@@ -1,27 +1,26 @@
 package gyro.aws.sns;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
-import com.psddev.dari.util.CompactMap;
 
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.sns.SnsClient;
-import software.amazon.awssdk.services.sns.model.AuthorizationErrorException;
 import software.amazon.awssdk.services.sns.model.GetSubscriptionAttributesResponse;
-import software.amazon.awssdk.services.sns.model.InvalidParameterException;
-import software.amazon.awssdk.services.sns.model.NotFoundException;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
 import software.amazon.awssdk.services.sns.model.Subscription;
 
-import org.json.JSONObject;
 import software.amazon.awssdk.utils.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,14 +32,12 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::subscriber subscriber-example
+ *     aws::subscriber sns-subscriber-example
  *         protocol: "sqs"
- *         endpoint: $(aws::sqs sqs-example | queue-arn)
- *         attributes: {
- *             FilterPolicy: "gyro-providers/gyro-aws-provider/examples/sns/filter-policy.json",
- *             RawMessageDelivery: "true"
- *         }
+ *         endpoint: $(aws::sqs sqs-example | arn)
  *         topic: $(aws::topic sns-topic-example)
+ *         filter-policy: "filter-policy.json"
+ *         raw-message-delivery: true
  *     end
  */
 @Type("subscriber")
@@ -49,8 +46,10 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     private String endpoint;
     private String protocol;
     private String subscriptionArn;
-    private Map<String, String> subscriptionAttributes;
     private TopicResource topic;
+    private String deliveryPolicy;
+    private String filterPolicy;
+    private Boolean rawMessageDelivery;
 
     /**
      * The endpoint of the resource subscribed to the topic. (Required)
@@ -75,6 +74,61 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     /**
+     * The topic resource to subscribe to. (Required)
+     */
+    public TopicResource getTopic() {
+        return topic;
+    }
+
+    public void setTopic(TopicResource topic) {
+        this.topic = topic;
+    }
+
+    /**
+     * The delivery retry policy. Can be json file or json blob.
+     */
+    @Updatable
+    public String getDeliveryPolicy() {
+        deliveryPolicy = getProcessedPolicy(deliveryPolicy);
+
+        return deliveryPolicy;
+    }
+
+    public void setDeliveryPolicy(String deliveryPolicy) {
+        this.deliveryPolicy = deliveryPolicy;
+    }
+
+    /**
+     * The filter policy. Can be json file or json blob.
+     */
+    @Updatable
+    public String getFilterPolicy() {
+        filterPolicy = getProcessedPolicy(filterPolicy);
+
+        return filterPolicy;
+    }
+
+    public void setFilterPolicy(String filterPolicy) {
+        this.filterPolicy = filterPolicy;
+    }
+
+    /**
+     * Allow raw message delivery. Defaults to false.
+     */
+    @Updatable
+    public Boolean getRawMessageDelivery() {
+        if (rawMessageDelivery == null) {
+            rawMessageDelivery = false;
+        }
+
+        return rawMessageDelivery;
+    }
+
+    public void setRawMessageDelivery(Boolean rawMessageDelivery) {
+        this.rawMessageDelivery = rawMessageDelivery;
+    }
+
+    /**
      * The arn of the subscription.
      */
     @Output
@@ -87,63 +141,6 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
         this.subscriptionArn = subscriptionArn;
     }
 
-    /**
-     * The attributes for the subscription (Optional)
-     *
-     * Possible attributes are DeliveryPolicy, FilterPolicy, and RawMessageDelivery
-     *
-     * DeliveryPolicy can be a json file path or json blob (Optional)
-     *
-     * FilterPolicy can be a json file path or json blob (Optional)
-     *
-     * RawMessageDelivery is a boolean (Optional)
-     */
-    @Updatable
-    public Map<String, String> getSubscriptionAttributes() {
-        if (subscriptionAttributes == null) {
-            subscriptionAttributes = new CompactMap<>();
-        }
-
-        if (subscriptionAttributes.get("DeliveryPolicy") != null && subscriptionAttributes.get("DeliveryPolicy").endsWith(".json")) {
-            try {
-                String encode = policyDocument(subscriptionAttributes.get("DeliveryPolicy"));
-                subscriptionAttributes.put("DeliveryPolicy", formatPolicy(encode));
-            } catch (Exception err) {
-                throw new GyroException(err.getMessage());
-            }
-        }
-
-        if (subscriptionAttributes.get("FilterPolicy") != null && subscriptionAttributes.get("FilterPolicy").endsWith(".json")) {
-            try {
-                String encode = policyDocument(subscriptionAttributes.get("FilterPolicy"));
-                subscriptionAttributes.put("FilterPolicy", formatPolicy(encode));
-            } catch (Exception err) {
-                throw new GyroException(err.getMessage());
-            }
-        }
-
-        return subscriptionAttributes;
-    }
-
-    public void setSubscriptionAttributes(Map<String, String> subscriptionAttributes) {
-        if (this.subscriptionAttributes != null && subscriptionAttributes != null) {
-            this.subscriptionAttributes.putAll(subscriptionAttributes);
-        } else {
-            this.subscriptionAttributes = subscriptionAttributes;
-        }
-    }
-
-    /**
-     * The topic resource to subscribe to. (Required)
-     */
-    public TopicResource getTopic() {
-        return topic;
-    }
-
-    public void setTopic(TopicResource topic) {
-        this.topic = topic;
-    }
-
     @Override
     public void copyFrom(Subscription subscription) {
         SnsClient client = createClient(SnsClient.class);
@@ -152,35 +149,31 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
 
         //The list of attributes is much larger than what can be set.
         //Only those that can be set are extracted out of the list of attributes.
-        getSubscriptionAttributes().clear();
-        if (response.attributes().get("DeliveryPolicy") != null) {
-            getSubscriptionAttributes().put("DeliveryPolicy", (response.attributes().get("DeliveryPolicy")));
-        }
-        if (response.attributes().get("FilterPolicy") != null) {
-            getSubscriptionAttributes().put("FilterPolicy", (response.attributes().get("FilterPolicy")));
-        }
-        if (response.attributes().get("RawMessageDelivery") != null) {
-            getSubscriptionAttributes().put("RawMessageDelivery", (response.attributes().get("RawMessageDelivery")));
-        }
+        setDeliveryPolicy(response.attributes().getOrDefault("DeliveryPolicy", null));
+        setFilterPolicy(response.attributes().getOrDefault("FilterPolicy", null));
+        setRawMessageDelivery(response.attributes().get("RawMessageDelivery").equalsIgnoreCase("true"));
 
         setTopic(findById(TopicResource.class, response.attributes().get("TopicArn")));
+        setSubscriptionArn(subscription.subscriptionArn());
+        setEndpoint(subscription.endpoint());
+        setProtocol(subscription.protocol());
     }
 
     @Override
     public boolean refresh() {
         SnsClient client = createClient(SnsClient.class);
 
-        try {
-            for (Subscription target : client.listSubscriptions().subscriptions()) {
-                if (target.subscriptionArn().equals(getSubscriptionArn())) {
-                    this.copyFrom(target);
-                }
-            }
-        } catch (AuthorizationErrorException | InvalidParameterException ex) {
-            throw new GyroException(ex.getMessage());
-        } catch (NotFoundException ex) {
+        Subscription subscription = client.listSubscriptionsPaginator()
+            .subscriptions().stream()
+            .findFirst()
+            .filter(o -> o.subscriptionArn().equals(getSubscriptionArn()))
+            .orElse(null);
+
+        if (subscription == null) {
             return false;
         }
+
+        copyFrom(subscription);
 
         return true;
     }
@@ -201,21 +194,30 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     public void update(Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
-        JSONObject map = new JSONObject();
-
-        for (Map.Entry<String, String> attr : getSubscriptionAttributes().entrySet()) {
-            if (attr.getKey().contains("Policy")) {
-                map.put(attr.getKey(), attr.getValue());
-                client.setSubscriptionAttributes(r -> r.attributeName(attr.getKey())
-                        .attributeValue(map.get(attr.getKey()).toString())
-                        .subscriptionArn(getSubscriptionArn()));
-            }
+        if (changedFieldNames.contains("raw-message-delivery")) {
+            client.setSubscriptionAttributes(r -> r.attributeName("RawMessageDelivery")
+                .attributeValue(getRawMessageDelivery() != null ? getRawMessageDelivery().toString() : null)
+                .subscriptionArn(getSubscriptionArn()));
         }
 
-        if (getSubscriptionAttributes().containsKey("RawMessageDelivery")) {
-            client.setSubscriptionAttributes(r -> r.attributeName("RawMessageDelivery")
-                    .attributeValue(getSubscriptionAttributes().get("RawMessageDelivery"))
-                    .subscriptionArn(getSubscriptionArn()));
+        if (changedFieldNames.contains("delivery-policy")) {
+            if (ObjectUtils.isBlank(getDeliveryPolicy())) {
+                throw new GyroException("delivery-policy cannot be set to blank.");
+            }
+
+            client.setSubscriptionAttributes(r -> r.attributeName("DeliveryPolicy")
+                .attributeValue(getDeliveryPolicy())
+                .subscriptionArn(getSubscriptionArn()));
+        }
+
+        if (changedFieldNames.contains("filter-policy")) {
+            if (ObjectUtils.isBlank(getFilterPolicy())) {
+                throw new GyroException("filter-policy cannot be set to blank.");
+            }
+
+            client.setSubscriptionAttributes(r -> r.attributeName("FilterPolicy")
+                .attributeValue(getFilterPolicy())
+                .subscriptionArn(getSubscriptionArn()));
         }
     }
 
@@ -226,31 +228,59 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
         client.unsubscribe(r -> r.subscriptionArn(getSubscriptionArn()));
     }
 
+    @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("subscriber with protocol " + getProtocol());
+        sb.append("sns subscriber");
+
+        if (!ObjectUtils.isBlank(getProtocol())) {
+            sb.append(" with protocol ").append(getProtocol());
+        }
+
         if (getEndpoint() != null) {
-            sb.append(" and endpoint " + getEndpoint());
+            sb.append(" and endpoint ").append(getEndpoint());
         }
 
         return sb.toString();
     }
 
-    private String policyDocument(String policy) {
-        if (policy != null && policy.contains(".json")) {
-            try (InputStream input = openInput(policy)) {
-                policy = formatPolicy(IoUtils.toUtf8String(input));
-                return policy;
-            } catch (IOException err) {
-                throw new GyroException(err.getMessage());
-            }
-        } else {
-            return policy;
+    private Map<String, String> getSubscriptionAttributes() {
+        Map<String, String> attributes = new HashMap<>();
+
+        if (getRawMessageDelivery() != null) {
+            attributes.put("RawMessageDelivery", getRawMessageDelivery().toString());
         }
+
+        if (!ObjectUtils.isBlank(getDeliveryPolicy())) {
+            attributes.put("DeliveryPolicy", getDeliveryPolicy());
+        }
+
+        if (!ObjectUtils.isBlank(getFilterPolicy())) {
+            attributes.put("FilterPolicy", getFilterPolicy());
+        }
+
+        return attributes;
     }
 
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+        }
     }
 }
