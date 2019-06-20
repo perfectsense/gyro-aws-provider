@@ -79,8 +79,6 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
 
     @Override
     protected List<MetricAlarm> findAws(CloudWatchClient client, Map<String, String> filters) {
-        List<MetricAlarm> metricAlarms = new ArrayList<>();
-
         DescribeAlarmsRequest.Builder builder = DescribeAlarmsRequest.builder();
 
         if (filters.containsKey("alarm-name") && filters.containsKey("alarm-prefix")) {
@@ -103,21 +101,6 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
             builder = builder.stateValue(filters.get("state"));
         }
 
-        String marker = null;
-        DescribeAlarmsRequest request;
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                request = builder.build();
-            } else {
-                request = builder.nextToken(marker).build();
-            }
-
-            DescribeAlarmsResponse response = client.describeAlarms(request);
-            marker = response.nextToken();
-            metricAlarms.addAll(response.metricAlarms());
-
-        } while (!ObjectUtils.isBlank(marker));
-
-        return metricAlarms;
+        return client.describeAlarmsPaginator(builder.build()).metricAlarms().stream().collect(Collectors.toList());
     }
 }
