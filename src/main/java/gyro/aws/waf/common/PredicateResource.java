@@ -1,11 +1,11 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
+import software.amazon.awssdk.services.waf.model.PredicateType;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
 import software.amazon.awssdk.services.waf.model.UpdateRateBasedRuleRequest;
 import software.amazon.awssdk.services.waf.model.UpdateRuleRequest;
@@ -15,7 +15,6 @@ import java.util.Set;
 public abstract class PredicateResource extends AbstractWafResource implements Copyable<Predicate> {
     private ConditionResource condition;
     private Boolean negated;
-    private String type;
 
     /**
      * The condition to be attached with the rule. (Required)
@@ -40,22 +39,11 @@ public abstract class PredicateResource extends AbstractWafResource implements C
         this.negated = negated;
     }
 
-    /**
-     * The type of condition being attached. Valid values are ``XssMatch`` or ``GeoMatch`` or ``SqlInjectionMatch`` or ``ByteMatch`` or ``RegexMatch`` or ``SizeConstraint`` or ``IPMatch``. (Required)
-     */
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     @Override
     public void copyFrom(Predicate predicate) {
         setCondition(findById(ConditionResource.class, predicate.dataId()));
         setNegated(predicate.negated());
-        setType(predicate.typeAsString());
+        //setType(predicate.typeAsString());
     }
 
     @Override
@@ -92,8 +80,8 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             sb.append(" - ").append(getCondition().getId());
         }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+        if (getType() != null) {
+            sb.append(" - ").append(getType().toString());
         }
 
         return sb.toString();
@@ -101,7 +89,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", (getCondition() != null ? getCondition().getId() : null), getType());
+        return String.format("%s", (getCondition() != null ? getCondition().getId() : null));
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);
@@ -136,5 +124,26 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             .ruleId(parent.getRuleId())
             .rateLimit(parent.getRateLimit())
             .updates(getRuleUpdate(predicate, isDelete));
+    }
+
+    private PredicateType getType() {
+        PredicateType predicateType = null;
+        if (getCondition() instanceof ByteMatchSetResource) {
+            predicateType = PredicateType.BYTE_MATCH;
+        } else if (getCondition() instanceof GeoMatchSetResource) {
+            predicateType = PredicateType.GEO_MATCH;
+        } else if (getCondition() instanceof RegexMatchSetResource) {
+            predicateType = PredicateType.REGEX_MATCH;
+        } else if (getCondition() instanceof IpSetResource) {
+            predicateType = PredicateType.IP_MATCH;
+        } else if (getCondition() instanceof SizeConstraintSetResource) {
+            predicateType = PredicateType.SIZE_CONSTRAINT;
+        } else if (getCondition() instanceof XssMatchSetResource) {
+            predicateType = PredicateType.XSS_MATCH;
+        } else if (getCondition() instanceof SqlInjectionMatchSetResource) {
+            predicateType = PredicateType.SQL_INJECTION_MATCH;
+        }
+
+        return predicateType;
     }
 }

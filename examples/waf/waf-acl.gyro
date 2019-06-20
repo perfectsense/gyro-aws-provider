@@ -80,43 +80,36 @@ aws::rule rule-example-waf
 
     predicate
         condition: $(aws::regex-match-set regex-match-set-example-waf)
-        type: "RegexMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::geo-match-set geo-match-set-example-waf)
-        type: "GeoMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::xss-match-set xss-match-set-example-waf)
-        type: "XssMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::size-constraint-set size-constraint-set-example-waf)
-        type: "SizeConstraint"
         negated: false
     end
 
     predicate
         condition: $(aws::ip-set ip-set-example-waf)
-        type: "IPMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::byte-match-set byte-match-set-example-waf)
-        type: "ByteMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::sql-injection-match-set sql-injection-match-set-example-waf)
-        type: "SqlInjectionMatch"
         negated: false
     end
 end
@@ -129,43 +122,36 @@ aws::rate-rule rate-rule-example-waf
 
     predicate
         condition: $(aws::regex-match-set regex-match-set-example-waf)
-        type: "RegexMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::geo-match-set geo-match-set-example-waf)
-        type: "GeoMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::xss-match-set xss-match-set-example-waf)
-        type: "XssMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::size-constraint-set size-constraint-set-example-waf)
-        type: "SizeConstraint"
         negated: false
     end
 
     predicate
         condition: $(aws::ip-set ip-set-example-waf)
-        type: "IPMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::byte-match-set byte-match-set-example-waf)
-        type: "ByteMatch"
         negated: false
     end
 
     predicate
         condition: $(aws::sql-injection-match-set sql-injection-match-set-example-waf)
-        type: "SqlInjectionMatch"
         negated: false
     end
 end
