@@ -18,7 +18,6 @@ import java.util.Set;
 public class AutoScalingGroupScheduledActionResource extends AwsResource implements Copyable<ScheduledUpdateGroupAction> {
 
     private String scheduledActionName;
-    private String autoScalingGroupName;
     private Integer desiredCapacity;
     private Integer maxSize;
     private Integer minSize;
@@ -36,17 +35,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
 
     public void setScheduledActionName(String scheduledActionName) {
         this.scheduledActionName = scheduledActionName;
-    }
-
-    /**
-     * The name of the parent auto scaling group. (Auto populated)
-     */
-    public String getAutoScalingGroupName() {
-        return autoScalingGroupName;
-    }
-
-    public void setAutoScalingGroupName(String autoScalingGroupName) {
-        this.autoScalingGroupName = autoScalingGroupName;
     }
 
     /**
@@ -136,7 +124,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     @Override
     public void copyFrom(ScheduledUpdateGroupAction scheduledUpdateGroupAction) {
         setScheduledActionName(scheduledUpdateGroupAction.scheduledActionName());
-        setAutoScalingGroupName(scheduledUpdateGroupAction.autoScalingGroupName());
         setDesiredCapacity(scheduledUpdateGroupAction.desiredCapacity());
         setMaxSize(scheduledUpdateGroupAction.maxSize());
         setMinSize(scheduledUpdateGroupAction.minSize());
@@ -156,12 +143,11 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
-        setAutoScalingGroupName(getParentId());
         saveScheduledAction(client);
 
         //set arn
         DescribeScheduledActionsResponse response = client.describeScheduledActions(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
+            r -> r.autoScalingGroupName(getParentId())
             .scheduledActionNames(Collections.singleton(getScheduledActionName()))
         );
 
@@ -183,7 +169,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteScheduledAction(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
+            r -> r.autoScalingGroupName(getParentId())
             .scheduledActionName(getScheduledActionName())
         );
     }
@@ -217,7 +203,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     private void saveScheduledAction(AutoScalingClient client) {
         client.putScheduledUpdateGroupAction(
             r -> r.scheduledActionName(getScheduledActionName())
-                .autoScalingGroupName(getAutoScalingGroupName())
+                .autoScalingGroupName(getParentId())
                 .desiredCapacity(getDesiredCapacity())
                 .maxSize(getMaxSize())
                 .minSize(getMinSize())

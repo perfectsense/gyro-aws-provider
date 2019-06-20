@@ -20,9 +20,7 @@ import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigura
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -202,7 +200,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable private Ip to intsances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html/>`_.
+     * Enable public Ip to instances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html/>`_.
      */
     public Boolean getAssociatePublicIp() {
         if (associatePublicIp == null) {

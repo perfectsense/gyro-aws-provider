@@ -7,12 +7,12 @@ import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingGroup;
 import software.amazon.awssdk.services.autoscaling.model.DescribeAutoScalingGroupsRequest;
-import software.amazon.awssdk.services.autoscaling.model.DescribeAutoScalingGroupsResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query auto scaling group.
@@ -38,53 +38,20 @@ public class AutoScalingGroupFinder extends AwsFinder<AutoScalingClient, AutoSca
 
     @Override
     protected List<AutoScalingGroup> findAllAws(AutoScalingClient client) {
-        List<AutoScalingGroup> autoScalingGroups = new ArrayList<>();
-
-        String marker = null;
-        DescribeAutoScalingGroupsResponse response;
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeAutoScalingGroups();
-            } else {
-                response = client.describeAutoScalingGroups(DescribeAutoScalingGroupsRequest.builder().nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            autoScalingGroups.addAll(response.autoScalingGroups());
-
-        } while (!ObjectUtils.isBlank(marker));
-
-        return autoScalingGroups;
+        return client.describeAutoScalingGroupsPaginator().autoScalingGroups().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<AutoScalingGroup> findAws(AutoScalingClient client, Map<String, String> filters) {
         List<AutoScalingGroup> autoScalingGroups = new ArrayList<>();
 
-        String marker = null;
-        DescribeAutoScalingGroupsResponse response;
         if (filters.containsKey("auto-scaling-group-name") && !ObjectUtils.isBlank(filters.get("auto-scaling-group-name"))) {
             try {
-                do {
-                    if (ObjectUtils.isBlank(marker)) {
-                        response = client.describeAutoScalingGroups(
-                            DescribeAutoScalingGroupsRequest.builder()
-                                .autoScalingGroupNames(Collections.singleton(filters.get("auto-scaling-group-name")))
-                                .build()
-                        );
-                    } else {
-                        response = client.describeAutoScalingGroups(
-                            DescribeAutoScalingGroupsRequest.builder()
-                                .autoScalingGroupNames(Collections.singleton(filters.get("auto-scaling-group-name")))
-                                .nextToken(marker)
-                                .build()
-                        );
-                    }
+                autoScalingGroups.addAll(client.describeAutoScalingGroups(
+                    DescribeAutoScalingGroupsRequest.builder()
+                        .autoScalingGroupNames(Collections.singleton(filters.get("auto-scaling-group-name")))
+                        .build()).autoScalingGroups());
 
-                    marker = response.nextToken();
-                    autoScalingGroups.addAll(response.autoScalingGroups());
-
-                } while (!ObjectUtils.isBlank(marker));
             } catch (AutoScalingException ex) {
                 if (!ex.getLocalizedMessage().contains("does not exist")) {
                     throw ex;

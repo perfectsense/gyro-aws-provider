@@ -17,7 +17,6 @@ import java.util.Set;
 public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
 
     private TopicResource topic;
-    private String autoScalingGroupName;
     private String notificationType;
 
     /**
@@ -29,17 +28,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     public void setTopic(TopicResource topic) {
         this.topic = topic;
-    }
-
-    /**
-     * The name of the parent auto scaling group. (Auto populated)
-     */
-    public String getAutoScalingGroupName() {
-        return autoScalingGroupName;
-    }
-
-    public void setAutoScalingGroupName(String autoScalingGroupName) {
-        this.autoScalingGroupName = autoScalingGroupName;
     }
 
     /**
@@ -56,7 +44,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     @Override
     public void copyFrom(NotificationConfiguration notificationConfiguration) {
-        setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
         setTopic(!ObjectUtils.isBlank(notificationConfiguration.topicARN()) ? findById(TopicResource.class, notificationConfiguration.topicARN()) : null);
         setNotificationType(notificationConfiguration.notificationType());
     }
@@ -71,7 +58,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
-        setAutoScalingGroupName(getParentId());
         saveNotification(client);
     }
 
@@ -88,7 +74,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteNotificationConfiguration(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
+            r -> r.autoScalingGroupName(getParentId())
             .topicARN(getTopic().getTopicArn())
         );
     }
@@ -121,7 +107,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     private void saveNotification(AutoScalingClient client) {
         client.putNotificationConfiguration(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
+            r -> r.autoScalingGroupName(getParentId())
                 .notificationTypes(getNotificationType())
                 .topicARN(getTopic().getTopicArn())
         );

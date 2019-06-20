@@ -85,28 +85,6 @@ aws::security-group security-group-auto-scaling-group-example-2
     }
 end
 
-aws::instance instance-auto-scaling-group-example
-    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
-    shutdown-behavior: "STOP"
-    instance-type: "t2.micro"
-    key: "example"
-    subnet: $(aws::subnet subnet-auto-scaling-group-example)
-    security-groups: [
-        $(aws::security-group security-group-auto-scaling-group-example-1),
-        $(aws::security-group security-group-auto-scaling-group-example-2)
-    ]
-    disable-api-termination: false
-    enable-ena-support: true
-    ebs-optimized: false
-    source-dest-check: true
-
-    tags: {
-        Name: "instance-auto-scaling-group-example"
-    }
-end
-
-
-
 aws::launch-template launch-template-auto-scaling-group-example
     launch-template-name: "launch-template-gyro-1"
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
@@ -151,19 +129,6 @@ end
 aws::auto-scaling-group auto-scaling-group-example-launch-template
     auto-scaling-group-name: "auto-scaling-group-example-launch-template"
     launch-template: $(aws::launch-template launch-template-auto-scaling-group-example)
-    availability-zones: [
-        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
-    ]
-    subnets: [
-        $(aws::subnet subnet-auto-scaling-group-example),
-        $(aws::subnet subnet-auto-scaling-group-example-2)
-    ]
-    enable-metrics-collection: false
-end
-
-aws::auto-scaling-group auto-scaling-group-example-instance
-    auto-scaling-group-name: "auto-scaling-group-gyro-example-instance"
-    instance: $(aws::instance instance-auto-scaling-group-example)
     availability-zones: [
         $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
     ]

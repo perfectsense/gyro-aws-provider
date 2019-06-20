@@ -12,15 +12,12 @@ import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyRespons
 import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AutoScalingPolicyResource extends AwsResource implements Copyable<ScalingPolicy> {
     private String policyName;
-    private String autoScalingGroupName;
     private String adjustmentType;
     private Integer cooldown;
     private Integer estimatedInstanceWarmup;
@@ -44,17 +41,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
 
     public void setPolicyName(String policyName) {
         this.policyName = policyName;
-    }
-
-    /**
-     * The name of the parent auto scaling group. (Auto populated)
-     */
-    public String getAutoScalingGroupName() {
-        return autoScalingGroupName;
-    }
-
-    public void setAutoScalingGroupName(String autoScalingGroupName) {
-        this.autoScalingGroupName = autoScalingGroupName;
     }
 
     /**
@@ -232,7 +218,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     public void copyFrom(ScalingPolicy scalingPolicy) {
         setAdjustmentType(scalingPolicy.adjustmentType());
         setPolicyName(scalingPolicy.policyName());
-        setAutoScalingGroupName(scalingPolicy.autoScalingGroupName());
         setCooldown(scalingPolicy.cooldown());
         setEstimatedInstanceWarmup(scalingPolicy.estimatedInstanceWarmup());
         setMetricAggregationType(scalingPolicy.metricAggregationType());
@@ -271,7 +256,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
-        setAutoScalingGroupName(getParentId());
         savePolicy(client);
     }
 
@@ -288,7 +272,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deletePolicy(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
+            r -> r.autoScalingGroupName(getParentId())
                 .policyName(getPolicyName())
         );
     }
@@ -321,7 +305,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         if (getPolicyType().equalsIgnoreCase("SimpleScaling")) {
             response = client.putScalingPolicy(
                 r -> r.policyName(getPolicyName())
-                    .autoScalingGroupName(getAutoScalingGroupName())
+                    .autoScalingGroupName(getParentId())
                     .adjustmentType(getAdjustmentType())
                     .policyType(getPolicyType())
                     .cooldown(getCooldown())
@@ -331,7 +315,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         } else if (getPolicyType().equalsIgnoreCase("StepScaling")) {
             response = client.putScalingPolicy(
                 r -> r.policyName(getPolicyName())
-                    .autoScalingGroupName(getAutoScalingGroupName())
+                    .autoScalingGroupName(getParentId())
                     .adjustmentType(getAdjustmentType())
                     .policyType(getPolicyType())
                     .estimatedInstanceWarmup(getEstimatedInstanceWarmup())
@@ -341,7 +325,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         } else if (getPolicyType().equalsIgnoreCase("TargetTrackingScaling")) {
             response = client.putScalingPolicy(
                 r -> r.policyName(getPolicyName())
-                    .autoScalingGroupName(getAutoScalingGroupName())
+                    .autoScalingGroupName(getParentId())
                     .policyType(getPolicyType())
                     .estimatedInstanceWarmup(getEstimatedInstanceWarmup())
                     .targetTrackingConfiguration(
