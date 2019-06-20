@@ -1,14 +1,19 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query internet gateway.
@@ -101,11 +106,29 @@ public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway,
 
     @Override
     protected List<InternetGateway> findAllAws(Ec2Client client) {
-        return client.describeInternetGateways().internetGateways();
+        return client.describeInternetGatewaysPaginator().internetGateways().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<InternetGateway> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeInternetGateways(r -> r.filters(createFilters(filters))).internetGateways();
+        List<InternetGateway> internetGateways = new ArrayList<>();
+
+        DescribeInternetGatewaysRequest.Builder builder = DescribeInternetGatewaysRequest.builder().filters(createFilters(filters));
+
+        String marker = null;
+        DescribeInternetGatewaysResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeInternetGateways(builder.build());
+            } else {
+                response = client.describeInternetGateways(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            internetGateways.addAll(response.internetGateways());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return internetGateways;
     }
 }
