@@ -1,0 +1,2 @@
+event-rule: $(aws::event-rule EXTERNAL/* | rule-name = '')
+metric-alarm: $(aws::metric-alarm EXTERNAL/* | alarm-name = '')
