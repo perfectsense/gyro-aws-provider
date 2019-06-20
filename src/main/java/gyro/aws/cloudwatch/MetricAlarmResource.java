@@ -90,6 +90,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     private String unit;
     private String arn;
     private Set<MetricDataQueryResource> metric;
+    private String state;
 
     /**
      * The name of the Metric Alarm. (Required)
@@ -371,6 +372,18 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         this.arn = arn;
     }
 
+    /**
+     * The state of the Metric Alarm.
+     */
+    @Output
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     @Override
     public void copyFrom(MetricAlarm metricAlarm) {
         setActionsEnabled(metricAlarm.actionsEnabled());
@@ -391,6 +404,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         setTreatMissingData(metricAlarm.treatMissingData());
         setUnit(metricAlarm.unit() != null ? metricAlarm.unit().toString() : null);
         setArn(metricAlarm.alarmArn());
+        setState(metricAlarm.stateValueAsString());
 
         for (Dimension dimension : metricAlarm.dimensions()) {
             getDimensions().put(dimension.name(), dimension.value());
