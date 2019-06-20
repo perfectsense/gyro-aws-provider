@@ -217,7 +217,7 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
         String marker = null;
         DescribeVpcsResponse response;
         do {
-            if (!ObjectUtils.isBlank(marker)) {
+            if (ObjectUtils.isBlank(marker)) {
                 response = client.describeVpcs(DescribeVpcsRequest.builder().filters(createFilters(filters)).build());
             } else {
                 response = client.describeVpcs(DescribeVpcsRequest.builder().filters(createFilters(filters)).nextToken(marker).build());
