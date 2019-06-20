@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroup
 import software.amazon.awssdk.services.docdb.model.DBCluster;
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
 import software.amazon.awssdk.services.docdb.model.DbClusterParameterGroupNotFoundException;
+import software.amazon.awssdk.services.docdb.model.DbParameterGroupNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParametersResponse;
 import software.amazon.awssdk.services.docdb.model.Parameter;
@@ -327,7 +328,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
                 dbClusterParameterGroup = response.dbClusterParameterGroups().get(0);
             }
 
-        } catch (DbClusterParameterGroupNotFoundException ex) {
+        } catch (DbParameterGroupNotFoundException | DbClusterParameterGroupNotFoundException ex) {
 
         }
 
