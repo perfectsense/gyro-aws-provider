@@ -5,8 +5,10 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -88,24 +90,46 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
 
     @Override
     protected List<LaunchTemplate> findAllAws(Ec2Client client) {
-        return client.describeLaunchTemplates().launchTemplates();
+        return getLaunchTemplates(client, null);
     }
 
     @Override
     protected List<LaunchTemplate> findAws(Ec2Client client, Map<String, String> filters) {
-        DescribeLaunchTemplatesRequest.Builder request = DescribeLaunchTemplatesRequest.builder();
+        return getLaunchTemplates(client, filters);
+    }
 
-        if (filters.containsKey("launch-template-id")) {
-            String launchTemplateId = filters.get("launch-template-id");
-            filters.remove("launch-template-id");
+    private List<LaunchTemplate> getLaunchTemplates(Ec2Client client, Map<String, String> filters) {
+        List<LaunchTemplate> launchTemplates = new ArrayList<>();
 
-            if (!ObjectUtils.isBlank(launchTemplateId)) {
-                request.launchTemplateIds(Collections.singleton(launchTemplateId));
+        DescribeLaunchTemplatesRequest.Builder builder = DescribeLaunchTemplatesRequest.builder().filters(createFilters(filters));
+
+        if (filters != null) {
+            if (filters.containsKey("launch-template-id")) {
+                String launchTemplateId = filters.get("launch-template-id");
+                filters.remove("launch-template-id");
+
+                if (!ObjectUtils.isBlank(launchTemplateId)) {
+                    builder = builder.launchTemplateIds(Collections.singleton(launchTemplateId));
+                }
             }
+
+            builder = builder.filters(createFilters(filters));
         }
 
-        request.filters(createFilters(filters));
+        String marker = null;
+        DescribeLaunchTemplatesResponse response;
 
-        return client.describeLaunchTemplates(request.build()).launchTemplates();
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeLaunchTemplates(builder.build());
+            } else {
+                response = client.describeLaunchTemplates(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            launchTemplates.addAll(response.launchTemplates());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return launchTemplates;
     }
 }
