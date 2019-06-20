@@ -54,6 +54,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     //-- Read-only Attributes
 
     private String arn;
+    private String status;
 
     /**
      * Description of the db subnet group.
@@ -105,6 +106,18 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
 
     public void setArn(String arn) {
         this.arn = arn;
+    }
+
+    /**
+     * The status of this subnet group.
+     */
+    @Output
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override
@@ -175,8 +188,10 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
 
     @Override
     public void copyFrom(DBSubnetGroup dbSubnetGroup) {
-        setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
         setArn(dbSubnetGroup.dbSubnetGroupArn());
+        setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
+        setDbSubnetGroupName(dbSubnetGroup.dbSubnetGroupName());
+        setStatus(dbSubnetGroup.subnetGroupStatus());
         setSubnets(dbSubnetGroup.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
     }
 
