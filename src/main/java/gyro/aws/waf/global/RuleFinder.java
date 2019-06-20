@@ -4,6 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
+import software.amazon.awssdk.services.waf.model.ListRulesRequest;
+import software.amazon.awssdk.services.waf.model.ListRulesResponse;
 import software.amazon.awssdk.services.waf.model.Rule;
 import software.amazon.awssdk.services.waf.model.RuleSummary;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
@@ -24,7 +26,22 @@ public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafClient, RuleRe
     @Override
     protected List<Rule> findAllAws(WafClient client) {
         List<Rule> rules = new ArrayList<>();
-        List<RuleSummary> ruleSummaries = client.listRules().rules();
+
+        String marker = null;
+        ListRulesResponse response;
+        List<RuleSummary> ruleSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listRules();
+            } else {
+                response = client.listRules(ListRulesRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            ruleSummaries.addAll(response.rules());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         for (RuleSummary ruleSummary : ruleSummaries) {
             rules.add(client.getRule(r -> r.ruleId(ruleSummary.ruleId())).rule());

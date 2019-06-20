@@ -2,6 +2,8 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
+import software.amazon.awssdk.services.waf.model.ListXssMatchSetsRequest;
+import software.amazon.awssdk.services.waf.model.ListXssMatchSetsResponse;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.model.XssMatchSet;
 import software.amazon.awssdk.services.waf.model.XssMatchSetSummary;
@@ -24,7 +26,21 @@ public class XssMatchSetFinder extends gyro.aws.waf.common.XssMatchSetFinder<Waf
     protected List<XssMatchSet> findAllAws(WafRegionalClient client) {
         List<XssMatchSet> xssMatchSets = new ArrayList<>();
 
-        List<XssMatchSetSummary> xssMatchSetSummaries = client.listXssMatchSets().xssMatchSets();
+        String marker = null;
+        ListXssMatchSetsResponse response;
+        List<XssMatchSetSummary> xssMatchSetSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listXssMatchSets();
+            } else {
+                response = client.listXssMatchSets(ListXssMatchSetsRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            xssMatchSetSummaries.addAll(response.xssMatchSets());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         for (XssMatchSetSummary xssMatchSetSummary : xssMatchSetSummaries) {
             xssMatchSets.add(client.getXssMatchSet(r -> r.xssMatchSetId(xssMatchSetSummary.xssMatchSetId())).xssMatchSet());

@@ -4,6 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
+import software.amazon.awssdk.services.waf.model.ListRateBasedRulesRequest;
+import software.amazon.awssdk.services.waf.model.ListRateBasedRulesResponse;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 import software.amazon.awssdk.services.waf.model.RuleSummary;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
@@ -24,7 +26,22 @@ public class RateRuleFinder extends gyro.aws.waf.common.RateRuleFinder<WafClient
     @Override
     protected List<RateBasedRule> findAllAws(WafClient client) {
         List<RateBasedRule> rules = new ArrayList<>();
-        List<RuleSummary> ruleSummaries = client.listRateBasedRules().rules();
+
+        String marker = null;
+        ListRateBasedRulesResponse response;
+        List<RuleSummary> ruleSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listRateBasedRules();
+            } else {
+                response = client.listRateBasedRules(ListRateBasedRulesRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            ruleSummaries.addAll(response.rules());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         for (RuleSummary ruleSummary : ruleSummaries) {
             rules.add(client.getRateBasedRule(r -> r.ruleId(ruleSummary.ruleId())).rule());

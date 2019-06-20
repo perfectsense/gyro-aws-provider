@@ -4,6 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.waf.model.IPSet;
 import software.amazon.awssdk.services.waf.model.IPSetSummary;
+import software.amazon.awssdk.services.waf.model.ListIpSetsRequest;
+import software.amazon.awssdk.services.waf.model.ListIpSetsResponse;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
@@ -24,7 +26,21 @@ public class IpSetFinder extends gyro.aws.waf.common.IpSetFinder<WafRegionalClie
     protected List<IPSet> findAllAws(WafRegionalClient client) {
         List<IPSet> ipSets = new ArrayList<>();
 
-        List<IPSetSummary> ipSetSummaries = client.listIPSets().ipSets();
+        String marker = null;
+        ListIpSetsResponse response;
+        List<IPSetSummary> ipSetSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listIPSets();
+            } else {
+                response = client.listIPSets(ListIpSetsRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            ipSetSummaries.addAll(response.ipSets());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         for (IPSetSummary ipSetSummary : ipSetSummaries) {
             ipSets.add(client.getIPSet(r -> r.ipSetId(ipSetSummary.ipSetId())).ipSet());

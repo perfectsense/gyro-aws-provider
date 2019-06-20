@@ -4,6 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetSummary;
+import software.amazon.awssdk.services.waf.model.ListByteMatchSetsRequest;
+import software.amazon.awssdk.services.waf.model.ListByteMatchSetsResponse;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
@@ -24,7 +26,21 @@ public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<W
     protected List<ByteMatchSet> findAllAws(WafRegionalClient client) {
         List<ByteMatchSet> byteMatchSets = new ArrayList<>();
 
-        List<ByteMatchSetSummary> byteMatchSetSummaries = client.listByteMatchSets().byteMatchSets();
+        String marker = null;
+        ListByteMatchSetsResponse response;
+        List<ByteMatchSetSummary> byteMatchSetSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listByteMatchSets();
+            } else {
+                response = client.listByteMatchSets(ListByteMatchSetsRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            byteMatchSetSummaries.addAll(response.byteMatchSets());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         for (ByteMatchSetSummary byteMatchSetSummary : byteMatchSetSummaries) {
             byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(byteMatchSetSummary.byteMatchSetId())).byteMatchSet());

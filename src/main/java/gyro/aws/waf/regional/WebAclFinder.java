@@ -2,6 +2,8 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
+import software.amazon.awssdk.services.waf.model.ListWebAcLsRequest;
+import software.amazon.awssdk.services.waf.model.ListWebAcLsResponse;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.waf.model.WebACL;
 import software.amazon.awssdk.services.waf.model.WebACLSummary;
@@ -23,7 +25,22 @@ public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafRegionalCl
     @Override
     protected List<WebACL> findAllAws(WafRegionalClient client) {
         List<WebACL> webACLS = new ArrayList<>();
-        List<WebACLSummary> webACLSummaries = client.listWebACLs().webACLs();
+
+        String marker = null;
+        ListWebAcLsResponse response;
+        List<WebACLSummary> webACLSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listWebACLs();
+            } else {
+                response = client.listWebACLs(ListWebAcLsRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            webACLSummaries.addAll(response.webACLs());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         if (!webACLSummaries.isEmpty()) {
             for (WebACLSummary webACLSummary : webACLSummaries) {

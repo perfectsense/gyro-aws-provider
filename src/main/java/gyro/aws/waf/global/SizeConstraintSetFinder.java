@@ -4,6 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.waf.WafClient;
+import software.amazon.awssdk.services.waf.model.ListSizeConstraintSetsRequest;
+import software.amazon.awssdk.services.waf.model.ListSizeConstraintSetsResponse;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSetSummary;
 import software.amazon.awssdk.services.waf.model.WafNonexistentItemException;
@@ -25,7 +27,21 @@ public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintS
     protected List<SizeConstraintSet> findAllAws(WafClient client) {
         List<SizeConstraintSet> sizeConstraintSets = new ArrayList<>();
 
-        List<SizeConstraintSetSummary> sizeConstraintSetSummaries = client.listSizeConstraintSets().sizeConstraintSets();
+        String marker = null;
+        ListSizeConstraintSetsResponse response;
+        List<SizeConstraintSetSummary> sizeConstraintSetSummaries = new ArrayList<>();
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listSizeConstraintSets();
+            } else {
+                response = client.listSizeConstraintSets(ListSizeConstraintSetsRequest.builder().nextMarker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            sizeConstraintSetSummaries.addAll(response.sizeConstraintSets());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         for (SizeConstraintSetSummary sizeConstraintSetSummary : sizeConstraintSetSummaries) {
             sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(sizeConstraintSetSummary.sizeConstraintSetId())).sizeConstraintSet());
