@@ -1,14 +1,19 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcsResponse;
 import software.amazon.awssdk.services.ec2.model.Vpc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query vpc.
@@ -202,11 +207,26 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
 
     @Override
     protected List<Vpc> findAllAws(Ec2Client client) {
-        return client.describeVpcs().vpcs();
+        return client.describeVpcsPaginator().vpcs().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcs(r -> r.filters(createFilters(filters))).vpcs();
+        List<Vpc> vpcs = new ArrayList<>();
+
+        String marker = null;
+        DescribeVpcsResponse response;
+        do {
+            if (!ObjectUtils.isBlank(marker)) {
+                response = client.describeVpcs(DescribeVpcsRequest.builder().filters(createFilters(filters)).build());
+            } else {
+                response = client.describeVpcs(DescribeVpcsRequest.builder().filters(createFilters(filters)).nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            vpcs.addAll(response.vpcs());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return vpcs;
     }
 }
