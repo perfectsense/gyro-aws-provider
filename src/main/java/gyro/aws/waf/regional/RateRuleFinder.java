@@ -53,7 +53,7 @@ public class RateRuleFinder extends gyro.aws.waf.common.RateRuleFinder<WafRegion
     protected List<RateBasedRule> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<RateBasedRule> rules = new ArrayList<>();
 
-        if (filters.containsKey("rule-id") && !ObjectUtils.isBlank(filters.get("rile-id"))) {
+        if (filters.containsKey("rule-id") && !ObjectUtils.isBlank(filters.get("rule-id"))) {
             try {
                 rules.add(client.getRateBasedRule(r -> r.ruleId(filters.get("rule-id"))).rule());
             } catch (WafNonexistentItemException ignore) {

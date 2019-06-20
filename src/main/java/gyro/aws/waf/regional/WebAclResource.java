@@ -33,14 +33,14 @@ import java.util.stream.Collectors;
  *         action: "ALLOW"
  *         type: "REGULAR"
  *         priority: 1
- *         rule-id: $(aws::rule-regional rule-example-waf | rule-id)
+ *         rule: $(aws::rule-regional rule-example-waf)
  *     end
  *
  *     activated-rule
  *         action: "ALLOW"
  *         type: "RATE_BASED"
  *         priority: 2
- *         rule-id: $(aws::rate-rule-regional rate-rule-example-waf | rule-id)
+ *         rule: $(aws::rate-rule-regional rate-rule-example-waf)
  *     end
  * end
  */

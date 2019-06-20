@@ -3,8 +3,6 @@ package gyro.aws.waf.regional;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.nio.charset.StandardCharsets;
-
 public class ByteMatchTupleResource extends gyro.aws.waf.common.ByteMatchTupleResource {
     @Override
     protected void saveByteMatchTuple(ByteMatchTuple byteMatchTuple, boolean isDelete) {

@@ -2,9 +2,6 @@ package gyro.aws.waf.global;
 
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
-import software.amazon.awssdk.services.waf.model.ExcludedRule;
-
-import java.util.stream.Collectors;
 
 public class ActivatedRuleResource extends gyro.aws.waf.common.ActivatedRuleResource {
     @Override

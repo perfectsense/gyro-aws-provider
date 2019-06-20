@@ -1,10 +1,8 @@
 package gyro.aws.waf.regional;
 
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
-import software.amazon.awssdk.services.waf.model.ExcludedRule;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.util.stream.Collectors;
 
 public class ActivatedRuleResource extends gyro.aws.waf.common.ActivatedRuleResource {
     @Override

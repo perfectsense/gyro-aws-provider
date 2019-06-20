@@ -1,7 +1,6 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
