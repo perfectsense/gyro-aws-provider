@@ -1,10 +1,14 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointServiceConfigurationsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointServiceConfigurationsResponse;
 import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,11 +90,37 @@ public class EndpointServiceFinder extends AwsFinder<Ec2Client, ServiceConfigura
 
     @Override
     protected List<ServiceConfiguration> findAllAws(Ec2Client client) {
-        return client.describeVpcEndpointServiceConfigurations().serviceConfigurations();
+        return getServiceConfigurations(client, null);
     }
 
     @Override
     protected List<ServiceConfiguration> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcEndpointServiceConfigurations(r -> r.filters(createFilters(filters))).serviceConfigurations();
+        return getServiceConfigurations(client, filters);
+    }
+
+    private List<ServiceConfiguration> getServiceConfigurations(Ec2Client client, Map<String, String> filters) {
+        List<ServiceConfiguration> serviceConfigurations = new ArrayList<>();
+
+        DescribeVpcEndpointServiceConfigurationsRequest.Builder builder = DescribeVpcEndpointServiceConfigurationsRequest.builder();
+
+        if (filters != null) {
+            builder = builder.filters(createFilters(filters));
+        }
+
+        String marker = null;
+        DescribeVpcEndpointServiceConfigurationsResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeVpcEndpointServiceConfigurations(builder.build());
+            } else {
+                response = client.describeVpcEndpointServiceConfigurations(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            serviceConfigurations.addAll(response.serviceConfigurations());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return serviceConfigurations;
     }
 }
