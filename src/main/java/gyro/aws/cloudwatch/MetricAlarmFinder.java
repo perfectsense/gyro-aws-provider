@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query metric alarm.
@@ -73,22 +74,7 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
 
     @Override
     protected List<MetricAlarm> findAllAws(CloudWatchClient client) {
-        List<MetricAlarm> metricAlarms = new ArrayList<>();
-
-        String marker = null;
-        DescribeAlarmsResponse response;
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeAlarms();
-            } else {
-                response = client.describeAlarms(DescribeAlarmsRequest.builder().nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            metricAlarms.addAll(response.metricAlarms());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return metricAlarms;
+        return client.describeAlarmsPaginator().metricAlarms().stream().collect(Collectors.toList());
     }
 
     @Override
