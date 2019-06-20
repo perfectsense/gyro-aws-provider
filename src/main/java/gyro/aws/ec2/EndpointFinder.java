@@ -1,10 +1,14 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointsResponse;
 import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,11 +102,37 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
 
     @Override
     protected List<VpcEndpoint> findAllAws(Ec2Client client) {
-        return client.describeVpcEndpoints().vpcEndpoints();
+        return getvVpcEndpoints(client, null);
     }
 
     @Override
     protected List<VpcEndpoint> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcEndpoints(r -> r.filters(createFilters(filters))).vpcEndpoints();
+        return getvVpcEndpoints(client, filters);
+    }
+
+    private List<VpcEndpoint> getvVpcEndpoints(Ec2Client client, Map<String, String> filters) {
+        List<VpcEndpoint> vpcEndpoints = new ArrayList<>();
+
+        DescribeVpcEndpointsRequest.Builder builder = DescribeVpcEndpointsRequest.builder();
+
+        if (filters != null) {
+            builder = builder.filters(createFilters(filters));
+        }
+
+        String marker = null;
+        DescribeVpcEndpointsResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeVpcEndpoints(builder.build());
+            } else {
+                response = client.describeVpcEndpoints(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            vpcEndpoints.addAll(response.vpcEndpoints());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return vpcEndpoints;
     }
 }
