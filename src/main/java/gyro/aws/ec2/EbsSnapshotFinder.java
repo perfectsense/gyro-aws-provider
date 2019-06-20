@@ -1,13 +1,18 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
 import software.amazon.awssdk.services.ec2.model.Snapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query ebs snapshot.
@@ -170,11 +175,29 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
 
     @Override
     protected List<Snapshot> findAllAws(Ec2Client client) {
-        return client.describeSnapshots().snapshots();
+        return client.describeSnapshotsPaginator().snapshots().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<Snapshot> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSnapshots(r -> r.filters(createFilters(filters))).snapshots();
+        List<Snapshot> snapshots = new ArrayList<>();
+
+        DescribeSnapshotsRequest.Builder builder = DescribeSnapshotsRequest.builder().filters(createFilters(filters));
+
+        String marker = null;
+        DescribeSnapshotsResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeSnapshots(builder.build());
+            } else {
+                response = client.describeSnapshots(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            snapshots.addAll(response.snapshots());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return snapshots;
     }
 }
