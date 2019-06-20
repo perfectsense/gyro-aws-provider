@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -40,8 +41,8 @@ import java.util.Set;
  *        rule-name: "event-pattern-test"
  *        description: "first rule test"
  *        event-pattern-path: 'event-pattern.json'
- *        #schedule-event: true
- *        #schedule-expression: "rate(5 minutes)"
+ *        schedule-event: true
+ *        schedule-expression: "rate(5 minutes)"
  *        state: "ENABLED"
  *
  *        target
@@ -58,7 +59,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     private String description;
     private String eventPattern;
     private String managedBy;
-    private String roleArn;
+    private RoleResource role;
     private String ruleArn;
     private String ruleName;
     private String scheduleExpression;
@@ -90,15 +91,15 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     /**
-     * The iam role arn that gives permissions to invoke actions on the targets.
+     * The IAM role that gives permissions to invoke actions on the targets.
      */
     @Updatable
-    public String getRoleArn() {
-        return roleArn;
+    public RoleResource getRole() {
+        return role;
     }
 
-    public void setRoleArn(String roleArn) {
-        this.roleArn = roleArn;
+    public void setRole(RoleResource role) {
+        this.role = role;
     }
 
     /**
@@ -186,7 +187,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
         setEventPattern(rule.eventPattern());
         setScheduleExpression(rule.scheduleExpression());
         setState(rule.state().toString());
-        setRoleArn(rule.roleArn());
+        setRole(!ObjectUtils.isBlank(rule.roleArn()) ? findById(RoleResource.class, rule.roleArn()) : null);
         setManagedBy(rule.managedBy());
 
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
@@ -194,12 +195,10 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
         List<Target> targets = getTarget(client, rule);
 
         getTarget().clear();
-        if (targets != null) {
-            for (Target target : targets) {
-                RuleTargetResource targetResource = newSubresource(RuleTargetResource.class);
-                targetResource.copyFrom(target);
-                getTarget().add(targetResource);
-            }
+        for (Target target : targets) {
+            RuleTargetResource targetResource = newSubresource(RuleTargetResource.class);
+            targetResource.copyFrom(target);
+            getTarget().add(targetResource);
         }
     }
 
@@ -285,7 +284,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
                     r -> r.name(getRuleName())
                             .description(getDescription())
                             .scheduleExpression(getScheduleExpression())
-                            .roleArn(getRoleArn())
+                            .roleArn(getRole() != null ? getRole().getArn() : null)
                             .state(getState())
             );
             setRuleArn(ruleResponse.ruleArn());
@@ -295,7 +294,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
                     r -> r.name(getRuleName())
                             .description(getDescription())
                             .eventPattern(getEventPattern())
-                            .roleArn(getRoleArn())
+                            .roleArn(getRole() != null ? getRole().getArn() : null)
                             .state(getState())
             );
             setRuleArn(ruleResponse.ruleArn());

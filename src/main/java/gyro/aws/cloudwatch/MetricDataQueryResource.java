@@ -3,7 +3,6 @@ package gyro.aws.cloudwatch;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery;

@@ -57,20 +57,9 @@ public class EventRuleFinder extends AwsFinder<CloudWatchEventsClient, Rule, Eve
     @Override
     protected List<Rule> findAws(CloudWatchEventsClient client, Map<String, String> filters) {
         List<Rule> rules = new ArrayList<>();
-        String marker = null;
-        ListRulesResponse response;
 
         if (filters.containsKey("rule-name") && !ObjectUtils.isBlank(filters.get("rule-name"))) {
-            do {
-                if (ObjectUtils.isBlank(marker)) {
-                    response = client.listRules(ListRulesRequest.builder().namePrefix(filters.get("rule-name")).build());
-                } else {
-                    response = client.listRules(ListRulesRequest.builder().namePrefix(filters.get("rule-name")).nextToken(marker).build());
-                }
-
-                marker = response.nextToken();
-                rules.addAll(response.rules());
-            } while (!ObjectUtils.isBlank(marker));
+            rules.addAll(client.listRules(r -> r.namePrefix(filters.get("rule-name"))).rules());
         }
 
         return rules;

@@ -165,7 +165,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getTargetId());
+        return getTargetId();
     }
 
     @Override
