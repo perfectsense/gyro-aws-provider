@@ -35,7 +35,7 @@ public class DbClusterParameterGroupFinder extends DocDbFinder<DocDbClient, DBCl
         try {
             return client.describeDBClusterParameterGroups(r -> r.dbClusterParameterGroupName(filters.get("name"))).dbClusterParameterGroups();
         } catch (DbParameterGroupNotFoundException ex) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 }
