@@ -1,5 +1,6 @@
 package gyro.aws.sns;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 
@@ -9,6 +10,7 @@ import software.amazon.awssdk.services.sns.model.Topic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query topics.
@@ -35,20 +37,17 @@ public class TopicFinder extends AwsFinder<SnsClient, Topic, TopicResource> {
 
     @Override
     protected List<Topic> findAws(SnsClient client, Map<String, String> filters) {
-        List<Topic> targetSubscription = new ArrayList<>();
+        List<Topic> topics = new ArrayList<>();
 
-        for (Topic target : client.listTopics().topics()) {
-            if (target.topicArn().equals(filters.get("arn"))) {
-                targetSubscription.add(target);
-                return targetSubscription;
-            }
+        if (filters.containsKey("arn") && !ObjectUtils.isBlank(filters.get("arn"))) {
+            topics.addAll(client.listTopicsPaginator().topics().stream().filter(o -> o.topicArn().equals(filters.get("arn"))).collect(Collectors.toList()));
         }
 
-        return null;
+        return topics;
     }
 
     @Override
     protected List<Topic> findAllAws(SnsClient client) {
-        return client.listTopics().topics();
+        return client.listTopicsPaginator().topics().stream().collect(Collectors.toList());
     }
 }
