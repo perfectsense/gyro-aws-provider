@@ -1,5 +1,6 @@
 package gyro.aws.waf.common;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -77,7 +78,6 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         setAction(activatedRule.action().typeAsString());
         setPriority(activatedRule.priority());
         setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
-        //setType(activatedRule.typeAsString());
         setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
     }
 
@@ -117,7 +117,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
         sb.append("activated rule");
 
-        if (getRule() != null) {
+        if (getRule() != null && !ObjectUtils.isBlank(getRule().getRuleId())) {
             sb.append(" - ").append(getRule().getRuleId());
         }
 

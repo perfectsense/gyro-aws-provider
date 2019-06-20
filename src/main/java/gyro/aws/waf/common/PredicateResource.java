@@ -1,5 +1,6 @@
 package gyro.aws.waf.common;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -76,7 +77,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
         sb.append("predicate");
 
-        if (getCondition() != null) {
+        if (getCondition() != null && !ObjectUtils.isBlank(getCondition().getId())) {
             sb.append(" - ").append(getCondition().getId());
         }
 

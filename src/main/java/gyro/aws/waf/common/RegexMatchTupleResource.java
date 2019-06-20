@@ -106,7 +106,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
             sb.append(" - ").append(getTextTransformation());
         }
 
-        if (getRegexPatternSet() != null) {
+        if (getRegexPatternSet() != null && !ObjectUtils.isBlank(getRegexPatternSet().getRegexPatternSetId())) {
             sb.append(" - ").append(getRegexPatternSet().getRegexPatternSetId());
         }
 
