@@ -1,13 +1,18 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query nat gateway.
@@ -98,11 +103,29 @@ public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewa
 
     @Override
     protected List<NatGateway> findAllAws(Ec2Client client) {
-        return client.describeNatGateways().natGateways();
+        return client.describeNatGatewaysPaginator().natGateways().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<NatGateway> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeNatGateways(r -> r.filter(createFilters(filters))).natGateways();
+        List<NatGateway> natGateways = new ArrayList<>();
+
+        DescribeNatGatewaysRequest.Builder builder = DescribeNatGatewaysRequest.builder().filter(createFilters(filters));
+
+        String marker = null;
+        DescribeNatGatewaysResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeNatGateways(builder.build());
+            } else {
+                response = client.describeNatGateways(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            natGateways.addAll(response.natGateways());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return natGateways;
     }
 }
