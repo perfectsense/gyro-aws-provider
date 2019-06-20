@@ -522,6 +522,13 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         }
 
         client.putMetricAlarm(builder.build());
+
+        MetricAlarm metricAlarm = getMetricAlarm(client);
+
+        if (metricAlarm != null) {
+            setArn(metricAlarm.alarmArn());
+            setState(metricAlarm.stateValueAsString());
+        }
     }
 
     private void validate() {
