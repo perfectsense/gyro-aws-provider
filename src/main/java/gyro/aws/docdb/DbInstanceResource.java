@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *         engine: "docdb"
  *         preferred-maintenance-window: "wed:03:28-wed:04:58"
  *         promotion-tier: 1
- *         db-cluster-identifier: $(aws::db-cluster db-cluster-db-instance-example | db-cluster-identifier)
+ *         db-cluster: $(aws::db-cluster db-cluster-db-instance-example)
  *
  *         tags: {
  *             Name: "db-instance-example"
@@ -39,7 +40,8 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("docdb-instance")
-public class DbInstance extends DocDbTaggableResource {
+public class DbInstanceResource extends DocDbTaggableResource implements Copyable<DBInstance> {
+
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
     private String dbInstanceClass;
@@ -47,7 +49,9 @@ public class DbInstance extends DocDbTaggableResource {
     private String engine;
     private String preferredMaintenanceWindow;
     private Integer promotionTier;
-    private String dbClusterIdentifier;
+    private DbClusterResource dbCluster;
+
+    //-- Read-only Attributes
 
     private String status;
     private String arn;
@@ -134,14 +138,14 @@ public class DbInstance extends DocDbTaggableResource {
     }
 
     /**
-     * Set the name of the parent db cluster. (Required)
+     * The parent db cluster. (Required)
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -183,14 +187,7 @@ public class DbInstance extends DocDbTaggableResource {
             return false;
         }
 
-        setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
-        setAvailabilityZone(dbInstance.availabilityZone());
-        setDbInstanceClass(dbInstance.dbInstanceClass());
-        setEngine(dbInstance.engine());
-        setPreferredMaintenanceWindow(dbInstance.preferredMaintenanceWindow());
-        setPromotionTier(dbInstance.promotionTier());
-        setArn(dbInstance.dbInstanceArn());
-        setStatus(dbInstance.dbInstanceStatus());
+        copyFrom(dbInstance);
 
         return true;
     }
@@ -207,7 +204,7 @@ public class DbInstance extends DocDbTaggableResource {
                 .engine(getEngine())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
-                .dbClusterIdentifier(getDbClusterIdentifier())
+                .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
         );
 
         setArn(response.dbInstance().dbInstanceArn());
@@ -265,6 +262,19 @@ public class DbInstance extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBInstance dbInstance) {
+        setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
+        setAvailabilityZone(dbInstance.availabilityZone());
+        setDbInstanceClass(dbInstance.dbInstanceClass());
+        setEngine(dbInstance.engine());
+        setPreferredMaintenanceWindow(dbInstance.preferredMaintenanceWindow());
+        setPromotionTier(dbInstance.promotionTier());
+        setArn(dbInstance.dbInstanceArn());
+        setStatus(dbInstance.dbInstanceStatus());
+        setDbCluster(findById(DbClusterResource.class, dbInstance.dbClusterIdentifier()));
+    }
+
     private boolean isAvailable(DocDbClient client) {
         DBInstance dbInstance = getDbInstance(client);
 
@@ -292,4 +302,5 @@ public class DbInstance extends DocDbTaggableResource {
 
         return dbInstance;
     }
+
 }

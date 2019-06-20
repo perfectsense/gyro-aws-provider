@@ -1,11 +1,15 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.kms.KmsResource;
 import gyro.core.GyroException;
-import gyro.core.Wait;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
 import gyro.core.Type;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
@@ -14,10 +18,10 @@ import software.amazon.awssdk.services.docdb.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DeleteDbClusterRequest;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClustersResponse;
 import software.amazon.awssdk.services.docdb.model.ModifyDbClusterRequest;
-import software.amazon.awssdk.services.docdb.model.VpcSecurityGroupMembership;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -33,18 +37,18 @@ import java.util.stream.Collectors;
  *
  *     aws::docdb-cluster db-cluster-example
  *         db-cluster-identifier: "db-cluster-example"
- *         db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
+ *         db-subnet-group: $(aws::db-subnet-group db-subnet-group-db-cluster-example)
  *         engine: "docdb"
  *         engine-version: "3.6.0"
- *         db-cluster-param-group-name: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-example | db-cluster-param-group-name)
+ *         db-cluster-param-group: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-example)
  *         master-username: "master"
  *         master-user-password: "masterpassword"
  *         port: 27017
  *         preferred-backup-window: "00:00-00:30"
  *         preferred-maintenance-window: "wed:03:28-wed:03:58"
- *         vpc-security-group-ids: [
- *             $(aws::security-group security-group-db-cluster-example-1 | group-id),
- *             $(aws::security-group security-group-db-cluster-example-2 | group-id)
+ *         vpc-security-groups: [
+ *             $(aws::security-group security-group-db-cluster-example-1),
+ *             $(aws::security-group security-group-db-cluster-example-2)
  *         ]
  *         storage-encrypted: false
  *         backup-retention-period: 1
@@ -55,25 +59,28 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("docdb-cluster")
-public class DbClusterResource extends DocDbTaggableResource {
+public class DbClusterResource extends DocDbTaggableResource implements Copyable<DBCluster> {
+
     private Integer backupRetentionPeriod;
     private String dbClusterIdentifier;
-    private String dbSubnetGroupName;
+    private DbSubnetGroupResource dbSubnetGroup;
     private String engine;
     private String engineVersion;
-    private String dbClusterParamGroupName;
-    private String kmsKeyId;
+    private DbClusterParameterGroupResource dbClusterParamGroup;
+    private KmsResource kmsKey;
     private String masterUsername;
     private String masterUserPassword;
     private Integer port;
     private String preferredBackupWindow;
     private String preferredMaintenanceWindow;
-    private List<String> vpcSecurityGroupIds;
+    private Set<SecurityGroupResource> vpcSecurityGroups;
     private Boolean storageEncrypted;
     private List<String> enableCloudwatchLogsExports;
     private String postDeleteSnapshotIdentifier;
 
-    private String DbClusterResourceId;
+    //-- Read-only Attributes
+
+    private String dbClusterResourceId;
     private String status;
     private String arn;
 
@@ -92,6 +99,7 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Name of the cluster. (Required)
      */
+    @Id
     public String getDbClusterIdentifier() {
         return dbClusterIdentifier;
     }
@@ -103,12 +111,12 @@ public class DbClusterResource extends DocDbTaggableResource {
     /**
      * Associated db subnet group. (Required)
      */
-    public String getDbSubnetGroupName() {
-        return dbSubnetGroupName;
+    public DbSubnetGroupResource getDbSubnetGroup() {
+        return dbSubnetGroup;
     }
 
-    public void setDbSubnetGroupName(String dbSubnetGroupName) {
-        this.dbSubnetGroupName = dbSubnetGroupName;
+    public void setDbSubnetGroup(DbSubnetGroupResource dbSubnetGroup) {
+        this.dbSubnetGroup = dbSubnetGroup;
     }
 
     /**
@@ -138,23 +146,23 @@ public class DbClusterResource extends DocDbTaggableResource {
      * Associated db cluster parameter group. (Required)
      */
     @Updatable
-    public String getDbClusterParamGroupName() {
-        return dbClusterParamGroupName;
+    public DbClusterParameterGroupResource getDbClusterParamGroup() {
+        return dbClusterParamGroup;
     }
 
-    public void setDbClusterParamGroupName(String dbClusterParamGroupName) {
-        this.dbClusterParamGroupName = dbClusterParamGroupName;
+    public void setDbClusterParamGroup(DbClusterParameterGroupResource dbClusterParamGroup) {
+        this.dbClusterParamGroup = dbClusterParamGroup;
     }
 
     /**
-     * Associated kms key id. (Optional)
+     * Associated kms key. (Optional)
      */
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -216,23 +224,19 @@ public class DbClusterResource extends DocDbTaggableResource {
     }
 
     /**
-     * Associated vpc security group ids. (Required)
+     * Associated vpc security groups. (Required)
      */
     @Updatable
-    public List<String> getVpcSecurityGroupIds() {
-        if (vpcSecurityGroupIds == null) {
-            vpcSecurityGroupIds = new ArrayList<>();
+    public Set<SecurityGroupResource> getVpcSecurityGroups() {
+        if (vpcSecurityGroups == null) {
+            vpcSecurityGroups = new HashSet<>();
         }
 
-        if (!vpcSecurityGroupIds.isEmpty() && !vpcSecurityGroupIds.contains(null)) {
-            Collections.sort(vpcSecurityGroupIds);
-        }
-
-        return vpcSecurityGroupIds;
+        return vpcSecurityGroups;
     }
 
-    public void setVpcSecurityGroupIds(List<String> vpcSecurityGroupIds) {
-        this.vpcSecurityGroupIds = vpcSecurityGroupIds;
+    public void setVpcSecurityGroups(Set<SecurityGroupResource> vpcSecurityGroups) {
+        this.vpcSecurityGroups = vpcSecurityGroups;
     }
 
     /**
@@ -282,11 +286,11 @@ public class DbClusterResource extends DocDbTaggableResource {
      */
     @Output
     public String getDbClusterResourceId() {
-        return DbClusterResourceId;
+        return dbClusterResourceId;
     }
 
     public void setDbClusterResourceId(String dbClusterResourceId) {
-        DbClusterResourceId = dbClusterResourceId;
+        this.dbClusterResourceId = dbClusterResourceId;
     }
 
     /**
@@ -328,24 +332,7 @@ public class DbClusterResource extends DocDbTaggableResource {
             return false;
         }
 
-        setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
-        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-        setDbSubnetGroupName(dbCluster.dbSubnetGroup());
-        setEngine(dbCluster.engine());
-        setEngineVersion(dbCluster.engineVersion());
-        setDbClusterParamGroupName(dbCluster.dbClusterParameterGroup());
-        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-        setKmsKeyId(dbCluster.kmsKeyId());
-        setMasterUsername(dbCluster.masterUsername());
-        setPort(dbCluster.port());
-        setPreferredBackupWindow(dbCluster.preferredBackupWindow());
-        setPreferredMaintenanceWindow(dbCluster.preferredMaintenanceWindow());
-        setVpcSecurityGroupIds(dbCluster.vpcSecurityGroups().stream().map(VpcSecurityGroupMembership::vpcSecurityGroupId).collect(Collectors.toList()));
-        setStorageEncrypted(dbCluster.storageEncrypted());
-        setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
-        setStatus(dbCluster.status());
-        setDbClusterResourceId(dbCluster.dbClusterResourceId());
-        setArn(dbCluster.dbClusterArn());
+        copyFrom(dbCluster);
 
         return true;
     }
@@ -357,25 +344,23 @@ public class DbClusterResource extends DocDbTaggableResource {
         CreateDbClusterResponse response = client.createDBCluster(
             o -> o.backupRetentionPeriod(getBackupRetentionPeriod())
                 .dbClusterIdentifier(getDbClusterIdentifier())
-                .dbSubnetGroupName(getDbSubnetGroupName())
+                .dbSubnetGroupName(getDbSubnetGroup().getDbSubnetGroupName())
                 .engine(getEngine())
                 .engineVersion(getEngineVersion())
-                .dbClusterParameterGroupName(getDbClusterParamGroupName())
-                .kmsKeyId(getKmsKeyId())
+                .dbClusterParameterGroupName(getDbClusterParamGroup().getDbClusterParamGroupName())
+                .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyId() : null)
                 .masterUsername(getMasterUsername())
                 .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .vpcSecurityGroupIds(getVpcSecurityGroupIds())
+                .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
                 .storageEncrypted(getStorageEncrypted())
                 .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
         );
 
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
-
-
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -392,12 +377,12 @@ public class DbClusterResource extends DocDbTaggableResource {
         ModifyDbClusterRequest.Builder builder = ModifyDbClusterRequest.builder()
             .backupRetentionPeriod(getBackupRetentionPeriod())
             .dbClusterIdentifier(getDbClusterIdentifier())
-            .dbClusterParameterGroupName(getDbClusterParamGroupName())
+            .dbClusterParameterGroupName(getDbClusterParamGroup().getDbClusterParamGroupName())
             .masterUserPassword(getMasterUserPassword())
             .port(getPort())
             .preferredBackupWindow(getPreferredBackupWindow())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .vpcSecurityGroupIds(getVpcSecurityGroupIds());
+            .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
 
         if (!resource.getEngineVersion().equals(getEngineVersion())) {
             builder.engineVersion(getEngineVersion());
@@ -447,6 +432,29 @@ public class DbClusterResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBCluster dbCluster) {
+
+        setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
+        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setDbSubnetGroup(findById(DbSubnetGroupResource.class, dbCluster.dbSubnetGroup()));
+        setEngine(dbCluster.engine());
+        setEngineVersion(dbCluster.engineVersion());
+        setDbClusterParamGroup(findById(DbClusterParameterGroupResource.class, dbCluster.dbClusterParameterGroup()));
+        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setKmsKey(findById(KmsResource.class, dbCluster.kmsKeyId()));
+        setMasterUsername(dbCluster.masterUsername());
+        setPort(dbCluster.port());
+        setPreferredBackupWindow(dbCluster.preferredBackupWindow());
+        setPreferredMaintenanceWindow(dbCluster.preferredMaintenanceWindow());
+        setVpcSecurityGroups(dbCluster.vpcSecurityGroups().stream().map(v -> findById(SecurityGroupResource.class, v.vpcSecurityGroupId())).collect(Collectors.toSet()));
+        setStorageEncrypted(dbCluster.storageEncrypted());
+        setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
+        setStatus(dbCluster.status());
+        setDbClusterResourceId(dbCluster.dbClusterResourceId());
+        setArn(dbCluster.dbClusterArn());
+    }
+
     private boolean isAvailable(DocDbClient client) {
         DBCluster dbCluster = getDbCluster(client);
 
@@ -475,4 +483,5 @@ public class DbClusterResource extends DocDbTaggableResource {
 
         return dbCluster;
     }
+
 }

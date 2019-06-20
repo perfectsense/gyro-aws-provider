@@ -1,8 +1,10 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -12,6 +14,7 @@ import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroup
 import software.amazon.awssdk.services.docdb.model.DBCluster;
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
 import software.amazon.awssdk.services.docdb.model.DbClusterParameterGroupNotFoundException;
+import software.amazon.awssdk.services.docdb.model.DbParameterGroupNotFoundException;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParametersResponse;
 import software.amazon.awssdk.services.docdb.model.Parameter;
@@ -40,7 +43,8 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("docdb-cluster-param-group")
-public class DbClusterParameterGroupResource extends DocDbTaggableResource {
+public class DbClusterParameterGroupResource extends DocDbTaggableResource implements Copyable<DBClusterParameterGroup> {
+
     private String dbClusterParamGroupName;
     private String dbParamGroupFamily;
     private String description;
@@ -48,11 +52,14 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
     private Boolean enableTls;
     private Boolean enableTtlMonitor;
 
+    //-- Read-only Attributes
+
     private String arn;
 
     /**
      * Name of the db cluster parameter group. (Required)
      */
+    @Id
     public String getDbClusterParamGroupName() {
         return dbClusterParamGroupName;
     }
@@ -158,27 +165,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
             return false;
         }
 
-        setArn(dbClusterParameterGroup.dbClusterParameterGroupArn());
-        setDbParamGroupFamily(dbClusterParameterGroup.dbParameterGroupFamily());
-        setDescription(dbClusterParameterGroup.description());
-
-        DescribeDbClusterParametersResponse response1 = client.describeDBClusterParameters(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
-        );
-
-        for (Parameter parameter : response1.parameters()) {
-            switch (parameter.parameterName()) {
-                case "audit_logs":
-                    setEnableAuditLogs(parameter.parameterValue().equalsIgnoreCase("enabled"));
-                    break;
-                case "tls":
-                    setEnableTls(parameter.parameterValue().equalsIgnoreCase("enabled"));
-                    break;
-                case "ttl_monitor":
-                    setEnableTtlMonitor(parameter.parameterValue().equalsIgnoreCase("enabled"));
-                    break;
-            }
-        }
+        copyFrom(dbClusterParameterGroup);
 
         return true;
     }
@@ -253,6 +240,34 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBClusterParameterGroup dbClusterParameterGroup) {
+        DocDbClient client = createClient(DocDbClient.class);
+
+        setArn(dbClusterParameterGroup.dbClusterParameterGroupArn());
+        setDbClusterParamGroupName(dbClusterParameterGroup.dbClusterParameterGroupName());
+        setDbParamGroupFamily(dbClusterParameterGroup.dbParameterGroupFamily());
+        setDescription(dbClusterParameterGroup.description());
+
+        DescribeDbClusterParametersResponse response = client.describeDBClusterParameters(
+            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+        );
+
+        for (Parameter parameter : response.parameters()) {
+            switch (parameter.parameterName()) {
+                case "audit_logs":
+                    setEnableAuditLogs(parameter.parameterValue().equalsIgnoreCase("enabled"));
+                    break;
+                case "tls":
+                    setEnableTls(parameter.parameterValue().equalsIgnoreCase("enabled"));
+                    break;
+                case "ttl_monitor":
+                    setEnableTtlMonitor(parameter.parameterValue().equalsIgnoreCase("enabled"));
+                    break;
+            }
+        }
+    }
+
     private void saveParameters(DocDbClient client) {
         DescribeDbClusterParametersResponse response = client.describeDBClusterParameters(
             r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
@@ -313,10 +328,11 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource {
                 dbClusterParameterGroup = response.dbClusterParameterGroups().get(0);
             }
 
-        } catch (DbClusterParameterGroupNotFoundException ex) {
+        } catch (DbParameterGroupNotFoundException | DbClusterParameterGroupNotFoundException ex) {
 
         }
 
         return dbClusterParameterGroup;
     }
+
 }
