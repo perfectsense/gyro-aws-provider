@@ -55,12 +55,10 @@ public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafRegionalCl
     protected List<WebACL> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<WebACL> webACLS = new ArrayList<>();
 
-        if (filters.containsKey("web-acl-id") && !ObjectUtils.isBlank(filters.get("web-acl-id"))) {
-            try {
-                webACLS.add(client.getWebACL(r -> r.webACLId(filters.get("web-acl-id"))).webACL());
-            } catch (WafNonexistentItemException ignore) {
-                //ignore
-            }
+        try {
+            webACLS.add(client.getWebACL(r -> r.webACLId(filters.get("web-acl-id"))).webACL());
+        } catch (WafNonexistentItemException ignore) {
+            //ignore
         }
 
         return webACLS;

@@ -54,12 +54,10 @@ public class IpSetFinder extends gyro.aws.waf.common.IpSetFinder<WafClient, IpSe
     protected List<IPSet> findAws(WafClient client, Map<String, String> filters) {
         List<IPSet> ipSets = new ArrayList<>();
 
-        if (filters.containsKey("ip-set-id") && !ObjectUtils.isBlank(filters.get("ip-set-id"))) {
-            try {
-                ipSets.add(client.getIPSet(r -> r.ipSetId(filters.get("ip-set-id"))).ipSet());
-            } catch (WafNonexistentItemException ignore) {
-                //ignore
-            }
+        try {
+            ipSets.add(client.getIPSet(r -> r.ipSetId(filters.get("ip-set-id"))).ipSet());
+        } catch (WafNonexistentItemException ignore) {
+            //ignore
         }
 
         return ipSets;

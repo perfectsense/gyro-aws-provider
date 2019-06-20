@@ -54,12 +54,10 @@ public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafClient, RuleRe
     protected List<Rule> findAws(WafClient client, Map<String, String> filters) {
         List<Rule> rules = new ArrayList<>();
 
-        if (filters.containsKey("rule-id") && !ObjectUtils.isBlank(filters.get("rule-id"))) {
-            try {
-                rules.add(client.getRule(r -> r.ruleId(filters.get("rule-id"))).rule());
-            } catch (WafNonexistentItemException ignore) {
-                //ignore
-            }
+        try {
+            rules.add(client.getRule(r -> r.ruleId(filters.get("rule-id"))).rule());
+        } catch (WafNonexistentItemException ignore) {
+            //ignore
         }
 
         return rules;

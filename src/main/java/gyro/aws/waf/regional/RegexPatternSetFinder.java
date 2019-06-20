@@ -53,12 +53,10 @@ public class RegexPatternSetFinder extends gyro.aws.waf.common.RegexPatternSetFi
     protected List<RegexPatternSet> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<RegexPatternSet> regexPatternSets = new ArrayList<>();
 
-        if (filters.containsKey("regex-pattern-set-id") && !ObjectUtils.isBlank(filters.get("regex-pattern-set-id"))) {
-            try {
-                regexPatternSets.add(client.getRegexPatternSet(r -> r.regexPatternSetId(filters.get("regex-pattern-set-id"))).regexPatternSet());
-            } catch (WafNonexistentItemException ignore) {
-                //ignore
-            }
+        try {
+            regexPatternSets.add(client.getRegexPatternSet(r -> r.regexPatternSetId(filters.get("regex-pattern-set-id"))).regexPatternSet());
+        } catch (WafNonexistentItemException ignore) {
+            //ignore
         }
 
         return regexPatternSets;

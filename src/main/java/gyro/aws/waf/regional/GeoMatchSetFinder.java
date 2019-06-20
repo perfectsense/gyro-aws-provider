@@ -53,12 +53,10 @@ public class GeoMatchSetFinder extends gyro.aws.waf.common.GeoMatchSetFinder<Waf
     protected List<GeoMatchSet> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<GeoMatchSet> geoMatchSets = new ArrayList<>();
 
-        if (filters.containsKey("geo-match-set-id") && !ObjectUtils.isBlank(filters.get("geo-match-set-id"))) {
-            try {
-                geoMatchSets.add(client.getGeoMatchSet(r -> r.geoMatchSetId(filters.get("geo-match-set-id"))).geoMatchSet());
-            } catch (WafNonexistentItemException ignore) {
-                //ignore
-            }
+        try {
+            geoMatchSets.add(client.getGeoMatchSet(r -> r.geoMatchSetId(filters.get("geo-match-set-id"))).geoMatchSet());
+        } catch (WafNonexistentItemException ignore) {
+            //ignore
         }
 
         return geoMatchSets;

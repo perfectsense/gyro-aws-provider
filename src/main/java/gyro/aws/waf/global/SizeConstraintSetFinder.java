@@ -54,12 +54,10 @@ public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintS
     protected List<SizeConstraintSet> findAws(WafClient client, Map<String, String> filters) {
         List<SizeConstraintSet> sizeConstraintSets = new ArrayList<>();
 
-        if (filters.containsKey("size-constraint-set-id") && !ObjectUtils.isBlank(filters.get("size-constraint-set-id"))) {
-            try {
-                sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(filters.get("size-constraint-set-id"))).sizeConstraintSet());
-            } catch (WafNonexistentItemException ignore) {
-                //ignore
-            }
+        try {
+            sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(filters.get("size-constraint-set-id"))).sizeConstraintSet());
+        } catch (WafNonexistentItemException ignore) {
+            //ignore
         }
 
         return sizeConstraintSets;
