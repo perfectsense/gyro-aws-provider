@@ -37,18 +37,18 @@ import java.util.stream.Collectors;
  *
  *     aws::docdb-cluster db-cluster-example
  *         db-cluster-identifier: "db-cluster-example"
- *         db-subnet-group-name: $(aws::db-subnet-group db-subnet-group-db-cluster-example | db-subnet-group-name)
+ *         db-subnet-group: $(aws::db-subnet-group db-subnet-group-db-cluster-example)
  *         engine: "docdb"
  *         engine-version: "3.6.0"
- *         db-cluster-param-group-name: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-example | db-cluster-param-group-name)
+ *         db-cluster-param-group: $(aws::db-cluster-param-group db-cluster-param-group-db-cluster-example)
  *         master-username: "master"
  *         master-user-password: "masterpassword"
  *         port: 27017
  *         preferred-backup-window: "00:00-00:30"
  *         preferred-maintenance-window: "wed:03:28-wed:03:58"
- *         vpc-security-group-ids: [
- *             $(aws::security-group security-group-db-cluster-example-1 | group-id),
- *             $(aws::security-group security-group-db-cluster-example-2 | group-id)
+ *         vpc-security-groups: [
+ *             $(aws::security-group security-group-db-cluster-example-1),
+ *             $(aws::security-group security-group-db-cluster-example-2)
  *         ]
  *         storage-encrypted: false
  *         backup-retention-period: 1
@@ -155,7 +155,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated kms key id. (Optional)
+     * Associated kms key. (Optional)
      */
     public KmsResource getKmsKey() {
         return kmsKey;
@@ -224,7 +224,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated vpc security group ids. (Required)
+     * Associated vpc security groups. (Required)
      */
     @Updatable
     public Set<SecurityGroupResource> getVpcSecurityGroups() {

@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
  *     aws::db-subnet-group db-subnet-group-example
  *         db-subnet-group-name: "db-subnet-group-example"
  *         db-subnet-group-description: "db-subnet-group-example-description"
- *         subnet-ids: [
- *             $(aws::subnet subnet-db-subnet-group-example-1 | subnet-id),
- *             $(aws::subnet subnet-db-subnet-group-example-2 | subnet-id)
+ *         subnets: [
+ *             $(aws::subnet subnet-db-subnet-group-example-1),
+ *             $(aws::subnet subnet-db-subnet-group-example-2)
  *         ]
  *
  *         tags: {
@@ -77,7 +77,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     /**
-     * A list of associated subnet id's. (Required)
+     * A list of associated subnets. (Required)
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {

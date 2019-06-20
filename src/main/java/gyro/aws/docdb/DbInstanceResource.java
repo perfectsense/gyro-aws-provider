@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *         engine: "docdb"
  *         preferred-maintenance-window: "wed:03:28-wed:04:58"
  *         promotion-tier: 1
- *         db-cluster-identifier: $(aws::db-cluster db-cluster-db-instance-example | db-cluster-identifier)
+ *         db-cluster: $(aws::db-cluster db-cluster-db-instance-example)
  *
  *         tags: {
  *             Name: "db-instance-example"

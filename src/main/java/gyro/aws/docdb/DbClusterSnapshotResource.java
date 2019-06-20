@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * .. code-block:: gyro
  *
  *     aws::docdb-cluster-snapshot db-cluster-snapshot-example
- *         db-cluster-identifier: $(aws::db-cluster db-cluster-db-cluster-snapshot-example | db-cluster-identifier)
+ *         db-cluster: $(aws::db-cluster db-cluster-db-cluster-snapshot-example)
  *         db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
  *
  *         tags: {
@@ -44,7 +44,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     private String arn;
 
     /**
-     * Associated db cluster name. (Required)
+     * Associated db cluster. (Required)
      */
     public DbClusterResource getDbCluster() {
         return dbCluster;
