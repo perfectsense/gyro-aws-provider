@@ -1,12 +1,16 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Reservation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1077,13 +1081,31 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
 
     @Override
     protected List<Instance> findAllAws(Ec2Client client) {
-        List<Reservation> reservations = client.describeInstances().reservations();
-        return reservations.stream().flatMap(o -> o.instances().stream()).collect(Collectors.toList());
+        return client.describeInstancesPaginator().reservations()
+            .stream().flatMap(o -> o.instances().stream())
+            .collect(Collectors.toList());
     }
 
     @Override
     protected List<Instance> findAws(Ec2Client client, Map<String, String> filters) {
-        List<Reservation> reservations = client.describeInstances(r -> r.filters(createFilters(filters))).reservations();
+        List<Reservation> reservations = new ArrayList<>();
+
+        DescribeInstancesRequest.Builder builder = DescribeInstancesRequest.builder().filters(createFilters(filters));
+
+        String marker = null;
+        DescribeInstancesResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeInstances(builder.build());
+            } else {
+                response = client.describeInstances(builder.nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            reservations.addAll(response.reservations());
+        } while (!ObjectUtils.isBlank(marker));
+
         return reservations.stream().flatMap(o -> o.instances().stream()).collect(Collectors.toList());
     }
 }
