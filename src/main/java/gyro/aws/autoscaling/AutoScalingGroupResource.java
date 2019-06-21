@@ -588,6 +588,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setStatus(autoScalingGroup.status());
         setCreatedTime(Date.from(autoScalingGroup.createdTime()));
         setTerminationPolicies(new HashSet<>(autoScalingGroup.terminationPolicies()));
+        setAutoScalingGroupName(autoScalingGroup.autoScalingGroupName());
 
         setLaunchTemplate(autoScalingGroup.launchTemplate() == null
             ? null
