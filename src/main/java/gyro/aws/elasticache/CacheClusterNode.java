@@ -17,6 +17,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
     private String parameterGroupStatus;
     private String sourceNodeId;
 
+    /**
+     * The timestamp when creating the cache node.
+     */
     public Date getCreateTime() {
         return createTime;
     }
@@ -25,6 +28,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.createTime = createTime;
     }
 
+    /**
+     * The Id of the cache node.
+     */
     public String getNodeId() {
         return nodeId;
     }
@@ -33,6 +39,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.nodeId = nodeId;
     }
 
+    /**
+     * The status of the cache node.
+     */
     public String getStatus() {
         return status;
     }
@@ -41,6 +50,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.status = status;
     }
 
+    /**
+     * The availability zone of the cache node.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -49,6 +61,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The endpoint address of the cache node.
+     */
     public String getAddress() {
         return address;
     }
@@ -57,6 +72,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.address = address;
     }
 
+    /**
+     * The endpoint port of the cache node.
+     */
     public Integer getPort() {
         return port;
     }
@@ -65,6 +83,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.port = port;
     }
 
+    /**
+     * The parameter group status of the cache node.
+     */
     public String getParameterGroupStatus() {
         return parameterGroupStatus;
     }
@@ -73,6 +94,9 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         this.parameterGroupStatus = parameterGroupStatus;
     }
 
+    /**
+     * The primary node Id for the cache node. This node is not associated with a primary cluster if empty.
+     */
     public String getSourceNodeId() {
         return sourceNodeId;
     }
