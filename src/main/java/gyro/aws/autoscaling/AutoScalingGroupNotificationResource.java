@@ -75,7 +75,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
         client.deleteNotificationConfiguration(
             r -> r.autoScalingGroupName(getParentId())
-            .topicARN(getTopic().getTopicArn())
+            .topicARN(getTopic().getArn())
         );
     }
 
@@ -85,8 +85,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
         sb.append("auto scale notification");
 
-        if (getTopic() != null && !ObjectUtils.isBlank(getTopic().getTopicArn())) {
-            sb.append(" - ").append(getTopic().getTopicArn());
+        if (getTopic() != null && !ObjectUtils.isBlank(getTopic().getArn())) {
+            sb.append(" - ").append(getTopic().getArn());
         }
 
         return sb.toString();
@@ -94,7 +94,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     @Override
     public String primaryKey() {
-        return getTopic().getTopicArn();
+        return getTopic().getArn();
     }
 
     private String getParentId() {
@@ -109,7 +109,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         client.putNotificationConfiguration(
             r -> r.autoScalingGroupName(getParentId())
                 .notificationTypes(getNotificationType())
-                .topicARN(getTopic().getTopicArn())
+                .topicARN(getTopic().getArn())
         );
     }
 
