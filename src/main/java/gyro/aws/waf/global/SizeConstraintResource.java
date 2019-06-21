@@ -4,18 +4,6 @@ import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 
 public class SizeConstraintResource extends gyro.aws.waf.common.SizeConstraintResource {
-    public SizeConstraintResource() {
-
-    }
-
-    public SizeConstraintResource(SizeConstraint sizeConstraint) {
-        setComparisonOperator(sizeConstraint.comparisonOperatorAsString());
-        setData(sizeConstraint.fieldToMatch().data());
-        setType(sizeConstraint.fieldToMatch().typeAsString());
-        setSize(sizeConstraint.size());
-        setTextTransformation(sizeConstraint.textTransformationAsString());
-    }
-
     @Override
     protected void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete) {
         WafClient client = getGlobalClient();

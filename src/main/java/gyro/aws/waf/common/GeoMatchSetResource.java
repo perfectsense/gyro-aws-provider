@@ -1,54 +1,17 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
+import gyro.aws.Copyable;
+import software.amazon.awssdk.services.waf.model.GeoMatchSet;
+import software.amazon.awssdk.services.waf.model.PredicateType;
 
-import java.util.Set;
-
-public abstract class GeoMatchSetResource extends AbstractWafResource {
-    private String name;
-    private String geoMatchSetId;
-
-    /**
-     * The name of the geo match condition. (Required)
-     */
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Output
-    public String getGeoMatchSetId() {
-        return geoMatchSetId;
-    }
-
-    public void setGeoMatchSetId(String geoMatchSetId) {
-        this.geoMatchSetId = geoMatchSetId;
+public abstract class GeoMatchSetResource extends ConditionResource implements Copyable<GeoMatchSet> {
+    @Override
+    String getDisplayName() {
+        return "geo match set";
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
-
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("geo match set");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getGeoMatchSetId())) {
-            sb.append(" - ").append(getGeoMatchSetId());
-        }
-
-        return sb.toString();
+    protected String getType() {
+        return PredicateType.GEO_MATCH.toString();
     }
 }

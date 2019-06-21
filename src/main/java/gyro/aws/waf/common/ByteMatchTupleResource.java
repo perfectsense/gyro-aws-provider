@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetUpdate;
@@ -8,9 +9,10 @@ import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.UpdateByteMatchSetRequest;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-public abstract class ByteMatchTupleResource extends AbstractWafResource {
+public abstract class ByteMatchTupleResource extends AbstractWafResource implements Copyable<ByteMatchTuple> {
     private String type;
     private String data;
     private String positionalConstraint;
@@ -18,7 +20,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
     private String textTransformation;
 
     /**
-     * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
+     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
      */
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -29,7 +31,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
     }
 
     /**
-     * If type selected as ```HEADER``` or ```SINGLE_QUERY_ARG```, the value needs to be provided.
+     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
      */
     public String getData() {
         return data;
@@ -40,7 +42,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
     }
 
     /**
-     * The comparison to be done on the filter. Valid values ```EQ```, ```NE```, ```LE```, ```LT```, ```GE```, ```GT```. (Required)
+     * The comparison to be done on the filter. Valid values are ``EQ`` or ``NE`` or ``LE`` or ``LT`` or ``GE`` or ``GT``. (Required)
      */
     public String getPositionalConstraint() {
         return positionalConstraint != null ? positionalConstraint.toUpperCase() : null;
@@ -51,7 +53,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
     }
 
     /**
-     * the target string to filter on for the byte match filter. (Required)
+     * The target string to filter on for the byte match filter. (Required)
      */
     public String getTargetString() {
         return targetString;
@@ -62,7 +64,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``, ``CMD_LINE``, ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
      */
     public String getTextTransformation() {
         return textTransformation != null ? textTransformation.toUpperCase() : null;
@@ -70,6 +72,15 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
 
     public void setTextTransformation(String textTransformation) {
         this.textTransformation = textTransformation;
+    }
+
+    @Override
+    public void copyFrom(ByteMatchTuple byteMatchTuple) {
+        setType(byteMatchTuple.fieldToMatch().typeAsString());
+        setData(byteMatchTuple.fieldToMatch().data());
+        setPositionalConstraint(byteMatchTuple.positionalConstraintAsString());
+        setTargetString(byteMatchTuple.targetString().asString(StandardCharsets.UTF_8));
+        setTextTransformation(byteMatchTuple.textTransformationAsString());
     }
 
     @Override
@@ -146,7 +157,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource {
             .build();
 
         return UpdateByteMatchSetRequest.builder()
-            .byteMatchSetId(parent.getByteMatchSetId())
+            .byteMatchSetId(parent.getId())
             .updates(byteMatchSetUpdate);
     }
 }

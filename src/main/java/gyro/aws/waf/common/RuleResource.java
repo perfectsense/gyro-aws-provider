@@ -1,13 +1,23 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.Rule;
+import software.amazon.awssdk.services.waf.model.WafRuleType;
 
 import java.util.Set;
 
-public abstract class RuleResource extends AbstractRuleResource {
+public abstract class RuleResource extends CommonRuleResource implements Copyable<Rule> {
     protected abstract Rule getRule();
+
+    @Override
+    public void copyFrom(Rule rule) {
+        setRuleId(rule.ruleId());
+        setMetricName(rule.metricName());
+        setName(rule.name());
+        loadPredicates(rule.predicates());
+    }
 
     @Override
     public boolean refresh() {
@@ -15,10 +25,7 @@ public abstract class RuleResource extends AbstractRuleResource {
             return false;
         }
 
-        Rule rule = getRule();
-        setMetricName(rule.metricName());
-        setName(rule.name());
-        loadPredicates(rule.predicates());
+        copyFrom(getRule());
 
         return true;
     }
@@ -31,5 +38,10 @@ public abstract class RuleResource extends AbstractRuleResource {
     @Override
     public boolean isRateRule() {
         return false;
+    }
+
+    @Override
+    protected String getType() {
+        return WafRuleType.REGULAR.name();
     }
 }

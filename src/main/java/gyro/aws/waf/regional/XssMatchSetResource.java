@@ -50,24 +50,31 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
     public void setXssMatchTuple(List<XssMatchTupleResource> xssMatchTuple) {
         this.xssMatchTuple = xssMatchTuple;
     }
+
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getXssMatchSetId())) {
-            return false;
-        }
-
-        GetXssMatchSetResponse response = getRegionalClient().getXssMatchSet(
-            r -> r.xssMatchSetId(getXssMatchSetId())
-        );
-
-        XssMatchSet xssMatchSet = response.xssMatchSet();
+    public void copyFrom(XssMatchSet xssMatchSet) {
+        setId(xssMatchSet.xssMatchSetId());
         setName(xssMatchSet.name());
 
         getXssMatchTuple().clear();
         for (XssMatchTuple xssMatchTuple : xssMatchSet.xssMatchTuples()) {
-            XssMatchTupleResource xssMatchTupleResource = new XssMatchTupleResource(xssMatchTuple);
+            XssMatchTupleResource xssMatchTupleResource = newSubresource(XssMatchTupleResource.class);
+            xssMatchTupleResource.copyFrom(xssMatchTuple);
             getXssMatchTuple().add(xssMatchTupleResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetXssMatchSetResponse response = getRegionalClient().getXssMatchSet(
+            r -> r.xssMatchSetId(getId())
+        );
+
+        this.copyFrom(response.xssMatchSet());
 
         return true;
     }
@@ -81,7 +88,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
                 .name(getName())
         );
 
-        setXssMatchSetId(response.xssMatchSet().xssMatchSetId());
+        setId(response.xssMatchSet().xssMatchSetId());
     }
 
     @Override
@@ -90,7 +97,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
 
         client.deleteXssMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .xssMatchSetId(getXssMatchSetId())
+                .xssMatchSetId(getId())
         );
     }
 }

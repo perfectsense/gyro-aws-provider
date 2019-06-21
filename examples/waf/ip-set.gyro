@@ -1,8 +1,0 @@
-aws::ip-set ip-set-example
-    name: "ip-set-example"
-
-    ip-set-descriptor
-        type: "IPV4"
-        value: "190.0.0.26/32"
-    end
-end

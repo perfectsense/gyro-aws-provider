@@ -33,14 +33,14 @@ import java.util.stream.Collectors;
  *         action: "ALLOW"
  *         type: "REGULAR"
  *         priority: 1
- *         rule-id: $(aws::rule rule-example-waf | rule-id)
+ *         rule: $(aws::rule rule-example-waf)
  *     end
  *
  *     activated-rule
  *         action: "ALLOW"
  *         type: "RATE_BASED"
  *         priority: 2
- *         rule-id: $(aws::rate-rule rate-rule-example-waf | rule-id)
+ *         rule: $(aws::rate-rule rate-rule-example-waf)
  *     end
  * end
  */
@@ -83,7 +83,8 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
 
     @Override
     protected void setActivatedRules(ActivatedRule activatedRule) {
-        ActivatedRuleResource activatedRuleResource = new ActivatedRuleResource(activatedRule);
+        ActivatedRuleResource activatedRuleResource = newSubresource(ActivatedRuleResource.class);
+        activatedRuleResource.copyFrom(activatedRule);
         getActivatedRule().add(activatedRuleResource);
     }
 

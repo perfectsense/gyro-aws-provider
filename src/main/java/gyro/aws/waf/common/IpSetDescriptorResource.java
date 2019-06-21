@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import org.apache.commons.lang.StringUtils;
@@ -15,7 +16,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class IpSetDescriptorResource extends AbstractWafResource {
+public abstract class IpSetDescriptorResource extends AbstractWafResource implements Copyable<IPSetDescriptor> {
     private String value;
     private String type;
 
@@ -39,6 +40,12 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public void copyFrom(IPSetDescriptor ipSetDescriptor) {
+        setType(ipSetDescriptor.typeAsString());
+        setValue(ipSetDescriptor.value());
     }
 
     @Override
@@ -102,7 +109,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource {
             .build();
 
         return UpdateIpSetRequest.builder()
-            .ipSetId(parent.getIpSetId())
+            .ipSetId(parent.getId())
             .updates(ipSetUpdate);
     }
 

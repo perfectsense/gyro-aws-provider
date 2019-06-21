@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
@@ -9,12 +10,12 @@ import software.amazon.awssdk.services.waf.model.UpdateGeoMatchSetRequest;
 
 import java.util.Set;
 
-public abstract class GeoMatchConstraintResource extends AbstractWafResource {
+public abstract class GeoMatchConstraintResource extends AbstractWafResource implements Copyable<GeoMatchConstraint> {
     private String value;
     private String type;
 
     /**
-     * The value filter. Uses two letter country codes (i.e. US) when type selected as ```COUNTRY```.
+     * The value filter. Uses two letter country codes (i.e. US) when type selected as ``COUNTRY``. (Required)
      */
     public String getValue() {
         return value != null ? value.toUpperCase() : null;
@@ -25,7 +26,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource {
     }
 
     /**
-     * The type of geo match filter. Allowed values ```Country```
+     * The type of geo match filter. Allowed values are ``Country``. (Required)
      */
     public String getType() {
         return type;
@@ -33,6 +34,12 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public void copyFrom(GeoMatchConstraint geoMatchConstraint) {
+        setType(geoMatchConstraint.typeAsString());
+        setValue(geoMatchConstraint.valueAsString());
     }
 
     @Override
@@ -95,7 +102,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource {
             .build();
 
         return UpdateGeoMatchSetRequest.builder()
-            .geoMatchSetId(parent.getGeoMatchSetId())
+            .geoMatchSetId(parent.getId())
             .updates(geoMatchSetUpdate);
     }
 }

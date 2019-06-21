@@ -53,24 +53,30 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     }
 
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getSizeConstraintSetId())) {
-            return false;
-        }
-
-        GetSizeConstraintSetResponse response = getRegionalClient().getSizeConstraintSet(
-            r -> r.sizeConstraintSetId(getSizeConstraintSetId())
-        );
-
-
-        SizeConstraintSet sizeConstraintSet = response.sizeConstraintSet();
+    public void copyFrom(SizeConstraintSet sizeConstraintSet) {
+        setId(sizeConstraintSet.sizeConstraintSetId());
         setName(sizeConstraintSet.name());
 
         getSizeConstraint().clear();
         for (SizeConstraint sizeConstraint : sizeConstraintSet.sizeConstraints()) {
-            SizeConstraintResource sizeConstraintResource = new SizeConstraintResource(sizeConstraint);
+            SizeConstraintResource sizeConstraintResource = newSubresource(SizeConstraintResource.class);
+            sizeConstraintResource.copyFrom(sizeConstraint);
             getSizeConstraint().add(sizeConstraintResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetSizeConstraintSetResponse response = getRegionalClient().getSizeConstraintSet(
+            r -> r.sizeConstraintSetId(getId())
+        );
+
+
+        this.copyFrom(response.sizeConstraintSet());
 
         return true;
     }
@@ -84,7 +90,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
                 .name(getName())
         );
 
-        setSizeConstraintSetId(response.sizeConstraintSet().sizeConstraintSetId());
+        setId(response.sizeConstraintSet().sizeConstraintSetId());
     }
 
     @Override
@@ -93,7 +99,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
 
         client.deleteSizeConstraintSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .sizeConstraintSetId(getSizeConstraintSetId())
+                .sizeConstraintSetId(getId())
         );
     }
 }

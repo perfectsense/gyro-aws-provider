@@ -54,23 +54,28 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     }
 
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getByteMatchSetId())) {
-            return false;
-        }
-
-        GetByteMatchSetResponse response = getRegionalClient().getByteMatchSet(r -> r.byteMatchSetId(getByteMatchSetId()));
-
-        ByteMatchSet byteMatchSet = response.byteMatchSet();
-
+    public void copyFrom(ByteMatchSet byteMatchSet) {
+        setId(byteMatchSet.byteMatchSetId());
         setName(byteMatchSet.name());
 
         getByteMatchTuple().clear();
 
         for (ByteMatchTuple byteMatchTuple : byteMatchSet.byteMatchTuples()) {
-            ByteMatchTupleResource byteMatchTupleResource = new ByteMatchTupleResource(byteMatchTuple);
+            ByteMatchTupleResource byteMatchTupleResource = newSubresource(ByteMatchTupleResource.class);
+            byteMatchTupleResource.copyFrom(byteMatchTuple);
             getByteMatchTuple().add(byteMatchTupleResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetByteMatchSetResponse response = getRegionalClient().getByteMatchSet(r -> r.byteMatchSetId(getId()));
+
+        this.copyFrom(response.byteMatchSet());
 
         return true;
     }
@@ -84,7 +89,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
                 .name(getName())
         );
 
-        setByteMatchSetId(response.byteMatchSet().byteMatchSetId());
+        setId(response.byteMatchSet().byteMatchSetId());
     }
 
     @Override
@@ -93,7 +98,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
         client.deleteByteMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .byteMatchSetId(getByteMatchSetId())
+                .byteMatchSetId(getId())
         );
     }
 }
