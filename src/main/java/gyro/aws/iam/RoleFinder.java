@@ -1,10 +1,7 @@
 package gyro.aws.iam;
 
-import gyro.aws.AwsCredentials;
 import gyro.aws.AwsFinder;
 
-import gyro.aws.AwsResource;
-import gyro.aws.Copyable;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
@@ -64,10 +61,7 @@ public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {
         }
 
         if (filters.containsKey("path")) {
-            role.addAll(client.listRoles(r -> r.pathPrefix(filters.get("path")))
-                .roles()
-                .stream()
-                .collect(Collectors.toList()));
+            role.addAll(new ArrayList<>(client.listRoles(r -> r.pathPrefix(filters.get("path"))).roles()));
         }
 
         return role;

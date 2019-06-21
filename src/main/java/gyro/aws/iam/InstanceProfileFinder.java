@@ -1,8 +1,6 @@
 package gyro.aws.iam;
 
-import gyro.aws.AwsCredentials;
 import gyro.aws.AwsFinder;
-import gyro.aws.AwsResource;
 import gyro.core.Type;
 
 import software.amazon.awssdk.regions.Region;
