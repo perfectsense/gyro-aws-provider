@@ -242,7 +242,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
                         && o.getFromPort() == null
                         && o.getProtocol().equals("-1")
                         && o.getCidrBlocks().contains("0.0.0.0/0"))
-                ) {
+            ) {
 
                 deleteDefaultEgressRule(createClient(Ec2Client.class));
             }
@@ -317,4 +317,3 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         defaultRule.delete(client, getGroupId());
     }
 }
-

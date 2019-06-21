@@ -202,4 +202,18 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Lau
             )
             .build();
     }
+
+    public software.amazon.awssdk.services.autoscaling.model.BlockDeviceMapping getAutoscalingBlockDeviceMapping() {
+        return software.amazon.awssdk.services.autoscaling.model.BlockDeviceMapping.builder()
+            .deviceName(getDeviceName())
+            .ebs(
+                e -> e.encrypted(getEncrypted())
+                    .iops(getVolumeType().equals("io1") ? getIops() : null)
+                    .volumeSize(getVolumeSize())
+                    .snapshotId(getSnapshotId())
+                    .volumeType(getVolumeType())
+                    .deleteOnTermination(getDeleteOnTermination())
+            )
+            .build();
+    }
 }
