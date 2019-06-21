@@ -96,7 +96,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     private String arn;
     private String status;
-    private List<String> nodes;
+    private List<CacheClusterNode> nodes;
     private String preferredAvailabilityZone;
 
     /**
@@ -392,15 +392,11 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
      * @Output
      */
     @Output
-    public List<String> getNodes() {
-        if (nodes == null) {
-            nodes = new ArrayList<>();
-        }
-
+    public List<CacheClusterNode> getNodes() {
         return nodes;
     }
 
-    public void setNodes(List<String> nodes) {
+    public void setNodes(List<CacheClusterNode> nodes) {
         this.nodes = nodes;
     }
 
@@ -436,7 +432,15 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         setSecurityGroups(cacheCluster.securityGroups().stream().map(s -> findById(SecurityGroupResource.class, s.securityGroupId())).collect(Collectors.toSet()));
         setSnapshotRetentionLimit(cacheCluster.snapshotRetentionLimit());
         setSnapshotWindow(cacheCluster.snapshotWindow());
-        setNodes(cacheCluster.cacheNodes().stream().map(CacheNode::cacheNodeId).collect(Collectors.toList()));
+
+        List<CacheClusterNode> nodes = new ArrayList<>();
+        for (CacheNode model : cacheCluster.cacheNodes()) {
+            CacheClusterNode node = newSubresource(CacheClusterNode.class);
+            node.copyFrom(model);
+            nodes.add(node);
+        }
+
+        setNodes(nodes);
         setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
         setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
         setStatus(cacheCluster.cacheClusterStatus());
@@ -500,6 +504,18 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isAvailable(client));
+
+        CacheCluster cacheCluster = getCacheCluster(client);
+        List<CacheClusterNode> nodes = new ArrayList<>();
+        if (cacheCluster != null) {
+            for (CacheNode model : cacheCluster.cacheNodes()) {
+                CacheClusterNode node = newSubresource(CacheClusterNode.class);
+                node.copyFrom(model);
+                nodes.add(node);
+            }
+
+            setNodes(nodes);
+        }
     }
 
     @Override
