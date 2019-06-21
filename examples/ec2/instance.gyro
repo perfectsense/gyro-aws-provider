@@ -37,37 +37,37 @@ aws::security-group security-group
     }
 end
 
-    aws::instance instance-example
-        ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
-        shutdown-behavior: "STOP"
-        instance-type: "t2.micro"
-        key: "example"
-        subnet: $(aws::subnet subnet)
-        security-groups: [
-            $(aws::security-group security-group)
-        ]
-        disable-api-termination: false
-        enable-ena-support: true
-        ebs-optimized: false
-        source-dest-check: true
+aws::instance instance-example
+    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key: "example"
+    subnet: $(aws::subnet subnet)
+    security-groups: [
+        $(aws::security-group security-group)
+    ]
+    disable-api-termination: false
+    enable-ena-support: true
+    ebs-optimized: false
+    source-dest-check: true
 
-        tags: {
-            Name: "instance-example"
-        }
+    tags: {
+        Name: "instance-example"
+    }
 
-        block-device-mapping
-            device-name: "/dev/sdb"
-            volume-size: 100
-            auto-enable-io: false
-        end
-
-        volume
-            device-name: "/dev/sde"
-            volume-id: $(aws::ebs-volume volume | volume-id)
-        end
-
-        capacity-reservation: "none"
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
     end
+
+    volume
+        device-name: "/dev/sde"
+        volume-id: $(aws::ebs-volume volume | volume-id)
+    end
+
+    capacity-reservation: "none"
+end
 
 aws::ebs-volume volume
     availability-zone: "us-east-2a"

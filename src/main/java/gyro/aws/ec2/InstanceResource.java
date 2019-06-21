@@ -39,6 +39,7 @@ import software.amazon.awssdk.utils.builder.SdkBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -97,15 +98,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String instanceType;
     private KeyPairResource key;
     private Boolean enableMonitoring;
-    private List<SecurityGroupResource> securityGroups;
+    private Set<SecurityGroupResource> securityGroups;
     private SubnetResource subnet;
     private Boolean disableApiTermination;
     private Boolean enableEnaSupport;
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
-    private List<BlockDeviceMappingResource> blockDeviceMapping;
-    private List<InstanceVolumeAttachment> volume;
+    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private Set<InstanceVolumeAttachment> volume;
     private InstanceProfileResource instanceProfile;
 
     // -- Readonly
@@ -254,15 +255,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      */
 
     @Updatable
-    public List<SecurityGroupResource> getSecurityGroups() {
+    public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
+            securityGroups = new HashSet<>();
 
         }
         return securityGroups;
     }
 
-    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
         this.securityGroups = securityGroups;
     }
 
@@ -362,15 +363,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      *
      * @subresource gyro.core.ec2.BlockDeviceMappingResource
      */
-    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
-            blockDeviceMapping = new ArrayList<>();
+            blockDeviceMapping = new HashSet<>();
         }
 
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -380,15 +381,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      * @subresource gyro.core.ec2.InstanceVolumeAttachment
      */
     @Updatable
-    public List<InstanceVolumeAttachment> getVolume() {
+    public Set<InstanceVolumeAttachment> getVolume() {
         if (volume == null) {
-            volume = new ArrayList<>();
+            volume = new HashSet<>();
         }
 
         return volume;
     }
 
-    public void setVolume(List<InstanceVolumeAttachment> volume) {
+    public void setVolume(Set<InstanceVolumeAttachment> volume) {
         this.volume = volume;
     }
 
@@ -716,7 +717,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setInstanceType(instance.instanceType().toString());
         setKey(!ObjectUtils.isBlank(instance.keyName()) ? findById(KeyPairResource.class, instance.keyName()) : null);
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toList()));
+        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toSet()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));
         setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
@@ -905,6 +906,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setVolume(instance.blockDeviceMappings().stream()
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
             .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toSet()));
     }
 }

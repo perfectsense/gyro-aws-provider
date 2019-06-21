@@ -221,10 +221,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSubnetRequest request = CreateSubnetRequest.builder()
-                .availabilityZone(getAvailabilityZone())
-                .cidrBlock(getCidrBlock())
-                .vpcId(getVpc().getId())
-                .build();
+            .availabilityZone(getAvailabilityZone())
+            .cidrBlock(getCidrBlock())
+            .vpcId(getVpc().getId())
+            .build();
 
         CreateSubnetResponse response = client.createSubnet(request);
         setSubnetId(response.subnet().subnetId());
@@ -249,7 +249,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         if (getNetworkAcl() != null) {
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
-                        .networkAclId(getNetworkAcl().getNetworkAclId())
+                    .networkAclId(getNetworkAcl().getNetworkAclId())
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
@@ -266,7 +266,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             String acl = getNetworkAcl() != null ? getNetworkAcl().getNetworkAclId() : getDefaultAclId();
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
-                        .networkAclId(acl)
+                    .networkAclId(acl)
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
@@ -278,9 +278,9 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private void modifyAttribute(Ec2Client client) {
         if (getMapPublicIpOnLaunch() != null) {
             ModifySubnetAttributeRequest request = ModifySubnetAttributeRequest.builder()
-                    .subnetId(getSubnetId())
-                    .mapPublicIpOnLaunch(AttributeBooleanValue.builder().value(getMapPublicIpOnLaunch()).build())
-                    .build();
+                .subnetId(getSubnetId())
+                .mapPublicIpOnLaunch(AttributeBooleanValue.builder().value(getMapPublicIpOnLaunch()).build())
+                .build();
 
             client.modifySubnetAttribute(request);
         }

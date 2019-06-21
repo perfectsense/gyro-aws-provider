@@ -7,9 +7,20 @@ aws::vpc vpc-launch-configuration-example
          }
 end
 
+aws::subnet subnet
+    vpc: $(aws::vpc vpc-launch-configuration-example)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.0.0/16"
+    map-public-ip-on-launch: true
+
+    tags: {
+        Name: "subnet instance example"
+    }
+end
+
 aws::security-group security-group-launch-configuration-example-1
     group-name: "security-group-launch-configuration-example-1"
-    vpc-id: $(aws::vpc vpc-launch-configuration-example | vpc-id)
+    vpc: $(aws::vpc vpc-launch-configuration-example)
     description: "security group launch-configuration example 1"
     keep-default-egress-rules: true
 
@@ -36,7 +47,7 @@ end
 
 aws::security-group security-group-launch-configuration-example-2
     group-name: "security-group-launch-configuration-example-2"
-    vpc-id: $(aws::vpc vpc-launch-configuration-example | vpc-id)
+    vpc: $(aws::vpc vpc-launch-configuration-example)
     description: "security group launch-configuration example 2"
     keep-default-egress-rules: true
 
@@ -61,16 +72,57 @@ aws::security-group security-group-launch-configuration-example-2
     }
 end
 
-aws::launch-configuration launch-configuration
+aws::launch-configuration launch-configuration-1
     launch-configuration-name: "launch-configuration-gyro-1"
-    ami-id: "ami-01e24be29428c15b2"
+    ami-id: "ami-04328208f4f0cf1fe"
     instance-type: "t2.micro"
-    key-name: "instance-static"
-    security-group-ids: [
-        $(aws::security-group security-group-launch-configuration-example-1 | group-id),
-        $(aws::security-group security-group-launch-configuration-example-2 | group-id)
+    key: "example"
+    security-groups: [
+        $(aws::security-group security-group-launch-configuration-example-1),
+        $(aws::security-group security-group-launch-configuration-example-2)
     ]
     ebs-optimized: false
     enable-monitoring: true
     associate-public-ip: true
+end
+
+aws::instance instance-example
+    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key: "example"
+    subnet: $(aws::subnet subnet)
+    security-groups: [
+        $(aws::security-group security-group-launch-configuration-example-1),
+        $(aws::security-group security-group-launch-configuration-example-2)
+    ]
+    disable-api-termination: false
+    enable-ena-support: true
+    ebs-optimized: false
+    source-dest-check: true
+
+    tags: {
+        Name: "instance-example"
+    }
+
+    capacity-reservation: "none"
+end
+
+aws::launch-configuration launch-configuration-2
+    launch-configuration-name: "launch-configuration-gyro-2"
+    instance: $(aws::instance instance-example)
+    key: "example"
+    security-groups: [
+     $(aws::security-group security-group-launch-configuration-example-1),
+     $(aws::security-group security-group-launch-configuration-example-2)
+    ]
+    ebs-optimized: false
+    enable-monitoring: true
+    associate-public-ip: true
+
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
+    end
 end

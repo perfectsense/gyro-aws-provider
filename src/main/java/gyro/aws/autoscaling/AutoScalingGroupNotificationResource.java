@@ -1,6 +1,8 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
@@ -8,66 +10,42 @@ import com.psddev.dari.util.ObjectUtils;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.NotificationConfiguration;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class AutoScalingGroupNotificationResource extends AwsResource {
+public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
 
-    private String topicArn;
-    private String autoScalingGroupName;
-    private List<String> notificationTypes;
+    private TopicResource topic;
+    private String notificationType;
 
     /**
-     * The ARN of the SNS topic to notify. (Required)
+     * The SNS topic to notify. (Required)
      */
-    public String getTopicArn() {
-        return topicArn;
+    public TopicResource getTopic() {
+        return topic;
     }
 
-    public void setTopicArn(String topicArn) {
-        this.topicArn = topicArn;
-    }
-
-    /**
-     * The name of the parent auto scaling group. (Auto populated)
-     */
-    public String getAutoScalingGroupName() {
-        return autoScalingGroupName;
-    }
-
-    public void setAutoScalingGroupName(String autoScalingGroupName) {
-        this.autoScalingGroupName = autoScalingGroupName;
+    public void setTopic(TopicResource topic) {
+        this.topic = topic;
     }
 
     /**
-     * The event on which to notify. Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR'
-     * 'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR' ].
+     * The event on which to notify. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCH`` or ``autoscaling:EC2_INSTANCE_LAUNCH_ERROR`` or ``autoscaling:EC2_INSTANCE_TERMINATE`` or ``autoscaling:EC2_INSTANCE_TERMINATE_ERROR``. (Required)
      */
     @Updatable
-    public List<String> getNotificationTypes() {
-        if (notificationTypes == null) {
-            notificationTypes = new ArrayList<>();
-        }
-
-        return notificationTypes;
+    public String getNotificationType() {
+        return notificationType;
     }
 
-    public void setNotificationTypes(List<String> notificationTypes) {
-        this.notificationTypes = notificationTypes;
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
     }
 
-    public AutoScalingGroupNotificationResource() {
-
-    }
-
-    public AutoScalingGroupNotificationResource(NotificationConfiguration notificationConfiguration) {
-        setAutoScalingGroupName(notificationConfiguration.autoScalingGroupName());
-        setTopicArn(notificationConfiguration.topicARN());
-        setNotificationTypes(Collections.singletonList(notificationConfiguration.notificationType()));
+    @Override
+    public void copyFrom(NotificationConfiguration notificationConfiguration) {
+        setTopic(!ObjectUtils.isBlank(notificationConfiguration.topicARN()) ? findById(TopicResource.class, notificationConfiguration.topicARN()) : null);
+        setNotificationType(notificationConfiguration.notificationType());
     }
 
     @Override
@@ -80,7 +58,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
-        setAutoScalingGroupName(getParentId());
         saveNotification(client);
     }
 
@@ -97,8 +74,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteNotificationConfiguration(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
-            .topicARN(getTopicArn())
+            r -> r.autoScalingGroupName(getParentId())
+            .topicARN(getTopic().getTopicArn())
         );
     }
 
@@ -108,8 +85,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
 
         sb.append("auto scale notification");
 
-        if (!ObjectUtils.isBlank(getTopicArn())) {
-            sb.append(" - ").append(getTopicArn());
+        if (getTopic() != null && !ObjectUtils.isBlank(getTopic().getTopicArn())) {
+            sb.append(" - ").append(getTopic().getTopicArn());
         }
 
         return sb.toString();
@@ -117,7 +94,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getTopicArn());
+        return getTopic().getTopicArn();
     }
 
     private String getParentId() {
@@ -130,9 +107,9 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
 
     private void saveNotification(AutoScalingClient client) {
         client.putNotificationConfiguration(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
-                .notificationTypes(getNotificationTypes())
-                .topicARN(getTopicArn())
+            r -> r.autoScalingGroupName(getParentId())
+                .notificationTypes(getNotificationType())
+                .topicARN(getTopic().getTopicArn())
         );
     }
 
@@ -146,8 +123,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource {
             )
         );
 
-        if (getNotificationTypes().isEmpty() || getNotificationTypes().size() > 1 || !validNotificationSet.contains(getNotificationTypes().get(0))) {
-            throw new GyroException("The param 'notification-types' needs one value."
+        if (ObjectUtils.isBlank(getNotificationType()) || !validNotificationSet.contains(getNotificationType())) {
+            throw new GyroException("The param 'notification-type' has invalid values."
                 + " Valid values [ '" + String.join("', '", validNotificationSet) + "' ].");
         }
     }
