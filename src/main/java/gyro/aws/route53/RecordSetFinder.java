@@ -1,18 +1,16 @@
 package gyro.aws.route53;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
-import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRequest;
-import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query record set.
@@ -69,39 +67,22 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
     protected List<ResourceRecordSet> findAws(Route53Client client, Map<String, String> filters) {
         List<ResourceRecordSet> resourceRecordSets = new ArrayList<>();
 
-        if (filters.containsKey("hosted-zone-id") && !ObjectUtils.isBlank(filters.get("hosted-zone-id"))) {
+        if (!filters.containsKey("hosted-zone-id")) {
+            throw new IllegalArgumentException("Cannot query Recordsets without 'hosted-zone-id'.");
+        }
 
-            ListResourceRecordSetsRequest.Builder builder = ListResourceRecordSetsRequest.builder();
-            builder = builder.hostedZoneId(filters.get("hosted-zone-id"));
+        if (!filters.containsKey("start-record-name") && filters.containsKey("start-record-type")) {
+            throw new IllegalArgumentException("If 'start-record-type' is provided, then 'start-record-name' also needs to be provided.");
+        }
 
-            if (filters.containsKey("start-record-name")) {
-                builder = builder.startRecordName(filters.get("start-record-name"));
-            }
-
-            if (filters.containsKey("start-record-name") && filters.containsKey("start-record-type")) {
-                builder = builder.startRecordType(filters.get("start-record-type"));
-            }
-
-            if (!filters.containsKey("start-record-name") && filters.containsKey("start-record-type")) {
-                throw new IllegalArgumentException("If 'start-record-type' is provided, then 'start-record-name' also needs to be provided.");
-            }
-
-            try {
-                String startRecordIdentifier = null;
-                ListResourceRecordSetsResponse response;
-                do {
-                    if (startRecordIdentifier == null) {
-                        response = client.listResourceRecordSets(builder.build());
-                    } else {
-                        response = client.listResourceRecordSets(builder.startRecordIdentifier(startRecordIdentifier).build());
-                    }
-                    startRecordIdentifier = response.nextRecordIdentifier();
-                    resourceRecordSets.addAll(response.resourceRecordSets());
-                } while (response.isTruncated());
-
-            } catch (NoSuchHostedZoneException ignore) {
-                // ignore
-            }
+        try {
+            resourceRecordSets.addAll(client.listResourceRecordSetsPaginator(
+                r -> r.hostedZoneId(filters.get("hosted-zone-id"))
+                    .startRecordType(filters.get("start-record-type"))
+                    .startRecordName(filters.get("start-record-name"))
+            ).resourceRecordSets().stream().collect(Collectors.toList()));
+        } catch (NoSuchHostedZoneException ignore) {
+            //ignore
         }
 
         return resourceRecordSets;
