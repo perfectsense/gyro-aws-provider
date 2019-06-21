@@ -674,7 +674,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         try {
             DescribeCacheClustersResponse response = client.describeCacheClusters(
-                r -> r.cacheClusterId(getCacheClusterId())
+                r -> r.cacheClusterId(getCacheClusterId()).showCacheNodeInfo(true)
             );
 
             if (!response.cacheClusters().isEmpty()) {

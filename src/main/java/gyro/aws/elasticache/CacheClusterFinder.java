@@ -36,13 +36,13 @@ public class CacheClusterFinder extends AwsFinder<ElastiCacheClient, CacheCluste
 
     @Override
     protected List<CacheCluster> findAllAws(ElastiCacheClient client) {
-        return client.describeCacheClustersPaginator().cacheClusters().stream().collect(Collectors.toList());
+        return client.describeCacheClustersPaginator(r -> r.showCacheNodeInfo(true)).cacheClusters().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<CacheCluster> findAws(ElastiCacheClient client, Map<String, String> filters) {
         try {
-            return client.describeCacheClusters(r -> r.cacheClusterId(filters.get("cache-cluster-id"))).cacheClusters();
+            return client.describeCacheClusters(r -> r.cacheClusterId(filters.get("cache-cluster-id")).showCacheNodeInfo(true)).cacheClusters();
         } catch (CacheClusterNotFoundException ex) {
             return Collections.emptyList();
         }
