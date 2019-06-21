@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.Rule;
+import software.amazon.awssdk.services.waf.model.WafRuleType;
 
 import java.util.Set;
 
@@ -37,5 +38,10 @@ public abstract class RuleResource extends CommonRuleResource implements Copyabl
     @Override
     public boolean isRateRule() {
         return false;
+    }
+
+    @Override
+    protected String getType() {
+        return WafRuleType.REGULAR.name();
     }
 }

@@ -1,6 +1,5 @@
 package gyro.aws.waf.common;
 
-
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -57,9 +56,9 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
         sb.append("Rule");
 
         if (isRateRule()) {
-            sb.append(" [ Rate Based] ");
+            sb.append(" [ Rate Based ] ");
         } else {
-            sb.append(" [ Regular] ");
+            sb.append(" [ Regular ] ");
         }
 
         if (!ObjectUtils.isBlank(getName())) {

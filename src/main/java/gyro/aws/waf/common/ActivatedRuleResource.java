@@ -8,7 +8,6 @@ import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
 import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
-import software.amazon.awssdk.services.waf.model.WafRuleType;
 import software.amazon.awssdk.services.waf.model.WebACLUpdate;
 
 import java.util.ArrayList;
@@ -136,8 +135,8 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
         if (!ObjectUtils.isBlank(getType())) {
             sb.append(" - ").append(getType());
-        } else if (!ObjectUtils.isBlank(inferType())) {
-            sb.append(" - ").append(inferType());
+        } else if (getRule() != null && !ObjectUtils.isBlank(getRule().getType())) {
+            sb.append(" - ").append(getRule().getType());
         }
 
         return sb.toString();
@@ -145,14 +144,14 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", getRule() != null ? getRule().getRuleId() : null, getType());
+        return String.format("%s", getRule() != null ? getRule().getRuleId() : null);
     }
 
     protected ActivatedRule getActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
             .priority(getPriority())
-            .type(!ObjectUtils.isBlank(getType()) ? getType() : inferType())
+            .type(!ObjectUtils.isBlank(getType()) ? getType() : (getRule() != null ? getRule().getType() : null))
             .ruleId(getRule().getRuleId())
             .excludedRules(
                 getExcludedRules().stream()
@@ -178,17 +177,5 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
             .webACLId(parent.getWebAclId())
             .defaultAction(da -> da.type(parent.getDefaultAction()))
             .updates(Collections.singleton(webAclUpdate));
-    }
-
-    private String inferType() {
-        String ruleType = null;
-
-        if (getRule() instanceof RuleResource) {
-            ruleType = WafRuleType.REGULAR.name();
-        } else if (getRule() instanceof RateRuleResource) {
-            ruleType = WafRuleType.RATE_BASED.name();
-        }
-
-        return ruleType;
     }
 }

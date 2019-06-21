@@ -38,4 +38,8 @@ public class CommonRuleResource extends AbstractRuleResource {
     public void delete() {
 
     }
+
+    protected String getType() {
+        return null;
+    }
 }

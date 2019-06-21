@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
+import software.amazon.awssdk.services.waf.model.WafRuleType;
 
 public abstract class RateRuleResource extends CommonRuleResource implements Copyable<RateBasedRule> {
     private String rateKey;
@@ -58,5 +59,10 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     @Override
     public boolean isRateRule() {
         return true;
+    }
+
+    @Override
+    protected String getType() {
+        return WafRuleType.RATE_BASED.name();
     }
 }
