@@ -1,15 +1,11 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -350,25 +346,7 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
 
     @Override
     protected List<SecurityGroup> findAws(Ec2Client client, Map<String, String> filters) {
-        List<SecurityGroup> securityGroups = new ArrayList<>();
-
-        DescribeSecurityGroupsRequest.Builder builder = DescribeSecurityGroupsRequest.builder().filters(createFilters(filters));
-
-        String marker = null;
-        DescribeSecurityGroupsResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeSecurityGroups(builder.build());
-            } else {
-                response = client.describeSecurityGroups(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            securityGroups.addAll(response.securityGroups());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return securityGroups;
+        return client.describeSecurityGroupsPaginator(r -> r.filters(createFilters(filters))).securityGroups().stream().collect(Collectors.toList());
     }
 
     @Override

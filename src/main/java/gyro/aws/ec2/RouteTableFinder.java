@@ -1,15 +1,11 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
 import software.amazon.awssdk.services.ec2.model.RouteTable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -304,24 +300,6 @@ public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTabl
 
     @Override
     protected List<RouteTable> findAws(Ec2Client client, Map<String, String> filters) {
-        List<RouteTable> securityGroups = new ArrayList<>();
-
-        DescribeRouteTablesRequest.Builder builder = DescribeRouteTablesRequest.builder().filters(createFilters(filters));
-
-        String marker = null;
-        DescribeRouteTablesResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeRouteTables(builder.build());
-            } else {
-                response = client.describeRouteTables(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            securityGroups.addAll(response.routeTables());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return securityGroups;
+        return client.describeRouteTablesPaginator(r -> r.filters(createFilters(filters))).routeTables().stream().collect(Collectors.toList());
     }
 }

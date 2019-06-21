@@ -1,15 +1,11 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,24 +183,6 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
 
     @Override
     protected List<VpcPeeringConnection> findAws(Ec2Client client, Map<String, String> filters) {
-        List<VpcPeeringConnection> vpcPeeringConnections = new ArrayList<>();
-
-        DescribeVpcPeeringConnectionsRequest.Builder builder = DescribeVpcPeeringConnectionsRequest.builder().filters(createFilters(filters));
-
-        String marker = null;
-        DescribeVpcPeeringConnectionsResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeVpcPeeringConnections(builder.build());
-            } else {
-                response = client.describeVpcPeeringConnections(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            vpcPeeringConnections.addAll(response.vpcPeeringConnections());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return vpcPeeringConnections;
+        return client.describeVpcPeeringConnectionsPaginator(r -> r.filters(createFilters(filters))).vpcPeeringConnections().stream().collect(Collectors.toList());
     }
 }

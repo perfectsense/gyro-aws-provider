@@ -1,15 +1,11 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -266,24 +262,6 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
 
     @Override
     protected List<NetworkAcl> findAws(Ec2Client client, Map<String, String> filters) {
-        List<NetworkAcl> networkAcls = new ArrayList<>();
-
-        DescribeNetworkAclsRequest.Builder builder = DescribeNetworkAclsRequest.builder().filters(createFilters(filters));
-
-        String marker = null;
-        DescribeNetworkAclsResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeNetworkAcls(builder.build());
-            } else {
-                response = client.describeNetworkAcls(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            networkAcls.addAll(response.networkAcls());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return networkAcls;
+        return client.describeNetworkAclsPaginator(r -> r.filters(createFilters(filters))).networkAcls().stream().collect(Collectors.toList());
     }
 }

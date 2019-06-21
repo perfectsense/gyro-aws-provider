@@ -1,15 +1,11 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -475,24 +471,6 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
 
     @Override
     protected List<NetworkInterface> findAws(Ec2Client client, Map<String, String> filters) {
-        List<NetworkInterface> networkInterfaces = new ArrayList<>();
-
-        DescribeNetworkInterfacesRequest.Builder builder = DescribeNetworkInterfacesRequest.builder().filters(createFilters(filters));
-
-        String marker = null;
-        DescribeNetworkInterfacesResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeNetworkInterfaces(builder.build());
-            } else {
-                response = client.describeNetworkInterfaces(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            networkInterfaces.addAll(response.networkInterfaces());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return networkInterfaces;
+        return client.describeNetworkInterfacesPaginator(r -> r.filters(createFilters(filters))).networkInterfaces().stream().collect(Collectors.toList());
     }
 }
