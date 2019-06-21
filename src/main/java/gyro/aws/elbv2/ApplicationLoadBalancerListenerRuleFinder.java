@@ -1,16 +1,20 @@
 package gyro.aws.elbv2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
-import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeRulesRequest;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeRulesResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Rule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query application load balancer listener rules.
@@ -37,18 +41,38 @@ public class ApplicationLoadBalancerListenerRuleFinder extends AwsFinder<Elastic
 
     @Override
     public List<Rule> findAws(ElasticLoadBalancingV2Client client, Map<String, String> filters) {
-        return client.describeRules(r -> r.ruleArns(filters.get("arn"))).rules();
+        if (!filters.containsKey("arn")) {
+            throw new IllegalArgumentException("'arn' is required.");
+        }
+
+        return getRulesByLoadBalancerArn(client, Collections.singletonList(filters.get("arn")));
     }
 
     @Override
     public List<Rule> findAllAws(ElasticLoadBalancingV2Client client) {
-        List<Rule> rules = new ArrayList<>();
+        List<String> loadBalancerArns = client.describeLoadBalancersPaginator().loadBalancers()
+            .stream().map(LoadBalancer::loadBalancerArn)
+            .collect(Collectors.toList());
 
-        for (LoadBalancer loadBalancer : client.describeLoadBalancers().loadBalancers()) {
-            for (Listener listener : client.describeListeners(r -> r.loadBalancerArn(loadBalancer.loadBalancerArn())).listeners()) {
-                rules.addAll(client.describeRules(r -> r.listenerArn(listener.listenerArn())).rules());
+        return getRulesByLoadBalancerArn(client, loadBalancerArns);
+    }
+
+    private List<Rule> getRulesByLoadBalancerArn(ElasticLoadBalancingV2Client client, List<String> arns) {
+        List<Rule> rules = new ArrayList<>();
+        String marker = null;
+        DescribeRulesResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeRules(DescribeRulesRequest.builder().ruleArns(arns).build());
+            } else {
+                response = client.describeRules(DescribeRulesRequest.builder().ruleArns(arns).marker(marker).build());
             }
-        }
+
+            marker = response.nextMarker();
+            rules.addAll(response.rules());
+
+        } while (!ObjectUtils.isBlank(marker));
 
         return rules;
     }
