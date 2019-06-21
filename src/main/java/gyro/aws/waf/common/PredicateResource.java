@@ -6,7 +6,6 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
-import software.amazon.awssdk.services.waf.model.PredicateType;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
 import software.amazon.awssdk.services.waf.model.UpdateRateBasedRuleRequest;
 import software.amazon.awssdk.services.waf.model.UpdateRuleRequest;
@@ -95,8 +94,8 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
         if (!ObjectUtils.isBlank(getType())) {
             sb.append(" - ").append(getType());
-        } else if (!ObjectUtils.isBlank(inferType())) {
-            sb.append(" - ").append(inferType());
+        } else if (getCondition() != null && !ObjectUtils.isBlank(getCondition().getType())) {
+            sb.append(" - ").append(getCondition().getType());
         }
 
         return sb.toString();
@@ -113,7 +112,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
         return Predicate.builder()
             .dataId(getCondition().getId())
             .negated(getNegated())
-            .type(!ObjectUtils.isBlank(getType()) ? getType() : inferType())
+            .type(!ObjectUtils.isBlank(getType()) ? getType() : (getCondition() != null ? getCondition().getType() : null))
             .build();
     }
 
@@ -139,26 +138,5 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             .ruleId(parent.getRuleId())
             .rateLimit(parent.getRateLimit())
             .updates(getRuleUpdate(predicate, isDelete));
-    }
-
-    private String inferType() {
-        String predicateType = null;
-        if (getCondition() instanceof ByteMatchSetResource) {
-            predicateType = PredicateType.BYTE_MATCH.toString();
-        } else if (getCondition() instanceof GeoMatchSetResource) {
-            predicateType = PredicateType.GEO_MATCH.toString();
-        } else if (getCondition() instanceof RegexMatchSetResource) {
-            predicateType = PredicateType.REGEX_MATCH.toString();
-        } else if (getCondition() instanceof IpSetResource) {
-            predicateType = PredicateType.IP_MATCH.toString();
-        } else if (getCondition() instanceof SizeConstraintSetResource) {
-            predicateType = PredicateType.SIZE_CONSTRAINT.toString();
-        } else if (getCondition() instanceof XssMatchSetResource) {
-            predicateType = PredicateType.XSS_MATCH.toString();
-        } else if (getCondition() instanceof SqlInjectionMatchSetResource) {
-            predicateType = PredicateType.SQL_INJECTION_MATCH.toString();
-        }
-
-        return predicateType;
     }
 }

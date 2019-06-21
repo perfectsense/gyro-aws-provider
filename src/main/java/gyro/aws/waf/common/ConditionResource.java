@@ -76,4 +76,8 @@ public class ConditionResource extends AbstractWafResource {
 
         return sb.toString();
     }
+
+    protected String getType() {
+        return null;
+    }
 }
