@@ -2,7 +2,10 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -10,7 +13,6 @@ import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
 import software.amazon.awssdk.services.elasticache.model.DescribeCacheSubnetGroupsResponse;
-import software.amazon.awssdk.services.elasticache.model.Subnet;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,21 +30,22 @@ import java.util.stream.Collectors;
  *         cache-subnet-group-name: "cache-subnet-group-example"
  *         description: "cache-subnet-group-desc"
  *         subnets: [
- *             $(aws::subnet subnet-cache-subnet-group-example-1 | subnet-id),
- *             $(aws::subnet subnet-cache-subnet-group-example-2 | subnet-id),
- *             $(aws::subnet subnet-cache-subnet-group-example-3 | subnet-id)
+ *             $(aws::subnet subnet-cache-subnet-group-example-1),
+ *             $(aws::subnet subnet-cache-subnet-group-example-2),
+ *             $(aws::subnet subnet-cache-subnet-group-example-3)
  *         ]
  *     end
  */
 @Type("cache-subnet-group")
-public class CacheSubnetGroupResource extends AwsResource {
+public class CacheSubnetGroupResource extends AwsResource implements Copyable<CacheSubnetGroup> {
     private String cacheSubnetGroupName;
     private String description;
-    private Set<String> subnets;
+    private Set<SubnetResource> subnets;
 
     /**
      * The name of the cache subnet group. (Required)
      */
+    @Id
     public String getCacheSubnetGroupName() {
         return cacheSubnetGroupName;
     }
@@ -64,10 +67,10 @@ public class CacheSubnetGroupResource extends AwsResource {
     }
 
     /**
-     * A list of subnet id's. (Required)
+     * A list of subnets. (Required)
      */
     @Updatable
-    public Set<String> getSubnets() {
+    public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
             subnets = new HashSet<>();
         }
@@ -75,8 +78,18 @@ public class CacheSubnetGroupResource extends AwsResource {
         return subnets;
     }
 
-    public void setSubnets(Set<String> subnets) {
+    public void setSubnets(Set<SubnetResource> subnets) {
         this.subnets = subnets;
+    }
+
+    @Override
+    public void copyFrom(CacheSubnetGroup cacheSubnetGroup) {
+        setCacheSubnetGroupName(cacheSubnetGroup.cacheSubnetGroupName());
+        setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
+        setSubnets(cacheSubnetGroup.subnets()
+            .stream()
+            .map(s -> findById(SubnetResource.class, s.subnetIdentifier()))
+            .collect(Collectors.toSet()));
     }
 
     @Override
@@ -89,9 +102,7 @@ public class CacheSubnetGroupResource extends AwsResource {
             return false;
         }
 
-        setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
-        setSubnets(cacheSubnetGroup.subnets().stream().map(Subnet::subnetIdentifier).collect(Collectors.toSet()));
-
+        copyFrom(cacheSubnetGroup);
         return true;
     }
 
@@ -102,7 +113,7 @@ public class CacheSubnetGroupResource extends AwsResource {
         client.createCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
                 .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets())
+                .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
         );
 
     }
@@ -114,7 +125,7 @@ public class CacheSubnetGroupResource extends AwsResource {
         client.modifyCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
                 .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets())
+                .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
         );
     }
 
@@ -157,7 +168,7 @@ public class CacheSubnetGroupResource extends AwsResource {
             }
 
         } catch (CacheSubnetGroupNotFoundException ex) {
-
+            // Ignore
         }
 
         return cacheSubnetGroup;
