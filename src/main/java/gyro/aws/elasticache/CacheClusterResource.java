@@ -480,7 +480,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .cacheSubnetGroupName(getCacheSubnetGroup().getCacheSubnetGroupName())
             .engine(getEngine())
             .engineVersion(getEngineVersion())
-            .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getTopicArn() : null)
+            .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
             .numCacheNodes(getNumCacheNodes())
             .port(getPort())
             .preferredAvailabilityZones(getPreferredAvailabilityZones())
@@ -541,7 +541,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
                 .cacheParameterGroupName(getCacheParamGroup().getCacheParamGroupName())
                 .cacheSecurityGroupNames(getCacheSecurityGroupNames())
                 .engineVersion(getEngineVersion())
-                .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getTopicArn() : null)
+                .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
                 .numCacheNodes(getNumCacheNodes());
