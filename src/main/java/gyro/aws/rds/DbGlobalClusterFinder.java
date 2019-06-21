@@ -4,9 +4,12 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.GlobalCluster;
+import software.amazon.awssdk.services.rds.model.GlobalClusterNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query global cluster.
@@ -33,12 +36,16 @@ public class DbGlobalClusterFinder extends AwsFinder<RdsClient, GlobalCluster, D
 
     @Override
     protected List<GlobalCluster> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeGlobalClusters(r -> r.filters(createRdsFilters(filters))).globalClusters();
+        try {
+            return client.describeGlobalClusters(r -> r.filters(createRdsFilters(filters))).globalClusters();
+        } catch (GlobalClusterNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
     protected List<GlobalCluster> findAllAws(RdsClient client) {
-        return client.describeGlobalClusters().globalClusters();
+        return client.describeGlobalClustersPaginator().globalClusters().stream().collect(Collectors.toList());
     }
 
 }

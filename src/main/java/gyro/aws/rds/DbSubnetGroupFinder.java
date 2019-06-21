@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.rds.model.DbSubnetGroupNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query db subnet group.
@@ -35,6 +36,10 @@ public class DbSubnetGroupFinder extends AwsFinder<RdsClient, DBSubnetGroup, DbS
 
     @Override
     protected List<DBSubnetGroup> findAws(RdsClient client, Map<String, String> filters) {
+        if (!filters.containsKey("group-name")) {
+            throw new IllegalArgumentException("'group-name' is required.");
+        }
+
         try {
             return client.describeDBSubnetGroups(r -> r.dbSubnetGroupName(filters.get("group-name"))).dbSubnetGroups();
         } catch (DbSubnetGroupNotFoundException ex) {
@@ -44,7 +49,7 @@ public class DbSubnetGroupFinder extends AwsFinder<RdsClient, DBSubnetGroup, DbS
 
     @Override
     protected List<DBSubnetGroup> findAllAws(RdsClient client) {
-        return client.describeDBSubnetGroups().dbSubnetGroups();
+        return client.describeDBSubnetGroupsPaginator().dbSubnetGroups().stream().collect(Collectors.toList());
     }
 
 }
