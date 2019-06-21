@@ -4,12 +4,13 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 
 import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.KeyListEntry;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
-import software.amazon.awssdk.services.kms.paginators.ListKeysIterable;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query kms key.
@@ -36,20 +37,19 @@ public class KmsFinder extends AwsFinder<KmsClient, KeyMetadata, KmsResource> {
 
     @Override
     protected List<KeyMetadata> findAws(KmsClient client, Map<String, String> filters) {
-        List<KeyMetadata> keys = new ArrayList<>();
+        if (!filters.containsKey("key-id")) {
+            throw new IllegalArgumentException("'key-id' is required.");
+        }
 
-        keys.add(client.describeKey(r -> r.keyId(filters.get("key-id"))).keyMetadata());
-
-        return keys;
+        return Collections.singletonList(client.describeKey(r -> r.keyId(filters.get("key-id"))).keyMetadata());
     }
 
     @Override
     protected List<KeyMetadata> findAllAws(KmsClient client) {
-        List<KeyMetadata> keys = new ArrayList<>();
-
-        ListKeysIterable iterable = client.listKeysPaginator();
-        iterable.stream().forEach(r -> r.keys().forEach(k -> keys.add(client.describeKey(s -> s.keyId(k.keyId())).keyMetadata())));
-
-        return keys;
+        return client.listKeysPaginator().keys()
+            .stream()
+            .map(KeyListEntry::keyId)
+            .map(oo -> client.describeKey(s -> s.keyId(oo)).keyMetadata())
+            .collect(Collectors.toList());
     }
 }
