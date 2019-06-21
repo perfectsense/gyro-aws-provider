@@ -547,8 +547,8 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
                 .numCacheNodes(getNumCacheNodes());
 
             if (properties.contains("preferred-availability-zones")) {
-                List<String> newAvailabilityZones = currentCacheClusterResource.getPreferredAvailabilityZones();
-                newAvailabilityZones.removeAll(getPreferredAvailabilityZones());
+                List<String> newAvailabilityZones = new ArrayList<>(getPreferredAvailabilityZones());
+                newAvailabilityZones.removeAll(currentCacheClusterResource.getPreferredAvailabilityZones());
 
                 if (newAvailabilityZones.size() > 0) {
                     builder.newAvailabilityZones(newAvailabilityZones);
