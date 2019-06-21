@@ -102,15 +102,15 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
 
     @Override
     protected List<VpcEndpoint> findAllAws(Ec2Client client) {
-        return getvVpcEndpoints(client, null);
+        return getVpcEndpoints(client, null);
     }
 
     @Override
     protected List<VpcEndpoint> findAws(Ec2Client client, Map<String, String> filters) {
-        return getvVpcEndpoints(client, filters);
+        return getVpcEndpoints(client, filters);
     }
 
-    private List<VpcEndpoint> getvVpcEndpoints(Ec2Client client, Map<String, String> filters) {
+    private List<VpcEndpoint> getVpcEndpoints(Ec2Client client, Map<String, String> filters) {
         List<VpcEndpoint> vpcEndpoints = new ArrayList<>();
 
         DescribeVpcEndpointsRequest.Builder builder = DescribeVpcEndpointsRequest.builder();

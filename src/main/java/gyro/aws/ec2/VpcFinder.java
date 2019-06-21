@@ -214,13 +214,15 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
     protected List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
         List<Vpc> vpcs = new ArrayList<>();
 
+        DescribeVpcsRequest.Builder builder = DescribeVpcsRequest.builder().filters(createFilters(filters)).maxResults(5);
+
         String marker = null;
         DescribeVpcsResponse response;
         do {
             if (ObjectUtils.isBlank(marker)) {
-                response = client.describeVpcs(DescribeVpcsRequest.builder().filters(createFilters(filters)).build());
+                response = client.describeVpcs(builder.build());
             } else {
-                response = client.describeVpcs(DescribeVpcsRequest.builder().filters(createFilters(filters)).nextToken(marker).build());
+                response = client.describeVpcs(builder.nextToken(marker).build());
             }
 
             marker = response.nextToken();

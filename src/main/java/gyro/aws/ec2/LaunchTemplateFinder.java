@@ -9,7 +9,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,12 +104,8 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
 
         if (filters != null) {
             if (filters.containsKey("launch-template-id")) {
-                String launchTemplateId = filters.get("launch-template-id");
+                builder = builder.launchTemplateIds(filters.get("launch-template-id"));
                 filters.remove("launch-template-id");
-
-                if (!ObjectUtils.isBlank(launchTemplateId)) {
-                    builder = builder.launchTemplateIds(Collections.singleton(launchTemplateId));
-                }
             }
 
             builder = builder.filters(createFilters(filters));

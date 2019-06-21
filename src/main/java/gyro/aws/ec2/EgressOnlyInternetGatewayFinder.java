@@ -9,7 +9,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatew
 import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, Egress
 
         if (filters != null) {
             if (filters.containsKey("egress-only-internet-gateway-id")) {
-                builder = builder.egressOnlyInternetGatewayIds(Collections.singleton(filters.get("egress-only-internet-gateway-id")));
+                builder = builder.egressOnlyInternetGatewayIds(filters.get("egress-only-internet-gateway-id"));
             }
         }
 
