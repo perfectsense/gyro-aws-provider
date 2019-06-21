@@ -568,6 +568,18 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(true)
                 .until(() -> isAvailable(client));
+
+            CacheCluster cacheCluster = getCacheCluster(client);
+            List<CacheClusterNode> nodes = new ArrayList<>();
+            if (cacheCluster != null) {
+                for (CacheNode model : cacheCluster.cacheNodes()) {
+                    CacheClusterNode node = newSubresource(CacheClusterNode.class);
+                    node.copyFrom(model);
+                    nodes.add(node);
+                }
+
+                setNodes(nodes);
+            }
         }
     }
 
