@@ -180,13 +180,13 @@ workflow deploy
 
         @create aws::launch-configuration verify-launch-configuration
             @extends $(aws::launch-configuration * | instance = $CURRENT)
-            launch-configuration-name: "launch-configuration-gyro-$($(aws::instance verify-instance).instance-id)"
+            launch-configuration-name: "launch-configuration-gyro-\($(aws::instance verify-instance).instance-id)"
             instance: $(aws::instance verify-instance)
         end
 
         @create aws::auto-scaling-group verify-auto-scaling-group
             @extends $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT))
-            auto-scaling-group-name: "auto-scaling-group-gyro-$($(aws::instance verify-instance).instance-id)"
+            auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance verify-instance).instance-id)"
             launch-configuration: $(aws::launch-configuration verify-launch-configuration)
         end
 
