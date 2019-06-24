@@ -576,7 +576,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
             client.modifyNetworkInterfaceAttribute(
                 r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                    .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+                    .sourceDestCheck(a -> a.value(getSourceDestCheck()))
             );
             
             break;
@@ -627,7 +627,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             if (instance != null) {
                 client.modifyNetworkInterfaceAttribute(
                     r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
                 );
             }
         }
