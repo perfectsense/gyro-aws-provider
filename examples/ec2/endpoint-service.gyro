@@ -37,11 +37,11 @@ aws::nlb nlb-example-1
     scheme: "internet-facing"
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2a).subnet-id
     end
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2b).subnet-id
     end
 
     tags: {
@@ -55,11 +55,11 @@ aws::nlb nlb-example-2
     scheme: "internet-facing"
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2a).subnet-id
     end
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2b).subnet-id
     end
 
     tags: {

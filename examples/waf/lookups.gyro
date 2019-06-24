@@ -1,21 +1,21 @@
-regex-pattern-set-ids: $(aws::regex-pattern-set EXTERNAL/* | regex-pattern-set-id = '')
+regex-pattern-set-ids: $(external-query aws::regex-pattern-set { regex-pattern-set-id: '' })
 
-regex-match-set-ids: $(aws::regex-match-set EXTERNAL/* | id = '')
+regex-match-set-ids: $(external-query aws::regex-match-set { id: '' })
 
-geo-match-set-ids: $(aws::geo-match-set EXTERNAL/* | id = '')
+geo-match-set-ids: $(external-query aws::geo-match-set { id: '' })
 
-xss-match-set-ids: $(aws::xss-match-set EXTERNAL/* | id = '')
+xss-match-set-ids: $(external-query aws::xss-match-set { id: '' })
 
-size-constraint-set-ids: $(aws::size-constraint-set EXTERNAL/* | id = '')
+size-constraint-set-ids: $(external-query aws::size-constraint-set { id: '' })
 
-ip-set-ids: $(aws::ip-set EXTERNAL/* | id = '')
+ip-set-ids: $(external-query aws::ip-set { id: '' })
 
-byte-match-set-ids: $(aws::byte-match-set EXTERNAL/* | id = '')
+byte-match-set-ids: $(external-query aws::byte-match-set { id: '' })
 
-sql-injection-match-set-ids: $(aws::sql-injection-match-set EXTERNAL/* | id = '')
+sql-injection-match-set-ids: $(external-query aws::sql-injection-match-set { id: '' })
 
-rule-ids: $(aws::rule EXTERNAL/* | rule-id = '')
+rule-ids: $(external-query aws::rule { rule-id: '' })
 
-rate-rule-ids: $(aws::rate-rule EXTERNAL/* | rule-id = '')
+rate-rule-ids: $(external-query aws::rate-rule { rule-id: '' })
 
-waf-acl-ids: $(aws::waf-acl EXTERNAL/* | web-acl-id = '')
+waf-acl-ids: $(external-query aws::waf-acl { web-acl-id: '' })

@@ -1,5 +1,7 @@
+zero: "0"
+
 aws::vpc vpc-auto-scaling-group-example
-    cidr-block: "10.0.0.0/16"
+    cidr-block: "10.$zero.$(zero).\($zero)/16"
     provide-ipv6-cidr-block: true
 
     tags: {
@@ -180,7 +182,7 @@ workflow deploy
 
         @create aws::launch-configuration verify-launch-configuration
             @extends $(aws::launch-configuration * | instance = $CURRENT)
-            launch-configuration-name: "launch-configuration-gyro-\($(aws::instance verify-instance).instance-id)"
+            launch-configuration-name: "launch-configuration-gyro-$(aws::instance verify-instance instance-id)"
             instance: $(aws::instance verify-instance)
         end
 
