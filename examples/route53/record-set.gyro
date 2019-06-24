@@ -24,7 +24,7 @@ end
 
 aws::record-set record-set-example
     hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
-    name: "record-set-example.$(aws::hosted-zone hosted-zone-record-set-example | hosted-zone-name)"
+    name: "record-set-example.$(aws::hosted-zone hosted-zone-record-set-example | name)"
     type: "A"
     ttl: 300
     records: [
