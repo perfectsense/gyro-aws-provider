@@ -130,9 +130,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         NatGateway natGateway = response.natGateway();
         setNatGatewayId(natGateway.natGatewayId());
 
-        Wait.atMost(2, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isAvailable(client));
     }
 

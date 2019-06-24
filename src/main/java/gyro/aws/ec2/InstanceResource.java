@@ -576,9 +576,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             break;
         }
 
-        Wait.atMost(2, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isInstanceRunning(client));
 
         Instance instance = getInstance(client);

@@ -184,9 +184,8 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
         setTrafficPolicyInstanceId(trafficPolicyInstance.id());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(3, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isTrafficPolicyInstanceReady(client));
     }
 

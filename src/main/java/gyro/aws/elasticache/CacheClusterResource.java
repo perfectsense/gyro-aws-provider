@@ -500,9 +500,8 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         setStatus(response.cacheCluster().cacheClusterStatus());
         setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
 
-        Wait.atMost(3, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isAvailable(client));
 
         CacheCluster cacheCluster = getCacheCluster(client);

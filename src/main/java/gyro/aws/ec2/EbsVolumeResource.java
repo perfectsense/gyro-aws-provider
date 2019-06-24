@@ -271,9 +271,8 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             }
         }
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isAvailable(client));
     }
 

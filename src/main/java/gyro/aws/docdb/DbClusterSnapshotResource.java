@@ -108,9 +108,8 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isAvailable(client));
     }
 

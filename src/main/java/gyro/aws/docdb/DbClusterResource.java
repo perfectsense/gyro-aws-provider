@@ -362,9 +362,8 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isAvailable(client));
     }
 

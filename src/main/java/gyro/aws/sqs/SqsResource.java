@@ -376,8 +376,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
             createQueue(client);
 
             // Wait for the queue to be created.
-            Wait.atMost(2, TimeUnit.MINUTES)
-                .prompt(true)
+            Wait.atMost(1, TimeUnit.HOURS)
                 .checkEvery(5, TimeUnit.SECONDS)
                 .until(() -> !ObjectUtils.isBlank(getQueue(client)));
         } else {

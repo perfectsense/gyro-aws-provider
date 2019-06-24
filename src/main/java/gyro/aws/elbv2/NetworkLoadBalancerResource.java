@@ -114,9 +114,8 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
-        Wait.atMost(3, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
                 .checkEvery(10, TimeUnit.SECONDS)
-                .prompt(true)
                 .until(() -> isActiveState(client));
 
         super.create();

@@ -611,9 +611,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setArn(response.dbCluster().dbClusterArn());
 
-        Wait.atMost(5, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(15, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isAvailable(client));
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(

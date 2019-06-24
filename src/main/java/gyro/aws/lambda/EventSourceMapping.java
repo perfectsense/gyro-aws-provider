@@ -382,9 +382,8 @@ public class EventSourceMapping extends AwsResource implements Copyable<GetEvent
     }
 
     private void waitToSave(LambdaClient client) {
-        Wait.atMost(3, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> client.getEventSourceMapping(
                 r -> r.uuid(getId()))
                 .state().equals(getEnabled() ? "Enabled" : "Disabled")
