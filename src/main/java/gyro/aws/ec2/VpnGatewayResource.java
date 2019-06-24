@@ -222,9 +222,8 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     private void attachVpc(Ec2Client client) {
         client.attachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        Wait.atMost(1, TimeUnit.HOURS)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
             .until(() -> isVpcAttached(client));
     }
 
