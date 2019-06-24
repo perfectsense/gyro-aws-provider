@@ -780,7 +780,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (!getEnableEnaSupport() && isCreate) {
-            throw new GyroException("enableEnaSupport cannot be set to False at the time of instance creation. Update the instance to set it.");
+            GyroCore.ui().write("\n@|bold,blue Skipping. The instance must be stopped to disable ENA support. Please stop the instance first.|@");
         }
 
         if (getSecurityGroups().isEmpty()) {
