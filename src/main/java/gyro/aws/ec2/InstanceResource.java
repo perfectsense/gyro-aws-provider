@@ -574,10 +574,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         for (Instance instance : response.instances()) {
             setInstanceId(instance.instanceId());
 
-            client.modifyNetworkInterfaceAttribute(
-                r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                    .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-            );
+            if (!getSourceDestCheck()) {
+                client.modifyNetworkInterfaceAttribute(
+                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                );
+            }
             
             break;
         }
