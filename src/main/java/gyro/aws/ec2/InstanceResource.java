@@ -310,7 +310,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * Enable or Disable Source/Dest Check for an instance. Defaults to true and cannot be turned off during creation. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
+     * Enable or Disable Source/Dest Check for an instance. Defaults to true. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
      */
     @Updatable
     public Boolean getSourceDestCheck() {
