@@ -174,8 +174,8 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
-            r -> r.name(getName() + getHostedZone().getHostedZoneName())
-                .hostedZoneId(getHostedZone().getHostedZoneId())
+            r -> r.name(getName() + getHostedZone().getName())
+                .hostedZoneId(getHostedZone().getId())
                 .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
                 .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
@@ -232,7 +232,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         }
 
         if (getHostedZone() != null) {
-            sb.append(getHostedZone().getHostedZoneName());
+            sb.append(getHostedZone().getName());
         }
 
         if (!ObjectUtils.isBlank(getTrafficPolicyInstanceId())) {

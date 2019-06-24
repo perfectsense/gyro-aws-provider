@@ -457,7 +457,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
         ListResourceRecordSetsResponse response = client.listResourceRecordSets(
-            r -> r.hostedZoneId(getHostedZone().getHostedZoneId())
+            r -> r.hostedZoneId(getHostedZone().getId())
                 .startRecordName(getName())
                 .startRecordType(getType())
         );
@@ -517,7 +517,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             .build();
 
         client.changeResourceRecordSets(
-            r -> r.hostedZoneId(recordSetResource.getHostedZone().getHostedZoneId())
+            r -> r.hostedZoneId(recordSetResource.getHostedZone().getId())
                 .changeBatch(
                     c -> c.comment(recordSetResource.getComment())
                         .changes(change)
