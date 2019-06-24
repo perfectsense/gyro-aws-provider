@@ -573,6 +573,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         for (Instance instance : response.instances()) {
             setInstanceId(instance.instanceId());
+
+            client.modifyNetworkInterfaceAttribute(
+                r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                    .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+            );
+            
             break;
         }
 
@@ -773,10 +779,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         if (!getEnableEnaSupport() && isCreate) {
             throw new GyroException("enableEnaSupport cannot be set to False at the time of instance creation. Update the instance to set it.");
-        }
-
-        if (!getSourceDestCheck() && isCreate) {
-            throw new GyroException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
         if (getSecurityGroups().isEmpty()) {
