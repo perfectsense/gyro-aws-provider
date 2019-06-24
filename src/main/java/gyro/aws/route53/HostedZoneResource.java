@@ -161,7 +161,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     /**
-     * Is the the Hosted Zone private.
+     * Is the Hosted Zone private.
      */
     @Output
     public Boolean getPrivateZone() {
