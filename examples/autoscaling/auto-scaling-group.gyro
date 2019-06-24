@@ -1,7 +1,5 @@
-zero: "0"
-
 aws::vpc vpc-auto-scaling-group-example
-    cidr-block: "10.$zero.$(zero).\($zero)/16"
+    cidr-block: "10.0.0.0/16"
     provide-ipv6-cidr-block: true
 
     tags: {
