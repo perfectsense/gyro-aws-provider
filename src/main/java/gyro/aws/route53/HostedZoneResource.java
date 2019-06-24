@@ -166,7 +166,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     @Output
     public Boolean getPrivateZone() {
         if (privateZone == null) {
-            privateZone = true;
+            privateZone = !getVpcs().isEmpty();
         }
 
         return privateZone;
@@ -222,7 +222,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
                 .delegationSetId(getDelegationSetId())
                 .hostedZoneConfig(
                     o -> o.comment(getComment())
-                        .privateZone(!getVpcs().isEmpty())
+                        .privateZone(getPrivateZone())
                 )
                 .vpc(getVpc(firstVpcResource))
             .callerReference(UUID.randomUUID().toString())
