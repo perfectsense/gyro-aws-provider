@@ -258,14 +258,6 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         }
 
         if (changedFieldNames.contains("vpcs")) {
-            if (getPrivateZone() && getVpcs().isEmpty()) {
-                throw new GyroException("Hosted Zone created with one or more vpc's is a private zone and needs at least one vpc.");
-            }
-
-            if (!getPrivateZone() && !getVpcs().isEmpty()) {
-                throw new GyroException("Hosted zone created with no vpc is a public zone and vpc's cannot be later associated with it.");
-            }
-
             HostedZoneResource currentHostedZone = (HostedZoneResource) current;
 
             Set<String> pendingVpcIds = getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
