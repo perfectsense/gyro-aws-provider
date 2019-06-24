@@ -170,10 +170,10 @@ aws::auto-scaling-group auto-scaling-group-example
     ]
 end
 
-workflow 'deploy'
-    for-type: 'aws::instance'
+workflow deploy
+    for-type: aws::instance
 
-    stage 'verify'
+    stage verify
         @create aws::instance verify-instance
             @extends $PENDING
         end
@@ -190,37 +190,37 @@ workflow 'deploy'
             launch-configuration: $(aws::launch-configuration verify-launch-configuration)
         end
 
-        transition 'push'
-            to: 'pushed'
+        transition push
+            to: pushed
             description: 'Push the new verification instances into the production load balancer and deregister old instances.'
         end
 
-        transition 'reset'
-            to: 'finished'
+        transition reset
+            to: finished
             description: 'Delete verification instances and load balancer, then exit Gyro.'
         end
     end
 
-    stage 'pushed'
-        @swap 'aws::instance', $CURRENT, 'verify-instance'
-        @swap 'aws::launch-configuration', $(aws::launch-configuration * | instance = $CURRENT), 'verify-launch-configuration'
-        @swap 'aws::auto-scaling-group', $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)), 'verify-auto-scaling-group'
+    stage pushed
+        @swap aws::instance, $CURRENT, verify-instance
+        @swap aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT), verify-launch-configuration
+        @swap aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)), verify-auto-scaling-group
 
-        transition 'revert'
-            to: 'finished'
+        transition revert
+            to: finished
             description: 'Revert the new verification instances into the production load balancer and deregister old instances.'
         end
 
-        transition 'commit'
-            to: 'finished'
+        transition commit
+            to: finished
             description: 'Commit verification instances to production load balancer.'
         end
     end
 
-    stage 'finished'
-        @delete 'aws::instance', 'verify-instance'
-        @delete 'aws::launch-configuration', 'verify-launch-configuration'
-        @delete 'aws::auto-scaling-group', 'verify-auto-scaling-group'
+    stage finished
+        @delete aws::instance, verify-instance
+        @delete aws::launch-configuration, verify-launch-configuration
+        @delete aws::auto-scaling-group, verify-auto-scaling-group
     end
 end
 
