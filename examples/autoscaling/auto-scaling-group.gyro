@@ -182,7 +182,7 @@ workflow deploy
 
         @create aws::launch-configuration verify-launch-configuration
             @extends $(aws::launch-configuration * | instance = $CURRENT)
-            launch-configuration-name: "launch-configuration-gyro-$(aws::instance verify-instance instance-id)"
+            launch-configuration-name: "launch-configuration-gyro-\($(aws::instance verify-instance).instance-id)"
             instance: $(aws::instance verify-instance)
         end
 
