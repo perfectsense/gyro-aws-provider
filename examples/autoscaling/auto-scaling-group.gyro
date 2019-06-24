@@ -179,13 +179,13 @@ workflow deploy
         end
 
         @create aws::launch-configuration verify-launch-configuration
-            @extends $(aws::launch-configuration * | instance = $CURRENT)
+            @extends $(aws::launch-configuration * | instance = $CURRENT).0
             launch-configuration-name: "launch-configuration-gyro-\($(aws::instance verify-instance).instance-id)"
             instance: $(aws::instance verify-instance)
         end
 
         @create aws::auto-scaling-group verify-auto-scaling-group
-            @extends $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT))
+            @extends $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
             auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance verify-instance).instance-id)"
             launch-configuration: $(aws::launch-configuration verify-launch-configuration)
         end
@@ -203,8 +203,8 @@ workflow deploy
 
     stage pushed
         @swap aws::instance, $CURRENT, verify-instance
-        @swap aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT), verify-launch-configuration
-        @swap aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)), verify-auto-scaling-group
+        @swap aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT).0, verify-launch-configuration
+        @swap aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0, verify-auto-scaling-group
 
         transition revert
             to: finished
