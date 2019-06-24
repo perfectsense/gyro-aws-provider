@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.route53.model.CreateHostedZoneResponse;
 import software.amazon.awssdk.services.route53.model.GetHostedZoneResponse;
 import software.amazon.awssdk.services.route53.model.HostedZone;
 import software.amazon.awssdk.services.route53.model.HostedZoneNotFoundException;
+import software.amazon.awssdk.services.route53.model.PublicZoneVpcAssociationException;
 import software.amazon.awssdk.services.route53.model.VPC;
 
 import java.util.HashSet;
@@ -260,16 +261,25 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         if (changedFieldNames.contains("vpcs")) {
             HostedZoneResource currentHostedZone = (HostedZoneResource) current;
 
+            if (getPrivateZone() && !getVpcs().isEmpty()) {
+                throw new GyroException(String.format("Hosted zone %s is a private zone and must have at least one VPC.", getHostedZoneName()));
+            }
+
             Set<String> pendingVpcIds = getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
             List<VPC> deleteVpcs = currentHostedZone.getVpcs().stream().filter(o -> !pendingVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
             for (VPC vpc : deleteVpcs) {
                 client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
             }
 
-            Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
-            List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
-            for (VPC vpc : addVpcs) {
-                client.associateVPCWithHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
+
+            try {
+                Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
+                List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
+                for (VPC vpc : addVpcs) {
+                    client.associateVPCWithHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
+                }
+            } catch (PublicZoneVpcAssociationException ex) {
+                throw new GyroException(String.format("Hosted zone %s is a public zone and cannot be associated with a VPC.", getHostedZoneName()));
             }
         }
     }
