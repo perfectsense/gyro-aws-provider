@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
  *
  *         volume
  *             device-name: "/dev/sde"
- *             volume-id: $(aws::ebs-volume volume | volume-id)
+ *             volume: $(aws::ebs-volume volume)
  *         end
  *
  *         capacity-reservation: "none"
@@ -905,7 +905,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         setVolume(instance.blockDeviceMappings().stream()
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-            .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+            .map(o -> getInstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
             .collect(Collectors.toSet()));
+    }
+
+    private InstanceVolumeAttachment getInstanceVolumeAttachment(String deviceName, String volumeId) {
+        InstanceVolumeAttachment instanceVolumeAttachment = newSubresource(InstanceVolumeAttachment.class);
+        instanceVolumeAttachment.copyFrom(deviceName);
+        instanceVolumeAttachment.saveVolume(volumeId);
+
+        return instanceVolumeAttachment;
     }
 }

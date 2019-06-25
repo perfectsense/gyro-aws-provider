@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -13,19 +14,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class InstanceVolumeAttachment extends AwsResource {
+public class InstanceVolumeAttachment extends AwsResource implements Copyable<String> {
 
     private String deviceName;
-    private String volumeId;
-
-    public InstanceVolumeAttachment() {
-    }
-
-    public InstanceVolumeAttachment(String deviceName, String volumeId) {
-        this.deviceName = deviceName;
-
-        this.volumeId = volumeId;
-    }
+    private EbsVolumeResource volume;
 
     /**
      * Device name to attach the volume to. (Required)
@@ -39,15 +31,15 @@ public class InstanceVolumeAttachment extends AwsResource {
     }
 
     /**
-     * The volume id from the volume to be attached. (Required)
+     * The volume to be attached. (Required)
      */
     @Updatable
-    public String getVolumeId() {
-        return volumeId;
+    public EbsVolumeResource getVolume() {
+        return volume;
     }
 
-    public void setVolumeId(String volumeId) {
-        this.volumeId = volumeId;
+    public void setVolume(EbsVolumeResource volume) {
+        this.volume = volume;
     }
 
     @Override
@@ -63,7 +55,7 @@ public class InstanceVolumeAttachment extends AwsResource {
 
         client.attachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(getVolumeId())
+                .volumeId(getVolume().getVolumeId())
                 .instanceId(parent.getInstanceId())
         );
     }
@@ -78,20 +70,20 @@ public class InstanceVolumeAttachment extends AwsResource {
 
         client.detachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(currentAttachment.getVolumeId())
+                .volumeId(currentAttachment.getVolume().getVolumeId())
                 .instanceId(parent.getInstanceId())
         );
 
         boolean success = Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.SECONDS)
             .prompt(true)
-            .until(() -> client.describeVolumes(r -> r.volumeIds(Collections.singleton(currentAttachment.getVolumeId())))
+            .until(() -> client.describeVolumes(r -> r.volumeIds(Collections.singleton(currentAttachment.getVolume().getVolumeId())))
                 .volumes().get(0).state().equals(VolumeState.AVAILABLE));
 
         if (success) {
             client.attachVolume(
                 r -> r.device(getDeviceName())
-                    .volumeId(getVolumeId())
+                    .volumeId(getVolume().getVolumeId())
                     .instanceId(parent.getInstanceId())
             );
         } else {
@@ -107,7 +99,7 @@ public class InstanceVolumeAttachment extends AwsResource {
 
         client.detachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(getVolumeId())
+                .volumeId(getVolume().getVolumeId())
                 .instanceId(parent.getInstanceId())
         );
     }
@@ -122,8 +114,8 @@ public class InstanceVolumeAttachment extends AwsResource {
             sb.append(" ").append(getDeviceName());
         }
 
-        if (!ObjectUtils.isBlank(getVolumeId())) {
-            sb.append(" with volume id : ").append(getVolumeId());
+        if (getVolume() != null && !ObjectUtils.isBlank(getVolume().getVolumeId())) {
+            sb.append(" with volume id : ").append(getVolume().getVolumeId());
         }
 
         return sb.toString();
@@ -132,5 +124,14 @@ public class InstanceVolumeAttachment extends AwsResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getDeviceName());
+    }
+
+    @Override
+    public void copyFrom(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    void saveVolume(String volumeId) {
+        this.volume = findById(EbsVolumeResource.class,volumeId);
     }
 }
