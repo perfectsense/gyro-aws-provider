@@ -1,1 +1,1 @@
-sqs: $(aws::sqs EXTERNAL/* | name = '')
+sqs: $(external-query aws::sqs { name: '' })

@@ -6,7 +6,7 @@
 
 aws::subscriber sns-subscriber-example
     protocol: "sqs"
-    endpoint: $(aws::sqs sqs-example | arn)
+    endpoint: $(aws::sqs sqs-example).arn
     topic: $(aws::topic sns-topic-example)
     filter-policy: "filter-policy.json"
     raw-message-delivery: true

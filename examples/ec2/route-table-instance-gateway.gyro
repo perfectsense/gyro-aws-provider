@@ -62,10 +62,8 @@ aws::instance instance-example
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"
-    subnet-id: $(aws::subnet subnet | subnet-id)
-    security-group-ids: [
-        $(aws::security-group security-group| group-id)
-    ]
+    subnet-id: $(aws::subnet subnet).subnet-id
+    security-group-ids: $(aws::security-group security-group).*.group-id
     disable-api-termination: false
     enable-ena-support: true
     ebs-optimized: false
