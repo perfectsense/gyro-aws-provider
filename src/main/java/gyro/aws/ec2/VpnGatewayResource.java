@@ -129,7 +129,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpnGatewayRequest.Builder builder = CreateVpnGatewayRequest.builder().type(GatewayType.IPSEC_1);
@@ -145,7 +145,11 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         CreateVpnGatewayResponse response = client.createVpnGateway(builder.build());
 
         setVpnGatewayId(response.vpnGateway().vpnGatewayId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         if (getVpc() != null) {
             attachVpc(client);
         }

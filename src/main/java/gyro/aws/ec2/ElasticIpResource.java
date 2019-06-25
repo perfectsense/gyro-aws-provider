@@ -189,7 +189,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     @Override
-    public void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         try {
@@ -200,28 +200,33 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             setAllocationId(response.allocationId());
             setPublicIp(response.publicIp());
 
-            if ((getInstance() != null || getNetworkInterface() != null) && (!getAllowReAssociation())) {
-                throw new GyroException("Please set 'allow-re-association' to true in order for any associations.");
-            }
-
-            if (getNetworkInterface() != null) {
-                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                    .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
-                    .allowReassociation(getAllowReAssociation())
-                    .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
-                setAssociationId(resp.associationId());
-            } else if (getInstance() != null) {
-                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                    .instanceId(getInstance().getInstanceId())
-                    .allowReassociation(getAllowReAssociation()));
-                setAssociationId(resp.associationId());
-            }
         } catch (Ec2Exception eex) {
             if (eex.awsErrorDetails().errorCode().equals("InvalidAddress.NotFound")) {
                 throw new GyroException(MessageFormat.format("Elastic Ip - {0} Unavailable/Not found.", getPublicIp()));
             } else if (eex.awsErrorDetails().errorCode().equals("AddressLimitExceeded")) {
                 throw new GyroException("The maximum number of addresses has been reached.");
             }
+        }
+    }
+
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
+        if ((getInstance() != null || getNetworkInterface() != null) && (!getAllowReAssociation())) {
+            throw new GyroException("Please set 'allow-re-association' to true in order for any associations.");
+        }
+
+        if (getNetworkInterface() != null) {
+            AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
+                .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
+                .allowReassociation(getAllowReAssociation())
+                .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
+            setAssociationId(resp.associationId());
+        } else if (getInstance() != null) {
+            AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
+                .instanceId(getInstance().getInstanceId())
+                .allowReassociation(getAllowReAssociation()));
+            setAssociationId(resp.associationId());
         }
     }
 

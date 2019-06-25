@@ -92,11 +92,12 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
         return refreshed;
     }
 
-    protected abstract void doCreate();
+    protected void doAfterCreate() {
+    }
 
     @Override
-    public final void create() {
-        doCreate();
+    public final void afterCreate() {
+        doAfterCreate();
         createTags();
     }
 

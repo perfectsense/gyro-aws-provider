@@ -393,7 +393,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(client);

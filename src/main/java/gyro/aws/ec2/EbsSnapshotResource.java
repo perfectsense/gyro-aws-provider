@@ -243,7 +243,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSnapshotResponse response = client.createSnapshot(

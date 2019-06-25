@@ -244,7 +244,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();

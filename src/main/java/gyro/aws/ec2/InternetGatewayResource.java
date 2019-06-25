@@ -89,13 +89,15 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
-
         CreateInternetGatewayResponse response = client.createInternetGateway();
-
         setInternetGatewayId(response.internetGateway().internetGatewayId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         if (getVpc() != null) {
             client.attachInternetGateway(r -> r.internetGatewayId(getInternetGatewayId())
                     .vpcId(getVpc().getVpcId())

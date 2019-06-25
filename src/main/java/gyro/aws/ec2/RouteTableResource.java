@@ -131,14 +131,18 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getVpcId()));
 
         setRouteTableId(response.routeTable().routeTableId());
         setOwnerId(response.routeTable().ownerId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         for (String subnetId : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())) {
             client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
         }

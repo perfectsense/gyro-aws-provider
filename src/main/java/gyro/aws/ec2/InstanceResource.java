@@ -519,7 +519,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -556,23 +556,26 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         for (Instance instance : response.instances()) {
             setInstanceId(instance.instanceId());
+        }
+    }
 
-            if (!getSourceDestCheck()) {
-                client.modifyNetworkInterfaceAttribute(
-                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-                );
-            }
-            
-            break;
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        Instance instance = getInstance(client);
+
+        if (!getSourceDestCheck()) {
+            client.modifyNetworkInterfaceAttribute(
+                r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                    .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+            );
         }
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isInstanceRunning(client));
-
-        Instance instance = getInstance(client);
 
         if (instance != null) {
 

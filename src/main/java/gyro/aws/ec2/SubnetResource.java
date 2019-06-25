@@ -217,7 +217,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSubnetRequest request = CreateSubnetRequest.builder()
@@ -228,7 +228,11 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
         CreateSubnetResponse response = client.createSubnet(request);
         setSubnetId(response.subnet().subnetId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
             r -> r.filters(
                 Filter.builder().name("vpc-id").values(getVpc().getId()).build(),

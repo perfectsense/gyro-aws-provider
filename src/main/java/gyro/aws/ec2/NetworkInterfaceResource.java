@@ -280,7 +280,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    public void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateNetworkInterfaceRequest.Builder builder = CreateNetworkInterfaceRequest.builder();
@@ -320,6 +320,13 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         NetworkInterface networkInterface = response.networkInterface();
 
         setNetworkInterfaceId(networkInterface.networkInterfaceId());
+
+
+    }
+
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
 
         try {
 

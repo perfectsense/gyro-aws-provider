@@ -117,7 +117,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -129,7 +129,11 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         NatGateway natGateway = response.natGateway();
         setNatGatewayId(natGateway.natGatewayId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)

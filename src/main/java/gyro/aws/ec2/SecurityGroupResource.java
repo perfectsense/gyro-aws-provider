@@ -212,7 +212,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSecurityGroupResponse response = client.createSecurityGroup(
@@ -220,7 +220,11 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         );
 
         setGroupId(response.groupId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         if (!isKeepDefaultEgressRules()) {
             deleteDefaultEgressRule(client);
         }

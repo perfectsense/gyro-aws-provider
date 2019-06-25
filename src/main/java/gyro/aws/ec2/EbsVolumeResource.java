@@ -238,7 +238,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -256,7 +256,11 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         setVolumeId(response.volumeId());
         setCreateTime(Date.from(response.createTime()));
         setState(response.stateAsString());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         if (getAutoEnableIo()) {
             try {
                 client.modifyVolumeAttribute(

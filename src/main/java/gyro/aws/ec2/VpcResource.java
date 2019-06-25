@@ -309,7 +309,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcRequest request = CreateVpcRequest.builder()
@@ -325,7 +325,11 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setOwnerId(vpc.ownerId());
         setInstanceTenancy(vpc.instanceTenancyAsString());
         setRegion(credentials(AwsCredentials.class).getRegion());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         modifySettings(client, new HashSet<>());
     }
 

@@ -107,7 +107,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         CreateCustomerGatewayRequest.Builder builder = CreateCustomerGatewayRequest.builder();
         builder.publicIp(getPublicIp());
         builder.type(GatewayType.IPSEC_1);

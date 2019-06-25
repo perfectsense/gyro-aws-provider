@@ -214,7 +214,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     @Override
-    protected void doCreate() {
+    public void create() {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
@@ -226,7 +226,11 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
         setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
+    }
 
+    @Override
+    protected void doAfterCreate() {
+        Ec2Client client = createClient(Ec2Client.class);
         client.acceptVpcPeeringConnection(
             r -> r.vpcPeeringConnectionId(getPeeringConnectionId())
         );
