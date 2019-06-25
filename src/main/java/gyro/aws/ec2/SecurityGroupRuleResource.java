@@ -183,6 +183,11 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
             sb.append(getIpv6CidrBlocks());
         }
 
+        if (!getSecurityGroups().isEmpty()) {
+            sb.append(" ");
+            sb.append(getSecurityGroups().stream().map(SecurityGroupResource::getGroupName).collect(Collectors.toList()));
+        }
+
         if (!ObjectUtils.isBlank(getDescription())) {
             sb.append(" ");
             sb.append(getDescription());
