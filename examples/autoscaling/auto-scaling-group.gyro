@@ -108,7 +108,6 @@ aws::instance instance-auto-scaling-group-example
     subnet: $(aws::subnet subnet-auto-scaling-group-example-1)
     security-groups: $(aws::security-group security-group-auto-scaling-group-example-*)
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 

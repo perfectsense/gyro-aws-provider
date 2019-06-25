@@ -63,7 +63,6 @@ import java.util.stream.Collectors;
  *             $(aws::security-group security-group)
  *         ]
  *         disable-api-termination: false
- *         enable-ena-support: true
  *         ebs-optimized: false
  *         source-dest-check: true
  *
@@ -101,7 +100,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Set<SecurityGroupResource> securityGroups;
     private SubnetResource subnet;
     private Boolean disableApiTermination;
-    private Boolean enableEnaSupport;
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
@@ -295,22 +293,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * Enable or Disable ENA support for an instance. Defaults to true and cannot be turned off during creation. See `Enabling Enhanced Networking with the Elastic Network Adapter (ENA) on Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking-ena.html/>`_.
-     */
-    @Updatable
-    public Boolean getEnableEnaSupport() {
-        if (enableEnaSupport == null) {
-            enableEnaSupport = true;
-        }
-        return enableEnaSupport;
-    }
-
-    public void setEnableEnaSupport(Boolean enableEnaSupport) {
-        this.enableEnaSupport = enableEnaSupport;
-    }
-
-    /**
-     * Enable or Disable Source/Dest Check for an instance. Defaults to true and cannot be turned off during creation. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
+     * Enable or Disable Source/Dest Check for an instance. Defaults to true. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
      */
     @Updatable
     public Boolean getSourceDestCheck() {
@@ -573,6 +556,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         for (Instance instance : response.instances()) {
             setInstanceId(instance.instanceId());
+
+            if (!getSourceDestCheck()) {
+                client.modifyNetworkInterfaceAttribute(
+                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                );
+            }
+            
             break;
         }
 
@@ -621,7 +612,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             if (instance != null) {
                 client.modifyNetworkInterfaceAttribute(
                     r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
                 );
             }
         }
@@ -643,14 +634,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .instanceType(o -> o.value(getInstanceType()))
-            );
-        }
-
-        if (changedProperties.contains("enable-ena-support")
-            && validateInstanceStop(instanceStopped, "enable-ena-support", getEnableEnaSupport().toString())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
-                    .enaSupport(o -> o.value(getEnableEnaSupport()))
             );
         }
 
@@ -719,7 +702,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
         setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toSet()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));
-        setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
         setPublicIpAddress(instance.publicIpAddress());
         setPrivateIpAddress(instance.privateIpAddress());
@@ -769,14 +751,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (ObjectUtils.isBlank(getInstanceType())
             || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
-        }
-
-        if (!getEnableEnaSupport() && isCreate) {
-            throw new GyroException("enableEnaSupport cannot be set to False at the time of instance creation. Update the instance to set it.");
-        }
-
-        if (!getSourceDestCheck() && isCreate) {
-            throw new GyroException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
         if (getSecurityGroups().isEmpty()) {
