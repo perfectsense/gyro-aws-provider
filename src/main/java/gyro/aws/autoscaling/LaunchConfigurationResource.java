@@ -9,6 +9,7 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -16,12 +17,14 @@ import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
+import software.amazon.awssdk.services.autoscaling.model.CreateLaunchConfigurationRequest;
 import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsResponse;
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -286,24 +289,49 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
         validate();
 
-        client.createLaunchConfiguration(
-            r -> r.launchConfigurationName(getLaunchConfigurationName())
-                .ebsOptimized(getEbsOptimized())
-                .imageId(getInstance() == null ? getAmiId() : null)
-                .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
-                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-                .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                .keyName(getKey() != null ? getKey().getKeyName() : null)
-                .instanceType(getInstance() == null ? getInstanceType() : null)
-                .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
-                .associatePublicIpAddress(getAssociatePublicIp())
-                .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                    getBlockDeviceMapping()
-                        .stream()
-                        .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
-                        .collect(Collectors.toList()) : null)
-                .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
-        );
+        CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
+            .launchConfigurationName(getLaunchConfigurationName())
+            .ebsOptimized(getEbsOptimized())
+            .imageId(getInstance() == null ? getAmiId() : null)
+            .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
+            .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .keyName(getKey() != null ? getKey().getKeyName() : null)
+            .instanceType(getInstance() == null ? getInstanceType() : null)
+            .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+            .associatePublicIpAddress(getAssociatePublicIp())
+            .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
+                getBlockDeviceMapping()
+                    .stream()
+                    .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
+                    .collect(Collectors.toList()) : null)
+            .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
+            .build();
+
+        // Wait for instance profile to be ready for use if present
+        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> createLaunchConfig(client, request));
+
+        if (!status) {
+            throw new GyroException("Invalid IamInstanceProfile: " + getInstanceProfile().getArn());
+        }
+    }
+
+    private boolean createLaunchConfig(AutoScalingClient client, CreateLaunchConfigurationRequest request) {
+        try {
+            client.createLaunchConfiguration(request);
+        } catch (AutoScalingException ex) {
+            if (getInstanceProfile() != null
+                && ex.awsErrorDetails().errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())) {
+                return false;
+            } else {
+                throw ex;
+            }
+        }
+
+        return true;
     }
 
     @Override
