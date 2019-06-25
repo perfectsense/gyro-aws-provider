@@ -109,6 +109,9 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         this.ipv6CidrBlocks = ipv6CidrBlocks;
     }
 
+    /**
+     * List of security groups referenced by this Security Group Rule.
+     */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
