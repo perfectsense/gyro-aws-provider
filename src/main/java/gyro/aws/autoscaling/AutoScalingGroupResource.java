@@ -744,7 +744,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             saveLoadBalancerNames(client, oldResource.getClassicLoadBalancers());
         }
 
-        if (changedFieldNames.contains("load-balancers")) {
+        if (changedFieldNames.contains("target-groups")) {
             saveTargetGroupArns(client, oldResource.getTargetGroups());
         }
     }
