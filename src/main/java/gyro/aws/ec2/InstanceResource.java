@@ -63,7 +63,6 @@ import java.util.stream.Collectors;
  *             $(aws::security-group security-group)
  *         ]
  *         disable-api-termination: false
- *         enable-ena-support: true
  *         ebs-optimized: false
  *         source-dest-check: true
  *
@@ -101,7 +100,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Set<SecurityGroupResource> securityGroups;
     private SubnetResource subnet;
     private Boolean disableApiTermination;
-    private Boolean enableEnaSupport;
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
@@ -292,21 +290,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     public void setDisableApiTermination(Boolean disableApiTermination) {
         this.disableApiTermination = disableApiTermination;
-    }
-
-    /**
-     * Enable or Disable ENA support for an instance. Defaults to true and cannot be turned off during creation. See `Enabling Enhanced Networking with the Elastic Network Adapter (ENA) on Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking-ena.html/>`_.
-     */
-    @Updatable
-    public Boolean getEnableEnaSupport() {
-        if (enableEnaSupport == null) {
-            enableEnaSupport = true;
-        }
-        return enableEnaSupport;
-    }
-
-    public void setEnableEnaSupport(Boolean enableEnaSupport) {
-        this.enableEnaSupport = enableEnaSupport;
     }
 
     /**
@@ -654,14 +637,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        if (changedProperties.contains("enable-ena-support")
-            && validateInstanceStop(instanceStopped, "enable-ena-support", getEnableEnaSupport().toString())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
-                    .enaSupport(o -> o.value(getEnableEnaSupport()))
-            );
-        }
-
         if (changedProperties.contains("ebs-optimized")
             && validateInstanceStop(instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
             client.modifyInstanceAttribute(
@@ -727,7 +702,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
         setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toSet()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));
-        setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
         setPublicIpAddress(instance.publicIpAddress());
         setPrivateIpAddress(instance.privateIpAddress());
@@ -777,10 +751,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (ObjectUtils.isBlank(getInstanceType())
             || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
-        }
-
-        if (!getEnableEnaSupport() && isCreate) {
-            GyroCore.ui().write("\n@|bold,blue Skipping. The instance must be stopped to disable ENA support. Please stop the instance first.|@");
         }
 
         if (getSecurityGroups().isEmpty()) {

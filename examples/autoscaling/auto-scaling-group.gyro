@@ -114,7 +114,6 @@ aws::instance instance-auto-scaling-group-example
         $(aws::security-group security-group-auto-scaling-group-example-2)
     ]
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 

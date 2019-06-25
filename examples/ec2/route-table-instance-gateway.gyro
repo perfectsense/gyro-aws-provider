@@ -67,7 +67,6 @@ aws::instance instance-example
         $(aws::security-group security-group| group-id)
     ]
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 
