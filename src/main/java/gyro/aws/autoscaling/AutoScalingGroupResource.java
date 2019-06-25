@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.LaunchTemplateResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.aws.elb.LoadBalancerResource;
 import gyro.aws.elbv2.TargetGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
@@ -123,7 +124,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     private String serviceLinkedRoleArn;
     private String placementGroup;
     private InstanceResource instance;
-    private Set<gyro.aws.elb.LoadBalancerResource> classicLoadBalancers;
+    private Set<LoadBalancerResource> classicLoadBalancers;
     private Set<TargetGroupResource> targetGroups;
     private Set<String> terminationPolicies;
     private String status;
@@ -423,7 +424,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      * A set of classic load balancer's to be attached to the Auto Scaling Group.
      */
     @Updatable
-    public Set<gyro.aws.elb.LoadBalancerResource> getClassicLoadBalancers() {
+    public Set<LoadBalancerResource> getClassicLoadBalancers() {
         if (classicLoadBalancers == null) {
             classicLoadBalancers = new HashSet<>();
         }
@@ -431,7 +432,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         return classicLoadBalancers;
     }
 
-    public void setClassicLoadBalancers(Set<gyro.aws.elb.LoadBalancerResource> classicLoadBalancers) {
+    public void setClassicLoadBalancers(Set<LoadBalancerResource> classicLoadBalancers) {
         this.classicLoadBalancers = classicLoadBalancers;
     }
 
@@ -608,7 +609,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setClassicLoadBalancers(
             (autoScalingGroup.loadBalancerNames() != null && !autoScalingGroup.loadBalancerNames().isEmpty())
                 ? autoScalingGroup.loadBalancerNames().stream()
-                .map(o -> findById(gyro.aws.elb.LoadBalancerResource.class, o))
+                .map(o -> findById(LoadBalancerResource.class, o))
                 .collect(Collectors.toSet())
                 : null);
         setTargetGroups(
@@ -674,7 +675,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
                 .serviceLinkedRoleARN(getServiceLinkedRoleArn())
                 .placementGroup(getPlacementGroup())
-                .loadBalancerNames(getClassicLoadBalancers().stream().map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName).collect(Collectors.toList()))
+                .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getLoadBalancerName).collect(Collectors.toList()))
                 .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toList()))
                 .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
                 .terminationPolicies(getTerminationPolicies())
@@ -964,13 +965,13 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
     }
 
-    private void saveLoadBalancerNames(AutoScalingClient client, Set<gyro.aws.elb.LoadBalancerResource> oldLoadBalancers) {
+    private void saveLoadBalancerNames(AutoScalingClient client, Set<LoadBalancerResource> oldLoadBalancers) {
         Set<String> removeLoadBalancerNames = oldLoadBalancers.stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet());
 
         removeLoadBalancerNames.removeAll(getClassicLoadBalancers().stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet()));
 
         if (!removeLoadBalancerNames.isEmpty()) {
@@ -980,11 +981,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
 
         Set<String> addLoadbalancerNames = getClassicLoadBalancers().stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet());
 
         addLoadbalancerNames.removeAll(oldLoadBalancers.stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet()));
 
         if (!addLoadbalancerNames.isEmpty()) {
