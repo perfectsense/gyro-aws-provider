@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.route53.model.CreateHostedZoneResponse;
 import software.amazon.awssdk.services.route53.model.GetHostedZoneResponse;
 import software.amazon.awssdk.services.route53.model.HostedZone;
 import software.amazon.awssdk.services.route53.model.HostedZoneNotFoundException;
+import software.amazon.awssdk.services.route53.model.PublicZoneVpcAssociationException;
 import software.amazon.awssdk.services.route53.model.VPC;
 
 import java.util.HashSet;
@@ -33,8 +34,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::hosted-zone hosted-zone-example
- *         hosted-zone-name: "hosted-zone-example.com"
- *         private-zone: true
+ *         name: "hosted-zone-example.com"
  *         vpcs: [
  *             $(aws::vpc vpc-hosted-zone-example)
  *         ]
@@ -47,13 +47,14 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
     private String delegationSetId;
     private String comment;
-    private Boolean privateZone;
-    private String hostedZoneId;
-    private String hostedZoneName;
+    private String id;
+    private String name;
     private Long resourceRecordSetCount;
     private String description;
     private String servicePrincipal;
     private Set<VpcResource> vpcs;
+
+    private Boolean privateZone;
 
     /**
      * The ID of a delegation set.
@@ -79,33 +80,22 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     /**
-     * Is the the Hosted Zone private.
-     */
-    public Boolean getPrivateZone() {
-        return privateZone;
-    }
-
-    public void setPrivateZone(Boolean privateZone) {
-        this.privateZone = privateZone;
-    }
-
-    /**
      * The name of the Hosted Zone.
      */
-    public String getHostedZoneName() {
-        if (hostedZoneName != null) {
-            hostedZoneName += hostedZoneName.endsWith(".") ? "" : ".";
+    public String getName() {
+        if (name != null) {
+            name += name.endsWith(".") ? "" : ".";
         }
 
-        return hostedZoneName;
+        return name;
     }
 
-    public void setHostedZoneName(String hostedZoneName) {
-        this.hostedZoneName = hostedZoneName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * A set of Vpcs to be associated with the Hosted Zone.
+     * A set of Vpcs to be associated with the Hosted Zone. If no vpc is associated, the hosted zone becomes a public zone and vpc's cannot be associated later. If one or vpc is provided then hosted zone becomes private zone, and vpc's cannot be emptied.
      *
      * @subresource gyro.aws.route53.Route53VpcResource
      */
@@ -127,12 +117,12 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
      */
     @Id
     @Output
-    public String getHostedZoneId() {
-        return hostedZoneId;
+    public String getId() {
+        return id;
     }
 
-    public void setHostedZoneId(String hostedZoneId) {
-        this.hostedZoneId = hostedZoneId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -171,12 +161,28 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         this.servicePrincipal = servicePrincipal;
     }
 
+    /**
+     * Is the Hosted Zone private.
+     */
+    @Output
+    public Boolean getPrivateZone() {
+        if (privateZone == null) {
+            privateZone = !getVpcs().isEmpty();
+        }
+
+        return privateZone;
+    }
+
+    public void setPrivateZone(Boolean privateZone) {
+        this.privateZone = privateZone;
+    }
+
     @Override
     public void copyFrom(HostedZone hostedZone) {
-        setHostedZoneId(hostedZone.id());
+        setId(hostedZone.id());
         setComment(hostedZone.config().comment());
+        setName(hostedZone.name());
         setPrivateZone(hostedZone.config().privateZone());
-        setHostedZoneName(hostedZone.name());
         setResourceRecordSetCount(hostedZone.resourceRecordSetCount());
         setDescription(hostedZone.linkedService() != null ? hostedZone.linkedService().description() : null);
         setServicePrincipal(hostedZone.linkedService() != null ? hostedZone.linkedService().servicePrincipal() : null);
@@ -210,11 +216,10 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     public void create() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        validate();
         VpcResource firstVpcResource = !getVpcs().isEmpty() ? getVpcs().iterator().next() : null;
 
         CreateHostedZoneResponse response = client.createHostedZone(
-            r -> r.name(getHostedZoneName())
+            r -> r.name(getName())
                 .delegationSetId(getDelegationSetId())
                 .hostedZoneConfig(
                     o -> o.comment(getComment())
@@ -226,7 +231,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
         HostedZone hostedZone = response.hostedZone();
 
-        setHostedZoneId(hostedZone.id());
+        setId(hostedZone.id());
         setResourceRecordSetCount(hostedZone.resourceRecordSetCount());
         setDescription(hostedZone.linkedService() != null ? hostedZone.linkedService().description() : null);
         setServicePrincipal(hostedZone.linkedService() != null ? hostedZone.linkedService().servicePrincipal() : null);
@@ -235,7 +240,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
             for (VpcResource vpcResource : getVpcs()) {
                 if (!vpcResource.equals(firstVpcResource)) {
                     client.associateVPCWithHostedZone(
-                        r -> r.hostedZoneId(getHostedZoneId())
+                        r -> r.hostedZoneId(getId())
                             .vpc(getVpc(vpcResource)));
                 }
             }
@@ -244,13 +249,11 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
-        validate();
-
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         if (changedFieldNames.contains("comment")) {
             client.updateHostedZoneComment(
-                r -> r.id(getHostedZoneId())
+                r -> r.id(getId())
                     .comment(getComment() != null ? getComment() : "")
             );
         }
@@ -258,16 +261,25 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         if (changedFieldNames.contains("vpcs")) {
             HostedZoneResource currentHostedZone = (HostedZoneResource) current;
 
+            if (getPrivateZone() && getVpcs().isEmpty()) {
+                throw new GyroException(String.format("Hosted zone %s is a private zone and must have at least one VPC.", getName()));
+            }
+
             Set<String> pendingVpcIds = getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
             List<VPC> deleteVpcs = currentHostedZone.getVpcs().stream().filter(o -> !pendingVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
             for (VPC vpc : deleteVpcs) {
-                client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
+                client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
             }
 
-            Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
-            List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
-            for (VPC vpc : addVpcs) {
-                client.associateVPCWithHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
+
+            try {
+                Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
+                List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
+                for (VPC vpc : addVpcs) {
+                    client.associateVPCWithHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
+                }
+            } catch (PublicZoneVpcAssociationException ex) {
+                throw new GyroException(String.format("Hosted zone %s is a public zone and cannot be associated with a VPC.", getName()));
             }
         }
     }
@@ -277,7 +289,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteHostedZone(
-            r -> r.id(getHostedZoneId())
+            r -> r.id(getId())
         );
     }
 
@@ -287,12 +299,12 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
         sb.append("hosted zone");
 
-        if (!ObjectUtils.isBlank(getHostedZoneName())) {
-            sb.append(" [ ").append(getHostedZoneName()).append(" ]");
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" [ ").append(getName()).append(" ]");
         }
 
-        if (!ObjectUtils.isBlank(getHostedZoneId())) {
-            sb.append(" - ").append(getHostedZoneId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -301,13 +313,13 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     private GetHostedZoneResponse getHostedZoneResponse(Route53Client client) {
         GetHostedZoneResponse hostedZoneResponse = null;
 
-        if (ObjectUtils.isBlank(getHostedZoneId())) {
+        if (ObjectUtils.isBlank(getId())) {
             throw new GyroException("hosted-zone-id is missing, unable to load hosted zone.");
         }
 
         try {
             hostedZoneResponse = client.getHostedZone(
-                r -> r.id(getHostedZoneId())
+                r -> r.id(getId())
             );
 
             if (hostedZoneResponse.hostedZone() == null) {
@@ -319,16 +331,6 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         }
 
         return hostedZoneResponse;
-    }
-
-    private void validate() {
-        if (getPrivateZone() && getVpcs().isEmpty()) {
-            throw new GyroException("if param 'private-zone' is set to 'true' 'vpcs' needs to be provided.");
-        }
-
-        if (!getPrivateZone() && !getVpcs().isEmpty()) {
-            throw new GyroException("if param 'private-zone' is set to 'false' 'vpcs' cannot be set.");
-        }
     }
 
     private VPC getVpc(VpcResource vpcResource) {

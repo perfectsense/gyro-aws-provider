@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
 
@@ -179,23 +180,19 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         IpPermission.Builder permissionBuilder = IpPermission.builder();
 
         if (!getCidrBlocks().isEmpty()) {
-            IpRange.Builder ipv4builder = IpRange.builder();
-            ipv4builder.description(getDescription());
-            for (String cidr : getCidrBlocks()) {
-                ipv4builder.cidrIp(cidr);
-            }
-
-            permissionBuilder.ipRanges(ipv4builder.build());
+            permissionBuilder.ipRanges(
+                getCidrBlocks().stream()
+                    .map(o -> IpRange.builder().description(getDescription()).cidrIp(o).build())
+                    .collect(Collectors.toList())
+            );
         }
 
         if (!getIpv6CidrBlocks().isEmpty()) {
-            Ipv6Range.Builder ipv6builder = Ipv6Range.builder();
-            ipv6builder.description(getDescription());
-            for (String cidr : getIpv6CidrBlocks()) {
-                ipv6builder.cidrIpv6(cidr);
-            }
-
-            permissionBuilder.ipv6Ranges(ipv6builder.build());
+            permissionBuilder.ipv6Ranges(
+                getIpv6CidrBlocks().stream()
+                    .map(o -> Ipv6Range.builder().description(getDescription()).cidrIpv6(o).build())
+                    .collect(Collectors.toList())
+            );
         }
 
         return permissionBuilder

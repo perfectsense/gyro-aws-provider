@@ -7,7 +7,7 @@ aws::vpc vpc-traffic-policy-instance-example
 end
 
 aws::hosted-zone hosted-zone-traffic-policy-instance-example
-    hosted-zone-name: "hosted-zone-traffic-policy-instance-example.com"
+    name: "hosted-zone-traffic-policy-instance-example.com"
     private-zone: true
     vpcs: [
         $(aws::vpc vpc-traffic-policy-instance-example)

@@ -7,7 +7,7 @@ aws::vpc vpc-record-set-example
 end
 
 aws::hosted-zone hosted-zone-record-set-example
-    hosted-zone-name: "hosted-zone-record-set-example.com"
+    name: "hosted-zone-record-set-example.com"
     private-zone: false
     comment: "hosted-zone-record-set-example.com comment"
 end
