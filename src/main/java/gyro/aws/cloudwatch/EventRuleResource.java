@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Create a CloudWatch rule and targets
+ * Create CloudWatch rule and targets.
  *
  * Example
  * -------
