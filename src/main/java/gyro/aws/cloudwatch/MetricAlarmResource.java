@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Creates an Auto scaling Group from a Launch Configuration or from a Launch Template.
+ * Creates a CloudWatch metric alarm.
  *
  * Example
  * -------
