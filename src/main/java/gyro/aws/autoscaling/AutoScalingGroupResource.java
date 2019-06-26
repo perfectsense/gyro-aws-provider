@@ -1029,27 +1029,27 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         if (getDefaultCooldown() < 0) {
             throw new GyroException("The value - (" + getDefaultCooldown()
-                + ") is invalid for parameter 'default-cooldown'. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'default-cooldown'. Integer value greater or equal to 0.");
         }
 
         if (getMaxSize() < 0) {
             throw new GyroException("The value - (" + getMaxSize()
-                + ") is invalid for parameter 'max-size'. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'max-size'. Integer value greater or equal to 0.");
         }
 
         if (getMinSize() < 0) {
             throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter 'min-size'. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'min-size'. Integer value greater or equal to 0.");
         }
 
         if (getMinSize() > getMaxSize()) {
             throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size' set.");
+                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size'.");
         }
 
         if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
             throw new GyroException("The value - (" + getDesiredCapacity()
-                + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size' set.");
+                + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size'.");
         }
 
         if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
