@@ -8,7 +8,7 @@ public class XssMatchTupleResource extends gyro.aws.waf.common.XssMatchTupleReso
     protected void saveXssMatchTuple(XssMatchTuple xssMatchTuple, boolean isDelete) {
         WafClient client = getGlobalClient();
 
-        client.updateXssMatchSet(getUpdateXssMatchSetRequest(xssMatchTuple, isDelete)
+        client.updateXssMatchSet(toUpdateXssMatchSetRequest(xssMatchTuple, isDelete)
             .changeToken(client.getChangeToken().changeToken())
             .build()
         );

@@ -11,12 +11,12 @@ public class PredicateResource extends gyro.aws.waf.common.PredicateResource {
 
         WafRegionalClient client = getRegionalClient();
         if (!parent.isRateRule()) {
-            client.updateRule(getUpdateRuleRequest(predicate, isDelete)
+            client.updateRule(toUpdateRuleRequest(predicate, isDelete)
                 .changeToken(client.getChangeToken().changeToken())
                 .build()
             );
         } else {
-            client.updateRateBasedRule(getUpdateRateBasedRuleRequest(predicate, isDelete)
+            client.updateRateBasedRule(toUpdateRateBasedRuleRequest(predicate, isDelete)
                 .changeToken(client.getChangeToken().changeToken())
                 .build()
             );

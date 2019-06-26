@@ -62,7 +62,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     @Override
     public void create() {
-        saveSqlInjectionMatchTuple(getSqlInjectionMatchTuple(), false);
+        saveSqlInjectionMatchTuple(toSqlInjectionMatchTuple(), false);
     }
 
     @Override
@@ -72,7 +72,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     @Override
     public void delete() {
-        saveSqlInjectionMatchTuple(getSqlInjectionMatchTuple(), true);
+        saveSqlInjectionMatchTuple(toSqlInjectionMatchTuple(), true);
     }
 
     @Override
@@ -103,14 +103,14 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     protected abstract void saveSqlInjectionMatchTuple(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete);
 
-    private SqlInjectionMatchTuple getSqlInjectionMatchTuple() {
+    private SqlInjectionMatchTuple toSqlInjectionMatchTuple() {
         return SqlInjectionMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))
             .textTransformation(getTextTransformation())
             .build();
     }
 
-    protected UpdateSqlInjectionMatchSetRequest.Builder getUpdateSqlInjectionMatchSetRequest(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
+    protected UpdateSqlInjectionMatchSetRequest.Builder toUpdateSqlInjectionMatchSetRequest(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
         SqlInjectionMatchSetResource parent = (SqlInjectionMatchSetResource) parent();
 
         SqlInjectionMatchSetUpdate sqlInjectionMatchSetUpdate = SqlInjectionMatchSetUpdate.builder()

@@ -8,7 +8,7 @@ public class RegexMatchTupleResource extends gyro.aws.waf.common.RegexMatchTuple
     protected void saveRegexMatchTuple(RegexMatchTuple regexMatchTuple, boolean isDelete) {
         WafRegionalClient client = getRegionalClient();
 
-        client.updateRegexMatchSet(getUpdateRegexMatchSetRequest(regexMatchTuple, isDelete)
+        client.updateRegexMatchSet(toUpdateRegexMatchSetRequest(regexMatchTuple, isDelete)
             .changeToken(client.getChangeToken().changeToken())
             .build()
         );

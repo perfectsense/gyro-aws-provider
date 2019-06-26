@@ -62,7 +62,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     @Override
     public void create() {
-        saveXssMatchTuple(getXssMatchTuple(), false);
+        saveXssMatchTuple(toXssMatchTuple(), false);
     }
 
     @Override
@@ -72,7 +72,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     @Override
     public void delete() {
-        saveXssMatchTuple(getXssMatchTuple(), true);
+        saveXssMatchTuple(toXssMatchTuple(), true);
     }
 
     @Override
@@ -103,14 +103,14 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     protected abstract void saveXssMatchTuple(XssMatchTuple xssMatchTuple, boolean isDelete);
 
-    private XssMatchTuple getXssMatchTuple() {
+    private XssMatchTuple toXssMatchTuple() {
         return XssMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))
             .textTransformation(getTextTransformation())
             .build();
     }
 
-    protected UpdateXssMatchSetRequest.Builder getUpdateXssMatchSetRequest(XssMatchTuple xssMatchTuple, boolean isDelete) {
+    protected UpdateXssMatchSetRequest.Builder toUpdateXssMatchSetRequest(XssMatchTuple xssMatchTuple, boolean isDelete) {
         XssMatchSetResource parent = (XssMatchSetResource) parent();
 
         XssMatchSetUpdate xssMatchSetUpdate = XssMatchSetUpdate.builder()

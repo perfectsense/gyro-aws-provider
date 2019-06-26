@@ -9,7 +9,7 @@ public class ByteMatchTupleResource extends gyro.aws.waf.common.ByteMatchTupleRe
         WafClient client = getGlobalClient();
 
         client.updateByteMatchSet(
-            getByteMatchSetUpdateRequest(byteMatchTuple, isDelete)
+            toByteMatchSetUpdateRequest(byteMatchTuple, isDelete)
                 .changeToken(client.getChangeToken().changeToken())
                 .build()
         );

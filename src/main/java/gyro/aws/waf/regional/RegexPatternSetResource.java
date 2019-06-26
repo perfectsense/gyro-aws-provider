@@ -46,7 +46,7 @@ public class RegexPatternSetResource extends CommonRegexPatternSet {
     protected void savePatterns(List<String> oldPatterns, List<String> newPatterns) {
         WafRegionalClient client = getRegionalClient();
 
-        UpdateRegexPatternSetRequest regexPatternSetRequest = getUpdateRegexPatternSetRequest(oldPatterns, newPatterns)
+        UpdateRegexPatternSetRequest regexPatternSetRequest = toUpdateRegexPatternSetRequest(oldPatterns, newPatterns)
             .changeToken(client.getChangeToken().changeToken())
             .build();
 

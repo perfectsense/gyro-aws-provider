@@ -103,7 +103,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         // Priority check
         handlePriority();
 
-        saveActivatedRule(getActivatedRule(), false);
+        saveActivatedRule(toActivatedRule(), false);
     }
 
     @Override
@@ -112,15 +112,15 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         handlePriority();
 
         // Remove old activated rule
-        saveActivatedRule(((ActivatedRuleResource) current).getActivatedRule(), true);
+        saveActivatedRule(((ActivatedRuleResource) current).toActivatedRule(), true);
 
         // Add updated activated rule
-        saveActivatedRule(getActivatedRule(), false);
+        saveActivatedRule(toActivatedRule(), false);
     }
 
     @Override
     public void delete() {
-        saveActivatedRule(getActivatedRule(), true);
+        saveActivatedRule(toActivatedRule(), true);
     }
 
     @Override
@@ -147,7 +147,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         return String.format("%s", getRule() != null ? getRule().getRuleId() : null);
     }
 
-    protected ActivatedRule getActivatedRule() {
+    protected ActivatedRule toActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
             .priority(getPriority())
@@ -167,7 +167,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     protected abstract void handlePriority();
 
-    protected UpdateWebAclRequest.Builder getUpdateWebAclRequest(gyro.aws.waf.common.WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
+    protected UpdateWebAclRequest.Builder toUpdateWebAclRequest(gyro.aws.waf.common.WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
         WebACLUpdate webAclUpdate = WebACLUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
             .activatedRule(activatedRule)

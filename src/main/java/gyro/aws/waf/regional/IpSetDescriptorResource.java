@@ -8,7 +8,7 @@ public class IpSetDescriptorResource extends gyro.aws.waf.common.IpSetDescriptor
     protected void saveIpSetDescriptor(IPSetDescriptor ipSetDescriptor, boolean isDelete) {
         WafRegionalClient client = getRegionalClient();
 
-        client.updateIPSet(getUpdateIpSetRequest(ipSetDescriptor, isDelete)
+        client.updateIPSet(toUpdateIpSetRequest(ipSetDescriptor, isDelete)
             .changeToken(client.getChangeToken().changeToken())
             .build()
         );

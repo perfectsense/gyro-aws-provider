@@ -8,7 +8,7 @@ public class SizeConstraintResource extends gyro.aws.waf.common.SizeConstraintRe
     protected void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete) {
         WafClient client = getGlobalClient();
 
-        client.updateSizeConstraintSet(getUpdateSizeConstraintSetRequest(sizeConstraint, isDelete)
+        client.updateSizeConstraintSet(toUpdateSizeConstraintSetRequest(sizeConstraint, isDelete)
             .changeToken(client.getChangeToken().changeToken())
             .build()
         );

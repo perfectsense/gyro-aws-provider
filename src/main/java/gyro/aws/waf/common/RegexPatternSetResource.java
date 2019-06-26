@@ -166,7 +166,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
 
     protected abstract RegexMatchSet getRegexMatchSet(String regexMatchSetId);
 
-    protected UpdateRegexPatternSetRequest.Builder getUpdateRegexPatternSetRequest(List<String> oldPatterns, List<String> newPatterns) {
+    protected UpdateRegexPatternSetRequest.Builder toUpdateRegexPatternSetRequest(List<String> oldPatterns, List<String> newPatterns) {
         List<RegexPatternSetUpdate> regexPatternSetUpdates = new ArrayList<>();
 
         List<String> deletePatterns = oldPatterns.stream()

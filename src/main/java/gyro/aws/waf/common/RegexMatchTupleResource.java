@@ -75,7 +75,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
 
     @Override
     public void create() {
-        saveRegexMatchTuple(getRegexMatchTuple(), false);
+        saveRegexMatchTuple(toRegexMatchTuple(), false);
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
 
     @Override
     public void delete() {
-        saveRegexMatchTuple(getRegexMatchTuple(), true);
+        saveRegexMatchTuple(toRegexMatchTuple(), true);
     }
 
     @Override
@@ -118,7 +118,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
         return String.format("%s %s %s %s", getData(), getType(), getTextTransformation(), getRegexPatternSet() != null ? getRegexPatternSet().getRegexPatternSetId() : null);
     }
 
-    private RegexMatchTuple getRegexMatchTuple() {
+    private RegexMatchTuple toRegexMatchTuple() {
         return RegexMatchTuple.builder()
             .fieldToMatch(f -> f.data(getData()).type(getType()))
             .regexPatternSetId(getRegexPatternSet().getRegexPatternSetId())
@@ -128,7 +128,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
 
     protected abstract void saveRegexMatchTuple(RegexMatchTuple regexMatchTuple, boolean isDelete);
 
-    protected UpdateRegexMatchSetRequest.Builder getUpdateRegexMatchSetRequest(RegexMatchTuple regexMatchTuple, boolean isDelete) {
+    protected UpdateRegexMatchSetRequest.Builder toUpdateRegexMatchSetRequest(RegexMatchTuple regexMatchTuple, boolean isDelete) {
         RegexMatchSetResource parent = (RegexMatchSetResource) parent();
 
         RegexMatchSetUpdate regexMatchSetUpdate = RegexMatchSetUpdate.builder()

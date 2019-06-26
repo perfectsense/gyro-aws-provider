@@ -8,7 +8,7 @@ public class SqlInjectionMatchTupleResource extends gyro.aws.waf.common.SqlInjec
     protected void saveSqlInjectionMatchTuple(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
         WafRegionalClient client = getRegionalClient();
 
-        client.updateSqlInjectionMatchSet(getUpdateSqlInjectionMatchSetRequest(sqlInjectionMatchTuple, isDelete)
+        client.updateSqlInjectionMatchSet(toUpdateSqlInjectionMatchSetRequest(sqlInjectionMatchTuple, isDelete)
             .changeToken(client.getChangeToken().changeToken())
             .build()
         );
