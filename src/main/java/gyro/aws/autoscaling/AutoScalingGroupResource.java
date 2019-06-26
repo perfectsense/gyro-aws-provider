@@ -221,10 +221,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      */
     @Updatable
     public Integer getDesiredCapacity() {
-        if (desiredCapacity == null) {
-            desiredCapacity = 0;
-        }
-
         return desiredCapacity;
     }
 
@@ -578,7 +574,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setMaxSize(autoScalingGroup.maxSize());
         setMinSize(autoScalingGroup.minSize());
         setAvailabilityZones(new HashSet<>(autoScalingGroup.availabilityZones()));
-        setDesiredCapacity(autoScalingGroup.desiredCapacity());
+        setDesiredCapacity(getDesiredCapacity() == null ? null : autoScalingGroup.desiredCapacity());
         setDefaultCooldown(autoScalingGroup.defaultCooldown());
         setHealthCheckType(autoScalingGroup.healthCheckType());
         setHealthCheckGracePeriod(autoScalingGroup.healthCheckGracePeriod());
@@ -1046,7 +1042,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 + ") is invalid for parameter Default cool down. Integer value grater or equal to 0.");
         }
 
-        if (getDesiredCapacity() < 0) {
+        if (getDesiredCapacity() != null && getDesiredCapacity() < 0) {
             throw new GyroException("The value - (" + getDesiredCapacity()
                 + ") is invalid for parameter Desired capacity. Integer value grater or equal to 0.");
         }
