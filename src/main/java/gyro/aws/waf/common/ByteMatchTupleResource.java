@@ -42,7 +42,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     /**
-     * The comparison to be done on the filter. Valid values are ``EQ`` or ``NE`` or ``LE`` or ``LT`` or ``GE`` or ``GT``. (Required)
+     * The comparison to be done on the filter. Valid values are ``EXACTLY`` or ``STARTS_WITH`` or ``ENDS_WITH`` or ``CONTAINS`` or ``CONTAINS_WORD``. (Required)
      */
     public String getPositionalConstraint() {
         return positionalConstraint != null ? positionalConstraint.toUpperCase() : null;
