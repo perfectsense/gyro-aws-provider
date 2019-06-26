@@ -3,7 +3,6 @@ package gyro.aws.ec2;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.IpPermission;
 
 import java.util.Set;
 
