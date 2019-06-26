@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::auto-scaling-group auto-scaling-group-example
+ *     aws::autoscaling-group auto-scaling-group-example
  *         auto-scaling-group-name: "auto-scaling-group-gyro-1"
  *         launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
  *         availability-zones: [
@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::auto-scaling-group auto-scaling-group-example
+ *     aws::autoscaling-group auto-scaling-group-example
  *         auto-scaling-group-name: "auto-scaling-group-gyro-1"
  *         launch-template: $(aws::launch-template launch-template-auto-scaling-group-example)
  *         availability-zones: [
@@ -100,7 +100,7 @@ import java.util.stream.Collectors;
  *
  *     end
  */
-@Type("auto-scaling-group")
+@Type("autoscaling-group")
 public class AutoScalingGroupResource extends AwsResource implements GyroInstances, Copyable<AutoScalingGroup> {
 
     private String autoScalingGroupName;
