@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
@@ -165,6 +166,22 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     @Override
+    public final void create() {
+        validate();
+        doCreate();
+    }
+
+    protected abstract void doCreate();
+
+    @Override
+    public final void update(Resource current, Set<String> changedFieldNames) {
+        validate();
+        doUpdate(current, changedFieldNames);
+    }
+
+    protected abstract void doUpdate(Resource current, Set<String> changedFieldNames);
+
+    @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
@@ -210,7 +227,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     IpPermission getIpPermissionRequest() {
-        validate();
         IpPermission.Builder permissionBuilder = IpPermission.builder();
 
         if (!getCidrBlocks().isEmpty()) {

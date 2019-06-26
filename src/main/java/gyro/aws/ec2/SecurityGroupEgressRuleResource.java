@@ -8,13 +8,13 @@ import java.util.Set;
 
 public class SecurityGroupEgressRuleResource extends SecurityGroupRuleResource {
     @Override
-    public void create() {
+    public void doCreate() {
         Ec2Client client = createClient(Ec2Client.class);
         client.authorizeSecurityGroupEgress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedFieldNames.size() == 1 && changedFieldNames.contains("description")) {
