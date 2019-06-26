@@ -574,7 +574,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setMaxSize(autoScalingGroup.maxSize());
         setMinSize(autoScalingGroup.minSize());
         setAvailabilityZones(new HashSet<>(autoScalingGroup.availabilityZones()));
-        setDesiredCapacity(getDesiredCapacity() == null ? null : autoScalingGroup.desiredCapacity());
+        setDesiredCapacity((getAutoScalingGroupName() != null && getDesiredCapacity() == null) ? null : autoScalingGroup.desiredCapacity());
         setDefaultCooldown(autoScalingGroup.defaultCooldown());
         setHealthCheckType(autoScalingGroup.healthCheckType());
         setHealthCheckGracePeriod(autoScalingGroup.healthCheckGracePeriod());
