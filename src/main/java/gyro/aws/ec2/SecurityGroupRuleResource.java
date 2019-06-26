@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
@@ -209,6 +210,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     IpPermission getIpPermissionRequest() {
+        validate();
         IpPermission.Builder permissionBuilder = IpPermission.builder();
 
         if (!getCidrBlocks().isEmpty()) {
@@ -242,5 +244,10 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
             .build();
     }
 
+    private void validate() {
+        if (getCidrBlocks().isEmpty() && getIpv6CidrBlocks().isEmpty() && getSecurityGroups().isEmpty()) {
+            throw new GyroException("At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
+        }
+    }
 }
 
