@@ -31,7 +31,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
      * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
      */
     public String getData() {
-        return data;
+        return data != null ? data.toLowerCase() : null;
     }
 
     public void setData(String data) {
