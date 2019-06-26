@@ -1024,7 +1024,12 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         if (getHealthCheckGracePeriod() < 0) {
             throw new GyroException("The value - (" + getHealthCheckGracePeriod()
-                + ") is invalid for parameter 'health-check-grace-period'. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'health-check-grace-period'. Integer value greater or equal to 0.");
+        }
+
+        if (getDefaultCooldown() < 0) {
+            throw new GyroException("The value - (" + getDefaultCooldown()
+                + ") is invalid for parameter 'default-cooldown'. Integer value grater or equal to 0.");
         }
 
         if (getMaxSize() < 0) {
@@ -1037,19 +1042,14 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 + ") is invalid for parameter 'min-size'. Integer value grater or equal to 0.");
         }
 
-        if (getDefaultCooldown() < 0) {
-            throw new GyroException("The value - (" + getDefaultCooldown()
-                + ") is invalid for parameter 'default-cooldown'. Integer value grater or equal to 0.");
+        if (getMinSize() > getMaxSize()) {
+            throw new GyroException("The value - (" + getMinSize()
+                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size' set.");
         }
 
         if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
             throw new GyroException("The value - (" + getDesiredCapacity()
                 + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size' set.");
-        }
-
-        if (getMinSize() > getMaxSize()) {
-            throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size' set.");
         }
 
         if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
