@@ -29,10 +29,14 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     /**
-     * Set if the condition is checked to be false. (Required)
+     * Set if the condition is checked to be false. Defaults to false.
      */
     @Updatable
     public Boolean getNegated() {
+        if (negated == null) {
+            negated = false;
+        }
+
         return negated;
     }
 
