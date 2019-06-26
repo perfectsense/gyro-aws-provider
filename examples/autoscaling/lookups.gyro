@@ -1,2 +1,2 @@
 launch-configuration: $(external-query aws::launch-configuration { launch-configuration-name: '' })
-auto-scaling-group: $(external-query aws::auto-scaling-group { auto-scaling-group-name: '' })
+autoscaling-group: $(external-query aws::autoscaling-group { auto-scaling-group-name: '' })
