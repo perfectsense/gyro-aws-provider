@@ -1014,54 +1014,54 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     private void validate() {
         if (getLaunchTemplate() == null && getLaunchConfiguration() == null && getInstance() == null) {
-            throw new GyroException("Either Launch template or a launch configuration or an instance is required.");
+            throw new GyroException("Either 'launch-template' or 'launch-configuration' or 'instance' is required.");
         }
 
         if (!getHealthCheckType().equals("ELB") && !getHealthCheckType().equals("EC2")) {
             throw new GyroException("The value - (" + getHealthCheckType()
-                + ") is invalid for parameter Health Check Type.");
+                + ") is invalid for parameter 'health-check-type'.");
         }
 
         if (getHealthCheckGracePeriod() < 0) {
             throw new GyroException("The value - (" + getHealthCheckGracePeriod()
-                + ") is invalid for parameter Health Check Grace period. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'health-check-grace-period'. Integer value grater or equal to 0.");
         }
 
         if (getMaxSize() < 0) {
             throw new GyroException("The value - (" + getMaxSize()
-                + ") is invalid for parameter Max size. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'max-size'. Integer value grater or equal to 0.");
         }
 
         if (getMinSize() < 0) {
             throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter Min size. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'min-size'. Integer value grater or equal to 0.");
         }
 
         if (getDefaultCooldown() < 0) {
             throw new GyroException("The value - (" + getDefaultCooldown()
-                + ") is invalid for parameter Default cool down. Integer value grater or equal to 0.");
+                + ") is invalid for parameter 'default-cooldown'. Integer value grater or equal to 0.");
         }
 
         if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
             throw new GyroException("The value - (" + getDesiredCapacity()
-                + ") is invalid for parameter Desired capacity. Integer value between the 'min-size' and 'max-size' set.");
+                + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size' set.");
         }
 
         if (getMinSize() > getMaxSize()) {
             throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter Min size. Integer value less or equal to 'max-size' set.");
+                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size' set.");
         }
 
         if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
-            throw new GyroException("When Enabled Metrics Collection is set to false, disabled metrics can't have items in it.");
+            throw new GyroException("When 'enabled-metrics-collection' is set to false, 'disabled-metrics' can't have items in it.");
         }
 
         if (!MASTER_METRIC_SET.containsAll(getDisabledMetrics())) {
-            throw new GyroException("Invalid values for parameter Disabled Metrics.");
+            throw new GyroException("Invalid values for parameter 'disabled-metrics'.");
         }
 
         if (!new HashSet<>(getTags().keySet()).containsAll(getPropagateAtLaunchTags())) {
-            throw new GyroException("Propagate at launch tags cannot contain keys not mentioned under tags.");
+            throw new GyroException("'propagate-at-launch-tags' cannot contain keys not mentioned under 'tags'.");
         }
     }
 }
