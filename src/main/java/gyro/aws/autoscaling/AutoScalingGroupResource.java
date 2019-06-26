@@ -1047,6 +1047,16 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 + ") is invalid for parameter Desired capacity. Integer value grater or equal to 0.");
         }
 
+        if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
+            throw new GyroException("The value - (" + getDesiredCapacity()
+                + ") is invalid for parameter Desired capacity. Integer value between the 'min-size' and 'max-size' set.");
+        }
+
+        if (getMinSize() > getMaxSize()) {
+            throw new GyroException("The value - (" + getMinSize()
+                + ") is invalid for parameter Min size. Integer value less or equal to 'max-size' set.");
+        }
+
         if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
             throw new GyroException("When Enabled Metrics Collection is set to false, disabled metrics can't have items in it.");
         }
