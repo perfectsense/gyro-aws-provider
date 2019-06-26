@@ -1042,11 +1042,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 + ") is invalid for parameter Default cool down. Integer value grater or equal to 0.");
         }
 
-        if (getDesiredCapacity() != null && getDesiredCapacity() < 0) {
-            throw new GyroException("The value - (" + getDesiredCapacity()
-                + ") is invalid for parameter Desired capacity. Integer value grater or equal to 0.");
-        }
-
         if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
             throw new GyroException("The value - (" + getDesiredCapacity()
                 + ") is invalid for parameter Desired capacity. Integer value between the 'min-size' and 'max-size' set.");
