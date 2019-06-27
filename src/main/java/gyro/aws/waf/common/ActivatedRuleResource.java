@@ -147,7 +147,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         return String.format("%s", getRule() != null ? getRule().getRuleId() : null);
     }
 
-    protected ActivatedRule toActivatedRule() {
+    private ActivatedRule toActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
             .priority(getPriority())
