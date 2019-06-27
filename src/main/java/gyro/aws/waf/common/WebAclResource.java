@@ -11,7 +11,6 @@ import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
 import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
-import software.amazon.awssdk.services.waf.model.WafAction;
 import software.amazon.awssdk.services.waf.model.WebACL;
 
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.Set;
 public abstract class WebAclResource extends AbstractWafResource implements Copyable<WebACL> {
     private String name;
     private String metricName;
-    private String defaultAction;
+    private WafAction defaultAction;
     private String webAclId;
     private String arn;
 
@@ -47,14 +46,14 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     /**
-     * The default action for the waf acl. valid values ``ALLOW`` or ``BLOCK``. (Required)
+     * The default action for the waf acl. (Required)
      */
     @Updatable
-    public String getDefaultAction() {
-        return defaultAction != null ? defaultAction.toUpperCase() : null;
+    public WafAction getDefaultAction() {
+        return defaultAction;
     }
 
-    public void setDefaultAction(String defaultAction) {
+    public void setDefaultAction(WafAction defaultAction) {
         this.defaultAction = defaultAction;
     }
 
@@ -93,9 +92,12 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     public void copyFrom(WebACL webAcl) {
         setWebAclId(webAcl.webACLId());
         setArn(webAcl.webACLArn());
-        setDefaultAction(webAcl.defaultAction().typeAsString());
         setMetricName(webAcl.metricName());
         setName(webAcl.name());
+
+        WafAction action = newSubresource(WafAction.class);
+        action.copyFrom(webAcl.defaultAction());
+        setDefaultAction(action);
 
         clearActivatedRules();
         for (ActivatedRule activatedRule : webAcl.rules()) {
@@ -123,11 +125,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
         CreateWebAclRequest.Builder builder = CreateWebAclRequest.builder()
             .name(getName())
             .metricName(getMetricName())
-            .defaultAction(
-                WafAction.builder()
-                    .type(getDefaultAction())
-                    .build()
-            );
+            .defaultAction(getDefaultAction().toWafAction());
 
         response = doCreate(builder);
 
@@ -140,11 +138,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     public void update(Resource current, Set<String> changedProperties) {
         UpdateWebAclRequest.Builder builder = UpdateWebAclRequest.builder()
             .webACLId(getWebAclId())
-            .defaultAction(
-                WafAction.builder()
-                    .type(getDefaultAction())
-                    .build()
-            );
+            .defaultAction(getDefaultAction().toWafAction());
 
         doUpdate(builder);
     }

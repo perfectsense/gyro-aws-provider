@@ -173,7 +173,9 @@ end
 aws::waf-acl-regional waf-acl-example
     name: "waf-acl-example"
     metric-name: "wafAclExample"
-    default-action: "ALLOW"
+    default-action
+        type: "ALLOW"
+    end
 
     activated-rule
         action

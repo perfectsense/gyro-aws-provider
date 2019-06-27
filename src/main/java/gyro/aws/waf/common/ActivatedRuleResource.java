@@ -178,7 +178,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
         return UpdateWebAclRequest.builder()
             .webACLId(parent.getWebAclId())
-            .defaultAction(da -> da.type(parent.getDefaultAction()))
+            .defaultAction(parent.getDefaultAction().toWafAction())
             .updates(Collections.singleton(webAclUpdate));
     }
 }
