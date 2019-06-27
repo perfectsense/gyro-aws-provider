@@ -174,20 +174,20 @@ workflow deploy
 
     stage verify
         @create aws::instance verify
-            @extends $PENDING
-        end
+            @extends: $PENDING
+        @end
 
         @create aws::launch-configuration verify
-            @extends $(aws::launch-configuration * | instance = $CURRENT).0
+            @extends: $(aws::launch-configuration * | instance = $CURRENT).0
             launch-configuration-name: "launch-configuration-gyro-\($(aws::instance verify).instance-id)"
             instance: $(aws::instance verify)
-        end
+        @end
 
         @create aws::auto-scaling-group verify
-            @extends $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
+            @extends: $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
             auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance verify).instance-id)"
             launch-configuration: $(aws::launch-configuration verify)
-        end
+        @end
 
         transition push
             to: pushed
@@ -201,9 +201,9 @@ workflow deploy
     end
 
     stage pushed
-        @swap aws::instance, $CURRENT, verify
-        @swap aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT).0, verify
-        @swap aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0, verify
+        @swap: aws::instance, $CURRENT, verify
+        @swap: aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT).0, verify
+        @swap: aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0, verify
 
         transition revert
             to: finished
@@ -217,9 +217,8 @@ workflow deploy
     end
 
     stage finished
-        @delete aws::instance, verify
-        @delete aws::launch-configuration, verify
-        @delete aws::auto-scaling-group, verify
+        @delete: aws::instance, verify
+        @delete: aws::launch-configuration, verify
+        @delete: aws::auto-scaling-group, verify
     end
 end
-
