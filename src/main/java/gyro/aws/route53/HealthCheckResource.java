@@ -39,14 +39,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Creates a heath Check resource.
+ * Creates a route53 heath Check resource.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::health-check health-check-example-calculated
+ *     aws::route53-health-check health-check-example-calculated
  *         type: "CALCULATED"
  *         inverted: false
  *         disabled: false
@@ -57,7 +57,7 @@ import java.util.stream.Stream;
  *     end
  *
  */
-@Type("health-check")
+@Type("route53-health-check")
 public class HealthCheckResource extends AwsResource implements Copyable<HealthCheck> {
 
     private String healthCheckId;

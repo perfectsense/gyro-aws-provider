@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    traffic-policy-instance: $(aws::traffic-policy-instance EXTERNAL/* | traffic-policy-instance-id = '')
+ *    traffic-policy-instance: $(aws::route53-traffic-policy-instance EXTERNAL/* | traffic-policy-instance-id = '')
  */
-@Type("traffic-policy-instance")
+@Type("route53-traffic-policy-instance")
 public class TrafficPolicyInstanceFinder extends AwsFinder<Route53Client, TrafficPolicyInstance, TrafficPolicyInstanceResource> {
     private String trafficPolicyInstanceId;
 

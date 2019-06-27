@@ -28,17 +28,17 @@ import java.util.concurrent.TimeUnit;
  *
  * .. code-block:: gyro
  *
- *     aws::traffic-policy-instance traffic-policy-instance-example
+ *     aws::route53-traffic-policy-instance traffic-policy-instance-example
  *         name: "traffic-policy-instance-example"
  *         comment: "traffic-policy-instance-example Comment"
  *         version: 1
  *         ttl: 900
- *         hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
- *         traffic-policy: $(aws::traffic-policy traffic-policy-example-instance)
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+ *         traffic-policy: $(aws::route53-traffic-policy traffic-policy-example-instance)
  *     end
  *
  */
-@Type("traffic-policy-instance")
+@Type("route53-traffic-policy-instance")
 public class TrafficPolicyInstanceResource extends AwsResource implements Copyable<TrafficPolicyInstance> {
     private String name;
     private String message;

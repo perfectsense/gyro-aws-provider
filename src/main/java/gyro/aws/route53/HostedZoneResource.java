@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::hosted-zone hosted-zone-example
+ *     aws::route53-hosted-zone hosted-zone-example
  *         name: "hosted-zone-example.com"
  *         vpcs: [
  *             $(aws::vpc vpc-hosted-zone-example)
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *     end
  *
  */
-@Type("hosted-zone")
+@Type("route53-hosted-zone")
 public class HostedZoneResource extends AwsResource implements Copyable<HostedZone> {
 
     private String delegationSetId;
