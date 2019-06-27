@@ -1,5 +1,5 @@
 
-aws::kms kms-example
+aws::kms-key kms-example
     aliases: ["alias/alia1", "alias/alia2"]
     bypass-policy-lockout-safety-check: "true"
     description: "sample kms key"
