@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  *     aws::lambda-event-source-mapping event-source-mapping-example
  *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         batch-size: 10
- *         event-source-arn: "$(aws::sqs sqs-event-source-mapping-example | queue-arn)"
+ *         event-source-arn: "$(aws::sqs-queue sqs-event-source-mapping-example | queue-arn)"
  *     end
  */
 @Type("lambda-event-source-mapping")

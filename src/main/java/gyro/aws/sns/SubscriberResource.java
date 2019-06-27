@@ -34,7 +34,7 @@ import java.util.Set;
  *
  *     aws::sns-subscriber sns-subscriber-example
  *         protocol: "sqs"
- *         endpoint: $(aws::sqs sqs-example | arn)
+ *         endpoint: $(aws::sqs-queue sqs-example | arn)
  *         topic: $(aws::sns-topic sns-topic-example)
  *         filter-policy: "filter-policy.json"
  *         raw-message-delivery: true
