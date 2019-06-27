@@ -21,10 +21,15 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::rate-rule rate-rule-example
- *          name: "rate-rule-example"
- *          metric-name: "rateRuleExample"
- *          rate-key: "IP"
- *          rate-limit: 2000
+ *         name: "rate-rule-example"
+ *         metric-name: "rateRuleExample"
+ *         rate-key: "IP"
+ *         rate-limit: 2000
+ *
+ *         predicate
+ *             condition: $(aws::regex-match-set regex-match-set-example-waf)
+ *             negated: false
+ *         end
  *      end
  */
 @Type("rate-rule")

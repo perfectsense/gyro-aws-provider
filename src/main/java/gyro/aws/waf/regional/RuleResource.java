@@ -21,6 +21,11 @@ import java.util.List;
  *     aws::rule-regional rule-example
  *         name: "rule-example"
  *         metric-name: "ruleExample"
+ *
+ *         predicate
+ *             condition: $(aws::regex-match-set-regional regex-match-set-example-waf)
+ *             negated: false
+ *         end
  *     end
  */
 @Type("rule-regional")

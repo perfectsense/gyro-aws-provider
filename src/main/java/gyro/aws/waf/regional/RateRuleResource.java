@@ -25,6 +25,11 @@ import java.util.Set;
  *         metric-name: "rateRuleExample"
  *         rate-key: "IP"
  *         rate-limit: 2000
+ *
+ *         predicate
+ *             condition: $(aws::regex-match-set-regional regex-match-set-example-waf)
+ *             negated: false
+ *         end
  *    end
  */
 @Type("rate-rule-regional")
