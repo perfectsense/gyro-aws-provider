@@ -53,12 +53,10 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Rule");
-
         if (isRateRule()) {
-            sb.append(" [ Rate Based ] ");
+            sb.append("rate rule");
         } else {
-            sb.append(" [ Regular ] ");
+            sb.append("rule");
         }
 
         if (!ObjectUtils.isBlank(getName())) {
