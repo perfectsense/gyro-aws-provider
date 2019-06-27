@@ -14,8 +14,8 @@ byte-match-set-ids: $(external-query aws::byte-match-set { id: '' })
 
 sql-injection-match-set-ids: $(external-query aws::sql-injection-match-set { id: '' })
 
-rule-ids: $(external-query aws::rule { rule-id: '' })
+rule-ids: $(external-query aws::waf-rule { rule-id: '' })
 
-rate-rule-ids: $(external-query aws::rate-rule { rule-id: '' })
+rate-rule-ids: $(external-query aws::waf-rate-rule { rule-id: '' })
 
 waf-acl-ids: $(external-query aws::waf-web-acl { web-acl-id: '' })

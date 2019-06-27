@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *    aws::rate-rule-regional rate-rule-example
+ *    aws::waf-rate-rule-regional rule-example
  *         name: "rate-rule-example"
  *         metric-name: "rateRuleExample"
  *         rate-key: "IP"
@@ -33,7 +33,7 @@ import java.util.Set;
  *         end
  *    end
  */
-@Type("rate-rule-regional")
+@Type("waf-rate-rule-regional")
 public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     private Set<PredicateResource> predicate;
 

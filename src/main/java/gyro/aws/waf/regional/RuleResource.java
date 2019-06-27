@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::rule-regional rule-example
+ *     aws::waf-rule-regional rule-example
  *         name: "rule-example"
  *         metric-name: "ruleExample"
  *
@@ -30,7 +30,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@Type("rule-regional")
+@Type("waf-rule-regional")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
     private Set<PredicateResource> predicate;
 

@@ -7,7 +7,6 @@ import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.Rule;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +19,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::rule rule-example
+ *     aws::waf-rule rule-example
  *         name: "rule-example"
  *         metric-name: "ruleExample"
  *
@@ -30,7 +29,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@Type("rule")
+@Type("waf-rule")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
     private Set<PredicateResource> predicate;
 

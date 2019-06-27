@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *             type: "ALLOW"
  *         end
  *         priority: 1
- *         rule: $(aws::rule rule-example-waf)
+ *         rule: $(aws::waf-rule rule-example-waf)
  *     end
  *
  *     rule
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *             type: "ALLOW"
  *         end
  *         priority: 2
- *         rule: $(aws::rate-rule rate-rule-example-waf)
+ *         rule: $(aws::waf-rate-rule rate-rule-example-waf)
  *     end
  * end
  */

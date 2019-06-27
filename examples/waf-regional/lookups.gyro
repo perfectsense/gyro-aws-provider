@@ -14,8 +14,8 @@ byte-match-set-ids: $(external-query aws::byte-match-set-regional { id: '' })
 
 sql-injection-match-set-ids: $(external-query aws::sql-injection-match-set-regional { id: '' })
 
-rule-ids: $(external-query aws::rule-regional { rule-id: '' })
+rule-ids: $(external-query aws::waf-rule-regional { rule-id: '' })
 
-rate-rule-ids: $(external-query aws::rate-rule-regional { rule-id: '' })
+rate-rule-ids: $(external-query aws::waf-rate-rule-regional { rule-id: '' })
 
 waf-acl-ids: $(external-query aws::waf-web-acl-regional { web-acl-id: '' })

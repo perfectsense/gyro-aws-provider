@@ -74,7 +74,7 @@ aws::sql-injection-match-set sql-injection-match-set-example-waf
     end
 end
 
-aws::rule rule-example-waf
+aws::waf-rule rule-example-waf
     name: "rule-example-waf"
     metric-name: "ruleExampleWaf"
 
@@ -114,7 +114,7 @@ aws::rule rule-example-waf
     end
 end
 
-aws::rate-rule rate-rule-example-waf
+aws::waf-rate-rule rate-rule-example-waf
     name: "rate-rule-example-waf"
     metric-name: "rateRuleExampleWaf"
     rate-key: "IP"
@@ -168,7 +168,7 @@ aws::waf-web-acl waf-web-acl-example
             type: "ALLOW"
         end
         priority: 1
-        rule: $(aws::rule rule-example-waf)
+        rule: $(aws::waf-rule rule-example-waf)
     end
 
     rule
@@ -176,6 +176,6 @@ aws::waf-web-acl waf-web-acl-example
             type: "ALLOW"
         end
         priority: 2
-        rule: $(aws::rate-rule rate-rule-example-waf)
+        rule: $(aws::waf-rate-rule rate-rule-example-waf)
     end
 end
