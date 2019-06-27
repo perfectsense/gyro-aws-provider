@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    auto-scaling-group: $(aws::auto-scaling-group EXTERNAL/* | auto-scaling-group-name = '')
+ *    autoscaling-group: $(aws::autoscaling-group EXTERNAL/* | auto-scaling-group-name = '')
  */
-@Type("auto-scaling-group")
+@Type("autoscaling-group")
 public class AutoScalingGroupFinder extends AwsFinder<AutoScalingClient, AutoScalingGroup, AutoScalingGroupResource> {
     private String autoScalingGroupName;
 

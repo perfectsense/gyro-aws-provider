@@ -108,7 +108,6 @@ aws::instance instance-auto-scaling-group-example
     subnet: $(aws::subnet subnet-auto-scaling-group-example-1)
     security-groups: $(aws::security-group security-group-auto-scaling-group-example-*)
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 
@@ -122,7 +121,7 @@ aws::launch-configuration launch-configuration-auto-scaling-group-example
     instance: $(aws::instance instance-auto-scaling-group-example)
 end
 
-aws::auto-scaling-group auto-scaling-group-example
+aws::autoscaling-group auto-scaling-group-example
     auto-scaling-group-name: "auto-scaling-group-example"
     launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
     availability-zones: $(aws::subnet subnet-auto-scaling-group-example-1).*.availability-zone
@@ -184,8 +183,8 @@ workflow deploy
             instance: $(aws::instance verify-instance)
         end
 
-        @create aws::auto-scaling-group verify-auto-scaling-group
-            @extends $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
+        @create aws::autoscaling-group verify-auto-scaling-group
+            @extends $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
             auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance verify-instance).instance-id)"
             launch-configuration: $(aws::launch-configuration verify-launch-configuration)
         end
@@ -204,7 +203,7 @@ workflow deploy
     stage pushed
         @swap aws::instance, $CURRENT, verify-instance
         @swap aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT).0, verify-launch-configuration
-        @swap aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0, verify-auto-scaling-group
+        @swap aws::autoscaling-group, $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0, verify-auto-scaling-group
 
         transition revert
             to: finished
@@ -220,7 +219,7 @@ workflow deploy
     stage finished
         @delete aws::instance, verify-instance
         @delete aws::launch-configuration, verify-launch-configuration
-        @delete aws::auto-scaling-group, verify-auto-scaling-group
+        @delete aws::autoscaling-group, verify-auto-scaling-group
     end
 end
 
