@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a size injection match set.
@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Type("sql-injection-match-set-regional")
 public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjectionMatchSetResource {
-    private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
+    private Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
 
     /**
      * List of sql injection match tuple data defining the condition. (Required)
@@ -39,15 +39,15 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
      * @subresource gyro.aws.waf.regional.SqlInjectionMatchTupleResource
      */
     @Updatable
-    public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
+    public Set<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
         if (sqlInjectionMatchTuple == null) {
-            sqlInjectionMatchTuple = new ArrayList<>();
+            sqlInjectionMatchTuple = new HashSet<>();
         }
 
         return sqlInjectionMatchTuple;
     }
 
-    public void setSqlInjectionMatchTuple(List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
+    public void setSqlInjectionMatchTuple(Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
         this.sqlInjectionMatchTuple = sqlInjectionMatchTuple;
     }
 

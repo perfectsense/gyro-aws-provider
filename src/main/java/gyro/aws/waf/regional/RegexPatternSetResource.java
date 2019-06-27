@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateRegexPatternSetRequest;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Creates a regex pattern set.
@@ -43,7 +44,7 @@ public class RegexPatternSetResource extends CommonRegexPatternSet {
     }
 
     @Override
-    protected void savePatterns(List<String> oldPatterns, List<String> newPatterns) {
+    protected void savePatterns(Set<String> oldPatterns, Set<String> newPatterns) {
         WafRegionalClient client = getRegionalClient();
 
         UpdateRegexPatternSetRequest regexPatternSetRequest = toUpdateRegexPatternSetRequest(oldPatterns, newPatterns)

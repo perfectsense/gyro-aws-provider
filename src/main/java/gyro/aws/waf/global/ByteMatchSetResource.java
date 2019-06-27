@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.CreateByteMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetByteMatchSetResponse;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global byte match set.
@@ -33,7 +33,7 @@ import java.util.List;
  */
 @Type("byte-match-set")
 public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResource {
-    private List<ByteMatchTupleResource> byteMatchTuple;
+    private Set<ByteMatchTupleResource> byteMatchTuple;
 
     /**
      * List of byte match tuple data defining the condition. (Required)
@@ -41,15 +41,15 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
      * @subresource gyro.aws.waf.global.ByteMatchTupleResource
      */
     @Updatable
-    public List<ByteMatchTupleResource> getByteMatchTuple() {
+    public Set<ByteMatchTupleResource> getByteMatchTuple() {
         if (byteMatchTuple == null) {
-            byteMatchTuple = new ArrayList<>();
+            byteMatchTuple = new HashSet<>();
         }
 
         return byteMatchTuple;
     }
 
-    public void setByteMatchTuple(List<ByteMatchTupleResource> byteMatchTuple) {
+    public void setByteMatchTuple(Set<ByteMatchTupleResource> byteMatchTuple) {
         this.byteMatchTuple = byteMatchTuple;
     }
 

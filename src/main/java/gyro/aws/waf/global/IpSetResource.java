@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
 import software.amazon.awssdk.services.waf.model.IPSet;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global ip set.
@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Type("ip-set")
 public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
-    private List<IpSetDescriptorResource> ipSetDescriptor;
+    private Set<IpSetDescriptorResource> ipSetDescriptor;
 
     /**
      * List of ip set descriptor data defining the condition. (Required)
@@ -39,15 +39,15 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
      * @subresource gyro.aws.waf.global.IpSetDescriptorResource
      */
     @Updatable
-    public List<IpSetDescriptorResource> getIpSetDescriptor() {
+    public Set<IpSetDescriptorResource> getIpSetDescriptor() {
         if (ipSetDescriptor == null) {
-            ipSetDescriptor = new ArrayList<>();
+            ipSetDescriptor = new HashSet<>();
         }
 
         return ipSetDescriptor;
     }
 
-    public void setIpSetDescriptor(List<IpSetDescriptorResource> ipSetDescriptor) {
+    public void setIpSetDescriptor(Set<IpSetDescriptorResource> ipSetDescriptor) {
         this.ipSetDescriptor = ipSetDescriptor;
     }
 

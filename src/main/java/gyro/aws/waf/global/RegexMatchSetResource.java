@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.GetRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global regex match set.
@@ -40,7 +40,7 @@ import java.util.List;
  */
 @Type("regex-match-set")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
-    private List<RegexMatchTupleResource> regexMatchTuple;
+    private Set<RegexMatchTupleResource> regexMatchTuple;
 
     /**
      * List of regex match tuple data defining the condition. (Required)
@@ -48,15 +48,15 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
      * @subresource gyro.aws.waf.global.RegexMatchTupleResource
      */
     @Updatable
-    public List<RegexMatchTupleResource> getRegexMatchTuple() {
+    public Set<RegexMatchTupleResource> getRegexMatchTuple() {
         if (regexMatchTuple == null) {
-            regexMatchTuple = new ArrayList<>();
+            regexMatchTuple = new HashSet<>();
         }
 
         return regexMatchTuple;
     }
 
-    public void setRegexMatchTuple(List<RegexMatchTupleResource> regexMatchTuple) {
+    public void setRegexMatchTuple(Set<RegexMatchTupleResource> regexMatchTuple) {
         this.regexMatchTuple = regexMatchTuple;
     }
 

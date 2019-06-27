@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.XssMatchSet;
 import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a xss match set.
@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Type("xss-match-set-regional")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {
-    private List<XssMatchTupleResource> xssMatchTuple;
+    private Set<XssMatchTupleResource> xssMatchTuple;
 
     /**
      * List of xss match tuple data defining the condition. (Required)
@@ -39,15 +39,15 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
      * @subresource gyro.aws.waf.regional.XssMatchTupleResource
      */
     @Updatable
-    public List<XssMatchTupleResource> getXssMatchTuple() {
+    public Set<XssMatchTupleResource> getXssMatchTuple() {
         if (xssMatchTuple == null) {
-            xssMatchTuple = new ArrayList<>();
+            xssMatchTuple = new HashSet<>();
         }
 
         return xssMatchTuple;
     }
 
-    public void setXssMatchTuple(List<XssMatchTupleResource> xssMatchTuple) {
+    public void setXssMatchTuple(Set<XssMatchTupleResource> xssMatchTuple) {
         this.xssMatchTuple = xssMatchTuple;
     }
 

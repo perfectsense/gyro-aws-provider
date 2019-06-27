@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global size constraint set.
@@ -33,7 +33,7 @@ import java.util.List;
  */
 @Type("size-constraint-set")
 public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstraintSetResource {
-    private List<SizeConstraintResource> sizeConstraint;
+    private Set<SizeConstraintResource> sizeConstraint;
 
     /**
      * List of size constraint data defining the condition. (Required)
@@ -41,14 +41,14 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
      * @subresource gyro.aws.waf.global.SizeConstraintResource
      */
     @Updatable
-    public List<SizeConstraintResource> getSizeConstraint() {
+    public Set<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
-            sizeConstraint = new ArrayList<>();
+            sizeConstraint = new HashSet<>();
         }
         return sizeConstraint;
     }
 
-    public void setSizeConstraint(List<SizeConstraintResource> sizeConstraint) {
+    public void setSizeConstraint(Set<SizeConstraintResource> sizeConstraint) {
         this.sizeConstraint = sizeConstraint;
     }
 
