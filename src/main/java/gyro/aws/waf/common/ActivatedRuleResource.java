@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public abstract class ActivatedRuleResource extends AbstractWafResource implements Copyable<ActivatedRule> {
     private CommonRuleResource rule;
-    private String action;
+    private ActivatedRuleAction action;
     private String type;
     private Integer priority;
     private List<String> excludedRules;
@@ -35,14 +35,14 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The default action for the rule under this waf. valid values are ``ALLOW`` or ``BLOCK``. (Required)
+     * The default action for the rule under this waf. (Required)
      */
     @Updatable
-    public String getAction() {
-        return action != null ? action.toUpperCase() : null;
+    public ActivatedRuleAction getAction() {
+        return action;
     }
 
-    public void setAction(String action) {
+    public void setAction(ActivatedRuleAction action) {
         this.action = action;
     }
 
@@ -86,11 +86,14 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     @Override
     public void copyFrom(ActivatedRule activatedRule) {
-        setAction(activatedRule.action().typeAsString());
         setPriority(activatedRule.priority());
         setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
         setType(activatedRule.typeAsString());
         setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
+
+        ActivatedRuleAction action = newSubresource(ActivatedRuleAction.class);
+        action.copyFrom(activatedRule.action());
+        setAction(action);
     }
 
     @Override
@@ -149,7 +152,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     private ActivatedRule toActivatedRule() {
         return ActivatedRule.builder()
-            .action(wa -> wa.type(getAction()))
+            .action(getAction().toWafAction())
             .priority(getPriority())
             .type(!ObjectUtils.isBlank(getType()) ? getType() : (getRule() != null ? getRule().getType() : null))
             .ruleId(getRule().getRuleId())

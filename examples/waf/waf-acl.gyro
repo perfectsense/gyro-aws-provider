@@ -162,13 +162,17 @@ aws::waf-acl waf-acl-example
     default-action: "ALLOW"
 
     activated-rule
-        action: "ALLOW"
+        action
+            type: "ALLOW"
+        end
         priority: 1
         rule: $(aws::rule rule-example-waf)
     end
 
     activated-rule
-        action: "ALLOW"
+        action
+            type: "ALLOW"
+        end
         priority: 2
         rule: $(aws::rate-rule rate-rule-example-waf)
     end
