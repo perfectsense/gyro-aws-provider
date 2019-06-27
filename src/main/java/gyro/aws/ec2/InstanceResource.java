@@ -569,11 +569,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        RunInstancesResponse response = client.runInstances(builder.build());
+        RunInstancesRequest request = builder.build();
 
-        for (Instance instance : response.instances()) {
-            setInstanceId(instance.instanceId());
-            break;
+        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> createInstance(client, request));
+
+        if (!status) {
+            throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -907,5 +911,24 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
             .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
             .collect(Collectors.toSet()));
+    }
+
+    private boolean createInstance(Ec2Client client, RunInstancesRequest request) {
+        try {
+            RunInstancesResponse response = client.runInstances(request);
+            if (!response.instances().isEmpty()) {
+                setInstanceId(response.instances().get(0).instanceId());
+            }
+        } catch (Ec2Exception ex) {
+            if (getInstanceProfile() != null
+                && ex.awsErrorDetails().errorMessage().startsWith(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid", getInstanceProfile().getArn()))) {
+                System.out.println("\n\n --> gotya");
+                return false;
+            } else {
+                throw ex;
+            }
+        }
+
+        return true;
     }
 }
