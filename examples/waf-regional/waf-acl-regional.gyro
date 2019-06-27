@@ -176,13 +176,17 @@ aws::waf-acl-regional waf-acl-example
     default-action: "ALLOW"
 
     activated-rule
-        action: "ALLOW"
+        action
+            type: "ALLOW"
+        end
         priority: 1
         rule: $(aws::rule-regional rule-example-waf)
     end
 
     activated-rule
-        action: "ALLOW"
+        action
+            type: "ALLOW"
+        end
         priority: 2
         rule: $(aws::rate-rule-regional rate-rule-example-waf)
     end
