@@ -27,21 +27,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Creates a role resource.
+ * Creates an IAM role resource.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::role example-role
+ *     aws::iam-role example-role
  *         name: "rta-test-role"
  *         description: "testing the role functionality"
  *         assume-role-policy: "role_example.json"
- *         policies: [(aws::policy policy)]
+ *         policies: [(aws::iam-policy policy)]
  *     end
  */
-@Type("role")
+@Type("iam-role")
 public class RoleResource extends AwsResource implements Copyable<Role> {
 
     private String arn;
