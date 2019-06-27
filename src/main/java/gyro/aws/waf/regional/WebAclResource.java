@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- * aws::waf-acl-regional waf-acl-example
- *     name: "waf-acl-example"
+ * aws::waf-web-acl-regional waf-web-acl-example
+ *     name: "waf-web-acl-example"
  *     metric-name: "wafAclExample"
  *     default-action
  *         type: "ALLOW"
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *     end
  * end
  */
-@Type("waf-acl-regional")
+@Type("waf-web-acl-regional")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     private Set<ActivatedRuleResource> rule;
 

@@ -147,7 +147,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("waf acl");
+        sb.append("waf web acl");
 
         if (!ObjectUtils.isBlank(getName())) {
             sb.append(" - ").append(getName());

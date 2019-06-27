@@ -156,8 +156,8 @@ aws::rate-rule rate-rule-example-waf
     end
 end
 
-aws::waf-acl waf-acl-example
-    name: "waf-acl-example"
+aws::waf-web-acl waf-web-acl-example
+    name: "waf-web-acl-example"
     metric-name: "wafAclExample"
     default-action
         type: "ALLOW"

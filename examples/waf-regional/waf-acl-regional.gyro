@@ -170,8 +170,8 @@ aws::rate-rule-regional rate-rule-example-waf
     end
 end
 
-aws::waf-acl-regional waf-acl-example
-    name: "waf-acl-example"
+aws::waf-web-acl-regional waf-web-acl-example
+    name: "waf-web-acl-example"
     metric-name: "wafAclExample"
     default-action
         type: "ALLOW"
