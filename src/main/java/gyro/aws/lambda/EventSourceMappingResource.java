@@ -23,21 +23,21 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Creates an event source mapping.
+ * Creates a lambda event source mapping.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::event-source-mapping event-source-mapping-example
+ *     aws::lambda-event-source-mapping event-source-mapping-example
  *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         batch-size: 10
  *         event-source-arn: "$(aws::sqs sqs-event-source-mapping-example | queue-arn)"
  *     end
  */
-@Type("event-source-mapping")
-public class EventSourceMapping extends AwsResource implements Copyable<GetEventSourceMappingResponse> {
+@Type("lambda-event-source-mapping")
+public class EventSourceMappingResource extends AwsResource implements Copyable<GetEventSourceMappingResponse> {
     private FunctionResource function;
     private Integer functionVersion;
     private FunctionAlias alias;
