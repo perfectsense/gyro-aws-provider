@@ -887,7 +887,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
               
                 if (!getSourceDestCheck()) {
                     client.modifyNetworkInterfaceAttribute(
-                        r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                        r -> r.networkInterfaceId(response.instances().get(0).networkInterfaces().get(0).networkInterfaceId())
                             .sourceDestCheck(a -> a.value(getSourceDestCheck()))
                     );
                 }
