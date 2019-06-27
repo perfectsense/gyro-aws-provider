@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::bucket bucket
+ *     aws::s3-bucket bucket
  *         name: bucket-example
  *         enable-object-lock: true
  *         tags:
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::bucket bucket
+ *     aws::s3-bucket bucket
  *         name: bucket-example-with-cors
  *         enable-object-lock: true
  *         tags:
@@ -83,7 +83,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::bucket bucket
+ *     aws::s3-bucket bucket
  *         name: bucket-example-with-lifecycle
  *         enable-object-lock: true
  *         tags:
@@ -113,7 +113,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@Type("bucket")
+@Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     private String name;
