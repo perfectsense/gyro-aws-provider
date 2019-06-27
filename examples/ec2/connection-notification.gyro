@@ -49,14 +49,14 @@ aws::nlb nlb-example
         }
 end
 
-aws::endpoint-service endpoint-service-connection-notification-example
+aws::vpc-endpoint-service endpoint-service-connection-notification-example
     network-load-balancers: [
         $(aws::nlb nlb-example-2)
     ]
 end
 
-aws::connection-notification connection-notification-example
-    endpoint-service: $(aws::endpoint-service endpoint-service-connection-notification-example)
+aws::vpc-connection-notification connection-notification-example
+    endpoint-service: $(aws::vpc-endpoint-service endpoint-service-connection-notification-example)
     connection-notification-arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
     connection-events: [
         "Accept"

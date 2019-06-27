@@ -67,7 +67,7 @@ aws::nlb nlb-example-2
     }
 end
 
-aws::endpoint-service endpoint-service-example
+aws::vpc-endpoint-service endpoint-service-example
     network-load-balancers: [
         $(aws::nlb nlb-example-2)
     ]
