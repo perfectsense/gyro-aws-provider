@@ -122,26 +122,26 @@ aws::alb-listener listener-example
     end
 end
 
-aws::user-pool pool-example
+aws::cognito-user-pool pool-example
     name: "user-pool-name"
     tags: {
         Name: "user-pool-example"
     }
 end
 
-aws::user-pool-client client-example
+aws::cognito-user-pool-client client-example
     allowed-o-auth-flows-client: true
     allowed-o-auth-flows: ["code"]
     allowed-o-auth-scopes: ["openid"]
     callback-urls: ["https://example.com/callback?code=AUTHORIZATION_CODE/"]
     generate-secret: true
     name: "clientname"
-    user-pool: $(aws::user-pool pool-example)
+    user-pool: $(aws::cognito-user-pool pool-example)
 end
 
-aws::user-pool-domain domain-example
+aws::cognito-user-pool-domain domain-example
     domain: "domainexample"
-    user-pool: $(aws::user-pool pool-example)
+    user-pool: $(aws::cognito-user-pool pool-example)
 end
 
 aws::alb-listener-rule listener-rule-example
@@ -163,9 +163,9 @@ aws::alb-listener-rule listener-rule-example
         order: 1
 
         authenticate-cognito-action
-            user-pool-arn: $(aws::user-pool pool-example).arn
-            user-pool-client: $(aws::user-pool-client client-example)
-            user-pool-domain: $(aws::user-pool-domain domain-example)
+            user-pool-arn: $(aws::cognito-user-pool pool-example).arn
+            user-pool-client: $(aws::cognito-user-pool-client client-example)
+            user-pool-domain: $(aws::cognito-user-pool-domain domain-example)
         end
     end
 

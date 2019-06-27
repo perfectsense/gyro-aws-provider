@@ -18,9 +18,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    user-pool-domain: $(aws::user-pool-domain EXTERNAL/* | domain = '')
+ *    user-pool-domain: $(aws::cognito-user-pool-domain EXTERNAL/* | domain = '')
  */
-@Type("user-pool-domain")
+@Type("cognito-user-pool-domain")
 public class UserPoolDomainFinder extends AwsFinder<CognitoIdentityProviderClient, DomainDescriptionType, UserPoolDomainResource> {
 
     private String domain;
