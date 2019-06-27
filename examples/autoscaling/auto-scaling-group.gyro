@@ -199,9 +199,9 @@ end
     end
 
     stage pushed
-        @swap: $(aws::auto-scaling-group verify) $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
-        @swap: $(aws::launch-configuration verify) $(aws::launch-configuration * | instance = $CURRENT).0
         @swap: $(aws::instance verify) $CURRENT
+        @swap: $(aws::launch-configuration verify) $(aws::launch-configuration * | instance = $CURRENT).0
+        @swap: $(aws::auto-scaling-group verify) $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
 
         transition revert
             to: finished
