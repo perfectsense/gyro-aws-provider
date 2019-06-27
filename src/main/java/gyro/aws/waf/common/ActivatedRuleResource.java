@@ -147,7 +147,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getRule() != null ? getRule().getRuleId() : null);
+        return String.format("%s", getRule() != null ? (ObjectUtils.isBlank(getRule().name()) ? getRule().getRuleId() : getRule().name()) : null);
     }
 
     private ActivatedRule toActivatedRule() {

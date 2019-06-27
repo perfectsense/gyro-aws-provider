@@ -177,7 +177,7 @@ aws::waf-acl-regional waf-acl-example
         type: "ALLOW"
     end
 
-    activated-rule
+    rule
         action
             type: "ALLOW"
         end
@@ -185,7 +185,7 @@ aws::waf-acl-regional waf-acl-example
         rule: $(aws::rule-regional rule-example-waf)
     end
 
-    activated-rule
+    rule
         action
             type: "ALLOW"
         end

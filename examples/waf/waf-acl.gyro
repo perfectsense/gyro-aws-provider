@@ -163,7 +163,7 @@ aws::waf-acl waf-acl-example
         type: "ALLOW"
     end
 
-    activated-rule
+    rule
         action
             type: "ALLOW"
         end
@@ -171,7 +171,7 @@ aws::waf-acl waf-acl-example
         rule: $(aws::rule rule-example-waf)
     end
 
-    activated-rule
+    rule
         action
             type: "ALLOW"
         end

@@ -11,9 +11,10 @@ import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.WebACL;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
  *         type: "ALLOW"
  *     end
  *
- *     activated-rule
+ *     rule
  *         action
  *             type: "ALLOW"
  *         end
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
  *         rule: $(aws::rule-regional rule-example-waf)
  *     end
  *
- *     activated-rule
+ *     rule
  *         action
  *             type: "ALLOW"
  *         end
@@ -50,24 +51,24 @@ import java.util.stream.Collectors;
  */
 @Type("waf-acl-regional")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
-    private List<ActivatedRuleResource> activatedRule;
+    private Set<ActivatedRuleResource> rule;
 
     /**
-     * A list of activated rules specifying the connection between waf acl and rule.
+     * A set of activated rules specifying the connection between waf acl and rule.
      *
      * @subresource gyro.aws.waf.regional.ActivatedRuleResource
      */
     @Updatable
-    public List<ActivatedRuleResource> getActivatedRule() {
-        if (activatedRule == null) {
-            activatedRule = new ArrayList<>();
+    public Set<ActivatedRuleResource> getRule() {
+        if (rule == null) {
+            rule = new HashSet<>();
         }
 
-        return activatedRule;
+        return rule;
     }
 
-    public void setActivatedRule(List<ActivatedRuleResource> activatedRule) {
-        this.activatedRule = activatedRule;
+    public void setRule(Set<ActivatedRuleResource> rule) {
+        this.rule = rule;
 
         validateActivatedRule();
     }
@@ -89,17 +90,17 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     protected void setActivatedRules(ActivatedRule activatedRule) {
         ActivatedRuleResource activatedRuleResource = newSubresource(ActivatedRuleResource.class);
         activatedRuleResource.copyFrom(activatedRule);
-        getActivatedRule().add(activatedRuleResource);
+        getRule().add(activatedRuleResource);
     }
 
     @Override
     protected void clearActivatedRules() {
-        getActivatedRule().clear();
+        getRule().clear();
     }
 
     @Override
     protected List<Integer> getActivatedRulesPriority() {
-        return getActivatedRule().stream()
+        return getRule().stream()
             .sorted(Comparator.comparing(ActivatedRuleResource::getPriority))
             .map(ActivatedRuleResource::getPriority).collect(Collectors.toList());
     }
