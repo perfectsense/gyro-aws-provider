@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public abstract class ActivatedRuleResource extends AbstractWafResource implements Copyable<ActivatedRule> {
     private CommonRuleResource rule;
-    private ActivatedRuleAction action;
+    private WafAction action;
     private String type;
     private Integer priority;
     private List<String> excludedRules;
@@ -38,11 +38,11 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
      * The default action for the rule under this waf. (Required)
      */
     @Updatable
-    public ActivatedRuleAction getAction() {
+    public WafAction getAction() {
         return action;
     }
 
-    public void setAction(ActivatedRuleAction action) {
+    public void setAction(WafAction action) {
         this.action = action;
     }
 
@@ -91,7 +91,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         setType(activatedRule.typeAsString());
         setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
 
-        ActivatedRuleAction action = newSubresource(ActivatedRuleAction.class);
+        WafAction action = newSubresource(WafAction.class);
         action.copyFrom(activatedRule.action());
         setAction(action);
     }

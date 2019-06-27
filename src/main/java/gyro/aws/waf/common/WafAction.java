@@ -3,9 +3,8 @@ package gyro.aws.waf.common;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.waf.model.WafAction;
 
-public class ActivatedRuleAction extends Diffable implements Copyable<WafAction> {
+public class WafAction extends Diffable implements Copyable<software.amazon.awssdk.services.waf.model.WafAction> {
     private String type;
 
     /**
@@ -21,7 +20,7 @@ public class ActivatedRuleAction extends Diffable implements Copyable<WafAction>
     }
 
     @Override
-    public void copyFrom(WafAction wafAction) {
+    public void copyFrom(software.amazon.awssdk.services.waf.model.WafAction wafAction) {
         setType(wafAction.typeAsString());
     }
 
@@ -35,7 +34,7 @@ public class ActivatedRuleAction extends Diffable implements Copyable<WafAction>
         return getType();
     }
 
-    WafAction toWafAction() {
-        return WafAction.builder().type(getType()).build();
+    software.amazon.awssdk.services.waf.model.WafAction toWafAction() {
+        return software.amazon.awssdk.services.waf.model.WafAction.builder().type(getType()).build();
     }
 }
