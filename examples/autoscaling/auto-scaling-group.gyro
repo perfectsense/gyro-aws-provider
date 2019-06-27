@@ -169,9 +169,7 @@ aws::auto-scaling-group auto-scaling-group-example
     ]
 end
 
-workflow deploy
-    for-type: aws::instance
-
+@workflow aws::instance deploy
     stage verify
         @create aws::instance verify
             @extends: $PENDING
@@ -201,9 +199,9 @@ workflow deploy
     end
 
     stage pushed
-        @swap: aws::instance, $CURRENT, verify
-        @swap: aws::launch-configuration, $(aws::launch-configuration * | instance = $CURRENT).0, verify
-        @swap: aws::auto-scaling-group, $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0, verify
+        @swap: $(aws::auto-scaling-group verify) $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
+        @swap: $(aws::launch-configuration verify) $(aws::launch-configuration * | instance = $CURRENT).0
+        @swap: $(aws::instance verify) $CURRENT
 
         transition revert
             to: finished
@@ -217,8 +215,8 @@ workflow deploy
     end
 
     stage finished
-        @delete: aws::instance, verify
-        @delete: aws::launch-configuration, verify
-        @delete: aws::auto-scaling-group, verify
+        @delete: $(aws::instance verify)
+        @delete: $(aws::launch-configuration verify)
+        @delete: $(aws::auto-scaling-group verify)
     end
-end
+@end
