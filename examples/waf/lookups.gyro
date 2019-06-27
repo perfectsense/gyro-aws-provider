@@ -1,18 +1,18 @@
-regex-pattern-set-ids: $(external-query aws::regex-pattern-set { regex-pattern-set-id: '' })
+regex-pattern-set-ids: $(external-query aws::waf-regex-pattern-set { regex-pattern-set-id: '' })
 
-regex-match-set-ids: $(external-query aws::regex-match-set { id: '' })
+regex-match-set-ids: $(external-query aws::waf-regex-match-set { regex-match-set-id: '' })
 
-geo-match-set-ids: $(external-query aws::geo-match-set { id: '' })
+geo-match-set-ids: $(external-query aws::waf-geo-match-set { geo-match-set-id: '' })
 
-xss-match-set-ids: $(external-query aws::xss-match-set { id: '' })
+xss-match-set-ids: $(external-query aws::waf-xss-match-set { xss-match-set-id: '' })
 
-size-constraint-set-ids: $(external-query aws::size-constraint-set { id: '' })
+size-constraint-set-ids: $(external-query aws::waf-size-constraint-set { size-constraint-set-id: '' })
 
-ip-set-ids: $(external-query aws::ip-set { id: '' })
+ip-set-ids: $(external-query aws::waf-ip-set { ip-set-id: '' })
 
-byte-match-set-ids: $(external-query aws::byte-match-set { id: '' })
+byte-match-set-ids: $(external-query aws::waf-byte-match-set { byte-match-set-id: '' })
 
-sql-injection-match-set-ids: $(external-query aws::sql-injection-match-set { id: '' })
+sql-injection-match-set-ids: $(external-query aws::waf-sql-injection-match-set { sql-injection-match-set-id: '' })
 
 rule-ids: $(external-query aws::waf-rule { rule-id: '' })
 

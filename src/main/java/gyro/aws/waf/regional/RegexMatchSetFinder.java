@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    regex-match-sets: $(aws::waf-regex-match-set-regional EXTERNAL/* | id = '')
+ *    regex-match-sets: $(external-query aws::waf-regex-match-set-regional)
  */
 @Type("waf-regex-match-set-regional")
 public class RegexMatchSetFinder extends gyro.aws.waf.common.RegexMatchSetFinder<WafRegionalClient, RegexMatchSetResource> {

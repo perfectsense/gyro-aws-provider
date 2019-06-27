@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    byte-match-sets: $(aws::waf-byte-match-set-regional EXTERNAL/* | id = '')
+ *    byte-match-sets: $(external-query aws::waf-byte-match-set-regional)
  */
 @Type("waf-byte-match-set-regional")
 public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<WafRegionalClient, ByteMatchSetResource> {

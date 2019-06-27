@@ -19,7 +19,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    regex-pattern-sets: $(aws::waf-regex-pattern-set EXTERNAL/* | regex-pattern-set-id = '')
+ *    regex-pattern-sets: $(external-query aws::waf-regex-pattern-set)
  */
 @Type("waf-regex-pattern-set")
 public class RegexPatternSetFinder extends gyro.aws.waf.common.RegexPatternSetFinder<WafClient, RegexPatternSetResource> {

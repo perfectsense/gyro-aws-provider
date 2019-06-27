@@ -19,7 +19,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    waf-acl: $(aws::waf-web-acl EXTERNAL/* | web-acl-id = '')
+ *    waf-acl: $(external-query aws::waf-web-acl)
  */
 @Type("waf-web-acl")
 public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafClient, WebAclResource> {

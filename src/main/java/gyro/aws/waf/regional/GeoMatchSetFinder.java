@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    geo-match-sets: $(aws::waf-geo-match-set-regional EXTERNAL/* | id = '')
+ *    geo-match-sets: $(external-query aws::waf-geo-match-set-regional)
  */
 @Type("waf-geo-match-set-regional")
 public class GeoMatchSetFinder extends gyro.aws.waf.common.GeoMatchSetFinder<WafRegionalClient, GeoMatchSetResource> {
