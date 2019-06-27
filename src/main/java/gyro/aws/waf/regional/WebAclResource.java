@@ -27,18 +27,22 @@ import java.util.stream.Collectors;
  * aws::waf-acl-regional waf-acl-example
  *     name: "waf-acl-example"
  *     metric-name: "wafAclExample"
- *     default-action: "ALLOW"
+ *     default-action
+ *         type: "ALLOW"
+ *     end
  *
  *     activated-rule
- *         action: "ALLOW"
- *         type: "REGULAR"
+ *         action
+ *             type: "ALLOW"
+ *         end
  *         priority: 1
  *         rule: $(aws::rule-regional rule-example-waf)
  *     end
  *
  *     activated-rule
- *         action: "ALLOW"
- *         type: "RATE_BASED"
+ *         action
+ *             type: "ALLOW"
+ *         end
  *         priority: 2
  *         rule: $(aws::rate-rule-regional rate-rule-example-waf)
  *     end
