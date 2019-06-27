@@ -36,6 +36,11 @@ public class FieldToMatch extends Diffable implements Copyable<software.amazon.a
     }
 
     @Override
+    public String primaryKey() {
+        return "field to match";
+    }
+
+    @Override
     public String toDisplayString() {
         return "field to match";
     }
