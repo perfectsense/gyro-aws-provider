@@ -18,9 +18,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    waf-acl: $(aws::waf-acl-regional EXTERNAL/* | web-acl-id = '')
+ *    waf-acl: $(aws::waf-web-acl-regional EXTERNAL/* | web-acl-id = '')
  */
-@Type("waf-acl-regional")
+@Type("waf-web-acl-regional")
 public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafRegionalClient, WebAclResource> {
     @Override
     protected List<WebACL> findAllAws(WafRegionalClient client) {
