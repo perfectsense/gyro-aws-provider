@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    regex-pattern-sets: $(aws::regex-pattern-set EXTERNAL/* | regex-pattern-set-id = '')
+ *    regex-pattern-sets: $(aws::waf-regex-pattern-set EXTERNAL/* | regex-pattern-set-id = '')
  */
-@Type("regex-pattern-set")
+@Type("waf-regex-pattern-set")
 public class RegexPatternSetFinder extends gyro.aws.waf.common.RegexPatternSetFinder<WafClient, RegexPatternSetResource> {
     @Override
     protected List<RegexPatternSet> findAllAws(WafClient client) {

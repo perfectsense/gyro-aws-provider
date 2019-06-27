@@ -24,7 +24,7 @@ import java.util.Set;
  *         metric-name: "ruleExample"
  *
  *         predicate
- *             condition: $(aws::regex-match-set regex-match-set-example-waf)
+ *             condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
  *             negated: false
  *         end
  *     end

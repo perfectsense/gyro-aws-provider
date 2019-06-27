@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::ip-set-regional ip-set-example
+ * aws::waf-ip-set-regional ip-set-example
  *     name: "ip-set-example"
  *
  *     ip-set-descriptor
@@ -29,7 +29,7 @@ import java.util.Set;
  *     end
  * end
  */
-@Type("ip-set-regional")
+@Type("waf-ip-set-regional")
 public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     private Set<IpSetDescriptorResource> ipSetDescriptor;
 

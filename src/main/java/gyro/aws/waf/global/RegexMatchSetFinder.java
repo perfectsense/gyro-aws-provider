@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    regex-match-sets: $(aws::regex-match-set EXTERNAL/* | id = '')
+ *    regex-match-sets: $(aws::waf-regex-match-set EXTERNAL/* | id = '')
  */
-@Type("regex-match-set")
+@Type("waf-regex-match-set")
 public class RegexMatchSetFinder extends gyro.aws.waf.common.RegexMatchSetFinder<WafClient, RegexMatchSetResource> {
     @Override
     protected List<RegexMatchSet> findAllAws(WafClient client) {

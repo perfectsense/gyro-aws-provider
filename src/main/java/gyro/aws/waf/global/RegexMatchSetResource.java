@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::regex-pattern-set regex-pattern-set-match-set-example
+ * aws::waf-regex-pattern-set regex-pattern-set-match-set-example
  *     name: "regex-pattern-set-match-set-example"
  *
  *     patterns: [
@@ -29,7 +29,7 @@ import java.util.Set;
  *     ]
  * end
  *
- * aws::regex-match-set regex-match-set-example
+ * aws::waf-regex-match-set regex-match-set-example
  *     name: "regex-match-set-example"
  *     regex-match-tuple
  *         field-to-match
@@ -40,7 +40,7 @@ import java.util.Set;
  *     end
  * end
  */
-@Type("regex-match-set")
+@Type("waf-regex-match-set")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
     private Set<RegexMatchTupleResource> regexMatchTuple;
 

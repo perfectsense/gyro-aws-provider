@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    xss-match-sets: $(aws::xss-match-set EXTERNAL/* | id = '')
+ *    xss-match-sets: $(aws::waf-xss-match-set EXTERNAL/* | id = '')
  */
-@Type("xss-match-set")
+@Type("waf-xss-match-set")
 public class XssMatchSetFinder extends gyro.aws.waf.common.XssMatchSetFinder<WafClient, XssMatchSetResource> {
     @Override
     protected List<XssMatchSet> findAllAws(WafClient client) {

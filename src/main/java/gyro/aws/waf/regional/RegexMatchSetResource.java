@@ -27,7 +27,7 @@ import java.util.Set;
  *     ]
  * end
  *
- * aws::regex-match-set-regional regex-match-set-example
+ * aws::waf-regex-match-set-regional regex-match-set-example
  *     name: "regex-match-set-example"
  *     regex-match-tuple
  *         field-to-match
@@ -38,7 +38,7 @@ import java.util.Set;
  *     end
  * end
  */
-@Type("regex-match-set-regional")
+@Type("waf-regex-match-set-regional")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
     private Set<RegexMatchTupleResource> regexMatchTuple;
 

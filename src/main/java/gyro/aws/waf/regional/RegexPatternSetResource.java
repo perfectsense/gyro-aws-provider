@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::regex-pattern-set-regional regex-pattern-set-example
+ * aws::waf-regex-pattern-set-regional regex-pattern-set-example
  *     name: "regex-pattern-set-example"
  *
  *     patterns: [
@@ -29,7 +29,7 @@ import java.util.Set;
  *     ]
  * end
  */
-@Type("regex-pattern-set-regional")
+@Type("waf-regex-pattern-set-regional")
 public class RegexPatternSetResource extends CommonRegexPatternSet {
     @Override
     protected void doCreate() {

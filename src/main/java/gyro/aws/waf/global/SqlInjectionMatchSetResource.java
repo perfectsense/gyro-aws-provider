@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::sql-injection-match-set sql-injection-match-set-example
+ * aws::waf-sql-injection-match-set sql-injection-match-set-example
  *     name: "sql-injection-match-set-example"
  *
  *     sql-injection-match-tuple
@@ -31,7 +31,7 @@ import java.util.Set;
  *     end
  * end
  */
-@Type("sql-injection-match-set")
+@Type("waf-sql-injection-match-set")
 public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjectionMatchSetResource {
     private Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
 

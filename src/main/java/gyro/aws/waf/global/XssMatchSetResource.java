@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::xss-match-set xss-match-set-example
+ * aws::waf-xss-match-set xss-match-set-example
  *     name: "xss-match-set-example"
  *
  *     xss-match-tuple
@@ -31,7 +31,7 @@ import java.util.Set;
  *     end
  * end
  */
-@Type("xss-match-set")
+@Type("waf-xss-match-set")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {
     private Set<XssMatchTupleResource> xssMatchTuple;
 

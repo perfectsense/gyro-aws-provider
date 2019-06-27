@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::geo-match-set-regional geo-match-set-example
+ * aws::waf-geo-match-set-regional geo-match-set-example
  *     name: "geo-match-set-example"
  *
  *     geo-match-constraint
@@ -29,7 +29,7 @@ import java.util.Set;
  *     end
  * en
  */
-@Type("geo-match-set-regional")
+@Type("waf-geo-match-set-regional")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {
     private Set<GeoMatchConstraintResource> geoMatchConstraint;
 

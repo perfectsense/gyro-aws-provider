@@ -28,7 +28,7 @@ import java.util.Set;
  *         rate-limit: 2000
  *
  *         predicate
- *             condition: $(aws::regex-match-set regex-match-set-example-waf)
+ *             condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
  *             negated: false
  *         end
  *      end

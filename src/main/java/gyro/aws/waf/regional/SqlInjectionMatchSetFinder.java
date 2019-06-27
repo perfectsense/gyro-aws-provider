@@ -18,9 +18,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    sql-injection-match-sets: $(aws::sql-injection-match-set-regional EXTERNAL/* | id = '')
+ *    sql-injection-match-sets: $(aws::waf-sql-injection-match-set-regional EXTERNAL/* | id = '')
  */
-@Type("sql-injection-match-set-regional")
+@Type("waf-sql-injection-match-set-regional")
 public class SqlInjectionMatchSetFinder extends gyro.aws.waf.common.SqlInjectionMatchSetFinder<WafRegionalClient, SqlInjectionMatchSetResource> {
     @Override
     protected List<SqlInjectionMatchSet> findAllAws(WafRegionalClient client) {
