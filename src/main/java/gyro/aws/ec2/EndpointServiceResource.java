@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *
  *     aws::vpc-endpoint-service endpoint-service-example
  *         network-load-balancers: [
- *             $(aws::nlb nlb-example)
+ *             $(aws::network-load-balancer nlb-example)
  *         ]
  *     end
  */

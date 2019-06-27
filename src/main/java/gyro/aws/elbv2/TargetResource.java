@@ -22,13 +22,13 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *      aws::target target
+ *      aws::load-balancer-target target
  *          id: "i-5543455454435"
  *          port: 81
- *          target-group: $(aws::target-group tg-example)
+ *          target-group: $(aws::load-balancer-target-group tg-example)
  *      end
  */
-@Type("target")
+@Type("load-balancer-target")
 public class TargetResource extends AwsResource implements Copyable<TargetDescription> {
 
     private String availabilityZone;

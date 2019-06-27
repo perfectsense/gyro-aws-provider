@@ -1,4 +1,4 @@
-aws::alb alb-example
+aws::application-load-balancer alb-example
     name: "alb-example"
     ip-address-type: "ipv4"
     scheme: "internal"
@@ -82,7 +82,7 @@ aws::security-group other-security-group
     end
 end
 
-aws::target-group target-group-example
+aws::load-balancer-target-group target-group-example
     name: "test-target-group"
     port: "80"
     protocol: "HTTP"
@@ -105,10 +105,10 @@ aws::target-group target-group-example
     }
 end
 
-aws::alb-listener listener-example
+aws::application-load-balancer-listener listener-example
     port: "80"
     protocol: "HTTPS"
-    alb: $(aws::alb alb-example)
+    alb: $(aws::application-load-balancer alb-example)
     default-certificate: "arn:aws:acm:us-east-2:242040583208:certificate/d3ca878d-fc0c-49ab-bdfa-a93dc2bcbda8"
 
     certificate
@@ -117,7 +117,7 @@ aws::alb-listener listener-example
 
     default-action
         type: "forward"
-        target-group: $(aws::target-group target-group-example)
+        target-group: $(aws::load-balancer-target-group target-group-example)
         order: 2
     end
 end
@@ -144,8 +144,8 @@ aws::cognito-user-pool-domain domain-example
     user-pool: $(aws::cognito-user-pool pool-example)
 end
 
-aws::alb-listener-rule listener-rule-example
-    alb-listener: $(aws::alb-listener listener-example)
+aws::application-load-balancer-listener-rule listener-rule-example
+    alb-listener: $(aws::application-load-balancer-listener listener-example)
     priority: "1"
 
     action

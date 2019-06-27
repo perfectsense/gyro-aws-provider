@@ -7,9 +7,9 @@ import gyro.core.Type;
  *
  * .. code-block:: gyro
  *
- *    alb: $(aws::alb EXTERNAL/* | arn = '') -or-
- *    alb: $(aws::alb EXTERNAL/* | name = '')
+ *    alb: $(aws::application-load-balancer EXTERNAL/* | arn = '') -or-
+ *    alb: $(aws::application-load-balancer EXTERNAL/* | name = '')
  */
-@Type("alb")
+@Type("application-load-balancer")
 public class ApplicationLoadBalancerFinder extends LoadBalancerFinder<ApplicationLoadBalancerResource> {
 }
