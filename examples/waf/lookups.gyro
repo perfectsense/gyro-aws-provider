@@ -18,4 +18,4 @@ rule-ids: $(external-query aws::rule { rule-id: '' })
 
 rate-rule-ids: $(external-query aws::rate-rule { rule-id: '' })
 
-waf-acl-ids: $(external-query aws::waf-acl { web-acl-id: '' })
+waf-acl-ids: $(external-query aws::waf-web-acl { web-acl-id: '' })

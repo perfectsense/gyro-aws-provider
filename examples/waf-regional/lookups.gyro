@@ -18,4 +18,4 @@ rule-ids: $(external-query aws::rule-regional { rule-id: '' })
 
 rate-rule-ids: $(external-query aws::rate-rule-regional { rule-id: '' })
 
-waf-acl-ids: $(external-query aws::waf-acl-regional { web-acl-id: '' })
+waf-acl-ids: $(external-query aws::waf-web-acl-regional { web-acl-id: '' })
