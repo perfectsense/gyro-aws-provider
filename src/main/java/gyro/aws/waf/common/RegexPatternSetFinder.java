@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.RegexPatternSet;
 
 abstract public class RegexPatternSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, RegexPatternSet, U> {
-    private String RegexPatternSetId;
+    private String regexPatternSetId;
 
     /**
      * The ID of regex pattern set.
      */
     public String getRegexPatternSetId() {
-        return RegexPatternSetId;
+        return regexPatternSetId;
     }
 
     public void setRegexPatternSetId(String regexPatternSetId) {
-        RegexPatternSetId = regexPatternSetId;
+        this.regexPatternSetId = regexPatternSetId;
     }
 }
