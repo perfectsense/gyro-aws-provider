@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.waf.model.RateBasedRule;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,23 +35,23 @@ import java.util.Set;
  */
 @Type("rate-rule-regional")
 public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
-    private List<PredicateResource> predicate;
+    private Set<PredicateResource> predicate;
 
     /**
-     * A list of predicates specifying the connection between rule and conditions.
+     * A set of predicates specifying the connection between rule and conditions.
      *
-     * @subresource gyro.aws.waf.PredicateResource
+     * @subresource gyro.aws.waf.regional.PredicateResource
      */
     @Updatable
-    public List<PredicateResource> getPredicate() {
+    public Set<PredicateResource> getPredicate() {
         if (predicate == null) {
-            predicate = new ArrayList<>();
+            predicate = new HashSet<>();
         }
 
         return predicate;
     }
 
-    public void setPredicate(List<PredicateResource> predicate) {
+    public void setPredicate(Set<PredicateResource> predicate) {
         this.predicate = predicate;
     }
 

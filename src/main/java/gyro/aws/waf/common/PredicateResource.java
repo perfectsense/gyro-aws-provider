@@ -107,7 +107,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
     @Override
     public String primaryKey() {
-        return String.format("%s", (getCondition() != null ? getCondition().getId() : null));
+        return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(getCondition().name()) ? getCondition().getId() : getCondition().name()) : null));
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);
