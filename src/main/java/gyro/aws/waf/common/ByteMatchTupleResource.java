@@ -13,32 +13,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public abstract class ByteMatchTupleResource extends AbstractWafResource implements Copyable<ByteMatchTuple> {
-    private String type;
-    private String data;
+    private FieldToMatch fieldToMatch;
     private String positionalConstraint;
     private String targetString;
     private String textTransformation;
 
     /**
-     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
+     * The field setting to match the condition. (Required)
      */
-    public String getType() {
-        return type != null ? type.toUpperCase() : null;
+    public FieldToMatch getFieldToMatch() {
+        return fieldToMatch;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
-     */
-    public String getData() {
-        return data != null ? data.toLowerCase() : null;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public void setFieldToMatch(FieldToMatch fieldToMatch) {
+        this.fieldToMatch = fieldToMatch;
     }
 
     /**
@@ -76,11 +64,13 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
 
     @Override
     public void copyFrom(ByteMatchTuple byteMatchTuple) {
-        setType(byteMatchTuple.fieldToMatch().typeAsString());
-        setData(byteMatchTuple.fieldToMatch().data());
         setPositionalConstraint(byteMatchTuple.positionalConstraintAsString());
         setTargetString(byteMatchTuple.targetString().asString(StandardCharsets.UTF_8));
         setTextTransformation(byteMatchTuple.textTransformationAsString());
+
+        FieldToMatch fieldToMatch = newSubresource(FieldToMatch.class);
+        fieldToMatch.copyFrom(byteMatchTuple.fieldToMatch());
+        setFieldToMatch(fieldToMatch);
     }
 
     @Override
@@ -109,12 +99,14 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
 
         sb.append("byte match tuple");
 
-        if (!ObjectUtils.isBlank(getData())) {
-            sb.append(" - ").append(getData());
-        }
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" - ").append(getFieldToMatch().getData());
+            }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" - ").append(getFieldToMatch().getType());
+            }
         }
 
         if (!ObjectUtils.isBlank(getTextTransformation())) {
@@ -134,14 +126,30 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s %s %s", getData(), getType(), getTextTransformation(), getPositionalConstraint(), getTargetString());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getTextTransformation());
+        sb.append(" ").append(getPositionalConstraint());
+        sb.append(" ").append(getTargetString());
+
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" ").append(getFieldToMatch().getData());
+            }
+
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" ").append(getFieldToMatch().getType());
+            }
+        }
+
+        return sb.toString();
     }
 
     protected abstract void saveByteMatchTuple(ByteMatchTuple byteMatchTuple, boolean isDelete);
 
     private ByteMatchTuple toByteMatchTuple() {
         return ByteMatchTuple.builder()
-            .fieldToMatch(f -> f.data(getData()).type(getType()))
+            .fieldToMatch(getFieldToMatch().toFieldToMatch())
             .textTransformation(getTextTransformation())
             .positionalConstraint(getPositionalConstraint())
             .targetString(SdkBytes.fromUtf8String(getTargetString()))

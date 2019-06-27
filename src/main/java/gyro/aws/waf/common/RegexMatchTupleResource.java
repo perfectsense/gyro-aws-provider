@@ -11,31 +11,19 @@ import software.amazon.awssdk.services.waf.model.UpdateRegexMatchSetRequest;
 import java.util.Set;
 
 public abstract class RegexMatchTupleResource extends AbstractWafResource implements Copyable<RegexMatchTuple> {
-    private String type;
-    private String data;
+    private FieldToMatch fieldToMatch;
     private String textTransformation;
     private CommonRegexPatternSet regexPatternSet;
 
     /**
-     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
+     * The field setting to match the condition. (Required)
      */
-    public String getType() {
-        return type != null ? type.toUpperCase() : null;
+    public FieldToMatch getFieldToMatch() {
+        return fieldToMatch;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
-     */
-    public String getData() {
-        return data != null ? data.toLowerCase() : null;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public void setFieldToMatch(FieldToMatch fieldToMatch) {
+        this.fieldToMatch = fieldToMatch;
     }
 
     /**
@@ -62,10 +50,12 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
 
     @Override
     public void copyFrom(RegexMatchTuple regexMatchTuple) {
-        setType(regexMatchTuple.fieldToMatch().typeAsString());
-        setData(regexMatchTuple.fieldToMatch().data());
         setRegexPatternSet(findById(CommonRegexPatternSet.class, regexMatchTuple.regexPatternSetId()));
         setTextTransformation(regexMatchTuple.textTransformationAsString());
+
+        FieldToMatch fieldToMatch = newSubresource(FieldToMatch.class);
+        fieldToMatch.copyFrom(regexMatchTuple.fieldToMatch());
+        setFieldToMatch(fieldToMatch);
     }
 
     @Override
@@ -94,12 +84,14 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
 
         sb.append("regex match tuple");
 
-        if (!ObjectUtils.isBlank(getData())) {
-            sb.append(" - ").append(getData());
-        }
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" - ").append(getFieldToMatch().getData());
+            }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" - ").append(getFieldToMatch().getType());
+            }
         }
 
         if (!ObjectUtils.isBlank(getTextTransformation())) {
@@ -115,12 +107,30 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s %s", getData(), getType(), getTextTransformation(), getRegexPatternSet() != null ? getRegexPatternSet().getRegexPatternSetId() : null);
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getTextTransformation());
+
+        if (getRegexPatternSet() != null && !ObjectUtils.isBlank(getRegexPatternSet().getRegexPatternSetId())) {
+            sb.append(getRegexPatternSet().getRegexPatternSetId());
+        }
+
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" ").append(getFieldToMatch().getData());
+            }
+
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" ").append(getFieldToMatch().getType());
+            }
+        }
+
+        return sb.toString();
     }
 
     private RegexMatchTuple toRegexMatchTuple() {
         return RegexMatchTuple.builder()
-            .fieldToMatch(f -> f.data(getData()).type(getType()))
+            .fieldToMatch(getFieldToMatch().toFieldToMatch())
             .regexPatternSetId(getRegexPatternSet().getRegexPatternSetId())
             .textTransformation(getTextTransformation())
             .build();

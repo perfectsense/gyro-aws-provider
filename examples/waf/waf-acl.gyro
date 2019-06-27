@@ -10,7 +10,9 @@ end
 aws::regex-match-set regex-match-set-example-waf
     name: "regex-match-set-example-waf"
     regex-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
         regex-pattern-set: $(aws::regex-pattern-set regex-pattern-set-match-set-example-waf)
     end
@@ -29,7 +31,9 @@ aws::xss-match-set xss-match-set-example-waf
     name: "xss-match-set-example-waf"
 
     xss-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
     end
 end
@@ -38,7 +42,9 @@ aws::size-constraint-set size-constraint-set-example-waf
     name: "size-constraint-set-example-waf"
 
     size-constraint
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
         comparison-operator: "EQ"
         size: 10
@@ -58,7 +64,9 @@ aws::byte-match-set byte-match-set-example-waf
     name: "byte-match-set-example-waf"
 
     byte-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
         positional-constraint: "CONTAINS"
         target-string: "target-string"
@@ -69,7 +77,9 @@ aws::sql-injection-match-set sql-injection-match-set-example-waf
     name: "sql-injection-match-set-example-waf"
 
     sql-injection-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
     end
 end

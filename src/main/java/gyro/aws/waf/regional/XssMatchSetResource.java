@@ -24,7 +24,9 @@ import java.util.Set;
  *     name: "xss-match-set-example"
  *
  *     xss-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *     end
  * end

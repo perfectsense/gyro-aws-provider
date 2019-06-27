@@ -24,7 +24,9 @@ import java.util.Set;
  *     name: "byte-match-set-example"
  *
  *     byte-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *         positional-constraint: "CONTAINS"
  *         target-string: "target-string"

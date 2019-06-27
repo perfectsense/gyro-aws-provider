@@ -30,7 +30,9 @@ import java.util.Set;
  * aws::regex-match-set-regional regex-match-set-example
  *     name: "regex-match-set-example"
  *     regex-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *         regex-pattern-set: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example)
  *     end

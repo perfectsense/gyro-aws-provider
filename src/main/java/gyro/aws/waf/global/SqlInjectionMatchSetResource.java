@@ -24,7 +24,9 @@ import java.util.Set;
  *     name: "sql-injection-match-set-example"
  *
  *     sql-injection-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *     end
  * end

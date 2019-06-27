@@ -24,7 +24,9 @@ import java.util.Set;
  *     name: "size-constraint-set-example"
  *
  *     size-constraint
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *         comparison-operator: "EQ"
  *         size: 10
