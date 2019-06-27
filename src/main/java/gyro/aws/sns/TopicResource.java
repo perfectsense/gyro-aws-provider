@@ -25,20 +25,20 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates a sns topic.
+ * Creates a SNS topic.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::topic sns-topic-example
+ *     aws::sns-topic sns-topic-example
  *         name: "sns-topic"
  *         display-name: "sns-topic-example-ex"
  *         policy: "sns-policy.json"
  *     end
  */
-@Type("topic")
+@Type("sns-topic")
 public class TopicResource extends AwsResource implements Copyable<Topic> {
 
     private String arn;

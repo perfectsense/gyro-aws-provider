@@ -1,13 +1,13 @@
-    aws::topic sns-topic-example
+    aws::sns-topic sns-topic-example
         name: "sns-topic"
         display-name: "sns-topic-example-ex"
         policy: "sns-policy.json"
     end
 
-aws::subscriber sns-subscriber-example
+aws::sns-subscriber sns-subscriber-example
     protocol: "sqs"
     endpoint: $(aws::sqs sqs-example).arn
-    topic: $(aws::topic sns-topic-example)
+    topic: $(aws::sns-topic sns-topic-example)
     filter-policy: "filter-policy.json"
     raw-message-delivery: true
 end
