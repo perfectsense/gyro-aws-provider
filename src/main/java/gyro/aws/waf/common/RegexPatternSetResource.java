@@ -142,7 +142,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("regex pattern set");
+        sb.append("waf regex pattern set");
 
         if (!ObjectUtils.isBlank(getName())) {
             sb.append(" - ").append(getName());
