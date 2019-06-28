@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::alb alb-example
+ *     aws::application-load-balancer alb-example
  *         name: "alb-example"
  *         ip-address-type: "ipv4"
  *         scheme: "internal"
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  *             }
  *     end
  */
-@Type("alb")
+@Type("application-load-balancer")
 public class ApplicationLoadBalancerResource extends LoadBalancerResource implements Copyable<LoadBalancer> {
 
     private Set<SecurityGroupResource> securityGroups;

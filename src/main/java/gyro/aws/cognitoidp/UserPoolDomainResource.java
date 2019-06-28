@@ -21,12 +21,12 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::user-pool-domain domain
+ *     aws::cognito-user-pool-domain domain
  *         domain: "domainsecond"
- *         user-pool: $(aws::user-pool cognito)
+ *         user-pool: $(aws::cognito-user-pool cognito)
  *     end
  */
-@Type("user-pool-domain")
+@Type("cognito-user-pool-domain")
 public class UserPoolDomainResource extends AwsResource implements Copyable<DomainDescriptionType> {
 
     private String certificateArn;

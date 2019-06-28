@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * .. code-block:: gyro
  *
- *     aws::nlb nlb-example
+ *     aws::network-load-balancer nlb-example
  *         name: "nlb-example"
  *         ip-address-type: "ipv4"
  *         scheme: "internet-facing"
@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  *         }
  *     end
  */
-@Type("nlb")
+@Type("network-load-balancer")
 public class NetworkLoadBalancerResource extends LoadBalancerResource implements Copyable<LoadBalancer> {
 
     private List<SubnetMappings> subnetMapping;

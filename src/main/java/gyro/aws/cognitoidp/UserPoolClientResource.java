@@ -25,12 +25,12 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::user-pool-client client
+ *     aws::cognito-user-pool-client client
  *         client-name: "clientname"
- *         user-pool: $(aws::user-pool cognito)
+ *         user-pool: $(aws::cognito-user-pool cognito)
  *     end
  */
-@Type("user-pool-client")
+@Type("cognito-user-pool-client")
 public class UserPoolClientResource extends AwsResource implements Copyable<UserPoolClientType> {
 
     private Boolean allowedOAuthFlowsClient;

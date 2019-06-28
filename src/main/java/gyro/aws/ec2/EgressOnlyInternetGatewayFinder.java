@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query egress gateway.
+ * Query egress only internet gateway.
  *
  * .. code-block:: gyro
  *
- *    egress-gateway: $(aws::egress-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
+ *    egress-gateway: $(aws::egress-only-internet-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
  */
-@Type("egress-gateway")
+@Type("egress-only-internet-gateway")
 public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, EgressOnlyInternetGateway, EgressOnlyInternetGatewayResource> {
     private String egressOnlyInternetGatewayId;
 

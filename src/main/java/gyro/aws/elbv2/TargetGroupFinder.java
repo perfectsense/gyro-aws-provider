@@ -18,9 +18,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    target-group: $(aws::target-group EXTERNAL/* | arn = '')
+ *    target-group: $(aws::load-balancer-target-group EXTERNAL/* | arn = '')
  */
-@Type("target-group")
+@Type("load-balancer-target-group")
 public class TargetGroupFinder extends AwsFinder<ElasticLoadBalancingV2Client, TargetGroup, TargetGroupResource> {
 
     private String arn;

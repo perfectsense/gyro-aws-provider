@@ -65,7 +65,6 @@ aws::instance instance-example
     subnet-id: $(aws::subnet subnet).subnet-id
     security-group-ids: $(aws::security-group security-group).*.group-id
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 

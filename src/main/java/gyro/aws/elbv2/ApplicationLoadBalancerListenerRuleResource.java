@@ -27,12 +27,12 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::alb-listener-rule listener-rule-example
- *         alb-listener: $(aws::alb-listener listener-example)
+ *     aws::application-load-balancer-listener-rule listener-rule-example
+ *         alb-listener: $(aws::application-load-balancer-listener listener-example)
  *         priority: "1"
  *
  *         action
- *             target-group: $(aws::target-group target-group-example | target-group-arn)
+ *             target-group: $(aws::load-balancer-target-group target-group-example | target-group-arn)
  *             type: "forward"
  *         end
  *
@@ -47,7 +47,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@Type("alb-listener-rule")
+@Type("application-load-balancer-listener-rule")
 public class ApplicationLoadBalancerListenerRuleResource extends AwsResource implements Copyable<Rule> {
 
     private List<ActionResource> action;

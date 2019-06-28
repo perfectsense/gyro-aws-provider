@@ -32,14 +32,14 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::traffic-policy traffic-policy-example
+ *     aws::route53-traffic-policy traffic-policy-example
  *         name: "traffic-policy-example"
  *         comment: "traffic-policy-example Comment"
  *         document: "policy.json"
  *     end
  *
  */
-@Type("traffic-policy")
+@Type("route53-traffic-policy")
 public class TrafficPolicyResource extends AwsResource implements Copyable<TrafficPolicy> {
     private String name;
     private String comment;

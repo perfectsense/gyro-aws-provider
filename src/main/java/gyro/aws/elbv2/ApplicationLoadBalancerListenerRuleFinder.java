@@ -17,9 +17,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    alb-listener-rule: $(aws::alb-listener-rule EXTERNAL/* | arn = '')
+ *    alb-listener-rule: $(aws::application-load-balancer-listener-rule EXTERNAL/* | arn = '')
  */
-@Type("alb-listener-rule")
+@Type("application-load-balancer-listener-rule")
 public class ApplicationLoadBalancerListenerRuleFinder extends AwsFinder<ElasticLoadBalancingV2Client, Rule, ApplicationLoadBalancerListenerRuleResource> {
 
     private String arn;

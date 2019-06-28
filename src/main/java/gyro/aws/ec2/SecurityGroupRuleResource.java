@@ -3,13 +3,18 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
+import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
@@ -20,6 +25,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     private String description;
     private Integer fromPort;
     private Integer toPort;
+    private Set<SecurityGroupResource> securityGroups;
 
     /**
      * Protocol for this Security Group Rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
@@ -105,6 +111,22 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         this.ipv6CidrBlocks = ipv6CidrBlocks;
     }
 
+    /**
+     * List of security groups referenced by this Security Group Rule.
+     */
+    @Updatable
+    public Set<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new LinkedHashSet<>();
+        }
+
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
+    }
+
     @Override
     public void copyFrom(IpPermission permission) {
         setProtocol(permission.ipProtocol());
@@ -124,6 +146,13 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
                 setDescription(range.description());
             }
         }
+
+        if (!permission.userIdGroupPairs().isEmpty()) {
+            for (UserIdGroupPair groupPair : permission.userIdGroupPairs()) {
+                getSecurityGroups().add(findById(SecurityGroupResource.class, groupPair.groupId()));
+                setDescription(groupPair.description());
+            }
+        }
     }
 
     @Override
@@ -135,6 +164,22 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     public boolean refresh() {
         return false;
     }
+
+    @Override
+    public final void create() {
+        validate();
+        doCreate();
+    }
+
+    protected abstract void doCreate();
+
+    @Override
+    public final void update(Resource current, Set<String> changedFieldNames) {
+        validate();
+        doUpdate(current, changedFieldNames);
+    }
+
+    protected abstract void doUpdate(Resource current, Set<String> changedFieldNames);
 
     @Override
     public String toDisplayString() {
@@ -157,6 +202,11 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         if (!getIpv6CidrBlocks().isEmpty()) {
             sb.append(" ");
             sb.append(getIpv6CidrBlocks());
+        }
+
+        if (!getSecurityGroups().isEmpty()) {
+            sb.append(" ");
+            sb.append(getSecurityGroups().stream().map(SecurityGroupResource::getGroupName).collect(Collectors.toList()));
         }
 
         if (!ObjectUtils.isBlank(getDescription())) {
@@ -195,6 +245,14 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
             );
         }
 
+        if (!getSecurityGroups().isEmpty()) {
+            permissionBuilder.userIdGroupPairs(
+                getSecurityGroups().stream()
+                    .map(g -> UserIdGroupPair.builder().description(getDescription()).groupId(g.getGroupId()).build())
+                    .collect(Collectors.toList())
+            );
+        }
+
         return permissionBuilder
             .fromPort(getFromPort())
             .ipProtocol(getProtocol())
@@ -202,5 +260,10 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
             .build();
     }
 
+    private void validate() {
+        if (getCidrBlocks().isEmpty() && getIpv6CidrBlocks().isEmpty() && getSecurityGroups().isEmpty()) {
+            throw new GyroException("At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
+        }
+    }
 }
 
