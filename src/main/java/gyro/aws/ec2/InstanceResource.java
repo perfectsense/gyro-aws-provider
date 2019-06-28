@@ -895,7 +895,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         } catch (Ec2Exception ex) {
             if (getInstanceProfile() != null
                 && ex.awsErrorDetails().errorMessage().startsWith(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid", getInstanceProfile().getArn()))) {
-                System.out.println("\n\n --> gotya");
                 return false;
             } else {
                 throw ex;
