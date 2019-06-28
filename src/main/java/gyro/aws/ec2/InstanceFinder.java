@@ -5,6 +5,7 @@ import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Instance;
+import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 
 import java.util.HashMap;
 import java.util.List;
@@ -1078,6 +1079,7 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
     protected List<Instance> findAllAws(Ec2Client client) {
         return client.describeInstancesPaginator().reservations()
             .stream().flatMap(o -> o.instances().stream())
+            .filter(i -> !i.state().name().equals(InstanceStateName.TERMINATED))
             .collect(Collectors.toList());
     }
 
@@ -1085,6 +1087,7 @@ public class InstanceFinder extends AwsFinder<Ec2Client, Instance, InstanceResou
     protected List<Instance> findAws(Ec2Client client, Map<String, String> filters) {
         return client.describeInstancesPaginator(r -> r.filters(createFilters(filters))).reservations()
             .stream().flatMap(o -> o.instances().stream())
+            .filter(i -> !i.state().name().equals(InstanceStateName.TERMINATED))
             .collect(Collectors.toList());
     }
 }
