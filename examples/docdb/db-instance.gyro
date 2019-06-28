@@ -9,7 +9,7 @@ end
 
 aws::security-group security-group-db-instance-example-1
     group-name: "db-instance-example-1"
-    vpc-id: $(aws::vpc vpc-db-instance-example | vpc-id)
+    vpc: $(aws::vpc vpc-db-instance-example)
     description: "db-instance-example-1"
     keep-default-egress-rules: true
 
@@ -28,7 +28,7 @@ end
 
 aws::security-group security-group-db-instance-example-2
     group-name: "db-instance-example-2"
-    vpc-id: $(aws::vpc vpc-db-instance-example | vpc-id)
+    vpc: $(aws::vpc vpc-db-instance-example)
     description: "db-instance-example-2"
     keep-default-egress-rules: true
 
@@ -68,9 +68,9 @@ end
 aws::docdb-subnet-group db-subnet-group-db-instance-example
     db-subnet-group-name: "db-subnet-group-db-instance-example"
     db-subnet-group-description: "db-subnet-group-db-instance-example-description"
-    subnet-ids: [
-        $(aws::subnet subnet-db-instance-example-1 | subnet-id),
-        $(aws::subnet subnet-db-instance-example-2 | subnet-id)
+    subnets: [
+        $(aws::subnet subnet-db-instance-example-1),
+        $(aws::subnet subnet-db-instance-example-2)
     ]
 
     tags: {
@@ -90,18 +90,18 @@ end
 
 aws::docdb-cluster db-cluster-db-instance-example
     db-cluster-identifier: "db-cluster-db-instance-example"
-    db-subnet-group-name: $(aws::docdb-subnet-group db-subnet-group-db-instance-example | db-subnet-group-name)
+    db-subnet-group: $(aws::docdb-subnet-group db-subnet-group-db-instance-example)
     engine: "docdb"
     engine-version: "3.6.0"
-    db-cluster-param-group-name: $(aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example | db-cluster-param-group-name)
+    db-cluster-param-group: $(aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example)
     master-username: "master"
     master-user-password: "masterpassword"
     port: 27017
     preferred-backup-window: "00:00-00:30"
     preferred-maintenance-window: "wed:03:28-wed:03:58"
-    vpc-security-group-ids: [
-        $(aws::security-group security-group-db-instance-example-1 | group-id),
-        $(aws::security-group security-group-db-instance-example-2 | group-id)
+    vpc-security-groups: [
+        $(aws::security-group security-group-db-instance-example-1),
+        $(aws::security-group security-group-db-instance-example-2)
     ]
     storage-encrypted: false
     backup-retention-period: 1
@@ -118,7 +118,7 @@ aws::docdb-instance db-instance-example
     engine: "docdb"
     preferred-maintenance-window: "wed:03:28-wed:04:58"
     promotion-tier: 1
-    db-cluster-identifier: $(aws::docdb-cluster db-cluster-db-instance-example | db-cluster-identifier)
+    db-cluster: $(aws::docdb-cluster db-cluster-db-instance-example)
 
     tags: {
         Name: "db-instance-example"

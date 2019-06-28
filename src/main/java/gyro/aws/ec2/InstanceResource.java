@@ -39,6 +39,7 @@ import software.amazon.awssdk.utils.builder.SdkBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +63,6 @@ import java.util.stream.Collectors;
  *             $(aws::security-group security-group)
  *         ]
  *         disable-api-termination: false
- *         enable-ena-support: true
  *         ebs-optimized: false
  *         source-dest-check: true
  *
@@ -97,15 +97,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String instanceType;
     private KeyPairResource key;
     private Boolean enableMonitoring;
-    private List<SecurityGroupResource> securityGroups;
+    private Set<SecurityGroupResource> securityGroups;
     private SubnetResource subnet;
     private Boolean disableApiTermination;
-    private Boolean enableEnaSupport;
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
-    private List<BlockDeviceMappingResource> blockDeviceMapping;
-    private List<InstanceVolumeAttachment> volume;
+    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private Set<InstanceVolumeAttachment> volume;
     private InstanceProfileResource instanceProfile;
 
     // -- Readonly
@@ -254,15 +253,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      */
 
     @Updatable
-    public List<SecurityGroupResource> getSecurityGroups() {
+    public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
+            securityGroups = new HashSet<>();
 
         }
         return securityGroups;
     }
 
-    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
         this.securityGroups = securityGroups;
     }
 
@@ -294,22 +293,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * Enable or Disable ENA support for an instance. Defaults to true and cannot be turned off during creation. See `Enabling Enhanced Networking with the Elastic Network Adapter (ENA) on Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking-ena.html/>`_.
-     */
-    @Updatable
-    public Boolean getEnableEnaSupport() {
-        if (enableEnaSupport == null) {
-            enableEnaSupport = true;
-        }
-        return enableEnaSupport;
-    }
-
-    public void setEnableEnaSupport(Boolean enableEnaSupport) {
-        this.enableEnaSupport = enableEnaSupport;
-    }
-
-    /**
-     * Enable or Disable Source/Dest Check for an instance. Defaults to true and cannot be turned off during creation. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
+     * Enable or Disable Source/Dest Check for an instance. Defaults to true. See `Disabling Source/Destination Checks <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck/>`_.
      */
     @Updatable
     public Boolean getSourceDestCheck() {
@@ -362,15 +346,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      *
      * @subresource gyro.core.ec2.BlockDeviceMappingResource
      */
-    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
-            blockDeviceMapping = new ArrayList<>();
+            blockDeviceMapping = new HashSet<>();
         }
 
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -380,15 +364,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      * @subresource gyro.core.ec2.InstanceVolumeAttachment
      */
     @Updatable
-    public List<InstanceVolumeAttachment> getVolume() {
+    public Set<InstanceVolumeAttachment> getVolume() {
         if (volume == null) {
-            volume = new ArrayList<>();
+            volume = new HashSet<>();
         }
 
         return volume;
     }
 
-    public void setVolume(List<InstanceVolumeAttachment> volume) {
+    public void setVolume(Set<InstanceVolumeAttachment> volume) {
         this.volume = volume;
     }
 
@@ -568,11 +552,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        RunInstancesResponse response = client.runInstances(builder.build());
+        RunInstancesRequest request = builder.build();
 
-        for (Instance instance : response.instances()) {
-            setInstanceId(instance.instanceId());
-            break;
+        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> createInstance(client, request));
+
+        if (!status) {
+            throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -620,7 +608,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             if (instance != null) {
                 client.modifyNetworkInterfaceAttribute(
                     r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(A -> A.value(getSourceDestCheck()))
+                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
                 );
             }
         }
@@ -642,14 +630,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .instanceType(o -> o.value(getInstanceType()))
-            );
-        }
-
-        if (changedProperties.contains("enable-ena-support")
-            && validateInstanceStop(instanceStopped, "enable-ena-support", getEnableEnaSupport().toString())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
-                    .enaSupport(o -> o.value(getEnableEnaSupport()))
             );
         }
 
@@ -716,9 +696,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setInstanceType(instance.instanceType().toString());
         setKey(!ObjectUtils.isBlank(instance.keyName()) ? findById(KeyPairResource.class, instance.keyName()) : null);
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toList()));
+        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toSet()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));
-        setEnableEnaSupport(instance.enaSupport());
         setPublicDnsName(instance.publicDnsName());
         setPublicIpAddress(instance.publicIpAddress());
         setPrivateIpAddress(instance.privateIpAddress());
@@ -768,14 +747,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (ObjectUtils.isBlank(getInstanceType())
             || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
-        }
-
-        if (!getEnableEnaSupport() && isCreate) {
-            throw new GyroException("enableEnaSupport cannot be set to False at the time of instance creation. Update the instance to set it.");
-        }
-
-        if (!getSourceDestCheck() && isCreate) {
-            throw new GyroException("SourceDestCheck cannot be set to False at the time of instance creation. Update the instance to set it.");
         }
 
         if (getSecurityGroups().isEmpty()) {
@@ -905,6 +876,31 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setVolume(instance.blockDeviceMappings().stream()
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
             .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toSet()));
+    }
+
+    private boolean createInstance(Ec2Client client, RunInstancesRequest request) {
+        try {
+            RunInstancesResponse response = client.runInstances(request);
+            if (!response.instances().isEmpty()) {
+                setInstanceId(response.instances().get(0).instanceId());
+              
+                if (!getSourceDestCheck()) {
+                    client.modifyNetworkInterfaceAttribute(
+                        r -> r.networkInterfaceId(response.instances().get(0).networkInterfaces().get(0).networkInterfaceId())
+                            .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                    );
+                }
+            }
+        } catch (Ec2Exception ex) {
+            if (getInstanceProfile() != null
+                && ex.awsErrorDetails().errorMessage().startsWith(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid", getInstanceProfile().getArn()))) {
+                return false;
+            } else {
+                throw ex;
+            }
+        }
+
+        return true;
     }
 }

@@ -1,0 +1,2 @@
+event-rule: $(external-query aws::event-rule { rule-name: '' })
+metric-alarm: $(external-query aws::metric-alarm { alarm-name: '' })

@@ -1,6 +1,7 @@
 package gyro.aws.docdb;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * .. code-block:: gyro
  *
  *     aws::docdb-cluster-snapshot db-cluster-snapshot-example
- *         db-cluster-identifier: $(aws::db-cluster db-cluster-db-cluster-snapshot-example | db-cluster-identifier)
+ *         db-cluster: $(aws::db-cluster db-cluster-db-cluster-snapshot-example)
  *         db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
  *
  *         tags: {
@@ -33,21 +34,24 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("docdb-cluster-snapshot")
-public class DbClusterSnapshotResource extends DocDbTaggableResource {
-    private String dbClusterIdentifier;
+public class DbClusterSnapshotResource extends DocDbTaggableResource implements Copyable<DBClusterSnapshot> {
+
+    private DbClusterResource dbCluster;
     private String dbClusterSnapshotIdentifier;
+
+    //-- Read-only Attributes
 
     private String arn;
 
     /**
-     * Associated db cluster name. (Required)
+     * Associated db cluster. (Required)
      */
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public DbClusterResource getDbCluster() {
+        return dbCluster;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setDbCluster(DbClusterResource dbCluster) {
+        this.dbCluster = dbCluster;
     }
 
     /**
@@ -88,7 +92,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
             return false;
         }
 
-        setArn(dbClusterSnapshot.dbClusterSnapshotArn());
+        copyFrom(dbClusterSnapshot);
 
         return true;
     }
@@ -98,7 +102,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            r -> r.dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
                 .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
         );
 
@@ -142,6 +146,13 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
         return sb.toString();
     }
 
+    @Override
+    public void copyFrom(DBClusterSnapshot dbClusterSnapshot) {
+        setArn(dbClusterSnapshot.dbClusterSnapshotArn());
+        setDbCluster(findById(DbClusterResource.class, dbClusterSnapshot.dbClusterIdentifier()));
+        setDbClusterSnapshotIdentifier(dbClusterSnapshot.dbClusterSnapshotIdentifier());
+    }
+
     private boolean isAvailable(DocDbClient client) {
         DBClusterSnapshot dbClusterSnapshot = getDbClusterSnapshot(client);
 
@@ -151,8 +162,8 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
     private DBClusterSnapshot getDbClusterSnapshot(DocDbClient client) {
         DBClusterSnapshot dbClusterSnapshot = null;
 
-        if (ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            throw new GyroException("db-cluster-identifier is missing, unable to load db cluster snapshot.");
+        if (ObjectUtils.isBlank(getDbCluster())) {
+            throw new GyroException("db-cluster is missing, unable to load db cluster snapshot.");
         }
 
         if (ObjectUtils.isBlank(getDbClusterSnapshotIdentifier())) {
@@ -161,7 +172,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
 
         try {
             DescribeDbClusterSnapshotsResponse response = client.describeDBClusterSnapshots(
-                r -> r.dbClusterSnapshotIdentifier(getDbClusterIdentifier())
+                r -> r.dbClusterSnapshotIdentifier(getDbCluster().getDbClusterIdentifier())
                     .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
             );
 
@@ -175,4 +186,5 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource {
 
         return dbClusterSnapshot;
     }
+
 }

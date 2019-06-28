@@ -5,16 +5,6 @@ import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 public class PredicateResource extends gyro.aws.waf.common.PredicateResource {
-    public PredicateResource() {
-
-    }
-
-    public PredicateResource(Predicate predicate) {
-        setDataId(predicate.dataId());
-        setNegated(predicate.negated());
-        setType(predicate.typeAsString());
-    }
-
     @Override
     protected void savePredicate(Predicate predicate, boolean isDelete) {
         AbstractRuleResource parent = (AbstractRuleResource) parent();

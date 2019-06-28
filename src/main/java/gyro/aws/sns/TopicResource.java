@@ -1,28 +1,31 @@
 package gyro.aws.sns;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.CompactMap;
 
 import software.amazon.awssdk.services.sns.SnsClient;
-import software.amazon.awssdk.services.sns.model.AuthorizationErrorException;
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 import software.amazon.awssdk.services.sns.model.GetTopicAttributesResponse;
-import software.amazon.awssdk.services.sns.model.InvalidParameterException;
-import software.amazon.awssdk.services.sns.model.NotFoundException;
+import software.amazon.awssdk.services.sns.model.Topic;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates a sns topic
+ * Creates a sns topic.
  *
  * Example
  * -------
@@ -30,66 +33,19 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::topic sns-topic-example
- *         attributes: {
- *             DisplayName: "sns-topic-example",
- *             Policy: "gyro-providers/gyro-aws-provider/examples/sns/sns-policy.json"
- *         }
  *         name: "sns-topic"
+ *         display-name: "sns-topic-example-ex"
+ *         policy: "sns-policy.json"
  *     end
  */
 @Type("topic")
-public class TopicResource extends AwsResource {
+public class TopicResource extends AwsResource implements Copyable<Topic> {
 
-    private Map<String, String> attributes;
+    private String arn;
     private String name;
-    private String topicArn;
-
-    /**
-     * The attributes associated with this topic (Required)
-     *
-     * Possible attributes are DeliveryPolicy, Policy, and DisplayName
-     *
-     * DeliveryPolicy can be a json file path or json blob (Optional)
-     *
-     * DisplayName is a string (Required)
-     *
-     * Policy can be a json file path or json blob (Optional)
-     */
-    @Updatable
-    public Map<String, String> getAttributes() {
-        if (attributes == null) {
-            attributes = new CompactMap<>();
-        }
-
-        if (attributes.get("Policy") != null && attributes.get("Policy").endsWith(".json")) {
-            try {
-                String encode = new String(Files.readAllBytes(Paths.get(attributes.get("Policy"))), "UTF-8");
-                attributes.put("Policy", formatPolicy(encode));
-            } catch (Exception err) {
-                throw new GyroException(err.getMessage());
-            }
-        }
-
-        if (attributes.get("DeliveryPolicy") != null && attributes.get("DeliveryPolicy").endsWith(".json")) {
-            try {
-                String encode = new String(Files.readAllBytes(Paths.get(attributes.get("DeliveryPolicy"))), "UTF-8");
-                attributes.put("DeliveryPolicy", formatPolicy(encode));
-            } catch (Exception err) {
-                throw new GyroException(err.getMessage());
-            }
-        }
-
-        return attributes;
-    }
-
-    public void setAttributes(Map<String, String> attributes) {
-        if (this.attributes != null && attributes != null) {
-            this.attributes.putAll(attributes);
-
-        } else {
-            this.attributes = attributes;
-        }
-    }
+    private String deliveryPolicy;
+    private String policy;
+    private String displayName;
 
     /**
      * The name of the topic. (Required)
@@ -102,65 +58,129 @@ public class TopicResource extends AwsResource {
         this.name = name;
     }
 
-    @Id
-    @Output
-    public String getTopicArn() {
-        return topicArn;
+    /**
+     * The delivery retry policy. Can be json file or json blob.
+     */
+    @Updatable
+    public String getDeliveryPolicy() {
+        deliveryPolicy = getProcessedPolicy(deliveryPolicy);
+
+        return deliveryPolicy;
     }
 
-    public void setTopicArn(String topicArn) {
-        this.topicArn = topicArn;
+    public void setDeliveryPolicy(String deliveryPolicy) {
+        this.deliveryPolicy = deliveryPolicy;
+    }
+
+    /**
+     * The access policy. Can be json file or json blob.
+     */
+    @Updatable
+    public String getPolicy() {
+        policy = getProcessedPolicy(policy);
+
+        return policy;
+    }
+
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
+
+    /**
+     * The sns display name.
+     */
+    @Updatable
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * The arn of the sns.
+     */
+    @Output
+    @Id
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+    
+    @Override
+    public void copyFrom(Topic topic) {
+        SnsClient client = createClient(SnsClient.class);
+
+        GetTopicAttributesResponse attributesResponse = client.getTopicAttributes(r -> r.topicArn(topic.topicArn()));
+
+        //The list of attributes is much larger than what can be set.
+        //Only those that can be set are extracted out of the list of attributes.
+        setDisplayName(attributesResponse.attributes().get("DisplayName"));
+        setPolicy(attributesResponse.attributes().get("Policy"));
+        setDeliveryPolicy(attributesResponse.attributes().get("DeliveryPolicy"));
+
+        setArn(attributesResponse.attributes().get("TopicArn"));
+        setName(getArn().split(":")[getArn().split(":").length - 1]);
     }
 
     @Override
     public boolean refresh() {
         SnsClient client = createClient(SnsClient.class);
 
-        try {
-            GetTopicAttributesResponse attributesResponse = client.getTopicAttributes(r -> r.topicArn(getTopicArn()));
-            getAttributes().clear();
+        Topic topic = client.listTopicsPaginator().topics().stream().findFirst().filter(o -> o.topicArn().equals(getArn())).orElse(null);
 
-            //The list of attributes is much larger than what can be set.
-            //Only those that can be set are extracted out of the list of attributes.
-            if (attributesResponse.attributes().get("DisplayName") != null) {
-                getAttributes().put("DisplayName", (attributesResponse.attributes().get("DisplayName")));
-            }
-            if (attributesResponse.attributes().get("Policy") != null) {
-                getAttributes().put("Policy", (attributesResponse.attributes().get("Policy")));
-            }
-            if (attributesResponse.attributes().get("DeliveryPolicy") != null) {
-                getAttributes().put("DeliveryPolicy", (attributesResponse.attributes().get("DeliveryPolicy")));
-            }
-
-            setTopicArn(attributesResponse.attributes().get("TopicArn"));
-
-            return true;
-
-        } catch (AuthorizationErrorException | InvalidParameterException ex) {
-            throw new GyroException(ex.getMessage());
-        } catch (NotFoundException ex) {
+        if (topic == null) {
             return false;
         }
+
+        copyFrom(topic);
+
+        return true;
     }
 
     @Override
     public void create() {
         SnsClient client = createClient(SnsClient.class);
 
-        CreateTopicResponse topicResponse = client.createTopic(r -> r.attributes(getAttributes())
-                                    .name(getName()));
+        CreateTopicResponse response = client.createTopic(
+            r -> r.attributes(getAttributes()).name(getName())
+        );
 
-        setTopicArn(topicResponse.topicArn());
+        setArn(response.topicArn());
     }
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
-        for (Map.Entry<String, String> entry : getAttributes().entrySet()) {
-            client.setTopicAttributes(r -> r.attributeName(entry.getKey())
-                    .attributeValue(entry.getValue())
-                    .topicArn(getTopicArn()));
+        if (changedFieldNames.contains("display-name")) {
+            client.setTopicAttributes(r -> r.attributeName("DisplayName")
+                .attributeValue(getDisplayName())
+                .topicArn(getArn()));
+        }
+
+        if (changedFieldNames.contains("policy")) {
+            if (ObjectUtils.isBlank(getPolicy())) {
+                throw new GyroException("policy cannot be set to blank.");
+            }
+
+            client.setTopicAttributes(r -> r.attributeName("Policy")
+                .attributeValue(getPolicy())
+                .topicArn(getArn()));
+        }
+
+        if (changedFieldNames.contains("delivery-policy")) {
+            if (ObjectUtils.isBlank(getDeliveryPolicy())) {
+                throw new GyroException("delivery-policy cannot be set to blank.");
+            }
+
+            client.setTopicAttributes(r -> r.attributeName("DeliveryPolicy")
+                .attributeValue(getDeliveryPolicy())
+                .topicArn(getArn()));
         }
     }
 
@@ -168,22 +188,48 @@ public class TopicResource extends AwsResource {
     public void delete() {
         SnsClient client = createClient(SnsClient.class);
 
-        client.deleteTopic(r -> r.topicArn(getTopicArn()));
+        client.deleteTopic(r -> r.topicArn(getArn()));
     }
 
     @Override
     public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("sns topic ");
-
-        if (getTopicArn() != null) {
-            sb.append(getTopicArn());
-        }
-
-        return sb.toString();
+        return "sns topic " + getName();
     }
 
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    private Map<String, String> getAttributes() {
+        Map<String, String> attributes = new HashMap<>();
+
+        attributes.put("DisplayName", getDisplayName());
+
+        if (!ObjectUtils.isBlank(getPolicy())) {
+            attributes.put("Policy", getPolicy());
+        }
+
+        if (!ObjectUtils.isBlank(getDeliveryPolicy())) {
+            attributes.put("DeliveryPolicy", getDeliveryPolicy());
+        }
+
+        return attributes;
+    }
+
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+        }
     }
 }

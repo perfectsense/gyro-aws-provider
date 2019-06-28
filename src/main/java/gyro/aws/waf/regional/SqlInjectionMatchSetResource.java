@@ -52,23 +52,29 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     }
 
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getSqlInjectionMatchSetId())) {
-            return false;
-        }
-
-        GetSqlInjectionMatchSetResponse response = getRegionalClient().getSqlInjectionMatchSet(
-            r -> r.sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
-        );
-
-        SqlInjectionMatchSet sqlInjectionMatchSet = response.sqlInjectionMatchSet();
+    public void copyFrom(SqlInjectionMatchSet sqlInjectionMatchSet) {
+        setId(sqlInjectionMatchSet.sqlInjectionMatchSetId());
         setName(sqlInjectionMatchSet.name());
 
         getSqlInjectionMatchTuple().clear();
         for (SqlInjectionMatchTuple sqlInjectionMatchTuple : sqlInjectionMatchSet.sqlInjectionMatchTuples()) {
-            SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = new SqlInjectionMatchTupleResource(sqlInjectionMatchTuple);
+            SqlInjectionMatchTupleResource sqlInjectionMatchTupleResource = newSubresource(SqlInjectionMatchTupleResource.class);
+            sqlInjectionMatchTupleResource.copyFrom(sqlInjectionMatchTuple);
             getSqlInjectionMatchTuple().add(sqlInjectionMatchTupleResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetSqlInjectionMatchSetResponse response = getRegionalClient().getSqlInjectionMatchSet(
+            r -> r.sqlInjectionMatchSetId(getId())
+        );
+
+        this.copyFrom(response.sqlInjectionMatchSet());
 
         return true;
     }
@@ -82,7 +88,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
                 .name(getName())
         );
 
-        setSqlInjectionMatchSetId(response.sqlInjectionMatchSet().sqlInjectionMatchSetId());
+        setId(response.sqlInjectionMatchSet().sqlInjectionMatchSetId());
     }
 
     @Override
@@ -91,7 +97,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
 
         client.deleteSqlInjectionMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .sqlInjectionMatchSetId(getSqlInjectionMatchSetId())
+                .sqlInjectionMatchSetId(getId())
         );
     }
 }

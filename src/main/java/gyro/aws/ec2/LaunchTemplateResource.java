@@ -400,31 +400,31 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getLaunchTemplateName())
-            .launchTemplateData(
-                l -> l.cpuOptions(getCoreCount() > 0
-                    ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
-                    .disableApiTermination(getDisableApiTermination())
-                    .ebsOptimized(getEbsOptimized())
-                    .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                    .imageId(getAmiId())
-                    .instanceType(getInstanceType())
-                    .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                    .keyName(getKeyName())
-                    .monitoring(o -> o.enabled(getEnableMonitoring()))
-                    .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-                    .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                    .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                        getBlockDeviceMapping()
-                            .stream()
-                            .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
-                            .collect(Collectors.toList()) : null
-                    )
-                    .capacityReservationSpecification(getCapacityReservationSpecification())
-                    .iamInstanceProfile(getLaunchTemplateInstanceProfile())
-                    .networkInterfaces(!getNetworkInterfaces().isEmpty()
-                        ? getNetworkInterfaces().stream()
+                .launchTemplateData(
+                    l -> l.cpuOptions(getCoreCount() > 0
+                        ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
+                        .disableApiTermination(getDisableApiTermination())
+                        .ebsOptimized(getEbsOptimized())
+                        .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+                        .imageId(getAmiId())
+                        .instanceType(getInstanceType())
+                        .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+                        .keyName(getKeyName())
+                        .monitoring(o -> o.enabled(getEnableMonitoring()))
+                        .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                        .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+                        .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
+                            getBlockDeviceMapping()
+                                .stream()
+                                .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
+                                .collect(Collectors.toList()) : null
+                        )
+                        .capacityReservationSpecification(getCapacityReservationSpecification())
+                        .iamInstanceProfile(getLaunchTemplateInstanceProfile())
+                        .networkInterfaces(!getNetworkInterfaces().isEmpty()
+                            ? getNetworkInterfaces().stream()
                             .map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest.builder()
-                                    .networkInterfaceId(o.getNetworkInterfaceId()).build())
+                                .networkInterfaceId(o.getNetworkInterfaceId()).build())
                             .collect(Collectors.toList()) : null)));
 
         setLaunchTemplateId(response.launchTemplate().launchTemplateId());

@@ -169,7 +169,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
                     .sourceIds(getSourceIds())
                     .sourceType(getSourceType())
                     .subscriptionName(getSubscriptionName())
-                    .snsTopicArn(getSnsTopic().getTopicArn())
+                    .snsTopicArn(getSnsTopic().getArn())
         );
 
         setArn(response.eventSubscription().eventSubscriptionArn());
@@ -181,7 +181,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
         client.modifyEventSubscription(
             r -> r.enabled(getEnabled())
                     .eventCategories(getEventCategories())
-                    .snsTopicArn(getSnsTopic().getTopicArn())
+                    .snsTopicArn(getSnsTopic().getArn())
                     .sourceType(getSourceType())
                     .subscriptionName(getSubscriptionName())
         );

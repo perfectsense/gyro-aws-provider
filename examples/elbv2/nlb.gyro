@@ -49,13 +49,13 @@ aws::target-group target-group-example
 end
 
 aws::target target-ex-one
-    id: $(aws::instance instance-us-east-2a | instance-id)
+    id: $(aws::instance instance-us-east-2a).instance-id
     port: "80"
     target-group: $(aws::target-group target-group-example)
 end
 
 aws::target target-ex-two
-    id: $(aws::instance instance-us-east-2b | instance-id)
+    id: $(aws::instance instance-us-east-2b).instance-id
     port: "443"
     target-group: $(aws::target-group target-group-example)
 end
@@ -93,7 +93,6 @@ aws::instance instance-us-east-2a
         $(aws::security-group security-group)
     ]
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 
@@ -122,7 +121,6 @@ aws::instance instance-us-east-2b
         $(aws::security-group security-group)
     ]
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 

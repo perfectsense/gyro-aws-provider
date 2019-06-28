@@ -1,0 +1,21 @@
+regex-pattern-set-ids: $(external-query aws::regex-pattern-set { regex-pattern-set-id: '' })
+
+regex-match-set-ids: $(external-query aws::regex-match-set { id: '' })
+
+geo-match-set-ids: $(external-query aws::geo-match-set { id: '' })
+
+xss-match-set-ids: $(external-query aws::xss-match-set { id: '' })
+
+size-constraint-set-ids: $(external-query aws::size-constraint-set { id: '' })
+
+ip-set-ids: $(external-query aws::ip-set { id: '' })
+
+byte-match-set-ids: $(external-query aws::byte-match-set { id: '' })
+
+sql-injection-match-set-ids: $(external-query aws::sql-injection-match-set { id: '' })
+
+rule-ids: $(external-query aws::rule { rule-id: '' })
+
+rate-rule-ids: $(external-query aws::rate-rule { rule-id: '' })
+
+waf-acl-ids: $(external-query aws::waf-acl { web-acl-id: '' })

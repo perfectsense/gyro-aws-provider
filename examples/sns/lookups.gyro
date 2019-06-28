@@ -1,0 +1,2 @@
+sns: $(external-query aws::topic { arn: '' })
+subscriber: $(external-query aws::subscriber { arn: '' })

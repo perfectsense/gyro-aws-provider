@@ -7,8 +7,7 @@ aws::vpc vpc-hosted-zone-example
 end
 
 aws::hosted-zone hosted-zone-example
-    hosted-zone-name: "hosted-zone-example.com"
-    private-zone: true
+    name: "hosted-zone-example.com"
     vpcs: [
         $(aws::vpc vpc-hosted-zone-example)
     ]

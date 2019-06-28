@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSetUpdate;
@@ -9,13 +10,13 @@ import software.amazon.awssdk.services.waf.model.UpdateSqlInjectionMatchSetReque
 
 import java.util.Set;
 
-public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource {
+public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource implements Copyable<SqlInjectionMatchTuple> {
     private String data;
     private String type;
     private String textTransformation;
 
     /**
-     * If type selected as ```HEADER``` or ```SINGLE_QUERY_ARG```, the value needs to be provided.
+     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
      */
     public String getData() {
         return data;
@@ -26,7 +27,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
     }
 
     /**
-     * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
+     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
      */
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -37,7 +38,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``, ``CMD_LINE``, ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
      */
     public String getTextTransformation() {
         return textTransformation != null ? textTransformation.toUpperCase() : null;
@@ -45,6 +46,13 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     public void setTextTransformation(String textTransformation) {
         this.textTransformation = textTransformation;
+    }
+
+    @Override
+    public void copyFrom(SqlInjectionMatchTuple sqlInjectionMatchTuple) {
+        setData(sqlInjectionMatchTuple.fieldToMatch().data());
+        setType(sqlInjectionMatchTuple.fieldToMatch().typeAsString());
+        setTextTransformation(sqlInjectionMatchTuple.textTransformationAsString());
     }
 
     @Override
@@ -111,7 +119,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
             .build();
 
         return UpdateSqlInjectionMatchSetRequest.builder()
-            .sqlInjectionMatchSetId(parent.getSqlInjectionMatchSetId())
+            .sqlInjectionMatchSetId(parent.getId())
             .updates(sqlInjectionMatchSetUpdate);
     }
 }

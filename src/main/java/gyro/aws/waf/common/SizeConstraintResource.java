@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateSizeConstraintSetRequest;
 
 import java.util.Set;
 
-public abstract class SizeConstraintResource extends AbstractWafResource {
+public abstract class SizeConstraintResource extends AbstractWafResource implements Copyable<SizeConstraint> {
     private String data;
     private String type;
     private String comparisonOperator;
@@ -17,7 +18,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
     private Long size;
 
     /**
-     * If type selected as ```HEADER``` or ```SINGLE_QUERY_ARG```, the value needs to be provided.
+     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
      */
     public String getData() {
         return data;
@@ -28,7 +29,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
     }
 
     /**
-     * Part of the request to filter on. Valid values ```URI```, ```QUERY_STRING```, ```HEADER```, ```METHOD```, ```BODY```, ```SINGLE_QUERY_ARG```, ```ALL_QUERY_ARGS```. (Required)
+     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
      */
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -39,7 +40,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
     }
 
     /**
-     * The comparison to be done on the filter. Valid values ```EQ```, ```NE```, ```LE```, ```LT```, ```GE```, ```GT```. (Required)
+     * The comparison to be done on the filter. Valid values are ``EQ`` or ``NE`` or ``LE`` or ``LT`` or ``GE`` or ``GT``. (Required)
      */
     public String getComparisonOperator() {
         return comparisonOperator != null ? comparisonOperator.toUpperCase() : null;
@@ -50,7 +51,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``, ``CMD_LINE``, ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
      */
     public String getTextTransformation() {
         return textTransformation != null ? textTransformation.toUpperCase() : null;
@@ -69,6 +70,15 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
 
     public void setSize(Long size) {
         this.size = size;
+    }
+
+    @Override
+    public void copyFrom(SizeConstraint sizeConstraint) {
+        setComparisonOperator(sizeConstraint.comparisonOperatorAsString());
+        setData(sizeConstraint.fieldToMatch().data());
+        setType(sizeConstraint.fieldToMatch().typeAsString());
+        setSize(sizeConstraint.size());
+        setTextTransformation(sizeConstraint.textTransformationAsString());
     }
 
     @Override
@@ -145,7 +155,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource {
             .build();
 
         return UpdateSizeConstraintSetRequest.builder()
-            .sizeConstraintSetId(parent.getSizeConstraintSetId())
+            .sizeConstraintSetId(parent.getId())
             .updates(sizeConstraintSetUpdate);
     }
 }

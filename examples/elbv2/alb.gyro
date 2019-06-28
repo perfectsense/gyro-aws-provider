@@ -163,7 +163,7 @@ aws::alb-listener-rule listener-rule-example
         order: 1
 
         authenticate-cognito-action
-            user-pool-arn: $(aws::user-pool pool-example | arn)
+            user-pool-arn: $(aws::user-pool pool-example).arn
             user-pool-client: $(aws::user-pool-client client-example)
             user-pool-domain: $(aws::user-pool-domain domain-example)
         end

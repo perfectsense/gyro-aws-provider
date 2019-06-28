@@ -1,0 +1,1 @@
+sqs: $(external-query aws::sqs { name: '' })

@@ -1,7 +1,10 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -10,16 +13,15 @@ import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
 
 import java.util.Set;
 
-public class AutoScalingGroupLifecycleHookResource extends AwsResource {
+public class AutoScalingGroupLifecycleHookResource extends AwsResource implements Copyable<LifecycleHook> {
 
     private String lifecycleHookName;
-    private String autoScalingGroupName;
     private String defaultResult;
     private Integer heartbeatTimeout;
     private String lifecycleTransition;
     private String notificationMetadata;
     private String notificationTargetArn;
-    private String roleArn;
+    private RoleResource role;
     private Integer globalTimeout;
 
     /**
@@ -34,19 +36,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     }
 
     /**
-     * The name of the parent auto scaling group. (Auto populated)
-     */
-    public String getAutoScalingGroupName() {
-        return autoScalingGroupName;
-    }
-
-    public void setAutoScalingGroupName(String autoScalingGroupName) {
-        this.autoScalingGroupName = autoScalingGroupName;
-    }
-
-    /**
-     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON.
-     * Valid values [ 'ABANDON', 'CONTINUE' ].
+     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON. Valid values are ``ABANDON`` or ``CONTINUE``.
      */
     @Updatable
     public String getDefaultResult() {
@@ -62,7 +52,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     }
 
     /**
-     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values [ Integer between 30 and 7200 ].
+     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values are Integer between ``30`` and ``7200``.
      */
     @Updatable
     public Integer getHeartbeatTimeout() {
@@ -78,8 +68,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     }
 
     /**
-     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'.
-     * Valid values [ 'autoscaling:EC2_INSTANCE_LAUNCHING', 'autoscaling:EC2_INSTANCE_TERMINATING' ].
+     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCHING`` or ``autoscaling:EC2_INSTANCE_TERMINATING``.
      */
     @Updatable
     public String getLifecycleTransition() {
@@ -119,17 +108,21 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     }
 
     /**
-     * The ARN of an IAM role that allows publication to the specified notification target.
+     * An IAM role that allows publication to the specified notification target.
      */
     @Updatable
-    public String getRoleArn() {
-        return roleArn;
+    public RoleResource getRole() {
+        return role;
     }
 
-    public void setRoleArn(String roleArn) {
-        this.roleArn = roleArn;
+    public void setRole(RoleResource role) {
+        this.role = role;
     }
 
+    /**
+     * The value set as the global timeout.
+     */
+    @Output
     public Integer getGlobalTimeout() {
         return globalTimeout;
     }
@@ -138,19 +131,15 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
         this.globalTimeout = globalTimeout;
     }
 
-    public AutoScalingGroupLifecycleHookResource() {
-
-    }
-
-    public AutoScalingGroupLifecycleHookResource(LifecycleHook lifecycleHook) {
+    @Override
+    public void copyFrom(LifecycleHook lifecycleHook) {
         setLifecycleHookName(lifecycleHook.lifecycleHookName());
-        setAutoScalingGroupName(lifecycleHook.autoScalingGroupName());
         setDefaultResult(lifecycleHook.defaultResult());
         setHeartbeatTimeout(lifecycleHook.heartbeatTimeout());
         setLifecycleTransition(lifecycleHook.lifecycleTransition());
         setNotificationMetadata(lifecycleHook.notificationMetadata());
         setNotificationTargetArn(lifecycleHook.notificationTargetARN());
-        setRoleArn(lifecycleHook.roleARN());
+        setRole(!ObjectUtils.isBlank(lifecycleHook.roleARN()) ? findById(RoleResource.class, lifecycleHook.roleARN()) : null);
         setGlobalTimeout(lifecycleHook.globalTimeout());
     }
 
@@ -164,7 +153,6 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
-        setAutoScalingGroupName(getParentId());
         saveLifecycleHook(client);
     }
 
@@ -181,7 +169,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteLifecycleHook(
-            r -> r.autoScalingGroupName(getAutoScalingGroupName())
+            r -> r.autoScalingGroupName(getParentId())
             .lifecycleHookName(getLifecycleHookName())
         );
     }
@@ -215,13 +203,13 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource {
     private void saveLifecycleHook(AutoScalingClient client) {
         client.putLifecycleHook(
             r -> r.lifecycleHookName(getLifecycleHookName())
-                .autoScalingGroupName(getAutoScalingGroupName())
+                .autoScalingGroupName(getParentId())
                 .defaultResult(getDefaultResult())
                 .heartbeatTimeout(getHeartbeatTimeout())
                 .lifecycleTransition(getLifecycleTransition())
                 .notificationMetadata(getNotificationMetadata())
                 .notificationTargetARN(getNotificationTargetArn())
-                .roleARN(getRoleArn())
+                .roleARN(getRole() != null ? getRole().getArn() : null)
         );
     }
 

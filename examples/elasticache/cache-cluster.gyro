@@ -39,7 +39,7 @@ end
 
 aws::security-group security-group-cache-cluster-example-1
     group-name: "security-group-cache-cluster-example-1"
-    vpc-id: $(aws::vpc vpc-cache-cluster-example | vpc-id)
+    vpc: $(aws::vpc vpc-cache-cluster-example)
     description: "security group instance example 1"
     keep-default-egress-rules: true
 
@@ -66,7 +66,7 @@ end
 
 aws::security-group security-group-cache-cluster-example-2
     group-name: "security-group-cache-cluster-example-2"
-    vpc-id: $(aws::vpc vpc-cache-cluster-example | vpc-id)
+    vpc: $(aws::vpc vpc-cache-cluster-example)
     description: "security group instance example 2"
     keep-default-egress-rules: true
 
@@ -95,9 +95,9 @@ aws::cache-subnet-group cache-subnet-group-cache-cluster-example
     cache-subnet-group-name: "cache-subnet-group-cache-cluster-example"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
-        $(aws::subnet subnet-cache-cluster-example | subnet-id),
-        $(aws::subnet subnet-cache-cluster-example-2 | subnet-id),
-        $(aws::subnet subnet-cache-cluster-example-3 | subnet-id)
+        $(aws::subnet subnet-cache-cluster-example),
+        $(aws::subnet subnet-cache-cluster-example-2),
+        $(aws::subnet subnet-cache-cluster-example-3)
     ]
 end
 
@@ -105,9 +105,9 @@ aws::cache-subnet-group cache-subnet-group-cache-cluster-example-2
     cache-subnet-group-name: "cache-subnet-group-cache-cluster-example-2"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
-        $(aws::subnet subnet-cache-cluster-example | subnet-id),
-        $(aws::subnet subnet-cache-cluster-example-2 | subnet-id),
-        $(aws::subnet subnet-cache-cluster-example-3 | subnet-id)
+        $(aws::subnet subnet-cache-cluster-example),
+        $(aws::subnet subnet-cache-cluster-example-2),
+        $(aws::subnet subnet-cache-cluster-example-3)
     ]
 end
 
@@ -126,9 +126,9 @@ end
 aws::cache-cluster cache-cluster-example
     az-mode: "cross-az"
     cache-cluster-id: "cache-cluster-ex-1"
-    cache-node-type: "cache.r5.large"
-    cache-param-group-name: $(aws::cache-param-group cache-param-group-group-cache-cluster-example | cache-param-group-name)
-    cache-subnet-group-name: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example | cache-subnet-group-name)
+    cache-node-type: "cache.t2.micro"
+    cache-param-group: $(aws::cache-param-group cache-param-group-group-cache-cluster-example)
+    cache-subnet-group: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example)
     engine: "memcached"
     engine-version: "1.5.10"
     num-cache-nodes: 2
@@ -138,8 +138,8 @@ aws::cache-cluster cache-cluster-example
     ]
     port: 11211
     preferred-maintenance-window: "thu:01:00-thu:02:00"
-    security-group-ids: [
-        $(aws::security-group security-group-cache-cluster-example-1 | group-id)
+    security-groups: [
+        $(aws::security-group security-group-cache-cluster-example-1)
     ]
 
     tags: {

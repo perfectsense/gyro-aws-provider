@@ -7,7 +7,7 @@ aws::sqs sqs-example1
      receive-message-wait-time-seconds : 5
      kms-master-key-id : 23
      kms-data-key-reuse-period-seconds : 200
-     policy-doc-path: 'policy.json'
+     policy: 'policy.json'
 end
 
 aws::sqs sqs-example2
@@ -19,6 +19,6 @@ aws::sqs sqs-example2
      receive-message-wait-time-seconds : 5
      kms-master-key-id : 23
      kms-data-key-reuse-period-seconds : 200
-     policy-doc-path: 'policy.json'
+     policy: 'policy.json'
 end
 

@@ -1,5 +1,6 @@
 package gyro.aws.waf.regional;
 
+import gyro.aws.waf.common.CommonRegexPatternSet;
 import gyro.core.Type;
 import software.amazon.awssdk.services.waf.model.CreateRegexPatternSetResponse;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
@@ -28,7 +29,7 @@ import java.util.List;
  * end
  */
 @Type("regex-pattern-set-regional")
-public class RegexPatternSetResource extends gyro.aws.waf.common.RegexPatternSetResource {
+public class RegexPatternSetResource extends CommonRegexPatternSet {
     @Override
     protected void doCreate() {
         WafRegionalClient client = getRegionalClient();

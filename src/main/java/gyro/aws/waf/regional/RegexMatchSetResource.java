@@ -32,7 +32,7 @@ import java.util.List;
  *     regex-match-tuple
  *         type: "METHOD"
  *         text-transformation: "NONE"
- *         regex-pattern-set-id: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example | regex-pattern-set-id)
+ *         regex-pattern-set: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example)
  *     end
  * end
  */
@@ -57,26 +57,32 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     public void setRegexMatchTuple(List<RegexMatchTupleResource> regexMatchTuple) {
         this.regexMatchTuple = regexMatchTuple;
     }
+
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getRegexMatchSetId())) {
-            return false;
-        }
-
-        GetRegexMatchSetResponse response = getRegionalClient().getRegexMatchSet(
-            r -> r.regexMatchSetId(getRegexMatchSetId())
-        );
-
-        RegexMatchSet regexMatchSet = response.regexMatchSet();
-
+    public void copyFrom(RegexMatchSet regexMatchSet) {
+        setId(regexMatchSet.regexMatchSetId());
         setName(regexMatchSet.name());
 
         getRegexMatchTuple().clear();
 
         for (RegexMatchTuple regexMatchTuple : regexMatchSet.regexMatchTuples()) {
-            RegexMatchTupleResource regexMatchTupleResource = new RegexMatchTupleResource(regexMatchTuple);
+            RegexMatchTupleResource regexMatchTupleResource = newSubresource(RegexMatchTupleResource.class);
+            regexMatchTupleResource.copyFrom(regexMatchTuple);
             getRegexMatchTuple().add(regexMatchTupleResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetRegexMatchSetResponse response = getRegionalClient().getRegexMatchSet(
+            r -> r.regexMatchSetId(getId())
+        );
+
+        this.copyFrom(response.regexMatchSet());
 
         return true;
     }
@@ -90,7 +96,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
                 .name(getName())
         );
 
-        setRegexMatchSetId(response.regexMatchSet().regexMatchSetId());
+        setId(response.regexMatchSet().regexMatchSetId());
     }
 
     @Override
@@ -99,7 +105,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
 
         client.deleteRegexMatchSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .regexMatchSetId(getRegexMatchSetId())
+                .regexMatchSetId(getId())
         );
     }
 }

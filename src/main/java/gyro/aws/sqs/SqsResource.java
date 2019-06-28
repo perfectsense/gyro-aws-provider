@@ -3,16 +3,24 @@ package gyro.aws.sqs;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
+
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
 import software.amazon.awssdk.services.sqs.model.ListQueuesResponse;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
@@ -21,41 +29,39 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * Example
  * -------
  *
- * .. code-block:: gyro with the standard queue
+ * .. code-block:: gyro
  *
- *aws::sqs sqs-example996556
+ * aws::sqs sqs-example996556
  *      name : "testRedrive3345itest12345"
  *      visibility-timeout : 400
- *      message-retention-period : 864000 (in seconds)
- *      maximum-message-size : 258048 (bytes)
+ *      message-retention-period : 864000
+ *      maximum-message-size : 258048
  *      delay-seconds : 140
  *      receive-message-wait-time-seconds : 5
  *      kms-master-key-id : 23
  *      kms-data-key-reuse-period-seconds : 200
- *      policy-doc-path: 'policy.json'
+ *      policy: 'policy.json'
  *      dead-letter-queue-name : "testRedrive3345itest123"
  *      max-receive-count : "5"
- *      account-no : 242040583208 (needed when dead letter queue name is provided instead of the dead letter target ARN)
  * end
- *
- *.. code-block:: gyro with the fifo queue
  *
  * aws::sqs sqs-example2.fifo
  *      name : "testxyz"
  *      visibility-timeout : 400
- *      message-retention-period : 864000 (in seconds)
- *      maximum-message-size : 258048 (bytes)
+ *      message-retention-period : 864000
+ *      maximum-message-size : 258048
  *      delay-seconds : 140
  *      receive-message-wait-time-seconds : 5
  *      kms-master-key-id : 23
  *      kms-data-key-reuse-period-seconds : 200
- *      policy-doc-path: 'policy.json'
+ *      policy: 'policy.json'
  *      dead-letter-target-arn : "arn:aws:sqs:us-east-2:242040583208:testRedrive3345.fifo"
  *      max-receive-count : "5"
  *      content-based-deduplication : 'true'
@@ -63,9 +69,10 @@ import java.util.Set;
  */
 
 @Type("sqs")
-public class SqsResource extends AwsResource {
+public class SqsResource extends AwsResource implements Copyable<String> {
+
     private String name;
-    private String queueArn;
+    private String arn;
     private String queueUrl;
     private Integer visibilityTimeout;
     private Integer messageRetentionPeriod;
@@ -78,14 +85,10 @@ public class SqsResource extends AwsResource {
     private String contentBasedDeduplication;
     private Integer kmsMasterKeyId;
     private Integer kmsDataKeyReusePeriodSeconds;
-    private transient String policyDocPath;
     private String policy;
-    private String accountNo;
 
     /**
-     * Enables setting the name of the queue. The name of a FIFO queue must end with the .fifo suffix.
-     * Example for standard queue : test123
-     * Example for Fifo queue : test123.fifo
+     * The name of the queue. The name of a FIFO queue must end with the .fifo suffix. (Required)
      */
     public String getName() {
         return name;
@@ -96,18 +99,14 @@ public class SqsResource extends AwsResource {
     }
 
     /**
-     * Enable setting up the attributes for the queue. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_GetQueueAttributes.html>`_.
-     * Check default values for the attributes of the queue here `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SetQueueAttributes.html>`_.
-     * Valid values :
-     * delay-seconds : 0-900 seconds
-     * visibility-timeout : 0-12 hrs
-     * message-retention-period : 1 minute - 14 days
-     * maximum-message-size : 1 KiB - 256 Kib
-     * receive-message-wait-time-seconds : 0-20 seconds
+     * The visibility timeout for the queue, in seconds. Valid values include any integer from ``0`` to ``43200``. Defaults to ``30``.
      */
-
     @Updatable
     public Integer getVisibilityTimeout() {
+        if (visibilityTimeout == null) {
+            visibilityTimeout = 30;
+        }
+
         return visibilityTimeout;
     }
 
@@ -115,8 +114,15 @@ public class SqsResource extends AwsResource {
         this.visibilityTimeout = visibilityTimeout;
     }
 
+    /**
+     * The length of time, in seconds, for which thw queue retains a message. Valid values include any integer from ``60`` to ``1209600``. Defaults to ``345600``.
+     */
     @Updatable
     public Integer getMessageRetentionPeriod() {
+        if (messageRetentionPeriod == null){
+            messageRetentionPeriod = 345600;
+        }
+
         return messageRetentionPeriod;
     }
 
@@ -124,8 +130,15 @@ public class SqsResource extends AwsResource {
         this.messageRetentionPeriod = messageRetentionPeriod;
     }
 
+    /**
+     * The length of time, in seconds, for which the delivery of all messages in the queue is delayed. Valid values include any integer from ``0`` to ``900``. Defaults to 0.
+     */
     @Updatable
     public Integer getDelaySeconds() {
+        if (delaySeconds == null) {
+            delaySeconds = 0;
+        }
+
         return delaySeconds;
     }
 
@@ -133,8 +146,15 @@ public class SqsResource extends AwsResource {
         this.delaySeconds = delaySeconds;
     }
 
+    /**
+     * The limit of how many bytes a message can contain before the queue rejects it. Valid values include any integer from ``1024`` to ``262144``. Defaults to ``262144``.
+     */
     @Updatable
     public Integer getMaximumMessageSize() {
+        if (maximumMessageSize == null) {
+            maximumMessageSize = 262144;
+        }
+
         return maximumMessageSize;
     }
 
@@ -142,8 +162,15 @@ public class SqsResource extends AwsResource {
         this.maximumMessageSize = maximumMessageSize;
     }
 
+    /**
+     * The length of time, in seconds, for which a ReceiveMessage action waits for a message to arrive. Valid values include any integer from ``0`` to ``20``. Defaults to ``0``.
+     */
     @Updatable
     public Integer getReceiveMessageWaitTimeSeconds() {
+        if (receiveMessageWaitTimeSeconds == null) {
+            receiveMessageWaitTimeSeconds = 0;
+        }
+
         return receiveMessageWaitTimeSeconds;
     }
 
@@ -151,24 +178,8 @@ public class SqsResource extends AwsResource {
         this.receiveMessageWaitTimeSeconds = receiveMessageWaitTimeSeconds;
     }
 
-    public String getQueueArn() {
-        return queueArn;
-    }
-
-    public void setQueueArn(String queueArn) {
-        this.queueArn = queueArn;
-    }
-
-    public String getQueueUrl() {
-        return queueUrl;
-    }
-
-    public void setQueueUrl(String queueUrl) {
-        this.queueUrl = queueUrl;
-    }
-
     /**
-     * Enables moving messages to the dead letter queue. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
+     * The ARN of the dead-letter queue to which Amazon SQS moves messages after the value of maxReceiveCount is exceeded. (Optional) See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
      */
     @Updatable
     public String getDeadLetterTargetArn() {
@@ -179,6 +190,9 @@ public class SqsResource extends AwsResource {
         this.deadLetterTargetArn = deadLetterTargetArn;
     }
 
+    /**
+     * The number of times a message is received before being moved to the dead-letter queue. (Optional)
+     */
     @Updatable
     public String getMaxReceiveCount() {
         return maxReceiveCount;
@@ -188,6 +202,9 @@ public class SqsResource extends AwsResource {
         this.maxReceiveCount = maxReceiveCount;
     }
 
+    /**
+     * The name of the dead-letter queue. (Optional)
+     */
     @Updatable
     public String getDeadLetterQueueName() {
         return deadLetterQueueName;
@@ -210,7 +227,7 @@ public class SqsResource extends AwsResource {
     }
 
     /**
-     * Enables server side encryption on queues. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms>`_.
+     * The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. (Optional)
      */
     @Updatable
     public Integer getKmsMasterKeyId() {
@@ -221,8 +238,15 @@ public class SqsResource extends AwsResource {
         this.kmsMasterKeyId = kmsMasterKeyId;
     }
 
+    /**
+     * The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. Valid valus are any integer ``60`` to ``86400``. Defaults to ``300``
+     */
     @Updatable
     public Integer getKmsDataKeyReusePeriodSeconds() {
+        if (kmsDataKeyReusePeriodSeconds == null) {
+            kmsDataKeyReusePeriodSeconds = 300;
+        }
+
         return kmsDataKeyReusePeriodSeconds;
     }
 
@@ -230,113 +254,132 @@ public class SqsResource extends AwsResource {
         this.kmsDataKeyReusePeriodSeconds = kmsDataKeyReusePeriodSeconds;
     }
 
-    public String getAccountNo() {
-        return accountNo;
-    }
-
-    public void setAccountNo(String accountNo) {
-        this.accountNo = accountNo;
-    }
-
     /**
-     * Enables setting up the valid IAM policies and permissions for the queue.
-     */
-    @Updatable
-    public String getPolicyDocPath() {
-        return policyDocPath;
-    }
-
-    public void setPolicyDocPath(String policyDocPath) {
-        this.policyDocPath = policyDocPath;
-
-        if (!ObjectUtils.isBlank(policyDocPath)) {
-            setPolicyFromPath();
-        }
-    }
-
-    /**
-     * Need to change when code changes
-     * This method removes all the spaces from the policy content even from the values, the better way to do it would be by using the Jackson's API
+     * The policy document. A policy path or policy string is allowed. (Required)
      */
     @Updatable
     public String getPolicy() {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+        if (this.policy != null && this.policy.contains(".json")) {
+            try (InputStream input = openInput(this.policy)) {
+                this.policy = formatPolicy(IoUtils.toUtf8String(input));
+                return this.policy;
+            } catch (IOException err) {
+                throw new GyroException(MessageFormat
+                    .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), policy));
+            }
+        } else {
+            return this.policy;
+        }
     }
 
     public void setPolicy(String policy) {
         this.policy = policy;
     }
 
+    /**
+     * The arn of the queue.
+     */
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
+    /**
+     * The queue url.
+     */
+    @Output
+    @Id
+    public String getQueueUrl() {
+        return queueUrl;
+    }
+
+    public void setQueueUrl(String queueUrl) {
+        this.queueUrl = queueUrl;
+    }
+
+    @Override
+    public void copyFrom(String sqs) {
+        SqsClient client = createClient(SqsClient.class);
+
+        GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(sqs)
+                .attributeNames(QueueAttributeName.ALL));
+
+        setArn(response.attributes().get(QueueAttributeName.QUEUE_ARN));
+
+        setVisibilityTimeout(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.VISIBILITY_TIMEOUT)));
+
+        setMessageRetentionPeriod(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.MESSAGE_RETENTION_PERIOD)));
+
+        setDelaySeconds(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.DELAY_SECONDS)));
+
+        setMaximumMessageSize(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.MAXIMUM_MESSAGE_SIZE)));
+
+        setReceiveMessageWaitTimeSeconds(Integer.valueOf(response.attributes()
+                .get(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS)));
+
+        if (response.attributes().get(QueueAttributeName.POLICY) != null) {
+            setPolicy(response.attributes().get(QueueAttributeName.POLICY));
+        }
+
+        if (response.attributes().get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION) != null) {
+            setContentBasedDeduplication(response.attributes()
+                    .get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION));
+        }
+
+        if (response.attributes().get(QueueAttributeName.REDRIVE_POLICY) != null) {
+            String policy = response.attributes().get(QueueAttributeName.REDRIVE_POLICY);
+            JsonProcessor obj = new JsonProcessor();
+            Object parse = obj.parse(policy);
+
+            setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
+            setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
+        }
+
+        if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
+            setKmsMasterKeyId(Integer.valueOf(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID)));
+
+            if (response.attributes().get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS) != null) {
+                setKmsDataKeyReusePeriodSeconds(Integer.valueOf(response.attributes()
+                        .get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS)));
+            }
+        }
+    }
+
     @Override
     public boolean refresh() {
         SqsClient client = createClient(SqsClient.class);
 
-        ListQueuesResponse response1 = client.listQueues(r -> r.queueNamePrefix(getName()));
-        if (!response1.queueUrls().isEmpty()) {
-            setQueueUrl(response1.queueUrls() != null ? response1.queueUrls().get(0) : null);
+        String queue = getQueue(client);
+
+        if (ObjectUtils.isBlank(queue)) {
+            return false;
         }
 
-        if (getQueueUrl() != null && !getQueueUrl().isEmpty()) {
+        copyFrom(queue);
 
-            GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(getQueueUrl())
-                .attributeNames(QueueAttributeName.ALL));
-
-            setQueueArn(response.attributes().get(QueueAttributeName.QUEUE_ARN));
-
-            setVisibilityTimeout(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.VISIBILITY_TIMEOUT)));
-
-            setMessageRetentionPeriod(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.MESSAGE_RETENTION_PERIOD)));
-
-            setDelaySeconds(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.DELAY_SECONDS)));
-
-            setMaximumMessageSize(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.MAXIMUM_MESSAGE_SIZE)));
-
-            setReceiveMessageWaitTimeSeconds(Integer.valueOf(response.attributes()
-                .get(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS)));
-
-            if (response.attributes().get(QueueAttributeName.POLICY) != null) {
-                setPolicy(response.attributes().get(QueueAttributeName.POLICY));
-            }
-
-            if (response.attributes().get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION) != null) {
-                setContentBasedDeduplication(response.attributes()
-                    .get(QueueAttributeName.CONTENT_BASED_DEDUPLICATION));
-            }
-
-            if (response.attributes().get(QueueAttributeName.REDRIVE_POLICY) != null) {
-                String policy = response.attributes().get(QueueAttributeName.REDRIVE_POLICY);
-                JsonProcessor obj = new JsonProcessor();
-                Object parse = obj.parse(policy);
-
-                setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
-                setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
-            }
-
-            if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
-                setKmsMasterKeyId(Integer.valueOf(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID)));
-
-                if (response.attributes().get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS) != null) {
-                    setKmsDataKeyReusePeriodSeconds(Integer.valueOf(response.attributes()
-                        .get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS)));
-                }
-            }
-            return true;
-        }
-        return false;
+        return true;
     }
 
     @Override
     public void create() {
         SqsClient client = createClient(SqsClient.class);
 
-        ListQueuesResponse listName = client.listQueues(r -> r.queueNamePrefix(getName()));
-
-        if (listName.queueUrls().isEmpty()) {
+        if (ObjectUtils.isBlank(getQueue(client))) {
             createQueue(client);
+
+            // Wait for the queue to be created.
+            Wait.atMost(2, TimeUnit.MINUTES)
+                .prompt(true)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> !ObjectUtils.isBlank(getQueue(client)));
         } else {
             throw new GyroException("A queue with the name " + getName() + " already exists.");
         }
@@ -345,7 +388,7 @@ public class SqsResource extends AwsResource {
     private void createQueue(SqsClient client) {
         Map<QueueAttributeName, String> attributeMap = new HashMap<>();
 
-        if (name.substring(name.lastIndexOf(".") + 1).equals("fifo")) {
+        if (getName().substring(getName().lastIndexOf(".") + 1).equals("fifo")) {
             attributeMap.put(QueueAttributeName.FIFO_QUEUE, "true");
         }
 
@@ -358,33 +401,30 @@ public class SqsResource extends AwsResource {
         addAttributeEntry(attributeMap, QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId());
         addAttributeEntry(attributeMap, QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS, getKmsDataKeyReusePeriodSeconds());
 
-        if (getDeadLetterTargetArn() != null && getMaxReceiveCount() != null) {
+        if (!ObjectUtils.isBlank(getDeadLetterTargetArn()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
 
             String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
                 getMaxReceiveCount(), getDeadLetterTargetArn());
 
             attributeMap.put(QueueAttributeName.REDRIVE_POLICY, policy);
 
-        } else if (getDeadLetterQueueName() != null && getMaxReceiveCount() != null) {
+        } else if (!ObjectUtils.isBlank(getDeadLetterQueueName()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
 
             String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
-                getMaxReceiveCount(), createQueueArn(deadLetterQueueName));
+                getMaxReceiveCount(), createQueueArn(getDeadLetterQueueName()));
 
             attributeMap.put(QueueAttributeName.REDRIVE_POLICY, policy);
         }
 
-        if (policyDocPath != null) {
-            setPolicyFromPath();
-            attributeMap.put(QueueAttributeName.POLICY, getPolicy());
-        }
+        attributeMap.put(QueueAttributeName.POLICY, getPolicy());
 
-        client.createQueue(r -> r.queueName(getName()).attributes(attributeMap));
-        setQueueUrl(client.createQueue(r -> r.queueName(getName()).attributes(attributeMap)).queueUrl());
+        CreateQueueResponse queueResponse = client.createQueue(r -> r.queueName(getName()).attributes(attributeMap));
+        setQueueUrl(queueResponse.queueUrl());
 
         GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(getQueueUrl())
                 .attributeNames(QueueAttributeName.QUEUE_ARN));
 
-        setQueueArn(response.attributes().get(QueueAttributeName.QUEUE_ARN));
+        setArn(response.attributes().get(QueueAttributeName.QUEUE_ARN));
     }
 
     @Override
@@ -397,10 +437,14 @@ public class SqsResource extends AwsResource {
         attributeUpdate.put(QueueAttributeName.DELAY_SECONDS, getDelaySeconds().toString());
         attributeUpdate.put(QueueAttributeName.MAXIMUM_MESSAGE_SIZE, getMaximumMessageSize().toString());
         attributeUpdate.put(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS, getReceiveMessageWaitTimeSeconds().toString());
-        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId().toString());
+        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId().toString() : null);
+
         attributeUpdate.put(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS, getKmsDataKeyReusePeriodSeconds().toString());
         attributeUpdate.put(QueueAttributeName.POLICY, getPolicy());
-        attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+
+        if (getName().contains(".fifo")) {
+            attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+        }
 
         SqsClient client = createClient(SqsClient.class);
 
@@ -412,36 +456,46 @@ public class SqsResource extends AwsResource {
         SqsClient client = createClient(SqsClient.class);
 
         client.deleteQueue(r -> r.queueUrl(getQueueUrl()));
-
     }
 
     @Override
     public String toDisplayString() {
-        return getName();
-    }
+        StringBuilder sb = new StringBuilder();
 
-    private void setPolicyFromPath() {
-        try (InputStream input = openInput(getPolicyDocPath())) {
-            setPolicy(IoUtils.toUtf8String(input));
+        sb.append("Queue");
 
-        } catch (IOException ioex) {
-            throw new GyroException(MessageFormat
-                .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), getPolicyDocPath()));
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
+
+        return sb.toString();
     }
 
-    /**
-     * Adding the account number in the config is a temporary fix, need to change when code changes
-     */
+    private String getQueue(SqsClient client) {
+        ListQueuesResponse response = client.listQueues(r -> r.queueNamePrefix(getName()));
+
+        return response.queueUrls().stream().filter(o -> o.endsWith(getName())).findFirst().orElse(null);
+    }
+
     private String createQueueArn(String deadLetterQueueName) {
         AwsCredentials awsCredentials = credentials(AwsCredentials.class);
 
-        return "arn:aws:sqs:" + awsCredentials.getRegion() + ":" + getAccountNo() + ":" + deadLetterQueueName;
+        return "arn:aws:sqs:" + awsCredentials.getRegion() + ":" + getAccountNumber() + ":" + deadLetterQueueName;
+    }
+
+    private String getAccountNumber() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
     }
 
     private void addAttributeEntry(Map<QueueAttributeName, String> request, QueueAttributeName name, Object value) {
         if (value != null) {
             request.put(name, value.toString());
         }
+    }
+
+    private String formatPolicy(String policy) {
+        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }

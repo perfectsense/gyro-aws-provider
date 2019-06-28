@@ -52,23 +52,29 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     }
 
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getIpSetId())) {
-            return false;
-        }
-
-        GetIpSetResponse response = getRegionalClient().getIPSet(
-            r -> r.ipSetId(getIpSetId())
-        );
-
-        IPSet ipSet = response.ipSet();
+    public void copyFrom(IPSet ipSet) {
+        setId(ipSet.ipSetId());
         setName(ipSet.name());
 
         getIpSetDescriptor().clear();
         for (IPSetDescriptor ipSetDescriptor : ipSet.ipSetDescriptors()) {
-            IpSetDescriptorResource ipSetDescriptorResource = new IpSetDescriptorResource(ipSetDescriptor);
+            IpSetDescriptorResource ipSetDescriptorResource = newSubresource(IpSetDescriptorResource.class);
+            ipSetDescriptorResource.copyFrom(ipSetDescriptor);
             getIpSetDescriptor().add(ipSetDescriptorResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetIpSetResponse response = getRegionalClient().getIPSet(
+            r -> r.ipSetId(getId())
+        );
+
+        this.copyFrom(response.ipSet());
 
         return true;
     }
@@ -82,7 +88,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
                 .name(getName())
         );
 
-        setIpSetId(response.ipSet().ipSetId());
+        setId(response.ipSet().ipSetId());
     }
 
     @Override
@@ -91,7 +97,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
 
         client.deleteIPSet(
             r -> r.changeToken(client.getChangeToken().changeToken())
-                .ipSetId(getIpSetId())
+                .ipSetId(getId())
         );
     }
 }

@@ -1,20 +1,31 @@
 package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.aws.ec2.BlockDeviceMappingResource;
+import gyro.aws.ec2.InstanceResource;
+import gyro.aws.ec2.KeyPairResource;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
+import software.amazon.awssdk.services.autoscaling.model.CreateLaunchConfigurationRequest;
 import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsResponse;
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Creates a Launch Configuration from config or an existing Instance Id.
@@ -28,10 +39,10 @@ import java.util.Set;
  *         launch-configuration-name: "launch-configuration-gyro-1"
  *         ami-id: "ami-01e24be29428c15b2"
  *         instance-type: "t2.micro"
- *         key-name: "instance-static"
- *         security-group-ids: [
- *             $(aws::security-group security-group-launch-configuration-example-1 | group-id),
- *             $(aws::security-group security-group-launch-configuration-example-2 | group-id)
+ *         key: "key-example"
+ *         security-groups: [
+ *             $(aws::security-group security-group-launch-configuration-example-1),
+ *             $(aws::security-group security-group-launch-configuration-example-2)
  *         ]
  *         ebs-optimized: false
  *         enable-monitoring: true
@@ -45,11 +56,11 @@ import java.util.Set;
  *
  *     aws::launch-configuration launch-configuration
  *         launch-configuration-name: "launch-configuration-gyro-1"
- *         instance-if: "i-0019ad12a990a504d"
- *         key-name: "instance-static"
- *         security-group-ids: [
- *             $(aws::security-group security-group-launch-configuration-example-1 | group-id),
- *             $(aws::security-group security-group-launch-configuration-example-2 | group-id)
+ *         instance: $(aws:instance instance)
+ *         key: "instance-static"
+ *         security-groups: [
+ *             $(aws::security-group security-group-launch-configuration-example-1),
+ *             $(aws::security-group security-group-launch-configuration-example-2)
  *         ]
  *         ebs-optimized: false
  *         enable-monitoring: true
@@ -57,10 +68,27 @@ import java.util.Set;
  *     end
  */
 @Type("launch-configuration")
-public class LaunchConfigurationResource extends AwsResource {
+public class LaunchConfigurationResource extends AwsResource implements Copyable<LaunchConfiguration> {
 
     private String launchConfigurationName;
+    private InstanceResource instance;
+    private String amiId;
+    private Boolean ebsOptimized;
+    private String instanceType;
+    private KeyPairResource key;
+    private Boolean enableMonitoring;
+    private Set<SecurityGroupResource> securityGroups;
+    private String userData;
+    private Boolean associatePublicIp;
+    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private InstanceProfileResource instanceProfile;
 
+    private String arn;
+
+    /**
+     * The name of the launch configuration. (Required)
+     */
+    @Id
     public String getLaunchConfigurationName() {
         return launchConfigurationName;
     }
@@ -69,28 +97,15 @@ public class LaunchConfigurationResource extends AwsResource {
         this.launchConfigurationName = launchConfigurationName;
     }
 
-    private String instanceId;
-    private String amiId;
-    private String amiName;
-    private Boolean ebsOptimized;
-    private String instanceType;
-    private String keyName;
-    private Boolean enableMonitoring;
-    private List<String> securityGroupIds;
-    private String userData;
-    private Boolean associatePublicIp;
-
-    private String arn;
-
     /**
-     * The ID of an launched instance that would be used as a skeleton to create the launch configuration. Required if AMI Name/ AMI ID not provided.
+     * A launched instance that would be used as a skeleton to create the launch configuration. Required if AMI Name/ AMI ID not provided.
      */
-    public String getInstanceId() {
-        return instanceId;
+    public InstanceResource getInstance() {
+        return instance;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
+    public void setInstance(InstanceResource instance) {
+        this.instance = instance;
     }
 
     /**
@@ -102,17 +117,6 @@ public class LaunchConfigurationResource extends AwsResource {
 
     public void setAmiId(String amiId) {
         this.amiId = amiId;
-    }
-
-    /**
-     * The Name of an AMI that would be used to launch the instance. Required if AMI Id not provided. See `Amazon Machine Images (AMI) <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
-     */
-    public String getAmiName() {
-        return amiName;
-    }
-
-    public void setAmiName(String amiName) {
-        this.amiName = amiName;
     }
 
     /**
@@ -142,14 +146,14 @@ public class LaunchConfigurationResource extends AwsResource {
     }
 
     /**
-     * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
+     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
-    public String getKeyName() {
-        return keyName;
+    public KeyPairResource getKey() {
+        return key;
     }
 
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
+    public void setKey(KeyPairResource key) {
+        this.key = key;
     }
 
     /**
@@ -169,15 +173,16 @@ public class LaunchConfigurationResource extends AwsResource {
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public Set<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new HashSet<>();
         }
-        return securityGroupIds;
+
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
@@ -197,6 +202,50 @@ public class LaunchConfigurationResource extends AwsResource {
         this.userData = userData;
     }
 
+    /**
+     * Enable public Ip to instances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html/>`_.
+     */
+    public Boolean getAssociatePublicIp() {
+        if (associatePublicIp == null) {
+            associatePublicIp = false;
+        }
+        return associatePublicIp;
+    }
+
+    public void setAssociatePublicIp(Boolean associatePublicIp) {
+        this.associatePublicIp = associatePublicIp;
+    }
+
+    /**
+     * The block device mapping to initialize the instances with.
+     */
+    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
+        if (blockDeviceMapping == null) {
+            blockDeviceMapping = new HashSet<>();
+        }
+
+        return blockDeviceMapping;
+    }
+
+    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
+        this.blockDeviceMapping = blockDeviceMapping;
+    }
+
+    /**
+     * Iam instance profile to be linked with the instances being launched using this.
+     */
+    public InstanceProfileResource getInstanceProfile() {
+        return instanceProfile;
+    }
+
+    public void setInstanceProfile(InstanceProfileResource instanceProfile) {
+        this.instanceProfile = instanceProfile;
+    }
+
+    /**
+     * The arn of the launch configuration.
+     */
+    @Output
     public String getArn() {
         return arn;
     }
@@ -205,49 +254,31 @@ public class LaunchConfigurationResource extends AwsResource {
         this.arn = arn;
     }
 
-    public Boolean getAssociatePublicIp() {
-        if (associatePublicIp == null) {
-            associatePublicIp = false;
-        }
-        return associatePublicIp;
-    }
-
-    /**
-     * Enable private Ip to intsances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html/>`_.
-     */
-    public void setAssociatePublicIp(Boolean associatePublicIp) {
-        this.associatePublicIp = associatePublicIp;
+    @Override
+    public void copyFrom(LaunchConfiguration launchConfiguration) {
+        setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
+        setInstanceType(launchConfiguration.instanceType());
+        setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(KeyPairResource.class, launchConfiguration.keyName()) : null);
+        setUserData(launchConfiguration.userData());
+        setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
+        setEbsOptimized(launchConfiguration.ebsOptimized());
+        setArn(launchConfiguration.launchConfigurationARN());
+        setLaunchConfigurationName(launchConfiguration.launchConfigurationName());
+        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
+        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
 
     @Override
     public boolean refresh() {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        if (ObjectUtils.isBlank(getLaunchConfigurationName())) {
-            throw new GyroException("launch-template-name is missing, unable to load instance.");
+        LaunchConfiguration launchConfiguration = getLaunchConfiguration(client);
+
+        if (launchConfiguration == null) {
+            return false;
         }
 
-        try {
-            DescribeLaunchConfigurationsResponse response = client.describeLaunchConfigurations(
-                r -> r.launchConfigurationNames(getLaunchConfigurationName())
-            );
-
-            if (response.launchConfigurations().size() == 0) {
-                return false;
-            }
-
-            for (LaunchConfiguration launchConfiguration : response.launchConfigurations()) {
-
-                setArn(launchConfiguration.launchConfigurationARN());
-                break;
-            }
-        } catch (AutoScalingException ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
+        copyFrom(launchConfiguration);
 
         return true;
     }
@@ -256,22 +287,51 @@ public class LaunchConfigurationResource extends AwsResource {
     public void create() {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        // figure out a way to get the Ec2 client to work with this client.
-        // Currently wont work with config set to AMI Name
         validate();
 
-        client.createLaunchConfiguration(
-            r -> r.launchConfigurationName(getLaunchConfigurationName())
-                .ebsOptimized(getEbsOptimized())
-                .imageId(ObjectUtils.isBlank(getInstanceId()) ? getAmiId() : null)
-                .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
-                .securityGroups(getSecurityGroupIds())
-                .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                .keyName(getKeyName())
-                .instanceType(ObjectUtils.isBlank(getInstanceId()) ? getInstanceType() : null)
-                .instanceId(ObjectUtils.isBlank(getInstanceId()) ? null : getInstanceId())
-                .associatePublicIpAddress(getAssociatePublicIp())
-        );
+        CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
+            .launchConfigurationName(getLaunchConfigurationName())
+            .ebsOptimized(getEbsOptimized())
+            .imageId(getInstance() == null ? getAmiId() : null)
+            .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
+            .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .keyName(getKey() != null ? getKey().getKeyName() : null)
+            .instanceType(getInstance() == null ? getInstanceType() : null)
+            .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+            .associatePublicIpAddress(getAssociatePublicIp())
+            .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
+                getBlockDeviceMapping()
+                    .stream()
+                    .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
+                    .collect(Collectors.toList()) : null)
+            .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
+            .build();
+
+        // Wait for instance profile to be ready for use if present
+        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> createLaunchConfig(client, request));
+
+        if (!status) {
+            throw new GyroException("Invalid IamInstanceProfile: " + getInstanceProfile().getArn());
+        }
+    }
+
+    private boolean createLaunchConfig(AutoScalingClient client, CreateLaunchConfigurationRequest request) {
+        try {
+            client.createLaunchConfiguration(request);
+        } catch (AutoScalingException ex) {
+            if (getInstanceProfile() != null
+                && ex.awsErrorDetails().errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())) {
+                return false;
+            } else {
+                throw ex;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -300,14 +360,38 @@ public class LaunchConfigurationResource extends AwsResource {
         return sb.toString();
     }
 
+    private LaunchConfiguration getLaunchConfiguration(AutoScalingClient client) {
+        LaunchConfiguration launchConfiguration = null;
+
+        if (ObjectUtils.isBlank(getLaunchConfigurationName())) {
+            throw new GyroException("launch-configuration-name is missing, unable to load launch configuration.");
+        }
+
+        try {
+            DescribeLaunchConfigurationsResponse response = client.describeLaunchConfigurations(
+                r -> r.launchConfigurationNames(getLaunchConfigurationName())
+            );
+
+            if (!response.launchConfigurations().isEmpty()) {
+                launchConfiguration = response.launchConfigurations().get(0);
+            }
+        } catch (AutoScalingException ex) {
+            if (!ex.getLocalizedMessage().contains("does not exist")) {
+                throw ex;
+            }
+        }
+
+        return launchConfiguration;
+    }
+
     private void validate() {
-        if (ObjectUtils.isBlank(getInstanceId())) {
+        if (getInstance() == null) {
 
             if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
                 throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
             }
 
-            if (getSecurityGroupIds().isEmpty()) {
+            if (getSecurityGroups().isEmpty()) {
                 throw new GyroException("At least one security group is required.");
             }
         }

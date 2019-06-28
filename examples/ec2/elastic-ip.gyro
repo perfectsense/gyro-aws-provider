@@ -84,7 +84,6 @@ aws::instance instance-example-elastic-ip
         $(aws::security-group security-group-elastic-ip)
     ]
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 

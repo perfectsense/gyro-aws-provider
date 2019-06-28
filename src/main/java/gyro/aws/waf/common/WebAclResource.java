@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -16,7 +17,7 @@ import software.amazon.awssdk.services.waf.model.WebACL;
 import java.util.List;
 import java.util.Set;
 
-public abstract class WebAclResource extends AbstractWafResource {
+public abstract class WebAclResource extends AbstractWafResource implements Copyable<WebACL> {
     private String name;
     private String metricName;
     private String defaultAction;
@@ -46,7 +47,7 @@ public abstract class WebAclResource extends AbstractWafResource {
     }
 
     /**
-     * The default action for the waf acl. valid values ```ALLOW``` or ```BLOCK```. (Required)
+     * The default action for the waf acl. valid values ``ALLOW`` or ``BLOCK``. (Required)
      */
     @Updatable
     public String getDefaultAction() {
@@ -84,14 +85,13 @@ public abstract class WebAclResource extends AbstractWafResource {
 
     protected abstract List<Integer> getActivatedRulesPriority();
 
+    protected abstract CreateWebAclResponse doCreate(CreateWebAclRequest.Builder builder);
+
+    protected abstract void doUpdate(UpdateWebAclRequest.Builder builder);
+
     @Override
-    public boolean refresh() {
-        WebACL webAcl = getWebAcl();
-
-        if (webAcl == null) {
-            return false;
-        }
-
+    public void copyFrom(WebACL webAcl) {
+        setWebAclId(webAcl.webACLId());
         setArn(webAcl.webACLArn());
         setDefaultAction(webAcl.defaultAction().typeAsString());
         setMetricName(webAcl.metricName());
@@ -101,11 +101,20 @@ public abstract class WebAclResource extends AbstractWafResource {
         for (ActivatedRule activatedRule : webAcl.rules()) {
             setActivatedRules(activatedRule);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        WebACL webAcl = getWebAcl();
+
+        if (webAcl == null) {
+            return false;
+        }
+
+        copyFrom(webAcl);
 
         return true;
     }
-
-    protected abstract CreateWebAclResponse doCreate(CreateWebAclRequest.Builder builder);
 
     @Override
     public void create() {
@@ -126,8 +135,6 @@ public abstract class WebAclResource extends AbstractWafResource {
         setArn(webAcl.webACLArn());
         setWebAclId(webAcl.webACLId());
     }
-
-    protected abstract void doUpdate(UpdateWebAclRequest.Builder builder);
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {

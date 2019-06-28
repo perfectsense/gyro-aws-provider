@@ -1,20 +1,17 @@
 package gyro.aws.autoscaling;
 
+import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
-public class AutoScalingPolicyStepAdjustment {
+public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyable<StepAdjustment> {
     private Integer scalingAdjustment;
     private Double metricIntervalLowerBound;
     private Double metricIntervalUpperBound;
 
-    public StepAdjustment getStepPolicyStep() {
-        return StepAdjustment.builder()
-            .scalingAdjustment(getScalingAdjustment())
-            .metricIntervalLowerBound(getMetricIntervalLowerBound())
-            .metricIntervalUpperBound(getMetricIntervalUpperBound())
-            .build();
-    }
-
+    /**
+     * The amount of scaling adjustment.
+     */
     public Integer getScalingAdjustment() {
         return scalingAdjustment;
     }
@@ -23,6 +20,9 @@ public class AutoScalingPolicyStepAdjustment {
         this.scalingAdjustment = scalingAdjustment;
     }
 
+    /**
+     * The lower bound for the scaling adjustment.
+     */
     public Double getMetricIntervalLowerBound() {
         return metricIntervalLowerBound;
     }
@@ -31,11 +31,34 @@ public class AutoScalingPolicyStepAdjustment {
         this.metricIntervalLowerBound = metricIntervalLowerBound;
     }
 
+    /**
+     * The upper bound for the scaling adjustment.
+     */
     public Double getMetricIntervalUpperBound() {
         return metricIntervalUpperBound;
     }
 
     public void setMetricIntervalUpperBound(Double metricIntervalUpperBound) {
         this.metricIntervalUpperBound = metricIntervalUpperBound;
+    }
+
+    @Override
+    public void copyFrom(StepAdjustment stepAdjustment) {
+        setScalingAdjustment(stepAdjustment.scalingAdjustment());
+        setMetricIntervalLowerBound(stepAdjustment.metricIntervalLowerBound());
+        setMetricIntervalUpperBound(stepAdjustment.metricIntervalUpperBound());
+    }
+
+    @Override
+    public String toDisplayString() {
+        return "step adjustment policy";
+    }
+
+    public StepAdjustment getStepPolicyStep() {
+        return StepAdjustment.builder()
+            .scalingAdjustment(getScalingAdjustment())
+            .metricIntervalLowerBound(getMetricIntervalLowerBound())
+            .metricIntervalUpperBound(getMetricIntervalUpperBound())
+            .build();
     }
 }

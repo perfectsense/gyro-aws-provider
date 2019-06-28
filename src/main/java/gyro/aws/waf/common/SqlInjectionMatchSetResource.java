@@ -1,54 +1,17 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
+import gyro.aws.Copyable;
+import software.amazon.awssdk.services.waf.model.PredicateType;
+import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 
-import java.util.Set;
-
-public abstract class SqlInjectionMatchSetResource extends AbstractWafResource {
-    private String name;
-    private String sqlInjectionMatchSetId;
-
-    /**
-     * The name of the sql injection match condition. (Required)
-     */
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Output
-    public String getSqlInjectionMatchSetId() {
-        return sqlInjectionMatchSetId;
-    }
-
-    public void setSqlInjectionMatchSetId(String sqlInjectionMatchSetId) {
-        this.sqlInjectionMatchSetId = sqlInjectionMatchSetId;
+public abstract class SqlInjectionMatchSetResource extends ConditionResource implements Copyable<SqlInjectionMatchSet> {
+    @Override
+    String getDisplayName() {
+        return "sql injection match set";
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
-
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("sql injection match set");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getSqlInjectionMatchSetId())) {
-            sb.append(" - ").append(getSqlInjectionMatchSetId());
-        }
-
-        return sb.toString();
+    protected String getType() {
+        return PredicateType.SQL_INJECTION_MATCH.toString();
     }
 }

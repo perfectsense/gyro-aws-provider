@@ -1,6 +1,7 @@
 package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
@@ -15,22 +16,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ActivatedRuleResource extends AbstractWafResource {
-    private String ruleId;
+public abstract class ActivatedRuleResource extends AbstractWafResource implements Copyable<ActivatedRule> {
+    private CommonRuleResource rule;
     private String action;
     private String type;
     private Integer priority;
     private List<String> excludedRules;
 
     /**
-     * The id of the rule. (Required)
+     * The rule to be attached. (Required)
      */
-    public String getRuleId() {
-        return ruleId;
+    public CommonRuleResource getRule() {
+        return rule;
     }
 
-    public void setRuleId(String ruleId) {
-        this.ruleId = ruleId;
+    public void setRule(CommonRuleResource rule) {
+        this.rule = rule;
     }
 
     /**
@@ -84,10 +85,18 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
     }
 
     @Override
+    public void copyFrom(ActivatedRule activatedRule) {
+        setAction(activatedRule.action().typeAsString());
+        setPriority(activatedRule.priority());
+        setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
+        setType(activatedRule.typeAsString());
+        setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
+    }
+
+    @Override
     public boolean refresh() {
         return false;
     }
-
 
     @Override
     public void create() {
@@ -120,12 +129,14 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
 
         sb.append("activated rule");
 
-        if (!ObjectUtils.isBlank(getRuleId())) {
-            sb.append(" - ").append(getRuleId());
+        if (getRule() != null && !ObjectUtils.isBlank(getRule().getRuleId())) {
+            sb.append(" - ").append(getRule().getRuleId());
         }
 
         if (!ObjectUtils.isBlank(getType())) {
             sb.append(" - ").append(getType());
+        } else if (getRule() != null && !ObjectUtils.isBlank(getRule().getType())) {
+            sb.append(" - ").append(getRule().getType());
         }
 
         return sb.toString();
@@ -133,15 +144,15 @@ public abstract class ActivatedRuleResource extends AbstractWafResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", getRuleId(), getType());
+        return String.format("%s", getRule() != null ? getRule().getRuleId() : null);
     }
 
     protected ActivatedRule getActivatedRule() {
         return ActivatedRule.builder()
             .action(wa -> wa.type(getAction()))
             .priority(getPriority())
-            .type(getType())
-            .ruleId(getRuleId())
+            .type(!ObjectUtils.isBlank(getType()) ? getType() : (getRule() != null ? getRule().getType() : null))
+            .ruleId(getRule().getRuleId())
             .excludedRules(
                 getExcludedRules().stream()
                     .map(

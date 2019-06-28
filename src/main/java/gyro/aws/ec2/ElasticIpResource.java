@@ -221,6 +221,8 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
                 throw new GyroException(MessageFormat.format("Elastic Ip - {0} Unavailable/Not found.", getPublicIp()));
             } else if (eex.awsErrorDetails().errorCode().equals("AddressLimitExceeded")) {
                 throw new GyroException("The maximum number of addresses has been reached.");
+            } else {
+                throw eex;
             }
         }
     }

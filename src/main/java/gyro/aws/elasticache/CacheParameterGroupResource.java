@@ -2,7 +2,9 @@ package gyro.aws.elasticache;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -40,15 +42,19 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("cache-param-group")
-public class CacheParameterGroupResource extends AwsResource {
+public class CacheParameterGroupResource extends AwsResource implements Copyable<CacheParameterGroup> {
     private String cacheParamGroupName;
     private String cacheParamGroupFamily;
     private String description;
     private List<CacheParameter> parameters;
 
+    // Internals
+    private Set<String> configParamSet;
+
     /**
      * The name of the cache parameter group. (Required)
      */
+    @Id
     public String getCacheParamGroupName() {
         return cacheParamGroupName;
     }
@@ -96,6 +102,26 @@ public class CacheParameterGroupResource extends AwsResource {
     }
 
     @Override
+    public void copyFrom(CacheParameterGroup cacheParameterGroup) {
+        setCacheParamGroupFamily(cacheParameterGroup.cacheParameterGroupFamily());
+        setDescription(cacheParameterGroup.description());
+        setCacheParamGroupName(cacheParameterGroup.cacheParameterGroupName());
+
+        ElastiCacheClient client = createClient(ElastiCacheClient.class);
+        DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
+            r -> r.cacheParameterGroupName(getCacheParamGroupName())
+        );
+
+        configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
+        getParameters().clear();
+        for (Parameter parameter : paramResponse.parameters()) {
+            if (parameter.isModifiable()) {
+                getParameters().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
+            }
+        }
+    }
+
+    @Override
     public boolean refresh() {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
@@ -105,23 +131,8 @@ public class CacheParameterGroupResource extends AwsResource {
             return false;
         }
 
-        setCacheParamGroupFamily(cacheParameterGroup.cacheParameterGroupFamily());
-        setDescription(cacheParameterGroup.description());
-
-        DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
-            r -> r.cacheParameterGroupName(getCacheParamGroupName())
-        );
-
-        Set<String> configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
-        getParameters().clear();
-        for (Parameter parameter : paramResponse.parameters()) {
-            if (parameter.isModifiable()) {
-                getParameters().add(new CacheParameter(parameter.parameterName(), parameter.parameterValue()));
-            }
-        }
-
+        copyFrom(cacheParameterGroup);
         removeDefaultParams(getParameters(), configParamSet);
-
         return true;
     }
 
@@ -258,7 +269,7 @@ public class CacheParameterGroupResource extends AwsResource {
             }
 
         } catch (CacheParameterGroupNotFoundException ex) {
-
+            // Ignore
         }
 
         return cacheParameterGroup;

@@ -1,4 +1,0 @@
-aws::rule-regional rule-example
-    name: "rule-example"
-    metric-name: "ruleExample"
-end

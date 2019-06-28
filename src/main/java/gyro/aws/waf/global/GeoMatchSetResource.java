@@ -52,23 +52,29 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
     }
 
     @Override
-    public boolean refresh() {
-        if (ObjectUtils.isBlank(getGeoMatchSetId())) {
-            return false;
-        }
-
-        GetGeoMatchSetResponse response = getGlobalClient().getGeoMatchSet(
-            r -> r.geoMatchSetId(getGeoMatchSetId())
-        );
-
-        GeoMatchSet geoMatchSet = response.geoMatchSet();
+    public void copyFrom(GeoMatchSet geoMatchSet) {
+        setId(geoMatchSet.geoMatchSetId());
         setName(geoMatchSet.name());
 
         getGeoMatchConstraint().clear();
         for (GeoMatchConstraint geoMatchConstraint : geoMatchSet.geoMatchConstraints()) {
-            GeoMatchConstraintResource geoMatchConstraintResource = new GeoMatchConstraintResource(geoMatchConstraint);
+            GeoMatchConstraintResource geoMatchConstraintResource = newSubresource(GeoMatchConstraintResource.class);
+            geoMatchConstraintResource.copyFrom(geoMatchConstraint);
             getGeoMatchConstraint().add(geoMatchConstraintResource);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        if (ObjectUtils.isBlank(getId())) {
+            return false;
+        }
+
+        GetGeoMatchSetResponse response = getGlobalClient().getGeoMatchSet(
+            r -> r.geoMatchSetId(getId())
+        );
+
+        copyFrom(response.geoMatchSet());
 
         return true;
     }
@@ -82,7 +88,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
                 .name(getName())
         );
 
-        setGeoMatchSetId(response.geoMatchSet().geoMatchSetId());
+        setId(response.geoMatchSet().geoMatchSetId());
     }
 
     @Override
@@ -90,7 +96,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
         WafClient client = getGlobalClient();
 
         client.deleteGeoMatchSet(
-            r -> r.geoMatchSetId(getGeoMatchSetId())
+            r -> r.geoMatchSetId(getId())
                 .changeToken(client.getChangeToken().changeToken())
         );
     }
