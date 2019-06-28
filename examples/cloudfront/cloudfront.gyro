@@ -38,12 +38,12 @@ aws::cloudfront cloudfront-example
         restrictions: ["US"]
     end
 
-    for error-code, ttl in [400, 0, 403, 5, 404, 5, 500, 0, 502, 0, 503, 0, 504, 0]
+    @for error-code, ttl ~in [400, 0, 403, 5, 404, 5, 500, 0, 502, 0, 503, 0, 504, 0]
         custom-error-response
             error-code: $(error-code)
             ttl: $(ttl)
         end
-    end
+    @end
 
     tags: {
         Name: "content cache"
