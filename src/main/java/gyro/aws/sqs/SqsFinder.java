@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query queues.
+ * Query SQS queues.
  *
  * .. code-block:: gyro
  *
- *    sqs: $(aws::sqs EXTERNAL/* | name = '')
+ *    sqs: $(aws::sqs-queue EXTERNAL/* | name = '')
  */
-@Type("sqs")
+@Type("sqs-queue")
 public class SqsFinder extends AwsFinder<SqsClient, String, SqsResource> {
 
     private String name;

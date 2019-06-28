@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::cache-subnet-group cache-subnet-group-example
+ *     aws::elasticache-subnet-group cache-subnet-group-example
  *         cache-subnet-group-name: "cache-subnet-group-example"
  *         description: "cache-subnet-group-desc"
  *         subnets: [
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@Type("cache-subnet-group")
+@Type("elasticache-subnet-group")
 public class CacheSubnetGroupResource extends AwsResource implements Copyable<CacheSubnetGroup> {
     private String cacheSubnetGroupName;
     private String description;

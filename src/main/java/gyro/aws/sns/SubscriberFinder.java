@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query subscriptions.
+ * Query SNS subscriptions.
  *
  * .. code-block:: gyro
  *
- *    subscriber: $(aws::subscriber EXTERNAL/* | arn = '')
+ *    subscriber: $(aws::sns-subscriber EXTERNAL/* | arn = '')
  */
-@Type("subscriber")
+@Type("sns-subscriber")
 public class SubscriberFinder extends AwsFinder<SnsClient, Subscription, SubscriberResource> {
 
     private String arn;

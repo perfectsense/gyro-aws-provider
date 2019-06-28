@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    keys: $(aws::kms EXTERNAL/* | key-id = '')
+ *    keys: $(aws::kms-key EXTERNAL/* | key-id = '')
  */
-@Type("kms")
-public class KmsFinder extends AwsFinder<KmsClient, KeyMetadata, KmsResource> {
+@Type("kms-key")
+public class KmsKeyFinder extends AwsFinder<KmsClient, KeyMetadata, KmsKeyResource> {
 
     private String keyId;
 

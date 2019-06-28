@@ -21,19 +21,19 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::nlb-listener listener-example
+ *     aws::network-load-balancer-listener listener-example
  *         port: "80"
  *         protocol: "TCP"
- *         nlb: $(aws::nlb nlb-example | load-balancer)
+ *         nlb: $(aws::network-load-balancer nlb-example | load-balancer)
  *
  *         default-action
- *             target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+ *             target-group-arn: $(aws::load-balancer-target-group target-group-example | target-group-arn)
  *             type: "forward"
  *         end
  *     end
  */
 
-@Type("nlb-listener")
+@Type("network-load-balancer-listener")
 public class NetworkLoadBalancerListenerResource extends ListenerResource implements Copyable<Listener> {
 
     private NetworkActionResource defaultAction;

@@ -5,7 +5,8 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.LaunchTemplateResource;
 import gyro.aws.ec2.SubnetResource;
-import gyro.aws.elbv2.LoadBalancerResource;
+import gyro.aws.elb.LoadBalancerResource;
+import gyro.aws.elbv2.TargetGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroInstances;
@@ -56,7 +57,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::auto-scaling-group auto-scaling-group-example
+ *     aws::autoscaling-group auto-scaling-group-example
  *         auto-scaling-group-name: "auto-scaling-group-gyro-1"
  *         launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
  *         availability-zones: [
@@ -69,7 +70,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::auto-scaling-group auto-scaling-group-example
+ *     aws::autoscaling-group auto-scaling-group-example
  *         auto-scaling-group-name: "auto-scaling-group-gyro-1"
  *         launch-template: $(aws::launch-template launch-template-auto-scaling-group-example)
  *         availability-zones: [
@@ -100,7 +101,7 @@ import java.util.stream.Collectors;
  *
  *     end
  */
-@Type("auto-scaling-group")
+@Type("autoscaling-group")
 public class AutoScalingGroupResource extends AwsResource implements GyroInstances, Copyable<AutoScalingGroup> {
 
     private String autoScalingGroupName;
@@ -123,8 +124,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     private String serviceLinkedRoleArn;
     private String placementGroup;
     private InstanceResource instance;
-    private Set<gyro.aws.elb.LoadBalancerResource> classicLoadBalancers;
-    private Set<LoadBalancerResource> loadBalancers;
+    private Set<LoadBalancerResource> classicLoadBalancers;
+    private Set<TargetGroupResource> targetGroups;
     private Set<String> terminationPolicies;
     private String status;
     private Date createdTime;
@@ -423,7 +424,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      * A set of classic load balancer's to be attached to the Auto Scaling Group.
      */
     @Updatable
-    public Set<gyro.aws.elb.LoadBalancerResource> getClassicLoadBalancers() {
+    public Set<LoadBalancerResource> getClassicLoadBalancers() {
         if (classicLoadBalancers == null) {
             classicLoadBalancers = new HashSet<>();
         }
@@ -431,24 +432,24 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         return classicLoadBalancers;
     }
 
-    public void setClassicLoadBalancers(Set<gyro.aws.elb.LoadBalancerResource> classicLoadBalancers) {
+    public void setClassicLoadBalancers(Set<LoadBalancerResource> classicLoadBalancers) {
         this.classicLoadBalancers = classicLoadBalancers;
     }
 
     /**
-     * A set of application or network load balancer's for the Auto Scaling Group.
+     * A set of target groups for the Auto Scaling Group.
      */
     @Updatable
-    public Set<LoadBalancerResource> getLoadBalancers() {
-        if (loadBalancers == null) {
-            loadBalancers = new HashSet<>();
+    public Set<TargetGroupResource> getTargetGroups() {
+        if (targetGroups == null) {
+            targetGroups = new HashSet<>();
         }
 
-        return loadBalancers;
+        return targetGroups;
     }
 
-    public void setLoadBalancers(Set<LoadBalancerResource> loadBalancers) {
-        this.loadBalancers = loadBalancers;
+    public void setTargetGroups(Set<TargetGroupResource> targetGroups) {
+        this.targetGroups = targetGroups;
     }
 
     /**
@@ -608,13 +609,13 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setClassicLoadBalancers(
             (autoScalingGroup.loadBalancerNames() != null && !autoScalingGroup.loadBalancerNames().isEmpty())
                 ? autoScalingGroup.loadBalancerNames().stream()
-                .map(o -> findById(gyro.aws.elb.LoadBalancerResource.class, o))
+                .map(o -> findById(LoadBalancerResource.class, o))
                 .collect(Collectors.toSet())
                 : null);
-        setLoadBalancers(
+        setTargetGroups(
             (autoScalingGroup.targetGroupARNs() != null && !autoScalingGroup.targetGroupARNs().isEmpty())
                 ? autoScalingGroup.targetGroupARNs().stream()
-                .map(o -> findById(LoadBalancerResource.class, o))
+                .map(o -> findById(TargetGroupResource.class, o))
                 .collect(Collectors.toSet())
                 : null);
 
@@ -658,7 +659,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             r -> r.autoScalingGroupName(getAutoScalingGroupName())
                 .maxSize(getMaxSize())
                 .minSize(getMinSize())
-                .availabilityZones(getAvailabilityZones())
+                .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
                 .desiredCapacity(getDesiredCapacity())
                 .defaultCooldown(getDefaultCooldown())
                 .healthCheckType(getHealthCheckType())
@@ -674,8 +675,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
                 .serviceLinkedRoleARN(getServiceLinkedRoleArn())
                 .placementGroup(getPlacementGroup())
-                .loadBalancerNames(getClassicLoadBalancers().stream().map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName).collect(Collectors.toList()))
-                .targetGroupARNs(getLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toList()))
+                .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getLoadBalancerName).collect(Collectors.toList()))
+                .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toList()))
                 .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
                 .terminationPolicies(getTerminationPolicies())
         );
@@ -706,7 +707,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 )
                 .maxSize(getMaxSize())
                 .minSize(getMinSize())
-                .availabilityZones(getAvailabilityZones())
+                .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
                 .desiredCapacity(getDesiredCapacity())
                 .defaultCooldown(getDefaultCooldown())
                 .healthCheckType(getHealthCheckType())
@@ -743,8 +744,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             saveLoadBalancerNames(client, oldResource.getClassicLoadBalancers());
         }
 
-        if (changedFieldNames.contains("load-balancers")) {
-            saveTargetGroupArns(client, oldResource.getLoadBalancers());
+        if (changedFieldNames.contains("target-groups")) {
+            saveTargetGroupArns(client, oldResource.getTargetGroups());
         }
     }
 
@@ -964,13 +965,13 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
     }
 
-    private void saveLoadBalancerNames(AutoScalingClient client, Set<gyro.aws.elb.LoadBalancerResource> oldLoadBalancers) {
+    private void saveLoadBalancerNames(AutoScalingClient client, Set<LoadBalancerResource> oldLoadBalancers) {
         Set<String> removeLoadBalancerNames = oldLoadBalancers.stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet());
 
         removeLoadBalancerNames.removeAll(getClassicLoadBalancers().stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet()));
 
         if (!removeLoadBalancerNames.isEmpty()) {
@@ -980,11 +981,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
 
         Set<String> addLoadbalancerNames = getClassicLoadBalancers().stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet());
 
         addLoadbalancerNames.removeAll(oldLoadBalancers.stream()
-            .map(gyro.aws.elb.LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getLoadBalancerName)
             .collect(Collectors.toSet()));
 
         if (!addLoadbalancerNames.isEmpty()) {
@@ -994,10 +995,10 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
     }
 
-    private void saveTargetGroupArns(AutoScalingClient client, Set<LoadBalancerResource> oldLoadbalancers) {
-        Set<String> removeTargetGroupArns = oldLoadbalancers.stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+    private void saveTargetGroupArns(AutoScalingClient client, Set<TargetGroupResource> oldTargetGroups) {
+        Set<String> removeTargetGroupArns = oldTargetGroups.stream().map(TargetGroupResource::getArn).collect(Collectors.toSet());
 
-        removeTargetGroupArns.removeAll(getLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet()));
+        removeTargetGroupArns.removeAll(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toSet()));
 
         if (!removeTargetGroupArns.isEmpty()) {
             client.detachLoadBalancerTargetGroups(
@@ -1005,9 +1006,9 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             );
         }
 
-        Set<String> addTargetGroupArns = getLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+        Set<String> addTargetGroupArns = getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toSet());
 
-        addTargetGroupArns.removeAll(oldLoadbalancers.stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet()));
+        addTargetGroupArns.removeAll(oldTargetGroups.stream().map(TargetGroupResource::getArn).collect(Collectors.toSet()));
 
         if (!addTargetGroupArns.isEmpty()) {
             client.attachLoadBalancerTargetGroups(

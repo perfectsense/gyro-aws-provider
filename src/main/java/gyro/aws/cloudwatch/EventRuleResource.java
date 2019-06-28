@@ -31,13 +31,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Create a CloudWatch rule and targets
+ * Create a CloudWatch rule and its targets.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
- *      aws::event-rule event-pattern-example
+ *      aws::cloudwatch-event-rule event-pattern-example
  *        rule-name: "event-pattern-test"
  *        description: "first rule test"
  *        event-pattern-path: 'event-pattern.json'
@@ -53,7 +53,7 @@ import java.util.Set;
  * end
  *
  */
-@Type("event-rule")
+@Type("cloudwatch-event-rule")
 public class EventRuleResource extends AwsResource implements Copyable<Rule> {
 
     private String description;

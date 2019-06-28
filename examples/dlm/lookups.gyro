@@ -1,1 +1,1 @@
-ebs-snapshot-lifecycle-policy: $(aws::ebs-snapshot-lifecycle-policy EXTERNAL/* | policy-id = '')
+lifecycle-policy: $(external-query aws::dlm-lifecycle-policy { policy-id: '' })

@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::kms kms-example
+ *     aws::kms-key kms-example
  *         aliases: ["alias/kmsExample", "alias/kmsSecondExample"]
  *         bypass-policy-lockout-safety-check: "false"
  *         description: "sample kms key"
@@ -59,8 +59,8 @@ import java.util.stream.Collectors;
  * end
  */
 
-@Type("kms")
-public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
+@Type("kms-key")
+public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata> {
 
     private Set<String> aliases;
     private Boolean bypassPolicyLockoutSafetyCheck;
@@ -380,7 +380,7 @@ public class KmsResource extends AwsResource implements Copyable<KeyMetadata> {
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
         KmsClient client = createClient(KmsClient.class);
-        KmsResource currentResource = (KmsResource) current;
+        KmsKeyResource currentResource = (KmsKeyResource) current;
 
         try {
             if (getEnabled() && !currentResource.getEnabled()) {

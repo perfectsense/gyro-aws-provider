@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    record-set: $(aws::record-set EXTERNAL/* | hosted-zone-id = '' and start-record-name = '' and start-record-type = '')
+ *    record-set: $(aws::route53-record-set EXTERNAL/* | hosted-zone-id = '' and start-record-name = '' and start-record-type = '')
  */
-@Type("record-set")
+@Type("route53-record-set")
 public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet, RecordSetResource> {
     private String hostedZoneId;
     private String startRecordName;

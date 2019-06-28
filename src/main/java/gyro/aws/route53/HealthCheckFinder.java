@@ -14,13 +14,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query health check.
+ * Query route53 health check.
  *
  * .. code-block:: gyro
  *
- *    health-check: $(aws::health-check EXTERNAL/* | health-check-id = '')
+ *    health-check: $(aws::route53-health-check EXTERNAL/* | health-check-id = '')
  */
-@Type("health-check")
+@Type("route53-health-check")
 public class HealthCheckFinder extends AwsFinder<Route53Client, HealthCheck, HealthCheckResource> {
     private String healthCheckId;
 

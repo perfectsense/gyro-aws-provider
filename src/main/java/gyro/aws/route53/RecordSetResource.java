@@ -33,8 +33,8 @@ import java.util.stream.Stream;
  *
  * .. code-block:: gyro
  *
- *     aws::record-set record-set-example
- *         hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
+ *     aws::route53-record-set record-set-example
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
  *         name: "record-set-example."
  *         type: "A"
  *         ttl: 300
@@ -45,10 +45,10 @@ import java.util.stream.Stream;
  *         failover: "secondary"
  *         set-identifier: "set_id"
  *         routing-policy: "failover"
- *         health-check: $(aws::health-check health-check-record-set-example-calculated)
+ *         health-check: $(aws::route53-health-check health-check-record-set-example-calculated)
  *     end
  */
-@Type("record-set")
+@Type("route53-record-set")
 public class RecordSetResource extends AwsResource implements Copyable<ResourceRecordSet> {
     private String comment;
     private String continentCode;
@@ -457,7 +457,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
         ListResourceRecordSetsResponse response = client.listResourceRecordSets(
-            r -> r.hostedZoneId(getHostedZone().getHostedZoneId())
+            r -> r.hostedZoneId(getHostedZone().getId())
                 .startRecordName(getName())
                 .startRecordType(getType())
         );
@@ -517,7 +517,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             .build();
 
         client.changeResourceRecordSets(
-            r -> r.hostedZoneId(recordSetResource.getHostedZone().getHostedZoneId())
+            r -> r.hostedZoneId(recordSetResource.getHostedZone().getId())
                 .changeBatch(
                     c -> c.comment(recordSetResource.getComment())
                         .changes(change)

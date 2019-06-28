@@ -31,3 +31,51 @@ aws::security-group security-group-example
         to-port: 80
     end
 end
+
+aws::security-group security-group
+    group-name: "security-group-reference-example"
+    vpc: $(aws::vpc vpc-security-group-example)
+    description: "Allow sg reference"
+    ingress
+        description: "allow inbound from another sg"
+        security-groups: [
+            $(aws::security-group security-group-example),
+            $(aws::security-group security-group-peer)
+        ]
+
+        protocol: "TCP"
+        from-port: 80
+        to-port: 80
+    end
+end
+
+aws::vpc vpc-peer
+    cidr-block: "10.1.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc-peer"
+    }
+end
+
+aws::security-group security-group-peer
+    group-name: "security-group-peer"
+    vpc: $(aws::vpc vpc-peer)
+    description: "Allow ipv6 outbound"
+    egress
+        description: "allow outbound http traffic, ipv6 only"
+        ipv6-cidr-blocks: ["::/0"]
+        protocol: "TCP"
+        from-port: 80
+        to-port: 80
+    end
+end
+
+aws::vpc-peering-connection peering-connection
+    vpc: $(aws::vpc vpc-security-group-example)
+    peer-vpc: $(aws::vpc vpc-peer)
+
+    tags: {
+        Name: "peering-connection"
+    }
+end

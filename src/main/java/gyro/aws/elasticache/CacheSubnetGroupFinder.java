@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-subnet-groups: $(aws::cache-subnet-group EXTERNAL/* | cache-subnet-group-name = 'cache-subnet-group-example')
+ *    cache-subnet-groups: $(aws::elasticache-subnet-group EXTERNAL/* | cache-subnet-group-name = 'cache-subnet-group-example')
  */
-@Type("cache-subnet-group")
+@Type("elasticache-subnet-group")
 public class CacheSubnetGroupFinder extends AwsFinder<ElastiCacheClient, CacheSubnetGroup, CacheSubnetGroupResource> {
 
     private String cacheSubnetGroupName;

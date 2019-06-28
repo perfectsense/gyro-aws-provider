@@ -25,22 +25,22 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates a subscriber to a topic.
+ * Creates a SNS subscriber to a topic.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::subscriber sns-subscriber-example
+ *     aws::sns-subscriber sns-subscriber-example
  *         protocol: "sqs"
- *         endpoint: $(aws::sqs sqs-example | arn)
- *         topic: $(aws::topic sns-topic-example)
+ *         endpoint: $(aws::sqs-queue sqs-example | arn)
+ *         topic: $(aws::sns-topic sns-topic-example)
  *         filter-policy: "filter-policy.json"
  *         raw-message-delivery: true
  *     end
  */
-@Type("subscriber")
+@Type("sns-subscriber")
 public class SubscriberResource extends AwsResource implements Copyable<Subscription> {
 
     private String endpoint;

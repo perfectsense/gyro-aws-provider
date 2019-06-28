@@ -47,12 +47,12 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::cache-cluster cache-cluster-example
+ *     aws::elasticache-cluster cache-cluster-example
  *         az-mode: "cross-az"
  *         cache-cluster-id: "cache-cluster-ex-1"
  *         cache-node-type: "cache.t2.micro"
- *         cache-param-group: $(aws::cache-param-group cache-param-group-group-cache-cluster-example)
- *         cache-subnet-group: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example)
+ *         cache-param-group: $(aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example)
+ *         cache-subnet-group: $(aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example)
  *         engine: "memcached"
  *         engine-version: "1.5.10"
  *         num-cache-nodes: 1
@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@Type("cache-cluster")
+@Type("elasticache-cluster")
 public class CacheClusterResource extends AwsResource implements Copyable<CacheCluster> {
     private String azMode;
     private String cacheClusterId;

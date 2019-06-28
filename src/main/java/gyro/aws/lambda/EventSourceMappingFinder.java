@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query event source mapping.
+ * Query lambda event source mapping.
  *
  * .. code-block:: gyro
  *
- *    event-source-mapping: $(aws::event-source-mapping EXTERNAL/* | event-source-mapping-id = '')
+ *    event-source-mapping: $(aws::lambda-event-source-mapping EXTERNAL/* | event-source-mapping-id = '')
  */
-@Type("event-source-mapping")
-public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSourceMappingResponse, EventSourceMapping> {
+@Type("lambda-event-source-mapping")
+public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSourceMappingResponse, EventSourceMappingResource> {
     private String eventSourceMappingId;
 
     /**

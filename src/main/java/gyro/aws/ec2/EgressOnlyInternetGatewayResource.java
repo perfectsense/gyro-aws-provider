@@ -17,18 +17,18 @@ import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
 import java.util.Set;
 
 /**
- * Create an egress only gateway.
+ * Create an egress only internet gateway.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::egress-gateway example-egress-gateway
+ *     aws::egress-only-internet-gateway example-egress-gateway
  *         vpc: $(aws::vpc vpc-example)
  *     end
  */
-@Type("egress-gateway")
+@Type("egress-only-internet-gateway")
 public class EgressOnlyInternetGatewayResource extends AwsResource implements Copyable<EgressOnlyInternetGateway> {
 
     private VpcResource vpc;

@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query policies.
+ * Query IAM policies.
  *
  * .. code-block:: gyro
  *
- *    policy: $(aws::policy EXTERNAL/* | arn = '')
+ *    policy: $(aws::iam-policy EXTERNAL/* | arn = '')
  */
-@Type("policy")
+@Type("iam-policy")
 public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
 
     private String arn;
