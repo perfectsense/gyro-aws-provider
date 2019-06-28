@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  *
  * .. code-block:: gyro
  *
- * aws::sqs sqs-example996556
+ * aws::sqs-queue sqs-example996556
  *      name : "testRedrive3345itest12345"
  *      visibility-timeout : 400
  *      message-retention-period : 864000
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  *      max-receive-count : "5"
  * end
  *
- * aws::sqs sqs-example2.fifo
+ * aws::sqs-queue sqs-example2.fifo
  *      name : "testxyz"
  *      visibility-timeout : 400
  *      message-retention-period : 864000
@@ -68,7 +68,7 @@ import java.util.concurrent.TimeUnit;
  * end
  */
 
-@Type("sqs")
+@Type("sqs-queue")
 public class SqsResource extends AwsResource implements Copyable<String> {
 
     private String name;

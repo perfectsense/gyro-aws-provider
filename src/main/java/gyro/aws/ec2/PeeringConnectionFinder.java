@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    peering-connection: $(aws::peering-connection EXTERNAL/* | vpc-peering-connection-id = '')
+ *    peering-connection: $(aws::vpc-peering-connection EXTERNAL/* | vpc-peering-connection-id = '')
  */
-@Type("peering-connection")
+@Type("vpc-peering-connection")
 public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {
 
     private String accepterVpcInfoCidrBlock;

@@ -22,15 +22,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Creates a connection notification for an endpoint or an endpoint service.
+ * Creates a vpc connection notification for an endpoint or an endpoint service.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::connection-notification connection-notification-example
- *         vpc-endpoint: $(aws::endpoint endpoint-example-interface)
+ *     aws::vpc-connection-notification connection-notification-example
+ *         vpc-endpoint: $(aws::vpc-endpoint endpoint-example-interface)
  *         connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
  *         connection-events: [
  *             "Accept"
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *     end
  *
  */
-@Type("connection-notification")
+@Type("vpc-connection-notification")
 public class ConnectionNotificationResource extends AwsResource implements Copyable<ConnectionNotification> {
 
     private EndpointServiceResource endpointService;

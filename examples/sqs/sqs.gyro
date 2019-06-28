@@ -1,4 +1,4 @@
-aws::sqs sqs-example1
+aws::sqs-queue sqs-example1
      name : "testStandard"
      visibility-timeout : 400
      message-retention-period : 864000
@@ -10,7 +10,7 @@ aws::sqs sqs-example1
      policy: 'policy.json'
 end
 
-aws::sqs sqs-example2
+aws::sqs-queue sqs-example2
      name : "testFifo.fifo"
      visibility-timeout : 400
      message-retention-period : 864000

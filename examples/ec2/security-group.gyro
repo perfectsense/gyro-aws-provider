@@ -71,7 +71,7 @@ aws::security-group security-group-peer
     end
 end
 
-aws::peering-connection peering-connection
+aws::vpc-peering-connection peering-connection
     vpc: $(aws::vpc vpc-security-group-example)
     peer-vpc: $(aws::vpc vpc-peer)
 

@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query endpoint.
+ * Query vpc endpoint.
  *
  * .. code-block:: gyro
  *
- *    endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
+ *    endpoint: $(aws::vpc-endpoint EXTERNAL/* | service-name = '')
  */
-@Type("endpoint")
+@Type("vpc-endpoint")
 public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
 
     private String serviceName;

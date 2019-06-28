@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query connection notification.
+ * Query vpc connection notification.
  *
  * .. code-block:: gyro
  *
- *    connection-notification: $(aws::connection-notification EXTERNAL/* | connection-notification-arn = '')
+ *    connection-notification: $(aws::vpc-connection-notification EXTERNAL/* | connection-notification-arn = '')
  */
-@Type("connection-notification")
+@Type("vpc-connection-notification")
 public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, ConnectionNotification, ConnectionNotificationResource> {
 
     private String connectionNotificationArn;

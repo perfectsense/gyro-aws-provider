@@ -17,9 +17,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    event-rule: $(aws::event-rule EXTERNAL/* | rule-name = '')
+ *    event-rule: $(aws::cloudwatch-event-rule EXTERNAL/* | rule-name = '')
  */
-@Type("event-rule")
+@Type("cloudwatch-event-rule")
 public class EventRuleFinder extends AwsFinder<CloudWatchEventsClient, Rule, EventRuleResource> {
     private String ruleName;
 

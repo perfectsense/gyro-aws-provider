@@ -7,9 +7,9 @@ import gyro.core.Type;
  *
  * .. code-block:: gyro
  *
- *    nlb: $(aws::nlb EXTERNAL/* | arn = '') -or-
- *    nlb: $(aws::nlb EXTERNAL/* | name = '')
+ *    nlb: $(aws::network-load-balancer EXTERNAL/* | arn = '') -or-
+ *    nlb: $(aws::network-load-balancer EXTERNAL/* | name = '')
  */
-@Type("nlb")
+@Type("network-load-balancer")
 public class NetworkLoadBalancerFinder extends LoadBalancerFinder<NetworkLoadBalancerResource> {
 }

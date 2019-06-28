@@ -6,13 +6,13 @@ aws::vpc vpc-record-set-example
     }
 end
 
-aws::hosted-zone hosted-zone-record-set-example
+aws::route53-hosted-zone hosted-zone-record-set-example
     name: "hosted-zone-record-set-example.com"
     private-zone: false
     comment: "hosted-zone-record-set-example.com comment"
 end
 
-aws::health-check health-check-record-set-example-calculated
+aws::route53-health-check health-check-record-set-example-calculated
     type: "CALCULATED"
     inverted: false
     disabled: false
@@ -22,9 +22,9 @@ aws::health-check health-check-record-set-example-calculated
     }
 end
 
-aws::record-set record-set-example
-    hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
-    name: "record-set-example.\($(aws::hosted-zone hosted-zone-record-set-example).name)"
+aws::route53-record-set record-set-example
+    hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+    name: "record-set-example.\($(aws::route53-hosted-zone hosted-zone-record-set-example).name)"
     type: "A"
     ttl: 300
     records: [
@@ -34,5 +34,5 @@ aws::record-set record-set-example
     failover: "secondary"
     set-identifier: "set_id"
     routing-policy: "failover"
-    health-check: $(aws::health-check health-check-record-set-example-calculated)
+    health-check: $(aws::route53-health-check health-check-record-set-example-calculated)
 end

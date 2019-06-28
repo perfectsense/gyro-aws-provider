@@ -25,11 +25,11 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::user-pool cognito
+ *     aws::cognito-user-pool cognito
  *         name: "user pool name"
  *     end
  */
-@Type("user-pool")
+@Type("cognito-user-pool")
 public class UserPoolResource extends AwsResource implements Copyable<UserPoolType> {
 
     private Map<String, String> tags;

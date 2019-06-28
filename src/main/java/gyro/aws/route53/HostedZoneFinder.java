@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    hosted-zone: $(aws::hosted-zone EXTERNAL/* | hosted-zone-id = '')
+ *    hosted-zone: $(aws::route53-hosted-zone EXTERNAL/* | hosted-zone-id = '')
  */
-@Type("hosted-zone")
+@Type("route53-hosted-zone")
 public class HostedZoneFinder extends AwsFinder<Route53Client, HostedZone, HostedZoneResource> {
     private String hostedZoneId;
 
