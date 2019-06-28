@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -59,6 +60,10 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
      */
     @Updatable
     public Set<NetworkAclIngressRuleResource> getIngressRule() {
+        if (ingressRule == null) {
+            ingressRule = new LinkedHashSet<>();
+        }
+
         return ingressRule;
     }
 
@@ -73,6 +78,10 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
      */
     @Updatable
     public Set<NetworkAclEgressRuleResource> getEgressRule() {
+        if (egressRule == null) {
+            egressRule = new LinkedHashSet<>();
+        }
+
         return egressRule;
     }
 
