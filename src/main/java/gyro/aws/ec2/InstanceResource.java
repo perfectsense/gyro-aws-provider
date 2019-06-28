@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
+import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
@@ -905,14 +906,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         setVolume(instance.blockDeviceMappings().stream()
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-            .map(o -> getInstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+            .map(this::getInstanceVolumeAttachment)
             .collect(Collectors.toSet()));
     }
 
-    private InstanceVolumeAttachment getInstanceVolumeAttachment(String deviceName, String volumeId) {
+    private InstanceVolumeAttachment getInstanceVolumeAttachment(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
         InstanceVolumeAttachment instanceVolumeAttachment = newSubresource(InstanceVolumeAttachment.class);
-        instanceVolumeAttachment.copyFrom(deviceName);
-        instanceVolumeAttachment.saveVolume(volumeId);
+        instanceVolumeAttachment.copyFrom(instanceBlockDeviceMapping);
 
         return instanceVolumeAttachment;
     }

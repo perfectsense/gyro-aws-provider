@@ -8,13 +8,14 @@ import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.VolumeState;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class InstanceVolumeAttachment extends AwsResource implements Copyable<String> {
+public class InstanceVolumeAttachment extends AwsResource implements Copyable<InstanceBlockDeviceMapping> {
 
     private String deviceName;
     private EbsVolumeResource volume;
@@ -127,11 +128,8 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<St
     }
 
     @Override
-    public void copyFrom(String deviceName) {
-        this.deviceName = deviceName;
-    }
-
-    void saveVolume(String volumeId) {
-        this.volume = findById(EbsVolumeResource.class,volumeId);
+    public void copyFrom(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
+        this.deviceName = instanceBlockDeviceMapping.deviceName();
+        this.volume = findById(EbsVolumeResource.class,instanceBlockDeviceMapping.ebs().volumeId());
     }
 }
