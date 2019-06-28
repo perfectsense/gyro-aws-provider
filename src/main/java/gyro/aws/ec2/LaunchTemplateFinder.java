@@ -100,7 +100,7 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
     private List<LaunchTemplate> getLaunchTemplates(Ec2Client client, Map<String, String> filters) {
         List<LaunchTemplate> launchTemplates = new ArrayList<>();
 
-        DescribeLaunchTemplatesRequest.Builder builder = DescribeLaunchTemplatesRequest.builder().filters(createFilters(filters));
+        DescribeLaunchTemplatesRequest.Builder builder = DescribeLaunchTemplatesRequest.builder();
 
         if (filters != null) {
             if (filters.containsKey("launch-template-id")) {
