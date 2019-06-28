@@ -46,15 +46,15 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
             predicate = new HashSet<>();
         }
 
-        if (predicate.size() > 10) {
-            throw new GyroException("Predicate limit exception. Max 10.");
-        }
-
         return predicate;
     }
 
     public void setPredicate(Set<PredicateResource> predicate) {
         this.predicate = predicate;
+
+        if (predicate.size() > 10) {
+            throw new GyroException("Predicate limit exception. Max 10.");
+        }
     }
 
     @Override
