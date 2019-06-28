@@ -24,7 +24,7 @@ end
 
 aws::route53-record-set record-set-example
     hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
-    name: "record-set-example.\($(aws::route53-hosted-zone hosted-zone-record-set-example).hosted-zone-name)"
+    name: "record-set-example.\($(aws::route53-hosted-zone hosted-zone-record-set-example).name)"
     type: "A"
     ttl: 300
     records: [

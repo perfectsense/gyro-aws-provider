@@ -552,19 +552,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        RunInstancesResponse response = client.runInstances(builder.build());
+        RunInstancesRequest request = builder.build();
 
-        for (Instance instance : response.instances()) {
-            setInstanceId(instance.instanceId());
+        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> createInstance(client, request));
 
-            if (!getSourceDestCheck()) {
-                client.modifyNetworkInterfaceAttribute(
-                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-                );
-            }
-            
-            break;
+        if (!status) {
+            throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -881,5 +877,30 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
             .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
             .collect(Collectors.toSet()));
+    }
+
+    private boolean createInstance(Ec2Client client, RunInstancesRequest request) {
+        try {
+            RunInstancesResponse response = client.runInstances(request);
+            if (!response.instances().isEmpty()) {
+                setInstanceId(response.instances().get(0).instanceId());
+              
+                if (!getSourceDestCheck()) {
+                    client.modifyNetworkInterfaceAttribute(
+                        r -> r.networkInterfaceId(response.instances().get(0).networkInterfaces().get(0).networkInterfaceId())
+                            .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                    );
+                }
+            }
+        } catch (Ec2Exception ex) {
+            if (getInstanceProfile() != null
+                && ex.awsErrorDetails().errorMessage().startsWith(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid", getInstanceProfile().getArn()))) {
+                return false;
+            } else {
+                throw ex;
+            }
+        }
+
+        return true;
     }
 }
