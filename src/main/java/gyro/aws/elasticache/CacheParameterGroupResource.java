@@ -23,14 +23,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Creates a cache cluster.
+ * Creates a cache parameter group.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::cache-param-group cache-param-group-example
+ *     aws::elasticache-parameter-group cache-param-group-example
  *         cache-param-group-name: "cache-param-group-example"
  *         cache-param-group-family: "redis5.0"
  *         description: "cache-param-group-desc"
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@Type("cache-param-group")
+@Type("elasticache-parameter-group")
 public class CacheParameterGroupResource extends AwsResource implements Copyable<CacheParameterGroup> {
     private String cacheParamGroupName;
     private String cacheParamGroupFamily;

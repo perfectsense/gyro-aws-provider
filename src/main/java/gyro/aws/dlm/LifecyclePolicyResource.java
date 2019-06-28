@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::ebs-snapshot-lifecycle-policy ebs-snapshot-lifecycle-policy-example
+ *     aws::dlm-lifecycle-policy lifecycle-policy-example
  *         description: "ebs-snapshot-lifecycle-policy-example"
  *         execution-role: "arn:aws:iam::242040583208:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
  *         schedule-name: "ebs-snapshot-lifecycle-policy-example-schedule"
@@ -52,8 +52,8 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@Type("ebs-snapshot-lifecycle-policy")
-public class EbsSnapshotLifecyclePolicyResource extends AwsResource implements Copyable<LifecyclePolicy> {
+@Type("dlm-lifecycle-policy")
+public class LifecyclePolicyResource extends AwsResource implements Copyable<LifecyclePolicy> {
 
     private String policyId;
     private String description;

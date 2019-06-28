@@ -91,7 +91,7 @@ aws::security-group security-group-cache-cluster-example-2
     }
 end
 
-aws::cache-subnet-group cache-subnet-group-cache-cluster-example
+aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example
     cache-subnet-group-name: "cache-subnet-group-cache-cluster-example"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
@@ -101,7 +101,7 @@ aws::cache-subnet-group cache-subnet-group-cache-cluster-example
     ]
 end
 
-aws::cache-subnet-group cache-subnet-group-cache-cluster-example-2
+aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example-2
     cache-subnet-group-name: "cache-subnet-group-cache-cluster-example-2"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
@@ -111,24 +111,24 @@ aws::cache-subnet-group cache-subnet-group-cache-cluster-example-2
     ]
 end
 
-aws::cache-param-group cache-param-group-group-cache-cluster-example
+aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example
     cache-param-group-name: "cache-param-group-group-cache-cluster-example"
     cache-param-group-family: "memcached1.5"
     description: "cache-param-group-desc-group-cache-cluster"
 end
 
-aws::cache-param-group cache-param-group-group-cache-cluster-example-2
+aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example-2
     cache-param-group-name: "cache-param-group-group-cache-cluster-example-2"
     cache-param-group-family: "memcached1.5"
     description: "cache-param-group-desc-group-cache-cluster"
 end
 
-aws::cache-cluster cache-cluster-example
+aws::elasticache-cluster cache-cluster-example
     az-mode: "cross-az"
     cache-cluster-id: "cache-cluster-ex-1"
     cache-node-type: "cache.t2.micro"
-    cache-param-group: $(aws::cache-param-group cache-param-group-group-cache-cluster-example)
-    cache-subnet-group: $(aws::cache-subnet-group cache-subnet-group-cache-cluster-example)
+    cache-param-group: $(aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example)
+    cache-subnet-group: $(aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example)
     engine: "memcached"
     engine-version: "1.5.10"
     num-cache-nodes: 2

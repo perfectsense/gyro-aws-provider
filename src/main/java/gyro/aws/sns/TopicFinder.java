@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query topics.
+ * Query SNS topics.
  *
  * .. code-block:: gyro
  *
- *    sns: $(aws::topic EXTERNAL/* | arn = '')
+ *    sns: $(aws::sns-topic EXTERNAL/* | arn = '')
  */
-@Type("topic")
+@Type("sns-topic")
 public class TopicFinder extends AwsFinder<SnsClient, Topic, TopicResource> {
 
     private String arn;

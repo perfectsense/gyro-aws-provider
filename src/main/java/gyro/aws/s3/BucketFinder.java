@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *   bucket-name: $(aws::bucket EXTERNAL/* | name = 'bucket-example')
+ *   bucket-name: $(aws::s3-bucket EXTERNAL/* | name = 'bucket-example')
  */
-@Type("bucket")
+@Type("s3-bucket")
 public class BucketFinder extends AwsFinder<S3Client, Bucket, BucketResource> {
     private String name;
 

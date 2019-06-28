@@ -17,9 +17,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    user-pool: $(aws::user-pool EXTERNAL/* | id = '')
+ *    user-pool: $(aws::cognito-user-pool EXTERNAL/* | id = '')
  */
-@Type("user-pool")
+@Type("cognito-user-pool")
 public class UserPoolFinder extends AwsFinder<CognitoIdentityProviderClient, UserPoolType, UserPoolResource> {
 
     private String id;

@@ -19,14 +19,14 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * Creates a Capacity Reservation.
+ * Creates a EC2 Capacity Reservation.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::capacity-reservation capacity-reservation-example
+ *     aws::ec2-capacity-reservation capacity-reservation-example
  *         availability-zone: "us-west-2a"
  *         ebs-optimized: false
  *         end-date-type: "unlimited"
@@ -38,7 +38,7 @@ import java.util.Set;
  *         tenancy: "default"
  *     end
  */
-@Type("capacity-reservation")
+@Type("ec2-capacity-reservation")
 public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation> implements Copyable<CapacityReservation> {
 
     private String capacityReservationId;
