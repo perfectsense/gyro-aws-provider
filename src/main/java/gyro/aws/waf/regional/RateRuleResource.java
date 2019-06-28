@@ -1,5 +1,6 @@
 package gyro.aws.waf.regional;
 
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -46,6 +47,10 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     public Set<PredicateResource> getPredicate() {
         if (predicate == null) {
             predicate = new HashSet<>();
+        }
+
+        if (predicate.size() > 10) {
+            throw new GyroException("Predicate limit exception. Max 10.");
         }
 
         return predicate;

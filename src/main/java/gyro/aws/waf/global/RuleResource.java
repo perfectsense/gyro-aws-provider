@@ -1,5 +1,6 @@
 package gyro.aws.waf.global;
 
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -42,6 +43,10 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
     public Set<PredicateResource> getPredicate() {
         if (predicate == null) {
             predicate = new HashSet<>();
+        }
+
+        if (predicate.size() > 10) {
+            throw new GyroException("Predicate limit exception. Max 10.");
         }
 
         return predicate;
