@@ -44,6 +44,12 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
+    public void copyFrom(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
+        this.deviceName = instanceBlockDeviceMapping.deviceName();
+        this.volume = findById(EbsVolumeResource.class,instanceBlockDeviceMapping.ebs().volumeId());
+    }
+
+    @Override
     public boolean refresh() {
         return true;
     }
@@ -125,11 +131,5 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     @Override
     public String primaryKey() {
         return String.format("%s", getDeviceName());
-    }
-
-    @Override
-    public void copyFrom(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
-        this.deviceName = instanceBlockDeviceMapping.deviceName();
-        this.volume = findById(EbsVolumeResource.class,instanceBlockDeviceMapping.ebs().volumeId());
     }
 }
