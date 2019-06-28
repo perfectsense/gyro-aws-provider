@@ -1,6 +1,6 @@
 # External query
-subnet-ids: $(external-query aws::subnet | availability-zone = 'us-east-2a' | vpc-id = 'vpc-09b9493a3d5db31b6' or vpc-id = 'vpc-7365661b' | map-public-ip-on-launch != true and cidr-block = '10.0.0.0/24')
-vpc-ids: $(external-query aws::vpc { 'tag.Name: "vpc-example-for-network-acl" })
+subnet-ids: $(external-query aws::subnet { vpc-id: 'vpc-09b9493a3d5db31b6'})
+vpc-ids: $(external-query aws::vpc { vpc-id: 'vpc-09b9493a3d5db31b6'})
 capacity-reservations: $(external-query aws::capacity-reservation { capacity-reservation-id: 'cr-071f2771deb1ea5d4' })
 connection-notification: $(external-query aws::connection-notification { connection-notification-arn: '' })
 customer-gateway: $(external-query aws::customer-gateway { state: 'available' })
