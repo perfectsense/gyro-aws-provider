@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -51,6 +52,10 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
 
     public void setXssMatchTuple(Set<XssMatchTupleResource> xssMatchTuple) {
         this.xssMatchTuple = xssMatchTuple;
+
+        if (xssMatchTuple.size() > 10) {
+            throw new GyroException("Byte Match Tuple limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
@@ -101,5 +106,9 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .xssMatchSetId(getId())
         );
+    }
+
+    XssMatchSet getXssMatchSet(WafClient client) {
+        return client.getXssMatchSet(r -> r.xssMatchSetId(getId())).xssMatchSet();
     }
 }
