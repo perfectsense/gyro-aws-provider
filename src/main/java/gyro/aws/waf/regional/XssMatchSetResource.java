@@ -54,7 +54,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
         this.xssMatchTuple = xssMatchTuple;
 
         if (xssMatchTuple.size() > 10) {
-            throw new GyroException("Byte Match Tuple limit exception. Max 10 per Byte Match Set.");
+            throw new GyroException("Xss Match Tuple limit exception. Max 10 per Byte Match Set.");
         }
     }
 
