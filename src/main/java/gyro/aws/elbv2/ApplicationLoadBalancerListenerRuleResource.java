@@ -132,8 +132,13 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     public void copyFrom(Rule rule) {
         setAction(fromActions(rule.actions()));
         setCondition(fromCondition(rule.conditions()));
-        setPriority(Integer.valueOf(rule.priority()));
         setArn(rule.ruleArn());
+
+        if (rule.priority().equalsIgnoreCase("default")) {
+            setPriority(-1);
+        } else {
+            setPriority(Integer.valueOf(rule.priority()));
+        }
     }
 
     @Override
