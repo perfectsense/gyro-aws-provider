@@ -25,6 +25,7 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -79,6 +80,11 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private Set<SecurityGroupResource> securityGroups;
     private Boolean privateDnsEnabled;
     private String policy;
+
+    private String state;
+    private Date createTime;
+    private Set<NetworkInterfaceResource> networkInterfaces;
+    private Set<DnsEntry> dnsEntries;
 
     /**
      * The ID of the endpoint.
@@ -203,6 +209,62 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         this.policy = policy;
     }
 
+    /**
+     * The state of the Endpoint.
+     */
+    @Output
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
+     * The creation time of the Endpoint.
+     */
+    @Output
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    /**
+     * A set of Network Interface attached to the Endpoint.
+     */
+    @Output
+    public Set<NetworkInterfaceResource> getNetworkInterfaces() {
+        if (networkInterfaces == null) {
+            networkInterfaces = new HashSet<>();
+        }
+
+        return networkInterfaces;
+    }
+
+    public void setNetworkInterfaces(Set<NetworkInterfaceResource> networkInterfaces) {
+        this.networkInterfaces = networkInterfaces;
+    }
+
+    /**
+     * A set of Dns Entry attached to the Endpoint.
+     */
+    @Output
+    public Set<DnsEntry> getDnsEntries() {
+        if (dnsEntries == null) {
+            dnsEntries = new HashSet<>();
+        }
+
+        return dnsEntries;
+    }
+
+    public void setDnsEntries(Set<DnsEntry> dnsEntries) {
+        this.dnsEntries = dnsEntries;
+    }
+
     private String getProcessedPolicy(String policy) {
         if (policy == null) {
             return null;
@@ -235,6 +297,17 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
         setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
         setPolicy(vpcEndpoint.policyDocument());
+
+        setState(vpcEndpoint.stateAsString());
+        setCreateTime(Date.from(vpcEndpoint.creationTimestamp()));
+        setNetworkInterfaces(vpcEndpoint.networkInterfaceIds().stream().map(o -> findById(NetworkInterfaceResource.class, o)).collect(Collectors.toSet()));
+
+        getDnsEntries().clear();
+        for (software.amazon.awssdk.services.ec2.model.DnsEntry dnsEntry : vpcEndpoint.dnsEntries()) {
+            gyro.aws.ec2.DnsEntry entry = newSubresource(gyro.aws.ec2.DnsEntry.class);
+            entry.copyFrom(dnsEntry);
+            getDnsEntries().add(entry);
+        }
     }
 
     @Override
