@@ -1,6 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateRegexMatchSetResponse;
@@ -58,6 +59,10 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
 
     public void setRegexMatchTuple(Set<RegexMatchTupleResource> regexMatchTuple) {
         this.regexMatchTuple = regexMatchTuple;
+
+        if (regexMatchTuple.size() > 1) {
+            throw new GyroException("Regex Match Tuple limit exception. Max 1 per Regex Match Set.");
+        }
     }
 
     @Override
