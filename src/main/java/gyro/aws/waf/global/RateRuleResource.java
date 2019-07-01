@@ -30,7 +30,6 @@ import java.util.Set;
  *
  *         predicate
  *             condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
- *             negated: false
  *         end
  *      end
  */

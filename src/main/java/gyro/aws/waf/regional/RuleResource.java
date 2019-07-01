@@ -27,7 +27,6 @@ import java.util.Set;
  *
  *         predicate
  *             condition: $(aws::regex-match-set-regional regex-match-set-example-waf)
- *             negated: false
  *         end
  *     end
  */
