@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         name: 'com.amazonaws.us-east-1.s3'
  *         policy: 'policy.json'
- *         type-interface: false
+ *         type: 'Gateway'
  *         route-tables: [
  *             $(aws::route-table route-table-example-for-endpoint-1),
  *             $(aws::route-table route-table-example-for-endpoint-2),
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
  *         name: 'com.amazonaws.us-east-1.ec2'
  *         policy: 'policy.json'
- *         type-interface: true
+ *         type: 'Interface'
  *         subnets: [
  *             $(aws::subnet subnet-public-us-east-1a-example-for-endpoint-1),
  *             $(aws::subnet subnet-public-us-east-1b-example-for-endpoint-1),
@@ -73,7 +73,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private String id;
     private String name;
     private VpcResource vpc;
-    private Boolean typeInterface;
+    private VpcEndpointType type;
     private Set<RouteTableResource> routeTables;
     private Set<SubnetResource> subnets;
     private Set<SecurityGroupResource> securityGroups;
@@ -118,12 +118,16 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     /**
      * The type of service being associated is of type interface or gateway. (Required)
      */
-    public Boolean getTypeInterface() {
-        return typeInterface;
+    public VpcEndpointType getType() {
+        if (type == null) {
+            type = VpcEndpointType.GATEWAY;
+        }
+
+        return type;
     }
 
-    public void setTypeInterface(Boolean typeInterface) {
-        this.typeInterface = typeInterface;
+    public void setType(VpcEndpointType type) {
+        this.type = type;
     }
 
     /**
@@ -225,9 +229,9 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
         setName(vpcEndpoint.serviceName());
         setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
-        setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
         setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
         setId(vpcEndpoint.vpcEndpointId());
+        setType(vpcEndpoint.vpcEndpointType());
         setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
         setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
         setPolicy(vpcEndpoint.policyDocument());
@@ -256,11 +260,11 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
 
         builder.vpcId(getVpc().getVpcId());
-        builder.vpcEndpointType(getTypeInterface() ? VpcEndpointType.INTERFACE : VpcEndpointType.GATEWAY);
         builder.privateDnsEnabled(getEnablePrivateDns());
+        builder.vpcEndpointType(getType());
         builder.serviceName(getName());
 
-        if (getTypeInterface()) {
+        if (getType().equals(VpcEndpointType.INTERFACE)) {
             builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
             builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
         } else {
@@ -375,7 +379,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             sb.append(" - ").append(getId());
         }
 
-        if (getTypeInterface()) {
+        if (getType().equals(VpcEndpointType.INTERFACE)) {
             sb.append(" [ Interface ]");
         } else {
             sb.append(" [ Gateway ]");
@@ -385,17 +389,17 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     private void validate() {
-        if (getTypeInterface()) {
+        if (getType().equals(VpcEndpointType.INTERFACE)) {
             if (!getRouteTables().isEmpty()) {
-                throw new GyroException("The param 'route-tables' cannot be set when the param 'type-interface' is set to 'True'");
+                throw new GyroException("The param 'route-tables' cannot be set when the param 'type' is set to 'Interface'");
             }
         } else {
             if (!getSecurityGroups().isEmpty()) {
-                throw new GyroException("The param 'security-groups' cannot be set when the param 'type-interface' is set to 'False'");
+                throw new GyroException("The param 'security-groups' cannot be set when the param 'type' is set to 'Gateway'");
             }
 
             if (!getSubnets().isEmpty()) {
-                throw new GyroException("The param 'subnets' cannot be set when the param 'type-interface' is set to 'False'");
+                throw new GyroException("The param 'subnets' cannot be set when the param 'type' is set to 'Gateway'");
             }
         }
     }
