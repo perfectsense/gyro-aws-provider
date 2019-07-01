@@ -1,6 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
@@ -53,6 +54,10 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
 
     public void setByteMatchTuple(Set<ByteMatchTupleResource> byteMatchTuple) {
         this.byteMatchTuple = byteMatchTuple;
+
+        if (byteMatchTuple.size() > 10) {
+            throw new GyroException("Byte Match Tuple limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
@@ -102,5 +107,9 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .byteMatchSetId(getId())
         );
+    }
+
+    ByteMatchSet getByteMatchSet(WafRegionalClient client) {
+        return client.getByteMatchSet(r -> r.byteMatchSetId(getId())).byteMatchSet();
     }
 }

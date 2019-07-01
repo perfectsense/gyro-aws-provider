@@ -80,7 +80,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
 
     @Override
     public void create() {
-        saveByteMatchTuple(toByteMatchTuple(), false);
+        saveByteMatchTuple(false);
     }
 
     @Override
@@ -90,7 +90,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
 
     @Override
     public void delete() {
-        saveByteMatchTuple(toByteMatchTuple(), true);
+        saveByteMatchTuple(true);
     }
 
     @Override
@@ -145,7 +145,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
         return sb.toString();
     }
 
-    protected abstract void saveByteMatchTuple(ByteMatchTuple byteMatchTuple, boolean isDelete);
+    protected abstract void saveByteMatchTuple(boolean isDelete);
 
     private ByteMatchTuple toByteMatchTuple() {
         return ByteMatchTuple.builder()
@@ -156,12 +156,12 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
             .build();
     }
 
-    protected UpdateByteMatchSetRequest.Builder toByteMatchSetUpdateRequest(ByteMatchTuple byteMatchTuple, boolean isDelete) {
+    protected UpdateByteMatchSetRequest.Builder toByteMatchSetUpdateRequest(boolean isDelete) {
         ByteMatchSetResource parent = (ByteMatchSetResource) parent();
 
         ByteMatchSetUpdate byteMatchSetUpdate = ByteMatchSetUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
-            .byteMatchTuple(byteMatchTuple)
+            .byteMatchTuple(toByteMatchTuple())
             .build();
 
         return UpdateByteMatchSetRequest.builder()
