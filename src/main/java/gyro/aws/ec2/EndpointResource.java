@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *     end
  *
  *     aws::vpc-endpoint endpoint-example-interface
- *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+ *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         name: 'com.amazonaws.us-east-1.ec2'
  *         policy: 'policy.json'
  *         type: 'Interface'
