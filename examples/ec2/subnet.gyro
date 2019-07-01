@@ -24,7 +24,7 @@ aws::network-acl network-acl
     }
 end
 
-@for zone, cidr ~in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
+@for zone, cidr -in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
     aws::subnet "subnet-$(zone)"
         vpc: $(aws::vpc vpc)
         network-acl: $(aws::network-acl network-acl)
