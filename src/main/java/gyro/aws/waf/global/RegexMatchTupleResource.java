@@ -30,7 +30,7 @@ public class RegexMatchTupleResource extends gyro.aws.waf.common.RegexMatchTuple
                 .build()
             );
         } catch (WafInvalidOperationException ex) {
-            if (!ex.awsErrorDetails().errorCode().equals("WAFInvalidOperationException")) {
+            if (!isDelete || !ex.awsErrorDetails().errorCode().equals("WAFInvalidOperationException")) {
                 throw ex;
             }
         }

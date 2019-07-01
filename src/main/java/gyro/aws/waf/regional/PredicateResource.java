@@ -58,7 +58,7 @@ public class PredicateResource extends gyro.aws.waf.common.PredicateResource {
                     );
                 }
             } catch (WafInvalidOperationException ex) {
-                if (!ex.awsErrorDetails().errorCode().equals("WAFInvalidOperationException")) {
+                if (!isDelete || !ex.awsErrorDetails().errorCode().equals("WAFInvalidOperationException")) {
                     throw ex;
                 }
             }
