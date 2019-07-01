@@ -180,7 +180,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
         if (getEndpoint() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getEndpoint().getEndpointId())
+                r -> r.vpcEndpointId(getEndpoint().getId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
