@@ -102,4 +102,8 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
                 .sqlInjectionMatchSetId(getId())
         );
     }
+
+    SqlInjectionMatchSet getSqlInjectionMatchSet(WafRegionalClient client) {
+        return client.getSqlInjectionMatchSet(r -> r.sqlInjectionMatchSetId(getId())).sqlInjectionMatchSet();
+    }
 }
