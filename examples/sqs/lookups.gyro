@@ -1,1 +1,1 @@
-sqs: $(external-query aws::sqs { name: '' })
+sqs: $(external-query aws::sqs-queue { name: '' })

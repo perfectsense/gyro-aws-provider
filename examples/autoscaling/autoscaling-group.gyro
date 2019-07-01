@@ -121,7 +121,7 @@ aws::launch-configuration launch-configuration-auto-scaling-group-example
     instance: $(aws::instance instance-auto-scaling-group-example)
 end
 
-aws::auto-scaling-group auto-scaling-group-example
+aws::autoscaling-group auto-scaling-group-example
     auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance instance-auto-scaling-group-example).instance-id)"
     launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
     availability-zones: $(aws::subnet subnet-auto-scaling-group-example-1).*.availability-zone
@@ -181,8 +181,8 @@ end
             instance: $(aws::instance verify)
         @end
 
-        @create aws::auto-scaling-group verify
-            @extends: $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
+        @create aws::autoscaling-group verify
+            @extends: $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
             auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance verify).instance-id)"
             launch-configuration: $(aws::launch-configuration verify)
         @end
@@ -201,7 +201,7 @@ end
     stage pushed
         @swap: $(aws::instance verify) $CURRENT
         @swap: $(aws::launch-configuration verify) $(aws::launch-configuration * | instance = $CURRENT).0
-        @swap: $(aws::auto-scaling-group verify) $(aws::auto-scaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
+        @swap: $(aws::autoscaling-group verify) $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
 
         transition revert
             to: finished
@@ -217,6 +217,6 @@ end
     stage finished
         @delete: $(aws::instance verify)
         @delete: $(aws::launch-configuration verify)
-        @delete: $(aws::auto-scaling-group verify)
+        @delete: $(aws::autoscaling-group verify)
     end
 @end

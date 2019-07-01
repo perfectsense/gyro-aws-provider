@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::peering-connection peering-connection-example
+ *     aws::vpc-peering-connection peering-connection-example
  *         vpc: $(aws::vpc vpc-example-for-peering-connection-1)
  *         peer-vpc: $(aws::vpc vpc-example-for-peering-connection-2)
  *
@@ -34,7 +34,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@Type("peering-connection")
+@Type("vpc-peering-connection")
 public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringConnection> implements Copyable<VpcPeeringConnection> {
 
     private VpcResource vpc;

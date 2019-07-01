@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query iam roles.
+ * Query IAM roles.
  *
  * .. code-block:: gyro
  *
- *    role: $(aws::role EXTERNAL/* | name = '')
+ *    role: $(aws::iam-role EXTERNAL/* | name = '')
  */
-@Type("role")
+@Type("iam-role")
 public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {
 
     private String name;

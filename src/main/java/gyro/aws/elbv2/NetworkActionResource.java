@@ -18,7 +18,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     default-action
- *        target-group: $(aws::target-group target-group-example)
+ *        target-group: $(aws::load-balancer-target-group target-group-example)
  *        type: "forward"
  *     end
  */
