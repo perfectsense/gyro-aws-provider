@@ -1,6 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
@@ -51,6 +52,10 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
 
     public void setSqlInjectionMatchTuple(Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
         this.sqlInjectionMatchTuple = sqlInjectionMatchTuple;
+
+        if (sqlInjectionMatchTuple.size() > 10) {
+            throw new GyroException("Sql Injection Match Tuple limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
