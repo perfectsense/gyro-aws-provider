@@ -78,7 +78,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
     @Override
     public void create() {
-        saveSizeConstraint(toSizeConstraint(), false);
+        saveSizeConstraint(false);
     }
 
     @Override
@@ -88,7 +88,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
     @Override
     public void delete() {
-        saveSizeConstraint(toSizeConstraint(), true);
+        saveSizeConstraint(true);
     }
 
     @Override
@@ -143,7 +143,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
         return sb.toString();
     }
 
-    protected abstract void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete);
+    protected abstract void saveSizeConstraint(boolean isDelete);
 
     private SizeConstraint toSizeConstraint() {
         return SizeConstraint.builder()
@@ -154,12 +154,12 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
             .build();
     }
 
-    protected UpdateSizeConstraintSetRequest.Builder toUpdateSizeConstraintSetRequest(SizeConstraint sizeConstraint, boolean isDelete) {
+    protected UpdateSizeConstraintSetRequest.Builder toUpdateSizeConstraintSetRequest(boolean isDelete) {
         SizeConstraintSetResource parent = (SizeConstraintSetResource) parent();
 
         SizeConstraintSetUpdate sizeConstraintSetUpdate = SizeConstraintSetUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
-            .sizeConstraint(sizeConstraint)
+            .sizeConstraint(toSizeConstraint())
             .build();
 
         return UpdateSizeConstraintSetRequest.builder()

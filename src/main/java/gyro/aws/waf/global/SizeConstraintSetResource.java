@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -52,6 +53,10 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
 
     public void setSizeConstraint(Set<SizeConstraintResource> sizeConstraint) {
         this.sizeConstraint = sizeConstraint;
+
+        if (sizeConstraint.size() > 10) {
+            throw new GyroException("Size constraint limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
@@ -102,5 +107,9 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .sizeConstraintSetId(getId())
         );
+    }
+
+    SizeConstraintSet getSizeConstraintSet(WafClient client) {
+        return client.getSizeConstraintSet(r -> r.sizeConstraintSetId(getId())).sizeConstraintSet();
     }
 }
