@@ -110,4 +110,8 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
                 .regexMatchSetId(getId())
         );
     }
+
+    RegexMatchSet getRegexMatchSet(WafRegionalClient client) {
+        return client.getRegexMatchSet(r -> r.regexMatchSetId(getId())).regexMatchSet();
+    }
 }
