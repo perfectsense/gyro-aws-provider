@@ -77,7 +77,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private Set<RouteTableResource> routeTables;
     private Set<SubnetResource> subnets;
     private Set<SecurityGroupResource> securityGroups;
-    private Boolean enablePrivateDns;
+    private Boolean privateDnsEnabled;
     private String policy;
 
     /**
@@ -182,12 +182,12 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
      * Enable private DNS on the Endpoint.
      */
     @Updatable
-    public Boolean getEnablePrivateDns() {
-        return enablePrivateDns;
+    public Boolean getPrivateDnsEnabled() {
+        return privateDnsEnabled;
     }
 
-    public void setEnablePrivateDns(Boolean enablePrivateDns) {
-        this.enablePrivateDns = enablePrivateDns;
+    public void setPrivateDnsEnabled(Boolean privateDnsEnabled) {
+        this.privateDnsEnabled = privateDnsEnabled;
     }
 
     /**
@@ -229,9 +229,9 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
         setName(vpcEndpoint.serviceName());
         setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
-        setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
         setId(vpcEndpoint.vpcEndpointId());
         setType(vpcEndpoint.vpcEndpointType());
+        setPrivateDnsEnabled(vpcEndpoint.privateDnsEnabled());
         setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
         setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
         setPolicy(vpcEndpoint.policyDocument());
@@ -260,8 +260,8 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
 
         builder.vpcId(getVpc().getVpcId());
-        builder.privateDnsEnabled(getEnablePrivateDns());
         builder.vpcEndpointType(getType());
+        builder.privateDnsEnabled(getPrivateDnsEnabled());
         builder.serviceName(getName());
 
         if (getType().equals(VpcEndpointType.INTERFACE)) {
