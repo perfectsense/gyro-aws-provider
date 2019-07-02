@@ -19,10 +19,9 @@ import java.util.stream.Collectors;
 
 public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule> {
     private String id;
-    private Integer versionExpirationDays;
-    private Boolean expiredObjectDeleteMarker;
-    private Integer incompleteMultipartUploadDays;
-    private Integer nonCurrentVersionExpirationDays;
+    private S3LifecycleRuleExpiration expiration;
+    private S3LifecycleRuleAbortIncompleteMultipartUpload abortIncompleteMultipartUpload;
+    private S3LifecycleRuleNoncurrentVersionExpiration noncurrentVersionExpiration;
     private String status;
     private String prefix;
     private Map<String, String> tags;
@@ -41,51 +40,39 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     }
 
     /**
-     * Current version expiration days. Depends on the values set in transition.
+     * Expiration setting for the life cycle rule.
      */
     @Updatable
-    public Integer getVersionExpirationDays() {
-        return versionExpirationDays;
+    public S3LifecycleRuleExpiration getExpiration() {
+        return expiration;
     }
 
-    public void setVersionExpirationDays(Integer versionExpirationDays) {
-        this.versionExpirationDays = versionExpirationDays;
+    public void setExpiration(S3LifecycleRuleExpiration expiration) {
+        this.expiration = expiration;
     }
 
     /**
-     * Enable expired object.
+     * Incomplete multi part upload setting for the life cycle rule.
      */
     @Updatable
-    public Boolean getExpiredObjectDeleteMarker() {
-        return expiredObjectDeleteMarker;
+    public S3LifecycleRuleAbortIncompleteMultipartUpload getAbortIncompleteMultipartUpload() {
+        return abortIncompleteMultipartUpload;
     }
 
-    public void setExpiredObjectDeleteMarker(Boolean expiredObjectDeleteMarker) {
-        this.expiredObjectDeleteMarker = expiredObjectDeleteMarker;
+    public void setAbortIncompleteMultipartUpload(S3LifecycleRuleAbortIncompleteMultipartUpload abortIncompleteMultipartUpload) {
+        this.abortIncompleteMultipartUpload = abortIncompleteMultipartUpload;
     }
 
     /**
-     * Number of days after which incomplete multipart upload data be deleted.
+     * Non current version expiration settings for the life cycle rule.
      */
     @Updatable
-    public Integer getIncompleteMultipartUploadDays() {
-        return incompleteMultipartUploadDays;
+    public S3LifecycleRuleNoncurrentVersionExpiration getNoncurrentVersionExpiration() {
+        return noncurrentVersionExpiration;
     }
 
-    public void setIncompleteMultipartUploadDays(Integer incompleteMultipartUploadDays) {
-        this.incompleteMultipartUploadDays = incompleteMultipartUploadDays;
-    }
-
-    /**
-     * Non current version expiration days. Depends on the values set in non current transition.
-     */
-    @Updatable
-    public Integer getNonCurrentVersionExpirationDays() {
-        return nonCurrentVersionExpirationDays;
-    }
-
-    public void setNonCurrentVersionExpirationDays(Integer nonCurrentVersionExpirationDays) {
-        this.nonCurrentVersionExpirationDays = nonCurrentVersionExpirationDays;
+    public void setNoncurrentVersionExpiration(S3LifecycleRuleNoncurrentVersionExpiration noncurrentVersionExpiration) {
+        this.noncurrentVersionExpiration = noncurrentVersionExpiration;
     }
 
     /**
@@ -131,7 +118,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     /**
      * Configure the non current transition rules to this lifecycle rule.
      *
-     * @subresource gyro.aws.s3.S3LifecycleRuleNonCurrentTransition
+     * @subresource gyro.aws.s3.S3LifecycleRuleNoncurrentVersionTransition
      */
     @Updatable
     public List<S3LifecycleRuleNoncurrentVersionTransition> getNoncurrentVersionTransition() {
@@ -184,12 +171,17 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
         setId(lifecycleRule.id());
 
         if (lifecycleRule.expiration() != null) {
-            setVersionExpirationDays(lifecycleRule.expiration().days());
-            setExpiredObjectDeleteMarker(lifecycleRule.expiration().expiredObjectDeleteMarker());
+            S3LifecycleRuleExpiration expiration = newSubresource(S3LifecycleRuleExpiration.class);
+            expiration.copyFrom(lifecycleRule.expiration());
+
+            setExpiration(expiration);
         }
 
         if (lifecycleRule.abortIncompleteMultipartUpload() != null) {
-            setIncompleteMultipartUploadDays(lifecycleRule.abortIncompleteMultipartUpload().daysAfterInitiation());
+            S3LifecycleRuleAbortIncompleteMultipartUpload abortIncompleteMultipartUpload = newSubresource(S3LifecycleRuleAbortIncompleteMultipartUpload.class);
+            abortIncompleteMultipartUpload.copyFrom(lifecycleRule.abortIncompleteMultipartUpload());
+
+            setAbortIncompleteMultipartUpload(abortIncompleteMultipartUpload);
         }
 
         if (lifecycleRule.filter() != null) {
@@ -224,7 +216,10 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
         }
 
         if (lifecycleRule.noncurrentVersionExpiration() != null) {
-            setNonCurrentVersionExpirationDays(lifecycleRule.noncurrentVersionExpiration().noncurrentDays());
+            S3LifecycleRuleNoncurrentVersionExpiration noncurrentVersionExpiration = newSubresource(S3LifecycleRuleNoncurrentVersionExpiration.class);
+            noncurrentVersionExpiration.copyFrom(lifecycleRule.noncurrentVersionExpiration());
+
+            setNoncurrentVersionExpiration(noncurrentVersionExpiration);
         }
 
         getNoncurrentVersionTransition().clear();
@@ -256,16 +251,10 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
             .id(getId())
             .status(getStatus())
             .prefix(null)
-            .expiration(
-                e -> e.date(null)
-                    .days(getVersionExpirationDays())
-                    .expiredObjectDeleteMarker(getExpiredObjectDeleteMarker())
-            );
+            .expiration(getExpiration() != null ? getExpiration().toLifecycleExpiration() : null);
 
-        if (getIncompleteMultipartUploadDays() != null) {
-            builder = builder.abortIncompleteMultipartUpload(
-                a -> a.daysAfterInitiation(getIncompleteMultipartUploadDays())
-            );
+        if (getAbortIncompleteMultipartUpload() != null) {
+            builder = builder.abortIncompleteMultipartUpload(getAbortIncompleteMultipartUpload().toAbortIncompleteMultipartUpload());
         }
 
         if (getTags().isEmpty()) {
@@ -286,10 +275,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
             );
         }
 
-        if (getNonCurrentVersionExpirationDays() != null) {
-            builder = builder.noncurrentVersionExpiration(
-                n -> n.noncurrentDays(getNonCurrentVersionExpirationDays())
-            );
+        if (getNoncurrentVersionExpiration() != null) {
+            builder = builder.noncurrentVersionExpiration(getNoncurrentVersionExpiration().toNoncurrentVersionExpiration());
         }
 
         builder = builder.noncurrentVersionTransitions(
@@ -340,19 +327,13 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     }
 
     private void validateLifecycleRule() {
-        if (getExpiredObjectDeleteMarker() != null && getVersionExpirationDays() != null) {
-            throw new GyroException("Field: 'expired-object-delete-marker' and Field: 'version-expiration-days' cannot both be set.");
+        // When tags present
+        if (!getTags().isEmpty() && getExpiration() != null && getExpiration().getExpiredObjectDeleteMarker() != null) {
+            throw new GyroException("Param 'expired-object-delete-marker' of 'expiration' cannot be set when param 'tags' is set.");
         }
 
-        // When tags present
-        if (!getTags().isEmpty()) {
-            if (getExpiredObjectDeleteMarker() != null) {
-                throw new GyroException("Field: 'expired-object-delete-marker' cannot be set when Field: 'tags' is set.");
-            }
-
-            if (getIncompleteMultipartUploadDays() != null) {
-                throw new GyroException("Field: 'incomplete-multipart-upload-days' cannot be set when Field: 'tags' is set.");
-            }
+        if (!getTags().isEmpty() && getAbortIncompleteMultipartUpload() != null) {
+            throw new GyroException("param 'abort-incomplete-multipart-upload' cannot be set when param 'tags' is set.");
         }
     }
 }

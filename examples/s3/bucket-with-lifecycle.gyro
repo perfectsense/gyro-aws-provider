@@ -10,7 +10,6 @@ aws::s3-bucket bucket-example
 
     lifecycle-rule
         id: "rule no prefix and no tag"
-        expired-object-delete-marker: false
         status: "Disabled"
 
         transition
@@ -23,9 +22,17 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        #version-expiration-days: 403
-        non-current-version-expiration-days: 403
-        incomplete-multipart-upload-days: 5
+        expiration
+            expired-object-delete-marker: false
+        end
+
+        noncurrent-version-expiration
+            noncurrent-days: 403
+        end
+
+        abort-incomplete-multipart-upload
+            days-after-initiation: 5
+        end
     end
 
     lifecycle-rule
@@ -46,8 +53,13 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            noncurrent-days: 403
+        end
     end
 
     lifecycle-rule
@@ -69,8 +81,13 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            noncurrent-days: 403
+        end
     end
 
     lifecycle-rule
@@ -88,9 +105,17 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
-        incomplete-multipart-upload-days: 6
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            noncurrent-days: 403
+        end
+
+        abort-incomplete-multipart-upload
+            days-after-initiation: 6
+        end
     end
 
     lifecycle-rule
@@ -110,8 +135,13 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            noncurrent-days: 403
+        end
     end
 
     lifecycle-rule
@@ -132,8 +162,13 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            noncurrent-days: 403
+        end
     end
 
 end
