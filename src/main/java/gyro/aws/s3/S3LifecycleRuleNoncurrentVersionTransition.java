@@ -34,7 +34,7 @@ public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable impleme
 
     @Override
     public String primaryKey() {
-        return String.format("non current transition - %s", getStorageClass());
+        return String.format("%s %s", getDays(), getStorageClass());
     }
 
     @Override
