@@ -91,7 +91,7 @@ import java.util.stream.Collectors;
  *         enable-versioning: true
  *
  *         lifecycle-rule
- *             lifecycle-rule-name: "lifecycle-rule-name"
+ *             id: "lifecycle-rule-name"
  *             expired-object-delete-marker: false
  *             status: "Disabled"
  *

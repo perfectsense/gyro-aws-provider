@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule> {
-    private String lifecycleRuleName;
+    private String id;
     private Integer versionExpirationDays;
     private Boolean expiredObjectDeleteMarker;
     private Integer incompleteMultipartUploadDays;
@@ -32,12 +32,12 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     /**
      * Name of the life cycle rule. (Required)
      */
-    public String getLifecycleRuleName() {
-        return lifecycleRuleName;
+    public String getId() {
+        return id;
     }
 
-    public void setLifecycleRuleName(String lifecycleRuleName) {
-        this.lifecycleRuleName = lifecycleRuleName;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -167,21 +167,21 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     @Override
     public String primaryKey() {
-        return getLifecycleRuleName();
+        return getId();
     }
 
     @Override
     public String toDisplayString() {
-        if (ObjectUtils.isBlank(getLifecycleRuleName())) {
+        if (ObjectUtils.isBlank(getId())) {
             return "lifecycle rule";
         } else {
-            return "lifecycle rule - " + getLifecycleRuleName();
+            return "lifecycle rule - " + getId();
         }
     }
 
     @Override
     public void copyFrom(LifecycleRule lifecycleRule) {
-        setLifecycleRuleName(lifecycleRule.id());
+        setId(lifecycleRule.id());
 
         if (lifecycleRule.expiration() != null) {
             setVersionExpirationDays(lifecycleRule.expiration().days());
@@ -253,7 +253,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
         validateLifecycleRule();
 
         LifecycleRule.Builder builder = LifecycleRule.builder()
-            .id(getLifecycleRuleName())
+            .id(getId())
             .status(getStatus())
             .prefix(null)
             .expiration(

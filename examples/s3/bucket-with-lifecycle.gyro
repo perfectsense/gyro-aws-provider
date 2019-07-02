@@ -9,7 +9,7 @@ aws::s3-bucket bucket-example
     enable-versioning: true
 
     lifecycle-rule
-        lifecycle-rule-name: "rule no prefix and no tag"
+        id: "rule no prefix and no tag"
         expired-object-delete-marker: false
         status: "Disabled"
 
@@ -29,7 +29,7 @@ aws::s3-bucket bucket-example
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule prefix and Single tag"
+        id: "rule prefix and Single tag"
         prefix: "rule_prefix"
         tags: {
             Name: "single_tag"
@@ -51,7 +51,7 @@ aws::s3-bucket bucket-example
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule prefix and Multiple tag"
+        id: "rule prefix and Multiple tag"
         prefix: "rule_prefix"
         tags: {
             Name1: "single_tag1",
@@ -74,7 +74,7 @@ aws::s3-bucket bucket-example
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule prefix and No tag"
+        id: "rule prefix and No tag"
         prefix: "rule_prefix"
         status: "Disabled"
 
@@ -94,7 +94,7 @@ aws::s3-bucket bucket-example
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule no prefix and Single tag"
+        id: "rule no prefix and Single tag"
         tags: {
             Name: "single_tag"
         }
@@ -115,7 +115,7 @@ aws::s3-bucket bucket-example
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule no prefix and Multiple tag"
+        id: "rule no prefix and Multiple tag"
         tags: {
             Name1: "single_tag1",
             Name2: "single_tag2"
