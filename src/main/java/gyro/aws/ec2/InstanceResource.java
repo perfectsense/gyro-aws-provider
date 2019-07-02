@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
+import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
@@ -78,7 +79,7 @@ import java.util.stream.Collectors;
  *
  *         volume
  *             device-name: "/dev/sde"
- *             volume-id: $(aws::ebs-volume volume | volume-id)
+ *             volume: $(aws::ebs-volume volume)
  *         end
  *
  *         capacity-reservation: "none"
@@ -875,8 +876,16 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         setVolume(instance.blockDeviceMappings().stream()
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-            .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+            .map(this::getInstanceVolumeAttachment)
             .collect(Collectors.toSet()));
+    }
+
+
+    private InstanceVolumeAttachment getInstanceVolumeAttachment(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
+        InstanceVolumeAttachment instanceVolumeAttachment = newSubresource(InstanceVolumeAttachment.class);
+        instanceVolumeAttachment.copyFrom(instanceBlockDeviceMapping);
+
+        return instanceVolumeAttachment;
     }
 
     private boolean createInstance(Ec2Client client, RunInstancesRequest request) {
