@@ -222,24 +222,6 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
 
     @Override
     protected List<Volume> findAws(Ec2Client client, Map<String, String> filters) {
-        List<Volume> volumes = new ArrayList<>();
-
-        DescribeVolumesRequest.Builder builder = DescribeVolumesRequest.builder().filters(createFilters(filters));
-
-        String marker = null;
-        DescribeVolumesResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeVolumes(builder.build());
-            } else {
-                response = client.describeVolumes(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            volumes.addAll(response.volumes());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return volumes;
+        return client.describeVolumesPaginator(r -> r.filters(createFilters(filters))).volumes().stream().collect(Collectors.toList());
     }
 }
