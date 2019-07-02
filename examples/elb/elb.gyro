@@ -106,7 +106,7 @@ aws::security-group security-group
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
-    for port, type in [80, 'http', 443, 'https']
+    @for port, type -in [80, 'http', 443, 'https']
         ingress
             description: "allow inbound $(type) traffic, ipv4 only"
             cidr-blocks: ["0.0.0.0/0"]
@@ -114,7 +114,7 @@ aws::security-group security-group
             from-port: $(port)
             to-port: $(port)
         end
-    end
+    @end
 end
 
 aws::internet-gateway internet-gateway
