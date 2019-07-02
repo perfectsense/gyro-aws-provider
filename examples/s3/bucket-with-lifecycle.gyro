@@ -18,7 +18,7 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
@@ -41,7 +41,7 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
@@ -64,7 +64,7 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
@@ -83,7 +83,7 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
@@ -105,7 +105,7 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
@@ -127,7 +127,7 @@ aws::s3-bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end

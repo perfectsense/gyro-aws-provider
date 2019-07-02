@@ -26,7 +26,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     private String status;
     private String prefix;
     private Map<String, String> tags;
-    private List<S3LifecycleRuleNonCurrentTransition> nonCurrentTransition;
+    private List<S3LifecycleRuleNoncurrentVersionTransition> noncurrentVersionTransition;
     private List<S3LifecycleRuleTransition> transition;
 
     /**
@@ -134,16 +134,16 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
      * @subresource gyro.aws.s3.S3LifecycleRuleNonCurrentTransition
      */
     @Updatable
-    public List<S3LifecycleRuleNonCurrentTransition> getNonCurrentTransition() {
-        if (nonCurrentTransition == null) {
-            nonCurrentTransition = new ArrayList<>();
+    public List<S3LifecycleRuleNoncurrentVersionTransition> getNoncurrentVersionTransition() {
+        if (noncurrentVersionTransition == null) {
+            noncurrentVersionTransition = new ArrayList<>();
         }
 
-        return nonCurrentTransition;
+        return noncurrentVersionTransition;
     }
 
-    public void setNonCurrentTransition(List<S3LifecycleRuleNonCurrentTransition> nonCurrentTransition) {
-        this.nonCurrentTransition = nonCurrentTransition;
+    public void setNoncurrentVersionTransition(List<S3LifecycleRuleNoncurrentVersionTransition> noncurrentVersionTransition) {
+        this.noncurrentVersionTransition = noncurrentVersionTransition;
     }
 
     /**
@@ -227,12 +227,12 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
             setNonCurrentVersionExpirationDays(lifecycleRule.noncurrentVersionExpiration().noncurrentDays());
         }
 
-        getNonCurrentTransition().clear();
+        getNoncurrentVersionTransition().clear();
         if (!lifecycleRule.noncurrentVersionTransitions().isEmpty()) {
             for (NoncurrentVersionTransition noncurrentVersionTransition : lifecycleRule.noncurrentVersionTransitions()) {
-                S3LifecycleRuleNonCurrentTransition s3LifecycleRuleNonCurrentTransition = newSubresource(S3LifecycleRuleNonCurrentTransition.class);
+                S3LifecycleRuleNoncurrentVersionTransition s3LifecycleRuleNonCurrentTransition = newSubresource(S3LifecycleRuleNoncurrentVersionTransition.class);
                 s3LifecycleRuleNonCurrentTransition.copyFrom(noncurrentVersionTransition);
-                getNonCurrentTransition().add(s3LifecycleRuleNonCurrentTransition);
+                getNoncurrentVersionTransition().add(s3LifecycleRuleNonCurrentTransition);
             }
         }
 
@@ -293,8 +293,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
         }
 
         builder = builder.noncurrentVersionTransitions(
-            getNonCurrentTransition().stream()
-                .map(S3LifecycleRuleNonCurrentTransition::toNoncurrentVersionTransition)
+            getNoncurrentVersionTransition().stream()
+                .map(S3LifecycleRuleNoncurrentVersionTransition::toNoncurrentVersionTransition)
                 .collect(Collectors.toList())
         ).transitions(
             getTransition().stream()
