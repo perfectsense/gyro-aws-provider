@@ -44,9 +44,9 @@ import java.util.stream.Collectors;
  *     aws::s3-bucket bucket
  *         name: bucket-example
  *         enable-object-lock: true
- *         tags:
- *             Name: bucket-example-update
- *         end
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
  *         enable-accelerate-config: true
  *         enable-version: true
  *         enable-pay: false
@@ -60,9 +60,9 @@ import java.util.stream.Collectors;
  *     aws::s3-bucket bucket
  *         name: bucket-example-with-cors
  *         enable-object-lock: true
- *         tags:
- *             Name: bucket-example-update
- *         end
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
  *         enable-accelerate-config: true
  *         enable-version: true
  *         enable-pay: false
@@ -86,9 +86,9 @@ import java.util.stream.Collectors;
  *     aws::s3-bucket bucket
  *         name: bucket-example-with-lifecycle
  *         enable-object-lock: true
- *         tags:
- *             Name: bucket-example-update
- *         end
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
  *         enable-accelerate-config: true
  *         enable-version: true
  *         enable-pay: false
