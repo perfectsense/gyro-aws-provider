@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  *             Name: "bucket-example"
  *         }
  *         enable-accelerate-config: true
- *         enable-version: true
+ *         enable-versioning: true
  *         enable-pay: false
  *     end
  *
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
  *             Name: "bucket-example"
  *         }
  *         enable-accelerate-config: true
- *         enable-version: true
+ *         enable-versioning: true
  *         enable-pay: false
  *
  *         cors-rule
@@ -90,7 +90,7 @@ import java.util.stream.Collectors;
  *             Name: "bucket-example"
  *         }
  *         enable-accelerate-config: true
- *         enable-version: true
+ *         enable-versioning: true
  *         enable-pay: false
  *
  *         lifecycle-rule
@@ -120,7 +120,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private Boolean enableObjectLock;
     private Map<String, String> tags;
     private Boolean enableAccelerateConfig;
-    private Boolean enableVersion;
+    private Boolean enableVersioning;
     private Boolean enablePay;
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
@@ -182,16 +182,16 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
      * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_. Updatable only when object lock is disabled.
      */
     @Updatable
-    public Boolean getEnableVersion() {
-        if (enableVersion == null) {
-            enableVersion = false;
+    public Boolean getEnableVersioning() {
+        if (enableVersioning == null) {
+            enableVersioning = false;
         }
 
-        return enableVersion;
+        return enableVersioning;
     }
 
-    public void setEnableVersion(Boolean enableVersion) {
-        this.enableVersion = enableVersion;
+    public void setEnableVersioning(Boolean enableVersioning) {
+        this.enableVersioning = enableVersioning;
     }
 
     /**
@@ -289,7 +289,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveAccelerateConfig(client);
         }
 
-        if (getEnableVersion()) {
+        if (getEnableVersioning()) {
             saveEnableVersion(client);
         }
 
@@ -435,14 +435,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         GetBucketVersioningResponse response = client.getBucketVersioning(
             r -> r.bucket(getName())
         );
-        setEnableVersion(response.status() != null && response.status().equals(BucketVersioningStatus.ENABLED));
+        setEnableVersioning(response.status() != null && response.status().equals(BucketVersioningStatus.ENABLED));
     }
 
     private void saveEnableVersion(S3Client client) {
         client.putBucketVersioning(
             r -> r.bucket(getName())
                 .versioningConfiguration(
-                    v -> v.status(getEnableVersion() ? BucketVersioningStatus.ENABLED : BucketVersioningStatus.SUSPENDED)
+                    v -> v.status(getEnableVersioning() ? BucketVersioningStatus.ENABLED : BucketVersioningStatus.SUSPENDED)
                 )
                 .build()
         );

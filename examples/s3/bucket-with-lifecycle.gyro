@@ -6,7 +6,7 @@ aws::s3-bucket bucket-example
         Name2: "something"
     }
     enable-accelerate-config: true
-    enable-version: true
+    enable-versioning: true
     enable-pay: false
 
     lifecycle-rule
