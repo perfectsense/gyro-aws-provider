@@ -1,10 +1,12 @@
 package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -121,6 +123,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String requestPayer;
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
+    private String domainName;
 
     @Id
     public String getName() {
@@ -249,6 +252,15 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.lifecycleRule = lifecycleRule;
     }
 
+    @Output
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -259,6 +271,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
+        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), credentials(AwsCredentials.class).getRegion()));
     }
 
     @Override
