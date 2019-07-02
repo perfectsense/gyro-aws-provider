@@ -252,8 +252,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         setName(bucket.name());
         loadTags(client);
         loadAccelerateConfig(client);
-        loadEnableVersion(client);
         loadEnablePay(client);
+        loadEnableVersioning(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
     }
@@ -290,7 +290,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
 
         if (getEnableVersioning()) {
-            saveEnableVersion(client);
+            saveEnableVersioning(client);
         }
 
         if (getEnablePay()) {
@@ -318,8 +318,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveAccelerateConfig(client);
         }
 
-        if (changedFieldNames.contains("enable-version")) {
-            saveEnableVersion(client);
+        if (changedFieldNames.contains("enable-versioning")) {
+            saveEnableVersioning(client);
         }
 
         if (changedFieldNames.contains("enable-pay")) {
@@ -431,14 +431,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         );
     }
 
-    private void loadEnableVersion(S3Client client) {
+    private void loadEnableVersioning(S3Client client) {
         GetBucketVersioningResponse response = client.getBucketVersioning(
             r -> r.bucket(getName())
         );
         setEnableVersioning(response.status() != null && response.status().equals(BucketVersioningStatus.ENABLED));
     }
 
-    private void saveEnableVersion(S3Client client) {
+    private void saveEnableVersioning(S3Client client) {
         client.putBucketVersioning(
             r -> r.bucket(getName())
                 .versioningConfiguration(
