@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
  *         }
  *         enable-accelerate-config: true
  *         enable-versioning: true
- *         enable-pay: false
  *     end
  *
  * Example with cors rule
@@ -65,7 +64,6 @@ import java.util.stream.Collectors;
  *         }
  *         enable-accelerate-config: true
  *         enable-versioning: true
- *         enable-pay: false
  *
  *         cors-rule
  *             allowed-origins: [
@@ -91,7 +89,6 @@ import java.util.stream.Collectors;
  *         }
  *         enable-accelerate-config: true
  *         enable-versioning: true
- *         enable-pay: false
  *
  *         lifecycle-rule
  *             lifecycle-rule-name: "lifecycle-rule-name"
@@ -121,7 +118,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private Map<String, String> tags;
     private Boolean enableAccelerateConfig;
     private Boolean enableVersioning;
-    private Boolean enablePay;
+    private String requestPayer;
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
 
@@ -195,19 +192,25 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Enable the requester to pay for requests to the bucket than the owner. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
+     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. Valid values are ``BUCKET_OWNER`` or ``REQUESTER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
      */
     @Updatable
-    public Boolean getEnablePay() {
-        if (enablePay == null) {
-            enablePay = false;
+    public String getRequestPayer() {
+        if (requestPayer == null) {
+            requestPayer = "BUCKET_OWNER";
         }
 
-        return enablePay;
+        return requestPayer.toUpperCase();
     }
 
-    public void setEnablePay(Boolean enablePay) {
-        this.enablePay = enablePay;
+    public void setRequestPayer(String requestPayer) {
+        this.requestPayer = requestPayer;
+
+        try {
+            Payer.valueOf(requestPayer.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new GyroException("Invalid value for param 'request-payer'. Valid values are 'BUCKET_OWNER' or 'REQUESTER'.");
+        }
     }
 
     /**
@@ -252,8 +255,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         setName(bucket.name());
         loadTags(client);
         loadAccelerateConfig(client);
-        loadEnablePay(client);
         loadEnableVersioning(client);
+        loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
     }
@@ -276,6 +279,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     @Override
     public void create() {
         S3Client client = createClient(S3Client.class);
+
         client.createBucket(
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
@@ -293,8 +297,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveEnableVersioning(client);
         }
 
-        if (getEnablePay()) {
-            saveEnablePay(client);
+        if (getRequestPayer().equalsIgnoreCase(Payer.REQUESTER.name())) {
+            saveRequestPayer(client);
         }
 
         if (!getCorsRule().isEmpty()) {
@@ -322,8 +326,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveEnableVersioning(client);
         }
 
-        if (changedFieldNames.contains("enable-pay")) {
-            saveEnablePay(client);
+        if (changedFieldNames.contains("request-payer")) {
+            saveRequestPayer(client);
         }
 
         saveCorsRules(client);
@@ -448,19 +452,19 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         );
     }
 
-    private void loadEnablePay(S3Client client) {
+    private void loadRequestPayer(S3Client client) {
         GetBucketRequestPaymentResponse response = client.getBucketRequestPayment(
             r -> r.bucket(getName()).build()
         );
 
-        setEnablePay(response.payer().equals(Payer.REQUESTER));
+        setRequestPayer(response.payer().name());
     }
 
-    private void saveEnablePay(S3Client client) {
+    private void saveRequestPayer(S3Client client) {
         client.putBucketRequestPayment(
             r -> r.bucket(getName())
                 .requestPaymentConfiguration(
-                    p -> p.payer(getEnablePay() ? Payer.REQUESTER : Payer.BUCKET_OWNER)
+                    p -> p.payer(getRequestPayer())
                 )
             .build()
         );

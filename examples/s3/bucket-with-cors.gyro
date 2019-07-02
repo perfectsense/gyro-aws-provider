@@ -7,7 +7,6 @@ aws::s3-bucket bucket-example
     }
     enable-accelerate-config: true
     enable-versioning: true
-    enable-pay: false
 
     cors-rule
         allowed-origins: [
