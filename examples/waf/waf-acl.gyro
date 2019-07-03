@@ -90,37 +90,30 @@ aws::waf-rule rule-example-waf
 
     predicate
         condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-geo-match-set geo-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-xss-match-set xss-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-size-constraint-set size-constraint-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-ip-set ip-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-byte-match-set byte-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-sql-injection-match-set sql-injection-match-set-example-waf)
-        negated: false
     end
 end
 
@@ -132,37 +125,30 @@ aws::waf-rate-rule rate-rule-example-waf
 
     predicate
         condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-geo-match-set geo-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-xss-match-set xss-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-size-constraint-set size-constraint-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-ip-set ip-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-byte-match-set byte-match-set-example-waf)
-        negated: false
     end
 
     predicate
         condition: $(aws::waf-sql-injection-match-set sql-injection-match-set-example-waf)
-        negated: false
     end
 end
 
