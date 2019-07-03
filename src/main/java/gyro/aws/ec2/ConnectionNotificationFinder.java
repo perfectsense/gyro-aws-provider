@@ -1,16 +1,13 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query vpc connection notification.
@@ -97,37 +94,11 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
 
     @Override
     protected List<ConnectionNotification> findAllAws(Ec2Client client) {
-        return getConnectionNotifications(client, null);
+        return client.describeVpcEndpointConnectionNotificationsPaginator().connectionNotificationSet().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<ConnectionNotification> findAws(Ec2Client client, Map<String, String> filters) {
-        return getConnectionNotifications(client, filters);
-    }
-
-    private List<ConnectionNotification> getConnectionNotifications(Ec2Client client, Map<String, String> filters) {
-        List<ConnectionNotification> connectionNotifications = new ArrayList<>();
-
-        DescribeVpcEndpointConnectionNotificationsRequest.Builder builder = DescribeVpcEndpointConnectionNotificationsRequest.builder();
-
-        if (filters != null) {
-            builder = builder.filters(createFilters(filters));
-        }
-
-        String marker = null;
-        DescribeVpcEndpointConnectionNotificationsResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeVpcEndpointConnectionNotifications(builder.build());
-            } else {
-                response = client.describeVpcEndpointConnectionNotifications(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            connectionNotifications.addAll(response.connectionNotificationSet());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return connectionNotifications;
+        return client.describeVpcEndpointConnectionNotificationsPaginator(r -> r.filters(createFilters(filters))).connectionNotificationSet().stream().collect(Collectors.toList());
     }
 }
