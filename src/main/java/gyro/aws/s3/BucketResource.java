@@ -5,6 +5,7 @@ import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -522,7 +524,21 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                         getCorsRule().stream().map(S3CorsRule::toCorsRule).collect(Collectors.toList())
                     ))
             );
+
+            Wait.atMost(2, TimeUnit.MINUTES)
+                .prompt(false)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .until(() -> isCorsSaved(client));
         }
+    }
+
+    private boolean isCorsSaved(S3Client client) {
+        BucketResource bucketResource = new BucketResource();
+        bucketResource.setName(getName());
+        bucketResource.loadCorsRules(client);
+
+        Set<String> currentCors = bucketResource.getCorsRule().stream().map(S3CorsRule::primaryKey).collect(Collectors.toSet());
+        return getCorsRule().stream().allMatch(o -> currentCors.contains(o.primaryKey()));
     }
 
     private void loadLifecycleRules(S3Client client) {
