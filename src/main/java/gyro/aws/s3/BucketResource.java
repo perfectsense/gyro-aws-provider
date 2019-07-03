@@ -93,8 +93,7 @@ import java.util.stream.Collectors;
  *         enable-versioning: true
  *
  *         lifecycle-rule
- *             id: "lifecycle-rule-name"
- *             expired-object-delete-marker: false
+ *             id: "rule no prefix and no tag"
  *             status: "Disabled"
  *
  *             transition
@@ -102,13 +101,22 @@ import java.util.stream.Collectors;
  *                 storage-class: "STANDARD_IA"
  *             end
  *
- *             non-current-transition
+ *             noncurrent-version-transition
  *                 days: 40
  *                 storage-class: "STANDARD_IA"
  *             end
  *
- *             non-current-version-expiration-days: 403
- *             incomplete-multipart-upload-days: 5
+ *             expiration
+ *                 expired-object-delete-marker: false
+ *             end
+ *
+ *             noncurrent-version-expiration
+ *                 noncurrent-days: 403
+ *             end
+ *
+ *             abort-incomplete-multipart-upload
+ *                 days-after-initiation: 5
+ *             end
  *         end
  *     end
  */
