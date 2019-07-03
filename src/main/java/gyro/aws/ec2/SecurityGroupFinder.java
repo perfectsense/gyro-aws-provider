@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query security group.
@@ -345,11 +346,11 @@ public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, Sec
 
     @Override
     protected List<SecurityGroup> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSecurityGroups(r -> r.filters(createFilters(filters))).securityGroups();
+        return client.describeSecurityGroupsPaginator(r -> r.filters(createFilters(filters))).securityGroups().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<SecurityGroup> findAllAws(Ec2Client client) {
-        return client.describeSecurityGroups().securityGroups();
+        return client.describeSecurityGroupsPaginator().securityGroups().stream().collect(Collectors.toList());
     }
 }

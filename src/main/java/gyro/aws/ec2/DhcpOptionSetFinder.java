@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.ec2.model.DhcpOptions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query dhcp options.
@@ -97,11 +98,11 @@ public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpO
 
     @Override
     protected List<DhcpOptions> findAllAws(Ec2Client client) {
-        return client.describeDhcpOptions().dhcpOptions();
+        return client.describeDhcpOptionsPaginator().dhcpOptions().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<DhcpOptions> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeDhcpOptions(r -> r.filters(createFilters(filters))).dhcpOptions();
+        return client.describeDhcpOptionsPaginator(r -> r.filters(createFilters(filters))).dhcpOptions().stream().collect(Collectors.toList());
     }
 }

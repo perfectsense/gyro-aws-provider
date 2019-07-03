@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query peering connection.
@@ -177,11 +178,11 @@ public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConn
 
     @Override
     protected List<VpcPeeringConnection> findAllAws(Ec2Client client) {
-        return client.describeVpcPeeringConnections().vpcPeeringConnections();
+        return client.describeVpcPeeringConnectionsPaginator().vpcPeeringConnections().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<VpcPeeringConnection> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcPeeringConnections(r -> r.filters(createFilters(filters))).vpcPeeringConnections();
+        return client.describeVpcPeeringConnectionsPaginator(r -> r.filters(createFilters(filters))).vpcPeeringConnections().stream().collect(Collectors.toList());
     }
 }
