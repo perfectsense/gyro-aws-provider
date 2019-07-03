@@ -1,5 +1,5 @@
-aws::subnet "outside-subnet"
-    vpc: $(aws::vpc network.vpc)
+aws::subnet outside-subnet
+    vpc: $(aws::vpc network/vpc)
     availability-zone: 'us-east-2c'
     cidr-block: '10.0.2.0/24'
 
@@ -9,29 +9,29 @@ aws::subnet "outside-subnet"
 end
 
 example::network network
-    name: "example network"
+    name: 'example network'
 end
 
-virtual-resource example::network
-    param name
-define
+@virtual example::network
+    @param: name
+
     aws::vpc vpc
-        cidr-block: "10.0.0.0/16"
+        cidr-block: '10.0.0.0/16'
 
         tags: {
-            Name: $(name)
+            Name: $name
         }
     end
 
-    for zone, cidr in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
-        aws::subnet "subnet-$(zone)"
+    @for zone, cidr -in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
+        aws::subnet "subnet-$zone"
             vpc: $(aws::vpc vpc)
-            availability-zone: $(zone)
-            cidr-block: $(cidr)
+            availability-zone: $zone
+            cidr-block: $cidr
 
             tags: {
-                Name: "subnet-example $(zone) $(cidr)"
+                Name: "subnet-example $zone $cidr"
             }
         end
-    end
-end
+    @end
+@end
