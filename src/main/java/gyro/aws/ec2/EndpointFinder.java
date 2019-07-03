@@ -8,15 +8,16 @@ import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Query endpoint.
+ * Query vpc endpoint.
  *
  * .. code-block:: gyro
  *
- *    endpoint: $(aws::endpoint EXTERNAL/* | service-name = '')
+ *    endpoint: $(aws::vpc-endpoint EXTERNAL/* | service-name = '')
  */
-@Type("endpoint")
+@Type("vpc-endpoint")
 public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
 
     private String serviceName;
@@ -98,11 +99,11 @@ public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointRe
 
     @Override
     protected List<VpcEndpoint> findAllAws(Ec2Client client) {
-        return client.describeVpcEndpoints().vpcEndpoints();
+        return client.describeVpcEndpointsPaginator().vpcEndpoints().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<VpcEndpoint> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcEndpoints(r -> r.filters(createFilters(filters))).vpcEndpoints();
+        return client.describeVpcEndpointsPaginator(r -> r.filters(createFilters(filters))).vpcEndpoints().stream().collect(Collectors.toList());
     }
 }

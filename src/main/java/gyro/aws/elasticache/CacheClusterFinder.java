@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-clusters: $(aws::cache-cluster EXTERNAL/* | cache-cluster-id = 'cache-cluster-ex-1')
+ *    cache-clusters: $(aws::elasticache-cluster EXTERNAL/* | cache-cluster-id = 'cache-cluster-ex-1')
  */
-@Type("cache-cluster")
+@Type("elasticache-cluster")
 public class CacheClusterFinder extends AwsFinder<ElastiCacheClient, CacheCluster, CacheClusterResource> {
 
     private String cacheClusterId;

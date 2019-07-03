@@ -4,9 +4,12 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query db instance.
@@ -45,12 +48,16 @@ public class DbInstanceFinder extends AwsFinder<RdsClient, DBInstance, DbInstanc
 
     @Override
     protected List<DBInstance> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeDBInstances(r -> r.filters(createRdsFilters(filters))).dbInstances();
+        try {
+            return client.describeDBInstances(r -> r.filters(createRdsFilters(filters))).dbInstances();
+        } catch (DbInstanceNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
     protected List<DBInstance> findAllAws(RdsClient client) {
-        return client.describeDBInstances().dbInstances();
+        return client.describeDBInstancesPaginator().dbInstances().stream().collect(Collectors.toList());
     }
 
 }

@@ -23,19 +23,19 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::alb-listener listener-example
+ *     aws::application-load-balancer-listener listener-example
  *         port: "80"
  *         protocol: "HTTPS"
- *         alb: $(aws::alb alb-example)
+ *         alb: $(aws::application-load-balancer alb-example)
  *         default-certificate: "arn:aws:acm:us-east-2:acct:certificate/certificate-arn"
  *
  *         default-action
- *             target-group-arn: $(aws::target-group target-group-example | target-group-arn)
+ *             target-group-arn: $(aws::load-balancer-target-group target-group-example | target-group-arn)
  *             type: "forward"
  *         end
  *     end
  */
-@Type("alb-listener")
+@Type("application-load-balancer-listener")
 public class ApplicationLoadBalancerListenerResource extends ListenerResource implements Copyable<Listener> {
 
     private ApplicationLoadBalancerResource alb;

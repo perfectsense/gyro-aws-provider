@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.Subnet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query subnet.
@@ -210,11 +211,11 @@ public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
 
     @Override
     protected List<Subnet> findAllAws(Ec2Client client) {
-        return client.describeSubnets().subnets();
+        return client.describeSubnetsPaginator().subnets().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<Subnet> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSubnets(r -> r.filters(createFilters(filters))).subnets();
+        return client.describeSubnetsPaginator(r -> r.filters(createFilters(filters))).subnets().stream().collect(Collectors.toList());
     }
 }

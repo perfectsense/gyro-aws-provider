@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
-import gyro.aws.kms.KmsResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -93,7 +93,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private String engineVersion;
     private String finalDbSnapshotIdentifier;
     private DbGlobalClusterResource globalCluster;
-    private KmsResource kmsKey;
+    private KmsKeyResource kmsKey;
     private String masterUserPassword;
     private String masterUsername;
     private DbOptionGroupResource optionGroup;
@@ -315,11 +315,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The AWS KMS key to encrypt the DB cluster.
      */
-    public KmsResource getKmsKey() {
+    public KmsKeyResource getKmsKey() {
         return kmsKey;
     }
 
-    public void setKmsKey(KmsResource kmsKey) {
+    public void setKmsKey(KmsKeyResource kmsKey) {
         this.kmsKey = kmsKey;
     }
 
@@ -511,7 +511,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setEngineVersion(version);
         setEngineMode(cluster.engineMode());
-        setKmsKey(cluster.kmsKeyId() != null ? findById(KmsResource.class, cluster.kmsKeyId()) : null);
+        setKmsKey(cluster.kmsKeyId() != null ? findById(KmsKeyResource.class, cluster.kmsKeyId()) : null);
         setMasterUsername(cluster.masterUsername());
 
         setOptionGroup(cluster.dbClusterOptionGroupMemberships().stream()

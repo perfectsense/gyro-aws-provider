@@ -22,21 +22,21 @@ import java.net.URLDecoder;
 import java.util.Set;
 
 /**
- * Creates a Policy with the specified options.
+ * Creates an IAM Policy with the specified options.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::policy example-role
+ *     aws::iam-policy example-role
  *         name: "rta-test-policy"
  *         description: "testing the policy functionality"
  *         policy-document: "policyFile.json"
- *         role: (aws::role role)
+ *         role: (aws::iam-role role)
  *     end
  */
-@Type("policy")
+@Type("iam-policy")
 public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     private String arn;

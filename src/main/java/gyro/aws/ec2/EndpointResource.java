@@ -31,14 +31,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Creates an endpoint with the specified vpc and either route tables or subnets and security groups.
+ * Creates a vpc endpoint with the specified vpc and either route tables or subnets and security groups.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::endpoint endpoint-example-gateway
+ *     aws::vpc-endpoint endpoint-example-gateway
  *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         service-name: 'com.amazonaws.us-east-1.s3'
  *         policy: 'policy.json'
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  *          ]
  *     end
  *
- *     aws::endpoint endpoint-example-interface
+ *     aws::vpc-endpoint endpoint-example-interface
  *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
  *         service-name: 'com.amazonaws.us-east-1.ec2'
  *         policy: 'policy.json'
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  */
-@Type("endpoint")
+@Type("vpc-endpoint")
 public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
 
     private String endpointId;

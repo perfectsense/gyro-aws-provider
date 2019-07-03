@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.RouteTable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query route table.
@@ -294,11 +295,11 @@ public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTabl
 
     @Override
     protected List<RouteTable> findAllAws(Ec2Client client) {
-        return client.describeRouteTables().routeTables();
+        return client.describeRouteTablesPaginator().routeTables().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<RouteTable> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeRouteTables(r -> r.filters(createFilters(filters))).routeTables();
+        return client.describeRouteTablesPaginator(r -> r.filters(createFilters(filters))).routeTables().stream().collect(Collectors.toList());
     }
 }

@@ -9,8 +9,6 @@ import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.lambda.model.GetAliasResponse;
 import software.amazon.awssdk.services.lambda.model.ListAliasesRequest;
 import software.amazon.awssdk.services.lambda.model.ListAliasesResponse;
-import software.amazon.awssdk.services.lambda.model.ListFunctionsRequest;
-import software.amazon.awssdk.services.lambda.model.ListFunctionsResponse;
 import software.amazon.awssdk.services.sns.model.NotFoundException;
 
 import java.util.ArrayList;
@@ -56,23 +54,10 @@ public class FunctionAliasFinder extends AwsFinder<LambdaClient, GetAliasRespons
     protected List<GetAliasResponse> findAllAws(LambdaClient client) {
         List<GetAliasResponse> getAliasResponses = new ArrayList<>();
 
-        List<String> functionNames = new ArrayList<>();
-        ListFunctionsResponse listFunctionsResponse;
-        String marker = "";
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                listFunctionsResponse = client.listFunctions();
-            } else {
-                listFunctionsResponse = client.listFunctions(ListFunctionsRequest.builder().marker(marker).build());
-            }
-            marker = listFunctionsResponse.nextMarker();
-            functionNames.addAll(
-                listFunctionsResponse.functions().stream()
-                    .map(FunctionConfiguration::functionName)
-                    .collect(Collectors.toList())
-            );
-        } while (!ObjectUtils.isBlank(marker));
+        List<String> functionNames = client.listFunctionsPaginator()
+            .functions().stream()
+            .map(FunctionConfiguration::functionName)
+            .collect(Collectors.toList());
 
         for (String functionName : functionNames) {
             getAliasResponses.addAll(getAllAliasForFunction(client, functionName));
@@ -85,21 +70,23 @@ public class FunctionAliasFinder extends AwsFinder<LambdaClient, GetAliasRespons
     protected List<GetAliasResponse> findAws(LambdaClient client, Map<String, String> filters) {
         List<GetAliasResponse> getAliasResponses = new ArrayList<>();
 
-        if (filters.containsKey("function-name") && !ObjectUtils.isBlank(filters.get("function-name"))) {
-            if (filters.containsKey("alias-name") && !ObjectUtils.isBlank(filters.get("alias-name"))) {
-                try {
-                    getAliasResponses.add(
-                        client.getAlias(
-                            r -> r.functionName(filters.get("function-name"))
-                                .name(filters.get("alias-name"))
-                        )
-                    );
-                } catch (NotFoundException ignore) {
-                    // ignore
-                }
-            } else {
-                getAliasResponses = getAllAliasForFunction(client, filters.get("function-name"));
+        if (!filters.containsKey("function-name")) {
+            throw new IllegalArgumentException("'function-name is required.'");
+        }
+
+        if (filters.containsKey("alias-name")) {
+            try {
+                getAliasResponses.add(
+                    client.getAlias(
+                        r -> r.functionName(filters.get("function-name"))
+                            .name(filters.get("alias-name"))
+                    )
+                );
+            } catch (NotFoundException ignore) {
+                // ignore
             }
+        } else {
+            getAliasResponses = getAllAliasForFunction(client, filters.get("function-name"));
         }
 
         return getAliasResponses;

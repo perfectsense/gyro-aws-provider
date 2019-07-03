@@ -1,8 +1,6 @@
 package gyro.aws.iam;
 
-import gyro.aws.AwsCredentials;
 import gyro.aws.AwsFinder;
-import gyro.aws.AwsResource;
 import gyro.core.Type;
 
 import software.amazon.awssdk.regions.Region;
@@ -19,9 +17,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    instance-profile: $(aws::instance-profile EXTERNAL/* | name = '')
+ *    instance-profile: $(aws::iam-instance-profile EXTERNAL/* | name = '')
  */
-@Type("instance-profile")
+@Type("iam-instance-profile")
 public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile, InstanceProfileResource> {
 
     private String name;
