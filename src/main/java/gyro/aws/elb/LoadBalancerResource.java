@@ -77,7 +77,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The instances to associate with this load balancer. (Required)
+     * The instances to associate with this load balancer.
      */
     @Updatable
     public Set<InstanceResource> getInstances() {
