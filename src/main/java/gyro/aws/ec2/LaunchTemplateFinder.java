@@ -1,17 +1,14 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query launch template.
@@ -89,42 +86,17 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
 
     @Override
     protected List<LaunchTemplate> findAllAws(Ec2Client client) {
-        return getLaunchTemplates(client, null);
+        return client.describeLaunchTemplatesPaginator().launchTemplates().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<LaunchTemplate> findAws(Ec2Client client, Map<String, String> filters) {
-        return getLaunchTemplates(client, filters);
-    }
-
-    private List<LaunchTemplate> getLaunchTemplates(Ec2Client client, Map<String, String> filters) {
-        List<LaunchTemplate> launchTemplates = new ArrayList<>();
-
-        DescribeLaunchTemplatesRequest.Builder builder = DescribeLaunchTemplatesRequest.builder();
-
-        if (filters != null) {
-            if (filters.containsKey("launch-template-id")) {
-                builder = builder.launchTemplateIds(filters.get("launch-template-id"));
-                filters.remove("launch-template-id");
-            }
-
-            builder = builder.filters(createFilters(filters));
+        if (filters.containsKey("launch-template-id")) {
+            String id = filters.get("launch-template-id");
+            filters.remove("launch-template-id");
+            return client.describeLaunchTemplatesPaginator(r -> r.launchTemplateIds(id).filters(createFilters(filters))).launchTemplates().stream().collect(Collectors.toList());
+        } else {
+            return client.describeLaunchTemplatesPaginator(r -> r.filters(createFilters(filters))).launchTemplates().stream().collect(Collectors.toList());
         }
-
-        String marker = null;
-        DescribeLaunchTemplatesResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeLaunchTemplates(builder.build());
-            } else {
-                response = client.describeLaunchTemplates(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            launchTemplates.addAll(response.launchTemplates());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return launchTemplates;
     }
 }
