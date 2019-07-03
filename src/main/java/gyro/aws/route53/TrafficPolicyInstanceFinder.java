@@ -61,12 +61,10 @@ public class TrafficPolicyInstanceFinder extends AwsFinder<Route53Client, Traffi
     protected List<TrafficPolicyInstance> findAws(Route53Client client, Map<String, String> filters) {
         List<TrafficPolicyInstance> trafficPolicyInstances = new ArrayList<>();
 
-        if (filters.containsKey("traffic-policy-instance-id") && !ObjectUtils.isBlank(filters.get("traffic-policy-instance-id"))) {
-            try {
-                trafficPolicyInstances.add(client.getTrafficPolicyInstance(r -> r.id(filters.get("traffic-policy-instance-id"))).trafficPolicyInstance());
-            } catch (NoSuchTrafficPolicyInstanceException ignore) {
-                // ignore
-            }
+        try {
+            trafficPolicyInstances.add(client.getTrafficPolicyInstance(r -> r.id(filters.get("traffic-policy-instance-id"))).trafficPolicyInstance());
+        } catch (NoSuchTrafficPolicyInstanceException ignore) {
+            // ignore
         }
 
         return trafficPolicyInstances;

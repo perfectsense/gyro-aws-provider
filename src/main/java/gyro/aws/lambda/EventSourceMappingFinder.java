@@ -1,6 +1,5 @@
 package gyro.aws.lambda;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -36,7 +35,7 @@ public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSo
     @Override
     protected List<GetEventSourceMappingResponse> findAllAws(LambdaClient client) {
         List<GetEventSourceMappingResponse> getEventSourceMappingResponses = new ArrayList<>();
-        client.listEventSourceMappings().eventSourceMappings()
+        client.listEventSourceMappingsPaginator().eventSourceMappings()
             .forEach(o -> getEventSourceMappingResponses.add(client.getEventSourceMapping(r -> r.uuid(o.uuid()))));
         return getEventSourceMappingResponses;
     }
@@ -45,12 +44,14 @@ public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSo
     protected List<GetEventSourceMappingResponse> findAws(LambdaClient client, Map<String, String> filters) {
         List<GetEventSourceMappingResponse> getEventSourceMappingResponses = new ArrayList<>();
 
-        if (filters.containsKey("event-source-mapping-id") && !ObjectUtils.isBlank(filters.get("event-source-mapping-id"))) {
-            try {
-                getEventSourceMappingResponses.add(client.getEventSourceMapping(r -> r.uuid(filters.get("event-source-mapping-id"))));
-            } catch (ResourceNotFoundException ignore) {
-                // ignore
-            }
+        if (!filters.containsKey("event-source-mapping-id")) {
+            throw new IllegalArgumentException("'event-source-mapping-id' is required.");
+        }
+
+        try {
+            getEventSourceMappingResponses.add(client.getEventSourceMapping(r -> r.uuid(filters.get("event-source-mapping-id"))));
+        } catch (ResourceNotFoundException ignore) {
+            // ignore
         }
 
         return getEventSourceMappingResponses;

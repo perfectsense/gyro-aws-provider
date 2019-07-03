@@ -5,10 +5,12 @@ import gyro.core.Type;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ListUserPoolsResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolDescriptionType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +39,15 @@ public class UserPoolFinder extends AwsFinder<CognitoIdentityProviderClient, Use
 
     @Override
     public List<UserPoolType> findAws(CognitoIdentityProviderClient client, Map<String, String> filters) {
-        List<UserPoolType> userPoolType = new ArrayList<>();
+        if (!filters.containsKey("id")) {
+            throw new IllegalArgumentException("'id' is required.");
+        }
 
-        userPoolType.add(client.describeUserPool(r -> r.userPoolId(filters.get("id"))).userPool());
-
-        return userPoolType;
+        try {
+            return Collections.singletonList(client.describeUserPool(r -> r.userPoolId(filters.get("id"))).userPool());
+        } catch (ResourceNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
