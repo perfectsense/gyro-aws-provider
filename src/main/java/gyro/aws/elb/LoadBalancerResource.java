@@ -192,8 +192,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         setDnsName(response.dnsName());
 
-        client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
+        if (!getInstances().isEmpty()) {
+            client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
                 .loadBalancerName(getLoadBalancerName()));
+        }
     }
 
     @Override
