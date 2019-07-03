@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-snapshots: $(aws::cache-snapshot EXTERNAL/* | snapshot-name = 'cache-snapshot-example')
+ *    cache-snapshots: $(aws::elasticache-snapshot EXTERNAL/* | snapshot-name = 'cache-snapshot-example')
  */
-@Type("cache-snapshot")
+@Type("elasticache-snapshot")
 public class SnapshotFinder extends AwsFinder<ElastiCacheClient, Snapshot, SnapshotResource> {
 
     private String snapshotName;

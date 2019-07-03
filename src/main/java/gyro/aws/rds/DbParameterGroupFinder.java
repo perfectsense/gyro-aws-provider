@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.rds.model.DbParameterGroupNotFoundExcepti
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query db parameter group.
@@ -35,6 +36,10 @@ public class DbParameterGroupFinder extends AwsFinder<RdsClient, DBParameterGrou
 
     @Override
     protected List<DBParameterGroup> findAws(RdsClient client, Map<String, String> filters) {
+        if (!filters.containsKey("name")) {
+            throw new IllegalArgumentException("'name' is required.");
+        }
+
         try {
             return client.describeDBParameterGroups(r -> r.dbParameterGroupName(filters.get("name"))).dbParameterGroups();
         } catch (DbParameterGroupNotFoundException ex) {
@@ -44,7 +49,7 @@ public class DbParameterGroupFinder extends AwsFinder<RdsClient, DBParameterGrou
 
     @Override
     protected List<DBParameterGroup> findAllAws(RdsClient client) {
-        return client.describeDBParameterGroups().dbParameterGroups();
+        return client.describeDBParameterGroupsPaginator().dbParameterGroups().stream().collect(Collectors.toList());
     }
 
 }

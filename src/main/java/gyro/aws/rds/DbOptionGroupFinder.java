@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.rds.model.OptionGroupNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query db option group.
@@ -35,6 +36,10 @@ public class DbOptionGroupFinder extends AwsFinder<RdsClient, OptionGroup, DbOpt
 
     @Override
     protected List<OptionGroup> findAws(RdsClient client, Map<String, String> filters) {
+        if (!filters.containsKey("name")) {
+            throw new IllegalArgumentException("'name' is required.");
+        }
+
         try {
             return client.describeOptionGroups(r -> r.optionGroupName(filters.get("name"))).optionGroupsList();
         } catch (OptionGroupNotFoundException ex) {
@@ -44,7 +49,7 @@ public class DbOptionGroupFinder extends AwsFinder<RdsClient, OptionGroup, DbOpt
 
     @Override
     protected List<OptionGroup> findAllAws(RdsClient client) {
-        return client.describeOptionGroups().optionGroupsList();
+        return client.describeOptionGroupsPaginator().optionGroupsList().stream().collect(Collectors.toList());
     }
 
 }

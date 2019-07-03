@@ -1,16 +1,14 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query launch template.
@@ -88,24 +86,17 @@ public class LaunchTemplateFinder extends AwsFinder<Ec2Client, LaunchTemplate, L
 
     @Override
     protected List<LaunchTemplate> findAllAws(Ec2Client client) {
-        return client.describeLaunchTemplates().launchTemplates();
+        return client.describeLaunchTemplatesPaginator().launchTemplates().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<LaunchTemplate> findAws(Ec2Client client, Map<String, String> filters) {
-        DescribeLaunchTemplatesRequest.Builder request = DescribeLaunchTemplatesRequest.builder();
-
         if (filters.containsKey("launch-template-id")) {
-            String launchTemplateId = filters.get("launch-template-id");
+            String id = filters.get("launch-template-id");
             filters.remove("launch-template-id");
-
-            if (!ObjectUtils.isBlank(launchTemplateId)) {
-                request.launchTemplateIds(Collections.singleton(launchTemplateId));
-            }
+            return client.describeLaunchTemplatesPaginator(r -> r.launchTemplateIds(id).filters(createFilters(filters))).launchTemplates().stream().collect(Collectors.toList());
+        } else {
+            return client.describeLaunchTemplatesPaginator(r -> r.filters(createFilters(filters))).launchTemplates().stream().collect(Collectors.toList());
         }
-
-        request.filters(createFilters(filters));
-
-        return client.describeLaunchTemplates(request.build()).launchTemplates();
     }
 }

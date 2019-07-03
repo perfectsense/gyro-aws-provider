@@ -7,15 +7,16 @@ import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Query connection notification.
+ * Query vpc connection notification.
  *
  * .. code-block:: gyro
  *
- *    connection-notification: $(aws::connection-notification EXTERNAL/* | connection-notification-arn = '')
+ *    connection-notification: $(aws::vpc-connection-notification EXTERNAL/* | connection-notification-arn = '')
  */
-@Type("connection-notification")
+@Type("vpc-connection-notification")
 public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, ConnectionNotification, ConnectionNotificationResource> {
 
     private String connectionNotificationArn;
@@ -93,11 +94,11 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
 
     @Override
     protected List<ConnectionNotification> findAllAws(Ec2Client client) {
-        return client.describeVpcEndpointConnectionNotifications().connectionNotificationSet();
+        return client.describeVpcEndpointConnectionNotificationsPaginator().connectionNotificationSet().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<ConnectionNotification> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcEndpointConnectionNotifications(r -> r.filters(createFilters(filters))).connectionNotificationSet();
+        return client.describeVpcEndpointConnectionNotificationsPaginator(r -> r.filters(createFilters(filters))).connectionNotificationSet().stream().collect(Collectors.toList());
     }
 }

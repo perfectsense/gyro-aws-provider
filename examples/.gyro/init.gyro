@@ -1,16 +1,16 @@
-@highlander
-@repository 'https://artifactory.psdops.com/public'
-@repository 'https://artifactory.psdops.com/gyro-snapshots'
-@plugin 'gyro:gyro-aws-provider:0.15-SNAPSHOT'
-@plugin 'gyro:gyro-beam-enterprise-plugin:0.15-SNAPSHOT'
+@highlander: true
+@repository: 'https://artifactory.psdops.com/public'
+@repository: 'https://artifactory.psdops.com/gyro-snapshots'
+@plugin: 'gyro:gyro-aws-provider:0.15-SNAPSHOT'
+@plugin: 'gyro:gyro-beam-enterprise-plugin:0.15-SNAPSHOT'
 
 project: "beam-sandbox"
 account: "psd-beam-sandbox"
 environment: "sandbox"
 
-@credentials 'enterprise::aws-credentials' {
-    enterprise-url: "https://beam-enterprise.psdops.com",
-    project: $(project),
-    account: $(account),
+@credentials 'enterprise::aws-credentials'
+    enterprise-url: "https://beam-enterprise.psdops.com"
+    project: $(project)
+    account: $(account)
     region: "us-east-2"
-}
+@end

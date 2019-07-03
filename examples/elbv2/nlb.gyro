@@ -1,4 +1,4 @@
-aws::nlb nlb-example
+aws::network-load-balancer nlb-example
     name: "nlb-example"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
@@ -16,18 +16,18 @@ aws::nlb nlb-example
     }
 end
 
-aws::nlb-listener listener-example
+aws::network-load-balancer-listener listener-example
     port: "80"
     protocol: "TCP"
-    nlb: $(aws::nlb nlb-example)
+    nlb: $(aws::network-load-balancer nlb-example)
 
     default-action
-        target-group: $(aws::target-group target-group-example)
+        target-group: $(aws::load-balancer-target-group target-group-example)
         type: "forward"
     end
 end
 
-aws::target-group target-group-example
+aws::load-balancer-target-group target-group-example
     name: "test-target-group"
     port: "80"
     protocol: "TCP"
@@ -48,16 +48,16 @@ aws::target-group target-group-example
     }
 end
 
-aws::target target-ex-one
+aws::load-balancer-target target-ex-one
     id: $(aws::instance instance-us-east-2a).instance-id
     port: "80"
-    target-group: $(aws::target-group target-group-example)
+    target-group: $(aws::load-balancer-target-group target-group-example)
 end
 
-aws::target target-ex-two
+aws::load-balancer-target target-ex-two
     id: $(aws::instance instance-us-east-2b).instance-id
     port: "443"
-    target-group: $(aws::target-group target-group-example)
+    target-group: $(aws::load-balancer-target-group target-group-example)
 end
 
 aws::vpc vpc
@@ -135,7 +135,7 @@ aws::security-group security-group
     description: "Allow web traffic only"
     keep-default-egress-rules: true
 
-    for port, type in [80, 'http', 443, 'https']
+    @for port, type -in [80, 'http', 443, 'https']
         ingress
             description: "allow inbound $(type) traffic, ipv4 only"
             cidr-blocks: ["0.0.0.0/0"]
@@ -143,5 +143,5 @@ aws::security-group security-group
             from-port: $(port)
             to-port: $(port)
         end
-    end
+    @end
 end

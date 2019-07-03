@@ -1,4 +1,4 @@
-aws::traffic-policy traffic-policy-example
+aws::route53-traffic-policy traffic-policy-example
     name: "traffic-policy-example"
     comment: "traffic-policy-example Comment"
     document: "policy.json"

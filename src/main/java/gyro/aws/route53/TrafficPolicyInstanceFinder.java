@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    traffic-policy-instance: $(aws::traffic-policy-instance EXTERNAL/* | traffic-policy-instance-id = '')
+ *    traffic-policy-instance: $(aws::route53-traffic-policy-instance EXTERNAL/* | traffic-policy-instance-id = '')
  */
-@Type("traffic-policy-instance")
+@Type("route53-traffic-policy-instance")
 public class TrafficPolicyInstanceFinder extends AwsFinder<Route53Client, TrafficPolicyInstance, TrafficPolicyInstanceResource> {
     private String trafficPolicyInstanceId;
 
@@ -61,12 +61,10 @@ public class TrafficPolicyInstanceFinder extends AwsFinder<Route53Client, Traffi
     protected List<TrafficPolicyInstance> findAws(Route53Client client, Map<String, String> filters) {
         List<TrafficPolicyInstance> trafficPolicyInstances = new ArrayList<>();
 
-        if (filters.containsKey("traffic-policy-instance-id") && !ObjectUtils.isBlank(filters.get("traffic-policy-instance-id"))) {
-            try {
-                trafficPolicyInstances.add(client.getTrafficPolicyInstance(r -> r.id(filters.get("traffic-policy-instance-id"))).trafficPolicyInstance());
-            } catch (NoSuchTrafficPolicyInstanceException ignore) {
-                // ignore
-            }
+        try {
+            trafficPolicyInstances.add(client.getTrafficPolicyInstance(r -> r.id(filters.get("traffic-policy-instance-id"))).trafficPolicyInstance());
+        } catch (NoSuchTrafficPolicyInstanceException ignore) {
+            // ignore
         }
 
         return trafficPolicyInstances;

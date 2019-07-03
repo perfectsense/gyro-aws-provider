@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query network interface.
@@ -465,11 +466,11 @@ public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterfac
 
     @Override
     protected List<NetworkInterface> findAllAws(Ec2Client client) {
-        return client.describeNetworkInterfaces().networkInterfaces();
+        return client.describeNetworkInterfacesPaginator().networkInterfaces().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<NetworkInterface> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeNetworkInterfaces(r -> r.filters(createFilters(filters))).networkInterfaces();
+        return client.describeNetworkInterfacesPaginator(r -> r.filters(createFilters(filters))).networkInterfaces().stream().collect(Collectors.toList());
     }
 }

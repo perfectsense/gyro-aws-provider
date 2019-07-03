@@ -26,7 +26,7 @@ import java.util.Set;
  *
  *    aws::db-event-subscription db-event-subscription-example
  *        subscription-name: "db-event-subscription-example"
- *        sns-topic: $(aws::topic sns-topic-example)
+ *        sns-topic: $(aws::sns-topic sns-topic-example)
  *        enabled: true
  *        source-type: "db-instance"
  *        event-categories: ["availability", "deletion"]

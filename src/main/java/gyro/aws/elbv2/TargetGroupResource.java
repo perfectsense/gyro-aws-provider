@@ -32,7 +32,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::target-group target-group-example
+ *     aws::load-balancer-target-group target-group-example
  *         name: "test-target-group"
  *         port: "80"
  *         protocol: "HTTP"
@@ -66,7 +66,7 @@ import java.util.Set;
  *             }
  *     end
  */
-@Type("target-group")
+@Type("load-balancer-target-group")
 public class TargetGroupResource extends AwsResource implements Copyable<TargetGroup> {
 
     private HealthCheck healthCheck;

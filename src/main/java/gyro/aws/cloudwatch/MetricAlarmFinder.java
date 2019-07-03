@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    metric-alarm: $(aws::metric-alarm EXTERNAL/* | alarm-name = '')
+ *    metric-alarm: $(aws::cloudwatch-metric-alarm EXTERNAL/* | alarm-name = '')
  */
-@Type("metric-alarm")
+@Type("cloudwatch-metric-alarm")
 public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, MetricAlarmResource> {
     private String alarmName;
     private String alarmNamePrefix;

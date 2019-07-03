@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.aws.kms.KmsResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Wait;
@@ -49,7 +49,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     private Date createTime;
     private Boolean encrypted;
     private Integer iops;
-    private KmsResource kms;
+    private KmsKeyResource kms;
     private Integer size;
     private EbsSnapshotResource snapshot;
     private String state;
@@ -106,11 +106,11 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     /**
      * The kms, when using encrypted volume.
      */
-    public KmsResource getKms() {
+    public KmsKeyResource getKms() {
         return kms;
     }
 
-    public void setKms(KmsResource kms) {
+    public void setKms(KmsKeyResource kms) {
         this.kms = kms;
     }
 
@@ -201,7 +201,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         setCreateTime(Date.from(volume.createTime()));
         setEncrypted(volume.encrypted());
         setIops(volume.iops());
-        setKms(!ObjectUtils.isBlank(volume.kmsKeyId()) ? findById(KmsResource.class, volume.kmsKeyId()) : null);
+        setKms(!ObjectUtils.isBlank(volume.kmsKeyId()) ? findById(KmsKeyResource.class, volume.kmsKeyId()) : null);
         setSize(volume.size());
         setSnapshot(!ObjectUtils.isBlank(volume.snapshotId()) ? findById(EbsSnapshotResource.class, volume.snapshotId()) : null);
         setState(volume.stateAsString());

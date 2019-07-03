@@ -1,13 +1,13 @@
-aws::user-pool cognito
+aws::cognito-user-pool cognito
     name: "user pool name"
 end
 
-aws::user-pool-client client
+aws::cognito-user-pool-client client
     name: "clientname"
-    user-pool: $(aws::user-pool cognito)
+    user-pool: $(aws::cognito-user-pool cognito)
 end
 
-aws::user-pool-domain domain
+aws::cognito-user-pool-domain domain
     domain: "domainsecond"
-    user-pool: $(aws::user-pool cognito)
+    user-pool: $(aws::cognito-user-pool cognito)
 end

@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
+import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
@@ -78,7 +79,7 @@ import java.util.stream.Collectors;
  *
  *         volume
  *             device-name: "/dev/sde"
- *             volume-id: $(aws::ebs-volume volume | volume-id)
+ *             volume: $(aws::ebs-volume volume)
  *         end
  *
  *         capacity-reservation: "none"
@@ -552,19 +553,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        RunInstancesResponse response = client.runInstances(builder.build());
+        RunInstancesRequest request = builder.build();
 
-        for (Instance instance : response.instances()) {
-            setInstanceId(instance.instanceId());
+        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> createInstance(client, request));
 
-            if (!getSourceDestCheck()) {
-                client.modifyNetworkInterfaceAttribute(
-                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-                );
-            }
-            
-            break;
+        if (!status) {
+            throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -879,7 +876,40 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         setVolume(instance.blockDeviceMappings().stream()
             .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-            .map(o -> new InstanceVolumeAttachment(o.deviceName(), o.ebs().volumeId()))
+            .map(this::getInstanceVolumeAttachment)
             .collect(Collectors.toSet()));
+    }
+
+
+    private InstanceVolumeAttachment getInstanceVolumeAttachment(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
+        InstanceVolumeAttachment instanceVolumeAttachment = newSubresource(InstanceVolumeAttachment.class);
+        instanceVolumeAttachment.copyFrom(instanceBlockDeviceMapping);
+
+        return instanceVolumeAttachment;
+    }
+
+    private boolean createInstance(Ec2Client client, RunInstancesRequest request) {
+        try {
+            RunInstancesResponse response = client.runInstances(request);
+            if (!response.instances().isEmpty()) {
+                setInstanceId(response.instances().get(0).instanceId());
+              
+                if (!getSourceDestCheck()) {
+                    client.modifyNetworkInterfaceAttribute(
+                        r -> r.networkInterfaceId(response.instances().get(0).networkInterfaces().get(0).networkInterfaceId())
+                            .sourceDestCheck(a -> a.value(getSourceDestCheck()))
+                    );
+                }
+            }
+        } catch (Ec2Exception ex) {
+            if (getInstanceProfile() != null
+                && ex.awsErrorDetails().errorMessage().startsWith(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid", getInstanceProfile().getArn()))) {
+                return false;
+            } else {
+                throw ex;
+            }
+        }
+
+        return true;
     }
 }

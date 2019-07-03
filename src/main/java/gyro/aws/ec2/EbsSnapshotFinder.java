@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.ec2.model.Snapshot;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query ebs snapshot.
@@ -170,11 +171,11 @@ public class EbsSnapshotFinder extends AwsFinder<Ec2Client, Snapshot, EbsSnapsho
 
     @Override
     protected List<Snapshot> findAllAws(Ec2Client client) {
-        return client.describeSnapshots().snapshots();
+        return client.describeSnapshotsPaginator().snapshots().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<Snapshot> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSnapshots(r -> r.filters(createFilters(filters))).snapshots();
+        return client.describeSnapshotsPaginator(r -> r.filters(createFilters(filters))).snapshots().stream().collect(Collectors.toList());
     }
 }
