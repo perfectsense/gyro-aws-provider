@@ -1,17 +1,14 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
-import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationsRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationsResponse;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query ec2 capacity reservation.
@@ -37,41 +34,15 @@ public class CapacityReservationFinder extends AwsFinder<Ec2Client, CapacityRese
 
     @Override
     protected List<CapacityReservation> findAllAws(Ec2Client client) {
-        return getCapacityReservations(client, null);
+        return client.describeCapacityReservationsPaginator().capacityReservations().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<CapacityReservation> findAws(Ec2Client client, Map<String, String> filters) {
         if (filters.containsKey("capacity-reservation-id")) {
-            return getCapacityReservations(client, filters);
+            return client.describeCapacityReservationsPaginator(r -> r.capacityReservationIds(filters.get("capacity-reservation-id"))).capacityReservations().stream().collect(Collectors.toList());
         } else {
             return Collections.emptyList();
         }
-    }
-
-    private List<CapacityReservation> getCapacityReservations(Ec2Client client, Map<String, String> filters) {
-        List<CapacityReservation> capacityReservations = new ArrayList<>();
-
-        DescribeCapacityReservationsRequest.Builder builder = DescribeCapacityReservationsRequest.builder();
-
-        if (filters != null) {
-            builder = builder.capacityReservationIds(filters.get("capacity-reservation-id"));
-        }
-
-        String marker = null;
-        DescribeCapacityReservationsResponse response;
-
-        do {
-            if (ObjectUtils.isBlank(marker)) {
-                response = client.describeCapacityReservations(builder.build());
-            } else {
-                response = client.describeCapacityReservations(builder.nextToken(marker).build());
-            }
-
-            marker = response.nextToken();
-            capacityReservations.addAll(response.capacityReservations());
-        } while (!ObjectUtils.isBlank(marker));
-
-        return capacityReservations;
     }
 }
