@@ -32,15 +32,27 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::load-balancer elb-example
- *         load-balancer-name: "elb-example"
- *         security-groups: ["sg-3c0dfa46"]
- *         scheme: "internal"
- *         subnets: ["subnet-04d3e586552ea5fe1"]
- *         instances: ["i-01faa0ea54134538b"]
+ *     aws::load-balancer elb
+ *         load-balancer-name: "elb"
+ *         security-groups: [
+ *             $(aws::security-group security-group)
+ *         ]
+ *         subnets: [
+ *             $(aws::subnet subnet-us-east-2a)
+ *         ]
+ *         instances: [
+ *             $(aws::instance instance-us-east-2a),
+ *             $(aws::instance instance-us-east-2b)
+ *         ]
+ *
+ *         listener
+ *             instance-port: "443"
+ *             instance-protocol: "HTTP"
+ *             load-balancer-port: "443"
+ *             protocol: "HTTP"
+ *         end
  *     end
  */
-
 @Type("load-balancer")
 public class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancerDescription> {
 
