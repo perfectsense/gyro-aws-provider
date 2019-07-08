@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -193,6 +194,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     @Override
     public void create() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+        if (getLoadBalancer(client) != null) {
+            throw new GyroException(String.format("A load balancer with the name '%s' exists.", getLoadBalancerName()));
+        }
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
                 .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
