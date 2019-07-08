@@ -1,4 +1,4 @@
-aws::regex-pattern-set regex-pattern-set-match-set-example-waf
+aws::waf-regex-pattern-set regex-pattern-set-match-set-example-waf
     name: "regex-pattern-set-match-set-example-waf"
 
     patterns: [
@@ -7,16 +7,18 @@ aws::regex-pattern-set regex-pattern-set-match-set-example-waf
     ]
 end
 
-aws::regex-match-set regex-match-set-example-waf
+aws::waf-regex-match-set regex-match-set-example-waf
     name: "regex-match-set-example-waf"
     regex-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
-        regex-pattern-set: $(aws::regex-pattern-set regex-pattern-set-match-set-example-waf)
+        regex-pattern-set: $(aws::waf-regex-pattern-set regex-pattern-set-match-set-example-waf)
     end
 end
 
-aws::geo-match-set geo-match-set-example-waf
+aws::waf-geo-match-set geo-match-set-example-waf
     name: "geo-match-set-example-waf"
 
     geo-match-constraint
@@ -25,27 +27,31 @@ aws::geo-match-set geo-match-set-example-waf
     end
 end
 
-aws::xss-match-set xss-match-set-example-waf
+aws::waf-xss-match-set xss-match-set-example-waf
     name: "xss-match-set-example-waf"
 
     xss-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
     end
 end
 
-aws::size-constraint-set size-constraint-set-example-waf
+aws::waf-size-constraint-set size-constraint-set-example-waf
     name: "size-constraint-set-example-waf"
 
     size-constraint
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
         comparison-operator: "EQ"
         size: 10
     end
 end
 
-aws::ip-set ip-set-example-waf
+aws::waf-ip-set ip-set-example-waf
     name: "ip-set-example-waf"
 
     ip-set-descriptor
@@ -54,122 +60,118 @@ aws::ip-set ip-set-example-waf
     end
 end
 
-aws::byte-match-set byte-match-set-example-waf
+aws::waf-byte-match-set byte-match-set-example-waf
     name: "byte-match-set-example-waf"
 
     byte-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
         positional-constraint: "CONTAINS"
         target-string: "target-string"
     end
 end
 
-aws::sql-injection-match-set sql-injection-match-set-example-waf
+aws::waf-sql-injection-match-set sql-injection-match-set-example-waf
     name: "sql-injection-match-set-example-waf"
 
     sql-injection-match-tuple
-        type: "METHOD"
+        field-to-match
+            type: "METHOD"
+        end
         text-transformation: "NONE"
     end
 end
 
-aws::rule rule-example-waf
+aws::waf-rule rule-example-waf
     name: "rule-example-waf"
     metric-name: "ruleExampleWaf"
 
     predicate
-        condition: $(aws::regex-match-set regex-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::geo-match-set geo-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-geo-match-set geo-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::xss-match-set xss-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-xss-match-set xss-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::size-constraint-set size-constraint-set-example-waf)
-        negated: false
+        condition: $(aws::waf-size-constraint-set size-constraint-set-example-waf)
     end
 
     predicate
-        condition: $(aws::ip-set ip-set-example-waf)
-        negated: false
+        condition: $(aws::waf-ip-set ip-set-example-waf)
     end
 
     predicate
-        condition: $(aws::byte-match-set byte-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-byte-match-set byte-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::sql-injection-match-set sql-injection-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-sql-injection-match-set sql-injection-match-set-example-waf)
     end
 end
 
-aws::rate-rule rate-rule-example-waf
+aws::waf-rate-rule rate-rule-example-waf
     name: "rate-rule-example-waf"
     metric-name: "rateRuleExampleWaf"
     rate-key: "IP"
     rate-limit: 2000
 
     predicate
-        condition: $(aws::regex-match-set regex-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::geo-match-set geo-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-geo-match-set geo-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::xss-match-set xss-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-xss-match-set xss-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::size-constraint-set size-constraint-set-example-waf)
-        negated: false
+        condition: $(aws::waf-size-constraint-set size-constraint-set-example-waf)
     end
 
     predicate
-        condition: $(aws::ip-set ip-set-example-waf)
-        negated: false
+        condition: $(aws::waf-ip-set ip-set-example-waf)
     end
 
     predicate
-        condition: $(aws::byte-match-set byte-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-byte-match-set byte-match-set-example-waf)
     end
 
     predicate
-        condition: $(aws::sql-injection-match-set sql-injection-match-set-example-waf)
-        negated: false
+        condition: $(aws::waf-sql-injection-match-set sql-injection-match-set-example-waf)
     end
 end
 
-aws::waf-acl waf-acl-example
-    name: "waf-acl-example"
+aws::waf-web-acl waf-web-acl-example
+    name: "waf-web-acl-example"
     metric-name: "wafAclExample"
-    default-action: "ALLOW"
-
-    activated-rule
-        action: "ALLOW"
-        priority: 1
-        rule: $(aws::rule rule-example-waf)
+    default-action
+        type: "ALLOW"
     end
 
-    activated-rule
-        action: "ALLOW"
+    rule
+        action
+            type: "ALLOW"
+        end
+        priority: 1
+        rule: $(aws::waf-rule rule-example-waf)
+    end
+
+    rule
+        action
+            type: "ALLOW"
+        end
         priority: 2
-        rule: $(aws::rate-rule rate-rule-example-waf)
+        rule: $(aws::waf-rate-rule rate-rule-example-waf)
     end
 end

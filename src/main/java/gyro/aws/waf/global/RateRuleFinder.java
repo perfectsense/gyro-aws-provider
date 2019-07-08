@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    rate-rules: $(aws::rate-rule EXTERNAL/* | rule-id = '')
+ *    rate-rules: $(external-query aws::waf-rate-rule)
  */
-@Type("rate-rule")
+@Type("waf-rate-rule")
 public class RateRuleFinder extends gyro.aws.waf.common.RateRuleFinder<WafClient, RateRuleResource> {
     @Override
     protected List<RateBasedRule> findAllAws(WafClient client) {

@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 public abstract class SizeConstraintSetResource extends ConditionResource implements Copyable<SizeConstraintSet> {
     @Override
     String getDisplayName() {
-        return "size constraint set";
+        return "waf size constraint set";
     }
 
     @Override

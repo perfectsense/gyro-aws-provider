@@ -24,7 +24,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
     }
 
     /**
-     * The name of the rule. Can only contain letters and numbers. (Required)
+     * The metric name of the rule. Can only contain letters and numbers. (Required)
      */
     public String getMetricName() {
         return metricName;
@@ -53,12 +53,10 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Rule");
-
         if (isRateRule()) {
-            sb.append(" [ Rate Based ] ");
+            sb.append("waf rate rule");
         } else {
-            sb.append(" [ Regular ] ");
+            sb.append("waf rule");
         }
 
         if (!ObjectUtils.isBlank(getName())) {

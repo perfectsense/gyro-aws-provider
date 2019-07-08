@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    ip-sets: $(aws::ip-set EXTERNAL/* | id = '')
+ *    ip-sets: $(external-query aws::waf-ip-set)
  */
-@Type("ip-set")
+@Type("waf-ip-set")
 public class IpSetFinder extends gyro.aws.waf.common.IpSetFinder<WafClient, IpSetResource> {
     @Override
     protected List<IPSet> findAllAws(WafClient client) {

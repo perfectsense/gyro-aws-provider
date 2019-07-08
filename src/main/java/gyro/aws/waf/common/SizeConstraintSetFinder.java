@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 
 abstract public class SizeConstraintSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, SizeConstraintSet, U> {
-    private String SizeConstraintSetId;
+    private String sizeConstraintSetId;
 
     /**
      * The ID of size constraint set.
      */
     public String getSizeConstraintSetId() {
-        return SizeConstraintSetId;
+        return sizeConstraintSetId;
     }
 
     public void setSizeConstraintSetId(String sizeConstraintSetId) {
-        SizeConstraintSetId = sizeConstraintSetId;
+        this.sizeConstraintSetId = sizeConstraintSetId;
     }
 }
