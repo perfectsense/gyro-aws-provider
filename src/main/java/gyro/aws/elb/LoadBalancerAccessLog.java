@@ -13,6 +13,9 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
     private BucketResource bucket;
     private String bucketPrefix;
 
+    /**
+     * The interval for publishing the access logs. Valid values are ``5`` or ``60``. Required if enabled set to ``true``.
+     */
     @Updatable
     public Integer getEmitInterval() {
         return emitInterval;
@@ -22,8 +25,15 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
         this.emitInterval = emitInterval;
     }
 
+    /**
+     * If set to ``true``, the load balancer captures detailed information of all requests and delivers the information to the Amazon S3 bucket that you specify. Defaults to ``false``.
+     */
     @Updatable
     public Boolean getEnabled() {
+        if (enabled == null) {
+            enabled = false;
+        }
+
         return enabled;
     }
 
@@ -31,6 +41,9 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
         this.enabled = enabled;
     }
 
+    /**
+     * The Amazon S3 bucket where the access logs are stored. Required if enabled set to ``true``.
+     */
     @Updatable
     public BucketResource getBucket() {
         return bucket;
@@ -40,6 +53,9 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
         this.bucket = bucket;
     }
 
+    /**
+     * The folder path in the bucket where to keep the logs.
+     */
     @Updatable
     public String getBucketPrefix() {
         return bucketPrefix;
@@ -71,7 +87,7 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
         return AccessLog.builder()
             .emitInterval(getEmitInterval())
             .enabled(getEnabled())
-            .s3BucketName(getBucket().getName())
+            .s3BucketName(getBucket() != null ? getBucket().getName() : null)
             .s3BucketPrefix(getBucketPrefix())
             .build();
     }

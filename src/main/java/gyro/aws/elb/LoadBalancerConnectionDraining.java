@@ -9,8 +9,15 @@ public class LoadBalancerConnectionDraining extends Diffable implements Copyable
     private Boolean enabled;
     private Integer timeout;
 
+    /**
+     * If set to ``true``, the load balancer allows existing requests to complete before the load balancer shifts traffic away from a deregistered or unhealthy instance. Defaults to ``false``.
+     */
     @Updatable
     public Boolean getEnabled() {
+        if (enabled == null) {
+            enabled = false;
+        }
+
         return enabled;
     }
 
@@ -18,8 +25,15 @@ public class LoadBalancerConnectionDraining extends Diffable implements Copyable
         this.enabled = enabled;
     }
 
+    /**
+     * The maximum time, in seconds, to keep the existing connections open before deregistering the instances. Defaults to ``600``.
+     */
     @Updatable
     public Integer getTimeout() {
+        if (timeout == null) {
+            timeout = 600;
+        }
+
         return timeout;
     }
 

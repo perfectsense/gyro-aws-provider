@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Create a Load Balancer.
  *
  * Example
  * -------
@@ -41,7 +42,6 @@ import java.util.stream.Collectors;
  *         instances: ["i-01faa0ea54134538b"]
  *     end
  */
-
 @Type("load-balancer")
 public class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancerDescription> {
 
@@ -164,7 +164,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         this.subnets = subnets;
     }
 
+    @Updatable
     public LoadBalancerAttributes getAttribute() {
+        if (attribute == null) {
+            attribute = newSubresource(LoadBalancerAttributes.class);
+        }
+
         return attribute;
     }
 
@@ -206,7 +211,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
                 .loadBalancerName(getLoadBalancerName()));
 
         if (getAttribute() != null) {
-            client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()));
+            client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
         }
     }
 
