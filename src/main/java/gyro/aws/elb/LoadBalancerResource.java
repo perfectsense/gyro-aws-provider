@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.Instance;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerDescription;
+import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerNotFoundException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -178,17 +179,15 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     public boolean refresh() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
-        DescribeLoadBalancersResponse response = client.describeLoadBalancers(r -> r.loadBalancerNames(getLoadBalancerName()));
-        if (response != null) {
-            for (LoadBalancerDescription description : response.loadBalancerDescriptions()) {
-                copyFrom(description);
+        LoadBalancerDescription loadBalancer = getLoadBalancer(client);
 
-            }
-
-            return true;
+        if (loadBalancer == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(loadBalancer);
+
+        return true;
     }
 
     @Override
@@ -325,6 +324,21 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         return sb.toString();
+    }
+
+    private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {
+        LoadBalancerDescription loadBalancerDescription = null;
+        try {
+            DescribeLoadBalancersResponse response = client.describeLoadBalancers(r -> r.loadBalancerNames(getLoadBalancerName()));
+
+            if (!response.loadBalancerDescriptions().isEmpty()) {
+                loadBalancerDescription = response.loadBalancerDescriptions().get(0);
+            }
+        } catch (LoadBalancerNotFoundException ignore) {
+            // ignore
+        }
+
+        return loadBalancerDescription;
     }
 
     private Set<Instance> toInstances() {
