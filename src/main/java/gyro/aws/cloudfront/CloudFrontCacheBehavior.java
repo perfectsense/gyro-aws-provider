@@ -325,7 +325,11 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         // -- Forwarded Values
         setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
         if (!getForwardCookies().equals("none")) {
-            setCookies(new HashSet<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
+            if (cacheBehavior.forwardedValues().cookies().whitelistedNames() != null) {
+                setCookies(new HashSet<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
+            } else {
+                setCookies(new HashSet<>());
+            }
         }
         setHeaders(new HashSet<>(cacheBehavior.forwardedValues().headers().items()));
         setQueryString(cacheBehavior.forwardedValues().queryString());
