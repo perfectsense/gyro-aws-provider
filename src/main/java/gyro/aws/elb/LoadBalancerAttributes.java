@@ -3,14 +3,9 @@ package gyro.aws.elb;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.elasticloadbalancing.model.AdditionalAttribute;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class LoadBalancerAttributes extends Diffable implements Copyable<software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes> {
     private LoadBalancerAccessLog accessLog;
-    private Set<LoadBalancerAdditionalAttribute> additionalAttribute;
     private LoadBalancerConnectionDraining connectionDraining;
     private LoadBalancerCrossZoneLoadBalancing crossZoneLoadBalancing;
     private LoadBalancerConnectionSettings connectionSettings;
@@ -22,15 +17,6 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     public void setAccessLog(LoadBalancerAccessLog accessLog) {
         this.accessLog = accessLog;
-    }
-
-    @Updatable
-    public Set<LoadBalancerAdditionalAttribute> getAdditionalAttribute() {
-        return additionalAttribute;
-    }
-
-    public void setAdditionalAttribute(Set<LoadBalancerAdditionalAttribute> additionalAttribute) {
-        this.additionalAttribute = additionalAttribute;
     }
 
     @Updatable
@@ -70,15 +56,6 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
             setAccessLog(null);
         }
 
-        getAdditionalAttribute().clear();
-        if (loadBalancerAttributes.additionalAttributes() != null && !loadBalancerAttributes.additionalAttributes().isEmpty()) {
-            for (AdditionalAttribute additionalAttribute : loadBalancerAttributes.additionalAttributes()) {
-                LoadBalancerAdditionalAttribute lbAdditionalAttribute = newSubresource(LoadBalancerAdditionalAttribute.class);
-                lbAdditionalAttribute.copyFrom(additionalAttribute);
-                getAdditionalAttribute().add(lbAdditionalAttribute);
-            }
-        }
-
         if (loadBalancerAttributes.crossZoneLoadBalancing() != null) {
             LoadBalancerCrossZoneLoadBalancing crossZoneLoadBalancing = newSubresource(LoadBalancerCrossZoneLoadBalancing.class);
             crossZoneLoadBalancing.copyFrom(loadBalancerAttributes.crossZoneLoadBalancing());
@@ -108,7 +85,6 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes toLoadBalancerAttributes() {
         return software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes.builder()
-            .additionalAttributes(getAdditionalAttribute().stream().map(LoadBalancerAdditionalAttribute::toAdditionalAttribute).collect(Collectors.toList()))
             .crossZoneLoadBalancing(getCrossZoneLoadBalancing() != null ? getCrossZoneLoadBalancing().toCrossZoneLoadBalancing() : null)
             .connectionSettings(getConnectionSettings() != null ? getConnectionSettings().toConnectionSettings() : null)
             .connectionDraining(getConnectionDraining() != null ? getConnectionDraining().toConnectionDraining() : null)
