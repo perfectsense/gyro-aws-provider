@@ -184,7 +184,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         if (getLoadBalancer(client) != null) {
-            throw new GyroException("A load balancer with the same name exist.");
+            throw new GyroException(String.format("A load balancer with the name '%s' exists.", getLoadBalancerName()));
         }
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
