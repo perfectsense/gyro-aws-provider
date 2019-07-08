@@ -13,6 +13,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
+import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Instance;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
@@ -52,6 +53,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private String scheme;
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
+    private LoadBalancerAttributes attribute;
 
     /**
      * The public DNS name of this load balancer.
@@ -162,6 +164,14 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         this.subnets = subnets;
     }
 
+    public LoadBalancerAttributes getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(LoadBalancerAttributes attribute) {
+        this.attribute = attribute;
+    }
+
     @Override
     public boolean refresh() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
@@ -194,6 +204,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
                 .loadBalancerName(getLoadBalancerName()));
+
+        if (getAttribute() != null) {
+            client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()));
+        }
     }
 
     @Override
@@ -255,6 +269,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
                     .loadBalancerName(getLoadBalancerName()));
         }
 
+        //-- Attributes
+
+        if (getAttribute() != null) {
+            client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
+        }
+
     }
 
     @Override
@@ -297,6 +317,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
             listenerResource.setSslCertificateId(listener.sslCertificateId());
             getListener().add(listenerResource);
         }
+
+        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+        DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(getLoadBalancerName()));
+        LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
+        loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
     }
 
     @Override
