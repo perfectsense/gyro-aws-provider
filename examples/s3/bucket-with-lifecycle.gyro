@@ -27,7 +27,7 @@ aws::s3-bucket bucket-example
         end
 
         noncurrent-version-expiration
-            noncurrent-days: 403
+            days: 403
         end
 
         abort-incomplete-multipart-upload
@@ -58,7 +58,7 @@ aws::s3-bucket bucket-example
         end
 
         noncurrent-version-expiration
-            noncurrent-days: 403
+            days: 403
         end
     end
 
@@ -86,7 +86,7 @@ aws::s3-bucket bucket-example
         end
 
         noncurrent-version-expiration
-            noncurrent-days: 403
+            days: 403
         end
     end
 
@@ -110,7 +110,7 @@ aws::s3-bucket bucket-example
         end
 
         noncurrent-version-expiration
-            noncurrent-days: 403
+            days: 403
         end
 
         abort-incomplete-multipart-upload
@@ -140,7 +140,7 @@ aws::s3-bucket bucket-example
         end
 
         noncurrent-version-expiration
-            noncurrent-days: 403
+            days: 403
         end
     end
 
@@ -167,7 +167,7 @@ aws::s3-bucket bucket-example
         end
 
         noncurrent-version-expiration
-            noncurrent-days: 403
+            days: 403
         end
     end
 

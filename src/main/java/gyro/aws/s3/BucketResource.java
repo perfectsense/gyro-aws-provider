@@ -113,7 +113,7 @@ import java.util.stream.Collectors;
  *             end
  *
  *             noncurrent-version-expiration
- *                 noncurrent-days: 403
+ *                 days: 403
  *             end
  *
  *             abort-incomplete-multipart-upload
