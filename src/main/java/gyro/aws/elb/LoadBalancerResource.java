@@ -164,6 +164,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         this.subnets = subnets;
     }
 
+    /**
+     * The attributes for the Load Balancer.
+     */
     @Updatable
     public LoadBalancerAttributes getAttribute() {
         if (attribute == null) {
