@@ -1,13 +1,15 @@
 package gyro.aws.cloudfront;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.aws.s3.BucketResource;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
 public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfig> {
 
     private Boolean enabled;
-    private String bucket;
+    private BucketResource bucket;
     private String bucketPrefix;
     private Boolean includeCookies;
 
@@ -27,17 +29,13 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     }
 
     /**
-     * Name of bucket to save access logs.
+     * The bucket to save access logs.
      */
-    public String getBucket() {
-        if (bucket == null) {
-            bucket = "";
-        }
-
+    public BucketResource getBucket() {
         return bucket;
     }
 
-    public void setBucket(String bucket) {
+    public void setBucket(BucketResource bucket) {
         this.bucket = bucket;
     }
 
@@ -77,7 +75,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
 
     @Override
     public void copyFrom(LoggingConfig loggingConfig) {
-        setBucket(loggingConfig.bucket());
+        setBucket(!ObjectUtils.isBlank(loggingConfig.bucket()) ? findById(BucketResource.class, loggingConfig.bucket()) : null);
         setBucketPrefix(loggingConfig.prefix());
         setEnabled(loggingConfig.enabled());
         setIncludeCookies(loggingConfig.includeCookies());
@@ -95,7 +93,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
 
     LoggingConfig toLoggingConfig() {
         return LoggingConfig.builder()
-            .bucket(getBucket())
+            .bucket(getBucket() != null ? getBucket().getDomainName() : "")
             .prefix(getBucketPrefix())
             .includeCookies(getIncludeCookies())
             .enabled(getEnabled()).build();
