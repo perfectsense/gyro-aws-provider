@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.IPSet;
 
 abstract public class IpSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, IPSet, U> {
-    private String IpSetId;
+    private String ipSetId;
 
     /**
      * The ID of the ip set.
      */
     public String getIpSetId() {
-        return IpSetId;
+        return ipSetId;
     }
 
     public void setIpSetId(String ipSetId) {
-        IpSetId = ipSetId;
+        this.ipSetId = ipSetId;
     }
 }

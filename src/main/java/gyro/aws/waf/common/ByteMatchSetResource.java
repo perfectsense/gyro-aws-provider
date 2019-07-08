@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.waf.model.PredicateType;
 public abstract class ByteMatchSetResource extends ConditionResource implements Copyable<ByteMatchSet> {
     @Override
     String getDisplayName() {
-        return "byte match set";
+        return "waf byte match set";
     }
 
     @Override

@@ -55,7 +55,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
 
     @Override
     public void create() {
-        saveIpSetDescriptor(getIpSetDescriptor(), false);
+        saveIpSetDescriptor(toIpSetDescriptor(), false);
     }
 
     @Override
@@ -65,7 +65,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
 
     @Override
     public void delete() {
-        saveIpSetDescriptor(getIpSetDescriptor(), true);
+        saveIpSetDescriptor(toIpSetDescriptor(), true);
 
     }
 
@@ -93,14 +93,14 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
 
     protected abstract void saveIpSetDescriptor(IPSetDescriptor ipSetDescriptor, boolean isDelete);
 
-    private IPSetDescriptor getIpSetDescriptor() {
+    private IPSetDescriptor toIpSetDescriptor() {
         return IPSetDescriptor.builder()
             .type(getType())
             .value(getValue())
             .build();
     }
 
-    protected UpdateIpSetRequest.Builder getUpdateIpSetRequest(IPSetDescriptor ipSetDescriptor, boolean isDelete) {
+    protected UpdateIpSetRequest.Builder toUpdateIpSetRequest(IPSetDescriptor ipSetDescriptor, boolean isDelete) {
         IpSetResource parent = (IpSetResource) parent();
 
         IPSetUpdate ipSetUpdate = IPSetUpdate.builder()

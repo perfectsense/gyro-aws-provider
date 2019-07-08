@@ -1,5 +1,6 @@
 package gyro.aws.waf.global;
 
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -9,6 +10,7 @@ import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,33 +22,41 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::rate-rule rate-rule-example
- *          name: "rate-rule-example"
- *          metric-name: "rateRuleExample"
- *          rate-key: "IP"
- *          rate-limit: 2000
+ *     aws::waf-rate-rule rate-rule-example
+ *         name: "rate-rule-example"
+ *         metric-name: "rateRuleExample"
+ *         rate-key: "IP"
+ *         rate-limit: 2000
+ *
+ *         predicate
+ *             condition: $(aws::waf-regex-match-set regex-match-set-example-waf)
+ *         end
  *      end
  */
-@Type("rate-rule")
+@Type("waf-rate-rule")
 public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
-    private List<PredicateResource> predicate;
+    private Set<PredicateResource> predicate;
 
     /**
-     * A list of predicates specifying the connection between rule and conditions.
+     * A set of predicates specifying the connection between rule and conditions.
      *
-     * @subresource gyro.aws.waf.PredicateResource
+     * @subresource gyro.aws.waf.global.PredicateResource
      */
     @Updatable
-    public List<PredicateResource> getPredicate() {
+    public Set<PredicateResource> getPredicate() {
         if (predicate == null) {
-            predicate = new ArrayList<>();
+            predicate = new HashSet<>();
         }
 
         return predicate;
     }
 
-    public void setPredicate(List<PredicateResource> predicate) {
+    public void setPredicate(Set<PredicateResource> predicate) {
         this.predicate = predicate;
+
+        if (predicate.size() > 10) {
+            throw new GyroException("Predicate limit exception. Max 10.");
+        }
     }
 
     @Override

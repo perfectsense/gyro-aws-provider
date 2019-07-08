@@ -6,6 +6,7 @@ import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
 import software.amazon.awssdk.services.waf.model.RegexPatternSet;
 
 import java.util.List;
+import java.util.Set;
 
 @Type("common-pattern")
 public class CommonRegexPatternSet extends RegexPatternSetResource {
@@ -15,7 +16,7 @@ public class CommonRegexPatternSet extends RegexPatternSetResource {
     }
 
     @Override
-    protected void savePatterns(List<String> oldPatterns, List<String> newPatterns) {
+    protected void savePatterns(Set<String> oldPatterns, Set<String> newPatterns) {
 
     }
 

@@ -13,7 +13,7 @@ public class ActivatedRuleResource extends gyro.aws.waf.common.ActivatedRuleReso
             WafClient client = getGlobalClient();
 
             client.updateWebACL(
-                getUpdateWebAclRequest(parent, activatedRule, isDelete)
+                toUpdateWebAclRequest(parent, activatedRule, isDelete)
                     .changeToken(client.getChangeToken().changeToken())
                     .build()
             );
