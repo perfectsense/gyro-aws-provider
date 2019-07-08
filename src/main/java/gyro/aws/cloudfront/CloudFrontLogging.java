@@ -49,6 +49,10 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
             bucketPrefix = "";
         }
 
+        if (bucketPrefix.startsWith("/")) {
+            bucketPrefix = bucketPrefix.replaceFirst("/", "");
+        }
+
         return bucketPrefix;
     }
 
