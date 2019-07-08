@@ -6,23 +6,23 @@ import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionExpiration;
 
 public class S3LifecycleRuleNoncurrentVersionExpiration extends Diffable implements Copyable<NoncurrentVersionExpiration> {
-    private Integer noncurrentDays;
+    private Integer days;
 
     /**
      * Non current version expiration days. Depends on the values set in non current version transition.
      */
     @Updatable
-    public Integer getNoncurrentDays() {
-        return noncurrentDays;
+    public Integer getDays() {
+        return days;
     }
 
-    public void setNoncurrentDays(Integer noncurrentDays) {
-        this.noncurrentDays = noncurrentDays;
+    public void setDays(Integer days) {
+        this.days = days;
     }
 
     @Override
     public void copyFrom(NoncurrentVersionExpiration noncurrentVersionExpiration) {
-        setNoncurrentDays(noncurrentVersionExpiration.noncurrentDays());
+        setDays(noncurrentVersionExpiration.noncurrentDays());
     }
 
     @Override
@@ -36,6 +36,6 @@ public class S3LifecycleRuleNoncurrentVersionExpiration extends Diffable impleme
     }
 
     NoncurrentVersionExpiration toNoncurrentVersionExpiration() {
-        return NoncurrentVersionExpiration.builder().noncurrentDays(getNoncurrentDays()).build();
+        return NoncurrentVersionExpiration.builder().noncurrentDays(getDays()).build();
     }
 }
