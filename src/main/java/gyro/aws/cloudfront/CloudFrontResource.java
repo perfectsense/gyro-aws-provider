@@ -513,6 +513,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setId(response.distribution().id());
         setArn(response.distribution().arn());
         setDomainName(response.distribution().domainName());
+        setEtag(response.eTag());
 
         applyTags(client);
     }
