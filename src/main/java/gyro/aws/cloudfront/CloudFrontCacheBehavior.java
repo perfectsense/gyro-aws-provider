@@ -66,6 +66,10 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
      */
     @Updatable
     public String getViewerProtocolPolicy() {
+        if (viewerProtocolPolicy == null) {
+            viewerProtocolPolicy = "allow-all";
+        }
+
         return viewerProtocolPolicy;
     }
 
