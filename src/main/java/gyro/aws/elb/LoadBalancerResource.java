@@ -227,9 +227,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
                 .loadBalancerName(getLoadBalancerName()));
         }
 
-        if (getAttribute() != null) {
-            client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
-        }
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
     }
 
     @Override
@@ -292,10 +290,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         //-- Attributes
-
-        if (getAttribute() != null) {
-            client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
-        }
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
 
     }
 
