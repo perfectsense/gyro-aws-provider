@@ -93,7 +93,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
 
     LoggingConfig toLoggingConfig() {
         return LoggingConfig.builder()
-            .bucket(getBucket() != null ? getBucket().getDomainName() : "")
+            .bucket(getBucket() != null && !ObjectUtils.isBlank(getBucket().getDomainName()) ? getBucket().getDomainName() : "")
             .prefix(getBucketPrefix())
             .includeCookies(getIncludeCookies())
             .enabled(getEnabled()).build();
