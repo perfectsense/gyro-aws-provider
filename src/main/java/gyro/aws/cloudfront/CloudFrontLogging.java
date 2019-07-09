@@ -75,7 +75,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
 
     @Override
     public void copyFrom(LoggingConfig loggingConfig) {
-        setBucket(!ObjectUtils.isBlank(loggingConfig.bucket()) ? findById(BucketResource.class, loggingConfig.bucket()) : null);
+        setBucket(!ObjectUtils.isBlank(loggingConfig.bucket()) ? findById(BucketResource.class, loggingConfig.bucket().split(".s3.")[0]) : null);
         setBucketPrefix(loggingConfig.prefix());
         setEnabled(loggingConfig.enabled());
         setIncludeCookies(loggingConfig.includeCookies());
