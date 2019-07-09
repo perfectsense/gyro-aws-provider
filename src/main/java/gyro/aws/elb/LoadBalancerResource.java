@@ -345,6 +345,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(getLoadBalancerName()));
         LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
         loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
+        setAttribute(loadBalancerAttributes);
     }
 
     @Override
