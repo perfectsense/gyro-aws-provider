@@ -41,27 +41,56 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::cloudfront cloudfront-example
- *        enabled: true
- *        ipv6-enabled: false
+ *         enabled: true
+ *         ipv6-enabled: false
+ *         comment: "$(project) - static asset cache"
  *
- *        origin
- *            id: "S3-my-bucket"
- *            domain-name: "my-bucket.s3.us-east-1.amazonaws.com"
- *        end
+ *         origin
+ *             id: "S3-my-bucket"
+ *             domain-name: "www.google.com"
  *
- *        default-cache-behavior
- *            target-origin-id: "S3-my-bucket-brightspot"
- *            viewer-protocol-policy: "allow-all"
- *            allowed-methods: ["GET", "HEAD"]
- *            cached-methods: ["GET", "HEAD"]
- *            headers: ["Origin"]
- *        end
+ *             custom-origin
+ *                 http-port: 80
+ *             end
+ *         end
  *
- *        geo-restriction
- *            type: "whitelist"
- *            restrictions: ["US"]
- *        end
- *    end
+ *         default-cache-behavior
+ *             target-origin-id: "S3-my-bucket-brightspot"
+ *             viewer-protocol-policy: "allow-all"
+ *             allowed-methods: ["GET", "HEAD"]
+ *             cached-methods: ["GET", "HEAD"]
+ *             headers: ["Origin"]
+ *         end
+ *
+ *         behavior
+ *             path-pattern: "/dims?/*"
+ *             target-origin-id: "elb-my-bucket-web"
+ *             viewer-protocol-policy: "allow-all"
+ *             allowed-methods: ["GET", "HEAD"]
+ *             query-string: true
+ *         end
+ *
+ *         geo-restriction
+ *             type: "whitelist"
+ *             restrictions: ["US"]
+ *         end
+ *
+ *         custom-error-response
+ *             error-code: 400
+ *             ttl: 0
+ *         end
+ *
+ *         logging
+ *             enabled: true
+ *             bucket: $(aws::bucket bucket)
+ *             bucket-prefix: "my-bucket/logs"
+ *             include-cookies: false
+ *         end
+ *
+ *         tags: {
+ *             Name: "content cache"
+ *         }
+ *     end
  */
 @Type("cloudfront")
 public class CloudFrontResource extends AwsResource implements Copyable<Distribution> {
