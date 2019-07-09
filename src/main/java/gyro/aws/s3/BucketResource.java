@@ -307,6 +307,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
+        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), credentials(AwsCredentials.class).getRegion()));
 
         if (!getTags().isEmpty()) {
             saveTags(client);
