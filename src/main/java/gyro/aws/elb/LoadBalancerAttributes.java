@@ -116,17 +116,25 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
         if (loadBalancerAttributes.crossZoneLoadBalancing() != null) {
             LoadBalancerCrossZoneLoadBalancing crossZoneLoadBalancing = newSubresource(LoadBalancerCrossZoneLoadBalancing.class);
             crossZoneLoadBalancing.copyFrom(loadBalancerAttributes.crossZoneLoadBalancing());
-            
+            setCrossZoneLoadBalancing(crossZoneLoadBalancing);
+        } else {
+            setCrossZoneLoadBalancing(null);
         }
 
         if (loadBalancerAttributes.connectionDraining() != null) {
             LoadBalancerConnectionDraining connectionDraining = newSubresource(LoadBalancerConnectionDraining.class);
             connectionDraining.copyFrom(loadBalancerAttributes.connectionDraining());
+            setConnectionDraining(connectionDraining);
+        } else {
+            setConnectionDraining(null);
         }
 
         if (loadBalancerAttributes.connectionSettings() != null) {
             LoadBalancerConnectionSettings connectionSettings = newSubresource(LoadBalancerConnectionSettings.class);
             connectionSettings.copyFrom(loadBalancerAttributes.connectionSettings());
+            setConnectionSettings(connectionSettings);
+        } else {
+            setConnectionSettings(null);
         }
     }
 
