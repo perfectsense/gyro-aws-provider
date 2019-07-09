@@ -41,55 +41,55 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::cloudfront cloudfront-example
- *         enabled: true
- *         ipv6-enabled: false
- *         comment: "$(project) - static asset cache"
+ *        enabled: true
+ *        ipv6-enabled: false
+ *        comment: "cloudfront-example - static asset cache"
  *
- *         origin
- *             id: "S3-my-bucket"
- *             domain-name: "www.google.com"
+ *        origin
+ *            id: $(aws::s3-bucket bucket).name
+ *            domain-name: "www.google.com"
  *
- *             custom-origin
- *                 http-port: 80
- *             end
- *         end
+ *            custom-origin
+ *                http-port: 80
+ *            end
+ *        end
  *
- *         default-cache-behavior
- *             target-origin-id: "S3-my-bucket-brightspot"
- *             viewer-protocol-policy: "allow-all"
- *             allowed-methods: ["GET", "HEAD"]
- *             cached-methods: ["GET", "HEAD"]
- *             headers: ["Origin"]
- *         end
+ *        default-cache-behavior
+ *            target-origin-id: $(aws::s3-bucket bucket).name
+ *            viewer-protocol-policy: "allow-all"
+ *            allowed-methods: ["GET", "HEAD"]
+ *            cached-methods: ["GET", "HEAD"]
+ *            headers: ["Origin"]
+ *        end
  *
- *         behavior
- *             path-pattern: "/dims?/*"
- *             target-origin-id: "elb-my-bucket-web"
- *             viewer-protocol-policy: "allow-all"
- *             allowed-methods: ["GET", "HEAD"]
- *             query-string: true
- *         end
+ *        behavior
+ *            path-pattern: "/dims?/*"
+ *            target-origin-id: $(aws::s3-bucket bucket).name
+ *            viewer-protocol-policy: "allow-all"
+ *            allowed-methods: ["GET", "HEAD"]
+ *            query-string: true
+ *        end
  *
- *         geo-restriction
- *             type: "whitelist"
- *             restrictions: ["US"]
- *         end
+ *        geo-restriction
+ *            type: "whitelist"
+ *            restrictions: ["US"]
+ *        end
  *
- *         custom-error-response
- *             error-code: 400
- *             ttl: 0
- *         end
+ *        custom-error-response
+ *            error-code: 400
+ *            ttl: 0
+ *        end
  *
- *         logging
- *             enabled: true
- *             bucket: $(aws::bucket bucket)
- *             bucket-prefix: "my-bucket/logs"
- *             include-cookies: false
- *         end
+ *        logging
+ *            enabled: true
+ *            bucket: $(aws::s3-bucket bucket)
+ *            bucket-prefix: "my-bucket/logs"
+ *            include-cookies: false
+ *        end
  *
- *         tags: {
- *             Name: "content cache"
- *         }
+ *        tags: {
+ *            Name: "content cache"
+ *        }
  *     end
  */
 @Type("cloudfront")
