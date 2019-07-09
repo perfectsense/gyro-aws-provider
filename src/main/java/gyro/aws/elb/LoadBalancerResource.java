@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -290,6 +291,13 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         //-- Attributes
+        LoadBalancerResource loadBalancerResource = (LoadBalancerResource) current;
+        LoadBalancerAttributes currentAttribute = loadBalancerResource.getAttribute();
+        LoadBalancerAttributes pendingAttribute = getAttribute();
+
+        if (!pendingAttribute.getConnectionDraining().getEnabled() && !pendingAttribute.getConnectionDraining().getTimeout().equals(currentAttribute.getConnectionDraining().getTimeout())) {
+            throw new GyroException("Field 'timeout' of 'connection-draining' cannot be updated when 'enabled' set to false.");
+        }
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes()).loadBalancerName(getLoadBalancerName()));
 
     }
