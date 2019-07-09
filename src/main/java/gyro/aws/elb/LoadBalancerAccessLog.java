@@ -14,7 +14,7 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
     private String bucketPrefix;
 
     /**
-     * The interval for publishing the access logs. Valid values are ``5`` or ``60``. Required if enabled set to ``true``.
+     * The interval for publishing the access logs. Valid values are ``5`` or ``60`` in minutes. Required if enabled set to ``true``.
      */
     @Updatable
     public Integer getEmitInterval() {
