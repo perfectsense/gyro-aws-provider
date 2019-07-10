@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.s3.BucketResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
 public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfig> {
@@ -16,6 +17,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     /**
      * Enable or disable logging for this distribution.
      */
+    @Updatable
     public Boolean getEnabled() {
         if (enabled == null) {
             enabled = false;
@@ -31,6 +33,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     /**
      * The bucket to save access logs.
      */
+    @Updatable
     public BucketResource getBucket() {
         return bucket;
     }
@@ -42,6 +45,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     /**
      * Directory within bucket ot save access logs.
      */
+    @Updatable
     public String getBucketPrefix() {
         if (bucketPrefix == null) {
             bucketPrefix = "";
@@ -61,6 +65,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     /**
      * Whether to include cookies logs.
      */
+    @Updatable
     public Boolean getIncludeCookies() {
         if (includeCookies == null) {
             includeCookies = false;
