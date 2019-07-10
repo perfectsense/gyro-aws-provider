@@ -538,6 +538,10 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     public void create() {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
+        if (!getLogging().getEnabled() && (getLogging().getBucket() != null || !ObjectUtils.isBlank(getLogging().getBucketPrefix()) || getLogging().getIncludeCookies())) {
+            throw new GyroException("Field 'bucket' and 'bucket-prefix' cannot be set and 'include-cookies' cannot be set to true when 'enabled' is set to false for logging.");
+        }
+
         CreateDistributionResponse response = client.createDistribution(c -> c.distributionConfig(distributionConfig()));
         setId(response.distribution().id());
         setArn(response.distribution().arn());
