@@ -82,7 +82,6 @@ import java.util.stream.Collectors;
  *        end
  *
  *        logging
- *            enabled: true
  *            bucket: $(aws::s3-bucket bucket)
  *            bucket-prefix: "my-bucket/logs"
  *            include-cookies: false
@@ -390,10 +389,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      */
     @Updatable
     public CloudFrontLogging getLogging() {
-        if (logging == null) {
-            logging = newSubresource(CloudFrontLogging.class);
-        }
-
         return logging;
     }
 
@@ -476,9 +471,10 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setDefaultCacheBehavior(defaultCacheBehavior);
 
 
-        CloudFrontLogging logging = newSubresource(CloudFrontLogging.class);
+        CloudFrontLogging logging = null;
 
-        if (config.logging() != null) {
+        if (config.logging() != null && config.logging().enabled()) {
+            logging = newSubresource(CloudFrontLogging.class);
             logging.copyFrom(config.logging());
         }
 
@@ -539,10 +535,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     public void create() {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
-        if (!getLogging().getEnabled() && (getLogging().getBucket() != null || !ObjectUtils.isBlank(getLogging().getBucketPrefix()) || getLogging().getIncludeCookies())) {
-            throw new GyroException("Field 'bucket' and 'bucket-prefix' cannot be set and 'include-cookies' cannot be set to true when 'enabled' is set to false for logging.");
-        }
-
         CreateDistributionResponse response = client.createDistribution(c -> c.distributionConfig(distributionConfig()));
         setId(response.distribution().id());
         setArn(response.distribution().arn());
@@ -555,12 +547,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
-
-        if (changedFieldNames.contains("logging")) {
-            if (!getLogging().getEnabled() && (getLogging().getBucket() != null || !ObjectUtils.isBlank(getLogging().getBucketPrefix()) || getLogging().getIncludeCookies())) {
-                throw new GyroException("Field 'bucket' and 'bucket-prefix' cannot be set and 'include-cookies' cannot be set to true when 'enabled' is set to false for logging.");
-            }
-        }
 
         UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
             .id(getId())
@@ -658,11 +644,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             viewerCertificate.setCloudfrontDefaultCertificate(true);
         }
 
-        CloudFrontLogging logging = getLogging();
-        if (logging == null) {
-            logging = newSubresource(CloudFrontLogging.class);
-        }
-
         CloudFrontCacheBehavior defaultCacheBehavior = getDefaultCacheBehavior();
         if (defaultCacheBehavior == null) {
             defaultCacheBehavior = newSubresource(CloudFrontCacheBehavior.class);
@@ -681,7 +662,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .defaultCacheBehavior(defaultCacheBehavior.toDefaultCacheBehavior())
             .cacheBehaviors(cacheBehaviors)
             .origins(origins)
-            .logging(logging.toLoggingConfig())
+            .logging(getLogging() != null ? getLogging().toLoggingConfig() : CloudFrontLogging.defaultLoggingConfig())
             .viewerCertificate(viewerCertificate.toViewerCertificate())
             .callerReference(getCallerReference() != null ? getCallerReference() : Long.toString(new Date().getTime()));
 

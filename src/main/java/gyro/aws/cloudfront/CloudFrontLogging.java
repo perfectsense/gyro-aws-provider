@@ -8,30 +8,12 @@ import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
 public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfig> {
-
-    private Boolean enabled;
     private BucketResource bucket;
     private String bucketPrefix;
     private Boolean includeCookies;
 
     /**
-     * Enable or disable logging for this distribution.
-     */
-    @Updatable
-    public Boolean getEnabled() {
-        if (enabled == null) {
-            enabled = false;
-        }
-
-        return enabled;
-    }
-
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    /**
-     * The bucket to save access logs.
+     * The bucket to save access logs. (Required)
      */
     @Updatable
     public BucketResource getBucket() {
@@ -82,7 +64,6 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     public void copyFrom(LoggingConfig loggingConfig) {
         setBucket(!ObjectUtils.isBlank(loggingConfig.bucket()) ? findById(BucketResource.class, loggingConfig.bucket().split(".s3.")[0]) : null);
         setBucketPrefix(loggingConfig.prefix());
-        setEnabled(loggingConfig.enabled());
         setIncludeCookies(loggingConfig.includeCookies());
     }
 
@@ -101,6 +82,14 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
             .bucket(getBucket() != null ? getBucket().getDomainName() : "")
             .prefix(getBucketPrefix())
             .includeCookies(getIncludeCookies())
-            .enabled(getEnabled()).build();
+            .enabled(true).build();
+    }
+
+    static LoggingConfig defaultLoggingConfig() {
+        return LoggingConfig.builder()
+            .bucket("")
+            .prefix("")
+            .includeCookies(false)
+            .enabled(false).build();
     }
 }
