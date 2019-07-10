@@ -1,6 +1,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
@@ -9,8 +10,8 @@ import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSet;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a size constraint set.
@@ -20,20 +21,22 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- * aws::size-constraint-set-regional size-constraint-set-example
+ * aws::waf-size-constraint-set-regional size-constraint-set-example
  *     name: "size-constraint-set-example"
  *
  *     size-constraint
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *         comparison-operator: "EQ"
  *         size: 10
  *     end
  * end
  */
-@Type("size-constraint-set-regional")
+@Type("waf-size-constraint-set-regional")
 public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstraintSetResource {
-    private List<SizeConstraintResource> sizeConstraint;
+    private Set<SizeConstraintResource> sizeConstraint;
 
     /**
      * List of size constraint data defining the condition. (Required)
@@ -41,15 +44,19 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
      * @subresource gyro.aws.waf.regional.SizeConstraintResource
      */
     @Updatable
-    public List<SizeConstraintResource> getSizeConstraint() {
+    public Set<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
-            sizeConstraint = new ArrayList<>();
+            sizeConstraint = new HashSet<>();
         }
         return sizeConstraint;
     }
 
-    public void setSizeConstraint(List<SizeConstraintResource> sizeConstraint) {
+    public void setSizeConstraint(Set<SizeConstraintResource> sizeConstraint) {
         this.sizeConstraint = sizeConstraint;
+
+        if (sizeConstraint.size() > 10) {
+            throw new GyroException("Size constraint limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
@@ -101,5 +108,9 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .sizeConstraintSetId(getId())
         );
+    }
+
+    SizeConstraintSet getSizeConstraintSet(WafRegionalClient client) {
+        return client.getSizeConstraintSet(r -> r.sizeConstraintSetId(getId())).sizeConstraintSet();
     }
 }

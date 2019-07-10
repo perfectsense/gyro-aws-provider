@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -9,8 +10,8 @@ import software.amazon.awssdk.services.waf.model.GetRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global regex match set.
@@ -20,7 +21,7 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- * aws::regex-pattern-set regex-pattern-set-match-set-example
+ * aws::waf-regex-pattern-set regex-pattern-set-match-set-example
  *     name: "regex-pattern-set-match-set-example"
  *
  *     patterns: [
@@ -29,18 +30,20 @@ import java.util.List;
  *     ]
  * end
  *
- * aws::regex-match-set regex-match-set-example
+ * aws::waf-regex-match-set regex-match-set-example
  *     name: "regex-match-set-example"
  *     regex-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *         regex-pattern-set: $(aws::regex-pattern-set regex-pattern-set-match-set-example)
  *     end
  * end
  */
-@Type("regex-match-set")
+@Type("waf-regex-match-set")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
-    private List<RegexMatchTupleResource> regexMatchTuple;
+    private Set<RegexMatchTupleResource> regexMatchTuple;
 
     /**
      * List of regex match tuple data defining the condition. (Required)
@@ -48,16 +51,20 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
      * @subresource gyro.aws.waf.global.RegexMatchTupleResource
      */
     @Updatable
-    public List<RegexMatchTupleResource> getRegexMatchTuple() {
+    public Set<RegexMatchTupleResource> getRegexMatchTuple() {
         if (regexMatchTuple == null) {
-            regexMatchTuple = new ArrayList<>();
+            regexMatchTuple = new HashSet<>();
         }
 
         return regexMatchTuple;
     }
 
-    public void setRegexMatchTuple(List<RegexMatchTupleResource> regexMatchTuple) {
+    public void setRegexMatchTuple(Set<RegexMatchTupleResource> regexMatchTuple) {
         this.regexMatchTuple = regexMatchTuple;
+
+        if (regexMatchTuple.size() > 1) {
+            throw new GyroException("Regex Match Tuple limit exception. Max 1 per Regex Match Set.");
+        }
     }
 
     @Override
@@ -109,5 +116,9 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .regexMatchSetId(getId())
         );
+    }
+
+    RegexMatchSet getRegexMatchSet(WafClient client) {
+        return client.getRegexMatchSet(r -> r.regexMatchSetId(getId())).regexMatchSet();
     }
 }

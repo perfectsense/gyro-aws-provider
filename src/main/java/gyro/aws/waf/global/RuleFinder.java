@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    rules: $(aws::rule EXTERNAL/* | rule-id = '')
+ *    rules: $(external-query aws::waf-rule)
  */
-@Type("rule")
+@Type("waf-rule")
 public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafClient, RuleResource> {
     @Override
     protected List<Rule> findAllAws(WafClient client) {

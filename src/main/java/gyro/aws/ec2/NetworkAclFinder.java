@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query network acl.
@@ -256,11 +257,11 @@ public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAc
 
     @Override
     protected List<NetworkAcl> findAllAws(Ec2Client client) {
-        return client.describeNetworkAcls().networkAcls();
+        return client.describeNetworkAclsPaginator().networkAcls().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<NetworkAcl> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeNetworkAcls(r -> r.filters(createFilters(filters))).networkAcls();
+        return client.describeNetworkAclsPaginator(r -> r.filters(createFilters(filters))).networkAcls().stream().collect(Collectors.toList());
     }
 }

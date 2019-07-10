@@ -18,9 +18,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    size-constraint-sets: $(aws::size-constraint-set-regional EXTERNAL/* | id = '')
+ *    size-constraint-sets: $(external-query aws::waf-size-constraint-set-regional)
  */
-@Type("size-constraint-set-regional")
+@Type("waf-size-constraint-set-regional")
 public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintSetFinder<WafRegionalClient, SizeConstraintSetResource> {
     @Override
     protected List<SizeConstraintSet> findAllAws(WafRegionalClient client) {

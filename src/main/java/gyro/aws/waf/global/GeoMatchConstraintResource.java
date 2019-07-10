@@ -8,7 +8,7 @@ public class GeoMatchConstraintResource extends gyro.aws.waf.common.GeoMatchCons
     protected void saveGeoMatchConstraint(GeoMatchConstraint geoMatchConstraint, boolean isDelete) {
         WafClient client = getGlobalClient();
 
-        client.updateGeoMatchSet(getUpdateGeoMatchSetRequest(geoMatchConstraint, isDelete)
+        client.updateGeoMatchSet(toUpdateGeoMatchSetRequest(geoMatchConstraint, isDelete)
             .changeToken(client.getChangeToken().changeToken())
             .build()
         );

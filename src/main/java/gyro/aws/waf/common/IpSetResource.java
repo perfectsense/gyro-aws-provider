@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.waf.model.PredicateType;
 public abstract class IpSetResource extends ConditionResource implements Copyable<IPSet> {
     @Override
     String getDisplayName() {
-        return "ip set";
+        return "waf ip set";
     }
 
     @Override

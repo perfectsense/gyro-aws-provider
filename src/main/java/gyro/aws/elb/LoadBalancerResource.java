@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.Instance;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerDescription;
+import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerNotFoundException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -32,15 +34,27 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::load-balancer elb-example
- *         load-balancer-name: "elb-example"
- *         security-groups: ["sg-3c0dfa46"]
- *         scheme: "internal"
- *         subnets: ["subnet-04d3e586552ea5fe1"]
- *         instances: ["i-01faa0ea54134538b"]
+ *     aws::load-balancer elb
+ *         load-balancer-name: "elb"
+ *         security-groups: [
+ *             $(aws::security-group security-group)
+ *         ]
+ *         subnets: [
+ *             $(aws::subnet subnet-us-east-2a)
+ *         ]
+ *         instances: [
+ *             $(aws::instance instance-us-east-2a),
+ *             $(aws::instance instance-us-east-2b)
+ *         ]
+ *
+ *         listener
+ *             instance-port: "443"
+ *             instance-protocol: "HTTP"
+ *             load-balancer-port: "443"
+ *             protocol: "HTTP"
+ *         end
  *     end
  */
-
 @Type("load-balancer")
 public class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancerDescription> {
 
@@ -77,7 +91,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The instances to associate with this load balancer. (Required)
+     * The instances to associate with this load balancer.
      */
     @Updatable
     public Set<InstanceResource> getInstances() {
@@ -166,22 +180,24 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     public boolean refresh() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
-        DescribeLoadBalancersResponse response = client.describeLoadBalancers(r -> r.loadBalancerNames(getLoadBalancerName()));
-        if (response != null) {
-            for (LoadBalancerDescription description : response.loadBalancerDescriptions()) {
-                copyFrom(description);
+        LoadBalancerDescription loadBalancer = getLoadBalancer(client);
 
-            }
-
-            return true;
+        if (loadBalancer == null) {
+            return false;
         }
 
-        return false;
+        copyFrom(loadBalancer);
+
+        return true;
     }
 
     @Override
     public void create() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+        if (getLoadBalancer(client) != null) {
+            throw new GyroException(String.format("A load balancer with the name '%s' exists.", getLoadBalancerName()));
+        }
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
                 .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
@@ -192,8 +208,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         setDnsName(response.dnsName());
 
-        client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
+        if (!getInstances().isEmpty()) {
+            client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
                 .loadBalancerName(getLoadBalancerName()));
+        }
     }
 
     @Override
@@ -311,6 +329,21 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         return sb.toString();
+    }
+
+    private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {
+        LoadBalancerDescription loadBalancerDescription = null;
+        try {
+            DescribeLoadBalancersResponse response = client.describeLoadBalancers(r -> r.loadBalancerNames(getLoadBalancerName()));
+
+            if (!response.loadBalancerDescriptions().isEmpty()) {
+                loadBalancerDescription = response.loadBalancerDescriptions().get(0);
+            }
+        } catch (LoadBalancerNotFoundException ignore) {
+            // ignore
+        }
+
+        return loadBalancerDescription;
     }
 
     private Set<Instance> toInstances() {

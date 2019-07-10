@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.waf.model.RegexPatternSetUpdate;
 import software.amazon.awssdk.services.waf.model.UpdateRegexPatternSetRequest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public abstract class RegexPatternSetResource extends AbstractWafResource implements Copyable<RegexPatternSet> {
     private String name;
     private String regexPatternSetId;
-    private List<String> patterns;
+    private Set<String> patterns;
 
     /**
      * The name of the regex pattern set. (Required)
@@ -52,17 +51,15 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
      * A list of regular expression patterns to filter request on. (Required)
      */
     @Updatable
-    public List<String> getPatterns() {
+    public Set<String> getPatterns() {
         if (patterns == null) {
-            patterns = new ArrayList<>();
+            patterns = new HashSet<>();
         }
-
-        Collections.sort(patterns);
 
         return patterns;
     }
 
-    public void setPatterns(List<String> patterns) {
+    public void setPatterns(Set<String> patterns) {
         this.patterns = patterns;
     }
 
@@ -70,7 +67,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     public void copyFrom(RegexPatternSet regexPatternSet) {
         setRegexPatternSetId(regexPatternSet.regexPatternSetId());
         setName(regexPatternSet.name());
-        setPatterns(new ArrayList<>(regexPatternSet.regexPatternStrings()));
+        setPatterns(new HashSet<>(regexPatternSet.regexPatternStrings()));
     }
 
     @Override
@@ -91,7 +88,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
         doCreate();
 
         try {
-            savePatterns(new ArrayList<>(), getPatterns());
+            savePatterns(new HashSet<>(), getPatterns());
         } catch (Exception ex) {
             GyroCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
                 + " Please retry to update the patterns|@", getName(), getRegexPatternSetId());
@@ -125,7 +122,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
 
         if (!isReferenced) {
             if (!getPatterns().isEmpty()) {
-                savePatterns(getPatterns(), new ArrayList<>());
+                savePatterns(getPatterns(), new HashSet<>());
             }
 
             RegexPatternSet regexPatternSet = getRegexPatternSet();
@@ -145,7 +142,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("regex pattern set");
+        sb.append("waf regex pattern set");
 
         if (!ObjectUtils.isBlank(getName())) {
             sb.append(" - ").append(getName());
@@ -158,7 +155,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
         return sb.toString();
     }
 
-    protected abstract void savePatterns(List<String> oldPatterns, List<String> newPatterns);
+    protected abstract void savePatterns(Set<String> oldPatterns, Set<String> newPatterns);
 
     protected abstract void deleteRegexPatternSet();
 
@@ -166,11 +163,11 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
 
     protected abstract RegexMatchSet getRegexMatchSet(String regexMatchSetId);
 
-    protected UpdateRegexPatternSetRequest.Builder getUpdateRegexPatternSetRequest(List<String> oldPatterns, List<String> newPatterns) {
+    protected UpdateRegexPatternSetRequest.Builder toUpdateRegexPatternSetRequest(Set<String> oldPatterns, Set<String> newPatterns) {
         List<RegexPatternSetUpdate> regexPatternSetUpdates = new ArrayList<>();
 
         List<String> deletePatterns = oldPatterns.stream()
-            .filter(f -> !new HashSet<>(newPatterns).contains(f))
+            .filter(f -> !newPatterns.contains(f))
             .collect(Collectors.toList());
 
         for (String pattern : deletePatterns) {
@@ -183,7 +180,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
         }
 
         List<String> insertPatterns = newPatterns.stream()
-            .filter(f -> !new HashSet<>(oldPatterns).contains(f))
+            .filter(f -> !oldPatterns.contains(f))
             .collect(Collectors.toList());
 
         for (String pattern : insertPatterns) {

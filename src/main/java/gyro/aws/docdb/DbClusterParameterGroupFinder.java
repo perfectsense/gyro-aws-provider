@@ -1,10 +1,14 @@
 package gyro.aws.docdb;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.DBClusterParameterGroup;
 import software.amazon.awssdk.services.docdb.model.DbParameterGroupNotFoundException;
+import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsRequest;
+import software.amazon.awssdk.services.docdb.model.DescribeDbClusterParameterGroupsResponse;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +31,30 @@ public class DbClusterParameterGroupFinder extends DocDbFinder<DocDbClient, DBCl
 
     @Override
     protected List<DBClusterParameterGroup> findAllAws(DocDbClient client) {
-        return client.describeDBClusterParameterGroups().dbClusterParameterGroups();
+        List<DBClusterParameterGroup> dbClusterParameterGroups = new ArrayList<>();
+        String marker = null;
+        DescribeDbClusterParameterGroupsResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeDBClusterParameterGroups();
+            } else {
+                response = client.describeDBClusterParameterGroups(DescribeDbClusterParameterGroupsRequest.builder().marker(marker).build());
+            }
+
+            marker = response.marker();
+            dbClusterParameterGroups.addAll(response.dbClusterParameterGroups());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return dbClusterParameterGroups;
     }
 
     @Override
     protected List<DBClusterParameterGroup> findAws(DocDbClient client, Map<String, String> filters) {
+        if (!filters.containsKey("name")) {
+            throw new IllegalArgumentException("'name' is required.");
+        }
+
         try {
             return client.describeDBClusterParameterGroups(r -> r.dbClusterParameterGroupName(filters.get("name"))).dbClusterParameterGroups();
         } catch (DbParameterGroupNotFoundException ex) {

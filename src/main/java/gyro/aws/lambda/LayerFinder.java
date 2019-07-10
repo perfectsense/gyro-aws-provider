@@ -6,8 +6,11 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
 import software.amazon.awssdk.services.lambda.model.LayerVersionsListItem;
+import software.amazon.awssdk.services.lambda.model.LayersListItem;
 import software.amazon.awssdk.services.lambda.model.ListLayerVersionsRequest;
 import software.amazon.awssdk.services.lambda.model.ListLayerVersionsResponse;
+import software.amazon.awssdk.services.lambda.model.ListLayersRequest;
+import software.amazon.awssdk.services.lambda.model.ListLayersResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,24 @@ public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse
     @Override
     protected List<GetLayerVersionResponse> findAllAws(LambdaClient client) {
         List<GetLayerVersionResponse> getLayerVersions = new ArrayList<>();
-        client.listLayers().layers().forEach(o -> getLayerVersions.addAll(getAllLayerVersions(client, o.layerName())));
+
+        String marker = null;
+        List<LayersListItem> layersListItems = new ArrayList<>();
+        ListLayersResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.listLayers();
+            } else {
+                response = client.listLayers(ListLayersRequest.builder().marker(marker).build());
+            }
+
+            marker = response.nextMarker();
+            layersListItems.addAll(response.layers());
+
+        } while (!ObjectUtils.isBlank(marker));
+
+        layersListItems.forEach(o -> getLayerVersions.addAll(getAllLayerVersions(client, o.layerName())));
         return getLayerVersions;
     }
 
@@ -59,19 +79,21 @@ public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse
     protected List<GetLayerVersionResponse> findAws(LambdaClient client, Map<String, String> filters) {
         List<GetLayerVersionResponse> getLayerVersions = new ArrayList<>();
 
-        if (filters.containsKey("layer-name") && !ObjectUtils.isBlank(filters.get("layer-name"))) {
-            if (filters.containsKey("version") && isValidLong(filters.get("version"))) {
-                getLayerVersions.add(
-                    client.getLayerVersion(
-                        r -> r.layerName(filters.get("layer-name"))
-                            .versionNumber(Long.parseLong(filters.get("version")))
-                    )
-                );
-            }
+        if (!filters.containsKey("layer-name")) {
+            throw new IllegalArgumentException("'layer-name' is required.");
+        }
 
-            if (!filters.containsKey("version")) {
-                getLayerVersions.addAll(getAllLayerVersions(client, filters.get("layer-name")));
-            }
+        if (filters.containsKey("version") && !isValidLong(filters.get("version"))) {
+            throw new IllegalArgumentException("'version' needs to be valid long.");
+        }
+
+        if (filters.containsKey("version")) {
+            getLayerVersions.add(
+                client.getLayerVersion(
+                    r -> r.layerName(filters.get("layer-name"))
+                        .versionNumber(Long.parseLong(filters.get("version")))));
+        } else {
+            getLayerVersions.addAll(getAllLayerVersions(client, filters.get("layer-name")));
         }
 
         return getLayerVersions;
@@ -102,6 +124,10 @@ public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse
     }
 
     private boolean isValidLong(String val) {
+        if (val == null) {
+            return false;
+        }
+
         try {
             Long.parseLong(val);
         } catch (NumberFormatException ex) {

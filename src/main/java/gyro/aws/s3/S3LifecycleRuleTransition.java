@@ -34,7 +34,7 @@ public class S3LifecycleRuleTransition extends Diffable implements Copyable<Tran
 
     @Override
     public String primaryKey() {
-        return String.format("transition - %s ", getStorageClass());
+        return String.format("%s %s", getDays(), getStorageClass());
     }
 
     @Override

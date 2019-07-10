@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public abstract class ActivatedRuleResource extends AbstractWafResource implements Copyable<ActivatedRule> {
     private CommonRuleResource rule;
-    private String action;
+    private WafAction action;
     private String type;
     private Integer priority;
     private List<String> excludedRules;
@@ -35,14 +35,14 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The default action for the rule under this waf. valid values are ``ALLOW`` or ``BLOCK``. (Required)
+     * The default action for the rule under this waf. (Required)
      */
     @Updatable
-    public String getAction() {
-        return action != null ? action.toUpperCase() : null;
+    public WafAction getAction() {
+        return action;
     }
 
-    public void setAction(String action) {
+    public void setAction(WafAction action) {
         this.action = action;
     }
 
@@ -86,11 +86,14 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     @Override
     public void copyFrom(ActivatedRule activatedRule) {
-        setAction(activatedRule.action().typeAsString());
         setPriority(activatedRule.priority());
         setRule(findById(CommonRuleResource.class, activatedRule.ruleId()));
         setType(activatedRule.typeAsString());
         setExcludedRules(activatedRule.excludedRules().stream().map(ExcludedRule::ruleId).collect(Collectors.toList()));
+
+        WafAction action = newSubresource(WafAction.class);
+        action.copyFrom(activatedRule.action());
+        setAction(action);
     }
 
     @Override
@@ -103,7 +106,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         // Priority check
         handlePriority();
 
-        saveActivatedRule(getActivatedRule(), false);
+        saveActivatedRule(toActivatedRule(), false);
     }
 
     @Override
@@ -112,15 +115,15 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
         handlePriority();
 
         // Remove old activated rule
-        saveActivatedRule(((ActivatedRuleResource) current).getActivatedRule(), true);
+        saveActivatedRule(((ActivatedRuleResource) current).toActivatedRule(), true);
 
         // Add updated activated rule
-        saveActivatedRule(getActivatedRule(), false);
+        saveActivatedRule(toActivatedRule(), false);
     }
 
     @Override
     public void delete() {
-        saveActivatedRule(getActivatedRule(), true);
+        saveActivatedRule(toActivatedRule(), true);
     }
 
     @Override
@@ -144,12 +147,12 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getRule() != null ? getRule().getRuleId() : null);
+        return String.format("%s", getRule() != null ? (!ObjectUtils.isBlank(getRule().getRuleId()) ? getRule().getRuleId() : getRule().name()) : null);
     }
 
-    protected ActivatedRule getActivatedRule() {
+    private ActivatedRule toActivatedRule() {
         return ActivatedRule.builder()
-            .action(wa -> wa.type(getAction()))
+            .action(getAction().toWafAction())
             .priority(getPriority())
             .type(!ObjectUtils.isBlank(getType()) ? getType() : (getRule() != null ? getRule().getType() : null))
             .ruleId(getRule().getRuleId())
@@ -167,7 +170,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     protected abstract void handlePriority();
 
-    protected UpdateWebAclRequest.Builder getUpdateWebAclRequest(gyro.aws.waf.common.WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
+    protected UpdateWebAclRequest.Builder toUpdateWebAclRequest(gyro.aws.waf.common.WebAclResource parent, ActivatedRule activatedRule, boolean isDelete) {
         WebACLUpdate webAclUpdate = WebACLUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
             .activatedRule(activatedRule)
@@ -175,7 +178,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
         return UpdateWebAclRequest.builder()
             .webACLId(parent.getWebAclId())
-            .defaultAction(da -> da.type(parent.getDefaultAction()))
+            .defaultAction(parent.getDefaultAction().toWafAction())
             .updates(Collections.singleton(webAclUpdate));
     }
 }

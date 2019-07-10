@@ -9,8 +9,8 @@ import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
 import software.amazon.awssdk.services.waf.model.GeoMatchSet;
 import software.amazon.awssdk.services.waf.model.GetGeoMatchSetResponse;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global geo match set.
@@ -20,7 +20,7 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- * aws::geo-match-set geo-match-set-example
+ * aws::waf-geo-match-set geo-match-set-example
  *     name: "geo-match-set-example"
  *
  *     geo-match-constraint
@@ -29,9 +29,9 @@ import java.util.List;
  *     end
  * end
  */
-@Type("geo-match-set")
+@Type("waf-geo-match-set")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {
-    private List<GeoMatchConstraintResource> geoMatchConstraint;
+    private Set<GeoMatchConstraintResource> geoMatchConstraint;
 
     /**
      * List of geo match constraint data defining the condition. (Required)
@@ -39,15 +39,15 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
      * @subresource gyro.aws.waf.global.GeoMatchConstraintResource
      */
     @Updatable
-    public List<GeoMatchConstraintResource> getGeoMatchConstraint() {
+    public Set<GeoMatchConstraintResource> getGeoMatchConstraint() {
         if (geoMatchConstraint == null) {
-            geoMatchConstraint = new ArrayList<>();
+            geoMatchConstraint = new HashSet<>();
         }
 
         return geoMatchConstraint;
     }
 
-    public void setGeoMatchConstraint(List<GeoMatchConstraintResource> geoMatchConstraint) {
+    public void setGeoMatchConstraint(Set<GeoMatchConstraintResource> geoMatchConstraint) {
         this.geoMatchConstraint = geoMatchConstraint;
     }
 

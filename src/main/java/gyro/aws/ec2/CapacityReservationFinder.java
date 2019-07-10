@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.ec2.model.CapacityReservation;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query ec2 capacity reservation.
@@ -33,13 +34,13 @@ public class CapacityReservationFinder extends AwsFinder<Ec2Client, CapacityRese
 
     @Override
     protected List<CapacityReservation> findAllAws(Ec2Client client) {
-        return client.describeCapacityReservations().capacityReservations();
+        return client.describeCapacityReservationsPaginator().capacityReservations().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<CapacityReservation> findAws(Ec2Client client, Map<String, String> filters) {
         if (filters.containsKey("capacity-reservation-id")) {
-            return client.describeCapacityReservations(r -> r.capacityReservationIds(filters.get("capacity-reservation-id"))).capacityReservations();
+            return client.describeCapacityReservationsPaginator(r -> r.capacityReservationIds(filters.get("capacity-reservation-id"))).capacityReservations().stream().collect(Collectors.toList());
         } else {
             return Collections.emptyList();
         }

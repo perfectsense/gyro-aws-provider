@@ -1,14 +1,19 @@
 package gyro.aws.ec2;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeVolumesRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
 import software.amazon.awssdk.services.ec2.model.Volume;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query volume.
@@ -212,11 +217,11 @@ public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResou
 
     @Override
     protected List<Volume> findAllAws(Ec2Client client) {
-        return client.describeVolumes().volumes();
+        return client.describeVolumesPaginator().volumes().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<Volume> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVolumes(r -> r.filters(createFilters(filters))).volumes();
+        return client.describeVolumesPaginator(r -> r.filters(createFilters(filters))).volumes().stream().collect(Collectors.toList());
     }
 }

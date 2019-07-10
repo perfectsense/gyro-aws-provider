@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.waf.model.PredicateType;
 public abstract class GeoMatchSetResource extends ConditionResource implements Copyable<GeoMatchSet> {
     @Override
     String getDisplayName() {
-        return "geo match set";
+        return "waf geo match set";
     }
 
     @Override
