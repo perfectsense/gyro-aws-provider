@@ -199,10 +199,6 @@ end
     end
 
     stage pushed
-        @swap: $(aws::instance verify) $CURRENT
-        @swap: $(aws::launch-configuration verify) $(aws::launch-configuration * | instance = $CURRENT).0
-        @swap: $(aws::autoscaling-group verify) $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
-
         transition revert
             to: finished
             description: 'Revert the new verification instances into the production load balancer and deregister old instances.'
@@ -215,8 +211,8 @@ end
     end
 
     stage finished
-        @delete: $(aws::instance verify)
-        @delete: $(aws::launch-configuration verify)
-        @delete: $(aws::autoscaling-group verify)
+        @replace: $CURRENT $(aws::instance verify)
+        @replace: $(aws::launch-configuration * | instance = $CURRENT).0 $(aws::launch-configuration verify)
+        @replace: $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0 $(aws::autoscaling-group verify)
     end
 @end
