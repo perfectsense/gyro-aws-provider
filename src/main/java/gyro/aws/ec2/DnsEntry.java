@@ -42,7 +42,7 @@ public class DnsEntry extends Diffable implements Copyable<software.amazon.awssd
 
     @Override
     public String toDisplayString() {
-        return "dns entry" + getName();
+        return "dns entry " + getName();
     }
 
     @Override
