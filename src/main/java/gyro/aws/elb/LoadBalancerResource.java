@@ -302,6 +302,14 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     public void delete() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
         client.deleteLoadBalancer(r -> r.loadBalancerName(getLoadBalancerName()));
+
+        // Wait for the load balancer to be completely deleted with all its references, especially with Security Groups
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
