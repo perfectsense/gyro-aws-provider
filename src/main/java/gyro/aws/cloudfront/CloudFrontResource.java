@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.cloudfront.model.Origin;
 import software.amazon.awssdk.services.cloudfront.model.Origins;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
+import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionResponse;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -561,9 +562,11 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             }
         }
 
-        client.updateDistribution(r -> r.distributionConfig(distributionConfig())
+        UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
             .id(getId())
             .ifMatch(getEtag()));
+
+        setEtag(response.eTag());
 
         if (changedFieldNames.contains("tags")) {
             applyTags(client);
