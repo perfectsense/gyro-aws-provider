@@ -54,6 +54,13 @@ import java.util.stream.Collectors;
  *             load-balancer-port: "443"
  *             protocol: "HTTP"
  *         end
+ *
+ *         attributes
+ *             connection-draining
+ *                 enabled: false
+ *                 timeout: 300
+ *             end
+ *         end
  *     end
  */
 @Type("load-balancer")
