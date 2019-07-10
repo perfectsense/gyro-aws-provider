@@ -26,12 +26,12 @@ public class LoadBalancerConnectionDraining extends Diffable implements Copyable
     }
 
     /**
-     * The maximum time, in seconds, to keep the existing connections open before deregistering the instances. Defaults to ``600``.
+     * The maximum time, in seconds, to keep the existing connections open before deregistering the instances. Defaults to ``300``.
      */
     @Updatable
     public Integer getTimeout() {
         if (timeout == null) {
-            timeout = 600;
+            timeout = 300;
         }
 
         return timeout;
