@@ -132,11 +132,11 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
         return "load balancer attribute";
     }
 
-    software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes toLoadBalancerAttributes() {
+    software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes toLoadBalancerAttributes(boolean overrideConnectionDraining) {
         return software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes.builder()
             .crossZoneLoadBalancing(getCrossZoneLoadBalancing().toCrossZoneLoadBalancing())
             .connectionSettings(getConnectionSettings().toConnectionSettings())
-            .connectionDraining(getConnectionDraining().toConnectionDraining())
+            .connectionDraining(getConnectionDraining().toConnectionDraining(overrideConnectionDraining))
             .accessLog(getAccessLog().toAccessLog())
             .build();
     }

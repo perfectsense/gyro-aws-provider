@@ -57,7 +57,7 @@ public class LoadBalancerConnectionDraining extends Diffable implements Copyable
         return "connection draining";
     }
 
-    ConnectionDraining toConnectionDraining() {
-        return ConnectionDraining.builder().enabled(getEnabled()).timeout(getTimeout()).build();
+    ConnectionDraining toConnectionDraining(boolean overrideEnabled) {
+        return ConnectionDraining.builder().enabled(overrideEnabled ? true : getEnabled()).timeout(getTimeout()).build();
     }
 }
