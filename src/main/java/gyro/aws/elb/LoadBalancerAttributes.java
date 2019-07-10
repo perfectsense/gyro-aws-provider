@@ -105,37 +105,21 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     @Override
     public void copyFrom(software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes loadBalancerAttributes) {
-        if (loadBalancerAttributes.accessLog() != null) {
-            LoadBalancerAccessLog accessLog = newSubresource(LoadBalancerAccessLog.class);
-            accessLog.copyFrom(loadBalancerAttributes.accessLog());
-            setAccessLog(accessLog);
-        } else {
-            setAccessLog(null);
-        }
+        LoadBalancerAccessLog accessLog = newSubresource(LoadBalancerAccessLog.class);
+        accessLog.copyFrom(loadBalancerAttributes.accessLog());
+        setAccessLog(accessLog);
 
-        if (loadBalancerAttributes.crossZoneLoadBalancing() != null) {
-            LoadBalancerCrossZoneLoadBalancing crossZoneLoadBalancing = newSubresource(LoadBalancerCrossZoneLoadBalancing.class);
-            crossZoneLoadBalancing.copyFrom(loadBalancerAttributes.crossZoneLoadBalancing());
-            setCrossZoneLoadBalancing(crossZoneLoadBalancing);
-        } else {
-            setCrossZoneLoadBalancing(null);
-        }
+        LoadBalancerCrossZoneLoadBalancing crossZoneLoadBalancing = newSubresource(LoadBalancerCrossZoneLoadBalancing.class);
+        crossZoneLoadBalancing.copyFrom(loadBalancerAttributes.crossZoneLoadBalancing());
+        setCrossZoneLoadBalancing(crossZoneLoadBalancing);
 
-        if (loadBalancerAttributes.connectionDraining() != null) {
-            LoadBalancerConnectionDraining connectionDraining = newSubresource(LoadBalancerConnectionDraining.class);
-            connectionDraining.copyFrom(loadBalancerAttributes.connectionDraining());
-            setConnectionDraining(connectionDraining);
-        } else {
-            setConnectionDraining(null);
-        }
+        LoadBalancerConnectionDraining connectionDraining = newSubresource(LoadBalancerConnectionDraining.class);
+        connectionDraining.copyFrom(loadBalancerAttributes.connectionDraining());
+        setConnectionDraining(connectionDraining);
 
-        if (loadBalancerAttributes.connectionSettings() != null) {
-            LoadBalancerConnectionSettings connectionSettings = newSubresource(LoadBalancerConnectionSettings.class);
-            connectionSettings.copyFrom(loadBalancerAttributes.connectionSettings());
-            setConnectionSettings(connectionSettings);
-        } else {
-            setConnectionSettings(null);
-        }
+        LoadBalancerConnectionSettings connectionSettings = newSubresource(LoadBalancerConnectionSettings.class);
+        connectionSettings.copyFrom(loadBalancerAttributes.connectionSettings());
+        setConnectionSettings(connectionSettings);
     }
 
     @Override
@@ -150,10 +134,10 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes toLoadBalancerAttributes() {
         return software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerAttributes.builder()
-            .crossZoneLoadBalancing(getCrossZoneLoadBalancing() != null ? getCrossZoneLoadBalancing().toCrossZoneLoadBalancing() : null)
-            .connectionSettings(getConnectionSettings() != null ? getConnectionSettings().toConnectionSettings() : null)
-            .connectionDraining(getConnectionDraining() != null ? getConnectionDraining().toConnectionDraining() : null)
-            .accessLog(getAccessLog() != null ? getAccessLog().toAccessLog() : null)
+            .crossZoneLoadBalancing(getCrossZoneLoadBalancing().toCrossZoneLoadBalancing())
+            .connectionSettings(getConnectionSettings().toConnectionSettings())
+            .connectionDraining(getConnectionDraining().toConnectionDraining())
+            .accessLog(getAccessLog().toAccessLog())
             .build();
     }
 }
