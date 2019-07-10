@@ -281,7 +281,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
-        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), credentials(AwsCredentials.class).getRegion()));
+        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), client.getBucketLocation(r -> r.bucket(getName())).locationConstraintAsString()));
     }
 
     @Override
