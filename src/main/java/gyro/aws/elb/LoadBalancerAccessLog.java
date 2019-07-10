@@ -58,6 +58,10 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
      */
     @Updatable
     public String getBucketPrefix() {
+        if (!ObjectUtils.isBlank(bucketPrefix) && bucketPrefix.startsWith("/")) {
+            bucketPrefix = bucketPrefix.replaceFirst("/", "");
+        }
+
         return bucketPrefix;
     }
 
