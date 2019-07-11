@@ -11,9 +11,8 @@ import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -80,34 +79,34 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * List of IPv4 CIDR blocks to apply this Security Group Rule to. Required if `ipv6-cidr-blocks` not mentioned.
+     * Set of IPv4 CIDR blocks to apply this Security Group Rule to. Required if `ipv6-cidr-blocks` not mentioned.
      */
     @Updatable
-    public List<String> getCidrBlocks() {
+    public Set<String> getCidrBlocks() {
         if (cidrBlocks == null) {
-            cidrBlocks = new ArrayList<>();
+            cidrBlocks = new HashSet<>();
         }
 
         return cidrBlocks;
     }
 
-    public void setCidrBlocks(List<String> cidrBlocks) {
+    public void setCidrBlocks(Set<String> cidrBlocks) {
         this.cidrBlocks = cidrBlocks;
     }
 
     /**
-     * List of IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-blocks` not mentioned.
+     * Set of IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-blocks` not mentioned.
      */
     @Updatable
-    public List<String> getIpv6CidrBlocks() {
+    public Set<String> getIpv6CidrBlocks() {
         if (ipv6CidrBlocks == null) {
-            ipv6CidrBlocks = new ArrayList<>();
+            ipv6CidrBlocks = new HashSet<>();
         }
 
         return ipv6CidrBlocks;
     }
 
-    public void setIpv6CidrBlocks(List<String> ipv6CidrBlocks) {
+    public void setIpv6CidrBlocks(Set<String> ipv6CidrBlocks) {
         this.ipv6CidrBlocks = ipv6CidrBlocks;
     }
 
