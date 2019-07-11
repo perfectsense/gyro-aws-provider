@@ -3,17 +3,22 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.elasticache.CacheClusterFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.Wait;
+import gyro.core.Waiter;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
+import software.amazon.awssdk.services.ec2.model.DeleteInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Create an internet gateway.
@@ -115,8 +120,24 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         InternetGateway internetGateway = getInternetGateway(client);
 
         if (internetGateway != null && !internetGateway.attachments().isEmpty()) {
-            client.detachInternetGateway(
-                r -> r.internetGatewayId(getInternetGatewayId()).vpcId(internetGateway.attachments().get(0).vpcId())
+            Wait.atMost(1, TimeUnit.MINUTES)
+                .checkEvery(2, TimeUnit.SECONDS)
+                .prompt(false)
+                .until(() -> {
+                    try {
+                        client.detachInternetGateway(
+                            r -> r.internetGatewayId(getInternetGatewayId()).vpcId(internetGateway.attachments().get(0).vpcId())
+                        );
+                    } catch (Ec2Exception e) {
+                        // DependencyViolation should be retried since this resource may be waiting for a
+                        // previously deleted resource to finish deleting.
+                        if ("DependencyViolation".equals(e.awsErrorDetails().errorCode())) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
             );
         }
 
