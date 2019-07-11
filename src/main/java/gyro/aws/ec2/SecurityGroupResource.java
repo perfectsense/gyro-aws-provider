@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Create a security group with specified rules.
@@ -253,7 +255,23 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteSecurityGroup(r -> r.groupId(getGroupId()));
+        Wait.atMost(1, TimeUnit.SECONDS)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> {
+                    try {
+                        client.deleteSecurityGroup(r -> r.groupId(getGroupId()));
+                    } catch (Ec2Exception e) {
+                        // DependencyViolation should be retried since this resource may be waiting for a
+                        // previously deleted resource to finish deleting.
+                        if ("DependencyViolation".equals(e.awsErrorDetails().errorCode())) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            );
     }
 
     @Override
