@@ -14,6 +14,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
+import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Instance;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Create a Load Balancer.
  *
  * Example
  * -------
@@ -53,6 +55,13 @@ import java.util.stream.Collectors;
  *             load-balancer-port: "443"
  *             protocol: "HTTP"
  *         end
+ *
+ *         attributes
+ *             connection-draining
+ *                 enabled: false
+ *                 timeout: 300
+ *             end
+ *         end
  *     end
  */
 @Type("load-balancer")
@@ -66,6 +75,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private String scheme;
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
+    private LoadBalancerAttributes attribute;
 
     /**
      * The public DNS name of this load balancer.
@@ -176,6 +186,22 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         this.subnets = subnets;
     }
 
+    /**
+     * The attributes for the Load Balancer.
+     */
+    @Updatable
+    public LoadBalancerAttributes getAttribute() {
+        if (attribute == null) {
+            attribute = newSubresource(LoadBalancerAttributes.class);
+        }
+
+        return attribute;
+    }
+
+    public void setAttribute(LoadBalancerAttributes attribute) {
+        this.attribute = attribute;
+    }
+
     @Override
     public boolean refresh() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
@@ -212,6 +238,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
             client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
                 .loadBalancerName(getLoadBalancerName()));
         }
+
+        // modify connection timeout with enabled set to true, then set to what is actually configured.
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getLoadBalancerName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getLoadBalancerName()));
     }
 
     @Override
@@ -273,6 +303,11 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
                     .loadBalancerName(getLoadBalancerName()));
         }
 
+        //-- Attributes
+
+        // modify connection timeout with enabled set to true, then set to what is actually configured.
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getLoadBalancerName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getLoadBalancerName()));
     }
 
     @Override
@@ -315,6 +350,13 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
             listenerResource.setSslCertificateId(listener.sslCertificateId());
             getListener().add(listenerResource);
         }
+
+        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+        DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(getLoadBalancerName()));
+        LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
+        loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
+        setAttribute(loadBalancerAttributes);
     }
 
     @Override
