@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
@@ -281,7 +282,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
-        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), client.getBucketLocation(r -> r.bucket(getName())).locationConstraintAsString()));
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
     @Override
@@ -307,7 +308,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
-        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), client.getBucketLocation(r -> r.bucket(getName())).locationConstraintAsString()));
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
 
         if (!getTags().isEmpty()) {
             saveTags(client);
@@ -574,5 +575,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                     )
             );
         }
+    }
+
+    private String getBucketRegion(S3Client client) {
+        GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
+        return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
     }
 }
