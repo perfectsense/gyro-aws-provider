@@ -6,14 +6,12 @@ import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.DefaultCacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.ForwardedValues;
+import software.amazon.awssdk.services.cloudfront.model.ItemSelection;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociations;
 import software.amazon.awssdk.services.cloudfront.model.TrustedSigners;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,10 +60,14 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     }
 
     /**
-     * The protocol the user is allowed to access resources that match this cache behavior.
+     * The protocol the user is allowed to access resources that match this cache behavior. Valid values are ``allow-all`` or ``redirect-to-https`` or ``https-only``.
      */
     @Updatable
     public String getViewerProtocolPolicy() {
+        if (viewerProtocolPolicy == null) {
+            viewerProtocolPolicy = "allow-all";
+        }
+
         return viewerProtocolPolicy;
     }
 
@@ -320,9 +322,12 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
         // -- Forwarded Values
         setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
-        if (!getForwardCookies().equals("none")) {
+        if (cacheBehavior.forwardedValues().cookies().forward().equals(ItemSelection.WHITELIST)) {
             setCookies(new HashSet<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
+        } else {
+            setCookies(new HashSet<>());
         }
+
         setHeaders(new HashSet<>(cacheBehavior.forwardedValues().headers().items()));
         setQueryString(cacheBehavior.forwardedValues().queryString());
         setQueryStringCacheKeys(new HashSet<>(cacheBehavior.forwardedValues().queryStringCacheKeys().items()));
