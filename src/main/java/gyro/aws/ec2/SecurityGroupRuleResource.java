@@ -11,6 +11,10 @@ import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,8 +22,8 @@ import java.util.stream.Collectors;
 
 public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
 
-    private List<String> cidrBlocks;
-    private List<String> ipv6CidrBlocks;
+    private Set<String> cidrBlocks;
+    private Set<String> ipv6CidrBlocks;
     private String protocol;
     private String description;
     private Integer fromPort;
@@ -156,7 +160,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
 
     @Override
     public String primaryKey() {
-        return String.format("%s %d %d", getProtocol(), getFromPort(), getToPort());
+        return String.format("%s", getPrimaryKey());
     }
 
     @Override
@@ -262,6 +266,24 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     private void validate() {
         if (getCidrBlocks().isEmpty() && getIpv6CidrBlocks().isEmpty() && getSecurityGroups().isEmpty()) {
             throw new GyroException("At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
+        }
+    }
+
+    private String getPrimaryKey() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getToPort()).append("#").append(getFromPort()).append("#").append(getProtocol()).append("#");
+        sb.append(!getCidrBlocks().isEmpty() ? getCidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
+        sb.append("#");
+        sb.append(!getIpv6CidrBlocks().isEmpty() ? getIpv6CidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
+        sb.append("#");
+        sb.append(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).filter(o -> !ObjectUtils.isBlank(o)).sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            return (new HexBinaryAdapter()).marshal(md.digest(sb.toString().getBytes()));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new GyroException(ex.getMessage());
         }
     }
 }
