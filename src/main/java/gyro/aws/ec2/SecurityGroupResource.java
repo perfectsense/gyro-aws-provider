@@ -255,7 +255,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     public void delete() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        Wait.atMost(1, TimeUnit.SECONDS)
+        Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {

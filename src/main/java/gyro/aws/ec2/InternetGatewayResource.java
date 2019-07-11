@@ -120,7 +120,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         InternetGateway internetGateway = getInternetGateway(client);
 
         if (internetGateway != null && !internetGateway.attachments().isEmpty()) {
-            Wait.atMost(3, TimeUnit.SECONDS)
+            Wait.atMost(1, TimeUnit.MINUTES)
                 .checkEvery(2, TimeUnit.SECONDS)
                 .prompt(false)
                 .until(() -> {
