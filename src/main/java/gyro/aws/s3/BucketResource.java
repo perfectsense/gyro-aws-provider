@@ -282,7 +282,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
-        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), getBucketRegion(client)));
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
     @Override
@@ -308,7 +308,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
-        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), getBucketRegion(client)));
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
 
         if (!getTags().isEmpty()) {
             saveTags(client);
