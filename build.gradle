@@ -63,6 +63,7 @@ dependencies {
     implementation 'software.amazon.awssdk:elasticache'
     implementation 'software.amazon.awssdk:sts'
     implementation 'software.amazon.awssdk:docdb'
+    implementation 'software.amazon.awssdk:acm'
     implementation 'org.json:json:20180813'
 
     gyroDoclet "gyro:gyro-doclet:0.15-SNAPSHOT"
