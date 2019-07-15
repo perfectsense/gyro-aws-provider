@@ -4,6 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Update;
 import gyro.core.resource.Updatable;
@@ -77,7 +78,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void create() {
-        if (parentResource().change() instanceof Create) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
 
@@ -87,7 +88,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
-        if (parentResource().change() instanceof Update) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
 
@@ -97,7 +98,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void delete() {
-        if (parentResource().change() instanceof Delete) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
             return;
         }
 

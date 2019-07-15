@@ -2,6 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Create;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Update;
 import gyro.core.resource.Updatable;
@@ -62,7 +63,7 @@ public class NetworkActionResource extends AwsResource {
 
     @Override
     public void create() {
-        if (parentResource().change() instanceof Create) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
 
@@ -72,7 +73,7 @@ public class NetworkActionResource extends AwsResource {
 
     @Override
     public void update(Resource current, Set<String> changedFieldNames) {
-        if (parentResource().change() instanceof Update) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
 

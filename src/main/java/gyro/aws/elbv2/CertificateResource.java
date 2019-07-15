@@ -2,6 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.core.resource.Delete;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
@@ -89,7 +90,7 @@ public class CertificateResource extends AwsResource {
 
     @Override
     public void delete() {
-        if (parentResource().change() instanceof Delete) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
             return;
         }
 

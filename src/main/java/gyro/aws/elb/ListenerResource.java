@@ -3,6 +3,7 @@ package gyro.aws.elb;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Create;
 import gyro.core.resource.Delete;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Updatable;
 
 import gyro.core.resource.Resource;
@@ -115,7 +116,7 @@ public class ListenerResource extends AwsResource {
 
     @Override
     public void create() {
-        if (parent().change() instanceof Create) {
+        if (DiffableInternals.getChange(parent()) instanceof Create) {
             return;
         }
 
@@ -133,7 +134,7 @@ public class ListenerResource extends AwsResource {
 
     @Override
     public void delete() {
-        if (parent().change() instanceof Delete) {
+        if (DiffableInternals.getChange(parent()) instanceof Delete) {
             return;
         }
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
