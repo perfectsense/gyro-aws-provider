@@ -46,8 +46,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;
     private Set<RoleResource> principals;
 
-    private String serviceId;
-    private String serviceName;
+    private String id;
+    private String name;
     private Set<String> availabilityZones;
     private Set<String> baseEndpointDnsNames;
     private String privateDnsName;
@@ -106,24 +106,24 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
      */
     @Id
     @Output
-    public String getServiceId() {
-        return serviceId;
+    public String getId() {
+        return id;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
      * The name of the endpoint service.
      */
     @Output
-    public String getServiceName() {
-        return serviceName;
+    public String getName() {
+        return name;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -176,9 +176,9 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
 
     @Override
     public void copyFrom(ServiceConfiguration serviceConfiguration) {
-        setServiceId(serviceConfiguration.serviceId());
+        setId(serviceConfiguration.serviceId());
         setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
-        setServiceName(serviceConfiguration.serviceName());
+        setName(serviceConfiguration.serviceName());
         setAvailabilityZones(serviceConfiguration.availabilityZones() != null ? new HashSet<>(serviceConfiguration.availabilityZones()) : null);
         setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames() != null ? new HashSet<>(serviceConfiguration.baseEndpointDnsNames()) : null);
         setPrivateDnsName(serviceConfiguration.privateDnsName());
@@ -194,7 +194,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r -> r.serviceId(getServiceId()));
+        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r -> r.serviceId(getId()));
 
         getPrincipals().clear();
 
@@ -227,11 +227,11 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
                 .networkLoadBalancerArns(getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toList()))
         );
 
-        setServiceId(response.serviceConfiguration().serviceId());
+        setId(response.serviceConfiguration().serviceId());
 
         if (!getPrincipals().isEmpty()) {
             client.modifyVpcEndpointServicePermissions(
-                r -> r.serviceId(getServiceId())
+                r -> r.serviceId(getId())
                     .addAllowedPrincipals(getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toList()))
             );
         }
@@ -246,7 +246,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         if (changedFieldNames.contains("acceptance-required") || changedFieldNames.contains("network-load-balancers")) {
 
             ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest.builder()
-                .serviceId(getServiceId());
+                .serviceId(getId());
 
             builder.acceptanceRequired(getAcceptanceRequired());
 
@@ -272,7 +272,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
 
         if (changedFieldNames.contains("principals")) {
             ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
-                .serviceId(getServiceId());
+                .serviceId(getId());
 
             Set<String> currentIamArns = currentEndpointService.getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
             Set<String> pendingIamArns = getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
@@ -306,7 +306,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointServiceConfigurations(
-            r -> r.serviceIds(getServiceId())
+            r -> r.serviceIds(getId())
         );
     }
 
@@ -316,8 +316,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
 
         sb.append("service endpoint");
 
-        if (!ObjectUtils.isBlank(getServiceId())) {
-            sb.append(" - ").append(getServiceId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -326,12 +326,12 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     private ServiceConfiguration getServiceConfiguration(Ec2Client client) {
         ServiceConfiguration serviceConfiguration = null;
 
-        if (ObjectUtils.isBlank(getServiceId())) {
+        if (ObjectUtils.isBlank(getId())) {
             throw new GyroException("service-id is missing, unable to load endpoint service.");
         }
 
         try {
-            DescribeVpcEndpointServiceConfigurationsResponse response = client.describeVpcEndpointServiceConfigurations(r -> r.serviceIds(getServiceId()));
+            DescribeVpcEndpointServiceConfigurationsResponse response = client.describeVpcEndpointServiceConfigurations(r -> r.serviceIds(getId()));
 
             if (!response.serviceConfigurations().isEmpty()) {
                 serviceConfiguration = response.serviceConfigurations().get(0);
