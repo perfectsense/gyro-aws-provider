@@ -176,12 +176,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     protected abstract void doCreate();
 
     @Override
-    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         validate();
         doUpdate(ui, state, current, changedFieldNames);
     }
 
-    protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames);
+    protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;
 
     @Override
     public String toDisplayString() {

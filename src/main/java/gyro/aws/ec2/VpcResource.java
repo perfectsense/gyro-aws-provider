@@ -332,7 +332,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    public void testCreate(GyroUI ui, State state) {
+    public void testCreate(GyroUI ui, State state) throws Exception {
         super.testCreate(ui, state);
 
         setInstanceTenancy("default");

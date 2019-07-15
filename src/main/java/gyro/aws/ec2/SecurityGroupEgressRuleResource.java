@@ -16,7 +16,7 @@ public class SecurityGroupEgressRuleResource extends SecurityGroupRuleResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedFieldNames.size() == 1 && changedFieldNames.contains("description")) {
