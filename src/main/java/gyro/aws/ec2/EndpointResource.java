@@ -122,7 +122,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     /**
-     * The type of service being associated is of type interface or gateway. (Required)
+     * The type of service being associated. Valid values ``INTERFACE`` or ``GATEWAY``. Defaults to ``GATEWAY``.
      */
     public VpcEndpointType getType() {
         if (type == null) {
