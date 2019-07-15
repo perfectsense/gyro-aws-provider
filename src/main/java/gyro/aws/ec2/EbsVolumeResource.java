@@ -266,10 +266,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
                         .autoEnableIO(a -> a.value(getAutoEnableIo()))
                 );
             } catch (Exception ex) {
-                GyroCore.ui().write("\n@|bold,blue EBS Volume resource - error enabling "
+                ui.write("\n@|bold,blue EBS Volume resource - error enabling "
                     + "'auto enable io' to volume with Id - %s. |@", getVolumeId());
-                GyroCore.ui().write("\n@|bold,blue Error message - %s |@", ex.getMessage());
-                GyroCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
+                ui.write("\n@|bold,blue Error message - %s |@", ex.getMessage());
+                ui.write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
             }
         }
 
