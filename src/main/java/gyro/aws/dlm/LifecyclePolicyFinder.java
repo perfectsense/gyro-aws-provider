@@ -16,10 +16,10 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    ebs-snapshot-lifecycle-policy: $(aws::ebs-snapshot-lifecycle-policy EXTERNAL/* | policy-id = '')
+ *    lifecycle-policy: $(aws::dlm-lifecycle-policy EXTERNAL/* | policy-id = '')
  */
-@Type("ebs-snapshot-lifecycle-policy")
-public class EbsSnapshotLifecyclePolicyFinder extends AwsFinder<DlmClient, LifecyclePolicy, EbsSnapshotLifecyclePolicyResource> {
+@Type("dlm-lifecycle-policy")
+public class LifecyclePolicyFinder extends AwsFinder<DlmClient, LifecyclePolicy, LifecyclePolicyResource> {
     private String policyId;
 
     /**

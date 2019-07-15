@@ -22,11 +22,11 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::instance-profile ex-inst-profile
+ *     aws::iam-instance-profile ex-inst-profile
  *         name: "ex-inst-profile"
  *     end
  */
-@Type("instance-profile")
+@Type("iam-instance-profile")
 public class InstanceProfileResource extends AwsResource implements Copyable<InstanceProfile> {
 
     private String arn;

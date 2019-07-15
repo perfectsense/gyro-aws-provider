@@ -1,13 +1,10 @@
 package gyro.aws.iam;
 
-import gyro.aws.AwsCredentials;
 import gyro.aws.AwsFinder;
-import gyro.aws.AwsResource;
 import gyro.core.Type;
 
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iam.IamClient;
-import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
 import software.amazon.awssdk.services.iam.model.Policy;
 
 import java.util.ArrayList;
@@ -16,13 +13,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query policies.
+ * Query IAM policies.
  *
  * .. code-block:: gyro
  *
- *    policy: $(aws::policy EXTERNAL/* | arn = '')
+ *    policy: $(aws::iam-policy EXTERNAL/* | arn = '')
  */
-@Type("policy")
+@Type("iam-policy")
 public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
 
     private String arn;
@@ -64,10 +61,7 @@ public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {
         }
 
         if (filters.containsKey("path")) {
-            policy.addAll(client.listPoliciesPaginator(r -> r.pathPrefix(filters.get("path")))
-                .policies()
-                .stream()
-                .collect(Collectors.toList()));
+            policy.addAll(client.listPoliciesPaginator(r -> r.pathPrefix(filters.get("path"))).policies().stream().collect(Collectors.toList()));
         }
 
         return policy;

@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.rds.model.DBCluster;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query db cluster.
@@ -33,12 +34,12 @@ public class DbClusterFinder extends AwsFinder<RdsClient, DBCluster, DbClusterRe
 
     @Override
     protected List<DBCluster> findAws(RdsClient client, Map<String, String> filters) {
-        return client.describeDBClusters(r -> r.filters(createRdsFilters(filters))).dbClusters();
+        return client.describeDBClustersPaginator(r -> r.filters(createRdsFilters(filters))).dbClusters().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<DBCluster> findAllAws(RdsClient client) {
-        return client.describeDBClusters().dbClusters();
+        return client.describeDBClustersPaginator().dbClusters().stream().collect(Collectors.toList());
     }
 
 }

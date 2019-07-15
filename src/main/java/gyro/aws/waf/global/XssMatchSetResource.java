@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -9,8 +10,8 @@ import software.amazon.awssdk.services.waf.model.GetXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.XssMatchSet;
 import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global xss match set.
@@ -20,18 +21,20 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- * aws::xss-match-set xss-match-set-example
+ * aws::waf-xss-match-set xss-match-set-example
  *     name: "xss-match-set-example"
  *
  *     xss-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *     end
  * end
  */
-@Type("xss-match-set")
+@Type("waf-xss-match-set")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {
-    private List<XssMatchTupleResource> xssMatchTuple;
+    private Set<XssMatchTupleResource> xssMatchTuple;
 
     /**
      * List of xss match tuple data defining the condition. (Required)
@@ -39,16 +42,20 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
      * @subresource gyro.aws.waf.global.XssMatchTupleResource
      */
     @Updatable
-    public List<XssMatchTupleResource> getXssMatchTuple() {
+    public Set<XssMatchTupleResource> getXssMatchTuple() {
         if (xssMatchTuple == null) {
-            xssMatchTuple = new ArrayList<>();
+            xssMatchTuple = new HashSet<>();
         }
 
         return xssMatchTuple;
     }
 
-    public void setXssMatchTuple(List<XssMatchTupleResource> xssMatchTuple) {
+    public void setXssMatchTuple(Set<XssMatchTupleResource> xssMatchTuple) {
         this.xssMatchTuple = xssMatchTuple;
+
+        if (xssMatchTuple.size() > 10) {
+            throw new GyroException("Xss Match Tuple limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
@@ -99,5 +106,9 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .xssMatchSetId(getId())
         );
+    }
+
+    XssMatchSet getXssMatchSet(WafClient client) {
+        return client.getXssMatchSet(r -> r.xssMatchSetId(getId())).xssMatchSet();
     }
 }

@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.cloudfront.model.Origin;
 import software.amazon.awssdk.services.cloudfront.model.Origins;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
+import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionResponse;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,28 +42,55 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::cloudfront cloudfront-example
- *        name: "static asset cache"
  *        enabled: true
  *        ipv6-enabled: false
+ *        comment: "cloudfront-example - static asset cache"
  *
  *        origin
- *            id: "S3-my-bucket"
- *            domain-name: "my-bucket.s3.us-east-1.amazonaws.com"
+ *            id: $(aws::s3-bucket bucket).name
+ *            domain-name: "www.google.com"
+ *
+ *            custom-origin
+ *                http-port: 80
+ *            end
  *        end
  *
  *        default-cache-behavior
- *            target-origin-id: "S3-my-bucket-brightspot"
+ *            target-origin-id: $(aws::s3-bucket bucket).name
  *            viewer-protocol-policy: "allow-all"
  *            allowed-methods: ["GET", "HEAD"]
  *            cached-methods: ["GET", "HEAD"]
  *            headers: ["Origin"]
  *        end
  *
+ *        behavior
+ *            path-pattern: "/dims?/*"
+ *            target-origin-id: $(aws::s3-bucket bucket).name
+ *            viewer-protocol-policy: "allow-all"
+ *            allowed-methods: ["GET", "HEAD"]
+ *            query-string: true
+ *        end
+ *
  *        geo-restriction
  *            type: "whitelist"
  *            restrictions: ["US"]
  *        end
- *    end
+ *
+ *        custom-error-response
+ *            error-code: 400
+ *            ttl: 0
+ *        end
+ *
+ *        logging
+ *            bucket: $(aws::s3-bucket bucket)
+ *            bucket-prefix: "my-bucket/logs"
+ *            include-cookies: false
+ *        end
+ *
+ *        tags: {
+ *            Name: "content cache"
+ *        }
+ *     end
  */
 @Type("cloudfront")
 public class CloudFrontResource extends AwsResource implements Copyable<Distribution> {
@@ -361,10 +389,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      */
     @Updatable
     public CloudFrontLogging getLogging() {
-        if (logging == null) {
-            logging = newSubresource(CloudFrontLogging.class);
-        }
-
         return logging;
     }
 
@@ -447,9 +471,10 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setDefaultCacheBehavior(defaultCacheBehavior);
 
 
-        CloudFrontLogging logging = newSubresource(CloudFrontLogging.class);
+        CloudFrontLogging logging = null;
 
-        if (config.logging() != null) {
+        if (config.logging() != null && config.logging().enabled()) {
+            logging = newSubresource(CloudFrontLogging.class);
             logging.copyFrom(config.logging());
         }
 
@@ -514,6 +539,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setId(response.distribution().id());
         setArn(response.distribution().arn());
         setDomainName(response.distribution().domainName());
+        setEtag(response.eTag());
 
         applyTags(client);
     }
@@ -522,9 +548,11 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     public void update(Resource current, Set<String> changedFieldNames) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
-        client.updateDistribution(r -> r.distributionConfig(distributionConfig())
+        UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
             .id(getId())
             .ifMatch(getEtag()));
+
+        setEtag(response.eTag());
 
         if (changedFieldNames.contains("tags")) {
             applyTags(client);
@@ -616,11 +644,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             viewerCertificate.setCloudfrontDefaultCertificate(true);
         }
 
-        CloudFrontLogging logging = getLogging();
-        if (logging == null) {
-            logging = newSubresource(CloudFrontLogging.class);
-        }
-
         CloudFrontCacheBehavior defaultCacheBehavior = getDefaultCacheBehavior();
         if (defaultCacheBehavior == null) {
             defaultCacheBehavior = newSubresource(CloudFrontCacheBehavior.class);
@@ -639,7 +662,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .defaultCacheBehavior(defaultCacheBehavior.toDefaultCacheBehavior())
             .cacheBehaviors(cacheBehaviors)
             .origins(origins)
-            .logging(logging.toLoggingConfig())
+            .logging(getLogging() != null ? getLogging().toLoggingConfig() : CloudFrontLogging.defaultLoggingConfig())
             .viewerCertificate(viewerCertificate.toViewerCertificate())
             .callerReference(getCallerReference() != null ? getCallerReference() : Long.toString(new Date().getTime()));
 

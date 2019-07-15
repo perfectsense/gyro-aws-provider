@@ -11,32 +11,20 @@ import software.amazon.awssdk.services.waf.model.UpdateSizeConstraintSetRequest;
 import java.util.Set;
 
 public abstract class SizeConstraintResource extends AbstractWafResource implements Copyable<SizeConstraint> {
-    private String data;
-    private String type;
+    private FieldToMatch fieldToMatch;
     private String comparisonOperator;
     private String textTransformation;
     private Long size;
 
     /**
-     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
+     * The field setting to match the condition. (Required)
      */
-    public String getData() {
-        return data;
+    public FieldToMatch getFieldToMatch() {
+        return fieldToMatch;
     }
 
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    /**
-     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
-     */
-    public String getType() {
-        return type != null ? type.toUpperCase() : null;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setFieldToMatch(FieldToMatch fieldToMatch) {
+        this.fieldToMatch = fieldToMatch;
     }
 
     /**
@@ -75,10 +63,12 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     @Override
     public void copyFrom(SizeConstraint sizeConstraint) {
         setComparisonOperator(sizeConstraint.comparisonOperatorAsString());
-        setData(sizeConstraint.fieldToMatch().data());
-        setType(sizeConstraint.fieldToMatch().typeAsString());
         setSize(sizeConstraint.size());
         setTextTransformation(sizeConstraint.textTransformationAsString());
+
+        FieldToMatch fieldToMatch = newSubresource(FieldToMatch.class);
+        fieldToMatch.copyFrom(sizeConstraint.fieldToMatch());
+        setFieldToMatch(fieldToMatch);
     }
 
     @Override
@@ -88,7 +78,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
     @Override
     public void create() {
-        saveSizeConstraint(getSizeConstraint(), false);
+        saveSizeConstraint(false);
     }
 
     @Override
@@ -98,7 +88,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
     @Override
     public void delete() {
-        saveSizeConstraint(getSizeConstraint(), true);
+        saveSizeConstraint(true);
     }
 
     @Override
@@ -107,12 +97,14 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
         sb.append("size constraint");
 
-        if (!ObjectUtils.isBlank(getData())) {
-            sb.append(" - ").append(getData());
-        }
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" - ").append(getFieldToMatch().getData());
+            }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" - ").append(getFieldToMatch().getType());
+            }
         }
 
         if (!ObjectUtils.isBlank(getComparisonOperator())) {
@@ -132,26 +124,42 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s %s %s", getData(), getType(), getComparisonOperator(), getTextTransformation(), getSize());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getTextTransformation());
+        sb.append(" ").append(getComparisonOperator());
+        sb.append(" ").append(getSize());
+
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" ").append(getFieldToMatch().getData());
+            }
+
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" ").append(getFieldToMatch().getType());
+            }
+        }
+
+        return sb.toString();
     }
 
-    protected abstract void saveSizeConstraint(SizeConstraint sizeConstraint, boolean isDelete);
+    protected abstract void saveSizeConstraint(boolean isDelete);
 
-    private SizeConstraint getSizeConstraint() {
+    private SizeConstraint toSizeConstraint() {
         return SizeConstraint.builder()
-            .fieldToMatch(f -> f.data(getData()).type(getType()))
+            .fieldToMatch(getFieldToMatch().toFieldToMatch())
             .comparisonOperator(getComparisonOperator())
             .textTransformation(getTextTransformation())
             .size(getSize())
             .build();
     }
 
-    protected UpdateSizeConstraintSetRequest.Builder getUpdateSizeConstraintSetRequest(SizeConstraint sizeConstraint, boolean isDelete) {
+    protected UpdateSizeConstraintSetRequest.Builder toUpdateSizeConstraintSetRequest(boolean isDelete) {
         SizeConstraintSetResource parent = (SizeConstraintSetResource) parent();
 
         SizeConstraintSetUpdate sizeConstraintSetUpdate = SizeConstraintSetUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
-            .sizeConstraint(sizeConstraint)
+            .sizeConstraint(toSizeConstraint())
             .build();
 
         return UpdateSizeConstraintSetRequest.builder()

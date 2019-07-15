@@ -1,4 +1,4 @@
-aws::bucket bucket-example
+aws::s3-bucket bucket-example
     name: "bucket-example"
     enable-object-lock: true
     tags: {
@@ -6,6 +6,5 @@ aws::bucket bucket-example
         Name2: "something"
     }
     enable-accelerate-config: true
-    enable-version: true
-    enable-pay: false
+    enable-versioning: true
 end

@@ -1,1 +1,1 @@
-cloudfront: $(aws::cloudfront EXTERNAL/* | id = '')
+cloudfront: $(external-query aws::cloudfront { id: '' })

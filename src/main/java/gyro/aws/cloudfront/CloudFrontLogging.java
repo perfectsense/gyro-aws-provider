@@ -1,52 +1,40 @@
 package gyro.aws.cloudfront;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.aws.s3.BucketResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
 public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfig> {
-
-    private Boolean enabled;
-    private String bucket;
+    private BucketResource bucket;
     private String bucketPrefix;
     private Boolean includeCookies;
 
     /**
-     * Enable or disable logging for this distribution.
+     * The bucket to save access logs. (Required)
      */
-    public Boolean getEnabled() {
-        if (enabled == null) {
-            enabled = false;
-        }
-
-        return enabled;
-    }
-
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    /**
-     * Name of bucket to save access logs.
-     */
-    public String getBucket() {
-        if (bucket == null) {
-            bucket = "";
-        }
-
+    @Updatable
+    public BucketResource getBucket() {
         return bucket;
     }
 
-    public void setBucket(String bucket) {
+    public void setBucket(BucketResource bucket) {
         this.bucket = bucket;
     }
 
     /**
      * Directory within bucket ot save access logs.
      */
+    @Updatable
     public String getBucketPrefix() {
         if (bucketPrefix == null) {
             bucketPrefix = "";
+        }
+
+        if (bucketPrefix.startsWith("/")) {
+            bucketPrefix = bucketPrefix.replaceFirst("/", "");
         }
 
         return bucketPrefix;
@@ -59,6 +47,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     /**
      * Whether to include cookies logs.
      */
+    @Updatable
     public Boolean getIncludeCookies() {
         if (includeCookies == null) {
             includeCookies = false;
@@ -73,9 +62,8 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
 
     @Override
     public void copyFrom(LoggingConfig loggingConfig) {
-        setBucket(loggingConfig.bucket());
+        setBucket(!ObjectUtils.isBlank(loggingConfig.bucket()) ? findById(BucketResource.class, loggingConfig.bucket().split(".s3.")[0]) : null);
         setBucketPrefix(loggingConfig.prefix());
-        setEnabled(loggingConfig.enabled());
         setIncludeCookies(loggingConfig.includeCookies());
     }
 
@@ -91,9 +79,17 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
 
     LoggingConfig toLoggingConfig() {
         return LoggingConfig.builder()
-            .bucket(getBucket())
+            .bucket(getBucket() != null ? getBucket().getDomainName() : "")
             .prefix(getBucketPrefix())
             .includeCookies(getIncludeCookies())
-            .enabled(getEnabled()).build();
+            .enabled(true).build();
+    }
+
+    static LoggingConfig defaultLoggingConfig() {
+        return LoggingConfig.builder()
+            .bucket("")
+            .prefix("")
+            .includeCookies(false)
+            .enabled(false).build();
     }
 }

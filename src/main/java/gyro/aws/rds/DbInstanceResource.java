@@ -2,7 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
-import gyro.aws.kms.KmsResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -76,7 +76,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private String engineVersion;
     private String finalDbSnapshotIdentifier;
     private Integer iops;
-    private KmsResource kmsKey;
+    private KmsKeyResource kmsKey;
     private String licenseModel;
     private String masterUserPassword;
     private String masterUsername;
@@ -84,7 +84,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private String monitoringRoleArn;
     private Boolean multiAz;
     private DbOptionGroupResource optionGroup;
-    private KmsResource performanceInsightsKmsKey;
+    private KmsKeyResource performanceInsightsKmsKey;
     private Integer performanceInsightsRetentionPeriod;
     private Integer port;
     private String preferredBackupWindow;
@@ -411,11 +411,11 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The AWS KMS key to encrypt the DB instance.
      */
-    public KmsResource getKmsKey() {
+    public KmsKeyResource getKmsKey() {
         return kmsKey;
     }
 
-    public void setKmsKey(KmsResource kmsKey) {
+    public void setKmsKey(KmsKeyResource kmsKey) {
         this.kmsKey = kmsKey;
     }
 
@@ -506,11 +506,11 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The AWS KMS key for encryption of Performance Insights data. Not applicable if `enable-performance-insights` is false.
      */
     @Updatable
-    public KmsResource getPerformanceInsightsKmsKey() {
+    public KmsKeyResource getPerformanceInsightsKmsKey() {
         return performanceInsightsKmsKey;
     }
 
-    public void setPerformanceInsightsKmsKey(KmsResource performanceInsightsKmsKey) {
+    public void setPerformanceInsightsKmsKey(KmsKeyResource performanceInsightsKmsKey) {
         this.performanceInsightsKmsKey = performanceInsightsKmsKey;
     }
 
@@ -724,7 +724,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setEngineVersion(version);
         setIops(instance.iops());
-        setKmsKey(instance.kmsKeyId() != null ? findById(KmsResource.class, instance.kmsKeyId()) : null);
+        setKmsKey(instance.kmsKeyId() != null ? findById(KmsKeyResource.class, instance.kmsKeyId()) : null);
         setLicenseModel(instance.licenseModel());
         setMasterUsername(instance.masterUsername());
         setMonitoringInterval(instance.monitoringInterval());
@@ -735,7 +735,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName()))
             .orElse(null));
 
-        setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ? findById(KmsResource.class, instance.performanceInsightsKMSKeyId()) : null);
+        setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ? findById(KmsKeyResource.class, instance.performanceInsightsKMSKeyId()) : null);
         setPerformanceInsightsRetentionPeriod(instance.performanceInsightsRetentionPeriod());
         setPort(instance.dbInstancePort());
         setPreferredBackupWindow(instance.preferredBackupWindow());

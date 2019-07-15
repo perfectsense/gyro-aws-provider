@@ -28,17 +28,17 @@ import java.util.concurrent.TimeUnit;
  *
  * .. code-block:: gyro
  *
- *     aws::traffic-policy-instance traffic-policy-instance-example
+ *     aws::route53-traffic-policy-instance traffic-policy-instance-example
  *         name: "traffic-policy-instance-example"
  *         comment: "traffic-policy-instance-example Comment"
  *         version: 1
  *         ttl: 900
- *         hosted-zone: $(aws::hosted-zone hosted-zone-record-set-example)
- *         traffic-policy: $(aws::traffic-policy traffic-policy-example-instance)
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+ *         traffic-policy: $(aws::route53-traffic-policy traffic-policy-example-instance)
  *     end
  *
  */
-@Type("traffic-policy-instance")
+@Type("route53-traffic-policy-instance")
 public class TrafficPolicyInstanceResource extends AwsResource implements Copyable<TrafficPolicyInstance> {
     private String name;
     private String message;
@@ -174,8 +174,8 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
-            r -> r.name(getName() + getHostedZone().getHostedZoneName())
-                .hostedZoneId(getHostedZone().getHostedZoneId())
+            r -> r.name(getName() + getHostedZone().getName())
+                .hostedZoneId(getHostedZone().getId())
                 .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
                 .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
@@ -231,7 +231,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         }
 
         if (getHostedZone() != null) {
-            sb.append(getHostedZone().getHostedZoneName());
+            sb.append(getHostedZone().getName());
         }
 
         if (!ObjectUtils.isBlank(getTrafficPolicyInstanceId())) {

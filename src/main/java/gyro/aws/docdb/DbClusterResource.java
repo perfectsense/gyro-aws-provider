@@ -3,7 +3,7 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
-import gyro.aws.kms.KmsResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -67,7 +67,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private String engine;
     private String engineVersion;
     private DbClusterParameterGroupResource dbClusterParamGroup;
-    private KmsResource kmsKey;
+    private KmsKeyResource kmsKey;
     private String masterUsername;
     private String masterUserPassword;
     private Integer port;
@@ -157,11 +157,11 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     /**
      * Associated kms key. (Optional)
      */
-    public KmsResource getKmsKey() {
+    public KmsKeyResource getKmsKey() {
         return kmsKey;
     }
 
-    public void setKmsKey(KmsResource kmsKey) {
+    public void setKmsKey(KmsKeyResource kmsKey) {
         this.kmsKey = kmsKey;
     }
 
@@ -441,7 +441,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setEngineVersion(dbCluster.engineVersion());
         setDbClusterParamGroup(findById(DbClusterParameterGroupResource.class, dbCluster.dbClusterParameterGroup()));
         setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
-        setKmsKey(findById(KmsResource.class, dbCluster.kmsKeyId()));
+        setKmsKey(findById(KmsKeyResource.class, dbCluster.kmsKeyId()));
         setMasterUsername(dbCluster.masterUsername());
         setPort(dbCluster.port());
         setPreferredBackupWindow(dbCluster.preferredBackupWindow());

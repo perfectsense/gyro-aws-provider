@@ -8,15 +8,16 @@ import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Query egress gateway.
+ * Query egress only internet gateway.
  *
  * .. code-block:: gyro
  *
- *    egress-gateway: $(aws::egress-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
+ *    egress-gateway: $(aws::egress-only-internet-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
  */
-@Type("egress-gateway")
+@Type("egress-only-internet-gateway")
 public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, EgressOnlyInternetGateway, EgressOnlyInternetGatewayResource> {
     private String egressOnlyInternetGatewayId;
 
@@ -33,13 +34,16 @@ public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, Egress
 
     @Override
     protected List<EgressOnlyInternetGateway> findAllAws(Ec2Client client) {
-        return client.describeEgressOnlyInternetGateways().egressOnlyInternetGateways();
+        return client.describeEgressOnlyInternetGatewaysPaginator().egressOnlyInternetGateways().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<EgressOnlyInternetGateway> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeEgressOnlyInternetGateways(
-            r -> r.egressOnlyInternetGatewayIds(Collections.singleton(filters.get("egress-only-internet-gateway-id")))
-        ).egressOnlyInternetGateways();
+        if (filters.containsKey("egress-only-internet-gateway-id")) {
+            return client.describeEgressOnlyInternetGatewaysPaginator(r -> r.egressOnlyInternetGatewayIds(filters.get("egress-only-internet-gateway-id"))).egressOnlyInternetGateways().stream().collect(Collectors.toList());
+
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

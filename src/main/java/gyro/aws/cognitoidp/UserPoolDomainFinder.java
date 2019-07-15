@@ -6,10 +6,12 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DomainDescriptionType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ListUserPoolsResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolDescriptionType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,9 +20,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    user-pool-domain: $(aws::user-pool-domain EXTERNAL/* | domain = '')
+ *    user-pool-domain: $(aws::cognito-user-pool-domain EXTERNAL/* | domain = '')
  */
-@Type("user-pool-domain")
+@Type("cognito-user-pool-domain")
 public class UserPoolDomainFinder extends AwsFinder<CognitoIdentityProviderClient, DomainDescriptionType, UserPoolDomainResource> {
 
     private String domain;
@@ -38,11 +40,15 @@ public class UserPoolDomainFinder extends AwsFinder<CognitoIdentityProviderClien
 
     @Override
     public List<DomainDescriptionType> findAws(CognitoIdentityProviderClient client, Map<String, String> filters) {
-        List<DomainDescriptionType> domainDescriptionType = new ArrayList<>();
+        if (!filters.containsKey("domain")) {
+            throw new IllegalArgumentException("'domain' is required.");
+        }
 
-        domainDescriptionType.add(client.describeUserPoolDomain(r -> r.domain(filters.get("domain"))).domainDescription());
-
-        return domainDescriptionType;
+        try {
+            return Collections.singletonList(client.describeUserPoolDomain(r -> r.domain(filters.get("domain"))).domainDescription());
+        } catch (ResourceNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override

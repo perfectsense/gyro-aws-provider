@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.ec2.model.Vpc;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query vpc.
@@ -202,11 +203,11 @@ public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
 
     @Override
     protected List<Vpc> findAllAws(Ec2Client client) {
-        return client.describeVpcs().vpcs();
+        return client.describeVpcsPaginator().vpcs().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcs(r -> r.filters(createFilters(filters))).vpcs();
+        return client.describeVpcsPaginator(r -> r.filters(createFilters(filters))).vpcs().stream().collect(Collectors.toList());
     }
 }

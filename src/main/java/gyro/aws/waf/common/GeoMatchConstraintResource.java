@@ -49,7 +49,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
 
     @Override
     public void create() {
-        saveGeoMatchConstraint(getGeoMatchConstraint(), false);
+        saveGeoMatchConstraint(toGeoMatchConstraint(), false);
     }
 
     @Override
@@ -59,7 +59,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
 
     @Override
     public void delete() {
-        saveGeoMatchConstraint(getGeoMatchConstraint(), true);
+        saveGeoMatchConstraint(toGeoMatchConstraint(), true);
     }
 
     @Override
@@ -86,14 +86,14 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
 
     protected abstract void saveGeoMatchConstraint(GeoMatchConstraint geoMatchConstraint, boolean isDelete);
 
-    private GeoMatchConstraint getGeoMatchConstraint() {
+    private GeoMatchConstraint toGeoMatchConstraint() {
         return GeoMatchConstraint.builder()
             .type(getType())
             .value(getValue())
             .build();
     }
 
-    protected UpdateGeoMatchSetRequest.Builder getUpdateGeoMatchSetRequest(GeoMatchConstraint geoMatchConstraint, boolean isDelete) {
+    protected UpdateGeoMatchSetRequest.Builder toUpdateGeoMatchSetRequest(GeoMatchConstraint geoMatchConstraint, boolean isDelete) {
         GeoMatchSetResource parent = (GeoMatchSetResource) parent();
 
         GeoMatchSetUpdate geoMatchSetUpdate = GeoMatchSetUpdate.builder()

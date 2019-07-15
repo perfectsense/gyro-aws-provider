@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::hosted-zone hosted-zone-example
- *         hosted-zone-name: "hosted-zone-example.com"
+ *     aws::route53-hosted-zone hosted-zone-example
+ *         name: "hosted-zone-example.com"
  *         vpcs: [
  *             $(aws::vpc vpc-hosted-zone-example)
  *         ]
@@ -42,13 +42,13 @@ import java.util.stream.Collectors;
  *     end
  *
  */
-@Type("hosted-zone")
+@Type("route53-hosted-zone")
 public class HostedZoneResource extends AwsResource implements Copyable<HostedZone> {
 
     private String delegationSetId;
     private String comment;
-    private String hostedZoneId;
-    private String hostedZoneName;
+    private String id;
+    private String name;
     private Long resourceRecordSetCount;
     private String description;
     private String servicePrincipal;
@@ -82,16 +82,16 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     /**
      * The name of the Hosted Zone.
      */
-    public String getHostedZoneName() {
-        if (hostedZoneName != null) {
-            hostedZoneName += hostedZoneName.endsWith(".") ? "" : ".";
+    public String getName() {
+        if (name != null) {
+            name += name.endsWith(".") ? "" : ".";
         }
 
-        return hostedZoneName;
+        return name;
     }
 
-    public void setHostedZoneName(String hostedZoneName) {
-        this.hostedZoneName = hostedZoneName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -117,12 +117,12 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
      */
     @Id
     @Output
-    public String getHostedZoneId() {
-        return hostedZoneId;
+    public String getId() {
+        return id;
     }
 
-    public void setHostedZoneId(String hostedZoneId) {
-        this.hostedZoneId = hostedZoneId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -179,9 +179,9 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
     @Override
     public void copyFrom(HostedZone hostedZone) {
-        setHostedZoneId(hostedZone.id());
+        setId(hostedZone.id());
         setComment(hostedZone.config().comment());
-        setHostedZoneName(hostedZone.name());
+        setName(hostedZone.name());
         setPrivateZone(hostedZone.config().privateZone());
         setResourceRecordSetCount(hostedZone.resourceRecordSetCount());
         setDescription(hostedZone.linkedService() != null ? hostedZone.linkedService().description() : null);
@@ -219,7 +219,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         VpcResource firstVpcResource = !getVpcs().isEmpty() ? getVpcs().iterator().next() : null;
 
         CreateHostedZoneResponse response = client.createHostedZone(
-            r -> r.name(getHostedZoneName())
+            r -> r.name(getName())
                 .delegationSetId(getDelegationSetId())
                 .hostedZoneConfig(
                     o -> o.comment(getComment())
@@ -231,7 +231,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
         HostedZone hostedZone = response.hostedZone();
 
-        setHostedZoneId(hostedZone.id());
+        setId(hostedZone.id());
         setResourceRecordSetCount(hostedZone.resourceRecordSetCount());
         setDescription(hostedZone.linkedService() != null ? hostedZone.linkedService().description() : null);
         setServicePrincipal(hostedZone.linkedService() != null ? hostedZone.linkedService().servicePrincipal() : null);
@@ -240,7 +240,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
             for (VpcResource vpcResource : getVpcs()) {
                 if (!vpcResource.equals(firstVpcResource)) {
                     client.associateVPCWithHostedZone(
-                        r -> r.hostedZoneId(getHostedZoneId())
+                        r -> r.hostedZoneId(getId())
                             .vpc(getVpc(vpcResource)));
                 }
             }
@@ -253,7 +253,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
         if (changedFieldNames.contains("comment")) {
             client.updateHostedZoneComment(
-                r -> r.id(getHostedZoneId())
+                r -> r.id(getId())
                     .comment(getComment() != null ? getComment() : "")
             );
         }
@@ -262,13 +262,13 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
             HostedZoneResource currentHostedZone = (HostedZoneResource) current;
 
             if (getPrivateZone() && getVpcs().isEmpty()) {
-                throw new GyroException(String.format("Hosted zone %s is a private zone and must have at least one VPC.", getHostedZoneName()));
+                throw new GyroException(String.format("Hosted zone %s is a private zone and must have at least one VPC.", getName()));
             }
 
             Set<String> pendingVpcIds = getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
             List<VPC> deleteVpcs = currentHostedZone.getVpcs().stream().filter(o -> !pendingVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
             for (VPC vpc : deleteVpcs) {
-                client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
+                client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
             }
 
 
@@ -276,10 +276,10 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
                 Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
                 List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
                 for (VPC vpc : addVpcs) {
-                    client.associateVPCWithHostedZone(r -> r.hostedZoneId(getHostedZoneId()).vpc(vpc));
+                    client.associateVPCWithHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
                 }
             } catch (PublicZoneVpcAssociationException ex) {
-                throw new GyroException(String.format("Hosted zone %s is a public zone and cannot be associated with a VPC.", getHostedZoneName()));
+                throw new GyroException(String.format("Hosted zone %s is a public zone and cannot be associated with a VPC.", getName()));
             }
         }
     }
@@ -289,7 +289,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteHostedZone(
-            r -> r.id(getHostedZoneId())
+            r -> r.id(getId())
         );
     }
 
@@ -299,12 +299,12 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
         sb.append("hosted zone");
 
-        if (!ObjectUtils.isBlank(getHostedZoneName())) {
-            sb.append(" [ ").append(getHostedZoneName()).append(" ]");
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" [ ").append(getName()).append(" ]");
         }
 
-        if (!ObjectUtils.isBlank(getHostedZoneId())) {
-            sb.append(" - ").append(getHostedZoneId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -313,13 +313,13 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     private GetHostedZoneResponse getHostedZoneResponse(Route53Client client) {
         GetHostedZoneResponse hostedZoneResponse = null;
 
-        if (ObjectUtils.isBlank(getHostedZoneId())) {
+        if (ObjectUtils.isBlank(getId())) {
             throw new GyroException("hosted-zone-id is missing, unable to load hosted zone.");
         }
 
         try {
             hostedZoneResponse = client.getHostedZone(
-                r -> r.id(getHostedZoneId())
+                r -> r.id(getId())
             );
 
             if (hostedZoneResponse.hostedZone() == null) {

@@ -23,14 +23,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Creates an Auto scaling Group from a Launch Configuration or from a Launch Template.
+ * Creates a CloudWatch metric alarm.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::metric-alarm metric-alarm-example-1
+ *     aws::cloudwatch-metric-alarm metric-alarm-example-1
  *         alarm-name: "metric-alarm-example-1"
  *         alarm-description: "metric-alarm-example-1"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *         statistic: "SampleCount"
  *     end
  *
- *     aws::metric-alarm metric-alarm-example-2
+ *     aws::cloudwatch-metric-alarm metric-alarm-example-2
  *         alarm-name: "metric-alarm-example-2"
  *         alarm-description: "metric-alarm-example-2"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  *         end
  *     end
  */
-@Type("metric-alarm")
+@Type("cloudwatch-metric-alarm")
 public class MetricAlarmResource extends AwsResource implements Copyable<MetricAlarm> {
 
     private String alarmName;

@@ -11,30 +11,18 @@ import software.amazon.awssdk.services.waf.model.UpdateSqlInjectionMatchSetReque
 import java.util.Set;
 
 public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource implements Copyable<SqlInjectionMatchTuple> {
-    private String data;
-    private String type;
+    private FieldToMatch fieldToMatch;
     private String textTransformation;
 
     /**
-     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
+     * The field setting to match the condition. (Required)
      */
-    public String getData() {
-        return data;
+    public FieldToMatch getFieldToMatch() {
+        return fieldToMatch;
     }
 
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    /**
-     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
-     */
-    public String getType() {
-        return type != null ? type.toUpperCase() : null;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setFieldToMatch(FieldToMatch fieldToMatch) {
+        this.fieldToMatch = fieldToMatch;
     }
 
     /**
@@ -50,9 +38,11 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     @Override
     public void copyFrom(SqlInjectionMatchTuple sqlInjectionMatchTuple) {
-        setData(sqlInjectionMatchTuple.fieldToMatch().data());
-        setType(sqlInjectionMatchTuple.fieldToMatch().typeAsString());
         setTextTransformation(sqlInjectionMatchTuple.textTransformationAsString());
+
+        FieldToMatch fieldToMatch = newSubresource(FieldToMatch.class);
+        fieldToMatch.copyFrom(sqlInjectionMatchTuple.fieldToMatch());
+        setFieldToMatch(fieldToMatch);
     }
 
     @Override
@@ -62,7 +52,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     @Override
     public void create() {
-        saveSqlInjectionMatchTuple(getSqlInjectionMatchTuple(), false);
+        saveSqlInjectionMatchTuple(false);
     }
 
     @Override
@@ -72,7 +62,7 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     @Override
     public void delete() {
-        saveSqlInjectionMatchTuple(getSqlInjectionMatchTuple(), true);
+        saveSqlInjectionMatchTuple(true);
     }
 
     @Override
@@ -81,12 +71,14 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
         sb.append("sql injection match tuple");
 
-        if (!ObjectUtils.isBlank(getData())) {
-            sb.append(" - ").append(getData());
-        }
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" - ").append(getFieldToMatch().getData());
+            }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" - ").append(getFieldToMatch().getType());
+            }
         }
 
         if (!ObjectUtils.isBlank(getTextTransformation())) {
@@ -98,24 +90,38 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s", getData(), getType(), getTextTransformation());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getTextTransformation());
+
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" ").append(getFieldToMatch().getData());
+            }
+
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" ").append(getFieldToMatch().getType());
+            }
+        }
+
+        return sb.toString();
     }
 
-    protected abstract void saveSqlInjectionMatchTuple(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete);
+    protected abstract void saveSqlInjectionMatchTuple(boolean isDelete);
 
-    private SqlInjectionMatchTuple getSqlInjectionMatchTuple() {
+    private SqlInjectionMatchTuple toSqlInjectionMatchTuple() {
         return SqlInjectionMatchTuple.builder()
-            .fieldToMatch(f -> f.data(getData()).type(getType()))
+            .fieldToMatch(getFieldToMatch().toFieldToMatch())
             .textTransformation(getTextTransformation())
             .build();
     }
 
-    protected UpdateSqlInjectionMatchSetRequest.Builder getUpdateSqlInjectionMatchSetRequest(SqlInjectionMatchTuple sqlInjectionMatchTuple, boolean isDelete) {
+    protected UpdateSqlInjectionMatchSetRequest.Builder toUpdateSqlInjectionMatchSetRequest(boolean isDelete) {
         SqlInjectionMatchSetResource parent = (SqlInjectionMatchSetResource) parent();
 
         SqlInjectionMatchSetUpdate sqlInjectionMatchSetUpdate = SqlInjectionMatchSetUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
-            .sqlInjectionMatchTuple(sqlInjectionMatchTuple)
+            .sqlInjectionMatchTuple(toSqlInjectionMatchTuple())
             .build();
 
         return UpdateSqlInjectionMatchSetRequest.builder()

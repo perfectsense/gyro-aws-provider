@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -9,8 +10,8 @@ import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a global sql injection match set.
@@ -20,18 +21,20 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- * aws::sql-injection-match-set sql-injection-match-set-example
+ * aws::waf-sql-injection-match-set sql-injection-match-set-example
  *     name: "sql-injection-match-set-example"
  *
  *     sql-injection-match-tuple
- *         type: "METHOD"
+ *         field-to-match
+ *             type: "METHOD"
+ *         end
  *         text-transformation: "NONE"
  *     end
  * end
  */
-@Type("sql-injection-match-set")
+@Type("waf-sql-injection-match-set")
 public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjectionMatchSetResource {
-    private List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
+    private Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
 
     /**
      * List of sql injection match tuple data defining the condition. (Required)
@@ -39,16 +42,20 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
      * @subresource gyro.aws.waf.global.SqlInjectionMatchTupleResource
      */
     @Updatable
-    public List<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
+    public Set<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
         if (sqlInjectionMatchTuple == null) {
-            sqlInjectionMatchTuple = new ArrayList<>();
+            sqlInjectionMatchTuple = new HashSet<>();
         }
 
         return sqlInjectionMatchTuple;
     }
 
-    public void setSqlInjectionMatchTuple(List<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
+    public void setSqlInjectionMatchTuple(Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple) {
         this.sqlInjectionMatchTuple = sqlInjectionMatchTuple;
+
+        if (sqlInjectionMatchTuple.size() > 10) {
+            throw new GyroException("Sql Injection Match Tuple limit exception. Max 10 per Byte Match Set.");
+        }
     }
 
     @Override
@@ -99,5 +106,9 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .sqlInjectionMatchSetId(getId())
         );
+    }
+
+    SqlInjectionMatchSet getSqlInjectionMatchSet(WafClient client) {
+        return client.getSqlInjectionMatchSet(r -> r.sqlInjectionMatchSetId(getId())).sqlInjectionMatchSet();
     }
 }

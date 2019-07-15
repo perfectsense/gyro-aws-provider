@@ -40,14 +40,14 @@ dependencies {
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.5.8')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.5.70')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:cloudfront'
     implementation 'software.amazon.awssdk:cloudwatch'
     implementation 'software.amazon.awssdk:cloudwatchevents'
     implementation 'software.amazon.awssdk:cognitoidentityprovider'
-    implementation 'software.amazon.awssdk:dlm:2.5.8'
+    implementation 'software.amazon.awssdk:dlm'
     implementation 'software.amazon.awssdk:ec2'
     implementation 'software.amazon.awssdk:elasticloadbalancing'
     implementation 'software.amazon.awssdk:elasticloadbalancingv2'
@@ -62,7 +62,7 @@ dependencies {
     implementation 'software.amazon.awssdk:waf'
     implementation 'software.amazon.awssdk:elasticache'
     implementation 'software.amazon.awssdk:sts'
-    implementation 'software.amazon.awssdk:docdb:2.5.31'
+    implementation 'software.amazon.awssdk:docdb'
     implementation 'org.json:json:20180813'
 
     gyroDoclet "gyro:gyro-doclet:0.15-SNAPSHOT"

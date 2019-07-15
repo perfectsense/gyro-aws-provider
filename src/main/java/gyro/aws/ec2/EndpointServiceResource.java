@@ -27,20 +27,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Create an endpoint service.
+ * Create a vpc endpoint service.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::endpoint-service endpoint-service-example
+ *     aws::vpc-endpoint-service endpoint-service-example
  *         network-load-balancers: [
- *             $(aws::nlb nlb-example)
+ *             $(aws::network-load-balancer nlb-example)
  *         ]
  *     end
  */
-@Type("endpoint-service")
+@Type("vpc-endpoint-service")
 public class EndpointServiceResource extends AwsResource implements Copyable<ServiceConfiguration> {
     private Boolean acceptanceRequired;
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;

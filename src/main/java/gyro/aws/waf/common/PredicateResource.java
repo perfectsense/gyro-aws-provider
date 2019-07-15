@@ -29,10 +29,14 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     /**
-     * Set if the condition is checked to be false. (Required)
+     * Set if the condition is checked to be false. Defaults to false.
      */
     @Updatable
     public Boolean getNegated() {
+        if (negated == null) {
+            negated = false;
+        }
+
         return negated;
     }
 
@@ -65,21 +69,21 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
     @Override
     public void create() {
-        savePredicate(getPredicate(), false);
+        savePredicate(toPredicate(), false);
     }
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
         //Remove old predicate
-        savePredicate(((PredicateResource) current).getPredicate(), true);
+        savePredicate(((PredicateResource) current).toPredicate(), true);
 
         //Add updates predicate
-        savePredicate(getPredicate(), false);
+        savePredicate(toPredicate(), false);
     }
 
     @Override
     public void delete() {
-        savePredicate(getPredicate(), true);
+        savePredicate(toPredicate(), true);
     }
 
     @Override
@@ -103,12 +107,12 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
     @Override
     public String primaryKey() {
-        return String.format("%s", (getCondition() != null ? getCondition().getId() : null));
+        return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(getCondition().name()) ? getCondition().getId() : getCondition().name()) : null));
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);
 
-    protected Predicate getPredicate() {
+    protected Predicate toPredicate() {
         return Predicate.builder()
             .dataId(getCondition().getId())
             .negated(getNegated())
@@ -116,27 +120,27 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             .build();
     }
 
-    private RuleUpdate getRuleUpdate(Predicate predicate, boolean isDelete) {
+    private RuleUpdate toRuleUpdate(Predicate predicate, boolean isDelete) {
         return RuleUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
             .predicate(predicate)
             .build();
     }
 
-    protected UpdateRuleRequest.Builder getUpdateRuleRequest(Predicate predicate, boolean isDelete) {
+    protected UpdateRuleRequest.Builder toUpdateRuleRequest(Predicate predicate, boolean isDelete) {
         RuleResource parent = (RuleResource) parent();
 
         return UpdateRuleRequest.builder()
             .ruleId(parent.getRuleId())
-            .updates(getRuleUpdate(predicate, isDelete));
+            .updates(toRuleUpdate(predicate, isDelete));
     }
 
-    protected UpdateRateBasedRuleRequest.Builder getUpdateRateBasedRuleRequest(Predicate predicate, boolean isDelete) {
+    protected UpdateRateBasedRuleRequest.Builder toUpdateRateBasedRuleRequest(Predicate predicate, boolean isDelete) {
         RateRuleResource parent = (RateRuleResource) parent();
 
         return UpdateRateBasedRuleRequest.builder()
             .ruleId(parent.getRuleId())
             .rateLimit(parent.getRateLimit())
-            .updates(getRuleUpdate(predicate, isDelete));
+            .updates(toRuleUpdate(predicate, isDelete));
     }
 }

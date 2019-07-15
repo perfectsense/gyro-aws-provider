@@ -6,8 +6,8 @@ aws::vpc vpc-hosted-zone-example
     }
 end
 
-aws::hosted-zone hosted-zone-example
-    hosted-zone-name: "hosted-zone-example.com"
+aws::route53-hosted-zone hosted-zone-example
+    name: "hosted-zone-example.com"
     vpcs: [
         $(aws::vpc vpc-hosted-zone-example)
     ]

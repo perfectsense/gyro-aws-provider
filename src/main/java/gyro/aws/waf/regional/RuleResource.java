@@ -1,5 +1,6 @@
 package gyro.aws.waf.regional;
 
+import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
@@ -8,7 +9,9 @@ import software.amazon.awssdk.services.waf.model.Rule;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Creates a regional rule.
@@ -18,31 +21,39 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- *     aws::rule-regional rule-example
+ *     aws::waf-rule-regional rule-example
  *         name: "rule-example"
  *         metric-name: "ruleExample"
+ *
+ *         predicate
+ *             condition: $(aws::regex-match-set-regional regex-match-set-example-waf)
+ *         end
  *     end
  */
-@Type("rule-regional")
+@Type("waf-rule-regional")
 public class RuleResource extends gyro.aws.waf.common.RuleResource {
-    private List<PredicateResource> predicate;
+    private Set<PredicateResource> predicate;
 
     /**
-     * A list of predicates specifying the connection between rule and conditions.
+     * A set of predicates specifying the connection between rule and conditions.
      *
-     * @subresource gyro.aws.waf.PredicateResource
+     * @subresource gyro.aws.waf.regional.PredicateResource
      */
     @Updatable
-    public List<PredicateResource> getPredicate() {
+    public Set<PredicateResource> getPredicate() {
         if (predicate == null) {
-            predicate = new ArrayList<>();
+            predicate = new HashSet<>();
         }
 
         return predicate;
     }
 
-    public void setPredicate(List<PredicateResource> predicate) {
+    public void setPredicate(Set<PredicateResource> predicate) {
         this.predicate = predicate;
+
+        if (predicate.size() > 10) {
+            throw new GyroException("Predicate limit exception. Max 10.");
+        }
     }
 
     @Override

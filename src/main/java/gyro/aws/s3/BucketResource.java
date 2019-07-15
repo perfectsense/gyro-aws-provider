@@ -1,10 +1,13 @@
 package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -17,6 +20,7 @@ import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
@@ -31,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -41,15 +46,14 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::bucket bucket
+ *     aws::s3-bucket bucket
  *         name: bucket-example
  *         enable-object-lock: true
- *         tags:
- *             Name: bucket-example-update
- *         end
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
  *         enable-accelerate-config: true
- *         enable-version: true
- *         enable-pay: false
+ *         enable-versioning: true
  *     end
  *
  * Example with cors rule
@@ -57,15 +61,14 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::bucket bucket
+ *     aws::s3-bucket bucket
  *         name: bucket-example-with-cors
  *         enable-object-lock: true
- *         tags:
- *             Name: bucket-example-update
- *         end
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
  *         enable-accelerate-config: true
- *         enable-version: true
- *         enable-pay: false
+ *         enable-versioning: true
  *
  *         cors-rule
  *             allowed-origins: [
@@ -83,19 +86,17 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::bucket bucket
+ *     aws::s3-bucket bucket
  *         name: bucket-example-with-lifecycle
  *         enable-object-lock: true
- *         tags:
- *             Name: bucket-example-update
- *         end
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
  *         enable-accelerate-config: true
- *         enable-version: true
- *         enable-pay: false
+ *         enable-versioning: true
  *
  *         lifecycle-rule
- *             lifecycle-rule-name: "lifecycle-rule-name"
- *             expired-object-delete-marker: false
+ *             id: "rule no prefix and no tag"
  *             status: "Disabled"
  *
  *             transition
@@ -103,27 +104,37 @@ import java.util.stream.Collectors;
  *                 storage-class: "STANDARD_IA"
  *             end
  *
- *             non-current-transition
+ *             noncurrent-version-transition
  *                 days: 40
  *                 storage-class: "STANDARD_IA"
  *             end
  *
- *             non-current-version-expiration-days: 403
- *             incomplete-multipart-upload-days: 5
+ *             expiration
+ *                 expired-object-delete-marker: false
+ *             end
+ *
+ *             noncurrent-version-expiration
+ *                 days: 403
+ *             end
+ *
+ *             abort-incomplete-multipart-upload
+ *                 days-after-initiation: 5
+ *             end
  *         end
  *     end
  */
-@Type("bucket")
+@Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     private String name;
     private Boolean enableObjectLock;
     private Map<String, String> tags;
     private Boolean enableAccelerateConfig;
-    private Boolean enableVersion;
-    private Boolean enablePay;
+    private Boolean enableVersioning;
+    private String requestPayer;
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
+    private String domainName;
 
     @Id
     public String getName() {
@@ -182,32 +193,38 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
      * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_. Updatable only when object lock is disabled.
      */
     @Updatable
-    public Boolean getEnableVersion() {
-        if (enableVersion == null) {
-            enableVersion = false;
+    public Boolean getEnableVersioning() {
+        if (enableVersioning == null) {
+            enableVersioning = false;
         }
 
-        return enableVersion;
+        return enableVersioning;
     }
 
-    public void setEnableVersion(Boolean enableVersion) {
-        this.enableVersion = enableVersion;
+    public void setEnableVersioning(Boolean enableVersioning) {
+        this.enableVersioning = enableVersioning;
     }
 
     /**
-     * Enable the requester to pay for requests to the bucket than the owner. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
+     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. Valid values are ``BUCKET_OWNER`` or ``REQUESTER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
      */
     @Updatable
-    public Boolean getEnablePay() {
-        if (enablePay == null) {
-            enablePay = false;
+    public String getRequestPayer() {
+        if (requestPayer == null) {
+            requestPayer = "BUCKET_OWNER";
         }
 
-        return enablePay;
+        return requestPayer.toUpperCase();
     }
 
-    public void setEnablePay(Boolean enablePay) {
-        this.enablePay = enablePay;
+    public void setRequestPayer(String requestPayer) {
+        this.requestPayer = requestPayer;
+
+        try {
+            Payer.valueOf(requestPayer.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new GyroException("Invalid value for param 'request-payer'. Valid values are 'BUCKET_OWNER' or 'REQUESTER'.");
+        }
     }
 
     /**
@@ -246,16 +263,26 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.lifecycleRule = lifecycleRule;
     }
 
+    @Output
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
         setName(bucket.name());
         loadTags(client);
         loadAccelerateConfig(client);
-        loadEnableVersion(client);
-        loadEnablePay(client);
+        loadEnableVersioning(client);
+        loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
     @Override
@@ -276,10 +303,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     @Override
     public void create() {
         S3Client client = createClient(S3Client.class);
+
         client.createBucket(
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
 
         if (!getTags().isEmpty()) {
             saveTags(client);
@@ -289,12 +318,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveAccelerateConfig(client);
         }
 
-        if (getEnableVersion()) {
-            saveEnableVersion(client);
+        if (getEnableVersioning()) {
+            saveEnableVersioning(client);
         }
 
-        if (getEnablePay()) {
-            saveEnablePay(client);
+        if (getRequestPayer().equalsIgnoreCase(Payer.REQUESTER.name())) {
+            saveRequestPayer(client);
         }
 
         if (!getCorsRule().isEmpty()) {
@@ -318,12 +347,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveAccelerateConfig(client);
         }
 
-        if (changedFieldNames.contains("enable-version")) {
-            saveEnableVersion(client);
+        if (changedFieldNames.contains("enable-versioning")) {
+            saveEnableVersioning(client);
         }
 
-        if (changedFieldNames.contains("enable-pay")) {
-            saveEnablePay(client);
+        if (changedFieldNames.contains("request-payer")) {
+            saveRequestPayer(client);
         }
 
         saveCorsRules(client);
@@ -431,36 +460,36 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         );
     }
 
-    private void loadEnableVersion(S3Client client) {
+    private void loadEnableVersioning(S3Client client) {
         GetBucketVersioningResponse response = client.getBucketVersioning(
             r -> r.bucket(getName())
         );
-        setEnableVersion(response.status() != null && response.status().equals(BucketVersioningStatus.ENABLED));
+        setEnableVersioning(response.status() != null && response.status().equals(BucketVersioningStatus.ENABLED));
     }
 
-    private void saveEnableVersion(S3Client client) {
+    private void saveEnableVersioning(S3Client client) {
         client.putBucketVersioning(
             r -> r.bucket(getName())
                 .versioningConfiguration(
-                    v -> v.status(getEnableVersion() ? BucketVersioningStatus.ENABLED : BucketVersioningStatus.SUSPENDED)
+                    v -> v.status(getEnableVersioning() ? BucketVersioningStatus.ENABLED : BucketVersioningStatus.SUSPENDED)
                 )
                 .build()
         );
     }
 
-    private void loadEnablePay(S3Client client) {
+    private void loadRequestPayer(S3Client client) {
         GetBucketRequestPaymentResponse response = client.getBucketRequestPayment(
             r -> r.bucket(getName()).build()
         );
 
-        setEnablePay(response.payer().equals(Payer.REQUESTER));
+        setRequestPayer(response.payer().name());
     }
 
-    private void saveEnablePay(S3Client client) {
+    private void saveRequestPayer(S3Client client) {
         client.putBucketRequestPayment(
             r -> r.bucket(getName())
                 .requestPaymentConfiguration(
-                    p -> p.payer(getEnablePay() ? Payer.REQUESTER : Payer.BUCKET_OWNER)
+                    p -> p.payer(getRequestPayer())
                 )
             .build()
         );
@@ -497,7 +526,21 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                         getCorsRule().stream().map(S3CorsRule::toCorsRule).collect(Collectors.toList())
                     ))
             );
+
+            Wait.atMost(2, TimeUnit.MINUTES)
+                .prompt(false)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .until(() -> isCorsSaved(client));
         }
+    }
+
+    private boolean isCorsSaved(S3Client client) {
+        BucketResource bucketResource = new BucketResource();
+        bucketResource.setName(getName());
+        bucketResource.loadCorsRules(client);
+
+        Set<String> currentCors = bucketResource.getCorsRule().stream().map(S3CorsRule::primaryKey).collect(Collectors.toSet());
+        return getCorsRule().stream().allMatch(o -> currentCors.contains(o.primaryKey()));
     }
 
     private void loadLifecycleRules(S3Client client) {
@@ -532,5 +575,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                     )
             );
         }
+    }
+
+    private String getBucketRegion(S3Client client) {
+        GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
+        return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
     }
 }

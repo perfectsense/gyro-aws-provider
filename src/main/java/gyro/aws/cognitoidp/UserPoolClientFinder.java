@@ -1,17 +1,18 @@
 package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsFinder;
-import gyro.core.GyroException;
 import gyro.core.Type;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ListUserPoolClientsResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ListUserPoolsResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolClientDescription;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolClientType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolDescriptionType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +21,9 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    user-pool-client: $(aws::user-pool-client EXTERNAL/* | user-pool-id = '' and id = '')
+ *    user-pool-client: $(aws::cognito-user-pool-client EXTERNAL/* | user-pool-id = '' and id = '')
  */
-@Type("user-pool-client")
+@Type("cognito-user-pool-client")
 public class UserPoolClientFinder extends AwsFinder<CognitoIdentityProviderClient, UserPoolClientType, UserPoolClientResource> {
 
     private String clientId;
@@ -52,15 +53,19 @@ public class UserPoolClientFinder extends AwsFinder<CognitoIdentityProviderClien
 
     @Override
     protected List<UserPoolClientType> findAws(CognitoIdentityProviderClient client, Map<String, String> filters) {
-        List<UserPoolClientType> userPool = new ArrayList<>();
-
-        if (filters.get("user-pool-id") != null && filters.get("client-id") != null) {
-            userPool.add(client.describeUserPoolClient(r -> r.userPoolId(filters.get("user-pool-id")).clientId(filters.get("client-id"))).userPoolClient());
-        } else {
-            throw new GyroException("User pool id and client id must be provided.");
+        if (!filters.containsKey("user-pool-id")) {
+            throw new IllegalArgumentException("'user-pool-id' is required.");
         }
 
-        return userPool;
+        if (!filters.containsKey("client-id")) {
+            throw new IllegalArgumentException("'client-id' is required.");
+        }
+
+        try {
+            return Collections.singletonList(client.describeUserPoolClient(r -> r.userPoolId(filters.get("user-pool-id")).clientId(filters.get("client-id"))).userPoolClient());
+        } catch (ResourceNotFoundException ex) {
+            return Collections.emptyList();
+        }
     }
 
     @Override

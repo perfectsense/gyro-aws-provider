@@ -16,8 +16,8 @@ aws::subnet subnet
     }
 end
 
-aws::hosted-zone hosted-zone
-    hosted-zone-name: "record-from-instance.psdops.com"
+aws::route53-hosted-zone hosted-zone
+    name: "record-from-instance.psdops.com"
     private-zone: true
     vpcs: [
         $(aws::vpc vpc)
@@ -60,12 +60,10 @@ aws::instance instance
     }
 end
 
-aws::record-set record-set-example
-    hosted-zone: $(aws::hosted-zone hosted-zone)
-    name: "instance.$(aws::hosted-zone hosted-zone | hosted-zone-name)"
+aws::route53-record-set record-set-example
+    hosted-zone: $(aws::route53-hosted-zone hosted-zone)
+    name: "instance.\($(aws::route53-hosted-zone hosted-zone).name)"
     type: "A"
     ttl: 60
-    records: [
-        $(aws::instance instance | private-ip-address)
-    ]
+    records: $(aws::instance instance).*.private-ip-address
 end

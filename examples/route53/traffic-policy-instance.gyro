@@ -6,8 +6,8 @@ aws::vpc vpc-traffic-policy-instance-example
     }
 end
 
-aws::hosted-zone hosted-zone-traffic-policy-instance-example
-    hosted-zone-name: "hosted-zone-traffic-policy-instance-example.com"
+aws::route53-hosted-zone hosted-zone-traffic-policy-instance-example
+    name: "hosted-zone-traffic-policy-instance-example.com"
     private-zone: true
     vpcs: [
         $(aws::vpc vpc-traffic-policy-instance-example)
@@ -15,15 +15,15 @@ aws::hosted-zone hosted-zone-traffic-policy-instance-example
     comment: "hosted-zone-traffic-policy-instance-example.comment"
 end
 
-aws::traffic-policy traffic-policy-example-instance
+aws::route53-traffic-policy traffic-policy-example-instance
     name: "traffic-policy-example-instance"
     comment: "traffic-policy-example-instance Comment"
     document: "policy.json"
 end
 
-aws::traffic-policy-instance traffic-policy-instance-example
+aws::route53-traffic-policy-instance traffic-policy-instance-example
     name: "tp."
     ttl: 100
-    hosted-zone: $(aws::hosted-zone hosted-zone-traffic-policy-instance-example)
-    traffic-policy: $(aws::traffic-policy traffic-policy-example-instance)
+    hosted-zone: $(aws::route53-hosted-zone hosted-zone-traffic-policy-instance-example)
+    traffic-policy: $(aws::route53-traffic-policy traffic-policy-example-instance)
 end

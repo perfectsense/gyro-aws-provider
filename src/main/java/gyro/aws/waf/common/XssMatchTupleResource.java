@@ -11,30 +11,18 @@ import software.amazon.awssdk.services.waf.model.XssMatchTuple;
 import java.util.Set;
 
 public abstract class XssMatchTupleResource extends AbstractWafResource implements Copyable<XssMatchTuple> {
-    private String data;
-    private String type;
+    private FieldToMatch fieldToMatch;
     private String textTransformation;
 
     /**
-     * If type selected as ``HEADER`` or ``SINGLE_QUERY_ARG``, the value needs to be provided.
+     * The field setting to match the condition. (Required)
      */
-    public String getData() {
-        return data;
+    public FieldToMatch getFieldToMatch() {
+        return fieldToMatch;
     }
 
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    /**
-     * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
-     */
-    public String getType() {
-        return type != null ? type.toUpperCase() : null;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setFieldToMatch(FieldToMatch fieldToMatch) {
+        this.fieldToMatch = fieldToMatch;
     }
 
     /**
@@ -50,9 +38,11 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     @Override
     public void copyFrom(XssMatchTuple xssMatchTuple) {
-        setData(xssMatchTuple.fieldToMatch().data());
-        setType(xssMatchTuple.fieldToMatch().typeAsString());
         setTextTransformation(xssMatchTuple.textTransformationAsString());
+
+        FieldToMatch fieldToMatch = newSubresource(FieldToMatch.class);
+        fieldToMatch.copyFrom(xssMatchTuple.fieldToMatch());
+        setFieldToMatch(fieldToMatch);
     }
 
     @Override
@@ -62,7 +52,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     @Override
     public void create() {
-        saveXssMatchTuple(getXssMatchTuple(), false);
+        saveXssMatchTuple(false);
     }
 
     @Override
@@ -72,7 +62,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     @Override
     public void delete() {
-        saveXssMatchTuple(getXssMatchTuple(), true);
+        saveXssMatchTuple(true);
     }
 
     @Override
@@ -81,12 +71,14 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
         sb.append("xss match tuple");
 
-        if (!ObjectUtils.isBlank(getData())) {
-            sb.append(" - ").append(getData());
-        }
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" - ").append(getFieldToMatch().getData());
+            }
 
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" - ").append(getFieldToMatch().getType());
+            }
         }
 
         if (!ObjectUtils.isBlank(getTextTransformation())) {
@@ -98,24 +90,38 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s", getData(), getType(), getTextTransformation());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getTextTransformation());
+
+        if (getFieldToMatch() != null) {
+            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
+                sb.append(" ").append(getFieldToMatch().getData());
+            }
+
+            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
+                sb.append(" ").append(getFieldToMatch().getType());
+            }
+        }
+
+        return sb.toString();
     }
 
-    protected abstract void saveXssMatchTuple(XssMatchTuple xssMatchTuple, boolean isDelete);
+    protected abstract void saveXssMatchTuple(boolean isDelete);
 
-    private XssMatchTuple getXssMatchTuple() {
+    private XssMatchTuple toXssMatchTuple() {
         return XssMatchTuple.builder()
-            .fieldToMatch(f -> f.data(getData()).type(getType()))
+            .fieldToMatch(getFieldToMatch().toFieldToMatch())
             .textTransformation(getTextTransformation())
             .build();
     }
 
-    protected UpdateXssMatchSetRequest.Builder getUpdateXssMatchSetRequest(XssMatchTuple xssMatchTuple, boolean isDelete) {
+    protected UpdateXssMatchSetRequest.Builder toUpdateXssMatchSetRequest(boolean isDelete) {
         XssMatchSetResource parent = (XssMatchSetResource) parent();
 
         XssMatchSetUpdate xssMatchSetUpdate = XssMatchSetUpdate.builder()
             .action(!isDelete ? ChangeAction.INSERT : ChangeAction.DELETE)
-            .xssMatchTuple(xssMatchTuple)
+            .xssMatchTuple(toXssMatchTuple())
             .build();
 
         return UpdateXssMatchSetRequest.builder()

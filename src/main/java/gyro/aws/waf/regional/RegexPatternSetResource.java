@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.waf.model.UpdateRegexPatternSetRequest;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Creates a regex pattern set.
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * .. code-block:: gyro
  *
- * aws::regex-pattern-set-regional regex-pattern-set-example
+ * aws::waf-regex-pattern-set-regional regex-pattern-set-example
  *     name: "regex-pattern-set-example"
  *
  *     patterns: [
@@ -28,7 +29,7 @@ import java.util.List;
  *     ]
  * end
  */
-@Type("regex-pattern-set-regional")
+@Type("waf-regex-pattern-set-regional")
 public class RegexPatternSetResource extends CommonRegexPatternSet {
     @Override
     protected void doCreate() {
@@ -43,10 +44,10 @@ public class RegexPatternSetResource extends CommonRegexPatternSet {
     }
 
     @Override
-    protected void savePatterns(List<String> oldPatterns, List<String> newPatterns) {
+    protected void savePatterns(Set<String> oldPatterns, Set<String> newPatterns) {
         WafRegionalClient client = getRegionalClient();
 
-        UpdateRegexPatternSetRequest regexPatternSetRequest = getUpdateRegexPatternSetRequest(oldPatterns, newPatterns)
+        UpdateRegexPatternSetRequest regexPatternSetRequest = toUpdateRegexPatternSetRequest(oldPatterns, newPatterns)
             .changeToken(client.getChangeToken().changeToken())
             .build();
 

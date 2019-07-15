@@ -97,7 +97,6 @@ aws::instance instance-example
         $(aws::security-group security-group-launch-configuration-example-2)
     ]
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 

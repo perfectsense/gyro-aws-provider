@@ -23,13 +23,13 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::cache-snapshot cache-snapshot-example
+ *     aws::elasticache-snapshot cache-snapshot-example
  *         snapshot-name: "cache-snapshot-example"
  *         replication-group-id: "replication-group-example"
- *         cache-cluster: $(aws::cache-cluster cache-cluster-example)
+ *         cache-cluster: $(aws::elasticache-cluster cache-cluster-example)
  *     end
  */
-@Type("cache-snapshot")
+@Type("elasticache-snapshot")
 public class SnapshotResource extends AwsResource implements Copyable<Snapshot> {
     private String snapshotName;
     private String replicationGroupId;

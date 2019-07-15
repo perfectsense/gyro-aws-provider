@@ -1,14 +1,12 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsFinder;
-
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
-import software.amazon.awssdk.services.elasticloadbalancingv2.paginators.DescribeLoadBalancersIterable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class LoadBalancerFinder<R extends LoadBalancerResource> extends AwsFinder<ElasticLoadBalancingV2Client, LoadBalancer, R> {
 
@@ -39,18 +37,19 @@ public abstract class LoadBalancerFinder<R extends LoadBalancerResource> extends
 
     @Override
     public List<LoadBalancer> findAws(ElasticLoadBalancingV2Client client, Map<String, String> filters) {
-        if (filters.get("arn") != null) {
-            return client.describeLoadBalancers(r -> r.loadBalancerArns(filters.get("arn"))).loadBalancers();
+        if (!filters.containsKey("arn") && !filters.containsKey("name")) {
+            throw new IllegalArgumentException("'name' or 'arn' is required.");
+        } else {
+            if (filters.containsKey("arn")) {
+                return client.describeLoadBalancers(r -> r.loadBalancerArns(filters.get("arn"))).loadBalancers();
+            } else {
+                return client.describeLoadBalancersPaginator(r -> r.names(filters.get("name"))).loadBalancers().stream().collect(Collectors.toList());
+            }
         }
-
-        return client.describeLoadBalancers(r -> r.names(filters.get("name"))).loadBalancers();
     }
 
     @Override
     public List<LoadBalancer> findAllAws(ElasticLoadBalancingV2Client client) {
-        List<LoadBalancer> loadBalancers = new ArrayList<>();
-        DescribeLoadBalancersIterable iterable = client.describeLoadBalancersPaginator();
-        iterable.stream().forEach(r -> loadBalancers.addAll(r.loadBalancers()));
-        return loadBalancers;
+        return client.describeLoadBalancersPaginator().loadBalancers().stream().collect(Collectors.toList());
     }
 }

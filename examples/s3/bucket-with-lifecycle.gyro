@@ -1,4 +1,4 @@
-aws::bucket bucket-example
+aws::s3-bucket bucket-example
     name: "gyro-bucket-example-with-lifecycle"
     enable-object-lock: true
     tags: {
@@ -6,12 +6,10 @@ aws::bucket bucket-example
         Name2: "something"
     }
     enable-accelerate-config: true
-    enable-version: true
-    enable-pay: false
+    enable-versioning: true
 
     lifecycle-rule
-        lifecycle-rule-name: "rule no prefix and no tag"
-        expired-object-delete-marker: false
+        id: "rule no prefix and no tag"
         status: "Disabled"
 
         transition
@@ -19,18 +17,26 @@ aws::bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
 
-        #version-expiration-days: 403
-        non-current-version-expiration-days: 403
-        incomplete-multipart-upload-days: 5
+        expiration
+            expired-object-delete-marker: false
+        end
+
+        noncurrent-version-expiration
+            days: 403
+        end
+
+        abort-incomplete-multipart-upload
+            days-after-initiation: 5
+        end
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule prefix and Single tag"
+        id: "rule prefix and Single tag"
         prefix: "rule_prefix"
         tags: {
             Name: "single_tag"
@@ -42,17 +48,22 @@ aws::bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            days: 403
+        end
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule prefix and Multiple tag"
+        id: "rule prefix and Multiple tag"
         prefix: "rule_prefix"
         tags: {
             Name1: "single_tag1",
@@ -65,17 +76,22 @@ aws::bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            days: 403
+        end
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule prefix and No tag"
+        id: "rule prefix and No tag"
         prefix: "rule_prefix"
         status: "Disabled"
 
@@ -84,18 +100,26 @@ aws::bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
-        incomplete-multipart-upload-days: 6
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            days: 403
+        end
+
+        abort-incomplete-multipart-upload
+            days-after-initiation: 6
+        end
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule no prefix and Single tag"
+        id: "rule no prefix and Single tag"
         tags: {
             Name: "single_tag"
         }
@@ -106,17 +130,22 @@ aws::bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            days: 403
+        end
     end
 
     lifecycle-rule
-        lifecycle-rule-name: "rule no prefix and Multiple tag"
+        id: "rule no prefix and Multiple tag"
         tags: {
             Name1: "single_tag1",
             Name2: "single_tag2"
@@ -128,13 +157,18 @@ aws::bucket bucket-example
             storage-class: "STANDARD_IA"
         end
 
-        non-current-transition
+        noncurrent-version-transition
             days: 40
             storage-class: "STANDARD_IA"
         end
 
-        version-expiration-days: 403
-        non-current-version-expiration-days: 403
+        expiration
+            days: 403
+        end
+
+        noncurrent-version-expiration
+            days: 403
+        end
     end
 
 end

@@ -31,17 +31,17 @@ aws::subnet subnet-us-east-2b
     }
 end
 
-aws::nlb nlb-example-1
+aws::network-load-balancer nlb-example-1
     name: "nlb-endpoint-service-example-1"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2a).subnet-id
     end
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2b).subnet-id
     end
 
     tags: {
@@ -49,17 +49,17 @@ aws::nlb nlb-example-1
     }
 end
 
-aws::nlb nlb-example-2
+aws::network-load-balancer nlb-example-2
     name: "nlb-endpoint-service-example-2"
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2a).subnet-id
     end
 
     subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b | subnet-id)
+        subnet-id: $(aws::subnet subnet-us-east-2b).subnet-id
     end
 
     tags: {
@@ -67,8 +67,8 @@ aws::nlb nlb-example-2
     }
 end
 
-aws::endpoint-service endpoint-service-example
+aws::vpc-endpoint-service endpoint-service-example
     network-load-balancers: [
-        $(aws::nlb nlb-example-2)
+        $(aws::network-load-balancer nlb-example-2)
     ]
 end

@@ -5,7 +5,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 
-public class S3LifecycleRuleNonCurrentTransition extends Diffable implements Copyable<NoncurrentVersionTransition> {
+public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable implements Copyable<NoncurrentVersionTransition> {
     private Integer days;
     private String storageClass;
 
@@ -34,7 +34,7 @@ public class S3LifecycleRuleNonCurrentTransition extends Diffable implements Cop
 
     @Override
     public String primaryKey() {
-        return String.format("non current transition - %s", getStorageClass());
+        return String.format("%s %s", getDays(), getStorageClass());
     }
 
     @Override

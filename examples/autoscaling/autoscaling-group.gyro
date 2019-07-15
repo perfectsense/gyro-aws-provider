@@ -11,13 +11,13 @@ aws::internet-gateway internet-gateway-auto-scaling-group-example
     vpc: $(aws::vpc vpc-auto-scaling-group-example)
 end
 
-aws::subnet subnet-auto-scaling-group-example
+aws::subnet subnet-auto-scaling-group-example-1
     vpc: $(aws::vpc vpc-auto-scaling-group-example)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.1.0/26"
 
     tags: {
-        Name: "subnet-auto-scaling-group-example"
+        Name: "subnet-auto-scaling-group-example-1"
     }
 end
 
@@ -91,10 +91,7 @@ aws::launch-template launch-template-auto-scaling-group-example
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "example"
-    security-groups: [
-        $(aws::security-group security-group-auto-scaling-group-example-1),
-        $(aws::security-group security-group-auto-scaling-group-example-2)
-    ]
+    security-groups: $(aws::security-group security-group-auto-scaling-group-example-*)
     disable-api-termination: false
     ebs-optimized: false
 
@@ -108,13 +105,9 @@ aws::instance instance-auto-scaling-group-example
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"
-    subnet: $(aws::subnet subnet-auto-scaling-group-example)
-    security-groups: [
-        $(aws::security-group security-group-auto-scaling-group-example-1),
-        $(aws::security-group security-group-auto-scaling-group-example-2)
-    ]
+    subnet: $(aws::subnet subnet-auto-scaling-group-example-1)
+    security-groups: $(aws::security-group security-group-auto-scaling-group-example-*)
     disable-api-termination: false
-    enable-ena-support: true
     ebs-optimized: false
     source-dest-check: true
 
@@ -124,52 +117,15 @@ aws::instance instance-auto-scaling-group-example
 end
 
 aws::launch-configuration launch-configuration-auto-scaling-group-example
-    launch-configuration-name: "launch-configuration-gyro-1"
+    launch-configuration-name: "launch-configuration-gyro-\($(aws::instance instance-auto-scaling-group-example).instance-id)"
     instance: $(aws::instance instance-auto-scaling-group-example)
 end
 
-aws::launch-configuration launch-configuration-auto-scaling-group-example-2
-    launch-configuration-name: "launch-configuration-gyro-2"
-    instance: $(aws::instance instance-auto-scaling-group-example)
-end
-
-aws::auto-scaling-group auto-scaling-group-example-launch-config
-    auto-scaling-group-name: "auto-scaling-group-example-launch-config"
+aws::autoscaling-group auto-scaling-group-example
+    auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance instance-auto-scaling-group-example).instance-id)"
     launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
-    availability-zones: [
-        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
-    ]
-    subnets: [
-        $(aws::subnet subnet-auto-scaling-group-example),
-        $(aws::subnet subnet-auto-scaling-group-example-2)
-    ]
-    enable-metrics-collection: false
-end
-
-aws::auto-scaling-group auto-scaling-group-example-launch-template
-    auto-scaling-group-name: "auto-scaling-group-example-launch-template"
-    launch-template: $(aws::launch-template launch-template-auto-scaling-group-example)
-    availability-zones: [
-        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
-    ]
-    subnets: [
-        $(aws::subnet subnet-auto-scaling-group-example),
-        $(aws::subnet subnet-auto-scaling-group-example-2)
-    ]
-    enable-metrics-collection: false
-end
-
-aws::auto-scaling-group auto-scaling-group-example
-    auto-scaling-group-name: "auto-scaling-group-example"
-    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
-
-    availability-zones: [
-        $(aws::subnet subnet-auto-scaling-group-example | availability-zone)
-    ]
-    subnets: [
-        $(aws::subnet subnet-auto-scaling-group-example),
-        $(aws::subnet subnet-auto-scaling-group-example-2)
-    ]
+    availability-zones: $(aws::subnet subnet-auto-scaling-group-example-1).*.availability-zone
+    subnets: $(aws::subnet subnet-auto-scaling-group-example-*)
     enable-metrics-collection: false
     tags: {
         Name: "auto-scaling-group-example",
@@ -213,57 +169,50 @@ aws::auto-scaling-group auto-scaling-group-example
     ]
 end
 
-workflow 'deploy'
-    for-type: 'aws::instance'
+@workflow aws::instance deploy
+    stage verify
+        @create aws::instance verify
+            @extends: $PENDING
+        @end
 
-    stage 'verify'
-        @create aws::instance verify-instance
-            @extends $(PENDING)
-        end
+        @create aws::launch-configuration verify
+            @extends: $(aws::launch-configuration * | instance = $CURRENT).0
+            launch-configuration-name: "launch-configuration-gyro-\($(aws::instance verify).instance-id)"
+            instance: $(aws::instance verify)
+        @end
 
-        @create aws::launch-configuration verify-launch-configuration
-            @extends $(aws::launch-configuration * | instance-id = $(CURRENT.instance-id))
-            launch-configuration-name: "launch-configuration-gyro-$(aws::instance verify-instance | instance-id)"
-            instance-id: $(aws::instance verify-instance | instance-id)
-        end
+        @create aws::autoscaling-group verify
+            @extends: $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0
+            auto-scaling-group-name: "auto-scaling-group-gyro-\($(aws::instance verify).instance-id)"
+            launch-configuration: $(aws::launch-configuration verify)
+        @end
 
-        @create aws::auto-scaling-group verify-auto-scaling-group
-            @extends $(aws::auto-scaling-group * | launch-configuration-name = $(aws::launch-configuration * | instance-id = $(CURRENT.instance-id) | launch-configuration-name))
-            auto-scaling-group-name: "auto-scaling-group-gyro-$(aws::instance verify-instance | instance-id)"
-            launch-configuration-name: $(aws::launch-configuration verify-launch-configuration | launch-configuration-name)
-        end
-
-        transition 'push'
-            to: 'pushed'
+        transition push
+            to: pushed
             description: 'Push the new verification instances into the production load balancer and deregister old instances.'
         end
 
-        transition 'reset'
-            to: 'finished'
+        transition reset
+            to: finished
             description: 'Delete verification instances and load balancer, then exit Gyro.'
         end
     end
 
-    stage 'pushed'
-        @swap 'aws::instance', $(CURRENT), 'verify-instance'
-        @swap 'aws::launch-configuration', $(aws::launch-configuration * | instance-id = $(CURRENT.instance-id)), 'verify-launch-configuration'
-        @swap 'aws::auto-scaling-group', $(aws::auto-scaling-group * | launch-configuration-name = $(aws::launch-configuration * | instance-id = $(CURRENT.instance-id) | launch-configuration-name)), 'verify-auto-scaling-group'
-
-        transition 'revert'
-            to: 'finished'
+    stage pushed
+        transition revert
+            to: finished
             description: 'Revert the new verification instances into the production load balancer and deregister old instances.'
         end
 
-        transition 'commit'
-            to: 'finished'
+        transition commit
+            to: finished
             description: 'Commit verification instances to production load balancer.'
         end
     end
 
-    stage 'finished'
-        @delete 'aws::instance', 'verify-instance'
-        @delete 'aws::launch-configuration', 'verify-launch-configuration'
-        @delete 'aws::auto-scaling-group', 'verify-auto-scaling-group'
+    stage finished
+        @replace: $CURRENT $(aws::instance verify)
+        @replace: $(aws::launch-configuration * | instance = $CURRENT).0 $(aws::launch-configuration verify)
+        @replace: $(aws::autoscaling-group * | launch-configuration = $(aws::launch-configuration * | instance = $CURRENT)).0 $(aws::autoscaling-group verify)
     end
-end
-
+@end
