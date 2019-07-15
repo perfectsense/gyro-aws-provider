@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *
  *     aws::vpc-endpoint endpoint-example-gateway
  *         vpc: $(aws::vpc vpc-example-for-endpoint)
- *         name: 'com.amazonaws.us-east-1.s3'
+ *         service-name: 'com.amazonaws.us-east-1.s3'
  *         policy: 'policy.json'
  *         type: 'Gateway'
  *         route-tables: [
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  *
  *     aws::vpc-endpoint endpoint-example-interface
  *         vpc: $(aws::vpc vpc-example-for-endpoint)
- *         name: 'com.amazonaws.us-east-1.ec2'
+ *         service-name: 'com.amazonaws.us-east-1.ec2'
  *         policy: 'policy.json'
  *         type: 'Interface'
  *         subnets: [
@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
 public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
 
     private String id;
-    private String name;
+    private String serviceName;
     private VpcResource vpc;
     private VpcEndpointType type;
     private Set<RouteTableResource> routeTables;
@@ -102,12 +102,12 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     /**
      * The name of the service that is going to associated with this Endpoint. (Required)
      */
-    public String getName() {
-        return name;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     /**
@@ -289,7 +289,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     @Override
     public void copyFrom(VpcEndpoint vpcEndpoint) {
         setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
-        setName(vpcEndpoint.serviceName());
+        setServiceName(vpcEndpoint.serviceName());
         setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
         setId(vpcEndpoint.vpcEndpointId());
         setType(vpcEndpoint.vpcEndpointType());
@@ -335,7 +335,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         builder.vpcId(getVpc().getVpcId());
         builder.vpcEndpointType(getType());
         builder.privateDnsEnabled(getPrivateDnsEnabled());
-        builder.serviceName(getName());
+        builder.serviceName(getServiceName());
 
         if (getType().equals(VpcEndpointType.INTERFACE)) {
             builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
@@ -480,7 +480,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private VpcEndpoint getVpcEndpoint(Ec2Client client) {
         VpcEndpoint vpcEndpoint = null;
 
-        if (ObjectUtils.isBlank(getName())) {
+        if (ObjectUtils.isBlank(getServiceName())) {
             throw new GyroException("service-name is missing, unable to load endpoint.");
         }
 
@@ -489,7 +489,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         }
 
         try {
-            Filter serviceNameFilter = Filter.builder().name("service-name").values(getName()).build();
+            Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
             Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getVpcId()).build();
             DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
 
