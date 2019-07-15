@@ -261,7 +261,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("network-acl")) {

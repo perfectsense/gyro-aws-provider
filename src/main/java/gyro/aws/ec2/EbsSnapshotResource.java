@@ -257,7 +257,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 

@@ -339,7 +339,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         modifySettings(client, changedProperties);

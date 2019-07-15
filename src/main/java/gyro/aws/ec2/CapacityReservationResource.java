@@ -273,7 +273,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();

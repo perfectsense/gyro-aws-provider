@@ -108,7 +108,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 

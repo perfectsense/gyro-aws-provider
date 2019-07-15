@@ -104,13 +104,12 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
 
     protected abstract void doUpdate(
         GyroUI ui,
-        AwsResource config,
-        Set<String> changedProperties,
-        State state);
+        State state, AwsResource config,
+        Set<String> changedProperties);
 
     @Override
     public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        doUpdate(ui, (AwsResource) current, changedFieldNames, state);
+        doUpdate(ui, state, (AwsResource) current, changedFieldNames);
         createTags();
     }
 

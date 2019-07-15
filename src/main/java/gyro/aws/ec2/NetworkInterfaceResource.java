@@ -361,7 +361,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("delete-on-termination") && getAttachmentId() != null) {

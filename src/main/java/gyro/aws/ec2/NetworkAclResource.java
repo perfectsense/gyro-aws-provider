@@ -162,7 +162,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 

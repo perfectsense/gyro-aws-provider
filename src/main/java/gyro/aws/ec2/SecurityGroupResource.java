@@ -231,7 +231,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         SecurityGroupResource current = (SecurityGroupResource) config;
 
         if (!current.isKeepDefaultEgressRules() && isKeepDefaultEgressRules()) {

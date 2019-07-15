@@ -280,7 +280,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);

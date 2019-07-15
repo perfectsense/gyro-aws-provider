@@ -202,7 +202,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
     }
 
     @Override

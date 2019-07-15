@@ -154,7 +154,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         VpnGatewayResource oldResource = (VpnGatewayResource) config;

@@ -147,7 +147,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         RouteTableResource currentResource = (RouteTableResource) current;

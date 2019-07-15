@@ -128,7 +128,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 

@@ -434,7 +434,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 

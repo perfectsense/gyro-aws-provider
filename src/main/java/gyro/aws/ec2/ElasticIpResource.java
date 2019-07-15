@@ -230,7 +230,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     @Override
-    public void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
+    public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("is-standard-domain")) {
