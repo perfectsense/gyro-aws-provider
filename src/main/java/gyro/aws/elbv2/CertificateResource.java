@@ -1,7 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Delete;
+import gyro.core.diff.Delete;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
