@@ -3,9 +3,9 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -521,7 +521,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doCreate(State state) {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -585,7 +585,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, AwsResource config, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);
@@ -628,7 +628,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         boolean instanceStopped = isInstanceStopped(client);
 
         if (changedProperties.contains("instance-type")
-            && validateInstanceStop(instanceStopped, "instance-type", getInstanceType())) {
+            && validateInstanceStop(ui, instanceStopped, "instance-type", getInstanceType())) {
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .instanceType(o -> o.value(getInstanceType()))
@@ -636,7 +636,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("ebs-optimized")
-            && validateInstanceStop(instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
+            && validateInstanceStop(ui, instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .ebsOptimized(o -> o.value(getEbsOptimized()))
@@ -644,7 +644,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("user-data")
-            && validateInstanceStop(instanceStopped, "user-data", getUserData())) {
+            && validateInstanceStop(ui, instanceStopped, "user-data", getUserData())) {
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .userData(o -> o.value(SdkBytes.fromByteArray(getUserData().getBytes())))
@@ -652,7 +652,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("capacity-reservation")
-            && validateInstanceStop(instanceStopped, "capacity-reservation", getCapacityReservation())) {
+            && validateInstanceStop(ui, instanceStopped, "capacity-reservation", getCapacityReservation())) {
             client.modifyInstanceCapacityReservationAttributes(
                 r -> r.instanceId(getInstanceId())
                     .capacityReservationSpecification(getCapacityReservationSpecification())
@@ -661,7 +661,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         if (getDisableApiTermination()) {
             throw new GyroException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }
@@ -833,9 +833,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return instance != null && "terminated".equals(instance.state().nameAsString());
     }
 
-    private boolean validateInstanceStop(boolean instanceStopped, String param, String value) {
+    private boolean validateInstanceStop(GyroUI ui, boolean instanceStopped, String param, String value) {
         if (!instanceStopped) {
-            GyroCore.ui().write("\n@|bold,blue Skipping update of %s since instance"
+            ui.write("\n@|bold,blue Skipping update of %s since instance"
                 + " must be stopped to change parameter %s to %s|@", param, param, value);
             return false;
         }

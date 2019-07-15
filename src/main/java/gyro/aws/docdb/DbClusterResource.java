@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -398,7 +399,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         DeleteDbClusterRequest.Builder builder = DeleteDbClusterRequest

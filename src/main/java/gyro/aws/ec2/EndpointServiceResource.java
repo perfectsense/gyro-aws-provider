@@ -7,6 +7,7 @@ import gyro.aws.elbv2.LoadBalancerResource;
 import gyro.aws.elbv2.NetworkLoadBalancerResource;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -220,7 +221,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcEndpointServiceConfigurationResponse response = client.createVpcEndpointServiceConfiguration(
@@ -239,7 +240,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         EndpointServiceResource currentEndpointService = (EndpointServiceResource) current;
@@ -303,7 +304,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointServiceConfigurations(

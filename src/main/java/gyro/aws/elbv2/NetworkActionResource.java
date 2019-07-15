@@ -1,6 +1,7 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
+import gyro.core.GyroUI;
 import gyro.core.diff.Create;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
@@ -63,7 +64,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
@@ -73,7 +74,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
@@ -83,7 +84,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void delete(State state) {}
+    public void delete(GyroUI ui, State state) {}
 
     @Override
     public String toDisplayString() {

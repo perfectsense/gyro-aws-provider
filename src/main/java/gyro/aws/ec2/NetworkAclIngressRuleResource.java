@@ -1,5 +1,6 @@
 package gyro.aws.ec2;
 
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 
@@ -36,17 +37,17 @@ import java.util.Set;
  */
 public class NetworkAclIngressRuleResource extends NetworkAclRuleResource {
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         create(false);
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         update(false);
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         delete(false);
     }
 

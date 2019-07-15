@@ -2,6 +2,7 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -160,7 +161,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         CreateRuleResponse response = client.createRule(r -> r.actions(toActions())
                 .conditions(toConditions())
@@ -171,7 +172,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                                 .conditions(toConditions())
@@ -179,7 +180,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteRule(r -> r.ruleArn(getArn()));
     }

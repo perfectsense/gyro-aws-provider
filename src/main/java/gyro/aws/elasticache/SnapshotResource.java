@@ -3,6 +3,7 @@ package gyro.aws.elasticache;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -108,7 +109,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         CreateSnapshotResponse response = client.createSnapshot(
@@ -121,12 +122,12 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteSnapshot(

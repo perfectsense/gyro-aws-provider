@@ -2,6 +2,7 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -96,7 +97,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         WafRegionalClient client = getRegionalClient();
 
         CreateRegexMatchSetResponse response = client.createRegexMatchSet(
@@ -108,7 +109,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteRegexMatchSet(

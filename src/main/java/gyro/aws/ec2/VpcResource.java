@@ -5,6 +5,7 @@ import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -310,7 +311,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doCreate(State state) {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcRequest request = CreateVpcRequest.builder()
@@ -338,14 +339,14 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         modifySettings(client, changedProperties);
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         DeleteVpcRequest request = DeleteVpcRequest.builder()

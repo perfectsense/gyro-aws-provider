@@ -1,6 +1,7 @@
 package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -82,7 +83,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         WafClient client = getGlobalClient();
 
         CreateIpSetResponse response = client.createIPSet(
@@ -94,7 +95,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         WafClient client = getGlobalClient();
 
         client.deleteIPSet(

@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroCore;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -56,7 +57,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -69,7 +70,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -95,12 +96,12 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
                     .instanceId(parent.getInstanceId())
             );
         } else {
-            GyroCore.ui().write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
+            ui.write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
         }
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();

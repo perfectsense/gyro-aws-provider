@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -287,7 +288,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateEventSourceMappingRequest.Builder builder = CreateEventSourceMappingRequest.builder()
@@ -321,7 +322,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     @Override
-    public void update(State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
         if (!getState().equals("Enabled") && !getState().equals("Disabled")) {
             throw new GyroException(String.format("Event source mapping in '%s' state. Please try again.", getState()));
         }
@@ -349,7 +350,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteEventSourceMapping(

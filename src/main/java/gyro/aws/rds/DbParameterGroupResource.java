@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -175,7 +176,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBParameterGroup(r -> r.dbParameterGroupName(getName()));
     }

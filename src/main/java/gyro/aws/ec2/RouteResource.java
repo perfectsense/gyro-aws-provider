@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -201,7 +202,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
@@ -218,7 +219,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
@@ -235,7 +236,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())

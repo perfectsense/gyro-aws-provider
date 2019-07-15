@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -182,7 +183,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
-    protected void doCreate(State state) {
+    protected void doCreate(GyroUI ui, State state) {
         Collection<NewDhcpConfiguration> configs = new ArrayList<>();
         addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME, !ObjectUtils.isBlank(getDomainName()) ? Collections.singletonList(getDomainName()) : new ArrayList<>());
         addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, new ArrayList<>(getDomainNameServers()));
@@ -201,11 +202,11 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()));

@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -138,7 +139,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.createCacheParameterGroup(
@@ -151,14 +152,14 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         saveParameters(client);
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheParameterGroup(

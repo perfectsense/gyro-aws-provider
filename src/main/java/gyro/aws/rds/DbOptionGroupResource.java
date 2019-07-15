@@ -3,6 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -211,7 +212,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteOptionGroup(
             r -> r.optionGroupName(getName())

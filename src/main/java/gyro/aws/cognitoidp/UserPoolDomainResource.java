@@ -2,6 +2,7 @@ package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -95,7 +96,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         if (getCertificateArn() != null) {
@@ -109,7 +110,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.updateUserPoolDomain(r -> r.domain(getDomain())
@@ -121,7 +122,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.deleteUserPoolDomain(r -> r.domain(getDomain())

@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -144,7 +145,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (!getTags().isEmpty()) {
@@ -156,7 +157,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         LoadBalancerResource currentResource = (LoadBalancerResource) current;
 
@@ -182,7 +183,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteLoadBalancer(r -> r.loadBalancerArn(getArn()));
 

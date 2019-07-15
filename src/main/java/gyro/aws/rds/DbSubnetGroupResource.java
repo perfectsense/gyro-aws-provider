@@ -3,6 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -137,7 +138,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBSubnetGroup(
             r -> r.dbSubnetGroupName(getGroupName())

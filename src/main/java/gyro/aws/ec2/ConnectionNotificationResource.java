@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -172,7 +173,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -201,7 +202,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -214,7 +215,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointConnectionNotifications(

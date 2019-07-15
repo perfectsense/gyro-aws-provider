@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -218,7 +219,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    protected void doCreate(State state) {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSubnetRequest request = CreateSubnetRequest.builder()
@@ -260,7 +261,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties, State state) {
+    protected void doUpdate(GyroUI ui, AwsResource current, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("network-acl")) {
@@ -288,7 +289,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteSubnet(r -> r.subnetId(getSubnetId()));

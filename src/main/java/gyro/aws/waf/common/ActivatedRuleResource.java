@@ -2,6 +2,7 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -103,7 +104,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         // Priority check
         handlePriority();
 
@@ -111,7 +112,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         // Priority check
         handlePriority();
 
@@ -123,7 +124,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         saveActivatedRule(toActivatedRule(), true);
     }
 

@@ -8,6 +8,7 @@ import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -577,7 +578,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -640,7 +641,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
             } catch (Exception ex) {
-                GyroCore.ui().write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
+                ui.write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
             }
         }
 
@@ -648,7 +649,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void update(State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -743,7 +744,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteFunction(

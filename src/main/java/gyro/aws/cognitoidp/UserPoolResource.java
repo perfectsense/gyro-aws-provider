@@ -2,6 +2,7 @@ package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -120,7 +121,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         CreateUserPoolResponse response = client.createUserPool(r -> r.poolName(getName())
@@ -131,10 +132,10 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.deleteUserPool(r -> r.userPoolId(getId()));

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -327,7 +328,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         KmsClient client = createClient(KmsClient.class);
 
         if (getAliases().isEmpty()) {
@@ -362,7 +363,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 }
 
             } catch (AlreadyExistsException ex) {
-                delete(state);
+                delete(ui, state);
                 throw new GyroException(ex.getMessage());
             }
 
@@ -379,7 +380,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         KmsClient client = createClient(KmsClient.class);
         KmsKeyResource currentResource = (KmsKeyResource) current;
 
@@ -437,7 +438,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         KmsClient client = createClient(KmsClient.class);
         client.scheduleKeyDeletion(r -> r.keyId(getKeyId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
     }

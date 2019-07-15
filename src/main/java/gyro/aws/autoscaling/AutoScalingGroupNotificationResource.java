@@ -4,6 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
@@ -55,7 +56,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -63,7 +64,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -71,7 +72,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteNotificationConfiguration(

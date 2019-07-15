@@ -9,6 +9,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -469,7 +470,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
@@ -520,7 +521,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
         Set<String> properties = new HashSet<>(changedProperties);
 
@@ -585,7 +586,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheCluster(

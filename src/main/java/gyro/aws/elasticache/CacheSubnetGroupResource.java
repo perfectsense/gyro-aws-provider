@@ -5,6 +5,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -108,7 +109,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.createCacheSubnetGroup(
@@ -120,7 +121,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.modifyCacheSubnetGroup(
@@ -131,7 +132,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheSubnetGroup(

@@ -3,6 +3,7 @@ package gyro.aws.elbv2;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -102,7 +103,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
@@ -116,11 +117,11 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
         setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
-        super.create(state);
+        super.create(ui, state);
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         client.setSecurityGroups(r -> r.loadBalancerArn(getArn())
@@ -128,12 +129,12 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
         client.setSubnets(r -> r.loadBalancerArn(getArn())
                 .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())));
 
-        super.update(state, current, changedFieldNames);
+        super.update(ui, state, current, changedFieldNames);
     }
 
     @Override
-    public void delete(State state) {
-        super.delete(state);
+    public void delete(GyroUI ui, State state) {
+        super.delete(ui, state);
     }
 
     @Override

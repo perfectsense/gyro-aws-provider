@@ -8,6 +8,7 @@ import gyro.aws.ec2.KeyPairResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -285,7 +286,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -336,12 +337,12 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteLaunchConfiguration(r -> r.launchConfigurationName(getLaunchConfigurationName()));

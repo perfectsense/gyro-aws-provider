@@ -3,6 +3,7 @@ package gyro.aws.docdb;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -50,7 +51,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
     protected abstract void doCreate();
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         doCreate();
         saveTags();
     }
@@ -58,7 +59,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
     protected abstract void doUpdate(Resource current, Set<String> changedProperties);
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         doUpdate(current, changedProperties);
         saveTags();
     }

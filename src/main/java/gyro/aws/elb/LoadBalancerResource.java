@@ -6,6 +6,7 @@ import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -219,7 +220,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         if (getLoadBalancer(client) != null) {
@@ -246,7 +247,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         LoadBalancerResource currentResource = (LoadBalancerResource) current;
@@ -312,7 +313,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
         client.deleteLoadBalancer(r -> r.loadBalancerName(getLoadBalancerName()));
     }

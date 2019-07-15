@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -107,7 +108,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterSnapshot(
             r -> r.dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())

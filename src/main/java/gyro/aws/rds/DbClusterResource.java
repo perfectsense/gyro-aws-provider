@@ -4,6 +4,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -685,7 +686,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         if (getGlobalCluster() != null) {
             client.removeFromGlobalCluster(

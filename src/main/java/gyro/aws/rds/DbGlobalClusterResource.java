@@ -3,6 +3,7 @@ package gyro.aws.rds;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -154,7 +155,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.createGlobalCluster(
             r -> r.databaseName(getDatabaseName())
@@ -168,7 +169,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     @Override
-    public void update(State state, Resource config, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource config, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         DbGlobalClusterResource current = (DbGlobalClusterResource) config;
         // The modify global cluster api currently return a 500
@@ -180,7 +181,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteGlobalCluster(
             r -> r.globalClusterIdentifier(getGlobalClusterIdentifier())

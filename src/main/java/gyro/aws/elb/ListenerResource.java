@@ -1,6 +1,7 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
+import gyro.core.GyroUI;
 import gyro.core.diff.Create;
 import gyro.core.diff.Delete;
 import gyro.core.resource.DiffableInternals;
@@ -116,7 +117,7 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (DiffableInternals.getChange(parent()) instanceof Create) {
             return;
         }
@@ -128,13 +129,13 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
-        delete(state);
-        create(state);
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        delete(ui, state);
+        create(ui, state);
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         if (DiffableInternals.getChange(parent()) instanceof Delete) {
             return;
         }

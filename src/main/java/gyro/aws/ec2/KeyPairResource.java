@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -121,7 +122,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (ObjectUtils.isBlank(getPublicKey())) {
             setPublicKey(getPublicKeyFromPath());
         }
@@ -137,12 +138,12 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteKeyPair(r -> r.keyName(getKeyName()));

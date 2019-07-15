@@ -2,6 +2,7 @@ package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -90,7 +91,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         WafRegionalClient client = getRegionalClient();
 
         CreateSizeConstraintSetResponse response = client.createSizeConstraintSet(
@@ -102,7 +103,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteSizeConstraintSet(

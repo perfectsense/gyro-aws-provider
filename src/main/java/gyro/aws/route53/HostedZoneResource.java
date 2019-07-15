@@ -4,6 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.VpcResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -214,7 +215,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         VpcResource firstVpcResource = !getVpcs().isEmpty() ? getVpcs().iterator().next() : null;
@@ -249,7 +250,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         if (changedFieldNames.contains("comment")) {
@@ -286,7 +287,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteHostedZone(

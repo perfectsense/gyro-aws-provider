@@ -2,6 +2,7 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -111,7 +112,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreateInstanceProfileResponse response =
@@ -125,10 +126,10 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         if (getRole() != null) {
