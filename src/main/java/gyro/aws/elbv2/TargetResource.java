@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.InvalidTargetException;
@@ -110,17 +111,17 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.registerTargets(r -> r.targets(toTarget())
                                     .targetGroupArn(getTargetGroup().getArn()));
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deregisterTargets(r -> r.targets(toTarget())
                                         .targetGroupArn(getTargetGroup().getArn()));

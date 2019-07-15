@@ -3,6 +3,7 @@ package gyro.aws.waf.global;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateGeoMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
@@ -80,7 +81,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafClient client = getGlobalClient();
 
         CreateGeoMatchSetResponse response = client.createGeoMatchSet(
@@ -92,7 +93,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafClient client = getGlobalClient();
 
         client.deleteGeoMatchSet(

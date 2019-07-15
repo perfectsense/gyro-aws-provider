@@ -3,6 +3,7 @@ package gyro.aws.waf.global;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
@@ -63,7 +64,7 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafClient client = getGlobalClient();
 
         CreateRuleResponse response = client.createRule(
@@ -76,7 +77,7 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafClient client = getGlobalClient();
 
         client.deleteRule(

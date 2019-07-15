@@ -8,6 +8,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroupNotFoundException;
@@ -137,7 +138,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.createCacheParameterGroup(
@@ -150,14 +151,14 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         saveParameters(client);
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheParameterGroup(

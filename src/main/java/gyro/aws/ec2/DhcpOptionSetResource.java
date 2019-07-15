@@ -7,6 +7,7 @@ import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
 import software.amazon.awssdk.services.ec2.model.CreateDhcpOptionsResponse;
@@ -181,7 +182,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Collection<NewDhcpConfiguration> configs = new ArrayList<>();
         addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME, !ObjectUtils.isBlank(getDomainName()) ? Collections.singletonList(getDomainName()) : new ArrayList<>());
         addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, new ArrayList<>(getDomainNameServers()));
@@ -200,11 +201,11 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource current, Set<String> changedProperties, State state) {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()));

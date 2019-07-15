@@ -6,6 +6,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
@@ -106,7 +107,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterSnapshot(
             r -> r.dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())

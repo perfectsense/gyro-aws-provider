@@ -7,6 +7,7 @@ import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
@@ -107,7 +108,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         CreateCustomerGatewayRequest.Builder builder = CreateCustomerGatewayRequest.builder();
         builder.publicIp(getPublicIp());
         builder.type(GatewayType.IPSEC_1);
@@ -126,12 +127,12 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteCustomerGateway(r -> r.customerGatewayId(getCustomerGatewayId()));

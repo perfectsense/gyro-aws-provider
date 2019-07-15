@@ -7,6 +7,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
@@ -243,7 +244,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSnapshotResponse response = client.createSnapshot(
@@ -255,12 +256,12 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteSnapshot(

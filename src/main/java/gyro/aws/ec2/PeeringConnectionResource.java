@@ -8,6 +8,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
@@ -214,7 +215,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
@@ -235,14 +236,14 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         modifyPeeringConnectionSettings(client);
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getPeeringConnectionId()));

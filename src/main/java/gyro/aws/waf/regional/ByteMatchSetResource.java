@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
 import software.amazon.awssdk.services.waf.model.CreateByteMatchSetResponse;
@@ -88,7 +89,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafRegionalClient client = getRegionalClient();
 
         CreateByteMatchSetResponse response = client.createByteMatchSet(
@@ -100,7 +101,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteByteMatchSet(

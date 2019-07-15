@@ -6,6 +6,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -166,7 +167,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     @Override
-    public final void create() {
+    public final void create(State state) {
         validate();
         doCreate();
     }
@@ -174,12 +175,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     protected abstract void doCreate();
 
     @Override
-    public final void update(Resource current, Set<String> changedFieldNames) {
+    public final void update(State state, Resource current, Set<String> changedFieldNames) {
         validate();
-        doUpdate(current, changedFieldNames);
+        doUpdate(state, current, changedFieldNames);
     }
 
-    protected abstract void doUpdate(Resource current, Set<String> changedFieldNames);
+    protected abstract void doUpdate(State state, Resource current, Set<String> changedFieldNames);
 
     @Override
     public String toDisplayString() {

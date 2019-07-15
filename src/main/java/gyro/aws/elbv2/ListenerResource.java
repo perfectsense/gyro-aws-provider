@@ -6,6 +6,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenersResponse;
@@ -132,7 +133,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteListener(r -> r.listenerArn(getArn()));
     }

@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
@@ -68,12 +69,12 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         savePredicate(toPredicate(), false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         //Remove old predicate
         savePredicate(((PredicateResource) current).toPredicate(), true);
 
@@ -82,7 +83,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         savePredicate(toPredicate(), true);
     }
 

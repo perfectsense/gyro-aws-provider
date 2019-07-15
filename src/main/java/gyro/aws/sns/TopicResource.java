@@ -12,6 +12,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 import software.amazon.awssdk.services.sns.model.GetTopicAttributesResponse;
@@ -143,7 +144,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         SnsClient client = createClient(SnsClient.class);
 
         CreateTopicResponse response = client.createTopic(
@@ -154,7 +155,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
         if (changedFieldNames.contains("display-name")) {
@@ -185,7 +186,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         SnsClient client = createClient(SnsClient.class);
 
         client.deleteTopic(r -> r.topicArn(getArn()));

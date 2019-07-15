@@ -9,6 +9,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -161,7 +162,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBSubnetGroup(

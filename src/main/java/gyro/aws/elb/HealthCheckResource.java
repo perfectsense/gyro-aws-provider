@@ -3,6 +3,7 @@ package gyro.aws.elb;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.HealthCheck;
 
@@ -107,7 +108,7 @@ public class HealthCheckResource extends AwsResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         client.configureHealthCheck(r ->
@@ -116,12 +117,12 @@ public class HealthCheckResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
-        create();
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
+        create(state);
     }
 
     @Override
-    public void delete() {}
+    public void delete(State state) {}
 
     @Override
     public String toDisplayString() {

@@ -5,6 +5,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -85,7 +86,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateListenerResponse response =
@@ -100,7 +101,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (getDefaultCertificate() == null && getProtocol().equals("TCP")) {
@@ -122,8 +123,8 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     @Override
-    public void delete() {
-        super.delete();
+    public void delete(State state) {
+        super.delete(state);
     }
 
     @Override

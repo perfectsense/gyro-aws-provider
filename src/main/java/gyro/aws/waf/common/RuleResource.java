@@ -3,6 +3,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.Rule;
 import software.amazon.awssdk.services.waf.model.WafRuleType;
 
@@ -31,7 +32,7 @@ public abstract class RuleResource extends CommonRuleResource implements Copyabl
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
 
     }
 

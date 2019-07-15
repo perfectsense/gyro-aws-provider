@@ -1,6 +1,7 @@
 package gyro.aws.ec2;
 
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
@@ -14,20 +15,20 @@ public class SecurityGroupIngressRuleResource extends SecurityGroupRuleResource 
     }
 
     @Override
-    public void doUpdate(Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedFieldNames.size() == 1 && changedFieldNames.contains("description")) {
             client.updateSecurityGroupRuleDescriptionsIngress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
         } else {
-            current.delete();
-            create();
+            current.delete(state);
+            create(state);
         }
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         try {

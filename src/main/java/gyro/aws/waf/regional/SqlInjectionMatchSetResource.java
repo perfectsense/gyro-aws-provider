@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
@@ -87,7 +88,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafRegionalClient client = getRegionalClient();
 
         CreateSqlInjectionMatchSetResponse response = client.createSqlInjectionMatchSet(
@@ -99,7 +100,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteSqlInjectionMatchSet(

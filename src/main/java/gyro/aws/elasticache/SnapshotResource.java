@@ -7,6 +7,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
@@ -107,7 +108,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         CreateSnapshotResponse response = client.createSnapshot(
@@ -120,12 +121,12 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteSnapshot(

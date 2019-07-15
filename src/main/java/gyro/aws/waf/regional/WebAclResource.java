@@ -3,6 +3,7 @@ package gyro.aws.waf.regional;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
@@ -120,7 +121,7 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteWebACL(

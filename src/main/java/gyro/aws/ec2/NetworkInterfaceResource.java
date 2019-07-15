@@ -10,6 +10,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -280,7 +281,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    public void doCreate() {
+    public void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateNetworkInterfaceRequest.Builder builder = CreateNetworkInterfaceRequest.builder();
@@ -352,14 +353,14 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             }
         } catch(Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
-                delete();
+                delete(state);
                 throw new GyroException("The instance (" + getInstance().getInstanceId() + ") attachment failed, invalid instance-id.");
             }
         }
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("delete-on-termination") && getAttachmentId() != null) {
@@ -434,7 +435,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         detachInstance(client);

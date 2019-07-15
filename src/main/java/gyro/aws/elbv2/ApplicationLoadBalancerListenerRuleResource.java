@@ -8,6 +8,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateRuleResponse;
@@ -159,7 +160,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         CreateRuleResponse response = client.createRule(r -> r.actions(toActions())
                 .conditions(toConditions())
@@ -170,7 +171,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                                 .conditions(toConditions())
@@ -178,7 +179,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteRule(r -> r.ruleArn(getArn()));
     }

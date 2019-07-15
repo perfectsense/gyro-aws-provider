@@ -8,6 +8,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
@@ -149,7 +150,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateNetworkAclResponse response = client.createNetworkAcl(
@@ -160,12 +161,12 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteNetworkAcl(r -> r.networkAclId(getNetworkAclId()));

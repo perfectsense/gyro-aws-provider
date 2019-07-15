@@ -8,6 +8,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.CloudWatchException;
 import software.amazon.awssdk.services.cloudwatch.model.DescribeAlarmsResponse;
@@ -434,21 +435,21 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         CloudWatchClient client = createClient(CloudWatchClient.class);
 
         saveMetricAlarm(client);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         CloudWatchClient client = createClient(CloudWatchClient.class);
 
         saveMetricAlarm(client);
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         CloudWatchClient client = createClient(CloudWatchClient.class);
 
         client.deleteAlarms(r -> r.alarmNames(Collections.singleton(getAlarmName())));

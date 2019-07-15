@@ -7,6 +7,7 @@ import gyro.core.GyroCore;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.VolumeState;
@@ -55,7 +56,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -68,7 +69,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -99,7 +100,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();

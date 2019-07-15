@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.docdb.model.Tag;
@@ -49,7 +50,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
     protected abstract void doCreate();
 
     @Override
-    public void create() {
+    public void create(State state) {
         doCreate();
         saveTags();
     }
@@ -57,7 +58,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
     protected abstract void doUpdate(Resource current, Set<String> changedProperties);
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         doUpdate(current, changedProperties);
         saveTags();
     }

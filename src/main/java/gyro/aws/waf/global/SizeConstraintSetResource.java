@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
@@ -88,7 +89,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafClient client = getGlobalClient();
 
         CreateSizeConstraintSetResponse response = client.createSizeConstraintSet(
@@ -100,7 +101,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafClient client = getGlobalClient();
 
         client.deleteSizeConstraintSet(

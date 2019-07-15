@@ -11,6 +11,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -397,7 +398,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         DeleteDbClusterRequest.Builder builder = DeleteDbClusterRequest

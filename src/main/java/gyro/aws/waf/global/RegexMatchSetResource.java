@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetRegexMatchSetResponse;
@@ -97,7 +98,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafClient client = getGlobalClient();
 
         CreateRegexMatchSetResponse response = client.createRegexMatchSet(
@@ -109,7 +110,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafClient client = getGlobalClient();
 
         client.deleteRegexMatchSet(

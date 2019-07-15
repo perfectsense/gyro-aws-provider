@@ -3,12 +3,12 @@ package gyro.aws.waf.regional;
 import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.CreateRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.Rule;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +64,7 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafRegionalClient client = getRegionalClient();
 
         CreateRuleResponse response = client.createRule(
@@ -77,7 +77,7 @@ public class RuleResource extends gyro.aws.waf.common.RuleResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteRule(

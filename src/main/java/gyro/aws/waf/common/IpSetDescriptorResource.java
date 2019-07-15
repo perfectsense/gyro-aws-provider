@@ -4,6 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
@@ -54,17 +55,17 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         saveIpSetDescriptor(toIpSetDescriptor(), false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         saveIpSetDescriptor(toIpSetDescriptor(), true);
 
     }

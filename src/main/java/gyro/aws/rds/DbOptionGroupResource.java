@@ -8,12 +8,12 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateOptionGroupResponse;
 import software.amazon.awssdk.services.rds.model.DescribeOptionGroupsResponse;
 import software.amazon.awssdk.services.rds.model.OptionGroup;
 import software.amazon.awssdk.services.rds.model.OptionGroupNotFoundException;
-import software.amazon.awssdk.services.rds.model.VpcSecurityGroupMembership;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -211,7 +211,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteOptionGroup(
             r -> r.optionGroupName(getName())

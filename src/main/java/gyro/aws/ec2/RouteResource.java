@@ -7,6 +7,7 @@ import gyro.core.GyroException;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -200,7 +201,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
@@ -217,7 +218,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
@@ -234,7 +235,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())

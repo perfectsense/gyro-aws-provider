@@ -12,6 +12,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AllowedPrincipal;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointServiceConfigurationResponse;
@@ -219,7 +220,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcEndpointServiceConfigurationResponse response = client.createVpcEndpointServiceConfiguration(
@@ -238,7 +239,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         EndpointServiceResource currentEndpointService = (EndpointServiceResource) current;
@@ -302,7 +303,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointServiceConfigurations(

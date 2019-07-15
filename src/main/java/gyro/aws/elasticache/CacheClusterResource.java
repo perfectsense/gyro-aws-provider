@@ -15,6 +15,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
@@ -468,7 +469,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
@@ -519,7 +520,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
         Set<String> properties = new HashSet<>(changedProperties);
 
@@ -584,7 +585,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheCluster(

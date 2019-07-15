@@ -12,6 +12,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -326,7 +327,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         KmsClient client = createClient(KmsClient.class);
 
         if (getAliases().isEmpty()) {
@@ -361,7 +362,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 }
 
             } catch (AlreadyExistsException ex) {
-                delete();
+                delete(state);
                 throw new GyroException(ex.getMessage());
             }
 
@@ -378,7 +379,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         KmsClient client = createClient(KmsClient.class);
         KmsKeyResource currentResource = (KmsKeyResource) current;
 
@@ -436,7 +437,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         KmsClient client = createClient(KmsClient.class);
         client.scheduleKeyDeletion(r -> r.keyId(getKeyId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
     }

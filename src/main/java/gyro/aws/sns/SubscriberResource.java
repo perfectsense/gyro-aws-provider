@@ -12,6 +12,7 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.GetSubscriptionAttributesResponse;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
@@ -179,7 +180,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         SnsClient client = createClient(SnsClient.class);
 
         SubscribeResponse subscribeResponse = client.subscribe(r -> r.attributes(getSubscriptionAttributes())
@@ -191,7 +192,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
         if (changedFieldNames.contains("raw-message-delivery")) {
@@ -222,7 +223,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         SnsClient client = createClient(SnsClient.class);
 
         client.unsubscribe(r -> r.subscriptionArn(getSubscriptionArn()));

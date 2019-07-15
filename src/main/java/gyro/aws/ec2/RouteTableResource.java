@@ -8,6 +8,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
@@ -131,7 +132,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getVpcId()));
@@ -145,7 +146,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource current, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         RouteTableResource currentResource = (RouteTableResource) current;
@@ -171,7 +172,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         RouteTable routeTable = getRouteTable(client);

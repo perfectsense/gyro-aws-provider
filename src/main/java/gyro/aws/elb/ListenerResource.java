@@ -7,6 +7,7 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Updatable;
 
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 
@@ -115,7 +116,7 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (DiffableInternals.getChange(parent()) instanceof Create) {
             return;
         }
@@ -127,13 +128,13 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
-        delete();
-        create();
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
+        delete(state);
+        create(state);
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         if (DiffableInternals.getChange(parent()) instanceof Delete) {
             return;
         }

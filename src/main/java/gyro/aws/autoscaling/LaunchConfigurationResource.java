@@ -14,6 +14,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
@@ -284,7 +285,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -335,12 +336,12 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteLaunchConfiguration(r -> r.launchConfigurationName(getLaunchConfigurationName()));

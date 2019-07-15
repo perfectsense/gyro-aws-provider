@@ -17,6 +17,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingGroup;
@@ -654,7 +655,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -697,7 +698,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -754,7 +755,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         // have option of graceful delete with configurable timeouts.

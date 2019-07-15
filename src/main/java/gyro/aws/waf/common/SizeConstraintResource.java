@@ -3,6 +3,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSetUpdate;
@@ -77,17 +78,17 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         saveSizeConstraint(false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         saveSizeConstraint(true);
     }
 

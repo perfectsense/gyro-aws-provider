@@ -13,6 +13,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -576,7 +577,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -647,7 +648,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void update(Resource resource, Set<String> changedFieldNames) {
+    public void update(State state, Resource resource, Set<String> changedFieldNames) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -742,7 +743,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteFunction(

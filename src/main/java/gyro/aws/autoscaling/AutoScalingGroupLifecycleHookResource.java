@@ -8,6 +8,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
 
@@ -149,7 +150,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -157,7 +158,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -165,7 +166,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteLifecycleHook(

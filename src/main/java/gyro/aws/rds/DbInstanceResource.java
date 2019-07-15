@@ -11,6 +11,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -924,7 +925,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBInstance(
             r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())

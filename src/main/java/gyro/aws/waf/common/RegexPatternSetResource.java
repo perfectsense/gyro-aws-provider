@@ -8,6 +8,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
@@ -84,7 +85,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     protected abstract void doCreate();
 
     @Override
-    public void create() {
+    public void create(State state) {
         doCreate();
 
         try {
@@ -97,12 +98,12 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         savePatterns(((RegexPatternSetResource) current).getPatterns(), getPatterns());
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
 
         boolean isReferenced = false;
         String referenceId = "";

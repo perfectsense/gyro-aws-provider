@@ -7,6 +7,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScheduledUpdateGroupAction;
@@ -139,7 +140,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -157,7 +158,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -165,7 +166,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteScheduledAction(

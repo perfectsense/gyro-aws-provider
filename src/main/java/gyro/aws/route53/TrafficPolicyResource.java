@@ -11,6 +11,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyResponse;
@@ -150,7 +151,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         validate(true);
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
@@ -182,7 +183,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         validate(false);
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
@@ -195,7 +196,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteTrafficPolicy(

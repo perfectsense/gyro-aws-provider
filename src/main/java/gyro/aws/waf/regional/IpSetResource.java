@@ -3,6 +3,7 @@ package gyro.aws.waf.regional;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.CreateIpSetResponse;
 import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
 import software.amazon.awssdk.services.waf.model.IPSet;
@@ -80,7 +81,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         WafRegionalClient client = getRegionalClient();
 
         CreateIpSetResponse response = client.createIPSet(
@@ -92,7 +93,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteIPSet(

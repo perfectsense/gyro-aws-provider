@@ -9,6 +9,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayResponse;
@@ -129,7 +130,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpnGatewayRequest.Builder builder = CreateVpnGatewayRequest.builder().type(GatewayType.IPSEC_1);
@@ -152,7 +153,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         VpnGatewayResource oldResource = (VpnGatewayResource) config;
@@ -170,7 +171,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {

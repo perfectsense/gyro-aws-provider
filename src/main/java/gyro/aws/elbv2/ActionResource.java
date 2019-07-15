@@ -8,6 +8,7 @@ import gyro.core.resource.Resource;
 import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
@@ -167,7 +168,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
@@ -182,7 +183,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
@@ -197,7 +198,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
             return;
         }

@@ -8,6 +8,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -236,7 +237,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBInstance(

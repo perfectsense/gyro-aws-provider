@@ -8,6 +8,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DescribeGlobalClustersResponse;
 import software.amazon.awssdk.services.rds.model.GlobalCluster;
@@ -153,7 +154,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         RdsClient client = createClient(RdsClient.class);
         client.createGlobalCluster(
             r -> r.databaseName(getDatabaseName())
@@ -167,7 +168,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     @Override
-    public void update(Resource config, Set<String> changedFieldNames) {
+    public void update(State state, Resource config, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         DbGlobalClusterResource current = (DbGlobalClusterResource) config;
         // The modify global cluster api currently return a 500
@@ -179,7 +180,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteGlobalCluster(
             r -> r.globalClusterIdentifier(getGlobalClusterIdentifier())

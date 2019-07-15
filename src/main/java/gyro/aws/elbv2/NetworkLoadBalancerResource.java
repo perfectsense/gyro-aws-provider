@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
@@ -101,7 +102,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
@@ -119,19 +120,19 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
                 .prompt(true)
                 .until(() -> isActiveState(client));
 
-        super.create();
+        super.create(state);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
-        super.update(current, changedFieldNames);
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
+        super.update(state, current, changedFieldNames);
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
-        super.delete();
+        super.delete(state);
 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)

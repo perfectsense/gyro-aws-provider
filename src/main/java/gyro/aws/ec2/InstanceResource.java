@@ -12,6 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -520,7 +521,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -584,7 +585,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource config, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);
@@ -660,7 +661,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         if (getDisableApiTermination()) {
             throw new GyroException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }

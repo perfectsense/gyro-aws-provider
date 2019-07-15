@@ -9,6 +9,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -309,7 +310,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcRequest request = CreateVpcRequest.builder()
@@ -337,14 +338,14 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(AwsResource current, Set<String> changedProperties, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         modifySettings(client, changedProperties);
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         DeleteVpcRequest request = DeleteVpcRequest.builder()

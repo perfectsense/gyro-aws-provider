@@ -12,6 +12,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
@@ -218,7 +219,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         if (getLoadBalancer(client) != null) {
@@ -245,7 +246,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         LoadBalancerResource currentResource = (LoadBalancerResource) current;
@@ -311,7 +312,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
         client.deleteLoadBalancer(r -> r.loadBalancerName(getLoadBalancerName()));
     }
