@@ -16,16 +16,10 @@ public class SecurityGroupIngressRuleResource extends SecurityGroupRuleResource 
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (changedFieldNames.size() == 1 && changedFieldNames.contains("description")) {
-            client.updateSecurityGroupRuleDescriptionsIngress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
-        } else {
-            current.delete(ui, state);
-            create(ui, state);
-        }
-
+        client.updateSecurityGroupRuleDescriptionsIngress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
     }
 
     @Override
