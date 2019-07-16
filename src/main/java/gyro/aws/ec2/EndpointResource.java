@@ -87,6 +87,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     private Date createTime;
     private Set<NetworkInterfaceResource> networkInterfaces;
     private Set<DnsEntry> dnsEntries;
+    private Boolean requesterManaged;
 
     /**
      * The ID of the endpoint.
@@ -263,6 +264,18 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         return dnsEntries;
     }
 
+    /**
+     * Is the requester managed.
+     */
+    @Output
+    public Boolean getRequesterManaged() {
+        return requesterManaged;
+    }
+
+    public void setRequesterManaged(Boolean requesterManaged) {
+        this.requesterManaged = requesterManaged;
+    }
+
     public void setDnsEntries(Set<DnsEntry> dnsEntries) {
         this.dnsEntries = dnsEntries;
     }
@@ -303,6 +316,8 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         setState(vpcEndpoint.stateAsString());
         setCreateTime(Date.from(vpcEndpoint.creationTimestamp()));
         setNetworkInterfaces(vpcEndpoint.networkInterfaceIds().stream().map(o -> findById(NetworkInterfaceResource.class, o)).collect(Collectors.toSet()));
+
+        setRequesterManaged(vpcEndpoint.requesterManaged());
 
         getDnsEntries().clear();
         for (software.amazon.awssdk.services.ec2.model.DnsEntry dnsEntry : vpcEndpoint.dnsEntries()) {
