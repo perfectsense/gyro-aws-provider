@@ -4,10 +4,12 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
@@ -393,7 +395,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(client);
@@ -432,12 +434,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteLaunchTemplate(r -> r.launchTemplateId(getLaunchTemplateId()));

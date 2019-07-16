@@ -1,9 +1,11 @@
 package gyro.aws.rds;
 
 import gyro.aws.AwsResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.rds.model.Tag;
@@ -63,7 +65,7 @@ public abstract class RdsTaggableResource extends AwsResource {
     protected abstract void doCreate();
 
     @Override
-    public final void create() {
+    public final void create(GyroUI ui, State state) {
         doCreate();
         addTags();
     }
@@ -71,7 +73,7 @@ public abstract class RdsTaggableResource extends AwsResource {
     protected abstract void doUpdate(Resource config, Set<String> changedProperties);
 
     @Override
-    public final void update(Resource current, Set<String> changedFieldNames) {
+    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         doUpdate(current, changedFieldNames);
         ((RdsTaggableResource) current).removeTags();
         addTags();

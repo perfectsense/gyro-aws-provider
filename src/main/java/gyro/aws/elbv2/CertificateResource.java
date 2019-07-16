@@ -1,10 +1,13 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Delete;
+import gyro.core.GyroUI;
+import gyro.core.diff.Delete;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 
@@ -77,7 +80,7 @@ public class CertificateResource extends AwsResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         client.addListenerCertificates(r -> r.certificates(toCertificate())
@@ -85,11 +88,11 @@ public class CertificateResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
-        if (parentResource().change() instanceof Delete) {
+    public void delete(GyroUI ui, State state) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
             return;
         }
 

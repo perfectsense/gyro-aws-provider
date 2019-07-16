@@ -3,11 +3,13 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
 import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationResponse;
@@ -244,7 +246,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void doCreate() {
+    public void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -271,7 +273,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void doUpdate(AwsResource config, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -285,7 +287,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.cancelCapacityReservation(

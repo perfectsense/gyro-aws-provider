@@ -5,10 +5,12 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.ElasticIpResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
@@ -101,7 +103,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
@@ -119,19 +121,19 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
                 .prompt(true)
                 .until(() -> isActiveState(client));
 
-        super.create();
+        super.create(ui, state);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
-        super.update(current, changedFieldNames);
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        super.update(ui, state, current, changedFieldNames);
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
-        super.delete();
+        super.delete(ui, state);
 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)

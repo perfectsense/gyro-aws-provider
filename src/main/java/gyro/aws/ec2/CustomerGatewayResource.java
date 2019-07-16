@@ -4,9 +4,11 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
@@ -107,7 +109,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         CreateCustomerGatewayRequest.Builder builder = CreateCustomerGatewayRequest.builder();
         builder.publicIp(getPublicIp());
         builder.type(GatewayType.IPSEC_1);
@@ -126,12 +128,12 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteCustomerGateway(r -> r.customerGatewayId(getCustomerGatewayId()));
