@@ -35,7 +35,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     /**
      * Protocol for this Security Group Rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
      */
-    @Updatable
     public String getProtocol() {
         if (protocol != null) {
             return protocol.toLowerCase();
@@ -63,7 +62,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     /**
      * Starting port for this Security Group Rule. (Required)
      */
-    @Updatable
     public Integer getFromPort() {
         return fromPort;
     }
@@ -75,7 +73,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     /**
      * Ending port for this Security Group Rule. (Required)
      */
-    @Updatable
     public Integer getToPort() {
         return toPort;
     }
@@ -87,7 +84,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     /**
      * Set of IPv4 CIDR blocks to apply this Security Group Rule to. Required if `ipv6-cidr-blocks` not mentioned.
      */
-    @Updatable
     public Set<String> getCidrBlocks() {
         if (cidrBlocks == null) {
             cidrBlocks = new HashSet<>();
@@ -103,7 +99,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     /**
      * Set of IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-blocks` not mentioned.
      */
-    @Updatable
     public Set<String> getIpv6CidrBlocks() {
         if (ipv6CidrBlocks == null) {
             ipv6CidrBlocks = new HashSet<>();
@@ -119,7 +114,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     /**
      * List of security groups referenced by this Security Group Rule.
      */
-    @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new LinkedHashSet<>();
@@ -162,7 +156,16 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getPrimaryKey());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getToPort()).append(" ")
+            .append(getFromPort()).append(" ")
+            .append(getProtocol()).append(" ")
+            .append(!getCidrBlocks().isEmpty() ? getCidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" ")) : "").append(" ")
+            .append(!getIpv6CidrBlocks().isEmpty() ? getIpv6CidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" ")) : "").append(" ")
+            .append(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).filter(o -> !ObjectUtils.isBlank(o)).sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
+
+        return sb.toString();
     }
 
     @Override
@@ -268,24 +271,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     private void validate() {
         if (getCidrBlocks().isEmpty() && getIpv6CidrBlocks().isEmpty() && getSecurityGroups().isEmpty()) {
             throw new GyroException("At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
-        }
-    }
-
-    private String getPrimaryKey() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(getToPort()).append("#").append(getFromPort()).append("#").append(getProtocol()).append("#");
-        sb.append(!getCidrBlocks().isEmpty() ? getCidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
-        sb.append("#");
-        sb.append(!getIpv6CidrBlocks().isEmpty() ? getIpv6CidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
-        sb.append("#");
-        sb.append(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).filter(o -> !ObjectUtils.isBlank(o)).sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
-
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            return (new HexBinaryAdapter()).marshal(md.digest(sb.toString().getBytes()));
-        } catch (NoSuchAlgorithmException ex) {
-            throw new GyroException(ex.getMessage());
         }
     }
 }
