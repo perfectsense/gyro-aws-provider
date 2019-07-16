@@ -276,7 +276,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
             );
         }
 
-        copyFrom(getServiceConfiguration(client));
+        copyFrom(response.serviceConfiguration());
     }
 
     @Override
