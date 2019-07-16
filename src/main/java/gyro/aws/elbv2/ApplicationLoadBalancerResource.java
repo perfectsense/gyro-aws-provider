@@ -3,10 +3,12 @@ package gyro.aws.elbv2;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
@@ -101,7 +103,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
@@ -115,11 +117,11 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
         setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
-        super.create();
+        super.create(ui, state);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         client.setSecurityGroups(r -> r.loadBalancerArn(getArn())
@@ -127,12 +129,12 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
         client.setSubnets(r -> r.loadBalancerArn(getArn())
                 .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())));
 
-        super.update(current, changedFieldNames);
+        super.update(ui, state, current, changedFieldNames);
     }
 
     @Override
-    public void delete() {
-        super.delete();
+    public void delete(GyroUI ui, State state) {
+        super.delete(ui, state);
     }
 
     @Override

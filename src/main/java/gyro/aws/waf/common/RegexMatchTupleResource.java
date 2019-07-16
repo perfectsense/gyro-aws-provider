@@ -2,7 +2,9 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
@@ -64,17 +66,17 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         saveRegexMatchTuple(toRegexMatchTuple(), false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         saveRegexMatchTuple(toRegexMatchTuple(), true);
     }
 

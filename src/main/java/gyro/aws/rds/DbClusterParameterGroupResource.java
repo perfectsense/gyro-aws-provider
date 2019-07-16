@@ -2,11 +2,13 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterParameterGroup;
@@ -171,7 +173,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()));
     }

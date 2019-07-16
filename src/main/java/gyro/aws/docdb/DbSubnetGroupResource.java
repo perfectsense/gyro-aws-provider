@@ -4,11 +4,13 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -161,7 +163,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBSubnetGroup(

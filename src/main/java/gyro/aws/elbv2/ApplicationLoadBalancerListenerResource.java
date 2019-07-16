@@ -1,10 +1,12 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -107,7 +109,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateListenerResponse response =
@@ -122,7 +124,7 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (toCertificates().isEmpty() && getProtocol().equals("HTTP")) {
@@ -144,8 +146,8 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
     }
 
     @Override
-    public void delete() {
-        super.delete();
+    public void delete(GyroUI ui, State state) {
+        super.delete(ui, state);
     }
 
     @Override

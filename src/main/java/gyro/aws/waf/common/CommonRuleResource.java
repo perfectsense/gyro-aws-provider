@@ -1,7 +1,9 @@
 package gyro.aws.waf.common;
 
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.Predicate;
 
 import java.util.List;
@@ -25,17 +27,17 @@ public class CommonRuleResource extends AbstractRuleResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
 
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
 
     }
 

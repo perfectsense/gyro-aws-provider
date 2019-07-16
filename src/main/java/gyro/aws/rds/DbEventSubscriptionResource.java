@@ -3,11 +3,13 @@ package gyro.aws.rds;
 import gyro.aws.Copyable;
 import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateEventSubscriptionResponse;
 import software.amazon.awssdk.services.rds.model.DescribeEventSubscriptionsResponse;
@@ -188,7 +190,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteEventSubscription(
             r -> r.subscriptionName(getSubscriptionName())
