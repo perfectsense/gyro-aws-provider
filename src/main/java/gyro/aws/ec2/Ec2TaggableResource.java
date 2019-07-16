@@ -1,11 +1,13 @@
 package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.CompactMap;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Tag;
@@ -92,19 +94,22 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
         return refreshed;
     }
 
-    protected abstract void doCreate();
+    protected abstract void doCreate(GyroUI ui, State state);
 
     @Override
-    public final void create() {
-        doCreate();
+    public final void create(GyroUI ui, State state) {
+        doCreate(ui, state);
         createTags();
     }
 
-    protected abstract void doUpdate(AwsResource config, Set<String> changedProperties);
+    protected abstract void doUpdate(
+        GyroUI ui,
+        State state, AwsResource config,
+        Set<String> changedProperties);
 
     @Override
-    public final void update(Resource current, Set<String> changedFieldNames) {
-        doUpdate((AwsResource) current, changedFieldNames);
+    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        doUpdate(ui, state, (AwsResource) current, changedFieldNames);
         createTags();
     }
 

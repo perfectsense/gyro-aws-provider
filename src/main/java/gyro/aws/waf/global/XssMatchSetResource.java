@@ -2,8 +2,10 @@ package gyro.aws.waf.global;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetXssMatchSetResponse;
@@ -87,7 +89,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         WafClient client = getGlobalClient();
 
         CreateXssMatchSetResponse response = client.createXssMatchSet(
@@ -99,7 +101,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         WafClient client = getGlobalClient();
 
         client.deleteXssMatchSet(

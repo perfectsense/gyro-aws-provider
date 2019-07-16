@@ -6,11 +6,13 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
@@ -326,7 +328,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
 
         validate();
 
@@ -355,7 +357,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
         validate();
 
@@ -427,7 +429,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpoints(

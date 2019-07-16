@@ -1,10 +1,10 @@
 package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -12,6 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -20,6 +21,7 @@ import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
@@ -281,7 +283,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
-        setDomainName(String.format("%s.s3.%s.amazonaws.com",getName(), credentials(AwsCredentials.class).getRegion()));
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
     @Override
@@ -300,13 +302,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         S3Client client = createClient(S3Client.class);
 
         client.createBucket(
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
+        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
 
         if (!getTags().isEmpty()) {
             saveTags(client);
@@ -334,7 +337,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         S3Client client = createClient(S3Client.class);
 
         if (changedFieldNames.contains("tags")) {
@@ -359,7 +362,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         S3Client client = createClient(S3Client.class);
         client.deleteBucket(
             r -> r.bucket(getName())
@@ -573,5 +576,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                     )
             );
         }
+    }
+
+    private String getBucketRegion(S3Client client) {
+        GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
+        return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
     }
 }

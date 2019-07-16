@@ -4,8 +4,10 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -166,7 +168,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     @Override
-    public final void create() {
+    public final void create(GyroUI ui, State state) {
         validate();
         doCreate();
     }
@@ -174,12 +176,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     protected abstract void doCreate();
 
     @Override
-    public final void update(Resource current, Set<String> changedFieldNames) {
+    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         validate();
-        doUpdate(current, changedFieldNames);
+        doUpdate(ui, state, current, changedFieldNames);
     }
 
-    protected abstract void doUpdate(Resource current, Set<String> changedFieldNames);
+    protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;
 
     @Override
     public String toDisplayString() {

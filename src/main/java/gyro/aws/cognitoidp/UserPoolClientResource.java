@@ -2,12 +2,14 @@ package gyro.aws.cognitoidp;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolClientResponse;
@@ -323,7 +325,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         CreateUserPoolClientResponse response = client.createUserPoolClient(r ->
                 r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
@@ -346,7 +348,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         client.updateUserPoolClient(r -> r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
                 .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
@@ -366,7 +368,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         client.deleteUserPoolClient(r -> r.clientId(getId())
                                             .userPoolId(getUserPool().getId()));
