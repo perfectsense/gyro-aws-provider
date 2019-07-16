@@ -186,9 +186,14 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
         setTrafficPolicyInstanceId(trafficPolicyInstance.id());
 
-        Wait.atMost(1, TimeUnit.HOURS)
-            .checkEvery(3, TimeUnit.SECONDS)
+        boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isTrafficPolicyInstanceReady(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'Applied' state for " + toDisplayString());
+        }
     }
 
     @Override

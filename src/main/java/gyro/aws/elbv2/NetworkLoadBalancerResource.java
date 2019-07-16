@@ -116,9 +116,14 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
-        Wait.atMost(1, TimeUnit.HOURS)
-                .checkEvery(10, TimeUnit.SECONDS)
+        boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
+                .checkEvery(30, TimeUnit.SECONDS)
+                .prompt(false)
                 .until(() -> isActiveState(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'Active' state for " + toDisplayString());
+        }
 
         super.create(ui, state);
     }

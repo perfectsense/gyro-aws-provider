@@ -834,9 +834,14 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setArn(response.dbInstance().dbInstanceArn());
 
-        Wait.atMost(1, TimeUnit.HOURS)
-            .checkEvery(15, TimeUnit.SECONDS)
+        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+        }
 
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
             r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())

@@ -110,9 +110,14 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
 
-        Wait.atMost(1, TimeUnit.HOURS)
-            .checkEvery(10, TimeUnit.SECONDS)
+        boolean waitResult = Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+        }
     }
 
     @Override

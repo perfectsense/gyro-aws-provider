@@ -613,9 +613,14 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setArn(response.dbCluster().dbClusterArn());
 
-        Wait.atMost(1, TimeUnit.HOURS)
-            .checkEvery(15, TimeUnit.SECONDS)
+        boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+        }
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(
             r -> r.dbClusterIdentifier(getDbClusterIdentifier())

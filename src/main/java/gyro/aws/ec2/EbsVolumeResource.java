@@ -273,9 +273,14 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             }
         }
 
-        Wait.atMost(1, TimeUnit.HOURS)
-            .checkEvery(10, TimeUnit.SECONDS)
+        boolean waitResult = Wait.atMost(40, TimeUnit.SECONDS)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+        }
     }
 
     @Override

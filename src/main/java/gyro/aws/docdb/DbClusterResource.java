@@ -364,9 +364,14 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
-        Wait.atMost(1, TimeUnit.HOURS)
+        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+        }
     }
 
     @Override

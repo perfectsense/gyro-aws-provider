@@ -224,9 +224,14 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     private void attachVpc(Ec2Client client) {
         client.attachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
 
-        Wait.atMost(1, TimeUnit.HOURS)
+        boolean waitResult = Wait.atMost(90, TimeUnit.SECONDS)
             .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isVpcAttached(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to attach vpc " + getVpc().getVpcId() + " with " + toDisplayString());
+        }
     }
 
     private boolean isVpcAttached(Ec2Client client) {
