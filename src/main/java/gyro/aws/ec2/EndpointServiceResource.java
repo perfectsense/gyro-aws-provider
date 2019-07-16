@@ -11,7 +11,6 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -23,6 +22,7 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServiceConfigurationRequest;
 import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServicePermissionsRequest;
 import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
+import software.amazon.awssdk.services.ec2.model.ServiceTypeDetail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("vpc-endpoint-service")
-public class EndpointServiceResource extends AwsResource implements Copyable<ServiceConfiguration> {
+public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfiguration> implements Copyable<ServiceConfiguration> {
     private Boolean acceptanceRequired;
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;
     private Set<RoleResource> principals;
@@ -54,6 +54,8 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     private Set<String> baseEndpointDnsNames;
     private String privateDnsName;
     private String state;
+    private Boolean manageVpcEndpoints;
+    private Set<EndpointServiceTypeDetail> serviceType;
 
     /**
      * Require acceptance. Defaults to true.
@@ -176,6 +178,34 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         this.state = state;
     }
 
+    /**
+     * Is vpc endpoints managed.
+     */
+    @Output
+    public Boolean getManageVpcEndpoints() {
+        return manageVpcEndpoints;
+    }
+
+    public void setManageVpcEndpoints(Boolean manageVpcEndpoints) {
+        this.manageVpcEndpoints = manageVpcEndpoints;
+    }
+
+    /**
+     * A Set of service type.
+     */
+    @Output
+    public Set<EndpointServiceTypeDetail> getServiceType() {
+        if (serviceType == null) {
+            serviceType = new HashSet<>();
+        }
+
+        return serviceType;
+    }
+
+    public void setServiceType(Set<EndpointServiceTypeDetail> serviceType) {
+        this.serviceType = serviceType;
+    }
+
     @Override
     public void copyFrom(ServiceConfiguration serviceConfiguration) {
         setId(serviceConfiguration.serviceId());
@@ -185,6 +215,14 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames() != null ? new HashSet<>(serviceConfiguration.baseEndpointDnsNames()) : null);
         setPrivateDnsName(serviceConfiguration.privateDnsName());
         setState(serviceConfiguration.serviceStateAsString());
+        setManageVpcEndpoints(serviceConfiguration.managesVpcEndpoints());
+
+        getServiceType().clear();
+        for (ServiceTypeDetail serviceTypeDetail: serviceConfiguration.serviceType()) {
+            EndpointServiceTypeDetail endpointServiceTypeDetail = newSubresource(EndpointServiceTypeDetail.class);
+            endpointServiceTypeDetail.copyFrom(serviceTypeDetail);
+            getServiceType().add(endpointServiceTypeDetail);
+        }
 
         setNetworkLoadBalancers(
             serviceConfiguration.networkLoadBalancerArns()
@@ -206,7 +244,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
         ServiceConfiguration serviceConfiguration = getServiceConfiguration(client);
@@ -221,7 +259,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcEndpointServiceConfigurationResponse response = client.createVpcEndpointServiceConfiguration(
@@ -240,12 +278,12 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        EndpointServiceResource currentEndpointService = (EndpointServiceResource) current;
+        EndpointServiceResource currentEndpointService = (EndpointServiceResource) config;
 
-        if (changedFieldNames.contains("acceptance-required") || changedFieldNames.contains("network-load-balancers")) {
+        if (changedProperties.contains("acceptance-required") || changedProperties.contains("network-load-balancers")) {
 
             ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest.builder()
                 .serviceId(getId());
@@ -272,7 +310,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
             client.modifyVpcEndpointServiceConfiguration(builder.build());
         }
 
-        if (changedFieldNames.contains("principals")) {
+        if (changedProperties.contains("principals")) {
             ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
                 .serviceId(getId());
 
