@@ -220,6 +220,10 @@ aws::vpc-endpoint endpoint-example-gateway
         $(aws::route-table route-table-example-for-endpoint-2),
         $(aws::route-table route-table-example-for-endpoint-3)
     ]
+
+    tags: {
+        Name: "endpoint-example-gateway"
+    }
 end
 
 aws::vpc-endpoint endpoint-example-interface
@@ -237,4 +241,8 @@ aws::vpc-endpoint endpoint-example-interface
         $(aws::security-group security-group-example-for-endpoint-2),
         $(aws::security-group security-group-example-for-endpoint-3)
     ]
+
+    tags: {
+        Name: "endpoint-example-interface"
+    }
 end

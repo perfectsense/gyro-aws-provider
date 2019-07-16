@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("vpc-endpoint")
-public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
+public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implements Copyable<VpcEndpoint> {
 
     private String id;
     private String serviceName;
@@ -328,7 +328,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
         VpcEndpoint endpoint = getVpcEndpoint(client);
@@ -343,7 +343,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
 
         validate();
 
@@ -372,16 +372,15 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         validate();
 
         ModifyVpcEndpointRequest.Builder builder = ModifyVpcEndpointRequest.builder();
         builder.vpcEndpointId(getId());
 
-        EndpointResource oldEndpoint = (EndpointResource) current;
+        EndpointResource oldEndpoint = (EndpointResource) config;
 
-        if (changedFieldNames.contains("route-tables")) {
+        if (changedProperties.contains("route-tables")) {
 
             Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
             Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
@@ -398,7 +397,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             }
         }
 
-        if (changedFieldNames.contains("subnets")) {
+        if (changedProperties.contains("subnets")) {
             Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
             Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
 
@@ -414,7 +413,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             }
         }
 
-        if (changedFieldNames.contains("security-groups")) {
+        if (changedProperties.contains("security-groups")) {
             Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
             Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
 
@@ -430,11 +429,11 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             }
         }
 
-        if (changedFieldNames.contains("policy-doc-path")) {
+        if (changedProperties.contains("policy-doc-path")) {
             builder.policyDocument(getPolicy());
         }
 
-        if (changedFieldNames.contains("policy")) {
+        if (changedProperties.contains("policy")) {
             builder.policyDocument(getPolicy());
         }
 
