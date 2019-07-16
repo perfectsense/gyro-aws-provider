@@ -275,6 +275,8 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
                     .addAllowedPrincipals(getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toList()))
             );
         }
+
+        copyFrom(getServiceConfiguration(client));
     }
 
     @Override
