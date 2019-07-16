@@ -3,11 +3,13 @@ package gyro.aws.iam;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
@@ -222,7 +224,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreateRoleResponse response = client.createRole(r -> r.assumeRolePolicyDocument(getAssumeRolePolicy())
@@ -240,13 +242,13 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
                 client.attachRolePolicy(r -> r.roleName(getName()).policyArn(policy.getArn()));
             }
         } catch (Exception err) {
-            delete();
+            delete(ui, state);
             throw new GyroException(err.getMessage());
         }
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         client.updateAssumeRolePolicy(r -> r.policyDocument(formatPolicy(getAssumeRolePolicy()))
@@ -286,7 +288,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         ListAttachedRolePoliciesResponse response = client.listAttachedRolePolicies(r -> r.roleName(getName()));

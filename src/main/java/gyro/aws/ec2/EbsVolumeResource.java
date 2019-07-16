@@ -5,12 +5,14 @@ import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVolumeAttributeResponse;
@@ -238,7 +240,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -264,10 +266,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
                         .autoEnableIO(a -> a.value(getAutoEnableIo()))
                 );
             } catch (Exception ex) {
-                GyroCore.ui().write("\n@|bold,blue EBS Volume resource - error enabling "
+                ui.write("\n@|bold,blue EBS Volume resource - error enabling "
                     + "'auto enable io' to volume with Id - %s. |@", getVolumeId());
-                GyroCore.ui().write("\n@|bold,blue Error message - %s |@", ex.getMessage());
-                GyroCore.ui().write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
+                ui.write("\n@|bold,blue Error message - %s |@", ex.getMessage());
+                ui.write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
             }
         }
 
@@ -277,7 +279,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);
@@ -306,7 +308,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVolume(

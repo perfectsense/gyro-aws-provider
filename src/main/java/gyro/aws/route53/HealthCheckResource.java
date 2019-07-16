@@ -3,6 +3,7 @@ package gyro.aws.route53;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -12,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.ChangeTagsForResourceRequest;
@@ -423,7 +425,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         validate();
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
@@ -441,7 +443,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         validate();
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
@@ -455,7 +457,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteHealthCheck(

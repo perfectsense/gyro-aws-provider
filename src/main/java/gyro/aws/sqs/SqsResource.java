@@ -5,6 +5,7 @@ import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -14,6 +15,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
@@ -369,7 +371,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         SqsClient client = createClient(SqsClient.class);
 
         if (ObjectUtils.isBlank(getQueue(client))) {
@@ -427,7 +429,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
         Map<QueueAttributeName, String> attributeUpdate = new HashMap<>();
 
@@ -451,7 +453,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         SqsClient client = createClient(SqsClient.class);
 
         client.deleteQueue(r -> r.queueUrl(getQueueUrl()));

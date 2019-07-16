@@ -4,10 +4,12 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
@@ -84,25 +86,25 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     protected abstract void doCreate();
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         doCreate();
 
         try {
             savePatterns(new HashSet<>(), getPatterns());
         } catch (Exception ex) {
-            GyroCore.ui().write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
+            ui.write("\n@|bold,blue Error saving patterns for Regex pattern match set - %s (%s)."
                 + " Please retry to update the patterns|@", getName(), getRegexPatternSetId());
             ex.printStackTrace();
         }
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         savePatterns(((RegexPatternSetResource) current).getPatterns(), getPatterns());
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
 
         boolean isReferenced = false;
         String referenceId = "";

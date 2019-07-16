@@ -4,6 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.VpcResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -11,6 +12,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -228,7 +230,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateTargetGroupResponse response = null;
@@ -270,7 +272,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (getHealthCheck() != null) {
@@ -314,7 +316,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteTargetGroup(r -> r.targetGroupArn(getArn()));
     }

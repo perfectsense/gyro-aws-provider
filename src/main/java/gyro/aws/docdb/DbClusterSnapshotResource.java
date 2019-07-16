@@ -3,10 +3,12 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
@@ -119,7 +121,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBClusterSnapshot(
