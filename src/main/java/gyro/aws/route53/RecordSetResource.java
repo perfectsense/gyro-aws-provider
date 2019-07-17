@@ -476,7 +476,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             .name(recordSetResource.getName())
             .healthCheckId(recordSetResource.getHealthCheck() != null ? recordSetResource.getHealthCheck().getId() : null)
             .setIdentifier(recordSetResource.getSetIdentifier())
-            .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstance() != null ? recordSetResource.getTrafficPolicyInstance().getTrafficPolicyInstanceId() : null)
+            .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstance() != null ? recordSetResource.getTrafficPolicyInstance().getId() : null)
             .type(recordSetResource.getType());
 
         if (recordSetResource.getEnableAlias()) {
