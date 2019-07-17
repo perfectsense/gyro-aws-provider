@@ -53,9 +53,9 @@ public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<W
     protected List<ByteMatchSet> findAws(WafRegionalClient client, Map<String, String> filters) {
         List<ByteMatchSet> byteMatchSets = new ArrayList<>();
 
-        if (filters.containsKey("byte-match-set-id") && !ObjectUtils.isBlank(filters.get("byte-match-set-id"))) {
+        if (filters.containsKey("id") && !ObjectUtils.isBlank(filters.get("id"))) {
             try {
-                byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(filters.get("byte-match-set-id"))).byteMatchSet());
+                byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(filters.get("id"))).byteMatchSet());
             } catch (WafNonexistentItemException ignore) {
                 //ignore
             }

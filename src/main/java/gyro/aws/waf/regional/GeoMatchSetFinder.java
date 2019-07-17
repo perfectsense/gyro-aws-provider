@@ -54,7 +54,7 @@ public class GeoMatchSetFinder extends gyro.aws.waf.common.GeoMatchSetFinder<Waf
         List<GeoMatchSet> geoMatchSets = new ArrayList<>();
 
         try {
-            geoMatchSets.add(client.getGeoMatchSet(r -> r.geoMatchSetId(filters.get("geo-match-set-id"))).geoMatchSet());
+            geoMatchSets.add(client.getGeoMatchSet(r -> r.geoMatchSetId(filters.get("id"))).geoMatchSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

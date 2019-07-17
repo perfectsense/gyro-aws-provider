@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.XssMatchSet;
 
 abstract public class XssMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, XssMatchSet, U> {
-    private String xssMatchSetId;
+    private String id;
 
     /**
      * The ID of xss match set.
      */
-    public String getXssMatchSetId() {
-        return xssMatchSetId;
+    public String getId() {
+        return id;
     }
 
-    public void setXssMatchSetId(String xssMatchSetId) {
-        this.xssMatchSetId = xssMatchSetId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

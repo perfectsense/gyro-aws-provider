@@ -55,7 +55,7 @@ public class XssMatchSetFinder extends gyro.aws.waf.common.XssMatchSetFinder<Waf
         List<XssMatchSet> xssMatchSets = new ArrayList<>();
 
         try {
-            xssMatchSets.add(client.getXssMatchSet(r -> r.xssMatchSetId(filters.get("xss-match-set-id"))).xssMatchSet());
+            xssMatchSets.add(client.getXssMatchSet(r -> r.xssMatchSetId(filters.get("id"))).xssMatchSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

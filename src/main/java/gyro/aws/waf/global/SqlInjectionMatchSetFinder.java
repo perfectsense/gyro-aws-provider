@@ -55,7 +55,7 @@ public class SqlInjectionMatchSetFinder extends gyro.aws.waf.common.SqlInjection
         List<SqlInjectionMatchSet> sqlInjectionMatchSets = new ArrayList<>();
 
         try {
-            sqlInjectionMatchSets.add(client.getSqlInjectionMatchSet(r -> r.sqlInjectionMatchSetId(filters.get("sql-injection-match-set-id"))).sqlInjectionMatchSet());
+            sqlInjectionMatchSets.add(client.getSqlInjectionMatchSet(r -> r.sqlInjectionMatchSetId(filters.get("id"))).sqlInjectionMatchSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

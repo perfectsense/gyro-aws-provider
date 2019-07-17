@@ -55,7 +55,7 @@ public class ByteMatchSetFinder extends gyro.aws.waf.common.ByteMatchSetFinder<W
         List<ByteMatchSet> byteMatchSets = new ArrayList<>();
 
         try {
-            byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(filters.get("byte-match-set-id"))).byteMatchSet());
+            byteMatchSets.add(client.getByteMatchSet(r -> r.byteMatchSetId(filters.get("id"))).byteMatchSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }
