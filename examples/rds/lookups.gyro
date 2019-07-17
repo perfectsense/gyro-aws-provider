@@ -6,7 +6,7 @@ cluster-parameter-groups: $(external-query aws::db-cluster-parameter-group { nam
 
 cluster-snapshots: $(external-query aws::db-cluster-snapshot { name: 'db-cluster-snapshot-example' })
 
-subscriptions: $(external-query aws::db-event-subscription { subscription-name: 'db-event-subscription-example' })
+subscriptions: $(external-query aws::db-event-subscription { name: 'db-event-subscription-example' })
 
 global-clusters: $(external-query aws::db-global-cluster {  db-cluster-id: 'aurora-global-cluster' })
 

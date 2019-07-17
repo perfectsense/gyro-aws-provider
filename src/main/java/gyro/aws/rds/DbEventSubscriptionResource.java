@@ -27,7 +27,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *    aws::db-event-subscription db-event-subscription-example
- *        subscription-name: "db-event-subscription-example"
+ *        name: "db-event-subscription-example"
  *        sns-topic: $(aws::sns-topic sns-topic-example)
  *        enabled: true
  *        source-type: "db-instance"
@@ -45,7 +45,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     private TopicResource snsTopic;
     private List<String> sourceIds;
     private String sourceType;
-    private String subscriptionName;
+    private String name;
 
     /**
      * Enable or disable the subscription. Default to true.
@@ -121,12 +121,12 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
      * The name of the subscription. (Required)
      */
     @Id
-    public String getSubscriptionName() {
-        return subscriptionName;
+    public String getName() {
+        return name;
     }
 
-    public void setSubscriptionName(String subscriptionName) {
-        this.subscriptionName = subscriptionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -144,13 +144,13 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getSubscriptionName())) {
-            throw new GyroException("subscription-name is missing, unable to load db event subscription.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db event subscription.");
         }
 
         try {
             DescribeEventSubscriptionsResponse response = client.describeEventSubscriptions(
-                r -> r.subscriptionName(getSubscriptionName())
+                r -> r.subscriptionName(getName())
             );
 
             response.eventSubscriptionsList().forEach(this::copyFrom);
@@ -170,7 +170,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
                     .eventCategories(getEventCategories())
                     .sourceIds(getSourceIds())
                     .sourceType(getSourceType())
-                    .subscriptionName(getSubscriptionName())
+                    .subscriptionName(getName())
                     .snsTopicArn(getSnsTopic().getArn())
         );
 
@@ -185,7 +185,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
                     .eventCategories(getEventCategories())
                     .snsTopicArn(getSnsTopic().getArn())
                     .sourceType(getSourceType())
-                    .subscriptionName(getSubscriptionName())
+                    .subscriptionName(getName())
         );
     }
 
@@ -193,13 +193,13 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteEventSubscription(
-            r -> r.subscriptionName(getSubscriptionName())
+            r -> r.subscriptionName(getName())
         );
 
     }
 
     @Override
     public String toDisplayString() {
-        return "db event subscription " + getSubscriptionName();
+        return "db event subscription " + getName();
     }
 }
