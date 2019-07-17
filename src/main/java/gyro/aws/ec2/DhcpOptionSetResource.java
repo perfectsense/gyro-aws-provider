@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @Type("dhcp-option")
 public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> implements Copyable<DhcpOptions> {
 
-    private String dhcpOptionsId;
+    private String id;
     private String domainName;
     private Set<String> domainNameServers;
     private Set<String> ntpServers;
@@ -131,22 +131,22 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
      */
     @Id
     @Output
-    public String getDhcpOptionsId() {
-        return dhcpOptionsId;
+    public String getId() {
+        return id;
     }
 
-    public void setDhcpOptionsId(String dhcpOptionsId) {
-        this.dhcpOptionsId = dhcpOptionsId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     protected String getResourceId() {
-        return getDhcpOptionsId();
+        return getId();
     }
 
     @Override
     public void copyFrom(DhcpOptions dhcpOptions) {
-        setDhcpOptionsId(dhcpOptions.dhcpOptionsId());
+        setId(dhcpOptions.dhcpOptionsId());
 
         for (DhcpConfiguration config : dhcpOptions.dhcpConfigurations()) {
             if (config.key().equals(CONFIG_DOMAIN_NAME)) {
@@ -198,7 +198,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
         );
 
         String optionsId = response.dhcpOptions().dhcpOptionsId();
-        setDhcpOptionsId(optionsId);
+        setId(optionsId);
     }
 
     @Override
@@ -209,7 +209,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptionsId()));
+        client.deleteDhcpOptions(r -> r.dhcpOptionsId(getId()));
     }
 
     @Override
@@ -218,8 +218,8 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
 
         sb.append("dhcp options");
 
-        if (!ObjectUtils.isBlank(getDhcpOptionsId())) {
-            sb.append(" - ").append(getDhcpOptionsId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -238,12 +238,12 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     private DhcpOptions getDhcpOptions(Ec2Client client) {
         DhcpOptions dhcpOptions = null;
 
-        if (ObjectUtils.isBlank(getDhcpOptionsId())) {
-            throw new GyroException("dhcp-options-id is missing, unable to load dhcp options.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load dhcp options.");
         }
 
         try {
-            DescribeDhcpOptionsResponse response = client.describeDhcpOptions(r -> r.dhcpOptionsIds(getDhcpOptionsId()));
+            DescribeDhcpOptionsResponse response = client.describeDhcpOptions(r -> r.dhcpOptionsIds(getId()));
 
             if (!response.dhcpOptions().isEmpty()) {
                 dhcpOptions = response.dhcpOptions().get(0);
