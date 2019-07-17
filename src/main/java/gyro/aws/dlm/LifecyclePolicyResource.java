@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 @Type("dlm-lifecycle-policy")
 public class LifecyclePolicyResource extends AwsResource implements Copyable<LifecyclePolicy> {
 
-    private String policyId;
+    private String id;
     private String description;
     private RoleResource executionRole;
     private String resourceType;
@@ -249,12 +249,12 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
      */
     @Id
     @Output
-    public String getPolicyId() {
-        return policyId;
+    public String getId() {
+        return id;
     }
 
-    public void setPolicyId(String policyId) {
-        this.policyId = policyId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -287,7 +287,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
         setDateModified(Date.from(policy.dateModified()));
         setDescription(policy.description());
         setExecutionRole(!ObjectUtils.isBlank(policy.executionRoleArn()) ? findById(RoleResource.class, policy.executionRoleArn()) : null);
-        setPolicyId(policy.policyId());
+        setId(policy.policyId());
         setState(policy.stateAsString());
 
         PolicyDetails policyDetails = policy.policyDetails();
@@ -352,7 +352,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
                 .state(getState())
         );
 
-        setPolicyId(response.policyId());
+        setId(response.policyId());
 
         LifecyclePolicy policy = getPolicy(client);
         setDateCreated(Date.from(policy.dateCreated()));
@@ -364,7 +364,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
         DlmClient client = createClient(DlmClient.class);
 
         client.updateLifecyclePolicy(
-            r -> r.policyId(getPolicyId())
+            r -> r.policyId(getId())
                 .description(getDescription())
                 .executionRoleArn(getExecutionRole().getArn())
                 .policyDetails(
@@ -381,7 +381,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
         DlmClient client = createClient(DlmClient.class);
 
         client.deleteLifecyclePolicy(
-            r -> r.policyId(getPolicyId())
+            r -> r.policyId(getId())
         );
     }
 
@@ -391,8 +391,8 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
 
         sb.append("ebs snapshot lifecycle");
 
-        if (!ObjectUtils.isBlank(getPolicyId())) {
-            sb.append(" - ").append(getPolicyId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -421,13 +421,13 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     private LifecyclePolicy getPolicy(DlmClient client) {
         LifecyclePolicy lifecyclePolicy = null;
 
-        if (ObjectUtils.isBlank(getPolicyId())) {
+        if (ObjectUtils.isBlank(getId())) {
             throw new GyroException("policy-id is missing, unable to load ebs snapshot policy.");
         }
 
         try {
             GetLifecyclePolicyResponse response = client.getLifecyclePolicy(
-                r -> r.policyId(getPolicyId())
+                r -> r.policyId(getId())
             );
 
             lifecyclePolicy = response.policy();
