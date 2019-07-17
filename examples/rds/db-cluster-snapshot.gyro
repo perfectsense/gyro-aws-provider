@@ -15,7 +15,7 @@ end
 
 aws::db-cluster-snapshot db-cluster-snapshot-example
     db-cluster: $(aws::db-cluster db-cluster-example)
-    db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
+    name: "db-cluster-snapshot-example"
     tags: {
         Name: "db-cluster-snapshot-example"
     }
