@@ -535,7 +535,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
             .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
             .instanceType(getInstanceType())
-            .keyName(getKey() != null ? getKey().getKeyName() : null)
+            .keyName(getKey() != null ? getKey().getName() : null)
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))

@@ -32,7 +32,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::key-pair key-pair-example
- *         key-name: "key-pair-example"
+ *         name: "key-pair-example"
  *         public-key-path: "example-public-key.pub"
  *     end
  *
@@ -42,14 +42,14 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::key-pair key-pair-example
- *         key-name: "key-pair-example"
+ *         name: "key-pair-example"
  *         public-key: ".."
  *     end
  */
 @Type("key-pair")
 public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo> {
 
-    private String keyName;
+    private String name;
     private String publicKeyPath;
     private String publicKey;
     private String keyFingerPrint;
@@ -58,12 +58,12 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
      * The key name that you want to assign for your key pair. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
     @Id
-    public String getKeyName() {
-        return keyName;
+    public String getName() {
+        return name;
     }
 
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -102,7 +102,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
 
     @Override
     public void copyFrom(KeyPairInfo keyPairInfo) {
-        setKeyName(keyPairInfo.keyName());
+        setName(keyPairInfo.keyName());
         setKeyFingerPrint(keyPairInfo.keyFingerprint());
     }
 
@@ -130,7 +130,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
         Ec2Client client = createClient(Ec2Client.class);
 
         ImportKeyPairResponse response = client.importKeyPair(
-            r -> r.keyName(getKeyName())
+            r -> r.keyName(getName())
                 .publicKeyMaterial(SdkBytes.fromByteArray(getPublicKey().getBytes()))
         );
 
@@ -146,7 +146,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteKeyPair(r -> r.keyName(getKeyName()));
+        client.deleteKeyPair(r -> r.keyName(getName()));
     }
 
     @Override
@@ -155,8 +155,8 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
 
         sb.append("key pair");
 
-        if (!ObjectUtils.isBlank(getKeyName())) {
-            sb.append(" - ").append(getKeyName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         return sb.toString();
@@ -174,12 +174,12 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     private KeyPairInfo getKeyPairInfo(Ec2Client client) {
         KeyPairInfo keyPairInfo = null;
 
-        if (ObjectUtils.isBlank(getKeyName())) {
-            throw new GyroException("key-name is missing, unable to load key pair.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load key pair.");
         }
 
         try {
-            DescribeKeyPairsResponse response = client.describeKeyPairs(r -> r.keyNames(Collections.singleton(getKeyName())));
+            DescribeKeyPairsResponse response = client.describeKeyPairs(r -> r.keyNames(Collections.singleton(getName())));
 
             if (!response.keyPairs().isEmpty()) {
                 keyPairInfo = response.keyPairs().get(0);

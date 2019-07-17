@@ -1,4 +1,4 @@
 aws::key-pair key-pair-example
-    key-name: "key-pair-example"
+    name: "key-pair-example"
     public-key-path: "example-public-key.pub"
 end
