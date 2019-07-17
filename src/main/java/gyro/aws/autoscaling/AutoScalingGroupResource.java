@@ -681,7 +681,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
                 .serviceLinkedRoleARN(getServiceLinkedRoleArn())
                 .placementGroup(getPlacementGroup())
-                .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getLoadBalancerName).collect(Collectors.toList()))
+                .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getName).collect(Collectors.toList()))
                 .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toList()))
                 .instanceId(getInstance() != null ? getInstance().getId() : null)
                 .terminationPolicies(getTerminationPolicies())
@@ -973,11 +973,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     private void saveLoadBalancerNames(AutoScalingClient client, Set<LoadBalancerResource> oldLoadBalancers) {
         Set<String> removeLoadBalancerNames = oldLoadBalancers.stream()
-            .map(LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getName)
             .collect(Collectors.toSet());
 
         removeLoadBalancerNames.removeAll(getClassicLoadBalancers().stream()
-            .map(LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getName)
             .collect(Collectors.toSet()));
 
         if (!removeLoadBalancerNames.isEmpty()) {
@@ -987,11 +987,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
 
         Set<String> addLoadbalancerNames = getClassicLoadBalancers().stream()
-            .map(LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getName)
             .collect(Collectors.toSet());
 
         addLoadbalancerNames.removeAll(oldLoadBalancers.stream()
-            .map(LoadBalancerResource::getLoadBalancerName)
+            .map(LoadBalancerResource::getName)
             .collect(Collectors.toSet()));
 
         if (!addLoadbalancerNames.isEmpty()) {

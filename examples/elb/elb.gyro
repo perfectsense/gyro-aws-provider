@@ -1,6 +1,6 @@
 
 aws::load-balancer elb
-    load-balancer-name: "elb"
+    name: "elb"
     security-groups: [
         $(aws::security-group security-group)
     ]
