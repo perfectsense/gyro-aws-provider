@@ -251,7 +251,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         if (getNetworkAcl() != null) {
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
-                    .networkAclId(getNetworkAcl().getNetworkAclId())
+                    .networkAclId(getNetworkAcl().getId())
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
@@ -265,7 +265,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("network-acl")) {
-            String acl = getNetworkAcl() != null ? getNetworkAcl().getNetworkAclId() : getDefaultAclId();
+            String acl = getNetworkAcl() != null ? getNetworkAcl().getId() : getDefaultAclId();
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
                     .networkAclId(acl)

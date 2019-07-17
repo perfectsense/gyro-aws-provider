@@ -40,7 +40,7 @@ import java.util.Set;
 public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implements Copyable<NetworkAcl> {
 
     private VpcResource vpc;
-    private String networkAclId;
+    private String id;
     private Set<NetworkAclIngressRuleResource> ingressRule;
     private Set<NetworkAclEgressRuleResource> egressRule;
 
@@ -96,22 +96,22 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
      */
     @Id
     @Output
-    public String getNetworkAclId() {
-        return networkAclId;
+    public String getId() {
+        return id;
     }
 
-    public void setNetworkAclId(String networkAclId) {
-        this.networkAclId = networkAclId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     protected String getResourceId() {
-        return getNetworkAclId();
+        return getId();
     }
 
     @Override
     public void copyFrom(NetworkAcl networkAcl) {
-        setNetworkAclId(networkAcl.networkAclId());
+        setId(networkAcl.networkAclId());
 
         for (NetworkAclEntry e: networkAcl.entries()) {
 
@@ -158,7 +158,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
             r -> r.vpcId(getVpc().getVpcId())
         );
 
-        setNetworkAclId(response.networkAcl().networkAclId());
+        setId(response.networkAcl().networkAclId());
     }
 
     @Override
@@ -170,7 +170,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteNetworkAcl(r -> r.networkAclId(getNetworkAclId()));
+        client.deleteNetworkAcl(r -> r.networkAclId(getId()));
     }
 
     @Override
@@ -179,8 +179,8 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
 
         sb.append("network acl");
 
-        if (getNetworkAclId() != null) {
-            sb.append(" - ").append(getNetworkAclId());
+        if (getId() != null) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -189,12 +189,12 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     private NetworkAcl getNetworkAcl(Ec2Client client) {
         NetworkAcl networkAcl = null;
 
-        if (ObjectUtils.isBlank(getNetworkAclId())) {
-            throw new GyroException("network-acl-id is missing, unable to load security group.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load security group.");
         }
 
         try {
-            DescribeNetworkAclsResponse response = client.describeNetworkAcls(r -> r.networkAclIds(getNetworkAclId()));
+            DescribeNetworkAclsResponse response = client.describeNetworkAcls(r -> r.networkAclIds(getId()));
 
             if (!response.networkAcls().isEmpty()) {
                 networkAcl = response.networkAcls().get(0);
