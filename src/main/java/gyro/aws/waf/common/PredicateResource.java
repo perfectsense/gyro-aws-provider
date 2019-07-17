@@ -3,6 +3,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -90,7 +91,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
 
     @Override
     public String primaryKey() {
-        return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(getCondition().name()) ? getCondition().getId() : getCondition().name()) : null));
+        return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(DiffableInternals.getName(getCondition())) ? getCondition().getId() : DiffableInternals.getName(getCondition())) : null));
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);
