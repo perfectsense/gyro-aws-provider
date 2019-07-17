@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 @Type("nat-gateway")
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implements Copyable<NatGateway> {
 
-    private String natGatewayId;
+    private String id;
     private ElasticIpResource elasticIp;
     private SubnetResource subnet;
     private InternetGatewayResource internetGateway;
@@ -83,22 +83,22 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
      */
     @Id
     @Output
-    public String getNatGatewayId() {
-        return natGatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setNatGatewayId(String natGatewayId) {
-        this.natGatewayId = natGatewayId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     protected String getResourceId() {
-        return getNatGatewayId();
+        return getId();
     }
 
     @Override
     public void copyFrom(NatGateway natGateway) {
-        setNatGatewayId(natGateway.natGatewayId());
+        setId(natGateway.natGatewayId());
         setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
         setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
     }
@@ -130,7 +130,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         );
 
         NatGateway natGateway = response.natGateway();
-        setNatGatewayId(natGateway.natGatewayId());
+        setId(natGateway.natGatewayId());
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -148,7 +148,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteNatGateway(
-            r -> r.natGatewayId(getNatGatewayId())
+            r -> r.natGatewayId(getId())
         );
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -163,8 +163,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         sb.append("nat gateway");
 
-        if (!ObjectUtils.isBlank(getNatGatewayId())) {
-            sb.append(" - ").append(getNatGatewayId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
 
         }
 
@@ -174,13 +174,13 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     private NatGateway getNatGateway(Ec2Client client) {
         NatGateway natGateway = null;
 
-        if (ObjectUtils.isBlank(getNatGatewayId())) {
-            throw new GyroException("nat-gateway-id is missing, unable to load nat gateway.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load nat gateway.");
         }
 
         try {
             DescribeNatGatewaysResponse response = client.describeNatGateways(
-                r -> r.natGatewayIds(getNatGatewayId())
+                r -> r.natGatewayIds(getId())
                     .maxResults(5)
             );
 
