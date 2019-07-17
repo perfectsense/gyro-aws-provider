@@ -49,7 +49,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     private Set<RoleResource> principals;
 
     private String id;
-    private String serviceName;
+    private String name;
     private Set<String> availabilityZones;
     private Set<String> baseEndpointDnsNames;
     private String privateDnsName;
@@ -120,12 +120,12 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
      * The name of the endpoint service.
      */
     @Output
-    public String getServiceName() {
-        return serviceName;
+    public String getName() {
+        return name;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -180,7 +180,7 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
     public void copyFrom(ServiceConfiguration serviceConfiguration) {
         setId(serviceConfiguration.serviceId());
         setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
-        setServiceName(serviceConfiguration.serviceName());
+        setName(serviceConfiguration.serviceName());
         setAvailabilityZones(serviceConfiguration.availabilityZones() != null ? new HashSet<>(serviceConfiguration.availabilityZones()) : null);
         setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames() != null ? new HashSet<>(serviceConfiguration.baseEndpointDnsNames()) : null);
         setPrivateDnsName(serviceConfiguration.privateDnsName());
