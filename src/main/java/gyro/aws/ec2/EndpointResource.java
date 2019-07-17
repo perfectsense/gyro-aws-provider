@@ -263,7 +263,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         builder.serviceName(getServiceName());
 
         if (getTypeInterface()) {
-            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
+            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
             builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
         } else {
             builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toList()));
@@ -307,8 +307,8 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         }
 
         if (changedFieldNames.contains("subnets")) {
-            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
-            Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
+            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
+            Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
 
             List<String> removeSubnetIds = currentSubnetIds.stream().filter(o -> !pendingSubnetIds.contains(o)).collect(Collectors.toList());
             List<String> addSubnetIds = pendingSubnetIds.stream().filter(o -> !currentSubnetIds.contains(o)).collect(Collectors.toList());

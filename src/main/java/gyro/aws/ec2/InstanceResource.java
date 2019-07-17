@@ -540,7 +540,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
             .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-            .subnetId(getSubnet().getSubnetId())
+            .subnetId(getSubnet().getId())
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .capacityReservationSpecification(getCapacityReservationSpecification())

@@ -6,7 +6,6 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
@@ -620,7 +619,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                             .collect(Collectors.toList()))
                     .subnetIds(
                         getSubnets().stream()
-                            .map(SubnetResource::getSubnetId)
+                            .map(SubnetResource::getId)
                             .collect(Collectors.toList()))
             );
         }
@@ -735,7 +734,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                                 .collect(Collectors.toList()))
                             .subnetIds(
                                 getSubnets().stream()
-                                    .map(SubnetResource::getSubnetId)
+                                    .map(SubnetResource::getId)
                                     .collect(Collectors.toList()))
                     )
                     .deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()))

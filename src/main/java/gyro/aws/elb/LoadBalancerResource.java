@@ -229,7 +229,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
                 .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()))
+                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
                 .loadBalancerName(getLoadBalancerName())
                 .scheme(getScheme())
         );
@@ -272,8 +272,8 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         //-- Subnets
 
-        List<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList());
-        List<String> currentSubnetIds = currentResource.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList());
+        List<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
+        List<String> currentSubnetIds = currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
 
         List<String> subnetAdditions = new ArrayList<>(pendingSubnetIds);
         subnetAdditions.removeAll(currentSubnetIds);

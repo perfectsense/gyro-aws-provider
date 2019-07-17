@@ -47,7 +47,7 @@ public class SubnetMappings extends Diffable {
 
     @Override
     public String primaryKey() {
-        return String.format("%s/%s", getIpAddress() != null ? getIpAddress().getAllocationId() : null, getSubnet().getSubnetId());
+        return String.format("%s/%s", getIpAddress() != null ? getIpAddress().getAllocationId() : null, getSubnet().getId());
     }
 
     public String toDisplayString() {
@@ -65,7 +65,7 @@ public class SubnetMappings extends Diffable {
     public SubnetMapping toSubnetMappings() {
         return SubnetMapping.builder()
                 .allocationId(getIpAddress() != null ? getIpAddress().getAllocationId() : null)
-                .subnetId(getSubnet() != null ? getSubnet().getSubnetId() : null)
+                .subnetId(getSubnet() != null ? getSubnet().getId() : null)
                 .build();
     }
 }

@@ -287,7 +287,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         CreateNetworkInterfaceRequest.Builder builder = CreateNetworkInterfaceRequest.builder();
 
-        builder.subnetId(getSubnet().getSubnetId());
+        builder.subnetId(getSubnet().getId());
         builder.description(getDescription());
 
         if (!getSecurityGroups().isEmpty()) {
@@ -448,7 +448,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             .checkEvery(2, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> client.describeNetworkInterfaces(
-                r -> r.filters(Filter.builder().name("subnet-id").values(getSubnet().getSubnetId()).build())
+                r -> r.filters(Filter.builder().name("subnet-id").values(getSubnet().getId()).build())
             ).networkInterfaces().stream().noneMatch(o -> o.networkInterfaceId().equals(getNetworkInterfaceId())));
     }
 

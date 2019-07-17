@@ -126,7 +126,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         CreateNatGatewayResponse response = client.createNatGateway(
             r -> r.allocationId(getElasticIp().getAllocationId())
-                .subnetId(getSubnet().getSubnetId())
+                .subnetId(getSubnet().getId())
         );
 
         NatGateway natGateway = response.natGateway();

@@ -121,7 +121,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDescription())
                     .dbSubnetGroupName(getGroupName())
-                    .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
+                    .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
 
         setArn(response.dbSubnetGroup().dbSubnetGroupArn());
@@ -133,7 +133,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         client.modifyDBSubnetGroup(
             r -> r.dbSubnetGroupName(getGroupName())
                     .dbSubnetGroupDescription(getDescription())
-                    .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
+                    .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
     }
 

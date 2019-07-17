@@ -141,7 +141,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         setRouteTableId(response.routeTable().routeTableId());
         setOwnerId(response.routeTable().ownerId());
 
-        for (String subnetId : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())) {
+        for (String subnetId : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())) {
             client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
         }
     }
@@ -152,11 +152,11 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
         RouteTableResource currentResource = (RouteTableResource) current;
 
-        List<String> additions = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList());
-        additions.removeAll(currentResource.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
+        List<String> additions = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
+        additions.removeAll(currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
 
-        Set<String> subtractions = currentResource.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
-        subtractions.removeAll(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()));
+        Set<String> subtractions = currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
+        subtractions.removeAll(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()));
 
         for (String subnetId : additions) {
             client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));

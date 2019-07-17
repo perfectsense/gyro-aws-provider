@@ -110,7 +110,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
                 .name(getName())
                 .scheme(getScheme())
                 .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()))
+                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
                 .type(LoadBalancerTypeEnum.APPLICATION)
         );
 
@@ -127,7 +127,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
         client.setSecurityGroups(r -> r.loadBalancerArn(getArn())
                 .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList())));
         client.setSubnets(r -> r.loadBalancerArn(getArn())
-                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList())));
+                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())));
 
         super.update(ui, state, current, changedFieldNames);
     }

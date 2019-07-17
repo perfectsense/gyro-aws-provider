@@ -115,7 +115,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         client.createCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
                 .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
+                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
 
     }
@@ -127,7 +127,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         client.modifyCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
                 .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet()))
+                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
     }
 
