@@ -16,7 +16,7 @@ end
 
 aws::db-snapshot db-snapshot-example
     db-instance: $(aws::db-instance db-instance-example)
-    db-snapshot-identifier: "db-snapshot-example"
+    name: "db-snapshot-example"
     tags: {
         Name: "db-snapshot-example"
     }
