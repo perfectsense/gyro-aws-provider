@@ -105,7 +105,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getNetworkAclId();
     }
 

@@ -208,7 +208,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getCapacityReservationId();
     }
 

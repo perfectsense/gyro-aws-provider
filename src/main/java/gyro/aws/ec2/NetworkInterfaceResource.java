@@ -226,7 +226,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getNetworkInterfaceId();
     }
 

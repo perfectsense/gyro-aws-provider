@@ -235,7 +235,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getVolumeId();
     }
 

@@ -493,7 +493,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getInstanceId();
     }
 

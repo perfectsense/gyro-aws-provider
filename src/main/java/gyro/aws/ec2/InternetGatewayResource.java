@@ -62,7 +62,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getInternetGatewayId();
     }
 

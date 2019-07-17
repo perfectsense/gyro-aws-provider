@@ -140,7 +140,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getDhcpOptionsId();
     }
 

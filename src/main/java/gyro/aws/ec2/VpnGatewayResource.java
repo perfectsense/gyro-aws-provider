@@ -97,7 +97,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getVpnGatewayId();
     }
 
@@ -160,7 +160,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         VpnGatewayResource oldResource = (VpnGatewayResource) config;
 
         if (oldResource.getVpc() != null) {
-            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
+            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpc().getResourceId()).vpnGatewayId(getVpnGatewayId()));
         }
 
         if (getVpc() != null) {
@@ -176,7 +176,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {
-            client.detachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
+            client.detachVpnGateway(r -> r.vpcId(getVpc().getResourceId()).vpnGatewayId(getVpnGatewayId()));
         }
 
         client.deleteVpnGateway(r -> r.vpnGatewayId(getVpnGatewayId()));
@@ -222,7 +222,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     private void attachVpc(Ec2Client client) {
-        client.attachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
+        client.attachVpnGateway(r -> r.vpcId(getVpc().getResourceId()).vpnGatewayId(getVpnGatewayId()));
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)

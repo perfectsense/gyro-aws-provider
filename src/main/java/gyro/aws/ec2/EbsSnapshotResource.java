@@ -240,7 +240,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getSnapshotId();
     }
 

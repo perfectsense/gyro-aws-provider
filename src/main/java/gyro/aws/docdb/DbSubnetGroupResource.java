@@ -145,7 +145,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDbSubnetGroupDescription())
                 .dbSubnetGroupName(getName())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
+                .subnetIds(getSubnets().stream().map(SubnetResource::getResourceId).collect(Collectors.toList()))
         );
 
         setArn(response.dbSubnetGroup().dbSubnetGroupArn());
@@ -158,7 +158,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         client.modifyDBSubnetGroup(
             r -> r.dbSubnetGroupName(getName())
                 .dbSubnetGroupDescription(getDbSubnetGroupDescription())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
+                .subnetIds(getSubnets().stream().map(SubnetResource::getResourceId).collect(Collectors.toList()))
         );
     }
 

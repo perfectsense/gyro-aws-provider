@@ -92,7 +92,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getNatGatewayId();
     }
 

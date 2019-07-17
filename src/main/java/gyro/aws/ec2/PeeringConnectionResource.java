@@ -181,7 +181,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getPeeringConnectionId();
     }
 

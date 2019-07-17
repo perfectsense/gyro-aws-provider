@@ -161,7 +161,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getAllocationId();
     }
 

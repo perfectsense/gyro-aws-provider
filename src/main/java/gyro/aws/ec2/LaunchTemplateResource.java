@@ -368,7 +368,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getLaunchTemplateId();
     }
 

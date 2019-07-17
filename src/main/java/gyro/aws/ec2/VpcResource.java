@@ -243,7 +243,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    public String getId() {
+    public String getResourceId() {
         return getVpcId();
     }
 

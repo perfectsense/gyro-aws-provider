@@ -99,7 +99,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getRouteTableId();
     }
 

@@ -69,7 +69,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getCustomerGatewayId();
     }
 
