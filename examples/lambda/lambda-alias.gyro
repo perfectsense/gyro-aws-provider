@@ -11,7 +11,7 @@ aws::lambda-function lambda-function-alias-example
 end
 
 aws::lambda-alias lambda-alias-example
-    alias-name: "lambda-alias-example"
+    name: "lambda-alias-example"
     function: $(aws::lambda-function lambda-function-alias-example)
     function-version: "10"
     description: "lambda-alias-example"

@@ -1,4 +1,4 @@
 lambda-layer: $(external-query aws::lambda-layer { name: '', version: '' })
 lambda-function: $(external-query aws::lambda-function { name: '' })
-lambda-alias: $(external-query aws::lambda-alias { function-name: '', alias-name: '' })
+lambda-alias: $(external-query aws::lambda-alias { function-name: '', name: '' })
 event-source-mapping: $(external-query aws::lambda-event-source-mapping { event-source-mapping-id: '' })

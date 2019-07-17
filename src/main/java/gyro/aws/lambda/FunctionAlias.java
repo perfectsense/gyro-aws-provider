@@ -30,7 +30,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::lambda-alias lambda-alias-example
- *         alias-name: "lambda-alias-example"
+ *         name: "lambda-alias-example"
  *         function: $(aws::lambda-function lambda-function-event-source-mapping-example)
  *         function-version: "10"
  *         description: "lambda-alias-example"
@@ -40,7 +40,7 @@ import java.util.Set;
  */
 @Type("lambda-alias")
 public class FunctionAlias extends AwsResource implements Copyable<GetAliasResponse> {
-    private String aliasName;
+    private String name;
     private FunctionResource function;
     private String functionVersion;
     private String description;
@@ -53,12 +53,12 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     /**
      * Name of the Lambda Alias. (Required)
      */
-    public String getAliasName() {
-        return aliasName;
+    public String getName() {
+        return name;
     }
 
-    public void setAliasName(String aliasName) {
-        this.aliasName = aliasName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -147,7 +147,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
 
     @Override
     public void copyFrom(GetAliasResponse response) {
-        setAliasName(response.name());
+        setName(response.name());
         setArn(response.aliasArn());
         setDescription(response.description());
         setFunctionVersion(response.functionVersion());
@@ -164,7 +164,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
 
         try {
             GetAliasResponse response = client.getAlias(
-                r -> r.name(getAliasName())
+                r -> r.name(getName())
                     .functionName(getFunction().getName())
             );
 
@@ -181,7 +181,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateAliasRequest.Builder builder = CreateAliasRequest.builder()
-            .name(getAliasName())
+            .name(getName())
             .description(getDescription())
             .functionName(getFunction().getName())
             .functionVersion(getFunctionVersion());
@@ -206,7 +206,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
 
         UpdateAliasRequest.Builder builder = UpdateAliasRequest.builder()
             .revisionId(getRevisionId())
-            .name(getAliasName())
+            .name(getName())
             .description(getDescription())
             .functionName(getFunction().getName())
             .functionVersion(getFunctionVersion());
@@ -227,7 +227,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteAlias(
-            r -> r.name(getAliasName())
+            r -> r.name(getName())
                 .functionName(getFunction().getName())
         );
     }
@@ -238,8 +238,8 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
 
         sb.append("lambda function alias");
 
-        if (!ObjectUtils.isBlank(getAliasName())) {
-            sb.append(" - ").append(getAliasName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getName())) {

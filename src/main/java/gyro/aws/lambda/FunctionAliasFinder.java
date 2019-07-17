@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    lambda-alias: $(aws::lambda-alias EXTERNAL/* | function-name = '' | alias-name = '')
+ *    lambda-alias: $(aws::lambda-alias EXTERNAL/* | function-name = '' | name = '')
  */
 @Type("lambda-alias")
 public class FunctionAliasFinder extends AwsFinder<LambdaClient, GetAliasResponse, FunctionAlias> {
     private String functionName;
-    private String aliasName;
+    private String name;
 
     /**
      * The function name.
@@ -42,12 +42,12 @@ public class FunctionAliasFinder extends AwsFinder<LambdaClient, GetAliasRespons
     /**
      * The alias name.
      */
-    public String getAliasName() {
-        return aliasName;
+    public String getName() {
+        return name;
     }
 
-    public void setAliasName(String aliasName) {
-        this.aliasName = aliasName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -74,12 +74,12 @@ public class FunctionAliasFinder extends AwsFinder<LambdaClient, GetAliasRespons
             throw new IllegalArgumentException("'function-name is required.'");
         }
 
-        if (filters.containsKey("alias-name")) {
+        if (filters.containsKey("name")) {
             try {
                 getAliasResponses.add(
                     client.getAlias(
                         r -> r.functionName(filters.get("function-name"))
-                            .name(filters.get("alias-name"))
+                            .name(filters.get("name"))
                     )
                 );
             } catch (NotFoundException ignore) {
