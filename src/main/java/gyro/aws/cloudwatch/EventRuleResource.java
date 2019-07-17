@@ -40,7 +40,7 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *      aws::cloudwatch-event-rule event-pattern-example
- *        rule-name: "event-pattern-test"
+ *        name: "event-pattern-test"
  *        description: "first rule test"
  *        event-pattern-path: 'event-pattern.json'
  *        schedule-event: true
@@ -63,7 +63,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     private String managedBy;
     private RoleResource role;
     private String ruleArn;
-    private String ruleName;
+    private String name;
     private String scheduleExpression;
     private String state;
     private Set<RuleTargetResource> target;
@@ -72,12 +72,12 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
      * The name of the rule associated that matches incoming events. (Required)
      */
     @Id
-    public String getRuleName() {
-        return ruleName;
+    public String getName() {
+        return name;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -184,7 +184,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     @Override
     public void copyFrom(Rule rule) {
         setRuleArn(rule.arn());
-        setRuleName(rule.name());
+        setName(rule.name());
         setDescription(rule.description());
         setEventPattern(rule.eventPattern());
         setScheduleExpression(rule.scheduleExpression());
@@ -238,18 +238,17 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     public void delete(GyroUI ui, State state) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
-        client.deleteRule(d -> d.force(true).name(getRuleName()));
+        client.deleteRule(d -> d.force(true).name(getName()));
     }
 
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("event ");
-        sb.append("rule");
+        sb.append("event rule");
 
-        if (!ObjectUtils.isBlank(getRuleName())) {
-            sb.append(getRuleName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(getName());
         }
 
         return sb.toString();
@@ -257,11 +256,11 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
 
     private Rule getRule(CloudWatchEventsClient client) {
 
-        if (ObjectUtils.isBlank(getRuleName())) {
-            throw new GyroException("rule-name is missing, unable to load event rule.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load event rule.");
         }
 
-        ListRulesResponse listRulesResponse = client.listRules(r -> r.namePrefix(getRuleName()));
+        ListRulesResponse listRulesResponse = client.listRules(r -> r.namePrefix(getName()));
 
         try {
             if (listRulesResponse.rules().isEmpty()) {
@@ -283,7 +282,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
 
         if (!ObjectUtils.isBlank(getScheduleExpression())) {
             PutRuleResponse ruleResponse = client.putRule(
-                    r -> r.name(getRuleName())
+                    r -> r.name(getName())
                             .description(getDescription())
                             .scheduleExpression(getScheduleExpression())
                             .roleArn(getRole() != null ? getRole().getArn() : null)
@@ -293,7 +292,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
         } else {
 
             PutRuleResponse ruleResponse = client.putRule(
-                    r -> r.name(getRuleName())
+                    r -> r.name(getName())
                             .description(getDescription())
                             .eventPattern(getEventPattern())
                             .roleArn(getRole() != null ? getRole().getArn() : null)
