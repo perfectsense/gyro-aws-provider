@@ -14,7 +14,7 @@ aws::db-cluster db-cluster-example
 end
 
 aws::db-instance db-instance-example1
-    db-instance-identifier: "db-cluster-endpoint-instance1"
+    name: "db-cluster-endpoint-instance1"
     db-instance-class: "db.t2.small"
     db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
@@ -25,7 +25,7 @@ aws::db-instance db-instance-example1
 end
 
 aws::db-instance db-instance-example2
-    db-instance-identifier: "db-cluster-endpoint-instance2"
+    name: "db-cluster-endpoint-instance2"
     db-instance-class: "db.t2.small"
     db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"

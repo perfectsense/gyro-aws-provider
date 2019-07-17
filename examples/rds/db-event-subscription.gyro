@@ -1,6 +1,6 @@
 aws::db-instance db-instance-example
     allocated-storage: 20
-    db-instance-identifier: "db-event-subscription-instance-example"
+    name: "db-event-subscription-instance-example"
     storage-type: "gp2"
     engine: "mysql"
     engine-version: "5.7"

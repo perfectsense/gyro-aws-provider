@@ -164,12 +164,12 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
                     .endpointType(getEndpointType())
                     .excludedMembers(getExcludedMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getName)
                         .collect(Collectors.toList()))
 
                     .staticMembers(getStaticMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getName)
                         .collect(Collectors.toList()))
         );
 
@@ -184,12 +184,12 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
                     .endpointType(getEndpointType())
                     .excludedMembers(getExcludedMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getName)
                         .collect(Collectors.toList()))
 
                     .staticMembers(getStaticMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getName)
                         .collect(Collectors.toList()))
         );
     }

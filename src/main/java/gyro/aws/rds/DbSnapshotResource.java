@@ -121,7 +121,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbSnapshotResponse response = client.createDBSnapshot(
-                r -> r.dbInstanceIdentifier(getDbInstance().getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getDbInstance().getName())
                     .dbSnapshotIdentifier(getDbSnapshotIdentifier())
             );
 

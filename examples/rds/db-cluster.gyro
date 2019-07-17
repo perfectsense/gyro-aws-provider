@@ -14,7 +14,7 @@ aws::db-cluster db-cluster-example
 end
 
 aws::db-instance db-instance-example
-    db-instance-identifier: "aurora-mysql-cluster-instance"
+    name: "aurora-mysql-cluster-instance"
     db-instance-class: "db.t2.small"
     db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
