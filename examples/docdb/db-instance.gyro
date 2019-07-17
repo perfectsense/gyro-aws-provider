@@ -89,7 +89,7 @@ aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example
 end
 
 aws::docdb-cluster db-cluster-db-instance-example
-    db-cluster-identifier: "db-cluster-db-instance-example"
+    name: "db-cluster-db-instance-example"
     db-subnet-group: $(aws::docdb-subnet-group db-subnet-group-db-instance-example)
     engine: "docdb"
     engine-version: "3.6.0"

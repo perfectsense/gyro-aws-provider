@@ -206,7 +206,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
                 .engine(getEngine())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
-                .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+                .dbClusterIdentifier(getDbCluster().getName())
         );
 
         setArn(response.dbInstance().dbInstanceArn());

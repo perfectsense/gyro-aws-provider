@@ -104,7 +104,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-            r -> r.dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+            r -> r.dbClusterIdentifier(getDbCluster().getName())
                 .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
         );
 
@@ -174,7 +174,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         try {
             DescribeDbClusterSnapshotsResponse response = client.describeDBClusterSnapshots(
-                r -> r.dbClusterSnapshotIdentifier(getDbCluster().getDbClusterIdentifier())
+                r -> r.dbClusterSnapshotIdentifier(getDbCluster().getName())
                     .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
             );
 
