@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::lambda-layer lambda-layer-example
- *         layer-name: "lambda-layer-example"
+ *         name: "lambda-layer-example"
  *         description: "lambda-layer-example-desc"
  *         content-zip-path: "example-function.zip"
  *         compatible-runtimes: [
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 @Type("lambda-layer")
 public class LayerResource extends AwsResource implements Copyable<GetLayerVersionResponse> {
-    private String layerName;
+    private String name;
     private String description;
     private String licenseInfo;
     private Set<String> compatibleRuntimes;
@@ -62,12 +62,12 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     /**
      * The name of the Lambda Layer. (Required)
      */
-    public String getLayerName() {
-        return layerName;
+    public String getName() {
+        return name;
     }
 
-    public void setLayerName(String layerName) {
-        this.layerName = layerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -213,15 +213,15 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
 
     @Override
     public boolean refresh() {
-        if (ObjectUtils.isBlank(getLayerName()) || getVersion() == null) {
-            throw new GyroException("layer-name and/or version is missing, unable to load lambda layer.");
+        if (ObjectUtils.isBlank(getName()) || getVersion() == null) {
+            throw new GyroException("name and/or version is missing, unable to load lambda layer.");
         }
 
         LambdaClient client = createClient(LambdaClient.class);
 
         try {
             GetLayerVersionResponse response = client.getLayerVersion(
-                r -> r.layerName(getLayerName())
+                r -> r.layerName(getName())
                     .versionNumber(getVersion())
             );
 
@@ -240,7 +240,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
 
         PublishLayerVersionRequest.Builder builder = PublishLayerVersionRequest.builder()
             .compatibleRuntimes(getCompatibleRuntimes().stream().map(Runtime::fromValue).collect(Collectors.toList()))
-            .layerName(getLayerName())
+            .layerName(getName())
             .description(getDescription())
             .licenseInfo(getLicenseInfo());
 
@@ -272,7 +272,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteLayerVersion(
-            r -> r.layerName(getLayerName())
+            r -> r.layerName(getName())
                 .versionNumber(getVersion())
         );
     }
@@ -283,8 +283,8 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
 
         sb.append("lambda layer");
 
-        if (!ObjectUtils.isBlank(getLayerName())) {
-            sb.append(" - ").append(getLayerName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         if (!ObjectUtils.isBlank(getVersion())) {
