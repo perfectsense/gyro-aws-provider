@@ -214,7 +214,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
                 .transitGatewayId(getTransitGatewayId())
                 .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
                 .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
-                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
+                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
 
@@ -231,7 +231,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .transitGatewayId(getTransitGatewayId())
             .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
             .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
-            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
+            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
 

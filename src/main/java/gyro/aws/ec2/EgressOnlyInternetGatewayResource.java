@@ -34,7 +34,7 @@ import java.util.Set;
 public class EgressOnlyInternetGatewayResource extends AwsResource implements Copyable<EgressOnlyInternetGateway> {
 
     private VpcResource vpc;
-    private String gatewayId;
+    private String id;
 
     /**
      * The VPC to create the egress only internet gateway in. (Required)
@@ -52,17 +52,17 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
      */
     @Id
     @Output
-    public String getGatewayId() {
-        return gatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setGatewayId(String gatewayId) {
-        this.gatewayId = gatewayId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public void copyFrom(EgressOnlyInternetGateway egressOnlyInternetGateway) {
-        setGatewayId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
+        setId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
 
         if (!egressOnlyInternetGateway.attachments().isEmpty()) {
             setVpc(findById(VpcResource.class, egressOnlyInternetGateway.attachments().get(0).vpcId()));
@@ -91,7 +91,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
         if (getVpc() != null) {
             CreateEgressOnlyInternetGatewayResponse response = client.createEgressOnlyInternetGateway(r -> r.vpcId(getVpc().getVpcId()));
             EgressOnlyInternetGateway gateway = response.egressOnlyInternetGateway();
-            setGatewayId(gateway.egressOnlyInternetGatewayId());
+            setId(gateway.egressOnlyInternetGatewayId());
         }
     }
 
@@ -103,7 +103,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     @Override
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
-        client.deleteEgressOnlyInternetGateway(r -> r.egressOnlyInternetGatewayId(getGatewayId()));
+        client.deleteEgressOnlyInternetGateway(r -> r.egressOnlyInternetGatewayId(getId()));
     }
 
     @Override
@@ -112,8 +112,8 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
 
         sb.append("egress gateway");
 
-        if (getGatewayId() != null) {
-            sb.append(" - ").append(getGatewayId());
+        if (getId() != null) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -122,13 +122,13 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {
         EgressOnlyInternetGateway egressOnlyInternetGateway = null;
 
-        if (ObjectUtils.isBlank(getGatewayId())) {
-            throw new GyroException("gateway-id is missing, unable to load egress gateway.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load egress gateway.");
         }
 
         try {
             DescribeEgressOnlyInternetGatewaysResponse response = client.describeEgressOnlyInternetGateways(
-                r -> r.egressOnlyInternetGatewayIds(getGatewayId())
+                r -> r.egressOnlyInternetGatewayIds(getId())
             );
 
             if (!response.egressOnlyInternetGateways().isEmpty()) {
