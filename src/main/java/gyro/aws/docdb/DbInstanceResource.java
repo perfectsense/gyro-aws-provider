@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *     aws::docdb-instance db-instance-example
  *         availability-zone: "us-east-2a"
  *         db-instance-class: "db.r4.large"
- *         db-instance-identifier: "db-instance-example"
+ *         name: "db-instance-example"
  *         engine: "docdb"
  *         preferred-maintenance-window: "wed:03:28-wed:04:58"
  *         promotion-tier: 1
@@ -47,7 +47,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
     private String dbInstanceClass;
-    private String dbInstanceIdentifier;
+    private String name;
     private String engine;
     private String preferredMaintenanceWindow;
     private Integer promotionTier;
@@ -96,12 +96,12 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Name of the database instance. (Required)
      */
-    public String getDbInstanceIdentifier() {
-        return dbInstanceIdentifier;
+    public String getName() {
+        return name;
     }
 
-    public void setDbInstanceIdentifier(String dbInstanceIdentifier) {
-        this.dbInstanceIdentifier = dbInstanceIdentifier;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -202,7 +202,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
             r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                 .availabilityZone(getAvailabilityZone())
                 .dbInstanceClass(getDbInstanceClass())
-                .dbInstanceIdentifier(getDbInstanceIdentifier())
+                .dbInstanceIdentifier(getName())
                 .engine(getEngine())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
@@ -226,7 +226,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
         client.modifyDBInstance(
             r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                 .dbInstanceClass(getDbInstanceClass())
-                .dbInstanceIdentifier(getDbInstanceIdentifier())
+                .dbInstanceIdentifier(getName())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
         );
@@ -242,7 +242,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBInstance(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            r -> r.dbInstanceIdentifier(getName())
         );
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -257,8 +257,8 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
         sb.append("db instance");
 
-        if (!ObjectUtils.isBlank(getDbInstanceIdentifier())) {
-            sb.append(" - ").append(getDbInstanceIdentifier());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         return sb.toString();
@@ -286,13 +286,13 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     private DBInstance getDbInstance(DocDbClient client) {
         DBInstance dbInstance = null;
 
-        if (ObjectUtils.isBlank(getDbInstanceIdentifier())) {
-            throw new GyroException("db-instance-identifier is missing, unable to load db instance.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db instance.");
         }
 
         try {
             DescribeDbInstancesResponse response = client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getName())
             );
 
             if (!response.dbInstances().isEmpty()) {

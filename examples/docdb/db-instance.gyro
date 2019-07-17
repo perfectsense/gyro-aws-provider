@@ -114,7 +114,7 @@ end
 aws::docdb-instance db-instance-example
     availability-zone: "us-east-2a"
     db-instance-class: "db.r4.large"
-    db-instance-identifier: "db-instance-example"
+    name: "db-instance-example"
     engine: "docdb"
     preferred-maintenance-window: "wed:03:28-wed:04:58"
     promotion-tier: 1
