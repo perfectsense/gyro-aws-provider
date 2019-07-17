@@ -346,7 +346,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         CreateDbClusterResponse response = client.createDBCluster(
             o -> o.backupRetentionPeriod(getBackupRetentionPeriod())
                 .dbClusterIdentifier(getDbClusterIdentifier())
-                .dbSubnetGroupName(getDbSubnetGroup().getDbSubnetGroupName())
+                .dbSubnetGroupName(getDbSubnetGroup().getName())
                 .engine(getEngine())
                 .engineVersion(getEngineVersion())
                 .dbClusterParameterGroupName(getDbClusterParamGroup().getDbClusterParamGroupName())

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::db-subnet-group db-subnet-group-example
- *         db-subnet-group-name: "db-subnet-group-example"
+ *         name: "db-subnet-group-example"
  *         db-subnet-group-description: "db-subnet-group-example-description"
  *         subnets: [
  *             $(aws::subnet subnet-db-subnet-group-example-1),
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public class DbSubnetGroupResource extends DocDbTaggableResource implements Copyable<DBSubnetGroup> {
 
     private String dbSubnetGroupDescription;
-    private String dbSubnetGroupName;
+    private String name;
     private Set<SubnetResource> subnets;
 
     //-- Read-only Attributes
@@ -70,12 +70,12 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
      * Name of the db subnet group. (Required)
      */
     @Id
-    public String getDbSubnetGroupName() {
-        return dbSubnetGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setDbSubnetGroupName(String dbSubnetGroupName) {
-        this.dbSubnetGroupName = dbSubnetGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -144,7 +144,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
 
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDbSubnetGroupDescription())
-                .dbSubnetGroupName(getDbSubnetGroupName())
+                .dbSubnetGroupName(getName())
                 .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
         );
 
@@ -156,7 +156,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         DocDbClient client = createClient(DocDbClient.class);
 
         client.modifyDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getDbSubnetGroupName())
+            r -> r.dbSubnetGroupName(getName())
                 .dbSubnetGroupDescription(getDbSubnetGroupDescription())
                 .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
         );
@@ -167,7 +167,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getDbSubnetGroupName())
+            r -> r.dbSubnetGroupName(getName())
         );
     }
 
@@ -177,8 +177,8 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
 
         sb.append("db subnet group");
 
-        if (!ObjectUtils.isBlank(getDbSubnetGroupName())) {
-            sb.append(" - ").append(getDbSubnetGroupName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         return sb.toString();
@@ -188,7 +188,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     public void copyFrom(DBSubnetGroup dbSubnetGroup) {
         setArn(dbSubnetGroup.dbSubnetGroupArn());
         setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
-        setDbSubnetGroupName(dbSubnetGroup.dbSubnetGroupName());
+        setName(dbSubnetGroup.dbSubnetGroupName());
         setStatus(dbSubnetGroup.subnetGroupStatus());
         setSubnets(dbSubnetGroup.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
 
@@ -198,13 +198,13 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     private DBSubnetGroup getDbSubnetGroup(DocDbClient client) {
         DBSubnetGroup dbSubnetGroup = null;
 
-        if (ObjectUtils.isBlank(getDbSubnetGroupName())) {
-            throw new GyroException("db-subnet-group-name is missing, unable to load db subnet group.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db subnet group.");
         }
 
         try {
             DescribeDbSubnetGroupsResponse response = client.describeDBSubnetGroups(
-                r -> r.dbSubnetGroupName(getDbSubnetGroupName())
+                r -> r.dbSubnetGroupName(getName())
             );
 
             if (!response.dbSubnetGroups().isEmpty()) {
