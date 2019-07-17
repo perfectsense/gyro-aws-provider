@@ -43,7 +43,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
     private VpcResource vpc;
     private Set<SubnetResource> subnets;
-    private String routeTableId;
+    private String id;
     private String ownerId;
 
     /**
@@ -78,12 +78,12 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
      */
     @Id
     @Output
-    public String getRouteTableId() {
-        return routeTableId;
+    public String getId() {
+        return id;
     }
 
-    public void setRouteTableId(String routeTableId) {
-        this.routeTableId = routeTableId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -100,12 +100,12 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
     @Override
     protected String getResourceId() {
-        return getRouteTableId();
+        return getId();
     }
 
     @Override
     public void copyFrom(RouteTable routeTable) {
-        setRouteTableId(routeTable.routeTableId());
+        setId(routeTable.routeTableId());
         setVpc(!ObjectUtils.isBlank(routeTable.vpcId()) ? findById(VpcResource.class, routeTable.vpcId()) : null);
         setOwnerId(routeTable.ownerId());
 
@@ -138,11 +138,11 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
         CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getVpcId()));
 
-        setRouteTableId(response.routeTable().routeTableId());
+        setId(response.routeTable().routeTableId());
         setOwnerId(response.routeTable().ownerId());
 
         for (String subnetId : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())) {
-            client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
+            client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
         }
     }
 
@@ -159,7 +159,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         subtractions.removeAll(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()));
 
         for (String subnetId : additions) {
-            client.associateRouteTable(r -> r.routeTableId(getRouteTableId()).subnetId(subnetId));
+            client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
         }
 
         RouteTable routeTable = getRouteTable(client);
@@ -183,7 +183,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
                 client.disassociateRouteTable(r -> r.associationId(rta.routeTableAssociationId()));
             }
 
-            client.deleteRouteTable(r -> r.routeTableId(getRouteTableId()));
+            client.deleteRouteTable(r -> r.routeTableId(getId()));
         }
     }
 
@@ -193,8 +193,8 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
         sb.append("route table");
 
-        if (!ObjectUtils.isBlank(getRouteTableId())) {
-            sb.append(" - ").append(routeTableId);
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(id);
         }
 
         return sb.toString();
@@ -203,13 +203,13 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     private RouteTable getRouteTable(Ec2Client client) {
         RouteTable routeTable = null;
 
-        if (ObjectUtils.isBlank(getRouteTableId())) {
-            throw new GyroException("route-table-id is missing, unable to load route table.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load route table.");
         }
 
         try {
             DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTableId()).build()
+                Filter.builder().name("route-table-id").values(getId()).build()
             ));
 
             if (!response.routeTables().isEmpty()) {

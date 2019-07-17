@@ -266,7 +266,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
             builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
         } else {
-            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toList()));
+            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toList()));
             builder.policyDocument(getPolicy());
         }
 
@@ -291,8 +291,8 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
 
         if (changedFieldNames.contains("route-tables")) {
 
-            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
-            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
+            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
+            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
 
             List<String> removeRouteTableIds = currentRouteTableIds.stream().filter(o -> !pendingRouteTableIds.contains(o)).collect(Collectors.toList());
             List<String> addRouteTableIds = pendingRouteTableIds.stream().filter(o -> !currentRouteTableIds.contains(o)).collect(Collectors.toList());

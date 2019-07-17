@@ -213,7 +213,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
                 .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
                 .transitGatewayId(getTransitGatewayId())
                 .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
-                .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
+                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
                 .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
         );
     }
@@ -230,7 +230,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
             .transitGatewayId(getTransitGatewayId())
             .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
-            .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
+            .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
             .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
         );
     }
@@ -241,7 +241,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
+                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
         );
     }
 
@@ -284,7 +284,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         try {
             DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTable().getRouteTableId()).build()
+                Filter.builder().name("route-table-id").values(getRouteTable().getId()).build()
             ));
 
             for (RouteTable routeTable : response.routeTables()) {
