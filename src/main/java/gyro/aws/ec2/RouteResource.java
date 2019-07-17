@@ -210,7 +210,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
                 .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
                 .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
                 .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
-                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
+                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
                 .transitGatewayId(getTransitGatewayId())
                 .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
                 .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
@@ -227,7 +227,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
             .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
             .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
-            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
+            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
             .transitGatewayId(getTransitGatewayId())
             .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
             .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
@@ -261,9 +261,9 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         } else if (getNatGateway() != null && !ObjectUtils.isBlank(getNatGateway().getNatGatewayId())) {
             sb.append(" through nat gateway");
             sb.append(getNatGateway().getNatGatewayId());
-        } else if (getNetworkInterface() != null && !ObjectUtils.isBlank(getNetworkInterface().getNetworkInterfaceId())) {
+        } else if (getNetworkInterface() != null && !ObjectUtils.isBlank(getNetworkInterface().getId())) {
             sb.append(" through network interface ");
-            sb.append(getNetworkInterface().getNetworkInterfaceId());
+            sb.append(getNetworkInterface().getId());
         } else if (!ObjectUtils.isBlank(getTransitGatewayId())) {
             sb.append(" through transit gateway ");
             sb.append(getTransitGatewayId());

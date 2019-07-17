@@ -426,7 +426,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .networkInterfaces(!getNetworkInterfaces().isEmpty()
                             ? getNetworkInterfaces().stream()
                             .map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest.builder()
-                                .networkInterfaceId(o.getNetworkInterfaceId()).build())
+                                .networkInterfaceId(o.getId()).build())
                             .collect(Collectors.toList()) : null)));
 
         setLaunchTemplateId(response.launchTemplate().launchTemplateId());

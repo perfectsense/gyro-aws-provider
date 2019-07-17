@@ -208,7 +208,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
             if (getNetworkInterface() != null) {
                 AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                    .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
+                    .networkInterfaceId(getNetworkInterface().getId())
                     .allowReassociation(getAllowReAssociation())
                     .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
                 setAssociationId(resp.associationId());
@@ -264,7 +264,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             if (changedProperties.contains("network-interface")) {
                 if (getNetworkInterface() != null) {
                     AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                        .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
+                        .networkInterfaceId(getNetworkInterface().getId())
                         .allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
