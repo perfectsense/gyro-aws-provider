@@ -607,7 +607,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .storageEncrypted(getStorageEncrypted())
                     .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
                         .stream()
-                        .map(SecurityGroupResource::getGroupId)
+                        .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
         );
 
@@ -651,7 +651,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList()) : null;
 
         try {

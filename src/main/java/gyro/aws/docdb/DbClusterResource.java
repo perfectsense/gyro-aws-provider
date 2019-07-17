@@ -356,7 +356,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
                 .storageEncrypted(getStorageEncrypted())
                 .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
         );
@@ -384,7 +384,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
             .port(getPort())
             .preferredBackupWindow(getPreferredBackupWindow())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
+            .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
 
         if (!resource.getEngineVersion().equals(getEngineVersion())) {
             builder.engineVersion(getEngineVersion());

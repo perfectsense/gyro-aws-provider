@@ -228,7 +228,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
-                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
                 .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
                 .loadBalancerName(getLoadBalancerName())
                 .scheme(getScheme())
@@ -290,11 +290,11 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         //-- Security Groups
 
         List<String> pendingSecurityGroupIds = getSecurityGroups().stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList());
 
         List<String> currentSecurityGroupIds = currentResource.getSecurityGroups().stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList());
 
         List<String> sgAdditions = new ArrayList<>(pendingSecurityGroupIds);

@@ -487,7 +487,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .port(getPort())
             .preferredAvailabilityZones(getPreferredAvailabilityZones())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
             .tags(toCacheTags(getTags()));
 
         if (("redis").equalsIgnoreCase(getEngine())) {
@@ -545,7 +545,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
                 .engineVersion(getEngineVersion())
                 .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
                 .numCacheNodes(getNumCacheNodes());
 
             if (properties.contains("preferred-availability-zones")) {

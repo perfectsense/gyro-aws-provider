@@ -539,7 +539,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
             .subnetId(getSubnet().getId())
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
@@ -617,7 +617,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         if (changedProperties.contains("security-groups")) {
             List<String> securityGroupIds = new ArrayList<>();
-            getSecurityGroups().forEach(r -> securityGroupIds.add(r.getGroupId()));
+            getSecurityGroups().forEach(r -> securityGroupIds.add(r.getId()));
 
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())

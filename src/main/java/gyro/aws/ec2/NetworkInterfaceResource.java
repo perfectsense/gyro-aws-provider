@@ -293,7 +293,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         if (!getSecurityGroups().isEmpty()) {
             builder.groups(getSecurityGroups()
                 .stream()
-                .map(SecurityGroupResource::getGroupId)
+                .map(SecurityGroupResource::getId)
                 .collect(Collectors.toList()));
         }
 
@@ -417,7 +417,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     r -> r.networkInterfaceId(getNetworkInterfaceId())
                             .groups(getSecurityGroups()
                                 .stream()
-                                .map(SecurityGroupResource::getGroupId)
+                                .map(SecurityGroupResource::getId)
                                 .collect(Collectors.toList()))
             );
         }

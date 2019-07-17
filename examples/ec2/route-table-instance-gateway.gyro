@@ -63,7 +63,7 @@ aws::instance instance-example
     instance-type: "t2.micro"
     key: "example"
     subnet-id: $(aws::subnet subnet).id
-    security-group-ids: $(aws::security-group security-group).*.group-id
+    security-group-ids: $(aws::security-group security-group).*.id
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true

@@ -222,7 +222,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     public String getGroupId() {
         SecurityGroupResource parent = (SecurityGroupResource) parent();
         if (parent != null) {
-            return parent.getGroupId();
+            return parent.getId();
         }
 
         return null;
@@ -250,7 +250,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         if (!getSecurityGroups().isEmpty()) {
             permissionBuilder.userIdGroupPairs(
                 getSecurityGroups().stream()
-                    .map(g -> UserIdGroupPair.builder().description(getDescription()).groupId(g.getGroupId()).build())
+                    .map(g -> UserIdGroupPair.builder().description(getDescription()).groupId(g.getId()).build())
                     .collect(Collectors.toList())
             );
         }

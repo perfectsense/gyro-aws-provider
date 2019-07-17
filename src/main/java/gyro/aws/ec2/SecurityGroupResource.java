@@ -56,7 +56,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private Boolean keepDefaultEgressRules;
 
     // Read-only
-    private String groupId;
+    private String id;
     private String ownerId;
 
     /**
@@ -147,12 +147,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
      */
     @Id
     @Output
-    public String getGroupId() {
-        return groupId;
+    public String getId() {
+        return id;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -169,13 +169,13 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
     @Override
     protected String getResourceId() {
-        return getGroupId();
+        return getId();
     }
 
     @Override
     public void copyFrom(SecurityGroup group) {
         setVpc(findById(VpcResource.class, group.vpcId()));
-        setGroupId(group.groupId());
+        setId(group.groupId());
         setOwnerId(group.ownerId());
         setDescription(group.description());
 
@@ -223,7 +223,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             r -> r.vpcId(getVpc().getResourceId()).description(getDescription()).groupName(getName())
         );
 
-        setGroupId(response.groupId());
+        setId(response.groupId());
 
         if (!isKeepDefaultEgressRules()) {
             deleteDefaultEgressRule(client);
@@ -262,7 +262,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             .prompt(false)
             .until(() -> {
                     try {
-                        client.deleteSecurityGroup(r -> r.groupId(getGroupId()));
+                        client.deleteSecurityGroup(r -> r.groupId(getId()));
                     } catch (Ec2Exception e) {
                         // DependencyViolation should be retried since this resource may be waiting for a
                         // previously deleted resource to finish deleting.
@@ -286,8 +286,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             sb.append(" - ").append(getName());
         }
 
-        if (!ObjectUtils.isBlank(getGroupId())) {
-            sb.append(" ").append(getGroupId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" ").append(getId());
         }
 
         return sb.toString();
@@ -296,8 +296,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private SecurityGroup getSecurityGroup(Ec2Client client) {
         SecurityGroup securityGroup = null;
 
-        if (ObjectUtils.isBlank(getGroupId())) {
-            throw new GyroException("group-id is missing, unable to load security group.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load security group.");
         }
 
         if (getVpc() == null) {
@@ -307,7 +307,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         try {
             DescribeSecurityGroupsResponse response = client.describeSecurityGroups(
                 r -> r.filters(
-                    f -> f.name("group-id").values(getGroupId()),
+                    f -> f.name("group-id").values(getId()),
                     f -> f.name("vpc-id").values(getVpc().getResourceId())
                 )
             );
@@ -334,6 +334,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
         SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
         defaultRule.copyFrom(permission);
-        defaultRule.delete(client, getGroupId());
+        defaultRule.delete(client, getId());
     }
 }

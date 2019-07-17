@@ -264,7 +264,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
 
         if (getTypeInterface()) {
             builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
-            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
+            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
         } else {
             builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toList()));
             builder.policyDocument(getPolicy());
@@ -323,8 +323,8 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         }
 
         if (changedFieldNames.contains("security-groups")) {
-            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
-            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
+            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
+            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
 
             List<String> removeSecurityGroupIds = currentSecurityGroupIds.stream().filter(o -> !pendingSecurityGroupIds.contains(o)).collect(Collectors.toList());
             List<String> addSecurityGroupIds = pendingSecurityGroupIds.stream().filter(o -> !currentSecurityGroupIds.contains(o)).collect(Collectors.toList());

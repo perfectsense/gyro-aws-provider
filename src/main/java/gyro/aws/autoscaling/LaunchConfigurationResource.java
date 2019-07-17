@@ -296,7 +296,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .ebsOptimized(getEbsOptimized())
             .imageId(getInstance() == null ? getAmiId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .keyName(getKey() != null ? getKey().getKeyName() : null)
             .instanceType(getInstance() == null ? getInstanceType() : null)

@@ -235,7 +235,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
                         .port(o.getPort())
                         .vpcSecurityGroupMemberships(o.getVpcSecurityGroups()
                             .stream()
-                            .map(SecurityGroupResource::getGroupId)
+                            .map(SecurityGroupResource::getId)
                             .collect(Collectors.toList()))
                         .optionSettings(o.getOptionSettings().stream()
                             .map(s -> software.amazon.awssdk.services.rds.model.OptionSetting.builder()

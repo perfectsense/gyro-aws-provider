@@ -615,7 +615,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             builder = builder.vpcConfig(
                 v -> v.securityGroupIds(
                         getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getGroupId)
+                            .map(SecurityGroupResource::getId)
                             .collect(Collectors.toList()))
                     .subnetIds(
                         getSubnets().stream()
@@ -730,7 +730,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                     .vpcConfig(
                         v -> v.securityGroupIds(
                             getSecurityGroups().stream()
-                                .map(SecurityGroupResource::getGroupId)
+                                .map(SecurityGroupResource::getId)
                                 .collect(Collectors.toList()))
                             .subnetIds(
                                 getSubnets().stream()

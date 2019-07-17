@@ -828,7 +828,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .timezone(getTimezone())
                     .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
                         .stream()
-                        .map(SecurityGroupResource::getGroupId)
+                        .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
         );
 
@@ -865,7 +865,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList()) : null;
 
         try {
