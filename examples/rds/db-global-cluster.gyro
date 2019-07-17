@@ -4,7 +4,7 @@ aws::db-global-cluster db-global-cluster-example
 end
 
 aws::db-cluster db-cluster-example
-    db-cluster-identifier: "aurora-primary-cluster"
+    name: "aurora-primary-cluster"
     engine: "aurora"
     engine-mode: "global"
     global-cluster: $(aws::db-global-cluster db-global-cluster-example)

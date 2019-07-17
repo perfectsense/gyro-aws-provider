@@ -143,7 +143,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         try {
             DescribeDbClusterEndpointsResponse response = client.describeDBClusterEndpoints(
                 r -> r.dbClusterEndpointIdentifier(getName())
-                        .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+                        .dbClusterIdentifier(getDbCluster().getName())
             );
 
             response.dbClusterEndpoints().forEach(this::copyFrom);
@@ -160,7 +160,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         RdsClient client = createClient(RdsClient.class);
         CreateDbClusterEndpointResponse response = client.createDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getName())
-                    .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+                    .dbClusterIdentifier(getDbCluster().getName())
                     .endpointType(getEndpointType())
                     .excludedMembers(getExcludedMembers()
                         .stream()

@@ -1,5 +1,5 @@
 aws::db-cluster db-cluster-example
-    db-cluster-identifier: "aurora-mysql-cluster"
+    name: "aurora-mysql-cluster"
     engine: "aurora-mysql"
     availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
     db-name: "clusterexample"
@@ -25,7 +25,7 @@ aws::db-instance db-instance-example
 end
 
 aws::db-cluster db-cluster-serverless-example
-    db-cluster-identifier: "aurora-serverless-cluster"
+    name: "aurora-serverless-cluster"
     engine: "aurora"
     engine-mode: "serverless"
 

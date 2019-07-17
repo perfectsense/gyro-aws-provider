@@ -790,7 +790,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getDbClusterIdentifier() : null)
+                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getName() : null)
                     .dbInstanceClass(getDbInstanceClass())
                     .dbInstanceIdentifier(getDbInstanceIdentifier())
                     .dbName(getDbName())

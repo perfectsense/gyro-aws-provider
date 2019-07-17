@@ -92,7 +92,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-                r -> r.dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+                r -> r.dbClusterIdentifier(getDbCluster().getName())
                     .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
             );
 

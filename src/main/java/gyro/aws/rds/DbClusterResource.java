@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::db-cluster db-cluster-example
- *        db-cluster-identifier: "aurora-mysql-cluster"
+ *        name: "aurora-mysql-cluster"
  *        engine: "aurora-mysql"
  *        availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
  *        db-name: "clusterexample"
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::db-cluster db-cluster-serverless-example
- *        db-cluster-identifier: "aurora-serverless-cluster"
+ *        name: "aurora-serverless-cluster"
  *        engine: "aurora"
  *        engine-mode: "serverless"
  *
@@ -83,7 +83,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private Long backTrackWindow;
     private Integer backupRetentionPeriod;
     private String characterSetName;
-    private String dbClusterIdentifier;
+    private String name;
     private String dbName;
     private DbClusterParameterGroupResource dbClusterParameterGroup;
     private DbSubnetGroupResource dbSubnetGroup;
@@ -181,12 +181,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The unique name of the DB Cluster. (Required)
      */
     @Id
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public String getName() {
+        return name;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -548,13 +548,13 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            throw new GyroException("db-cluster-identifier is missing, unable to load db cluster.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db cluster.");
         }
 
         try {
             DescribeDbClustersResponse response = client.describeDBClusters(
-                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+                r -> r.dbClusterIdentifier(getName())
             );
 
             response.dbClusters().forEach(this::copyFrom);
@@ -584,7 +584,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .databaseName(getDbName())
-                    .dbClusterIdentifier(getDbClusterIdentifier())
+                    .dbClusterIdentifier(getName())
                     .dbClusterParameterGroupName(getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
                     .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
                     .deletionProtection(getDeletionProtection())
@@ -619,7 +619,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             .until(() -> isAvailable(client));
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            r -> r.dbClusterIdentifier(getName())
         );
 
         setEndpointAddress(describeResponse.dbClusters().get(0).endpoint());
@@ -628,7 +628,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
     private boolean isAvailable(RdsClient client) {
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            r -> r.dbClusterIdentifier(getName())
         );
 
         return describeResponse.dbClusters().get(0).status().equals("available");
@@ -661,7 +661,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .backupRetentionPeriod(Objects.equals(getBackupRetentionPeriod(), current.getBackupRetentionPeriod())
                         ? null : getBackupRetentionPeriod())
                     .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
-                    .dbClusterIdentifier(current.getDbClusterIdentifier())
+                    .dbClusterIdentifier(current.getName())
                     .dbClusterParameterGroupName(Objects.equals(getDbClusterParameterGroup(), current.getDbClusterParameterGroup())
                         ? null : clusterParameterGroupName)
                     .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null : getDeletionProtection())
@@ -696,7 +696,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         }
 
         client.deleteDBCluster(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+            r -> r.dbClusterIdentifier(getName())
                     .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
                     .skipFinalSnapshot(getSkipFinalSnapshot())
         );
@@ -710,7 +710,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private boolean isDeleted(RdsClient client) {
         try {
             client.describeDBClusters(
-                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+                r -> r.dbClusterIdentifier(getName())
             );
 
         } catch (DbClusterNotFoundException ex) {
@@ -722,6 +722,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
     @Override
     public String toDisplayString() {
-        return "db cluster " + getDbClusterIdentifier();
+        return "db cluster " + getName();
     }
 }
