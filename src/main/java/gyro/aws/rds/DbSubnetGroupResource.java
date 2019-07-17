@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::db-subnet-group db-subnet-group
- *        group-name: "db-subnet-group-example"
+ *        name: "db-subnet-group-example"
  *        description: "db subnet group description"
  *        subnets: [
  *            $(aws::subnet subnet-us-east-2a),
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class DbSubnetGroupResource extends RdsTaggableResource implements Copyable<DBSubnetGroup> {
 
     private String description;
-    private String groupName;
+    private String name;
     private Set<SubnetResource> subnets;
 
     /**
@@ -61,12 +61,12 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
      * The name for the DB subnet group. (Required)
      */
     @Id
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -88,7 +88,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     @Override
     public void copyFrom(DBSubnetGroup group) {
         setDescription(group.dbSubnetGroupDescription());
-        setGroupName(group.dbSubnetGroupName());
+        setName(group.dbSubnetGroupName());
         setSubnets(group.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
         setArn(group.dbSubnetGroupArn());
     }
@@ -97,13 +97,13 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getGroupName())) {
-            throw new GyroException("group-name is missing, unable to load db subnet group.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db subnet group.");
         }
 
         try {
             DescribeDbSubnetGroupsResponse response = client.describeDBSubnetGroups(
-                r -> r.dbSubnetGroupName(getGroupName())
+                r -> r.dbSubnetGroupName(getName())
             );
 
             response.dbSubnetGroups().forEach(this::copyFrom);
@@ -120,7 +120,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         RdsClient client = createClient(RdsClient.class);
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDescription())
-                    .dbSubnetGroupName(getGroupName())
+                    .dbSubnetGroupName(getName())
                     .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
 
@@ -131,7 +131,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     public void doUpdate(Resource current, Set<String> changedProperties) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getGroupName())
+            r -> r.dbSubnetGroupName(getName())
                     .dbSubnetGroupDescription(getDescription())
                     .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
@@ -141,12 +141,12 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getGroupName())
+            r -> r.dbSubnetGroupName(getName())
         );
     }
 
     @Override
     public String toDisplayString() {
-        return "db subnet group " + getGroupName();
+        return "db subnet group " + getName();
     }
 }

@@ -796,7 +796,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .dbName(getDbName())
                     .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
                     .dbSecurityGroups(getDbSecurityGroups())
-                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
                     .deletionProtection(getDeletionProtection())
                     .domain(getDomain())
                     .domainIAMRoleName(getDomainIamRoleName())
@@ -860,7 +860,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         DbInstanceResource current = (DbInstanceResource) config;
 
         String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
-        String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null;
+        String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null;
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
         String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()

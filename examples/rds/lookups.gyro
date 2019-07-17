@@ -18,4 +18,4 @@ db-parameter-groups: $(external-query aws::db-parameter-group { name: 'db-parame
 
 db-snapshots: $(external-query aws::db-snapshot { name: 'db-snapshot-example' })
 
-db-subnet-group: $(external-query aws::db-subnet-group { group-name: 'db-subnet-group-db-cluster-example' })
+db-subnet-group: $(external-query aws::db-subnet-group { name: 'db-subnet-group-db-cluster-example' })

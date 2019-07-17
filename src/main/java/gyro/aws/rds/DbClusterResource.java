@@ -586,7 +586,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .databaseName(getDbName())
                     .dbClusterIdentifier(getName())
                     .dbClusterParameterGroupName(getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
-                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
                     .deletionProtection(getDeletionProtection())
                     .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
                     .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
