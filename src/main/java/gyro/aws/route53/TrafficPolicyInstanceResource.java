@@ -178,7 +178,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
             r -> r.name(getName() + getHostedZone().getName())
                 .hostedZoneId(getHostedZone().getId())
-                .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
+                .trafficPolicyId(getTrafficPolicy().getId())
                 .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
         );
@@ -198,7 +198,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
 
         client.updateTrafficPolicyInstance(
             r -> r.id(getTrafficPolicyInstanceId())
-                .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
+                .trafficPolicyId(getTrafficPolicy().getId())
                 .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
         );

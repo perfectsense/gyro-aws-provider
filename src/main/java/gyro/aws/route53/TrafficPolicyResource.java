@@ -46,7 +46,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     private String name;
     private String comment;
     private String document;
-    private String trafficPolicyId;
+    private String id;
     private Integer version;
 
     /**
@@ -105,12 +105,12 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
      */
     @Id
     @Output
-    public String getTrafficPolicyId() {
-        return trafficPolicyId;
+    public String getId() {
+        return id;
     }
 
-    public void setTrafficPolicyId(String trafficPolicyId) {
-        this.trafficPolicyId = trafficPolicyId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -127,7 +127,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
 
     @Override
     public void copyFrom(TrafficPolicy trafficPolicy) {
-        setTrafficPolicyId(trafficPolicy.id());
+        setId(trafficPolicy.id());
         setVersion(trafficPolicy.version());
         setName(trafficPolicy.name());
         setComment(trafficPolicy.comment());
@@ -159,7 +159,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
 
         TrafficPolicy trafficPolicy = null;
 
-        if (ObjectUtils.isBlank(getTrafficPolicyId())) {
+        if (ObjectUtils.isBlank(getId())) {
             CreateTrafficPolicyResponse response = client.createTrafficPolicy(
                 r -> r.name(getName())
                     .comment(getComment())
@@ -171,14 +171,14 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
         } else {
             CreateTrafficPolicyVersionResponse response = client.createTrafficPolicyVersion(
                 r -> r.comment(getComment())
-                    .id(getTrafficPolicyId())
+                    .id(getId())
                     .document(getDocument())
             );
 
             trafficPolicy = response.trafficPolicy();
         }
 
-        setTrafficPolicyId(trafficPolicy.id());
+        setId(trafficPolicy.id());
         setVersion(trafficPolicy.version());
         setName(trafficPolicy.name());
     }
@@ -190,7 +190,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateTrafficPolicyComment(
-            r -> r.id(getTrafficPolicyId())
+            r -> r.id(getId())
                 .comment(getComment())
                 .version(getVersion())
         );
@@ -201,7 +201,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteTrafficPolicy(
-            r -> r.id(getTrafficPolicyId())
+            r -> r.id(getId())
                 .version(getVersion())
         );
     }
@@ -220,10 +220,10 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
             sb.append(" - version: ").append(getVersion());
         }
 
-        if (ObjectUtils.isBlank(getName()) && !ObjectUtils.isBlank(getTrafficPolicyId())) {
-            sb.append(" [ from - ").append(getTrafficPolicyId()).append(" ]");
-        } else if (!ObjectUtils.isBlank(getTrafficPolicyId())) {
-            sb.append(" - ").append(getTrafficPolicyId());
+        if (ObjectUtils.isBlank(getName()) && !ObjectUtils.isBlank(getId())) {
+            sb.append(" [ from - ").append(getId()).append(" ]");
+        } else if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -232,8 +232,8 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     private TrafficPolicy getTrafficPolicy(Route53Client client) {
         TrafficPolicy trafficPolicy = null;
 
-        if (ObjectUtils.isBlank(getTrafficPolicyId())) {
-            throw new GyroException("traffic-policy-id is missing, unable to load traffic policy.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load traffic policy.");
         }
 
         if (ObjectUtils.isBlank(getVersion())) {
@@ -242,7 +242,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
 
         try {
             GetTrafficPolicyResponse response = client.getTrafficPolicy(
-                r -> r.id(getTrafficPolicyId()).version(getVersion())
+                r -> r.id(getId()).version(getVersion())
             );
 
             trafficPolicy = response.trafficPolicy();
@@ -254,9 +254,9 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     }
 
     private void validate(boolean isCreate) {
-        if ((ObjectUtils.isBlank(getName()) && ObjectUtils.isBlank(getTrafficPolicyId()))
-            || (isCreate && !ObjectUtils.isBlank(getName()) && !ObjectUtils.isBlank(getTrafficPolicyId()))) {
-            throw new GyroException("Either param 'name' or 'traffic-policy-id' need to be provided, but not both.");
+        if ((ObjectUtils.isBlank(getName()) && ObjectUtils.isBlank(getId()))
+            || (isCreate && !ObjectUtils.isBlank(getName()) && !ObjectUtils.isBlank(getId()))) {
+            throw new GyroException("Either param 'name' or 'id' need to be provided, but not both.");
         }
     }
 }
