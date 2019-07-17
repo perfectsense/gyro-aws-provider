@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-1
- *         alarm-name: "metric-alarm-example-1"
+ *         name: "metric-alarm-example-1"
  *         alarm-description: "metric-alarm-example-1"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *     end
  *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-2
- *         alarm-name: "metric-alarm-example-2"
+ *         name: "metric-alarm-example-2"
  *         alarm-description: "metric-alarm-example-2"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
 @Type("cloudwatch-metric-alarm")
 public class MetricAlarmResource extends AwsResource implements Copyable<MetricAlarm> {
 
-    private String alarmName;
+    private String name;
     private Boolean actionsEnabled;
     private Set<String> alarmActions;
     private String alarmDescription;
@@ -97,12 +97,12 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     /**
      * The name of the Metric Alarm. (Required)
      */
-    public String getAlarmName() {
-        return alarmName;
+    public String getName() {
+        return name;
     }
 
-    public void setAlarmName(String alarmName) {
-        this.alarmName = alarmName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -453,7 +453,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     public void delete(GyroUI ui, State state) {
         CloudWatchClient client = createClient(CloudWatchClient.class);
 
-        client.deleteAlarms(r -> r.alarmNames(Collections.singleton(getAlarmName())));
+        client.deleteAlarms(r -> r.alarmNames(Collections.singleton(getName())));
     }
 
     @Override
@@ -462,20 +462,20 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
 
         sb.append("metric alarm");
 
-        if (!ObjectUtils.isBlank(getAlarmName())) {
-            sb.append(" - ").append(getAlarmName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         return sb.toString();
     }
 
     private MetricAlarm getMetricAlarm(CloudWatchClient client) {
-        if (ObjectUtils.isBlank(getAlarmName())) {
-            throw new GyroException("alarm-name is missing, unable to load metric alarm.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load metric alarm.");
         }
 
         try {
-            DescribeAlarmsResponse response = client.describeAlarms(r -> r.alarmNames(Collections.singleton(getAlarmName())));
+            DescribeAlarmsResponse response = client.describeAlarms(r -> r.alarmNames(Collections.singleton(getName())));
 
             if (response.metricAlarms().isEmpty()) {
                 return null;
@@ -495,7 +495,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         validate();
 
         PutMetricAlarmRequest.Builder builder = PutMetricAlarmRequest.builder();
-        builder = builder.alarmName(getAlarmName())
+        builder = builder.alarmName(getName())
             .actionsEnabled(getActionsEnabled())
             .alarmActions(getAlarmActions())
             .alarmDescription(getAlarmDescription())

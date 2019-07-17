@@ -1,5 +1,5 @@
 aws::cloudwatch-metric-alarm metric-alarm-example-1
-    alarm-name: "metric-alarm-example-1"
+    name: "metric-alarm-example-1"
     alarm-description: "metric-alarm-example-1"
     comparison-operator: "GreaterThanOrEqualToThreshold"
     threshold: 0.1
@@ -11,7 +11,7 @@ aws::cloudwatch-metric-alarm metric-alarm-example-1
 end
 
 aws::cloudwatch-metric-alarm metric-alarm-example-2
-    alarm-name: "metric-alarm-example-2"
+    name: "metric-alarm-example-2"
     alarm-description: "metric-alarm-example-2"
     comparison-operator: "GreaterThanOrEqualToThreshold"
     threshold: 0.1

@@ -675,7 +675,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
             }
 
             if (!ObjectUtils.isBlank(getAlarmName())) {
-                throw new GyroException(String.format("The param 'alarm-name' is only allowed when"
+                throw new GyroException(String.format("The param 'name' is only allowed when"
                     + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
             }
 
