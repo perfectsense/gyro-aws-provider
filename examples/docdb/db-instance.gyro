@@ -8,7 +8,7 @@ aws::vpc vpc-db-instance-example
 end
 
 aws::security-group security-group-db-instance-example-1
-    group-name: "db-instance-example-1"
+    name: "db-instance-example-1"
     vpc: $(aws::vpc vpc-db-instance-example)
     description: "db-instance-example-1"
     keep-default-egress-rules: true
@@ -27,7 +27,7 @@ aws::security-group security-group-db-instance-example-1
 end
 
 aws::security-group security-group-db-instance-example-2
-    group-name: "db-instance-example-2"
+    name: "db-instance-example-2"
     vpc: $(aws::vpc vpc-db-instance-example)
     description: "db-instance-example-2"
     keep-default-egress-rules: true

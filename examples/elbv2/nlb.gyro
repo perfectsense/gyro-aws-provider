@@ -130,7 +130,7 @@ aws::instance instance-us-east-2b
 end
 
 aws::security-group security-group
-    group-name: "nlb example - allow web traffic"
+    name: "nlb example - allow web traffic"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true

@@ -19,7 +19,7 @@ aws::subnet subnet
 end
 
 aws::security-group security-group
-    group-name: "instance-example"
+    name: "instance-example"
     vpc: $(aws::vpc vpc)
     description: "instance example"
     keep-default-egress-rules: true

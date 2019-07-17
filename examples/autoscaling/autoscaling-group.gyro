@@ -32,7 +32,7 @@ aws::subnet subnet-auto-scaling-group-example-2
 end
 
 aws::security-group security-group-auto-scaling-group-example-1
-    group-name: "security-group-auto-scaling-group-example-1"
+    name: "security-group-auto-scaling-group-example-1"
     vpc: $(aws::vpc vpc-auto-scaling-group-example)
     description: "security group instance example 1"
     keep-default-egress-rules: true
@@ -59,7 +59,7 @@ aws::security-group security-group-auto-scaling-group-example-1
 end
 
 aws::security-group security-group-auto-scaling-group-example-2
-    group-name: "security-group-auto-scaling-group-example-2"
+    name: "security-group-auto-scaling-group-example-2"
     vpc: $(aws::vpc vpc-auto-scaling-group-example)
     description: "security group instance example 2"
     keep-default-egress-rules: true

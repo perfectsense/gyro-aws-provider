@@ -19,7 +19,7 @@ aws::subnet subnet
 end
 
 aws::security-group security-group-launch-configuration-example-1
-    group-name: "security-group-launch-configuration-example-1"
+    name: "security-group-launch-configuration-example-1"
     vpc: $(aws::vpc vpc-launch-configuration-example)
     description: "security group launch-configuration example 1"
     keep-default-egress-rules: true
@@ -46,7 +46,7 @@ aws::security-group security-group-launch-configuration-example-1
 end
 
 aws::security-group security-group-launch-configuration-example-2
-    group-name: "security-group-launch-configuration-example-2"
+    name: "security-group-launch-configuration-example-2"
     vpc: $(aws::vpc vpc-launch-configuration-example)
     description: "security group launch-configuration example 2"
     keep-default-egress-rules: true

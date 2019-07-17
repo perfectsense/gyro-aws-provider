@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * .. code-block:: gyro
  *
  *     aws::security-group security-group-example
- *         group-name: "security-group-example"
+ *         name: "security-group-example"
  *         vpc: $(aws::vpc vpc-security-group-example)
  *         description: "security group example"
  *
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 @Type("security-group")
 public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> implements Copyable<SecurityGroup> {
 
-    private String groupName;
+    private String name;
     private VpcResource vpc;
     private String description;
     private List<SecurityGroupIngressRuleResource> ingress;
@@ -62,12 +62,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     /**
      * The name of the Security Group. (Required)
      */
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -220,7 +220,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSecurityGroupResponse response = client.createSecurityGroup(
-            r -> r.vpcId(getVpc().getResourceId()).description(getDescription()).groupName(getGroupName())
+            r -> r.vpcId(getVpc().getResourceId()).description(getDescription()).groupName(getName())
         );
 
         setGroupId(response.groupId());
@@ -282,8 +282,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
         sb.append("security group");
 
-        if (!ObjectUtils.isBlank(getGroupName())) {
-            sb.append(" - ").append(getGroupName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         if (!ObjectUtils.isBlank(getGroupId())) {

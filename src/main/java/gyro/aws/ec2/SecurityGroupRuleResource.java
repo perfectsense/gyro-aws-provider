@@ -208,7 +208,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
 
         if (!getSecurityGroups().isEmpty()) {
             sb.append(" ");
-            sb.append(getSecurityGroups().stream().map(SecurityGroupResource::getGroupName).collect(Collectors.toList()));
+            sb.append(getSecurityGroups().stream().map(SecurityGroupResource::getName).collect(Collectors.toList()));
         }
 
         if (!ObjectUtils.isBlank(getDescription())) {
