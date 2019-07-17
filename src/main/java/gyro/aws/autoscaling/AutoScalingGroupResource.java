@@ -675,7 +675,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
                 .launchTemplate(
                     LaunchTemplateSpecification.builder()
-                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getLaunchTemplateId() : null)
+                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
                         .build()
                 )
                 .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
@@ -708,7 +708,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             r -> r.autoScalingGroupName(getAutoScalingGroupName())
                 .launchTemplate(
                     LaunchTemplateSpecification.builder()
-                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getLaunchTemplateId() : null)
+                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
                         .build()
                 )
                 .maxSize(getMaxSize())
