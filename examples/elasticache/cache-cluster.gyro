@@ -92,7 +92,7 @@ aws::security-group security-group-cache-cluster-example-2
 end
 
 aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example
-    cache-subnet-group-name: "cache-subnet-group-cache-cluster-example"
+    name: "cache-subnet-group-cache-cluster-example"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
         $(aws::subnet subnet-cache-cluster-example),
@@ -102,7 +102,7 @@ aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example
 end
 
 aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example-2
-    cache-subnet-group-name: "cache-subnet-group-cache-cluster-example-2"
+    name: "cache-subnet-group-cache-cluster-example-2"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
         $(aws::subnet subnet-cache-cluster-example),

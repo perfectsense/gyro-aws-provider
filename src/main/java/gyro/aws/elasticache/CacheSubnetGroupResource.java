@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::elasticache-subnet-group cache-subnet-group-example
- *         cache-subnet-group-name: "cache-subnet-group-example"
+ *         name: "cache-subnet-group-example"
  *         description: "cache-subnet-group-desc"
  *         subnets: [
  *             $(aws::subnet subnet-cache-subnet-group-example-1),
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Type("elasticache-subnet-group")
 public class CacheSubnetGroupResource extends AwsResource implements Copyable<CacheSubnetGroup> {
-    private String cacheSubnetGroupName;
+    private String name;
     private String description;
     private Set<SubnetResource> subnets;
 
@@ -48,12 +48,12 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
      * The name of the cache subnet group. (Required)
      */
     @Id
-    public String getCacheSubnetGroupName() {
-        return cacheSubnetGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setCacheSubnetGroupName(String cacheSubnetGroupName) {
-        this.cacheSubnetGroupName = cacheSubnetGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -86,7 +86,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
 
     @Override
     public void copyFrom(CacheSubnetGroup cacheSubnetGroup) {
-        setCacheSubnetGroupName(cacheSubnetGroup.cacheSubnetGroupName());
+        setName(cacheSubnetGroup.cacheSubnetGroupName());
         setDescription(cacheSubnetGroup.cacheSubnetGroupDescription());
         setSubnets(cacheSubnetGroup.subnets()
             .stream()
@@ -113,7 +113,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.createCacheSubnetGroup(
-            r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
+            r -> r.cacheSubnetGroupName(getName())
                 .cacheSubnetGroupDescription(getDescription())
                 .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
@@ -125,7 +125,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.modifyCacheSubnetGroup(
-            r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
+            r -> r.cacheSubnetGroupName(getName())
                 .cacheSubnetGroupDescription(getDescription())
                 .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
         );
@@ -136,7 +136,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheSubnetGroup(
-            r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
+            r -> r.cacheSubnetGroupName(getName())
         );
     }
 
@@ -146,8 +146,8 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
 
         sb.append("cache subnet group");
 
-        if (!ObjectUtils.isBlank(getCacheSubnetGroupName())) {
-            sb.append(" - ").append(getCacheSubnetGroupName());
+        if (!ObjectUtils.isBlank(getName())) {
+            sb.append(" - ").append(getName());
         }
 
         return sb.toString();
@@ -156,13 +156,13 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     private CacheSubnetGroup getCacheSubnetGroup(ElastiCacheClient client) {
         CacheSubnetGroup cacheSubnetGroup = null;
 
-        if (ObjectUtils.isBlank(getCacheSubnetGroupName())) {
-            throw new GyroException("cache-subnet-group-name is missing, unable to load cache subnet group.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load cache subnet group.");
         }
 
         try {
             DescribeCacheSubnetGroupsResponse response = client.describeCacheSubnetGroups(
-                r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
+                r -> r.cacheSubnetGroupName(getName())
             );
 
             if (!response.cacheSubnetGroups().isEmpty()) {

@@ -479,7 +479,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .cacheNodeType(getCacheNodeType())
             .cacheParameterGroupName(getCacheParamGroup().getCacheParamGroupName())
             .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-            .cacheSubnetGroupName(getCacheSubnetGroup().getCacheSubnetGroupName())
+            .cacheSubnetGroupName(getCacheSubnetGroup().getName())
             .engine(getEngine())
             .engineVersion(getEngineVersion())
             .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
