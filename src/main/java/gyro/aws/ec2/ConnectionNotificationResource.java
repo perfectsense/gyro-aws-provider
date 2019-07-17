@@ -47,7 +47,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     private EndpointResource endpoint;
     private String connectionNotificationArn;
     private Set<String> connectionEvents;
-    private String connectionNotificationId;
+    private String id;
     private String connectionNotificationState;
     private String connectionNotificationType;
 
@@ -113,12 +113,12 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      */
     @Id
     @Output
-    public String getConnectionNotificationId() {
-        return connectionNotificationId;
+    public String getId() {
+        return id;
     }
 
-    public void setConnectionNotificationId(String connectionNotificationId) {
-        this.connectionNotificationId = connectionNotificationId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -147,10 +147,10 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
     @Override
     public void copyFrom(ConnectionNotification connectionNotification) {
-        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setId(connectionNotification.connectionNotificationId());
         setConnectionEvents(connectionNotification.connectionEvents() != null ? new HashSet<>(connectionNotification.connectionEvents()) : null);
         setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
-        setConnectionNotificationId(connectionNotification.connectionNotificationId());
+        setId(connectionNotification.connectionNotificationId());
         setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
         setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
         setEndpoint(!ObjectUtils.isBlank(connectionNotification.vpcEndpointId()) ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
@@ -196,7 +196,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
             throw new GyroException("vpc-endpoint or vpc-endpoint-service required.");
         }
 
-        setConnectionNotificationId(response.connectionNotification().connectionNotificationId());
+        setId(response.connectionNotification().connectionNotificationId());
         setConnectionNotificationType(response.connectionNotification().connectionNotificationTypeAsString());
         setConnectionNotificationState(response.connectionNotification().connectionNotificationStateAsString());
     }
@@ -208,7 +208,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         validate();
 
         client.modifyVpcEndpointConnectionNotification(
-            r -> r.connectionNotificationId(getConnectionNotificationId())
+            r -> r.connectionNotificationId(getId())
                 .connectionEvents(getConnectionEvents())
                 .connectionNotificationArn(getConnectionNotificationArn())
         );
@@ -219,7 +219,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointConnectionNotifications(
-            r -> r.connectionNotificationIds(Collections.singleton(getConnectionNotificationId()))
+            r -> r.connectionNotificationIds(Collections.singleton(getId()))
         );
     }
 
@@ -229,8 +229,8 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
         sb.append("connection notification");
 
-        if (!ObjectUtils.isBlank(getConnectionNotificationId())) {
-            sb.append(" - ").append(getConnectionNotificationId());
+        if (!ObjectUtils.isBlank(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         return sb.toString();
@@ -239,13 +239,13 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     private ConnectionNotification getConnectionNotification(Ec2Client client) {
         ConnectionNotification connectionNotification = null;
 
-        if (ObjectUtils.isBlank(getConnectionNotificationId())) {
-            throw new GyroException("connection-notification-id is missing, unable to load connection notification.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load connection notification.");
         }
 
         try {
             DescribeVpcEndpointConnectionNotificationsResponse response = client.describeVpcEndpointConnectionNotifications(
-                r -> r.connectionNotificationId(getConnectionNotificationId())
+                r -> r.connectionNotificationId(getId())
             );
 
             if (!response.connectionNotificationSet().isEmpty()) {
