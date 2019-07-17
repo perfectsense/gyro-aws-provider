@@ -312,19 +312,6 @@ public class EndpointServiceResource extends AwsResource implements Copyable<Ser
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("service endpoint");
-
-        if (!ObjectUtils.isBlank(getServiceId())) {
-            sb.append(" - ").append(getServiceId());
-        }
-
-        return sb.toString();
-    }
-
     private ServiceConfiguration getServiceConfiguration(Ec2Client client) {
         ServiceConfiguration serviceConfiguration = null;
 

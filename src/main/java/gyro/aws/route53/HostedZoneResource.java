@@ -295,23 +295,6 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("hosted zone");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" [ ").append(getName()).append(" ]");
-        }
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private GetHostedZoneResponse getHostedZoneResponse(Route53Client client) {
         GetHostedZoneResponse hostedZoneResponse = null;
 

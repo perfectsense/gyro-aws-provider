@@ -209,10 +209,6 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
         setUserInfoEndpoint(oidc.userInfoEndpoint());
     }
 
-    public String toDisplayString() {
-        return "authenticate oidc action";
-    }
-
     public AuthenticateOidcActionConfig toOidc() {
         return AuthenticateOidcActionConfig.builder()
                 .authenticationRequestExtraParams(getExtraParams())

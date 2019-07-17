@@ -81,33 +81,6 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("regex match tuple");
-
-        if (getFieldToMatch() != null) {
-            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
-                sb.append(" - ").append(getFieldToMatch().getData());
-            }
-
-            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
-                sb.append(" - ").append(getFieldToMatch().getType());
-            }
-        }
-
-        if (!ObjectUtils.isBlank(getTextTransformation())) {
-            sb.append(" - ").append(getTextTransformation());
-        }
-
-        if (getRegexPatternSet() != null && !ObjectUtils.isBlank(getRegexPatternSet().getRegexPatternSetId())) {
-            sb.append(" - ").append(getRegexPatternSet().getRegexPatternSetId());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         StringBuilder sb = new StringBuilder();
 

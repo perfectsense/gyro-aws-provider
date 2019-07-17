@@ -7,7 +7,6 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
@@ -174,19 +173,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
             r -> r.autoScalingGroupName(getParentId())
             .scheduledActionName(getScheduledActionName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("scheduled action");
-
-        if (!ObjectUtils.isBlank(getScheduledActionName())) {
-            sb.append(" - ").append(getScheduledActionName());
-        }
-
-        return sb.toString();
     }
 
     @Override

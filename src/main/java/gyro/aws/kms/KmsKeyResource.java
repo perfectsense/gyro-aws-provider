@@ -443,11 +443,6 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         client.scheduleKeyDeletion(r -> r.keyId(getKeyId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "kms key with alias " + getAliases();
-    }
-
     private List<Tag> toTag() {
         List<Tag> tag = new ArrayList<>();
         getTags().forEach((key, value) -> tag.add(Tag.builder().tagKey(key).tagValue(value).build()));

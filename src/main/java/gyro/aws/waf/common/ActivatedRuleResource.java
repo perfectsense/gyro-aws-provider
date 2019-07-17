@@ -129,25 +129,6 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("activated rule");
-
-        if (getRule() != null && !ObjectUtils.isBlank(getRule().getRuleId())) {
-            sb.append(" - ").append(getRule().getRuleId());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        } else if (getRule() != null && !ObjectUtils.isBlank(getRule().getType())) {
-            sb.append(" - ").append(getRule().getType());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s", getRule() != null ? (!ObjectUtils.isBlank(getRule().getRuleId()) ? getRule().getRuleId() : getRule().name()) : null);
     }

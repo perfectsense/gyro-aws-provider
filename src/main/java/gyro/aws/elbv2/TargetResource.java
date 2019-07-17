@@ -128,20 +128,6 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
                                         .targetGroupArn(getTargetGroup().getArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getId() != null) {
-            sb.append("target " + getId());
-        } else {
-            sb.append("target - port: ");
-            sb.append(getPort());
-        }
-
-        return sb.toString();
-    }
-
     public TargetDescription toTarget() {
         return TargetDescription.builder()
                 .availabilityZone(getAvailabilityZone())

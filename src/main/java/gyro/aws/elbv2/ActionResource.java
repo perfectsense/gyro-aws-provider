@@ -213,19 +213,6 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (parentResource() instanceof ListenerResource) {
-            sb.append(getType() + " default action");
-        } else {
-            sb.append("rule action - type: " + getType());
-        }
-
-        return sb.toString();
-    }
-
     public Action toAction() {
         return Action.builder()
                 .authenticateCognitoConfig(getAuthenticateCognitoAction() != null ? getAuthenticateCognitoAction().toCognito() : null)

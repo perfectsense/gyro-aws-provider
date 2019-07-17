@@ -89,25 +89,6 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("predicate");
-
-        if (getCondition() != null && !ObjectUtils.isBlank(getCondition().getId())) {
-            sb.append(" - ").append(getCondition().getId());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        } else if (getCondition() != null && !ObjectUtils.isBlank(getCondition().getType())) {
-            sb.append(" - ").append(getCondition().getType());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(getCondition().name()) ? getCondition().getId() : getCondition().name()) : null));
     }

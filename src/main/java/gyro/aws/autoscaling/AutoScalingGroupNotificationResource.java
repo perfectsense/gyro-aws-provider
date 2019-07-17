@@ -82,19 +82,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("auto scale notification");
-
-        if (getTopic() != null && !ObjectUtils.isBlank(getTopic().getArn())) {
-            sb.append(" - ").append(getTopic().getArn());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return getTopic().getArn();
     }

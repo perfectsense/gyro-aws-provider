@@ -353,15 +353,6 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         return getPathPattern();
     }
 
-    @Override
-    public String toDisplayString() {
-        if (getPathPattern() != null && getPathPattern().equals("*")) {
-            return "default cache behavior";
-        }
-
-        return "cache behavior";
-    }
-
     static CacheBehavior getCacheBehaviorFromDefault(DefaultCacheBehavior defaultCacheBehavior) {
         return CacheBehavior.builder().targetOriginId(defaultCacheBehavior.targetOriginId())
             .pathPattern("*")

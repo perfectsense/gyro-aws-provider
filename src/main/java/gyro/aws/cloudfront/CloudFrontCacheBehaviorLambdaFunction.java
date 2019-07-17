@@ -69,11 +69,6 @@ public class CloudFrontCacheBehaviorLambdaFunction extends Diffable implements C
         return getEventType();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "Lambda Function Association " + getEventType();
-    }
-
     LambdaFunctionAssociation toLambdaFunctionAssociation() {
         return LambdaFunctionAssociation.builder()
             .eventType(getEventType())

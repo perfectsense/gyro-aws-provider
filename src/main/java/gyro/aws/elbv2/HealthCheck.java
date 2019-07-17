@@ -131,10 +131,6 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
         this.unhealthyThreshold = unhealthyThreshold;
     }
 
-    public String toDisplayString() {
-        return "health check";
-    }
-
     public String primaryKey() {
         return getPath();
     }

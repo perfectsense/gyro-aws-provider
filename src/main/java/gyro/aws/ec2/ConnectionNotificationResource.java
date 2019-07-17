@@ -223,19 +223,6 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("connection notification");
-
-        if (!ObjectUtils.isBlank(getConnectionNotificationId())) {
-            sb.append(" - ").append(getConnectionNotificationId());
-        }
-
-        return sb.toString();
-    }
-
     private ConnectionNotification getConnectionNotification(Ec2Client client) {
         ConnectionNotification connectionNotification = null;
 

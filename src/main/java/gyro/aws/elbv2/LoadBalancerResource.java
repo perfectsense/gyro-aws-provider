@@ -221,8 +221,4 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
         return loadBalancer;
     }
 
-    @Override
-    public String toDisplayString() {
-        return "load balancer " + getName();
-    }
 }

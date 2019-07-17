@@ -277,23 +277,6 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("lambda layer");
-
-        if (!ObjectUtils.isBlank(getLayerName())) {
-            sb.append(" - ").append(getLayerName());
-        }
-
-        if (!ObjectUtils.isBlank(getVersion())) {
-            sb.append(" version - ").append(getVersion());
-        }
-
-        return sb.toString();
-    }
-
     private SdkBytes getZipFile() {
         try (InputStream input = openInput(getContentZipPath())) {
             return SdkBytes.fromInputStream(input);

@@ -150,18 +150,6 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
         super.delete(ui, state);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getArn() != null) {
-            sb.append("alb listener " + getArn());
-        } else {
-            sb.append("alb listener ");
-        }
-        return sb.toString();
-    }
-
     private List<Action> toDefaultActions() {
         List<Action> defaultAction = new ArrayList<>();
 

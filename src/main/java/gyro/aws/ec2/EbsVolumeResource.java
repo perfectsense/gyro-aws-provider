@@ -3,7 +3,6 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Wait;
@@ -315,23 +314,6 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         client.deleteVolume(
             r -> r.volumeId(getVolumeId())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("ebs volume");
-
-        if (!ObjectUtils.isBlank(getVolumeType())) {
-            sb.append(" [ ").append(getVolumeType()).append(" ]");
-        }
-
-        if (!ObjectUtils.isBlank(getVolumeId())) {
-            sb.append(" - ").append(getVolumeId());
-        }
-
-        return sb.toString();
     }
 
     private Volume getVolume(Ec2Client client) {

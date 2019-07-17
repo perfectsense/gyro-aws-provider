@@ -52,11 +52,6 @@ public class NetworkAclIngressRuleResource extends NetworkAclRuleResource {
     }
 
     @Override
-    public String toDisplayString() {
-        return toDisplayString(false);
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s, ingress", getRuleNumber());
     }

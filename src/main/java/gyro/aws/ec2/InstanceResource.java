@@ -676,19 +676,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .until(() -> isInstanceTerminated(client));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        String instanceId = getInstanceId();
-
-        sb.append("instance ");
-        if (!ObjectUtils.isBlank(instanceId)) {
-            sb.append(instanceId);
-        }
-
-        return sb.toString();
-    }
-
     private void init(Instance instance, Ec2Client client) {
         setAmiId(instance.imageId());
         setCoreCount(instance.cpuOptions().coreCount());

@@ -138,11 +138,6 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
         return getId();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "origin - targetId: " + getId();
-    }
-
     Origin toOrigin() {
         List<OriginCustomHeader> headers = getCustomHeaders().entrySet()
             .stream()

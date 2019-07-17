@@ -219,11 +219,6 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db option group " + getName();
-    }
-
     private void modifyOptionGroup(List<OptionConfiguration> removeList) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyOptionGroup(

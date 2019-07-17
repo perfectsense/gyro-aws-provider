@@ -270,23 +270,6 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("ebs snapshot");
-
-        if (!ObjectUtils.isBlank(getSnapshotId())) {
-            sb.append(" - ").append(getSnapshotId());
-        }
-
-        if (!ObjectUtils.isBlank(getDescription())) {
-            sb.append(" [ ").append(getDescription()).append(" ]");
-        }
-
-        return sb.toString();
-    }
-
     private Snapshot getSnapshot(Ec2Client client) {
         Snapshot snapshot = null;
 

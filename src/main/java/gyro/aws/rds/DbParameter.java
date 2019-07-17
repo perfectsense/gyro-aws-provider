@@ -52,8 +52,4 @@ public class DbParameter extends Diffable {
         return getName();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db parameter " + getName();
-    }
 }
