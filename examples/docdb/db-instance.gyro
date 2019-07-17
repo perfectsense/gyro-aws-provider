@@ -79,7 +79,7 @@ aws::docdb-subnet-group db-subnet-group-db-instance-example
 end
 
 aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example
-    db-cluster-param-group-name: "db-cluster-param-group-db-instance-example"
+    name: "db-cluster-param-group-db-instance-example"
     db-param-group-family: "docdb3.6"
     description: "db-cluster-param-group-db-instance-example-desc"
 
