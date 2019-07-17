@@ -1,4 +1,4 @@
-health-check: $(external-query aws::route53-health-check { health-check-id: 'dfc0046d-3243-4847-8075-e0ff8d6a7af9' })
+health-check: $(external-query aws::route53-health-check { id: 'dfc0046d-3243-4847-8075-e0ff8d6a7af9' })
 hosted-zone: $(external-query aws::route53-hosted-zone { hosted-zone-id: '' })
 traffic-policy: $(external-query aws::route53-traffic-policy { traffic-policy-id: '', traffic-policy-version: '' })
 traffic-policy-instance: $(external-query aws::route53-traffic-policy-instance { traffic-policy-instance-id: '' })

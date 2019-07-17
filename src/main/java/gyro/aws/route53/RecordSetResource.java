@@ -474,7 +474,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private void saveResourceRecordSet(Route53Client client, RecordSetResource recordSetResource, ChangeAction changeAction) {
         ResourceRecordSet.Builder recordSetBuilder = ResourceRecordSet.builder()
             .name(recordSetResource.getName())
-            .healthCheckId(recordSetResource.getHealthCheck() != null ? recordSetResource.getHealthCheck().getHealthCheckId() : null)
+            .healthCheckId(recordSetResource.getHealthCheck() != null ? recordSetResource.getHealthCheck().getId() : null)
             .setIdentifier(recordSetResource.getSetIdentifier())
             .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstance() != null ? recordSetResource.getTrafficPolicyInstance().getTrafficPolicyInstanceId() : null)
             .type(recordSetResource.getType());
