@@ -112,13 +112,13 @@ aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example-2
 end
 
 aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example
-    cache-param-group-name: "cache-param-group-group-cache-cluster-example"
+    name: "cache-param-group-group-cache-cluster-example"
     cache-param-group-family: "memcached1.5"
     description: "cache-param-group-desc-group-cache-cluster"
 end
 
 aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example-2
-    cache-param-group-name: "cache-param-group-group-cache-cluster-example-2"
+    name: "cache-param-group-group-cache-cluster-example-2"
     cache-param-group-family: "memcached1.5"
     description: "cache-param-group-desc-group-cache-cluster"
 end
