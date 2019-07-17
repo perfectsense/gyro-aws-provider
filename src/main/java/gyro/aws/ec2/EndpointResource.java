@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
 @Type("vpc-endpoint")
 public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
 
-    private String endpointId;
+    private String id;
     private String serviceName;
     private VpcResource vpc;
     private Boolean typeInterface;
@@ -87,12 +87,12 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
      */
     @Id
     @Output
-    public String getEndpointId() {
-        return endpointId;
+    public String getId() {
+        return id;
     }
 
-    public void setEndpointId(String endpointId) {
-        this.endpointId = endpointId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -227,7 +227,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
         setServiceName(vpcEndpoint.serviceName());
         setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
-        setEndpointId(vpcEndpoint.vpcEndpointId());
+        setId(vpcEndpoint.vpcEndpointId());
         setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
         setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
         setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
@@ -276,7 +276,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
 
         VpcEndpoint endpoint = response.vpcEndpoint();
 
-        setEndpointId(endpoint.vpcEndpointId());
+        setId(endpoint.vpcEndpointId());
     }
 
     @Override
@@ -285,7 +285,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         validate();
 
         ModifyVpcEndpointRequest.Builder builder = ModifyVpcEndpointRequest.builder();
-        builder.vpcEndpointId(getEndpointId());
+        builder.vpcEndpointId(getId());
 
         EndpointResource oldEndpoint = (EndpointResource) current;
 
@@ -356,7 +356,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpoints(
-            r -> r.vpcEndpointIds(getEndpointId())
+            r -> r.vpcEndpointIds(getId())
         );
 
         // Delay for residual dependency to be gone. 2 Min
@@ -373,8 +373,8 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
 
         sb.append("endpoint");
 
-        if (!StringUtils.isEmpty(getEndpointId())) {
-            sb.append(" - ").append(getEndpointId());
+        if (!StringUtils.isEmpty(getId())) {
+            sb.append(" - ").append(getId());
         }
 
         if (getTypeInterface()) {
