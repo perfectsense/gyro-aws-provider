@@ -248,7 +248,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             r -> r.availabilityZone(getAvailabilityZone())
                 .encrypted(getEncrypted())
                 .iops(getVolumeType().equals("io1") ? getIops() : null)
-                .kmsKeyId(getKms() != null ? getKms().getKeyId() : null)
+                .kmsKeyId(getKms() != null ? getKms().getId() : null)
                 .size(getSize())
                 .snapshotId(getSnapshot() != null ? getSnapshot().getId() : null)
                 .volumeType(getVolumeType())
