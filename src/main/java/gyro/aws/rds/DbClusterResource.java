@@ -593,7 +593,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .engineMode(getEngineMode())
-                    .globalClusterIdentifier(getGlobalCluster() != null ? getGlobalCluster().getGlobalClusterIdentifier() : null)
+                    .globalClusterIdentifier(getGlobalCluster() != null ? getGlobalCluster().getName() : null)
                     .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
@@ -691,7 +691,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         if (getGlobalCluster() != null) {
             client.removeFromGlobalCluster(
                 r -> r.dbClusterIdentifier(getArn())
-                        .globalClusterIdentifier(getGlobalCluster().getGlobalClusterIdentifier())
+                        .globalClusterIdentifier(getGlobalCluster().getName())
             );
         }
 

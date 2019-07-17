@@ -1,5 +1,5 @@
 aws::db-global-cluster db-global-cluster-example
-    global-cluster-identifier: "aurora-global-cluster"
+    name: "aurora-global-cluster"
     engine: "aurora"
 end
 
