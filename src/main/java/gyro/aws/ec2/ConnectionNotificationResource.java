@@ -188,12 +188,12 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
             );
         } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.serviceId(getEndpointService().getServiceId())
+                r -> r.serviceId(getEndpointService().getId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else {
-            throw new GyroException("vpc-endpoint or service-id required.");
+            throw new GyroException("vpc-endpoint or vpc-endpoint-service required.");
         }
 
         setConnectionNotificationId(response.connectionNotification().connectionNotificationId());
