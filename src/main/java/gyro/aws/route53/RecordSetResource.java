@@ -73,7 +73,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private String routingPolicy;
     private Boolean enableAlias;
     private String aliasHostedZoneId;
-    private String recordSetId;
+    private String id;
 
     private static final Set<String> ROUTING_POLICY_SET = ImmutableSet.of("geolocation", "failover", "multivalue", "weighted", "latency", "simple");
 
@@ -349,12 +349,12 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      */
     @Id
     @Output
-    public String getRecordSetId() {
-        return recordSetId;
+    public String getId() {
+        return id;
     }
 
-    public void setRecordSetId(String recordSetId) {
-        this.recordSetId = recordSetId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -369,7 +369,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
         setTtl(recordSet.ttl());
         setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toSet()));
-        setRecordSetId(String.format("%s %s", getName(), getType()));
+        setId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
             setDnsName(recordSet.aliasTarget().dnsName());
@@ -411,7 +411,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             saveResourceRecordSet(client,this, ChangeAction.CREATE);
         }
 
-        setRecordSetId(String.format("%s %s", getName(), getType()));
+        setId(String.format("%s %s", getName(), getType()));
     }
 
     @Override
