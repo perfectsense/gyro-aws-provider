@@ -63,7 +63,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
 
         client.attachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(getVolume().getVolumeId())
+                .volumeId(getVolume().getId())
                 .instanceId(parent.getId())
         );
     }
@@ -78,20 +78,20 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
 
         client.detachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(currentAttachment.getVolume().getVolumeId())
+                .volumeId(currentAttachment.getVolume().getId())
                 .instanceId(parent.getId())
         );
 
         boolean success = Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.SECONDS)
             .prompt(true)
-            .until(() -> client.describeVolumes(r -> r.volumeIds(Collections.singleton(currentAttachment.getVolume().getVolumeId())))
+            .until(() -> client.describeVolumes(r -> r.volumeIds(Collections.singleton(currentAttachment.getVolume().getId())))
                 .volumes().get(0).state().equals(VolumeState.AVAILABLE));
 
         if (success) {
             client.attachVolume(
                 r -> r.device(getDeviceName())
-                    .volumeId(getVolume().getVolumeId())
+                    .volumeId(getVolume().getId())
                     .instanceId(parent.getId())
             );
         } else {
@@ -107,7 +107,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
 
         client.detachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(getVolume().getVolumeId())
+                .volumeId(getVolume().getId())
                 .instanceId(parent.getId())
         );
     }
@@ -122,8 +122,8 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
             sb.append(" ").append(getDeviceName());
         }
 
-        if (getVolume() != null && !ObjectUtils.isBlank(getVolume().getVolumeId())) {
-            sb.append(" with volume id : ").append(getVolume().getVolumeId());
+        if (getVolume() != null && !ObjectUtils.isBlank(getVolume().getId())) {
+            sb.append(" with volume id : ").append(getVolume().getId());
         }
 
         return sb.toString();

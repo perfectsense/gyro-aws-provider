@@ -250,7 +250,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
         CreateSnapshotResponse response = client.createSnapshot(
             r -> r.description(getDescription())
-                .volumeId(getVolume().getVolumeId())
+                .volumeId(getVolume().getId())
         );
 
         setSnapshotId(response.snapshotId());
