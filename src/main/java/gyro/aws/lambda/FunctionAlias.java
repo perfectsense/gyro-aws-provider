@@ -165,7 +165,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         try {
             GetAliasResponse response = client.getAlias(
                 r -> r.name(getAliasName())
-                    .functionName(getFunction().getFunctionName())
+                    .functionName(getFunction().getName())
             );
 
             copyFrom(response);
@@ -183,7 +183,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         CreateAliasRequest.Builder builder = CreateAliasRequest.builder()
             .name(getAliasName())
             .description(getDescription())
-            .functionName(getFunction().getFunctionName())
+            .functionName(getFunction().getName())
             .functionVersion(getFunctionVersion());
 
         if (!ObjectUtils.isBlank(getAdditionalVersion())) {
@@ -208,7 +208,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
             .revisionId(getRevisionId())
             .name(getAliasName())
             .description(getDescription())
-            .functionName(getFunction().getFunctionName())
+            .functionName(getFunction().getName())
             .functionVersion(getFunctionVersion());
 
         if (!ObjectUtils.isBlank(getAdditionalVersion())) {
@@ -228,7 +228,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
 
         client.deleteAlias(
             r -> r.name(getAliasName())
-                .functionName(getFunction().getFunctionName())
+                .functionName(getFunction().getName())
         );
     }
 
@@ -242,8 +242,8 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
             sb.append(" - ").append(getAliasName());
         }
 
-        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
-            sb.append(", function - ").append(getFunction().getFunctionName());
+        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getName())) {
+            sb.append(", function - ").append(getFunction().getName());
         }
 
         return sb.toString();

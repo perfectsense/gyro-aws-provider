@@ -16,21 +16,21 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    lambda-function: $(aws::lambda-function EXTERNAL/* | function-name = '')
+ *    lambda-function: $(aws::lambda-function EXTERNAL/* | name = '')
  */
 @Type("lambda-function")
 public class FunctionFinder extends AwsFinder<LambdaClient, FunctionConfiguration, FunctionResource> {
-    private String functionName;
+    private String name;
 
     /**
      * The function name.
      */
-    public String getFunctionName() {
-        return functionName;
+    public String getName() {
+        return name;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -42,12 +42,12 @@ public class FunctionFinder extends AwsFinder<LambdaClient, FunctionConfiguratio
     protected List<FunctionConfiguration> findAws(LambdaClient client, Map<String, String> filters) {
         List<FunctionConfiguration> functionConfigurations = new ArrayList<>();
 
-        if (!filters.containsKey("function-name")) {
-            throw new IllegalArgumentException("function-name is required.");
+        if (!filters.containsKey("name")) {
+            throw new IllegalArgumentException("name is required.");
         }
 
         try {
-            functionConfigurations.add(client.getFunction(r -> r.functionName(filters.get("function-name"))).configuration());
+            functionConfigurations.add(client.getFunction(r -> r.functionName(filters.get("name"))).configuration());
         } catch (ResourceNotFoundException ignore) {
             // ignore
         }

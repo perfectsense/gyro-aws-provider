@@ -300,7 +300,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
             builder = builder.functionName(getAlias().getArn());
         } else {
             if (getFunctionVersion() == null) {
-                builder = builder.functionName(getFunction().getFunctionName());
+                builder = builder.functionName(getFunction().getName());
             } else {
                 builder = builder.functionName(getFunction().getArnNoVersion() + ":" + getFunctionVersion());
             }
@@ -338,7 +338,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
             builder = builder.functionName(getAlias().getArn());
         } else {
             if (getFunctionVersion() == null) {
-                builder = builder.functionName(getFunction().getFunctionName());
+                builder = builder.functionName(getFunction().getName());
             } else {
                 builder = builder.functionName(getFunction().getArnNoVersion() + ":" + getFunctionVersion());
             }
@@ -364,8 +364,8 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
 
         sb.append("event source mapping");
 
-        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
-            sb.append(", function - ").append(getFunction().getFunctionName());
+        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getName())) {
+            sb.append(", function - ").append(getFunction().getName());
 
             if (getFunctionVersion() != null) {
                 sb.append(", version - ").append(getFunctionVersion());
