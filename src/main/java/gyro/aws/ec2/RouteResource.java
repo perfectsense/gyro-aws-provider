@@ -207,7 +207,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
+                .gatewayId(getGateway() != null ? getGateway().getId() : null)
                 .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
                 .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
                 .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
@@ -224,7 +224,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
             .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-            .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
+            .gatewayId(getGateway() != null ? getGateway().getId() : null)
             .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
             .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
             .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
@@ -252,9 +252,9 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         sb.append("route ");
         sb.append(getDestinationCidrBlock());
 
-        if (getGateway() != null && !ObjectUtils.isBlank(getGateway().getInternetGatewayId())) {
+        if (getGateway() != null && !ObjectUtils.isBlank(getGateway().getId())) {
             sb.append(" through gateway ");
-            sb.append(getGateway().getInternetGatewayId());
+            sb.append(getGateway().getId());
         } else if (getInstance() != null && !ObjectUtils.isBlank(getInstance().getInstanceId())) {
             sb.append(" through instance ");
             sb.append(getInstance().getInstanceId());

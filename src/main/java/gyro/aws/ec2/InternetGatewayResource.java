@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @Type("internet-gateway")
 public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway> implements Copyable<InternetGateway> {
 
-    private String internetGatewayId;
+    private String id;
     private VpcResource vpc;
 
     /**
@@ -53,22 +53,22 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
      */
     @Id
     @Output
-    public String getInternetGatewayId() {
-        return internetGatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setInternetGatewayId(String internetGatewayId) {
-        this.internetGatewayId = internetGatewayId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     protected String getResourceId() {
-        return getInternetGatewayId();
+        return getId();
     }
 
     @Override
     public void copyFrom(InternetGateway internetGateway) {
-        setInternetGatewayId(internetGateway.internetGatewayId());
+        setId(internetGateway.internetGatewayId());
 
         if (!internetGateway.attachments().isEmpty() && !ObjectUtils.isBlank(internetGateway.attachments().get(0).vpcId())) {
             setVpc(findById(VpcResource.class, internetGateway.attachments().get(0).vpcId()));
@@ -98,10 +98,10 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         CreateInternetGatewayResponse response = client.createInternetGateway();
 
-        setInternetGatewayId(response.internetGateway().internetGatewayId());
+        setId(response.internetGateway().internetGatewayId());
 
         if (getVpc() != null) {
-            client.attachInternetGateway(r -> r.internetGatewayId(getInternetGatewayId())
+            client.attachInternetGateway(r -> r.internetGatewayId(getId())
                     .vpcId(getVpc().getVpcId())
             );
         }
@@ -125,7 +125,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
                 .until(() -> {
                     try {
                         client.detachInternetGateway(
-                            r -> r.internetGatewayId(getInternetGatewayId()).vpcId(internetGateway.attachments().get(0).vpcId())
+                            r -> r.internetGatewayId(getId()).vpcId(internetGateway.attachments().get(0).vpcId())
                         );
                     } catch (Ec2Exception e) {
                         // DependencyViolation should be retried since this resource may be waiting for a
@@ -140,7 +140,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
             );
         }
 
-        client.deleteInternetGateway(r -> r.internetGatewayId(getInternetGatewayId()));
+        client.deleteInternetGateway(r -> r.internetGatewayId(getId()));
     }
 
     @Override
@@ -149,8 +149,8 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         sb.append("internet gateway");
 
-        if (getInternetGatewayId() != null) {
-            sb.append(" - ").append(getInternetGatewayId());
+        if (getId() != null) {
+            sb.append(" - ").append(getId());
 
         }
 
@@ -160,13 +160,13 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     private InternetGateway getInternetGateway(Ec2Client client) {
         InternetGateway internetGateway = null;
 
-        if (ObjectUtils.isBlank(getInternetGatewayId())) {
-            throw new GyroException("internet-gateway-id is missing, unable to load internet gateway.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load internet gateway.");
         }
 
         try {
             DescribeInternetGatewaysResponse response = client.describeInternetGateways(
-                r -> r.internetGatewayIds(getInternetGatewayId())
+                r -> r.internetGatewayIds(getId())
             );
 
             if (!response.internetGateways().isEmpty()) {
