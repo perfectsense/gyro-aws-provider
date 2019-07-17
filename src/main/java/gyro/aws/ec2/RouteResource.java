@@ -212,7 +212,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
                 .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
                 .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
                 .transitGatewayId(getTransitGatewayId())
-                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
+                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
                 .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
                 .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
         );
@@ -229,7 +229,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
             .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
             .transitGatewayId(getTransitGatewayId())
-            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
+            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
             .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
             .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
         );
@@ -267,9 +267,9 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         } else if (!ObjectUtils.isBlank(getTransitGatewayId())) {
             sb.append(" through transit gateway ");
             sb.append(getTransitGatewayId());
-        } else if (getVpcPeeringConnection() != null && !ObjectUtils.isBlank(getVpcPeeringConnection().getPeeringConnectionId())) {
+        } else if (getVpcPeeringConnection() != null && !ObjectUtils.isBlank(getVpcPeeringConnection().getId())) {
             sb.append(" through vpc peering connection ");
-            sb.append(getVpcPeeringConnection().getPeeringConnectionId());
+            sb.append(getVpcPeeringConnection().getId());
         }
 
         return sb.toString();
