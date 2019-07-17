@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::launch-template launch-template
- *         launch-template-name: "launch-template-gyro-1"
+ *         name: "launch-template-gyro-1"
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
@@ -77,7 +77,7 @@ import java.util.stream.Collectors;
 public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> implements Copyable<LaunchTemplate> {
 
     private String id;
-    private String launchTemplateName;
+    private String name;
 
     private String amiId;
     private String amiName;
@@ -102,12 +102,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The name of the launch template. (Required)
      */
-    public String getLaunchTemplateName() {
-        return launchTemplateName;
+    public String getName() {
+        return name;
     }
 
-    public void setLaunchTemplateName(String launchTemplateName) {
-        this.launchTemplateName = launchTemplateName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -375,7 +375,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     @Override
     public void copyFrom(LaunchTemplate launchTemplate) {
         setId(launchTemplate.launchTemplateId());
-        setLaunchTemplateName(launchTemplate.launchTemplateName());
+        setName(launchTemplate.launchTemplateName());
         setVersion(launchTemplate.latestVersionNumber());
     }
 
@@ -401,7 +401,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         validate(client);
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
-            r -> r.launchTemplateName(getLaunchTemplateName())
+            r -> r.launchTemplateName(getName())
                 .launchTemplateData(
                     l -> l.cpuOptions(getCoreCount() > 0
                         ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)

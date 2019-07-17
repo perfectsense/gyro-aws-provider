@@ -91,7 +91,7 @@ aws::network-interface nic-example-launch-template-2
 end
 
 aws::launch-template launch-template
-    launch-template-name: "launch-template-gyro-1"
+    name: "launch-template-gyro-1"
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
