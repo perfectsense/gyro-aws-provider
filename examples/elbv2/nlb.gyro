@@ -49,13 +49,13 @@ aws::load-balancer-target-group target-group-example
 end
 
 aws::load-balancer-target target-ex-one
-    id: $(aws::instance instance-us-east-2a).instance-id
+    id: $(aws::instance instance-us-east-2a).id
     port: "80"
     target-group: $(aws::load-balancer-target-group target-group-example)
 end
 
 aws::load-balancer-target target-ex-two
-    id: $(aws::instance instance-us-east-2b).instance-id
+    id: $(aws::instance instance-us-east-2b).id
     port: "443"
     target-group: $(aws::load-balancer-target-group target-group-example)
 end

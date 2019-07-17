@@ -111,7 +111,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     // -- Readonly
 
-    private String instanceId;
+    private String id;
     private String privateIpAddress;
     private String publicIpAddress;
     private String publicDnsName;
@@ -394,12 +394,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      */
     @Id
     @Output
-    public String getInstanceId() {
-        return instanceId;
+    public String getId() {
+        return id;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -494,13 +494,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     @Override
     protected String getResourceId() {
-        return getInstanceId();
+        return getId();
     }
 
     @Override
     public void copyFrom(Instance instance) {
         Ec2Client client = createClient(Ec2Client.class);
-        setInstanceId(instance.instanceId());
+        setId(instance.instanceId());
         init(instance, client);
     }
 
@@ -592,14 +592,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         if (changedProperties.contains("shutdown-behavior")) {
             client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .instanceInitiatedShutdownBehavior(o -> o.value(getShutdownBehavior()))
             );
         }
 
         if (changedProperties.contains("disable-api-termination")) {
             client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .disableApiTermination(o -> o.value(getDisableApiTermination()))
             );
         }
@@ -620,7 +620,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             getSecurityGroups().forEach(r -> securityGroupIds.add(r.getId()));
 
             client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .groups(securityGroupIds)
             );
         }
@@ -630,7 +630,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (changedProperties.contains("instance-type")
             && validateInstanceStop(ui, instanceStopped, "instance-type", getInstanceType())) {
             client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .instanceType(o -> o.value(getInstanceType()))
             );
         }
@@ -638,7 +638,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (changedProperties.contains("ebs-optimized")
             && validateInstanceStop(ui, instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
             client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .ebsOptimized(o -> o.value(getEbsOptimized()))
             );
         }
@@ -646,7 +646,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (changedProperties.contains("user-data")
             && validateInstanceStop(ui, instanceStopped, "user-data", getUserData())) {
             client.modifyInstanceAttribute(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .userData(o -> o.value(SdkBytes.fromByteArray(getUserData().getBytes())))
             );
         }
@@ -654,7 +654,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (changedProperties.contains("capacity-reservation")
             && validateInstanceStop(ui, instanceStopped, "capacity-reservation", getCapacityReservation())) {
             client.modifyInstanceCapacityReservationAttributes(
-                r -> r.instanceId(getInstanceId())
+                r -> r.instanceId(getId())
                     .capacityReservationSpecification(getCapacityReservationSpecification())
             );
         }
@@ -663,12 +663,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public void delete(GyroUI ui, State state) {
         if (getDisableApiTermination()) {
-            throw new GyroException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
+            throw new GyroException("The instance (" + getId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.terminateInstances(r -> r.instanceIds(Collections.singletonList(getInstanceId())));
+        client.terminateInstances(r -> r.instanceIds(Collections.singletonList(getId())));
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -679,7 +679,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public String toDisplayString() {
         StringBuilder sb = new StringBuilder();
-        String instanceId = getInstanceId();
+        String instanceId = getId();
 
         sb.append("instance ");
         if (!ObjectUtils.isBlank(instanceId)) {
@@ -716,12 +716,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
-            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
+            r -> r.instanceId(getId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
         );
         setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
 
         attributeResponse = client.describeInstanceAttribute(
-            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
+            r -> r.instanceId(getId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
         );
         setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
@@ -732,7 +732,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setSourceDestCheck(response.sourceDestCheck().value());
 
         attributeResponse = client.describeInstanceAttribute(
-            r -> r.instanceId(getInstanceId()).attribute(InstanceAttributeName.USER_DATA)
+            r -> r.instanceId(getId()).attribute(InstanceAttributeName.USER_DATA)
         );
         setUserData(attributeResponse.userData().value() == null
             ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
@@ -795,12 +795,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     private Instance getInstance(Ec2Client client) {
-        if (ObjectUtils.isBlank(getInstanceId())) {
-            throw new GyroException("instance-id is missing, unable to load instance.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load instance.");
         }
 
         try {
-            DescribeInstancesResponse response = client.describeInstances(r -> r.instanceIds(getInstanceId()));
+            DescribeInstancesResponse response = client.describeInstances(r -> r.instanceIds(getId()));
 
             if (!response.reservations().isEmpty() && !response.reservations().get(0).instances().isEmpty()) {
                 return response.reservations().get(0).instances().get(0);
@@ -893,7 +893,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         try {
             RunInstancesResponse response = client.runInstances(request);
             if (!response.instances().isEmpty()) {
-                setInstanceId(response.instances().get(0).instanceId());
+                setId(response.instances().get(0).instanceId());
               
                 if (!getSourceDestCheck()) {
                     client.modifyNetworkInterfaceAttribute(

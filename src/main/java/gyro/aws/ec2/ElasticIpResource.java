@@ -214,7 +214,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
                 setAssociationId(resp.associationId());
             } else if (getInstance() != null) {
                 AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                    .instanceId(getInstance().getInstanceId())
+                    .instanceId(getInstance().getId())
                     .allowReassociation(getAllowReAssociation()));
                 setAssociationId(resp.associationId());
             }
@@ -251,7 +251,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             if (changedProperties.contains("instance")) {
                 if (getInstance() != null) {
                     AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                        .instanceId(getInstance().getInstanceId())
+                        .instanceId(getInstance().getId())
                         .allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {

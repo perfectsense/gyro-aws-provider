@@ -328,7 +328,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             if (getInstance() != null) {
                 AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
                         .attachNetworkInterface(n -> n.networkInterfaceId(getId())
-                                .instanceId(getInstance().getInstanceId())
+                                .instanceId(getInstance().getId())
                                 .deviceIndex(getDeviceIndex())
                 );
 
@@ -355,7 +355,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         } catch(Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
                 delete(ui, state);
-                throw new GyroException("The instance (" + getInstance().getInstanceId() + ") attachment failed, invalid instance-id.");
+                throw new GyroException("The instance (" + getInstance().getId() + ") attachment failed, invalid instance.");
             }
         }
     }
@@ -379,7 +379,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             if (getInstance() != null) {
                 AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
                         .attachNetworkInterface(n -> n.networkInterfaceId(getId())
-                                .instanceId(getInstance().getInstanceId())
+                                .instanceId(getInstance().getId())
                                 .deviceIndex(getDeviceIndex())
                         );
                 setAttachmentId(attachNetworkInterfaceResponse.attachmentId());

@@ -300,7 +300,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .keyName(getKey() != null ? getKey().getName() : null)
             .instanceType(getInstance() == null ? getInstanceType() : null)
-            .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+            .instanceId(getInstance() != null ? getInstance().getId() : null)
             .associatePublicIpAddress(getAssociatePublicIp())
             .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                 getBlockDeviceMapping()

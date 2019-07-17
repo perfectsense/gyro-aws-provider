@@ -208,7 +208,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
                 .gatewayId(getGateway() != null ? getGateway().getId() : null)
-                .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+                .instanceId(getInstance() != null ? getInstance().getId() : null)
                 .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
                 .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
                 .transitGatewayId(getTransitGatewayId())
@@ -225,7 +225,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
             .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
             .gatewayId(getGateway() != null ? getGateway().getId() : null)
-            .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+            .instanceId(getInstance() != null ? getInstance().getId() : null)
             .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
             .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
             .transitGatewayId(getTransitGatewayId())
@@ -255,9 +255,9 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         if (getGateway() != null && !ObjectUtils.isBlank(getGateway().getId())) {
             sb.append(" through gateway ");
             sb.append(getGateway().getId());
-        } else if (getInstance() != null && !ObjectUtils.isBlank(getInstance().getInstanceId())) {
+        } else if (getInstance() != null && !ObjectUtils.isBlank(getInstance().getId())) {
             sb.append(" through instance ");
-            sb.append(getInstance().getInstanceId());
+            sb.append(getInstance().getId());
         } else if (getNatGateway() != null && !ObjectUtils.isBlank(getNatGateway().getId())) {
             sb.append(" through nat gateway");
             sb.append(getNatGateway().getId());

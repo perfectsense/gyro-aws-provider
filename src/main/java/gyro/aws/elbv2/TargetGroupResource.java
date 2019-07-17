@@ -54,12 +54,12 @@ import java.util.Set;
  *         end
  *
  *         target
- *             id: $(aws::instance instance-us-east-2a | instance-id)
+ *             id: $(aws::instance instance-us-east-2a).id
  *             port: "80"
  *         end
  *
  *         target
- *             id: $(aws::instance instance-us-east-2b | instance-id)
+ *             id: $(aws::instance instance-us-east-2b).id
  *             port: "443"
  *         end
  *

@@ -3,7 +3,6 @@ package gyro.aws.ec2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroCore;
 import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -65,7 +64,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
         client.attachVolume(
             r -> r.device(getDeviceName())
                 .volumeId(getVolume().getVolumeId())
-                .instanceId(parent.getInstanceId())
+                .instanceId(parent.getId())
         );
     }
 
@@ -80,7 +79,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
         client.detachVolume(
             r -> r.device(getDeviceName())
                 .volumeId(currentAttachment.getVolume().getVolumeId())
-                .instanceId(parent.getInstanceId())
+                .instanceId(parent.getId())
         );
 
         boolean success = Wait.atMost(1, TimeUnit.MINUTES)
@@ -93,7 +92,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
             client.attachVolume(
                 r -> r.device(getDeviceName())
                     .volumeId(getVolume().getVolumeId())
-                    .instanceId(parent.getInstanceId())
+                    .instanceId(parent.getId())
             );
         } else {
             ui.write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
@@ -109,7 +108,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
         client.detachVolume(
             r -> r.device(getDeviceName())
                 .volumeId(getVolume().getVolumeId())
-                .instanceId(parent.getInstanceId())
+                .instanceId(parent.getId())
         );
     }
 

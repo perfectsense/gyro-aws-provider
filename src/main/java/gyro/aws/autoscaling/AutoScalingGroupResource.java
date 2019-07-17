@@ -683,7 +683,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .placementGroup(getPlacementGroup())
                 .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getLoadBalancerName).collect(Collectors.toList()))
                 .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toList()))
-                .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
+                .instanceId(getInstance() != null ? getInstance().getId() : null)
                 .terminationPolicies(getTerminationPolicies())
         );
 

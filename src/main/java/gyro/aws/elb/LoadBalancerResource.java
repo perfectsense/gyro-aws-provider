@@ -393,7 +393,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private Set<Instance> toInstances() {
         Set<Instance> instance = new LinkedHashSet<>();
         for (InstanceResource instanceResource : getInstances()) {
-            instance.add(Instance.builder().instanceId(instanceResource.getInstanceId()).build());
+            instance.add(Instance.builder().instanceId(instanceResource.getId()).build());
         }
 
         return instance;
