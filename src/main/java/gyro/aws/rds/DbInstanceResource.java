@@ -806,7 +806,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .iops(getIops())
-                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyArn() : null)
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .licenseModel(getLicenseModel())
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
@@ -814,7 +814,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .monitoringRoleArn(getMonitoringRoleArn())
                     .multiAZ(getMultiAz())
                     .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
-                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null)
+                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null)
                     .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
                     .port(getPort())
                     .preferredBackupWindow(getPreferredBackupWindow())
@@ -862,7 +862,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
         String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null;
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
-        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
+        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
             .map(SecurityGroupResource::getId)

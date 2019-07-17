@@ -68,7 +68,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private Boolean bypassPolicyLockoutSafetyCheck;
     private String description;
     private Boolean enabled;
-    private String keyArn;
+    private String arn;
     private String keyId;
     private String keyManager;
     private Boolean keyRotation;
@@ -159,12 +159,12 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
      */
     @Id
     @Output
-    public String getKeyArn() {
-        return keyArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setKeyArn(String keyArn) {
-        this.keyArn = keyArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     /**
@@ -285,7 +285,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     public void copyFrom(KeyMetadata keyMetadata) {
         setDescription(keyMetadata.description());
         setEnabled(keyMetadata.enabled());
-        setKeyArn(keyMetadata.arn());
+        setArn(keyMetadata.arn());
         setKeyId(keyMetadata.keyId());
         setKeyManager(keyMetadata.keyManagerAsString());
         setKeyState(keyMetadata.keyStateAsString());
@@ -350,7 +350,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                             .tags(toTag())
             );
 
-            setKeyArn(response.keyMetadata().arn());
+            setArn(response.keyMetadata().arn());
             setKeyId(response.keyMetadata().keyId());
             setKeyManager(response.keyMetadata().keyManagerAsString());
             setKeyState(response.keyMetadata().keyStateAsString());
@@ -422,7 +422,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             }
 
             client.tagResource(r -> r.tags(toTag())
-                    .keyId(getKeyArn())
+                    .keyId(getArn())
             );
 
             client.updateKeyDescription(r -> r.description(getDescription())

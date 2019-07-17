@@ -594,7 +594,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .engineVersion(getEngineVersion())
                     .engineMode(getEngineMode())
                     .globalClusterIdentifier(getGlobalCluster() != null ? getGlobalCluster().getGlobalClusterIdentifier() : null)
-                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyArn() : null)
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
                     .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
