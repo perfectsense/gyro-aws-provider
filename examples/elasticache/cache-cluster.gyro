@@ -125,7 +125,7 @@ end
 
 aws::elasticache-cluster cache-cluster-example
     az-mode: "cross-az"
-    cache-cluster-id: "cache-cluster-ex-1"
+    name: "cache-cluster-ex-1"
     cache-node-type: "cache.t2.micro"
     cache-param-group: $(aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example)
     cache-subnet-group: $(aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example)
