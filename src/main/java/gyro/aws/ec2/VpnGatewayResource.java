@@ -194,19 +194,6 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("vpn gateway");
-
-        if (getVpnGatewayId() != null) {
-            sb.append(" - ").append(getVpnGatewayId());
-        }
-
-        return sb.toString();
-    }
-
     private boolean replaceVpc(Ec2Client client) {
         try {
             attachVpc(client);

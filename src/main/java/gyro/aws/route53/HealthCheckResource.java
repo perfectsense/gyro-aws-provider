@@ -465,23 +465,6 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("health check");
-
-        if (!ObjectUtils.isBlank(getHealthCheckId())) {
-            sb.append(" - ").append(getHealthCheckId());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" [ ").append(getType()).append(" ]");
-        }
-
-        return sb.toString();
-    }
-
     private HealthCheck getHealthCheck(Route53Client client) {
         HealthCheck healthCheck;
 

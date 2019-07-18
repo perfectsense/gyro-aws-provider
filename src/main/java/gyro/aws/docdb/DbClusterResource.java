@@ -426,19 +426,6 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db cluster");
-
-        if (!ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            sb.append(" - ").append(getDbClusterIdentifier());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public void copyFrom(DBCluster dbCluster) {
 
         setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());

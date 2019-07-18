@@ -232,20 +232,4 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("lambda function alias");
-
-        if (!ObjectUtils.isBlank(getAliasName())) {
-            sb.append(" - ").append(getAliasName());
-        }
-
-        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
-            sb.append(", function - ").append(getFunction().getFunctionName());
-        }
-
-        return sb.toString();
-    }
 }

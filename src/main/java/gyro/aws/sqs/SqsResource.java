@@ -463,19 +463,6 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         client.deleteQueue(r -> r.queueUrl(getQueueUrl()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Queue");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
     private String getQueue(SqsClient client) {
         ListQueuesResponse response = client.listQueues(r -> r.queueNamePrefix(getName()));
 

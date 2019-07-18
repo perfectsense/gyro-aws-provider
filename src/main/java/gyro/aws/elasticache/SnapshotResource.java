@@ -1,6 +1,5 @@
 package gyro.aws.elasticache;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -133,19 +132,6 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
         client.deleteSnapshot(
             r -> r.snapshotName(getSnapshotName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("snapshot");
-
-        if (!ObjectUtils.isBlank(getSnapshotName())) {
-            sb.append(" - ").append(getSnapshotName());
-        }
-
-        return sb.toString();
     }
 
     private Snapshot getSnapshot(ElastiCacheClient client) {

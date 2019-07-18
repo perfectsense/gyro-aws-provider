@@ -129,8 +129,4 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
                                             .userPoolId(getUserPool().getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "user pool domain " + getDomain();
-    }
 }

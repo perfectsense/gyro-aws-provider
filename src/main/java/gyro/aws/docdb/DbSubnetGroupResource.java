@@ -172,19 +172,6 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db subnet group");
-
-        if (!ObjectUtils.isBlank(getDbSubnetGroupName())) {
-            sb.append(" - ").append(getDbSubnetGroupName());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public void copyFrom(DBSubnetGroup dbSubnetGroup) {
         setArn(dbSubnetGroup.dbSubnetGroupArn());
         setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());

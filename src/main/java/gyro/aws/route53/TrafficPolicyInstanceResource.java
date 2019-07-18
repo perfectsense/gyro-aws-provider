@@ -227,28 +227,6 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
             .until(() -> getTrafficPolicyInstance(client) == null);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("traffic policy instance - ");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(getName());
-        }
-
-        if (getHostedZone() != null) {
-            sb.append(getHostedZone().getName());
-        }
-
-        if (!ObjectUtils.isBlank(getTrafficPolicyInstanceId())) {
-            sb.append(" - ").append(getTrafficPolicyInstanceId());
-
-        }
-
-        return sb.toString();
-    }
-
     private TrafficPolicyInstance getTrafficPolicyInstance(Route53Client client) {
         TrafficPolicyInstance trafficPolicyInstance = null;
 

@@ -26,11 +26,6 @@ public class S3LifecycleRuleNoncurrentVersionExpiration extends Diffable impleme
     }
 
     @Override
-    public String toDisplayString() {
-        return "non current version expiration";
-    }
-
-    @Override
     public String primaryKey() {
         return "non current version expiration";
     }

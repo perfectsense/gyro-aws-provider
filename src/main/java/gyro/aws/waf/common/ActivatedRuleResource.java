@@ -3,6 +3,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -129,27 +130,8 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("activated rule");
-
-        if (getRule() != null && !ObjectUtils.isBlank(getRule().getRuleId())) {
-            sb.append(" - ").append(getRule().getRuleId());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        } else if (getRule() != null && !ObjectUtils.isBlank(getRule().getType())) {
-            sb.append(" - ").append(getRule().getType());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
-        return String.format("%s", getRule() != null ? (!ObjectUtils.isBlank(getRule().getRuleId()) ? getRule().getRuleId() : getRule().name()) : null);
+        return String.format("%s", getRule() != null ? (!ObjectUtils.isBlank(getRule().getRuleId()) ? getRule().getRuleId() : DiffableInternals.getName(getRule())) : null);
     }
 
     private ActivatedRule toActivatedRule() {

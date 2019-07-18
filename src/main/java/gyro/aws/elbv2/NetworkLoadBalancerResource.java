@@ -145,13 +145,6 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
                 .until(() -> isDeleted(client));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("network load balancer " + getName());
-        return sb.toString();
-    }
-
     private List<SubnetMapping> toSubnetMappings() {
         List<SubnetMapping> subnetMappings = new ArrayList<>();
 

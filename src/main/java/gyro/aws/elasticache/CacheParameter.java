@@ -45,11 +45,6 @@ public class CacheParameter extends Diffable {
         return getName();
     }
 
-    @Override
-    public String toDisplayString() {
-        return String.format("cache param - %s", getName()) ;
-    }
-
     ParameterNameValue getParameterNameValue() {
         return ParameterNameValue.builder()
             .parameterName(getName())

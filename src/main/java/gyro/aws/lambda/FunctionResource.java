@@ -6,7 +6,6 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
@@ -750,23 +749,6 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         client.deleteFunction(
             r -> r.functionName(getFunctionName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("lambda function");
-
-        if (!ObjectUtils.isBlank(getFunctionName())) {
-            sb.append(" - ").append(getFunctionName());
-        }
-
-        if (!ObjectUtils.isBlank(getVersion())) {
-            sb.append(" version - ").append(getVersion());
-        }
-
-        return sb.toString();
     }
 
     private SdkBytes getZipFile() {

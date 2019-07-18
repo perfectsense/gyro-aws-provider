@@ -356,25 +356,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         client.deleteVpc(request);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("vpc");
-
-        if (!ObjectUtils.isBlank(getVpcId())) {
-            sb.append(" - ").append(vpcId);
-
-        }
-
-        if (!ObjectUtils.isBlank(getCidrBlock())) {
-            sb.append(' ');
-            sb.append(getCidrBlock());
-        }
-
-        return sb.toString();
-    }
-
     private Vpc getVpc(Ec2Client client) {
         Vpc vpc = null;
 

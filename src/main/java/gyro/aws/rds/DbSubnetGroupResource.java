@@ -145,8 +145,4 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db subnet group " + getGroupName();
-    }
 }

@@ -123,11 +123,6 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
     }
 
     @Override
-    public String toDisplayString() {
-        return "load balancer attribute";
-    }
-
-    @Override
     public String primaryKey() {
         return "load balancer attribute";
     }

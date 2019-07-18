@@ -182,13 +182,13 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
         if (getEndpoint() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getEndpoint().getEndpointId())
+                r -> r.vpcEndpointId(getEndpoint().getId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.serviceId(getEndpointService().getServiceId())
+                r -> r.serviceId(getEndpointService().getId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
@@ -221,19 +221,6 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         client.deleteVpcEndpointConnectionNotifications(
             r -> r.connectionNotificationIds(Collections.singleton(getConnectionNotificationId()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("connection notification");
-
-        if (!ObjectUtils.isBlank(getConnectionNotificationId())) {
-            sb.append(" - ").append(getConnectionNotificationId());
-        }
-
-        return sb.toString();
     }
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {

@@ -94,37 +94,6 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("size constraint");
-
-        if (getFieldToMatch() != null) {
-            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
-                sb.append(" - ").append(getFieldToMatch().getData());
-            }
-
-            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
-                sb.append(" - ").append(getFieldToMatch().getType());
-            }
-        }
-
-        if (!ObjectUtils.isBlank(getComparisonOperator())) {
-            sb.append(" - ").append(getComparisonOperator());
-        }
-
-        if (!ObjectUtils.isBlank(getSize())) {
-            sb.append(" - ").append(getSize());
-        }
-
-        if (!ObjectUtils.isBlank(getTextTransformation())) {
-            sb.append(" - ").append(getTextTransformation());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         StringBuilder sb = new StringBuilder();
 

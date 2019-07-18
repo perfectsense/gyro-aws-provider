@@ -33,11 +33,6 @@ public class CloudFrontS3Origin extends Diffable implements Copyable<S3OriginCon
         return "s3-origin";
     }
 
-    @Override
-    public String toDisplayString() {
-        return "s3 origin";
-    }
-
     S3OriginConfig toS3OriginConfig() {
         return S3OriginConfig.builder()
             .originAccessIdentity(getOriginAccessIdentity())

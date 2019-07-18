@@ -958,8 +958,4 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         return false;
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db instance " + getDbInstanceIdentifier();
-    }
 }
