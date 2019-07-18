@@ -101,11 +101,6 @@ public class CertificateResource extends AwsResource {
                 .listenerArn(getListenerArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "certificate " + getArn();
-    }
-
     private Certificate toCertificate() {
         return Certificate.builder()
                 .certificateArn(getArn())

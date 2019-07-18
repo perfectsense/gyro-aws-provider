@@ -115,8 +115,4 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db cluster snapshot " + getDbClusterSnapshotIdentifier();
-    }
 }

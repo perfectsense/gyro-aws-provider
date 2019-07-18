@@ -7,6 +7,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
 import gyro.core.Wait;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -477,7 +478,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public String getName() {
         if (getTags().isEmpty()) {
-            return name();
+            return DiffableInternals.getName(this);
         }
 
         return getTags().get("Name");
@@ -674,19 +675,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isInstanceTerminated(client));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        String instanceId = getInstanceId();
-
-        sb.append("instance ");
-        if (!ObjectUtils.isBlank(instanceId)) {
-            sb.append(instanceId);
-        }
-
-        return sb.toString();
     }
 
     private void init(Instance instance, Ec2Client client) {

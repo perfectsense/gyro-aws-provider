@@ -140,19 +140,6 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("cache subnet group");
-
-        if (!ObjectUtils.isBlank(getCacheSubnetGroupName())) {
-            sb.append(" - ").append(getCacheSubnetGroupName());
-        }
-
-        return sb.toString();
-    }
-
     private CacheSubnetGroup getCacheSubnetGroup(ElastiCacheClient client) {
         CacheSubnetGroup cacheSubnetGroup = null;
 

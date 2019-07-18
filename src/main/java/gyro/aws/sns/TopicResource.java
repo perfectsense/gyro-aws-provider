@@ -193,11 +193,6 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
         client.deleteTopic(r -> r.topicArn(getArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "sns topic " + getName();
-    }
-
     private Map<String, String> getAttributes() {
         Map<String, String> attributes = new HashMap<>();
 

@@ -122,8 +122,4 @@ public class CacheClusterNode extends Diffable implements Copyable<CacheNode> {
         return getNodeId();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cache cluster node " + getNodeId();
-    }
 }

@@ -86,13 +86,6 @@ public class NetworkActionResource extends AwsResource {
     @Override
     public void delete(GyroUI ui, State state) {}
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("nlb listener default action");
-        return sb.toString();
-    }
-
     public Action toAction() {
         return Action.builder()
                 .targetGroupArn(getTargetGroup().getArn())

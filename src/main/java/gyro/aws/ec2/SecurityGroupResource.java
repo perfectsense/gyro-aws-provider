@@ -276,23 +276,6 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("security group");
-
-        if (!ObjectUtils.isBlank(getGroupName())) {
-            sb.append(" - ").append(getGroupName());
-        }
-
-        if (!ObjectUtils.isBlank(getGroupId())) {
-            sb.append(" ").append(getGroupId());
-        }
-
-        return sb.toString();
-    }
-
     private SecurityGroup getSecurityGroup(Ec2Client client) {
         SecurityGroup securityGroup = null;
 

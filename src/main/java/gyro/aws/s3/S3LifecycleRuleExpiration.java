@@ -45,11 +45,6 @@ public class S3LifecycleRuleExpiration extends Diffable implements Copyable<Life
     }
 
     @Override
-    public String toDisplayString() {
-        return "lifecycle expiration";
-    }
-
-    @Override
     public String primaryKey() {
         return "lifecycle expiration";
     }

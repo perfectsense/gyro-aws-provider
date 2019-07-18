@@ -187,19 +187,6 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("route table");
-
-        if (!ObjectUtils.isBlank(getRouteTableId())) {
-            sb.append(" - ").append(routeTableId);
-        }
-
-        return sb.toString();
-    }
-
     private RouteTable getRouteTable(Ec2Client client) {
         RouteTable routeTable = null;
 

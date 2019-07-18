@@ -369,19 +369,6 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (!getName().isEmpty()) {
-            sb.append(getName());
-        } else {
-            sb.append("bucket");
-        }
-
-        return sb.toString();
-    }
-
     private Bucket getBucket(S3Client client) {
         Bucket bucket = null;
 

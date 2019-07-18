@@ -4,10 +4,6 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.cloudfront.model.CustomErrorResponse;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<CustomErrorResponse> {
 
     private long ttl;
@@ -91,11 +87,6 @@ public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<
     @Override
     public String primaryKey() {
         return getErrorCode() != null ? getErrorCode().toString() : "";
-    }
-
-    @Override
-    public String toDisplayString() {
-        return String.format("error response - code: %d, ttl: %d", getErrorCode(), getTtl());
     }
 
     CustomErrorResponse toCustomErrorResponse() {

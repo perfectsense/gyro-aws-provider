@@ -177,19 +177,6 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("lifecycle hook");
-
-        if (!ObjectUtils.isBlank(getLifecycleHookName())) {
-            sb.append(" - ").append(getLifecycleHookName());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s", getLifecycleHookName());
     }
