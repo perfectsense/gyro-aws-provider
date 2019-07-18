@@ -568,23 +568,28 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         state.save();
 
-        Wait.atMost(3, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isInstanceRunning(client));
-
         Instance instance = getInstance(client);
 
         if (instance != null) {
-
             setPublicDnsName(instance.publicDnsName());
             setPublicIpAddress(instance.publicIpAddress());
             setPrivateIpAddress(instance.privateIpAddress());
             setInstanceState(instance.state().nameAsString());
             setInstanceLaunchDate(Date.from(instance.launchTime()));
-
-            loadVolume(instance);
         }
+
+        state.save();
+
+        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isInstanceRunning(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'running' state for ec2 instance - " + getInstanceId());
+        }
+
+        loadVolume(getInstance(client));
     }
 
     @Override
