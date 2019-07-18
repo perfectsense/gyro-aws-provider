@@ -214,19 +214,23 @@ aws::vpc-endpoint endpoint-example-gateway
     vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.s3'
     policy: 'endpoint-policy-1.json'
-    type-interface: false
+    type: 'Gateway'
     route-tables: [
         $(aws::route-table route-table-example-for-endpoint-1),
         $(aws::route-table route-table-example-for-endpoint-2),
         $(aws::route-table route-table-example-for-endpoint-3)
     ]
+
+    tags: {
+        Name: "endpoint-example-gateway"
+    }
 end
 
 aws::vpc-endpoint endpoint-example-interface
     vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.ec2'
     policy: 'endpoint-policy-2.json'
-    type-interface: true
+    type: 'Interface'
     subnets: [
         $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1),
         $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-1),
@@ -237,4 +241,8 @@ aws::vpc-endpoint endpoint-example-interface
         $(aws::security-group security-group-example-for-endpoint-2),
         $(aws::security-group security-group-example-for-endpoint-3)
     ]
+
+    tags: {
+        Name: "endpoint-example-interface"
+    }
 end

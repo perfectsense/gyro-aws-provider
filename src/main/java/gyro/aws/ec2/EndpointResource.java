@@ -26,6 +26,7 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
  *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         service-name: 'com.amazonaws.us-east-1.s3'
  *         policy: 'policy.json'
- *         type-interface: false
+ *         type: 'Gateway'
  *         route-tables: [
  *             $(aws::route-table route-table-example-for-endpoint-1),
  *             $(aws::route-table route-table-example-for-endpoint-2),
@@ -52,10 +53,10 @@ import java.util.stream.Collectors;
  *     end
  *
  *     aws::vpc-endpoint endpoint-example-interface
- *         vpc-id: $(aws::vpc vpc-example-for-endpoint | vpc-id)
+ *         vpc: $(aws::vpc vpc-example-for-endpoint)
  *         service-name: 'com.amazonaws.us-east-1.ec2'
  *         policy: 'policy.json'
- *         type-interface: true
+ *         type: 'Interface'
  *         subnets: [
  *             $(aws::subnet subnet-public-us-east-1a-example-for-endpoint-1),
  *             $(aws::subnet subnet-public-us-east-1b-example-for-endpoint-1),
@@ -69,29 +70,35 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("vpc-endpoint")
-public class EndpointResource extends AwsResource implements Copyable<VpcEndpoint> {
+public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implements Copyable<VpcEndpoint> {
 
-    private String endpointId;
+    private String id;
     private String serviceName;
     private VpcResource vpc;
-    private Boolean typeInterface;
+    private VpcEndpointType type;
     private Set<RouteTableResource> routeTables;
     private Set<SubnetResource> subnets;
     private Set<SecurityGroupResource> securityGroups;
-    private Boolean enablePrivateDns;
+    private Boolean privateDnsEnabled;
     private String policy;
+
+    private String state;
+    private Date createTime;
+    private Set<NetworkInterfaceResource> networkInterfaces;
+    private Set<DnsEntry> dnsEntries;
+    private Boolean requesterManaged;
 
     /**
      * The ID of the endpoint.
      */
     @Id
     @Output
-    public String getEndpointId() {
-        return endpointId;
+    public String getId() {
+        return id;
     }
 
-    public void setEndpointId(String endpointId) {
-        this.endpointId = endpointId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -117,14 +124,18 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     /**
-     * The type of service being associated is of type interface or gateway. (Required)
+     * The type of service being associated. Valid values ``INTERFACE`` or ``GATEWAY``. Defaults to ``GATEWAY``.
      */
-    public Boolean getTypeInterface() {
-        return typeInterface;
+    public VpcEndpointType getType() {
+        if (type == null) {
+            type = VpcEndpointType.GATEWAY;
+        }
+
+        return type;
     }
 
-    public void setTypeInterface(Boolean typeInterface) {
-        this.typeInterface = typeInterface;
+    public void setType(VpcEndpointType type) {
+        this.type = type;
     }
 
     /**
@@ -179,12 +190,12 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
      * Enable private DNS on the Endpoint.
      */
     @Updatable
-    public Boolean getEnablePrivateDns() {
-        return enablePrivateDns;
+    public Boolean getPrivateDnsEnabled() {
+        return privateDnsEnabled;
     }
 
-    public void setEnablePrivateDns(Boolean enablePrivateDns) {
-        this.enablePrivateDns = enablePrivateDns;
+    public void setPrivateDnsEnabled(Boolean privateDnsEnabled) {
+        this.privateDnsEnabled = privateDnsEnabled;
     }
 
     /**
@@ -198,6 +209,74 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
 
     public void setPolicy(String policy) {
         this.policy = policy;
+    }
+
+    /**
+     * The state of the Endpoint.
+     */
+    @Output
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
+     * The creation time of the Endpoint.
+     */
+    @Output
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    /**
+     * A set of Network Interface attached to the Endpoint.
+     */
+    @Output
+    public Set<NetworkInterfaceResource> getNetworkInterfaces() {
+        if (networkInterfaces == null) {
+            networkInterfaces = new HashSet<>();
+        }
+
+        return networkInterfaces;
+    }
+
+    public void setNetworkInterfaces(Set<NetworkInterfaceResource> networkInterfaces) {
+        this.networkInterfaces = networkInterfaces;
+    }
+
+    /**
+     * A set of Dns Entry attached to the Endpoint.
+     */
+    @Output
+    public Set<DnsEntry> getDnsEntries() {
+        if (dnsEntries == null) {
+            dnsEntries = new HashSet<>();
+        }
+
+        return dnsEntries;
+    }
+
+    /**
+     * Is the requester managed.
+     */
+    @Output
+    public Boolean getRequesterManaged() {
+        return requesterManaged;
+    }
+
+    public void setRequesterManaged(Boolean requesterManaged) {
+        this.requesterManaged = requesterManaged;
+    }
+
+    public void setDnsEntries(Set<DnsEntry> dnsEntries) {
+        this.dnsEntries = dnsEntries;
     }
 
     private String getProcessedPolicy(String policy) {
@@ -226,16 +305,29 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
         setServiceName(vpcEndpoint.serviceName());
         setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
-        setEndpointId(vpcEndpoint.vpcEndpointId());
-        setTypeInterface(vpcEndpoint.vpcEndpointType().equals(VpcEndpointType.INTERFACE));
-        setEnablePrivateDns(vpcEndpoint.privateDnsEnabled());
+        setId(vpcEndpoint.vpcEndpointId());
+        setType(vpcEndpoint.vpcEndpointType());
+        setPrivateDnsEnabled(vpcEndpoint.privateDnsEnabled());
         setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
         setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
         setPolicy(vpcEndpoint.policyDocument());
+
+        setState(vpcEndpoint.stateAsString());
+        setCreateTime(Date.from(vpcEndpoint.creationTimestamp()));
+        setNetworkInterfaces(vpcEndpoint.networkInterfaceIds().stream().map(o -> findById(NetworkInterfaceResource.class, o)).collect(Collectors.toSet()));
+
+        setRequesterManaged(vpcEndpoint.requesterManaged());
+
+        getDnsEntries().clear();
+        for (software.amazon.awssdk.services.ec2.model.DnsEntry dnsEntry : vpcEndpoint.dnsEntries()) {
+            gyro.aws.ec2.DnsEntry entry = newSubresource(gyro.aws.ec2.DnsEntry.class);
+            entry.copyFrom(dnsEntry);
+            getDnsEntries().add(entry);
+        }
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
         VpcEndpoint endpoint = getVpcEndpoint(client);
@@ -250,18 +342,18 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
 
         validate();
 
         CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
 
         builder.vpcId(getVpc().getVpcId());
-        builder.vpcEndpointType(getTypeInterface() ? VpcEndpointType.INTERFACE : VpcEndpointType.GATEWAY);
-        builder.privateDnsEnabled(getEnablePrivateDns());
+        builder.vpcEndpointType(getType());
+        builder.privateDnsEnabled(getPrivateDnsEnabled());
         builder.serviceName(getServiceName());
 
-        if (getTypeInterface()) {
+        if (getType().equals(VpcEndpointType.INTERFACE)) {
             builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
             builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
         } else {
@@ -275,20 +367,21 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
 
         VpcEndpoint endpoint = response.vpcEndpoint();
 
-        setEndpointId(endpoint.vpcEndpointId());
+        setId(endpoint.vpcEndpointId());
+
+        copyFrom(getVpcEndpoint(client));
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         validate();
 
         ModifyVpcEndpointRequest.Builder builder = ModifyVpcEndpointRequest.builder();
-        builder.vpcEndpointId(getEndpointId());
+        builder.vpcEndpointId(getId());
 
-        EndpointResource oldEndpoint = (EndpointResource) current;
+        EndpointResource oldEndpoint = (EndpointResource) config;
 
-        if (changedFieldNames.contains("route-tables")) {
+        if (changedProperties.contains("route-tables")) {
 
             Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
             Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
@@ -305,7 +398,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             }
         }
 
-        if (changedFieldNames.contains("subnets")) {
+        if (changedProperties.contains("subnets")) {
             Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
             Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
 
@@ -321,7 +414,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             }
         }
 
-        if (changedFieldNames.contains("security-groups")) {
+        if (changedProperties.contains("security-groups")) {
             Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
             Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
 
@@ -337,11 +430,11 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
             }
         }
 
-        if (changedFieldNames.contains("policy-doc-path")) {
+        if (changedProperties.contains("policy-doc-path")) {
             builder.policyDocument(getPolicy());
         }
 
-        if (changedFieldNames.contains("policy")) {
+        if (changedProperties.contains("policy")) {
             builder.policyDocument(getPolicy());
         }
 
@@ -355,7 +448,7 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpoints(
-            r -> r.vpcEndpointIds(getEndpointId())
+            r -> r.vpcEndpointIds(getId())
         );
 
         // Delay for residual dependency to be gone. 2 Min
@@ -367,17 +460,17 @@ public class EndpointResource extends AwsResource implements Copyable<VpcEndpoin
     }
 
     private void validate() {
-        if (getTypeInterface()) {
+        if (getType().equals(VpcEndpointType.INTERFACE)) {
             if (!getRouteTables().isEmpty()) {
-                throw new GyroException("The param 'route-tables' cannot be set when the param 'type-interface' is set to 'True'");
+                throw new GyroException("The param 'route-tables' cannot be set when the param 'type' is set to 'Interface'");
             }
         } else {
             if (!getSecurityGroups().isEmpty()) {
-                throw new GyroException("The param 'security-groups' cannot be set when the param 'type-interface' is set to 'False'");
+                throw new GyroException("The param 'security-groups' cannot be set when the param 'type' is set to 'Gateway'");
             }
 
             if (!getSubnets().isEmpty()) {
-                throw new GyroException("The param 'subnets' cannot be set when the param 'type-interface' is set to 'False'");
+                throw new GyroException("The param 'subnets' cannot be set when the param 'type' is set to 'Gateway'");
             }
         }
     }
