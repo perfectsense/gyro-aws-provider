@@ -186,13 +186,15 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
         setTrafficPolicyInstanceId(trafficPolicyInstance.id());
 
+        state.save();
+
         boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> isTrafficPolicyInstanceReady(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'Applied' state for " + toDisplayString());
+            throw new GyroException("Unable to reach 'Applied' state for route53 traffic policy - " + getName());
         }
     }
 

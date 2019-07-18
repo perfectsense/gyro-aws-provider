@@ -100,7 +100,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
@@ -110,13 +110,15 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
 
+        state.save();
+
         boolean waitResult = Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+            throw new GyroException("Unable to reach 'available' state for docdb cluster snapshot - " + getDbClusterSnapshotIdentifier());
         }
     }
 

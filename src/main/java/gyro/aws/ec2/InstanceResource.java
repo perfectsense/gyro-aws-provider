@@ -566,14 +566,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
-        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
+        state.save();
+
+        Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> isInstanceRunning(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'running' state for " + toDisplayString());
-        }
 
         Instance instance = getInstance(client);
 

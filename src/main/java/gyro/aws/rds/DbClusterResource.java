@@ -567,7 +567,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         software.amazon.awssdk.services.rds.model.ScalingConfiguration scalingConfiguration = getScalingConfiguration() != null
             ? software.amazon.awssdk.services.rds.model.ScalingConfiguration.builder()
@@ -613,13 +613,15 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setArn(response.dbCluster().dbClusterArn());
 
+        state.save();
+
         boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+            throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getDbClusterIdentifier());
         }
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(

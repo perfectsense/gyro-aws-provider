@@ -377,13 +377,15 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         if (ObjectUtils.isBlank(getQueue(client))) {
             createQueue(client);
 
+            state.save();
+
             // Wait for the queue to be created.
             boolean waitResult = Wait.atMost(4, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .until(() -> !ObjectUtils.isBlank(getQueue(client)));
 
             if (!waitResult) {
-                throw new GyroException("Unable to create " + toDisplayString());
+                throw new GyroException("Unable to create sqs queue - " + getName());
             }
         } else {
             throw new GyroException("A queue with the name " + getName() + " already exists.");

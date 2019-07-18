@@ -132,13 +132,15 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         NatGateway natGateway = response.natGateway();
         setNatGatewayId(natGateway.natGatewayId());
 
+        state.save();
+
         boolean waitResult = Wait.atMost(7, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for " + toDisplayString());
+            throw new GyroException("Unable to reach 'available' state for nat gateway - " + getId());
         }
     }
 

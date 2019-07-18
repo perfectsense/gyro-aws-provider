@@ -48,11 +48,11 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
         return refreshed;
     }
 
-    protected abstract void doCreate();
+    protected abstract void doCreate(GyroUI ui, State state);
 
     @Override
     public void create(GyroUI ui, State state) {
-        doCreate();
+        doCreate(ui, state);
         saveTags();
     }
 
