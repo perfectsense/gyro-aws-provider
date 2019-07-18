@@ -3,12 +3,14 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -195,7 +197,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         // Check to see if this parameter group is in use. If it's in use and be deleted then
@@ -225,19 +227,6 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         client.deleteDBClusterParameterGroup(
             r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db cluster parameter group");
-
-        if (!ObjectUtils.isBlank(getDbClusterParamGroupName())) {
-            sb.append(" - ").append(getDbClusterParamGroupName());
-        }
-
-        return sb.toString();
     }
 
     @Override

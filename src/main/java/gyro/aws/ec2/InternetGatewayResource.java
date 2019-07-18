@@ -4,9 +4,12 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
@@ -14,6 +17,7 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Create an internet gateway.
@@ -89,7 +93,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateInternetGatewayResponse response = client.createInternetGateway();
@@ -104,37 +108,39 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InternetGateway internetGateway = getInternetGateway(client);
 
         if (internetGateway != null && !internetGateway.attachments().isEmpty()) {
-            client.detachInternetGateway(
-                r -> r.internetGatewayId(getInternetGatewayId()).vpcId(internetGateway.attachments().get(0).vpcId())
+            Wait.atMost(1, TimeUnit.MINUTES)
+                .checkEvery(2, TimeUnit.SECONDS)
+                .prompt(false)
+                .until(() -> {
+                    try {
+                        client.detachInternetGateway(
+                            r -> r.internetGatewayId(getInternetGatewayId()).vpcId(internetGateway.attachments().get(0).vpcId())
+                        );
+                    } catch (Ec2Exception e) {
+                        // DependencyViolation should be retried since this resource may be waiting for a
+                        // previously deleted resource to finish deleting.
+                        if ("DependencyViolation".equals(e.awsErrorDetails().errorCode())) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
             );
         }
 
         client.deleteInternetGateway(r -> r.internetGatewayId(getInternetGatewayId()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("internet gateway");
-
-        if (getInternetGatewayId() != null) {
-            sb.append(" - ").append(getInternetGatewayId());
-
-        }
-
-        return sb.toString();
     }
 
     private InternetGateway getInternetGateway(Ec2Client client) {

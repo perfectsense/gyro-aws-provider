@@ -6,12 +6,14 @@ import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
@@ -218,7 +220,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         if (getLoadBalancer(client) != null) {
@@ -245,7 +247,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         LoadBalancerResource currentResource = (LoadBalancerResource) current;
@@ -311,7 +313,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
         client.deleteLoadBalancer(r -> r.loadBalancerName(getLoadBalancerName()));
     }
@@ -357,20 +359,6 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
         loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
         setAttribute(loadBalancerAttributes);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getLoadBalancerName() != null) {
-            sb.append("load balancer " + getLoadBalancerName());
-
-        } else {
-            sb.append("load balancer ");
-        }
-
-        return sb.toString();
     }
 
     private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {

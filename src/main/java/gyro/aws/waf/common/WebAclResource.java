@@ -1,12 +1,13 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
@@ -119,7 +120,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         CreateWebAclResponse response;
 
         CreateWebAclRequest.Builder builder = CreateWebAclRequest.builder()
@@ -135,29 +136,12 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         UpdateWebAclRequest.Builder builder = UpdateWebAclRequest.builder()
             .webACLId(getWebAclId())
             .defaultAction(getDefaultAction().toWafAction());
 
         doUpdate(builder);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("waf web acl");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getWebAclId())) {
-            sb.append(" - ").append(getWebAclId());
-        }
-
-        return sb.toString();
     }
 
     protected void validateActivatedRule() {

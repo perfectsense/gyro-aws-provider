@@ -3,10 +3,11 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
@@ -252,7 +253,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -260,7 +261,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -268,30 +269,13 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deletePolicy(
             r -> r.autoScalingGroupName(getParentId())
                 .policyName(getPolicyName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("auto scaling policy");
-
-        if (!ObjectUtils.isBlank(getPolicyName())) {
-            sb.append(" - ").append(getPolicyName());
-        }
-
-        if (!ObjectUtils.isBlank(getPolicyType())) {
-            sb.append(" [ ").append(getPolicyType()).append(" ] ");
-        }
-
-        return sb.toString();
     }
 
     @Override

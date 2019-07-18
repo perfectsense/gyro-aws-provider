@@ -3,11 +3,13 @@ package gyro.aws.docdb;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -236,7 +238,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBInstance(
@@ -247,19 +249,6 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> getDbInstance(client) == null);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db instance");
-
-        if (!ObjectUtils.isBlank(getDbInstanceIdentifier())) {
-            sb.append(" - ").append(getDbInstanceIdentifier());
-        }
-
-        return sb.toString();
     }
 
     @Override

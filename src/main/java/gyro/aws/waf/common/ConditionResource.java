@@ -1,10 +1,11 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.Set;
 
@@ -47,34 +48,17 @@ public class ConditionResource extends AbstractWafResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
 
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
 
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(getDisplayName());
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
     }
 
     protected String getType() {

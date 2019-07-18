@@ -3,10 +3,12 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
@@ -243,7 +245,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSnapshotResponse response = client.createSnapshot(
@@ -255,34 +257,17 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteSnapshot(
             r -> r.snapshotId(getSnapshotId())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("ebs snapshot");
-
-        if (!ObjectUtils.isBlank(getSnapshotId())) {
-            sb.append(" - ").append(getSnapshotId());
-        }
-
-        if (!ObjectUtils.isBlank(getDescription())) {
-            sb.append(" [ ").append(getDescription()).append(" ]");
-        }
-
-        return sb.toString();
     }
 
     private Snapshot getSnapshot(Ec2Client client) {

@@ -5,10 +5,8 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomOriginConfig;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomOriginConfig> {
@@ -129,11 +127,6 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
     @Override
     public String primaryKey() {
         return "custom-origin";
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "custom origin config";
     }
 
     CustomOriginConfig toCustomOriginConfig() {

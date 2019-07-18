@@ -5,11 +5,13 @@ import gyro.aws.AwsResource;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -280,7 +282,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    public void doCreate() {
+    public void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateNetworkInterfaceRequest.Builder builder = CreateNetworkInterfaceRequest.builder();
@@ -352,14 +354,14 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             }
         } catch(Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
-                delete();
+                delete(ui, state);
                 throw new GyroException("The instance (" + getInstance().getInstanceId() + ") attachment failed, invalid instance-id.");
             }
         }
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("delete-on-termination") && getAttachmentId() != null) {
@@ -434,7 +436,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         detachInstance(client);
@@ -448,22 +450,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             .until(() -> client.describeNetworkInterfaces(
                 r -> r.filters(Filter.builder().name("subnet-id").values(getSubnet().getSubnetId()).build())
             ).networkInterfaces().stream().noneMatch(o -> o.networkInterfaceId().equals(getNetworkInterfaceId())));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("network interface ");
-
-        if (!ObjectUtils.isBlank(getDescription())) {
-            sb.append(getDescription());
-        }
-
-        if (!ObjectUtils.isBlank(getNetworkInterfaceId())) {
-            sb.append(" - ").append(getNetworkInterfaceId());
-        }
-        return sb.toString();
     }
 
     private NetworkInterface getNetworkInterface(Ec2Client client) {

@@ -1,12 +1,12 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroCore;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.VolumeState;
@@ -55,7 +55,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -68,7 +68,7 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -94,12 +94,12 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
                     .instanceId(parent.getInstanceId())
             );
         } else {
-            GyroCore.ui().write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
+            ui.write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
         }
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InstanceResource parent = (InstanceResource) parent();
@@ -109,23 +109,6 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
                 .volumeId(getVolume().getVolumeId())
                 .instanceId(parent.getInstanceId())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("device");
-
-        if (!ObjectUtils.isBlank(getDeviceName())) {
-            sb.append(" ").append(getDeviceName());
-        }
-
-        if (getVolume() != null && !ObjectUtils.isBlank(getVolume().getVolumeId())) {
-            sb.append(" with volume id : ").append(getVolume().getVolumeId());
-        }
-
-        return sb.toString();
     }
 
     @Override

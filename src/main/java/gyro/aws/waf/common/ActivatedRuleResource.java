@@ -2,8 +2,11 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -102,7 +105,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         // Priority check
         handlePriority();
 
@@ -110,7 +113,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         // Priority check
         handlePriority();
 
@@ -122,32 +125,13 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         saveActivatedRule(toActivatedRule(), true);
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("activated rule");
-
-        if (getRule() != null && !ObjectUtils.isBlank(getRule().getRuleId())) {
-            sb.append(" - ").append(getRule().getRuleId());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        } else if (getRule() != null && !ObjectUtils.isBlank(getRule().getType())) {
-            sb.append(" - ").append(getRule().getType());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
-        return String.format("%s", getRule() != null ? (!ObjectUtils.isBlank(getRule().getRuleId()) ? getRule().getRuleId() : getRule().name()) : null);
+        return String.format("%s", getRule() != null ? (!ObjectUtils.isBlank(getRule().getRuleId()) ? getRule().getRuleId() : DiffableInternals.getName(getRule())) : null);
     }
 
     private ActivatedRule toActivatedRule() {

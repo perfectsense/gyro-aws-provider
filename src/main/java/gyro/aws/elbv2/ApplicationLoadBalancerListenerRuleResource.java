@@ -2,12 +2,14 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateRuleResponse;
@@ -159,7 +161,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         CreateRuleResponse response = client.createRule(r -> r.actions(toActions())
                 .conditions(toConditions())
@@ -170,7 +172,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.modifyRule(r -> r.actions(toActions())
                                 .conditions(toConditions())
@@ -178,22 +180,9 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         client.deleteRule(r -> r.ruleArn(getArn()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getArn() != null) {
-            sb.append("alb listener rule " + getArn());
-        } else {
-            sb.append("alb listener rule");
-        }
-
-        return sb.toString();
     }
 
     private List<Action> toActions() {

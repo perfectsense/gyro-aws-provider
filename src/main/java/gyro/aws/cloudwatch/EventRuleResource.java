@@ -7,12 +7,14 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.CloudWatchEventsException;
 import software.amazon.awssdk.services.cloudwatchevents.model.ListRulesResponse;
@@ -218,7 +220,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveRule(client);
@@ -226,31 +228,17 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveRule(client);
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         client.deleteRule(d -> d.force(true).name(getRuleName()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("event ");
-        sb.append("rule");
-
-        if (!ObjectUtils.isBlank(getRuleName())) {
-            sb.append(getRuleName());
-        }
-
-        return sb.toString();
     }
 
     private Rule getRule(CloudWatchEventsClient client) {

@@ -158,15 +158,6 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     }
 
     @Override
-    public String toDisplayString() {
-        if (ObjectUtils.isBlank(getId())) {
-            return "lifecycle rule";
-        } else {
-            return "lifecycle rule - " + getId();
-        }
-    }
-
-    @Override
     public void copyFrom(LifecycleRule lifecycleRule) {
         setId(lifecycleRule.id());
 

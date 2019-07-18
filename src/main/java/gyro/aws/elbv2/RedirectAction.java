@@ -117,10 +117,6 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
         setStatusCode(redirect.statusCodeAsString());
     }
 
-    public String toDisplayString() {
-        return "redirect action";
-    }
-
     public RedirectActionConfig toRedirect() {
         return RedirectActionConfig.builder()
                 .host(getHost())

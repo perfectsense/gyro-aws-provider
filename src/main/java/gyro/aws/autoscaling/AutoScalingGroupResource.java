@@ -10,6 +10,7 @@ import gyro.aws.elbv2.TargetGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroInstances;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -17,6 +18,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingGroup;
@@ -654,7 +656,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -697,7 +699,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -754,25 +756,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         // have option of graceful delete with configurable timeouts.
         client.deleteAutoScalingGroup(r -> r.autoScalingGroupName(getAutoScalingGroupName()).forceDelete(true));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("auto scaling group");
-
-        if (!ObjectUtils.isBlank(getAutoScalingGroupName())) {
-            sb.append(" - ").append(getAutoScalingGroupName());
-
-        }
-
-        return sb.toString();
     }
 
     @Override

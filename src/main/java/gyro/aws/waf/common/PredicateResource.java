@@ -2,8 +2,11 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
@@ -68,12 +71,12 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         savePredicate(toPredicate(), false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         //Remove old predicate
         savePredicate(((PredicateResource) current).toPredicate(), true);
 
@@ -82,32 +85,13 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         savePredicate(toPredicate(), true);
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("predicate");
-
-        if (getCondition() != null && !ObjectUtils.isBlank(getCondition().getId())) {
-            sb.append(" - ").append(getCondition().getId());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        } else if (getCondition() != null && !ObjectUtils.isBlank(getCondition().getType())) {
-            sb.append(" - ").append(getCondition().getType());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
-        return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(getCondition().name()) ? getCondition().getId() : getCondition().name()) : null));
+        return String.format("%s", (getCondition() != null ? (ObjectUtils.isBlank(DiffableInternals.getName(getCondition())) ? getCondition().getId() : DiffableInternals.getName(getCondition())) : null));
     }
 
     protected abstract void savePredicate(Predicate predicate, boolean isDelete);

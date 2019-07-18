@@ -5,10 +5,12 @@ import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -309,7 +311,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcRequest request = CreateVpcRequest.builder()
@@ -330,21 +332,21 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    public void testCreate() {
-        super.testCreate();
+    public void testCreate(GyroUI ui, State state) throws Exception {
+        super.testCreate(ui, state);
 
         setInstanceTenancy("default");
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         modifySettings(client, changedProperties);
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         DeleteVpcRequest request = DeleteVpcRequest.builder()
@@ -352,25 +354,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
                 .build();
 
         client.deleteVpc(request);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("vpc");
-
-        if (!ObjectUtils.isBlank(getVpcId())) {
-            sb.append(" - ").append(vpcId);
-
-        }
-
-        if (!ObjectUtils.isBlank(getCidrBlock())) {
-            sb.append(' ');
-            sb.append(getCidrBlock());
-        }
-
-        return sb.toString();
     }
 
     private Vpc getVpc(Ec2Client client) {

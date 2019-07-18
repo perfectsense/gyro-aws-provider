@@ -2,11 +2,13 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreateInstanceProfileResponse;
 import software.amazon.awssdk.services.iam.model.GetInstanceProfileResponse;
@@ -110,7 +112,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreateInstanceProfileResponse response =
@@ -124,10 +126,10 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         if (getRole() != null) {
@@ -137,17 +139,4 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
         client.deleteInstanceProfile(r -> r.instanceProfileName(getName()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getName() != null) {
-            sb.append("instance profile " + getName());
-
-        } else {
-            sb.append("instance profile ");
-        }
-
-        return sb.toString();
-    }
 }

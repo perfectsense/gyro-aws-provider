@@ -3,10 +3,11 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScheduledUpdateGroupAction;
@@ -139,7 +140,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -157,7 +158,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -165,26 +166,13 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteScheduledAction(
             r -> r.autoScalingGroupName(getParentId())
             .scheduledActionName(getScheduledActionName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("scheduled action");
-
-        if (!ObjectUtils.isBlank(getScheduledActionName())) {
-            sb.append(" - ").append(getScheduledActionName());
-        }
-
-        return sb.toString();
     }
 
     @Override

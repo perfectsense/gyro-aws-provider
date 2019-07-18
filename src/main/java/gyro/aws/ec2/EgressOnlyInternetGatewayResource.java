@@ -4,10 +4,12 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
@@ -83,7 +85,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {
@@ -94,27 +96,14 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
         client.deleteEgressOnlyInternetGateway(r -> r.egressOnlyInternetGatewayId(getGatewayId()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("egress gateway");
-
-        if (getGatewayId() != null) {
-            sb.append(" - ").append(getGatewayId());
-        }
-
-        return sb.toString();
     }
 
     private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {

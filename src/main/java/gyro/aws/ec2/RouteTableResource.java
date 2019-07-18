@@ -4,10 +4,12 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
@@ -131,7 +133,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getVpcId()));
@@ -145,7 +147,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    protected void doUpdate(AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         RouteTableResource currentResource = (RouteTableResource) current;
@@ -171,7 +173,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         RouteTable routeTable = getRouteTable(client);
@@ -183,19 +185,6 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
             client.deleteRouteTable(r -> r.routeTableId(getRouteTableId()));
         }
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("route table");
-
-        if (!ObjectUtils.isBlank(getRouteTableId())) {
-            sb.append(" - ").append(routeTableId);
-        }
-
-        return sb.toString();
     }
 
     private RouteTable getRouteTable(Ec2Client client) {

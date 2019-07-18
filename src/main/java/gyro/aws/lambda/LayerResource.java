@@ -4,10 +4,12 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
@@ -233,7 +235,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         LambdaClient client = createClient(LambdaClient.class);
 
         PublishLayerVersionRequest.Builder builder = PublishLayerVersionRequest.builder()
@@ -261,35 +263,18 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     @Override
-    public void update(Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteLayerVersion(
             r -> r.layerName(getLayerName())
                 .versionNumber(getVersion())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("lambda layer");
-
-        if (!ObjectUtils.isBlank(getLayerName())) {
-            sb.append(" - ").append(getLayerName());
-        }
-
-        if (!ObjectUtils.isBlank(getVersion())) {
-            sb.append(" version - ").append(getVersion());
-        }
-
-        return sb.toString();
     }
 
     private SdkBytes getZipFile() {

@@ -6,12 +6,14 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.GetSubscriptionAttributesResponse;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
@@ -179,7 +181,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         SnsClient client = createClient(SnsClient.class);
 
         SubscribeResponse subscribeResponse = client.subscribe(r -> r.attributes(getSubscriptionAttributes())
@@ -191,7 +193,7 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         SnsClient client = createClient(SnsClient.class);
 
         if (changedFieldNames.contains("raw-message-delivery")) {
@@ -222,27 +224,10 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         SnsClient client = createClient(SnsClient.class);
 
         client.unsubscribe(r -> r.subscriptionArn(getSubscriptionArn()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("sns subscriber");
-
-        if (!ObjectUtils.isBlank(getProtocol())) {
-            sb.append(" with protocol ").append(getProtocol());
-        }
-
-        if (getEndpoint() != null) {
-            sb.append(" and endpoint ").append(getEndpoint());
-        }
-
-        return sb.toString();
     }
 
     private Map<String, String> getSubscriptionAttributes() {

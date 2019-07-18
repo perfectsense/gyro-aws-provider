@@ -2,7 +2,9 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchTuple;
@@ -51,41 +53,18 @@ public abstract class SqlInjectionMatchTupleResource extends AbstractWafResource
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         saveSqlInjectionMatchTuple(false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         saveSqlInjectionMatchTuple(true);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("sql injection match tuple");
-
-        if (getFieldToMatch() != null) {
-            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
-                sb.append(" - ").append(getFieldToMatch().getData());
-            }
-
-            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
-                sb.append(" - ").append(getFieldToMatch().getType());
-            }
-        }
-
-        if (!ObjectUtils.isBlank(getTextTransformation())) {
-            sb.append(" - ").append(getTextTransformation());
-        }
-
-        return sb.toString();
     }
 
     @Override

@@ -4,9 +4,11 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -200,7 +202,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
@@ -217,7 +219,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
@@ -234,43 +236,13 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
                 .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("route ");
-        sb.append(getDestinationCidrBlock());
-
-        if (getGateway() != null && !ObjectUtils.isBlank(getGateway().getInternetGatewayId())) {
-            sb.append(" through gateway ");
-            sb.append(getGateway().getInternetGatewayId());
-        } else if (getInstance() != null && !ObjectUtils.isBlank(getInstance().getInstanceId())) {
-            sb.append(" through instance ");
-            sb.append(getInstance().getInstanceId());
-        } else if (getNatGateway() != null && !ObjectUtils.isBlank(getNatGateway().getNatGatewayId())) {
-            sb.append(" through nat gateway");
-            sb.append(getNatGateway().getNatGatewayId());
-        } else if (getNetworkInterface() != null && !ObjectUtils.isBlank(getNetworkInterface().getNetworkInterfaceId())) {
-            sb.append(" through network interface ");
-            sb.append(getNetworkInterface().getNetworkInterfaceId());
-        } else if (!ObjectUtils.isBlank(getTransitGatewayId())) {
-            sb.append(" through transit gateway ");
-            sb.append(getTransitGatewayId());
-        } else if (getVpcPeeringConnection() != null && !ObjectUtils.isBlank(getVpcPeeringConnection().getPeeringConnectionId())) {
-            sb.append(" through vpc peering connection ");
-            sb.append(getVpcPeeringConnection().getPeeringConnectionId());
-        }
-
-        return sb.toString();
     }
 
     private Route getRoute(Ec2Client client) {

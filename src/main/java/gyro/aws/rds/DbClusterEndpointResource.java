@@ -3,12 +3,14 @@ package gyro.aws.rds;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
@@ -154,7 +156,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbClusterEndpointResponse response = client.createDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
@@ -175,7 +177,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
@@ -193,15 +195,11 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db cluster endpoint " + getClusterEndpointIdentifier();
-    }
 }

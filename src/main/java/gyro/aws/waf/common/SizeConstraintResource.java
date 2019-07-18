@@ -2,7 +2,9 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
 import software.amazon.awssdk.services.waf.model.SizeConstraintSetUpdate;
@@ -77,49 +79,18 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         saveSizeConstraint(false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         saveSizeConstraint(true);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("size constraint");
-
-        if (getFieldToMatch() != null) {
-            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
-                sb.append(" - ").append(getFieldToMatch().getData());
-            }
-
-            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
-                sb.append(" - ").append(getFieldToMatch().getType());
-            }
-        }
-
-        if (!ObjectUtils.isBlank(getComparisonOperator())) {
-            sb.append(" - ").append(getComparisonOperator());
-        }
-
-        if (!ObjectUtils.isBlank(getSize())) {
-            sb.append(" - ").append(getSize());
-        }
-
-        if (!ObjectUtils.isBlank(getTextTransformation())) {
-            sb.append(" - ").append(getTextTransformation());
-        }
-
-        return sb.toString();
     }
 
     @Override

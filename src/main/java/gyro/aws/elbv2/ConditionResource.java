@@ -2,12 +2,15 @@ package gyro.aws.elbv2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.resource.Create;
-import gyro.core.resource.Delete;
+import gyro.core.GyroUI;
+import gyro.core.diff.Create;
+import gyro.core.diff.Delete;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
-import gyro.core.resource.Update;
+import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
 import java.util.ArrayList;
@@ -76,8 +79,8 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     }
 
     @Override
-    public void create() {
-        if (parentResource().change() instanceof Create) {
+    public void create(GyroUI ui, State state) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
 
@@ -86,8 +89,8 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
-        if (parentResource().change() instanceof Update) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
 
@@ -96,18 +99,13 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     }
 
     @Override
-    public void delete() {
-        if (parentResource().change() instanceof Delete) {
+    public void delete(GyroUI ui, State state) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
             return;
         }
 
         ApplicationLoadBalancerListenerRuleResource parent = (ApplicationLoadBalancerListenerRuleResource) parentResource();
         parent.deleteCondition(this);
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "rule condition - field: " + getField();
     }
 
     public RuleCondition toCondition() {

@@ -3,12 +3,14 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNotificationResponse;
@@ -171,7 +173,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -180,13 +182,13 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
         if (getEndpoint() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getEndpoint().getEndpointId())
+                r -> r.vpcEndpointId(getEndpoint().getId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
         } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
-                r -> r.serviceId(getEndpointService().getServiceId())
+                r -> r.serviceId(getEndpointService().getId())
                     .connectionEvents(getConnectionEvents())
                     .connectionNotificationArn(getConnectionNotificationArn())
             );
@@ -200,7 +202,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -213,25 +215,12 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointConnectionNotifications(
             r -> r.connectionNotificationIds(Collections.singleton(getConnectionNotificationId()))
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("connection notification");
-
-        if (!ObjectUtils.isBlank(getConnectionNotificationId())) {
-            sb.append(" - ").append(getConnectionNotificationId());
-        }
-
-        return sb.toString();
     }
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {

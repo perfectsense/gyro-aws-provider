@@ -5,10 +5,12 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
@@ -107,7 +109,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.createCacheSubnetGroup(
@@ -119,7 +121,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.modifyCacheSubnetGroup(
@@ -130,25 +132,12 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheSubnetGroup(
             r -> r.cacheSubnetGroupName(getCacheSubnetGroupName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("cache subnet group");
-
-        if (!ObjectUtils.isBlank(getCacheSubnetGroupName())) {
-            sb.append(" - ").append(getCacheSubnetGroupName());
-        }
-
-        return sb.toString();
     }
 
     private CacheSubnetGroup getCacheSubnetGroup(ElastiCacheClient client) {

@@ -1,10 +1,10 @@
 package gyro.aws.s3;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -12,6 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -301,7 +302,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         S3Client client = createClient(S3Client.class);
 
         client.createBucket(
@@ -336,7 +337,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         S3Client client = createClient(S3Client.class);
 
         if (changedFieldNames.contains("tags")) {
@@ -361,24 +362,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         S3Client client = createClient(S3Client.class);
         client.deleteBucket(
             r -> r.bucket(getName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (!getName().isEmpty()) {
-            sb.append(getName());
-        } else {
-            sb.append("bucket");
-        }
-
-        return sb.toString();
     }
 
     private Bucket getBucket(S3Client client) {

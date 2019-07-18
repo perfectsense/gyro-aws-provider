@@ -26,11 +26,6 @@ public class S3LifecycleRuleAbortIncompleteMultipartUpload extends Diffable impl
     }
 
     @Override
-    public String toDisplayString() {
-        return "abort incomplete multipart abort";
-    }
-
-    @Override
     public String primaryKey() {
         return "abort incomplete multipart abort";
     }

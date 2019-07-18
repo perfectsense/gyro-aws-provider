@@ -1,11 +1,12 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -166,7 +167,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     @Override
-    public final void create() {
+    public final void create(GyroUI ui, State state) {
         validate();
         doCreate();
     }
@@ -174,48 +175,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     protected abstract void doCreate();
 
     @Override
-    public final void update(Resource current, Set<String> changedFieldNames) {
+    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         validate();
-        doUpdate(current, changedFieldNames);
+        doUpdate(ui, state, current, changedFieldNames);
     }
 
-    protected abstract void doUpdate(Resource current, Set<String> changedFieldNames);
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(name());
-        sb.append(" security rule - ");
-        sb.append(getProtocol());
-        sb.append(" [");
-        sb.append(getFromPort());
-        sb.append(" to ");
-        sb.append(getToPort());
-        sb.append("]");
-
-        if (!getCidrBlocks().isEmpty()) {
-            sb.append(" ");
-            sb.append(getCidrBlocks());
-        }
-
-        if (!getIpv6CidrBlocks().isEmpty()) {
-            sb.append(" ");
-            sb.append(getIpv6CidrBlocks());
-        }
-
-        if (!getSecurityGroups().isEmpty()) {
-            sb.append(" ");
-            sb.append(getSecurityGroups().stream().map(SecurityGroupResource::getGroupName).collect(Collectors.toList()));
-        }
-
-        if (!ObjectUtils.isBlank(getDescription())) {
-            sb.append(" ");
-            sb.append(getDescription());
-        }
-
-        return sb.toString();
-    }
+    protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;
 
     public String getGroupId() {
         SecurityGroupResource parent = (SecurityGroupResource) parent();

@@ -1,10 +1,12 @@
 package gyro.aws.elbv2;
 
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -85,7 +87,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         CreateListenerResponse response =
@@ -100,7 +102,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
         if (getDefaultCertificate() == null && getProtocol().equals("TCP")) {
@@ -122,20 +124,8 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     @Override
-    public void delete() {
-        super.delete();
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getArn() != null) {
-            sb.append("nlb listener " + getArn());
-        } else {
-            sb.append("nlb listener ");
-        }
-        return sb.toString();
+    public void delete(GyroUI ui, State state) {
+        super.delete(ui, state);
     }
 
     private Action toDefaultActions() {

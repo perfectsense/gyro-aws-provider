@@ -2,7 +2,9 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
@@ -79,49 +81,18 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         saveByteMatchTuple(false);
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         saveByteMatchTuple(true);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("byte match tuple");
-
-        if (getFieldToMatch() != null) {
-            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
-                sb.append(" - ").append(getFieldToMatch().getData());
-            }
-
-            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
-                sb.append(" - ").append(getFieldToMatch().getType());
-            }
-        }
-
-        if (!ObjectUtils.isBlank(getTextTransformation())) {
-            sb.append(" - ").append(getTextTransformation());
-        }
-
-        if (!ObjectUtils.isBlank(getPositionalConstraint())) {
-            sb.append(" - ").append(getPositionalConstraint());
-        }
-
-        if (!ObjectUtils.isBlank(getTargetString())) {
-            sb.append(" - ").append(getTargetString());
-        }
-
-        return sb.toString();
     }
 
     @Override

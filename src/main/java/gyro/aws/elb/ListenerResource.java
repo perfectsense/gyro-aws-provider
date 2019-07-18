@@ -1,11 +1,14 @@
 package gyro.aws.elb;
 
 import gyro.aws.AwsResource;
-import gyro.core.resource.Create;
-import gyro.core.resource.Delete;
+import gyro.core.GyroUI;
+import gyro.core.diff.Create;
+import gyro.core.diff.Delete;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Updatable;
 
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 
@@ -114,8 +117,8 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void create() {
-        if (parent().change() instanceof Create) {
+    public void create(GyroUI ui, State state) {
+        if (DiffableInternals.getChange(parent()) instanceof Create) {
             return;
         }
 
@@ -126,30 +129,20 @@ public class ListenerResource extends AwsResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
-        delete();
-        create();
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        delete(ui, state);
+        create(ui, state);
     }
 
     @Override
-    public void delete() {
-        if (parent().change() instanceof Delete) {
+    public void delete(GyroUI ui, State state) {
+        if (DiffableInternals.getChange(parent()) instanceof Delete) {
             return;
         }
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         client.deleteLoadBalancerListeners(r -> r.loadBalancerName(getLoadBalancer())
                                                 .loadBalancerPorts(getLoadBalancerPort()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        return String.format(
-            "load balancer listener %s:%d/%s:%d",
-            getProtocol(),
-            getLoadBalancerPort(),
-            getInstanceProtocol(),
-            getInstancePort());
     }
 
     private Listener toListener() {

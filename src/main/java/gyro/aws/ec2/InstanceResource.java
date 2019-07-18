@@ -3,15 +3,17 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
+import gyro.core.GyroUI;
 import gyro.core.Wait;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -476,7 +478,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public String getName() {
         if (getTags().isEmpty()) {
-            return name();
+            return DiffableInternals.getName(this);
         }
 
         return getTags().get("Name");
@@ -520,7 +522,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -584,7 +586,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doUpdate(AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);
@@ -627,7 +629,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         boolean instanceStopped = isInstanceStopped(client);
 
         if (changedProperties.contains("instance-type")
-            && validateInstanceStop(instanceStopped, "instance-type", getInstanceType())) {
+            && validateInstanceStop(ui, instanceStopped, "instance-type", getInstanceType())) {
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .instanceType(o -> o.value(getInstanceType()))
@@ -635,7 +637,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("ebs-optimized")
-            && validateInstanceStop(instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
+            && validateInstanceStop(ui, instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .ebsOptimized(o -> o.value(getEbsOptimized()))
@@ -643,7 +645,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("user-data")
-            && validateInstanceStop(instanceStopped, "user-data", getUserData())) {
+            && validateInstanceStop(ui, instanceStopped, "user-data", getUserData())) {
             client.modifyInstanceAttribute(
                 r -> r.instanceId(getInstanceId())
                     .userData(o -> o.value(SdkBytes.fromByteArray(getUserData().getBytes())))
@@ -651,7 +653,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if (changedProperties.contains("capacity-reservation")
-            && validateInstanceStop(instanceStopped, "capacity-reservation", getCapacityReservation())) {
+            && validateInstanceStop(ui, instanceStopped, "capacity-reservation", getCapacityReservation())) {
             client.modifyInstanceCapacityReservationAttributes(
                 r -> r.instanceId(getInstanceId())
                     .capacityReservationSpecification(getCapacityReservationSpecification())
@@ -660,7 +662,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         if (getDisableApiTermination()) {
             throw new GyroException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }
@@ -673,19 +675,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isInstanceTerminated(client));
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        String instanceId = getInstanceId();
-
-        sb.append("instance ");
-        if (!ObjectUtils.isBlank(instanceId)) {
-            sb.append(instanceId);
-        }
-
-        return sb.toString();
     }
 
     private void init(Instance instance, Ec2Client client) {
@@ -832,9 +821,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return instance != null && "terminated".equals(instance.state().nameAsString());
     }
 
-    private boolean validateInstanceStop(boolean instanceStopped, String param, String value) {
+    private boolean validateInstanceStop(GyroUI ui, boolean instanceStopped, String param, String value) {
         if (!instanceStopped) {
-            GyroCore.ui().write("\n@|bold,blue Skipping update of %s since instance"
+            ui.write("\n@|bold,blue Skipping update of %s since instance"
                 + " must be stopped to change parameter %s to %s|@", param, param, value);
             return false;
         }
