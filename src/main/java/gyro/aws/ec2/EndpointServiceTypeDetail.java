@@ -27,11 +27,6 @@ public class EndpointServiceTypeDetail extends Diffable implements Copyable<Serv
     }
 
     @Override
-    public String toDisplayString() {
-        return "service type detail - " + getServiceType();
-    }
-
-    @Override
     public String primaryKey() {
         return toDisplayString();
     }

@@ -41,11 +41,6 @@ public class DnsEntry extends Diffable implements Copyable<software.amazon.awssd
     }
 
     @Override
-    public String toDisplayString() {
-        return "dns entry " + getName();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s %s",getName(), getHostedZone() != null ? getHostedZone().getId() : "");
     }
