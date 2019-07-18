@@ -348,20 +348,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         client.deleteLaunchConfiguration(r -> r.launchConfigurationName(getLaunchConfigurationName()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("launch configuration");
-
-        if (!ObjectUtils.isBlank(getLaunchConfigurationName())) {
-            sb.append(" - ").append(getLaunchConfigurationName());
-
-        }
-
-        return sb.toString();
-    }
-
     private LaunchConfiguration getLaunchConfiguration(AutoScalingClient client) {
         LaunchConfiguration launchConfiguration = null;
 

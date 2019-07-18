@@ -145,16 +145,6 @@ public class ListenerResource extends AwsResource {
                                                 .loadBalancerPorts(getLoadBalancerPort()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return String.format(
-            "load balancer listener %s:%d/%s:%d",
-            getProtocol(),
-            getLoadBalancerPort(),
-            getInstanceProtocol(),
-            getInstancePort());
-    }
-
     private Listener toListener() {
         Listener newListener = Listener.builder()
             .instancePort(getInstancePort())

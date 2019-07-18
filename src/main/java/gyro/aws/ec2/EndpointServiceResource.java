@@ -352,19 +352,6 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("service endpoint");
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private ServiceConfiguration getServiceConfiguration(Ec2Client client) {
         ServiceConfiguration serviceConfiguration = null;
 

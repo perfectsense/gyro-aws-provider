@@ -295,27 +295,4 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         client.deleteSubnet(r -> r.subnetId(getSubnetId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("subnet");
-
-        if (!ObjectUtils.isBlank(getSubnetId())) {
-            sb.append(" - ").append(getSubnetId());
-        }
-
-        if (!ObjectUtils.isBlank(getCidrBlock())) {
-            sb.append(' ');
-            sb.append(getCidrBlock());
-        }
-
-        if (!ObjectUtils.isBlank(getAvailabilityZone())) {
-            sb.append(" in ");
-            sb.append(getAvailabilityZone());
-        }
-
-        return sb.toString();
-    }
-
 }

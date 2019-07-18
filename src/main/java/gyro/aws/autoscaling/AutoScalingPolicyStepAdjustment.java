@@ -49,11 +49,6 @@ public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyabl
         setMetricIntervalUpperBound(stepAdjustment.metricIntervalUpperBound());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "step adjustment policy";
-    }
-
     public StepAdjustment getStepPolicyStep() {
         return StepAdjustment.builder()
             .scalingAdjustment(getScalingAdjustment())

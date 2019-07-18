@@ -321,17 +321,4 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
         client.deleteTargetGroup(r -> r.targetGroupArn(getArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getName() != null) {
-            sb.append("target group - " + getName());
-
-        } else {
-            sb.append("target group ");
-        }
-
-        return sb.toString();
-    }
 }

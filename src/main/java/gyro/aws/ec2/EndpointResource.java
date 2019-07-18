@@ -13,7 +13,6 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
-import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointResponse;
@@ -458,25 +457,6 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("endpoint");
-
-        if (!StringUtils.isEmpty(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        if (getType().equals(VpcEndpointType.INTERFACE)) {
-            sb.append(" [ Interface ]");
-        } else {
-            sb.append(" [ Gateway ]");
-        }
-
-        return sb.toString();
     }
 
     private void validate() {

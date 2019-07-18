@@ -136,19 +136,6 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db cluster snapshot");
-
-        if (!ObjectUtils.isBlank(getDbClusterSnapshotIdentifier())) {
-            sb.append(" - ").append(getDbClusterSnapshotIdentifier());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public void copyFrom(DBClusterSnapshot dbClusterSnapshot) {
         setArn(dbClusterSnapshot.dbClusterSnapshotArn());
         setDbCluster(findById(DbClusterResource.class, dbClusterSnapshot.dbClusterIdentifier()));

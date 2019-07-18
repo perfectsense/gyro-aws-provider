@@ -36,8 +36,4 @@ public class OptionSettings extends Diffable {
         return getName();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "option setting " + getName();
-    }
 }

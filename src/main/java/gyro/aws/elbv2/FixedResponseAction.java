@@ -76,10 +76,6 @@ public class FixedResponseAction extends Diffable implements Copyable<FixedRespo
         setStatusCode(fixed.statusCode());
     }
 
-    public String toDisplayString() {
-        return "fixed response action";
-    }
-
     public FixedResponseActionConfig toFixedAction() {
         return FixedResponseActionConfig.builder()
                 .contentType(getContentType())

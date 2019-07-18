@@ -188,20 +188,6 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
         client.deletePolicy(r -> r.policyArn(this.getArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getName() != null) {
-            sb.append("policy name " + getName());
-
-        } else {
-            sb.append("policy name ");
-        }
-
-        return sb.toString();
-    }
-
     public String formatPolicy(String policy) {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }

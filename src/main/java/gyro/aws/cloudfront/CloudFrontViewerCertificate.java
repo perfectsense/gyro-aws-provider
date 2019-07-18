@@ -101,11 +101,6 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
         return "viewer-certificate";
     }
 
-    @Override
-    public String toDisplayString() {
-        return "viewer certificate";
-    }
-
     ViewerCertificate toViewerCertificate() {
         return ViewerCertificate.builder()
             .acmCertificateArn(getAcmCertificateArn())

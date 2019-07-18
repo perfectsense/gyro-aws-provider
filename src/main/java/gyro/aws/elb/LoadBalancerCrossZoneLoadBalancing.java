@@ -30,11 +30,6 @@ public class LoadBalancerCrossZoneLoadBalancing extends Diffable implements Copy
     }
 
     @Override
-    public String toDisplayString() {
-        return "cross zone load balancing";
-    }
-
-    @Override
     public String primaryKey() {
         return "cross zone load balancing";
     }

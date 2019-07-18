@@ -361,20 +361,6 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         setAttribute(loadBalancerAttributes);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getLoadBalancerName() != null) {
-            sb.append("load balancer " + getLoadBalancerName());
-
-        } else {
-            sb.append("load balancer ");
-        }
-
-        return sb.toString();
-    }
-
     private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {
         LoadBalancerDescription loadBalancerDescription = null;
         try {

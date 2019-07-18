@@ -48,11 +48,6 @@ public class LoadBalancerConnectionDraining extends Diffable implements Copyable
     }
 
     @Override
-    public String toDisplayString() {
-        return "connection draining";
-}
-
-    @Override
     public String primaryKey() {
         return "connection draining";
     }

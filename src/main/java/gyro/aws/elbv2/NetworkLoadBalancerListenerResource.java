@@ -128,18 +128,6 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
         super.delete(ui, state);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getArn() != null) {
-            sb.append("nlb listener " + getArn());
-        } else {
-            sb.append("nlb listener ");
-        }
-        return sb.toString();
-    }
-
     private Action toDefaultActions() {
             return Action.builder()
                     .type(getDefaultAction() != null ? getDefaultAction().getType() : null)

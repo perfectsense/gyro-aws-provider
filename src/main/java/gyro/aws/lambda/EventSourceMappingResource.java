@@ -358,31 +358,6 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("event source mapping");
-
-        if (getFunction() != null && !ObjectUtils.isBlank(getFunction().getFunctionName())) {
-            sb.append(", function - ").append(getFunction().getFunctionName());
-
-            if (getFunctionVersion() != null) {
-                sb.append(", version - ").append(getFunctionVersion());
-            }
-        } else if (getAlias() != null && !ObjectUtils.isBlank(getAlias().getArn())) {
-            String functionAlias = getAlias().getArn().split(":function:")[1];
-            sb.append(", function - ").append(functionAlias.split(":")[0]);
-            sb.append(", alias - ").append(functionAlias.split(":")[1]);
-        }
-
-        if (!ObjectUtils.isBlank(getEventSourceArn())) {
-            sb.append(", source - ").append(getEventSourceArn());
-        }
-
-        return sb.toString();
-    }
-
     private void waitToSave(LambdaClient client) {
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)

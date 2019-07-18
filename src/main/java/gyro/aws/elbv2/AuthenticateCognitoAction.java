@@ -3,7 +3,6 @@ package gyro.aws.elbv2;
 import gyro.aws.Copyable;
 import gyro.aws.cognitoidp.UserPoolClientResource;
 import gyro.aws.cognitoidp.UserPoolDomainResource;
-import gyro.aws.cognitoidp.UserPoolResource;
 import gyro.core.resource.Diffable;
 
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -144,10 +143,6 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
         setUserPoolArn(cognito.userPoolArn());
         setUserPoolClient(findById(UserPoolClientResource.class, cognito.userPoolClientId()));
         setUserPoolDomain(findById(UserPoolDomainResource.class, cognito.userPoolDomain()));
-    }
-
-    public String toDisplayString() {
-        return "authenticate cognito action";
     }
 
     public AuthenticateCognitoActionConfig toCognito() {
