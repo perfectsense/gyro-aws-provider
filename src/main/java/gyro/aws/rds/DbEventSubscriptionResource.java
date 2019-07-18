@@ -198,8 +198,4 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
 
     }
 
-    @Override
-    public String toDisplayString() {
-        return "db event subscription " + getSubscriptionName();
-    }
 }

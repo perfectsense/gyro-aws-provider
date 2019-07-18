@@ -1,6 +1,5 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
@@ -62,23 +61,6 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
     @Override
     public void delete(GyroUI ui, State state) {
         saveGeoMatchConstraint(toGeoMatchConstraint(), true);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("geo match constraint");
-
-        if (!ObjectUtils.isBlank(getValue())) {
-            sb.append(" - ").append(getValue());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        }
-
-        return sb.toString();
     }
 
     @Override

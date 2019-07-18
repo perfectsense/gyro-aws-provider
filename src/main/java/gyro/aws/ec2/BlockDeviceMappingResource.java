@@ -158,11 +158,6 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Lau
     }
 
     @Override
-    public String toDisplayString() {
-        return String.format("Device %s", getDeviceName());
-    }
-
-    @Override
     public void copyFrom(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
         setDeviceName(blockDeviceMapping.deviceName());
         setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());

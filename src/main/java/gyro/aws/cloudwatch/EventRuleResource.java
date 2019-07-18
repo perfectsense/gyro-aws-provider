@@ -241,20 +241,6 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
         client.deleteRule(d -> d.force(true).name(getRuleName()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("event ");
-        sb.append("rule");
-
-        if (!ObjectUtils.isBlank(getRuleName())) {
-            sb.append(getRuleName());
-        }
-
-        return sb.toString();
-    }
-
     private Rule getRule(CloudWatchEventsClient client) {
 
         if (ObjectUtils.isBlank(getRuleName())) {

@@ -222,18 +222,6 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
         client.removeTargets(r -> r.force(true).rule(getRuleName()).ids(getTargetId()));
     }
 
-    @Override
-    public String toDisplayString() {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("target");
-
-        if (getTargetId() != null) {
-            sb.append(" ").append(getTargetId());
-        }
-        return sb.toString();
-    }
-
     private String getRuleName() {
         EventRuleResource ruleResource = (EventRuleResource) parent();
 

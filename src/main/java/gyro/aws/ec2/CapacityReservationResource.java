@@ -295,19 +295,6 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("capacity reservation");
-
-        if (!ObjectUtils.isBlank(getCapacityReservationId())) {
-            sb.append(" - ").append(getCapacityReservationId());
-        }
-
-        return sb.toString();
-    }
-
     private void validate() {
         if (getEndDateType() == null || (!getEndDateType().equals("unlimited") && !getEndDateType().equals("limited"))) {
             throw new GyroException("The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."

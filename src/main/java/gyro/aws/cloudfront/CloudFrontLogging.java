@@ -72,11 +72,6 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
         return "logging";
     }
 
-    @Override
-    public String toDisplayString() {
-        return String.format("logging config - bucket: %s, prefix: %s", getBucket(), getBucketPrefix());
-    }
-
     LoggingConfig toLoggingConfig() {
         return LoggingConfig.builder()
             .bucket(getBucket() != null ? getBucket().getDomainName() : "")

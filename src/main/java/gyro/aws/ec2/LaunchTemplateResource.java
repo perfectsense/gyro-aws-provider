@@ -445,21 +445,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         client.deleteLaunchTemplate(r -> r.launchTemplateId(getLaunchTemplateId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        String launchTemplateId = getLaunchTemplateId();
-
-        sb.append("launch template");
-
-        if (!ObjectUtils.isBlank(launchTemplateId)) {
-            sb.append(" - ").append(launchTemplateId);
-
-        }
-
-        return sb.toString();
-    }
-
     private void validate(Ec2Client client) {
         if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");

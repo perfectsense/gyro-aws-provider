@@ -185,19 +185,6 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
         client.deleteRule(r -> r.ruleArn(getArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getArn() != null) {
-            sb.append("alb listener rule " + getArn());
-        } else {
-            sb.append("alb listener rule");
-        }
-
-        return sb.toString();
-    }
-
     private List<Action> toActions() {
         List<Action> actionsList = new ArrayList<>();
 

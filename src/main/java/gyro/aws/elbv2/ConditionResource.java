@@ -108,11 +108,6 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
         parent.deleteCondition(this);
     }
 
-    @Override
-    public String toDisplayString() {
-        return "rule condition - field: " + getField();
-    }
-
     public RuleCondition toCondition() {
         return RuleCondition.builder()
                 .field(getField())

@@ -2,7 +2,6 @@ package gyro.aws.waf.common;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
-import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
@@ -138,23 +137,6 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
             throw new GyroException(String
                 .format("Cannot delete regex pattern set - %s, as it is referenced by regex match set - %s",getRegexPatternSetId(),referenceId));
         }
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("waf regex pattern set");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getRegexPatternSetId())) {
-            sb.append(" - ").append(getRegexPatternSetId());
-        }
-
-        return sb.toString();
     }
 
     protected abstract void savePatterns(Set<String> oldPatterns, Set<String> newPatterns);

@@ -299,20 +299,6 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         client.deleteRole(r -> r.roleName(getName()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getName() != null) {
-            sb.append("role " + getName());
-
-        } else {
-            sb.append("role ");
-        }
-
-        return sb.toString();
-    }
-
     public String formatPolicy(String policy) {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }

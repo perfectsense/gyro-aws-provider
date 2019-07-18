@@ -592,11 +592,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         client.deleteDistribution(r -> r.id(getId()).ifMatch(getEtag()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cloudfront";
-    }
-
     private void applyTags(CloudFrontClient client) {
         List<Tag> tags = new ArrayList<>();
         for (String key : getTags().keySet()) {

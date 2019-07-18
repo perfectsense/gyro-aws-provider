@@ -38,11 +38,6 @@ public class S3LifecycleRuleTransition extends Diffable implements Copyable<Tran
     }
 
     @Override
-    public String toDisplayString() {
-        return String.format("transition - days [%s], storage-class [%s]", getDays(), getStorageClass());
-    }
-
-    @Override
     public void copyFrom(Transition transition) {
         setDays(transition.days());
         setStorageClass(transition.storageClassAsString());

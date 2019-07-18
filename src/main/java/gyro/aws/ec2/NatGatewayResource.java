@@ -157,20 +157,6 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
             .until(() -> isDeleted(client));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("nat gateway");
-
-        if (!ObjectUtils.isBlank(getNatGatewayId())) {
-            sb.append(" - ").append(getNatGatewayId());
-
-        }
-
-        return sb.toString();
-    }
-
     private NatGateway getNatGateway(Ec2Client client) {
         NatGateway natGateway = null;
 

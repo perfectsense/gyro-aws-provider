@@ -250,19 +250,6 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getPeeringConnectionId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("peering connection");
-
-        if (!ObjectUtils.isBlank(getPeeringConnectionId())) {
-            sb.append(" - ").append(getPeeringConnectionId());
-        }
-
-        return sb.toString();
-    }
-
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
         VpcPeeringConnection vpcPeeringConnection = null;
 

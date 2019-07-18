@@ -51,11 +51,6 @@ public class NetworkAclEgressRuleResource extends NetworkAclRuleResource {
     }
 
     @Override
-    public String toDisplayString() {
-        return toDisplayString(true);
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s, egress", getRuleNumber());
     }

@@ -374,8 +374,4 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
                                             .userPoolId(getUserPool().getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "user pool client " + getName();
-    }
 }

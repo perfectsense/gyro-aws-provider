@@ -7,7 +7,6 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
@@ -277,23 +276,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
             r -> r.autoScalingGroupName(getParentId())
                 .policyName(getPolicyName())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("auto scaling policy");
-
-        if (!ObjectUtils.isBlank(getPolicyName())) {
-            sb.append(" - ").append(getPolicyName());
-        }
-
-        if (!ObjectUtils.isBlank(getPolicyType())) {
-            sb.append(" [ ").append(getPolicyType()).append(" ] ");
-        }
-
-        return sb.toString();
     }
 
     @Override

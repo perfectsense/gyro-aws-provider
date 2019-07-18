@@ -40,11 +40,6 @@ public class FieldToMatch extends Diffable implements Copyable<software.amazon.a
         return "field to match";
     }
 
-    @Override
-    public String toDisplayString() {
-        return "field to match";
-    }
-
     software.amazon.awssdk.services.waf.model.FieldToMatch toFieldToMatch() {
         return software.amazon.awssdk.services.waf.model.FieldToMatch.builder().type(getType()).data(getData()).build();
     }
