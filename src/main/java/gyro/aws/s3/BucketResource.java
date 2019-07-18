@@ -14,22 +14,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.Bucket;
-import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
-import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
-import software.amazon.awssdk.services.s3.model.CORSRule;
-import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
-import software.amazon.awssdk.services.s3.model.LifecycleRule;
-import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
-import software.amazon.awssdk.services.s3.model.Payer;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -136,6 +121,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
     private String domainName;
+    private S3LoggingEnabled loggingEnabled;
 
     @Id
     public String getName() {
@@ -273,6 +259,15 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.domainName = domainName;
     }
 
+    @Updatable
+    public S3LoggingEnabled getLoggingEnabled() {
+        return loggingEnabled;
+    }
+
+    public void setLoggingEnabled(S3LoggingEnabled loggingEnabled) {
+        this.loggingEnabled = loggingEnabled;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -283,6 +278,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
+        loadBucketLogging(client);
         setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
@@ -334,6 +330,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (!getLifecycleRule().isEmpty()) {
             saveLifecycleRules(client);
         }
+
+        if (getLoggingEnabled() != null){
+            saveBucketLogging(client);
+        }
     }
 
     @Override
@@ -354,6 +354,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         if (changedFieldNames.contains("request-payer")) {
             saveRequestPayer(client);
+        }
+
+        if(changedFieldNames.contains("logging-enabled")){
+            saveBucketLogging(client);
         }
 
         saveCorsRules(client);
@@ -542,6 +546,33 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         Set<String> currentCors = bucketResource.getCorsRule().stream().map(S3CorsRule::primaryKey).collect(Collectors.toSet());
         return getCorsRule().stream().allMatch(o -> currentCors.contains(o.primaryKey()));
+    }
+
+    private void loadBucketLogging(S3Client client){
+        GetBucketLoggingResponse response = client.getBucketLogging(
+                r -> r.bucket(getName()).build()
+        );
+
+        if(response.loggingEnabled() != null){
+            setLoggingEnabled(newSubresource(S3LoggingEnabled.class));
+            getLoggingEnabled().copyFrom(response.loggingEnabled());
+        }
+    }
+
+    private void saveBucketLogging(S3Client client){
+        if(getLoggingEnabled() != null) {
+            client.putBucketLogging(
+                r -> r.bucket(getName())
+                    .bucketLoggingStatus(s -> s.loggingEnabled(
+                        getLoggingEnabled().toLoggingEnabled()
+                    ))
+            );
+        }else {
+            client.putBucketLogging(
+                r -> r.bucket(getName())
+                    .bucketLoggingStatus(BucketLoggingStatus.builder().build())
+            );
+        }
     }
 
     private void loadLifecycleRules(S3Client client) {
