@@ -13,9 +13,6 @@ import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
