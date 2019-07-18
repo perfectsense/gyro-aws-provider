@@ -161,9 +161,9 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         sb.append(getToPort()).append(" ")
             .append(getFromPort()).append(" ")
             .append(getProtocol()).append(" ")
-            .append(!getCidrBlocks().isEmpty() ? getCidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" ")) : "").append(" ")
-            .append(!getIpv6CidrBlocks().isEmpty() ? getIpv6CidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" ")) : "").append(" ")
-            .append(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).filter(o -> !ObjectUtils.isBlank(o)).sorted(Comparator.naturalOrder()).collect(Collectors.joining("#")) : "");
+            .append(getCidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" "))).append(" ")
+            .append(getIpv6CidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" "))).append(" ")
+            .append(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).filter(o -> !ObjectUtils.isBlank(o)).sorted(Comparator.naturalOrder()).collect(Collectors.joining(" ")));
 
         return sb.toString();
     }
