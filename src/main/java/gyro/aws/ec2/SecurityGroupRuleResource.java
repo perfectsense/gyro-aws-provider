@@ -13,21 +13,17 @@ import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
 
-    private Set<String> cidrBlocks;
-    private Set<String> ipv6CidrBlocks;
+    private String cidrBlock;
+    private String ipv6CidrBlock;
     private String protocol;
     private String description;
     private Integer fromPort;
     private Integer toPort;
-    private Set<SecurityGroupResource> securityGroups;
+    private SecurityGroupResource securityGroup;
 
     /**
      * Protocol for this Security Group Rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
@@ -79,75 +75,57 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     /**
-     * Set of IPv4 CIDR blocks to apply this Security Group Rule to. Required if `ipv6-cidr-blocks` not mentioned.
+     * The IPv4 CIDR block to apply this Security Group Rule to. Required if `ipv6-cidr-block` or `security-group` not mentioned.
      */
-    public Set<String> getCidrBlocks() {
-        if (cidrBlocks == null) {
-            cidrBlocks = new HashSet<>();
-        }
-
-        return cidrBlocks;
+    public String getCidrBlock() {
+        return cidrBlock;
     }
 
-    public void setCidrBlocks(Set<String> cidrBlocks) {
-        this.cidrBlocks = cidrBlocks;
+    public void setCidrBlock(String cidrBlock) {
+        this.cidrBlock = cidrBlock;
     }
 
     /**
-     * Set of IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-blocks` not mentioned.
+     * The IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-block` or `security-group` not mentioned.
      */
-    public Set<String> getIpv6CidrBlocks() {
-        if (ipv6CidrBlocks == null) {
-            ipv6CidrBlocks = new HashSet<>();
-        }
-
-        return ipv6CidrBlocks;
+    public String getIpv6CidrBlock() {
+        return ipv6CidrBlock;
     }
 
-    public void setIpv6CidrBlocks(Set<String> ipv6CidrBlocks) {
-        this.ipv6CidrBlocks = ipv6CidrBlocks;
+    public void setIpv6CidrBlock(String ipv6CidrBlock) {
+        this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
     /**
-     * List of security groups referenced by this Security Group Rule.
+     * The security group referenced by this Security Group Rule.
      */
-    public Set<SecurityGroupResource> getSecurityGroups() {
-        if (securityGroups == null) {
-            securityGroups = new LinkedHashSet<>();
-        }
-
-        return securityGroups;
+    public SecurityGroupResource getSecurityGroup() {
+        return securityGroup;
     }
 
-    public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
-        this.securityGroups = securityGroups;
+    public void setSecurityGroup(SecurityGroupResource securityGroup) {
+        this.securityGroup = securityGroup;
     }
+
 
     @Override
     public void copyFrom(IpPermission permission) {
-        setProtocol(permission.ipProtocol());
-        setFromPort(permission.fromPort());
-        setToPort(permission.toPort());
 
-        if (!permission.ipRanges().isEmpty()) {
-            for (IpRange range : permission.ipRanges()) {
-                getCidrBlocks().add(range.cidrIp());
-                setDescription(range.description());
-            }
-        }
+    }
 
-        if (!permission.ipv6Ranges().isEmpty()) {
-            for (Ipv6Range range : permission.ipv6Ranges()) {
-                getIpv6CidrBlocks().add(range.cidrIpv6());
-                setDescription(range.description());
-            }
-        }
+    enum PermissionType {IPV4, IPV6, SG}
 
-        if (!permission.userIdGroupPairs().isEmpty()) {
-            for (UserIdGroupPair groupPair : permission.userIdGroupPairs()) {
-                getSecurityGroups().add(findById(SecurityGroupResource.class, groupPair.groupId()));
-                setDescription(groupPair.description());
-            }
+    void copyFromCustom(String protocol, Integer fromPort, Integer toPort, String description, PermissionType type, String value) {
+        setProtocol(protocol);
+        setToPort(toPort);
+        setFromPort(fromPort);
+        setDescription(description);
+        if (type.equals(PermissionType.IPV4)) {
+            setCidrBlock(value);
+        } else if (type.equals(PermissionType.IPV6)) {
+            setIpv6CidrBlock(value);
+        } else {
+            setSecurityGroup(findById(SecurityGroupResource.class, value));
         }
     }
 
@@ -157,10 +135,15 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
 
         sb.append(getToPort()).append(" ")
             .append(getFromPort()).append(" ")
-            .append(getProtocol()).append(" ")
-            .append(getCidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" "))).append(" ")
-            .append(getIpv6CidrBlocks().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(" "))).append(" ")
-            .append(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).filter(o -> !ObjectUtils.isBlank(o)).sorted(Comparator.naturalOrder()).collect(Collectors.joining(" ")));
+            .append(getProtocol()).append(" ");
+
+        if (!ObjectUtils.isBlank(getCidrBlock())) {
+            sb.append(getCidrBlock());
+        } else if (!ObjectUtils.isBlank(getIpv6CidrBlock())) {
+            sb.append(getIpv6CidrBlock());
+        } else if (getSecurityGroup() != null && !ObjectUtils.isBlank(getSecurityGroup().getGroupId())){
+            sb.append(getSecurityGroup().getGroupId());
+        }
 
         return sb.toString();
     }
@@ -198,28 +181,16 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     IpPermission getIpPermissionRequest() {
         IpPermission.Builder permissionBuilder = IpPermission.builder();
 
-        if (!getCidrBlocks().isEmpty()) {
-            permissionBuilder.ipRanges(
-                getCidrBlocks().stream()
-                    .map(o -> IpRange.builder().description(getDescription()).cidrIp(o).build())
-                    .collect(Collectors.toList())
-            );
+        if (!ObjectUtils.isBlank(getCidrBlock())) {
+            permissionBuilder.ipRanges(IpRange.builder().cidrIp(getCidrBlock()).description(getDescription()).build());
         }
 
-        if (!getIpv6CidrBlocks().isEmpty()) {
-            permissionBuilder.ipv6Ranges(
-                getIpv6CidrBlocks().stream()
-                    .map(o -> Ipv6Range.builder().description(getDescription()).cidrIpv6(o).build())
-                    .collect(Collectors.toList())
-            );
+        if (!ObjectUtils.isBlank(getIpv6CidrBlock())) {
+            permissionBuilder.ipv6Ranges(Ipv6Range.builder().cidrIpv6(getIpv6CidrBlock()).description(getDescription()).build());
         }
 
-        if (!getSecurityGroups().isEmpty()) {
-            permissionBuilder.userIdGroupPairs(
-                getSecurityGroups().stream()
-                    .map(g -> UserIdGroupPair.builder().description(getDescription()).groupId(g.getGroupId()).build())
-                    .collect(Collectors.toList())
-            );
+        if (getSecurityGroup() != null) {
+            permissionBuilder.userIdGroupPairs(UserIdGroupPair.builder().groupId(getSecurityGroup().getGroupId()).description(getDescription()).build());
         }
 
         return permissionBuilder
@@ -230,8 +201,9 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     private void validate() {
-        if (getCidrBlocks().isEmpty() && getIpv6CidrBlocks().isEmpty() && getSecurityGroups().isEmpty()) {
-            throw new GyroException("At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
+        int status = (ObjectUtils.isBlank(getCidrBlock()) ? 0 : 1) + (ObjectUtils.isBlank(getIpv6CidrBlock()) ? 0 : 1) + (getSecurityGroup() == null ? 0 : 1);
+        if (status != 1) {
+            throw new GyroException("Only one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
         }
     }
 }

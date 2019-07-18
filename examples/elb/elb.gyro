@@ -109,7 +109,7 @@ aws::security-group security-group
     @for port, type -in [80, 'http', 443, 'https']
         ingress
             description: "allow inbound $(type) traffic, ipv4 only"
-            cidr-blocks: ["0.0.0.0/0"]
+            cidr-block: "0.0.0.0/0"
             protocol: "TCP"
             from-port: $(port)
             to-port: $(port)
