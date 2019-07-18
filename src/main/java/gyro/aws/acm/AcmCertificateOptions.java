@@ -26,11 +26,6 @@ public class AcmCertificateOptions extends Diffable implements Copyable<Certific
     }
 
     @Override
-    public String toDisplayString() {
-        return "certificate options";
-    }
-
-    @Override
     public String primaryKey() {
         return "certificate options";
     }

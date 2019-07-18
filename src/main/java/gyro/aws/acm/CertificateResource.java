@@ -4,7 +4,9 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
 import software.amazon.awssdk.services.acm.model.DescribeCertificateResponse;
@@ -162,7 +164,7 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         AcmClient client = createClient(AcmClient.class);
 
         RequestCertificateResponse response = client.requestCertificate(
@@ -183,7 +185,7 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AcmClient client = createClient(AcmClient.class);
 
         if (changedFieldNames.contains("options")) {
@@ -200,15 +202,10 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         AcmClient client = createClient(AcmClient.class);
 
         client.deleteCertificate(r -> r.certificateArn(getArn()));
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "certificate";
     }
 
     private void saveTags(AcmClient client, Map<String, String> oldTags) {

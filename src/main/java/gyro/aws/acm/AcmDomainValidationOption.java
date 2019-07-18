@@ -1,6 +1,5 @@
 package gyro.aws.acm;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.acm.model.DomainValidation;
@@ -36,23 +35,6 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
         domainValidationOption.validationDomain();
         domainValidationOption.validationMethod();
         domainValidationOption.validationStatus();*/
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb  = new StringBuilder();
-
-        sb.append("domain validation");
-
-        if (!ObjectUtils.isBlank(getDomainName())) {
-            sb.append(" with domain name - ").append(getDomainName());
-        }
-
-        if (!ObjectUtils.isBlank(getValidationDomain())) {
-            sb.append(" with validation domain - ").append(getValidationDomain());
-        }
-
-        return sb.toString();
     }
 
     @Override
