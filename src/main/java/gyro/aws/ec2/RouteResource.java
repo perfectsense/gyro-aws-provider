@@ -245,36 +245,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("route ");
-        sb.append(getDestinationCidrBlock());
-
-        if (getGateway() != null && !ObjectUtils.isBlank(getGateway().getId())) {
-            sb.append(" through gateway ");
-            sb.append(getGateway().getId());
-        } else if (getInstance() != null && !ObjectUtils.isBlank(getInstance().getId())) {
-            sb.append(" through instance ");
-            sb.append(getInstance().getId());
-        } else if (getNatGateway() != null && !ObjectUtils.isBlank(getNatGateway().getId())) {
-            sb.append(" through nat gateway");
-            sb.append(getNatGateway().getId());
-        } else if (getNetworkInterface() != null && !ObjectUtils.isBlank(getNetworkInterface().getId())) {
-            sb.append(" through network interface ");
-            sb.append(getNetworkInterface().getId());
-        } else if (!ObjectUtils.isBlank(getTransitGatewayId())) {
-            sb.append(" through transit gateway ");
-            sb.append(getTransitGatewayId());
-        } else if (getVpcPeeringConnection() != null && !ObjectUtils.isBlank(getVpcPeeringConnection().getId())) {
-            sb.append(" through vpc peering connection ");
-            sb.append(getVpcPeeringConnection().getId());
-        }
-
-        return sb.toString();
-    }
-
     private Route getRoute(Ec2Client client) {
         Route route = null;
 

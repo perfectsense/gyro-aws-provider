@@ -385,19 +385,6 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("ebs snapshot lifecycle");
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private Schedule getSchedule() {
         return Schedule.builder()
             .tagsToAdd(getTags(getTagsToAdd()))

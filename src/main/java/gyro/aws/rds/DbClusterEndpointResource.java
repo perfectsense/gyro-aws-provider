@@ -201,9 +201,4 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
             r -> r.dbClusterEndpointIdentifier(getName())
         );
     }
-
-    @Override
-    public String toDisplayString() {
-        return "db cluster endpoint " + getName();
-    }
 }

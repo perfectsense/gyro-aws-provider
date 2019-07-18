@@ -599,19 +599,6 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .until(() -> getCacheCluster(client) == null);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("cache cluster");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
     private List<Tag> toCacheTags(Map<String, String> tagMap) {
         List<Tag> tags = new ArrayList<>();
         tagMap.keySet().forEach(

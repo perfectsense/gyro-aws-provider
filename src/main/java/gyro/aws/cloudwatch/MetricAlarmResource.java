@@ -456,19 +456,6 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         client.deleteAlarms(r -> r.alarmNames(Collections.singleton(getName())));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("metric alarm");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
     private MetricAlarm getMetricAlarm(CloudWatchClient client) {
         if (ObjectUtils.isBlank(getName())) {
             throw new GyroException("name is missing, unable to load metric alarm.");

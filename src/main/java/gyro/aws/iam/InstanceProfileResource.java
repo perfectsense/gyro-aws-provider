@@ -139,17 +139,4 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
         client.deleteInstanceProfile(r -> r.instanceProfileName(getName()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getName() != null) {
-            sb.append("instance profile " + getName());
-
-        } else {
-            sb.append("instance profile ");
-        }
-
-        return sb.toString();
-    }
 }

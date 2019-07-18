@@ -1,6 +1,5 @@
 package gyro.aws.waf.common;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
@@ -143,23 +142,6 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
             .defaultAction(getDefaultAction().toWafAction());
 
         doUpdate(builder);
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("waf web acl");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getWebAclId())) {
-            sb.append(" - ").append(getWebAclId());
-        }
-
-        return sb.toString();
     }
 
     protected void validateActivatedRule() {

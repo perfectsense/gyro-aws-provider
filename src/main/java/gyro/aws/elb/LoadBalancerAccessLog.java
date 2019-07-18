@@ -78,11 +78,6 @@ public class LoadBalancerAccessLog extends Diffable implements Copyable<AccessLo
     }
 
     @Override
-    public String toDisplayString() {
-        return "access log";
-    }
-
-    @Override
     public String primaryKey() {
         return "access log";
     }

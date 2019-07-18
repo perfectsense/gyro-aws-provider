@@ -30,11 +30,6 @@ public class LoadBalancerConnectionSettings extends Diffable implements Copyable
     }
 
     @Override
-    public String toDisplayString() {
-        return "connection settings";
-    }
-
-    @Override
     public String primaryKey() {
         return "connection settings";
     }

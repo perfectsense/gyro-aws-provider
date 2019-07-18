@@ -139,19 +139,6 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
         client.deleteCustomerGateway(r -> r.customerGatewayId(getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("customer gateway");
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private CustomerGateway getCustomerGateway(Ec2Client client) {
         CustomerGateway customerGateway = null;
 

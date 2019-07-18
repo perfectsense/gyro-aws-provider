@@ -148,9 +148,4 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
             r -> r.dbSnapshotIdentifier(getName())
         );
     }
-
-    @Override
-    public String toDisplayString() {
-        return "db snapshot " + getName();
-    }
 }

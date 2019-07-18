@@ -167,19 +167,6 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("cache param group");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
     private void removeDefaultParams(List<CacheParameter> parameters, Set<String> configParamSet) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 

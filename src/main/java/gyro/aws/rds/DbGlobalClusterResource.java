@@ -187,9 +187,4 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
             r -> r.globalClusterIdentifier(getName())
         );
     }
-
-    @Override
-    public String toDisplayString() {
-        return "db global cluster " + getName();
-    }
 }

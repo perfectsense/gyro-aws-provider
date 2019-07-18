@@ -141,8 +141,4 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
         client.deleteUserPool(r -> r.userPoolId(getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        return "user pool " + getName();
-    }
 }

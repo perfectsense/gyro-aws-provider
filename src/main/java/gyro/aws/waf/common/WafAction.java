@@ -29,11 +29,6 @@ public class WafAction extends Diffable implements Copyable<software.amazon.awss
         return getType();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "waf action";
-    }
-
     software.amazon.awssdk.services.waf.model.WafAction toWafAction() {
         return software.amazon.awssdk.services.waf.model.WafAction.builder().type(getType()).build();
     }

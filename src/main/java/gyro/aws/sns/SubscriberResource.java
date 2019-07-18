@@ -230,23 +230,6 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
         client.unsubscribe(r -> r.subscriptionArn(getSubscriptionArn()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("sns subscriber");
-
-        if (!ObjectUtils.isBlank(getProtocol())) {
-            sb.append(" with protocol ").append(getProtocol());
-        }
-
-        if (getEndpoint() != null) {
-            sb.append(" and endpoint ").append(getEndpoint());
-        }
-
-        return sb.toString();
-    }
-
     private Map<String, String> getSubscriptionAttributes() {
         Map<String, String> attributes = new HashMap<>();
 

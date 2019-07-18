@@ -63,8 +63,4 @@ public class ScalingConfiguration extends Diffable {
         return "scaling configuration";
     }
 
-    @Override
-    public String toDisplayString() {
-        return "scaling configuration";
-    }
 }

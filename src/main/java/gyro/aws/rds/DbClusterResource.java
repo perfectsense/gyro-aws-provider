@@ -719,9 +719,4 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         return false;
     }
-
-    @Override
-    public String toDisplayString() {
-        return "db cluster " + getName();
-    }
 }

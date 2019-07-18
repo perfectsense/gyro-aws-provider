@@ -137,10 +137,4 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
         super.delete(ui, state);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("application load balancer - " + getName());
-        return sb.toString();
-    }
 }

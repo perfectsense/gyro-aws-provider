@@ -206,29 +206,6 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("traffic policy");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (getVersion() != null) {
-            sb.append(" - version: ").append(getVersion());
-        }
-
-        if (ObjectUtils.isBlank(getName()) && !ObjectUtils.isBlank(getId())) {
-            sb.append(" [ from - ").append(getId()).append(" ]");
-        } else if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private TrafficPolicy getTrafficPolicy(Route53Client client) {
         TrafficPolicy trafficPolicy = null;
 

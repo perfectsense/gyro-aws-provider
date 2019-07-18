@@ -1,6 +1,5 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -110,23 +109,6 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
                 .volumeId(getVolume().getId())
                 .instanceId(parent.getId())
         );
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("device");
-
-        if (!ObjectUtils.isBlank(getDeviceName())) {
-            sb.append(" ").append(getDeviceName());
-        }
-
-        if (getVolume() != null && !ObjectUtils.isBlank(getVolume().getId())) {
-            sb.append(" with volume id : ").append(getVolume().getId());
-        }
-
-        return sb.toString();
     }
 
     @Override

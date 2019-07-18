@@ -751,23 +751,6 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("lambda function");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getVersion())) {
-            sb.append(" version - ").append(getVersion());
-        }
-
-        return sb.toString();
-    }
-
     private SdkBytes getZipFile() {
         try (InputStream input = openInput(getContentZipPath())) {
             return SdkBytes.fromInputStream(input);

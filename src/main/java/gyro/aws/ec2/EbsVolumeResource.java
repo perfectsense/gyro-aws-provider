@@ -316,23 +316,6 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         );
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("ebs volume");
-
-        if (!ObjectUtils.isBlank(getVolumeType())) {
-            sb.append(" [ ").append(getVolumeType()).append(" ]");
-        }
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private Volume getVolume(Ec2Client client) {
         Volume volume = null;
 

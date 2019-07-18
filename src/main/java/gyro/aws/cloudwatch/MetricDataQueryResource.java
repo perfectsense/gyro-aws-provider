@@ -178,19 +178,6 @@ public class MetricDataQueryResource extends Diffable implements Copyable<Metric
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("metric data query");
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     MetricDataQuery getMetricDataQuery() {
         MetricDataQuery.Builder builder =  MetricDataQuery.builder();
 

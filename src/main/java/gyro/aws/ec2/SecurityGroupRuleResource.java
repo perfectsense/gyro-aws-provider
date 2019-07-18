@@ -1,6 +1,5 @@
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -182,42 +181,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(name());
-        sb.append(" security rule - ");
-        sb.append(getProtocol());
-        sb.append(" [");
-        sb.append(getFromPort());
-        sb.append(" to ");
-        sb.append(getToPort());
-        sb.append("]");
-
-        if (!getCidrBlocks().isEmpty()) {
-            sb.append(" ");
-            sb.append(getCidrBlocks());
-        }
-
-        if (!getIpv6CidrBlocks().isEmpty()) {
-            sb.append(" ");
-            sb.append(getIpv6CidrBlocks());
-        }
-
-        if (!getSecurityGroups().isEmpty()) {
-            sb.append(" ");
-            sb.append(getSecurityGroups().stream().map(SecurityGroupResource::getName).collect(Collectors.toList()));
-        }
-
-        if (!ObjectUtils.isBlank(getDescription())) {
-            sb.append(" ");
-            sb.append(getDescription());
-        }
-
-        return sb.toString();
-    }
 
     public String getGroupId() {
         SecurityGroupResource parent = (SecurityGroupResource) parent();

@@ -230,19 +230,6 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db cluster parameter group");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public void copyFrom(DBClusterParameterGroup dbClusterParameterGroup) {
         DocDbClient client = createClient(DocDbClient.class);
 

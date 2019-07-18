@@ -452,22 +452,6 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             ).networkInterfaces().stream().noneMatch(o -> o.networkInterfaceId().equals(getId())));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("network interface ");
-
-        if (!ObjectUtils.isBlank(getDescription())) {
-            sb.append(getDescription());
-        }
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-        return sb.toString();
-    }
-
     private NetworkInterface getNetworkInterface(Ec2Client client) {
         NetworkInterface networkInterface = null;
 

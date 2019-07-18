@@ -50,18 +50,6 @@ public class SubnetMappings extends Diffable {
         return String.format("%s/%s", getIpAddress() != null ? getIpAddress().getId() : null, getSubnet().getId());
     }
 
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (getIpAddress() != null && getIpAddress().getId() != null) {
-            sb.append("subnet mapping - " + getIpAddress().getId());
-        } else {
-            sb.append("subnet mapping ");
-        }
-
-        return sb.toString();
-    }
-
     public SubnetMapping toSubnetMappings() {
         return SubnetMapping.builder()
                 .allocationId(getIpAddress() != null ? getIpAddress().getId() : null)

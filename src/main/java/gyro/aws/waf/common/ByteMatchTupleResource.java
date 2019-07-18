@@ -96,37 +96,6 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("byte match tuple");
-
-        if (getFieldToMatch() != null) {
-            if (!ObjectUtils.isBlank(getFieldToMatch().getData())) {
-                sb.append(" - ").append(getFieldToMatch().getData());
-            }
-
-            if (!ObjectUtils.isBlank(getFieldToMatch().getType())) {
-                sb.append(" - ").append(getFieldToMatch().getType());
-            }
-        }
-
-        if (!ObjectUtils.isBlank(getTextTransformation())) {
-            sb.append(" - ").append(getTextTransformation());
-        }
-
-        if (!ObjectUtils.isBlank(getPositionalConstraint())) {
-            sb.append(" - ").append(getPositionalConstraint());
-        }
-
-        if (!ObjectUtils.isBlank(getTargetString())) {
-            sb.append(" - ").append(getTargetString());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         StringBuilder sb = new StringBuilder();
 

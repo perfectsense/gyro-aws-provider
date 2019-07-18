@@ -436,27 +436,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         saveResourceRecordSet(client, this, ChangeAction.DELETE);
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("record set").append(" - ");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(getName());
-        }
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" type [ ").append(getType()).append(" ]");
-        }
-
-        if (!ObjectUtils.isBlank(getRoutingPolicy())) {
-            sb.append(" routing policy [ ").append(getRoutingPolicy()).append(" ]");
-        }
-
-        return sb.toString();
-    }
-
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
         ListResourceRecordSetsResponse response = client.listResourceRecordSets(
             r -> r.hostedZoneId(getHostedZone().getId())

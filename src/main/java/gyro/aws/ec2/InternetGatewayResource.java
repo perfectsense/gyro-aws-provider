@@ -143,20 +143,6 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         client.deleteInternetGateway(r -> r.internetGatewayId(getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("internet gateway");
-
-        if (getId() != null) {
-            sb.append(" - ").append(getId());
-
-        }
-
-        return sb.toString();
-    }
-
     private InternetGateway getInternetGateway(Ec2Client client) {
         InternetGateway internetGateway = null;
 

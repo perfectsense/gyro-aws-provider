@@ -106,19 +106,6 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
         client.deleteEgressOnlyInternetGateway(r -> r.egressOnlyInternetGatewayId(getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("egress gateway");
-
-        if (getId() != null) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {
         EgressOnlyInternetGateway egressOnlyInternetGateway = null;
 

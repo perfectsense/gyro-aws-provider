@@ -212,19 +212,6 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
         client.deleteDhcpOptions(r -> r.dhcpOptionsId(getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("dhcp options");
-
-        if (!ObjectUtils.isBlank(getId())) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private void addDhcpConfiguration(Collection<NewDhcpConfiguration> dhcpConfigurations, String configName, List<String> newConfiguration) {
         if (!newConfiguration.isEmpty()) {
             NewDhcpConfiguration dhcpConfiguration = NewDhcpConfiguration.builder()

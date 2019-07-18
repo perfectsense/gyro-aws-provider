@@ -303,19 +303,6 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("elastic ip");
-
-        if (getPublicIp() != null && !getPublicIp().isEmpty()) {
-            sb.append(" - ").append(getPublicIp());
-        }
-
-        return sb.toString();
-    }
-
     private Address getAddress(Ec2Client client) {
         Address address = null;
 

@@ -149,19 +149,6 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
         client.deleteKeyPair(r -> r.keyName(getName()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("key pair");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
     private String getPublicKeyFromPath() {
         try (InputStream input = openInput(getPublicKeyPath())) {
             return IoUtils.toUtf8String(input);

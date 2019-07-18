@@ -764,20 +764,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("auto scaling group");
-
-        if (!ObjectUtils.isBlank(getAutoScalingGroupName())) {
-            sb.append(" - ").append(getAutoScalingGroupName());
-
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public List<GyroInstance> getInstances() {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 

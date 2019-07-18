@@ -38,11 +38,6 @@ public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable impleme
     }
 
     @Override
-    public String toDisplayString() {
-        return String.format("non current transition - days [%s], storage-class [%s]", getDays(), getStorageClass());
-    }
-
-    @Override
     public void copyFrom(NoncurrentVersionTransition noncurrentVersionTransition) {
         setDays(noncurrentVersionTransition.noncurrentDays());
         setStorageClass(noncurrentVersionTransition.storageClassAsString());

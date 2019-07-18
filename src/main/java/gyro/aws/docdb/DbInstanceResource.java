@@ -252,19 +252,6 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("db instance");
-
-        if (!ObjectUtils.isBlank(getName())) {
-            sb.append(" - ").append(getName());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public void copyFrom(DBInstance dbInstance) {
         setAutoMinorVersionUpgrade(dbInstance.autoMinorVersionUpgrade());
         setAvailabilityZone(dbInstance.availabilityZone());

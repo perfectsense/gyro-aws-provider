@@ -57,11 +57,6 @@ public class CloudFrontGeoRestriction extends Diffable implements Copyable<GeoRe
         return "geo-restriction";
     }
 
-    @Override
-    public String toDisplayString() {
-        return "geo restriction";
-    }
-
     Restrictions toRestrictions() {
         return Restrictions.builder()
             .geoRestriction(r -> r.restrictionType(getType())

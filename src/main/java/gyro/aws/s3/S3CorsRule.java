@@ -80,11 +80,6 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
     }
 
     @Override
-    public String toDisplayString() {
-        return getUniqueName();
-    }
-
-    @Override
     public void copyFrom(CORSRule corsRule) {
         setAllowedHeaders(corsRule.allowedHeaders());
         setAllowedMethods(corsRule.allowedMethods());

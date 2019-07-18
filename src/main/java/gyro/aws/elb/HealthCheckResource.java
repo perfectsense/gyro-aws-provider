@@ -125,13 +125,6 @@ public class HealthCheckResource extends AwsResource {
     @Override
     public void delete(GyroUI ui, State state) {}
 
-    @Override
-    public String toDisplayString() {
-        return String.format(
-                "load balancer health check %s",
-                getTarget());
-    }
-
     private HealthCheck toHealthCheck() {
         HealthCheck healthCheck = HealthCheck.builder()
             .healthyThreshold(getHealthyThreshold())

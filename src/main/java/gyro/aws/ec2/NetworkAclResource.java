@@ -173,19 +173,6 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
         client.deleteNetworkAcl(r -> r.networkAclId(getId()));
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("network acl");
-
-        if (getId() != null) {
-            sb.append(" - ").append(getId());
-        }
-
-        return sb.toString();
-    }
-
     private NetworkAcl getNetworkAcl(Ec2Client client) {
         NetworkAcl networkAcl = null;
 

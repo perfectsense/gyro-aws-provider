@@ -72,23 +72,6 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("ip set descriptor");
-
-        if (!ObjectUtils.isBlank(getType())) {
-            sb.append(" - ").append(getType());
-        }
-
-        if (!ObjectUtils.isBlank(getValue())) {
-            sb.append(" - ").append(getValue());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s %s", getType(), getValue());
     }
