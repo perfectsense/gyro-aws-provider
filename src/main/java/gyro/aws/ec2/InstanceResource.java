@@ -856,19 +856,21 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     private void loadVolume(Instance instance) {
-        Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
-            .stream()
-            .map(BlockDeviceMappingResource::getDeviceName)
-            .collect(Collectors.toSet());
+        if (instance != null) {
+            Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
+                .stream()
+                .map(BlockDeviceMappingResource::getDeviceName)
+                .collect(Collectors.toSet());
 
-        reservedDeviceNameSet.add(instance.rootDeviceName());
+            reservedDeviceNameSet.add(instance.rootDeviceName());
 
-        getVolume().clear();
+            getVolume().clear();
 
-        setVolume(instance.blockDeviceMappings().stream()
-            .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-            .map(this::getInstanceVolumeAttachment)
-            .collect(Collectors.toSet()));
+            setVolume(instance.blockDeviceMappings().stream()
+                .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
+                .map(this::getInstanceVolumeAttachment)
+                .collect(Collectors.toSet()));
+        }
     }
 
 
