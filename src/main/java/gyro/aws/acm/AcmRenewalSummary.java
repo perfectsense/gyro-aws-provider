@@ -16,6 +16,9 @@ public class AcmRenewalSummary extends Diffable implements Copyable<RenewalSumma
     private String renewalStatusReason;
     private Date updatedAt;
 
+    /**
+     * Information about the validation of each domain name in the certificate.
+     */
     @Output
     public Set<AcmDomainValidationOption> getDomainValidationOptions() {
         if (domainValidationOptions == null) {
@@ -29,6 +32,9 @@ public class AcmRenewalSummary extends Diffable implements Copyable<RenewalSumma
         this.domainValidationOptions = domainValidationOptions;
     }
 
+    /**
+     * The status of ACM's managed renewal of the certificate.
+     */
     @Output
     public String getRenewalStatus() {
         return renewalStatus;
@@ -38,6 +44,9 @@ public class AcmRenewalSummary extends Diffable implements Copyable<RenewalSumma
         this.renewalStatus = renewalStatus;
     }
 
+    /**
+     * The reason that a renewal request was unsuccessful.
+     */
     @Output
     public String getRenewalStatusReason() {
         return renewalStatusReason;
@@ -47,6 +56,9 @@ public class AcmRenewalSummary extends Diffable implements Copyable<RenewalSumma
         this.renewalStatusReason = renewalStatusReason;
     }
 
+    /**
+     * The time at which the renewal summary was last updated.
+     */
     @Output
     public Date getUpdatedAt() {
         return updatedAt;

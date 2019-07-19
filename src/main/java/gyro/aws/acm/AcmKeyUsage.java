@@ -9,6 +9,9 @@ import software.amazon.awssdk.services.acm.model.KeyUsageName;
 public class AcmKeyUsage extends Diffable implements Copyable<KeyUsage> {
     private KeyUsageName name;
 
+    /**
+     * Key Usage extension name.
+     */
     @Output
     public KeyUsageName getName() {
         return name;

@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.acm.model.CertificateTransparencyLoggingP
 public class AcmCertificateOptions extends Diffable implements Copyable<CertificateOptions> {
     private CertificateTransparencyLoggingPreference preference;
 
+    /**
+     * Enable or Disable certificate transparency logging. Valid values ``ENABLED`` or ``DISABLED``. Defaults to ``DISABLED``.
+     */
     public CertificateTransparencyLoggingPreference getPreference() {
         if (preference == null) {
             preference = CertificateTransparencyLoggingPreference.DISABLED;

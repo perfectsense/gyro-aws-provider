@@ -6,8 +6,10 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
@@ -31,6 +33,28 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a ACM Certificate.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::acm-certificate acm-certificate-example
+ *         domain-name: "gyro-test.beam-sandbox.psdops.com"
+ *         domain-validation-option
+ *             domain-name: "gyro-test.beam-sandbox.psdops.com"
+ *             validation-domain: "beam-sandbox.psdops.com"
+ *         end
+ *
+ *         options
+ *             preference: DISABLED
+ *         end
+ *
+ *         validation-method: DNS
+ *     end
+ */
 @Type("acm-certificate")
 public class CertificateResource extends AwsResource implements Copyable<CertificateDetail> {
     private String certificateAuthorityArn;
@@ -72,6 +96,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.certificateAuthorityArn = certificateAuthorityArn;
     }
 
+    /**
+     * Fully qualified domain name (FQDN), that you want to secure with an ACM certificate. (Required)
+     */
     public String getDomainName() {
         return domainName;
     }
@@ -80,6 +107,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.domainName = domainName;
     }
 
+    /**
+     * The domain validation option that you want ACM to use to send you emails so that you can validate domain ownership. (Required)
+     */
     public Set<AcmDomainValidationOption> getDomainValidationOption() {
         return domainValidationOption;
     }
@@ -88,7 +118,15 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.domainValidationOption = domainValidationOption;
     }
 
+    /**
+     * Set certificate options for the ACM.
+     */
+    @Updatable
     public AcmCertificateOptions getOptions() {
+        if (options == null) {
+            options = newSubresource(AcmCertificateOptions.class);
+        }
+
         return options;
     }
 
@@ -96,6 +134,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.options = options;
     }
 
+    /**
+     * Additional FQDNs to be included in the Subject Alternative Name extension of the ACM certificate.
+     */
     public Set<String> getSubjectAlternativeNames() {
         return subjectAlternativeNames;
     }
@@ -104,6 +145,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.subjectAlternativeNames = subjectAlternativeNames;
     }
 
+    /**
+     * The method you want to use if you are requesting a public certificate to validate that you own or control domain. Valid values ``DNS`` or ``EMAIl``. Defaults to ``DNS``
+     */
     public ValidationMethod getValidationMethod() {
         if (validationMethod == null) {
             validationMethod = ValidationMethod.DNS;
@@ -116,6 +160,10 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.validationMethod = validationMethod;
     }
 
+    /**
+     * Set tags for the ACM.
+     */
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -128,6 +176,10 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.tags = tags;
     }
 
+    /**
+     * The Amazon Resource Name (ARN) of the certificate.
+     */
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -137,6 +189,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.arn = arn;
     }
 
+    /**
+     * The time at which the certificate was requested.
+     */
     @Output
     public Date getCreatedAt() {
         return createdAt;
@@ -146,6 +201,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.createdAt = createdAt;
     }
 
+    /**
+     * A list of Extended Key Usage
+     */
     @Output
     public Set<AcmExtendedKeyUsage> getExtendedKeyUsages() {
         return extendedKeyUsages;
@@ -155,6 +213,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.extendedKeyUsages = extendedKeyUsages;
     }
 
+    /**
+     * The reason the certificate request failed.
+     */
     @Output
     public FailureReason getFailureReason() {
         return failureReason;
@@ -164,6 +225,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.failureReason = failureReason;
     }
 
+    /**
+     * A Set of ARNs for the AWS resources that are using the certificate.
+     */
     @Output
     public Set<String> getInUseBy() {
         return inUseBy;
@@ -173,6 +237,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.inUseBy = inUseBy;
     }
 
+    /**
+     * The algorithm that was used to generate the public-private key pair.
+     */
     @Output
     public String getKeyAlgorithm() {
         return keyAlgorithm;
@@ -182,6 +249,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.keyAlgorithm = keyAlgorithm;
     }
 
+    /**
+     * A Set of Key Usage
+     */
     @Output
     public Set<AcmKeyUsage> getKeyUsages() {
         return keyUsages;
@@ -191,6 +261,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.keyUsages = keyUsages;
     }
 
+    /**
+     * The date and time at which the certificate was imported.
+     */
     @Output
     public Date getImportedAt() {
         return importedAt;
@@ -200,6 +273,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.importedAt = importedAt;
     }
 
+    /**
+     * The time at which the certificate was issued.
+     */
     @Output
     public Date getIssuedAt() {
         return issuedAt;
@@ -209,6 +285,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.issuedAt = issuedAt;
     }
 
+    /**
+     * The name of the certificate authority that issued and signed the certificate.
+     */
     @Output
     public String getIssuer() {
         return issuer;
@@ -218,6 +297,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.issuer = issuer;
     }
 
+    /**
+     * The time after which the certificate is not valid.
+     */
     @Output
     public Date getNotAfter() {
         return notAfter;
@@ -227,6 +309,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.notAfter = notAfter;
     }
 
+    /**
+     * The time before which the certificate is not valid.
+     */
     @Output
     public Date getNotBefore() {
         return notBefore;
@@ -236,6 +321,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.notBefore = notBefore;
     }
 
+    /**
+     * The time at which the certificate was revoked.
+     */
     @Output
     public Date getRevokedAt() {
         return revokedAt;
@@ -245,6 +333,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.revokedAt = revokedAt;
     }
 
+    /**
+     * Specifies whether the certificate is eligible for renewal.
+     */
     @Output
     public RenewalEligibility getRenewalEligibility() {
         return renewalEligibility;
@@ -254,6 +345,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.renewalEligibility = renewalEligibility;
     }
 
+    /**
+     * The information about the status of ACM's managed renewal for the certificate.
+     */
     @Output
     public AcmRenewalSummary getRenewalSummary() {
         return renewalSummary;
@@ -263,6 +357,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.renewalSummary = renewalSummary;
     }
 
+    /**
+     * The reason the certificate was revoked.
+     */
     @Output
     public String getRevocationReason() {
         return revocationReason;
@@ -272,6 +369,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.revocationReason = revocationReason;
     }
 
+    /**
+     * The serial number of the certificate.
+     */
     @Output
     public String getSerial() {
         return serial;
@@ -281,6 +381,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.serial = serial;
     }
 
+    /**
+     * The algorithm that was used to sign the certificate.
+     */
     @Output
     public String getSignatureAlgorithm() {
         return signatureAlgorithm;
@@ -290,6 +393,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.signatureAlgorithm = signatureAlgorithm;
     }
 
+    /**
+     * The name of the entity that is associated with the public key contained in the certificate.
+     */
     @Output
     public String getSubject() {
         return subject;
@@ -299,6 +405,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.subject = subject;
     }
 
+    /**
+     * The status of the certificate.
+     */
     @Output
     public CertificateStatus getStatus() {
         return status;
@@ -308,6 +417,9 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.status = status;
     }
 
+    /**
+     * The source of the certificate.
+     */
     @Output
     public CertificateType getType() {
         return type;
@@ -334,9 +446,6 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
 
         setArn(certificateDetail.certificateArn());
 
-
-
-        //output var
         setCreatedAt(certificateDetail.createdAt() != null ? Date.from(certificateDetail.createdAt()) : null);
         setExtendedKeyUsages(certificateDetail.extendedKeyUsages().stream().map(o -> {
             AcmExtendedKeyUsage extendedKeyUsage = newSubresource(AcmExtendedKeyUsage.class);

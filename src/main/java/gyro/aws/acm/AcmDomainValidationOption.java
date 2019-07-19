@@ -21,6 +21,9 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
     private Set<String> validationEmails;
     private AcmResourceRecord resourceRecord;
 
+    /**
+     * A fully qualified domain name (FQDN) in the certificate. (Required)
+     */
     public String getDomainName() {
         return domainName;
     }
@@ -29,6 +32,9 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
         this.domainName = domainName;
     }
 
+    /**
+     * The domain name that ACM used to send domain validation emails.
+     */
     public String getValidationDomain() {
         return validationDomain;
     }
@@ -37,6 +43,9 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
         this.validationDomain = validationDomain;
     }
 
+    /**
+     * The domain validation method.
+     */
     @Output
     public ValidationMethod getValidationMethod() {
         return validationMethod;
@@ -46,6 +55,9 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
         this.validationMethod = validationMethod;
     }
 
+    /**
+     * The validation status of the domain name.
+     */
     @Output
     public DomainStatus getValidationStatus() {
         return validationStatus;
@@ -55,6 +67,9 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
         this.validationStatus = validationStatus;
     }
 
+    /**
+     * A list of email addresses that ACM used to send domain validation emails.
+     */
     @Output
     public Set<String> getValidationEmails() {
         return validationEmails;
@@ -64,6 +79,9 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
         this.validationEmails = validationEmails;
     }
 
+    /**
+     * Contains the CNAME record that you add to your DNS database for domain validation.
+     */
     @Output
     public AcmResourceRecord getResourceRecord() {
         return resourceRecord;

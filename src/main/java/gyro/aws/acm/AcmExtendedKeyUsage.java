@@ -10,6 +10,9 @@ public class AcmExtendedKeyUsage extends Diffable implements Copyable<ExtendedKe
     private ExtendedKeyUsageName name;
     private String oid;
 
+    /**
+     * The name of an Extended Key Usage value.
+     */
     @Output
     public ExtendedKeyUsageName getName() {
         return name;
@@ -19,6 +22,9 @@ public class AcmExtendedKeyUsage extends Diffable implements Copyable<ExtendedKe
         this.name = name;
     }
 
+    /**
+     * An object identifier (OID) for the extension value.
+     */
     @Output
     public String getOid() {
         return oid;
