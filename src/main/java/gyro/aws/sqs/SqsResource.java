@@ -386,7 +386,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
                 .until(() -> !ObjectUtils.isBlank(getQueue(client)));
 
             if (!waitResult) {
-                throw new GyroException("Unable to create sqs queue - " + getName());
+                throw new GyroException(String .format("Sqs queue - %s, not available for use. ", getName()));
             }
         } else {
             throw new GyroException("A queue with the name " + getName() + " already exists.");
