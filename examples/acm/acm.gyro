@@ -1,0 +1,13 @@
+aws::acm-certificate acm-certificate-example
+    domain-name: "gyro-test.beam-sandbox.psdops.com"
+    domain-validation-option
+        domain-name: "gyro-test.beam-sandbox.psdops.com"
+        validation-domain: "beam-sandbox.psdops.com"
+    end
+
+    options
+        preference: DISABLED
+    end
+
+    validation-method: DNS
+end
