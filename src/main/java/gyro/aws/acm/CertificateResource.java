@@ -5,17 +5,24 @@ import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
+import software.amazon.awssdk.services.acm.model.CertificateStatus;
+import software.amazon.awssdk.services.acm.model.CertificateType;
 import software.amazon.awssdk.services.acm.model.DescribeCertificateResponse;
+import software.amazon.awssdk.services.acm.model.FailureReason;
+import software.amazon.awssdk.services.acm.model.RenewalEligibility;
 import software.amazon.awssdk.services.acm.model.RequestCertificateResponse;
 import software.amazon.awssdk.services.acm.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.acm.model.Tag;
 import software.amazon.awssdk.services.acm.model.ValidationMethod;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +31,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Type("acm-certificate")
 public class CertificateResource extends AwsResource implements Copyable<CertificateDetail> {
     private String certificateAuthorityArn;
     private String domainName;
@@ -35,6 +43,26 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
 
     // --Output
     private String arn;
+    private Date createdAt;
+    private Set<AcmExtendedKeyUsage> extendedKeyUsages;
+    private FailureReason failureReason;
+    private Set<String> inUseBy;
+    private String keyAlgorithm;
+    private Set<AcmKeyUsage> keyUsages;
+    private Date importedAt;
+    private Date issuedAt;
+    private String issuer;
+    private Date notAfter;
+    private Date notBefore;
+    private Date revokedAt;
+    private RenewalEligibility renewalEligibility;
+    private AcmRenewalSummary renewalSummary;
+    private String revocationReason;
+    private String serial;
+    private String signatureAlgorithm;
+    private String subject;
+    private CertificateStatus status;
+    private CertificateType type;
 
     public String getCertificateAuthorityArn() {
         return certificateAuthorityArn;
@@ -100,12 +128,193 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         this.tags = tags;
     }
 
+    @Output
     public String getArn() {
         return arn;
     }
 
     public void setArn(String arn) {
         this.arn = arn;
+    }
+
+    @Output
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Output
+    public Set<AcmExtendedKeyUsage> getExtendedKeyUsages() {
+        return extendedKeyUsages;
+    }
+
+    public void setExtendedKeyUsages(Set<AcmExtendedKeyUsage> extendedKeyUsages) {
+        this.extendedKeyUsages = extendedKeyUsages;
+    }
+
+    @Output
+    public FailureReason getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(FailureReason failureReason) {
+        this.failureReason = failureReason;
+    }
+
+    @Output
+    public Set<String> getInUseBy() {
+        return inUseBy;
+    }
+
+    public void setInUseBy(Set<String> inUseBy) {
+        this.inUseBy = inUseBy;
+    }
+
+    @Output
+    public String getKeyAlgorithm() {
+        return keyAlgorithm;
+    }
+
+    public void setKeyAlgorithm(String keyAlgorithm) {
+        this.keyAlgorithm = keyAlgorithm;
+    }
+
+    @Output
+    public Set<AcmKeyUsage> getKeyUsages() {
+        return keyUsages;
+    }
+
+    public void setKeyUsages(Set<AcmKeyUsage> keyUsages) {
+        this.keyUsages = keyUsages;
+    }
+
+    @Output
+    public Date getImportedAt() {
+        return importedAt;
+    }
+
+    public void setImportedAt(Date importedAt) {
+        this.importedAt = importedAt;
+    }
+
+    @Output
+    public Date getIssuedAt() {
+        return issuedAt;
+    }
+
+    public void setIssuedAt(Date issuedAt) {
+        this.issuedAt = issuedAt;
+    }
+
+    @Output
+    public String getIssuer() {
+        return issuer;
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
+
+    @Output
+    public Date getNotAfter() {
+        return notAfter;
+    }
+
+    public void setNotAfter(Date notAfter) {
+        this.notAfter = notAfter;
+    }
+
+    @Output
+    public Date getNotBefore() {
+        return notBefore;
+    }
+
+    public void setNotBefore(Date notBefore) {
+        this.notBefore = notBefore;
+    }
+
+    @Output
+    public Date getRevokedAt() {
+        return revokedAt;
+    }
+
+    public void setRevokedAt(Date revokedAt) {
+        this.revokedAt = revokedAt;
+    }
+
+    @Output
+    public RenewalEligibility getRenewalEligibility() {
+        return renewalEligibility;
+    }
+
+    public void setRenewalEligibility(RenewalEligibility renewalEligibility) {
+        this.renewalEligibility = renewalEligibility;
+    }
+
+    @Output
+    public AcmRenewalSummary getRenewalSummary() {
+        return renewalSummary;
+    }
+
+    public void setRenewalSummary(AcmRenewalSummary renewalSummary) {
+        this.renewalSummary = renewalSummary;
+    }
+
+    @Output
+    public String getRevocationReason() {
+        return revocationReason;
+    }
+
+    public void setRevocationReason(String revocationReason) {
+        this.revocationReason = revocationReason;
+    }
+
+    @Output
+    public String getSerial() {
+        return serial;
+    }
+
+    public void setSerial(String serial) {
+        this.serial = serial;
+    }
+
+    @Output
+    public String getSignatureAlgorithm() {
+        return signatureAlgorithm;
+    }
+
+    public void setSignatureAlgorithm(String signatureAlgorithm) {
+        this.signatureAlgorithm = signatureAlgorithm;
+    }
+
+    @Output
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    @Output
+    public CertificateStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CertificateStatus status) {
+        this.status = status;
+    }
+
+    @Output
+    public CertificateType getType() {
+        return type;
+    }
+
+    public void setType(CertificateType type) {
+        this.type = type;
     }
 
     @Override
@@ -125,27 +334,45 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
 
         setArn(certificateDetail.certificateArn());
 
+
+
         //output var
-        /*certificateDetail.createdAt();
-        certificateDetail.extendedKeyUsages();
-        certificateDetail.failureReason();
-        certificateDetail.importedAt();
-        certificateDetail.inUseBy();
-        certificateDetail.issuer();
-        certificateDetail.keyAlgorithmAsString();
-        certificateDetail.keyUsages();
-        certificateDetail.notAfter();
-        certificateDetail.notBefore();
-        certificateDetail.issuedAt();
-        certificateDetail.renewalEligibility();
-        certificateDetail.renewalSummary();
-        certificateDetail.revocationReasonAsString();
-        certificateDetail.revokedAt();
-        certificateDetail.serial();
-        certificateDetail.signatureAlgorithm();
-        certificateDetail.status();
-        certificateDetail.subject();
-        certificateDetail.type();*/
+        setCreatedAt(certificateDetail.createdAt() != null ? Date.from(certificateDetail.createdAt()) : null);
+        setExtendedKeyUsages(certificateDetail.extendedKeyUsages().stream().map(o -> {
+            AcmExtendedKeyUsage extendedKeyUsage = newSubresource(AcmExtendedKeyUsage.class);
+            extendedKeyUsage.copyFrom(o);
+            return extendedKeyUsage;
+        }).collect(Collectors.toSet()));
+        setFailureReason(certificateDetail.failureReason());
+        setInUseBy(new HashSet<>(certificateDetail.inUseBy()));
+        setKeyAlgorithm(certificateDetail.keyAlgorithmAsString());
+        setKeyUsages(certificateDetail.keyUsages().stream().map(o -> {
+            AcmKeyUsage keyUsage = newSubresource(AcmKeyUsage.class);
+            keyUsage.copyFrom(o);
+            return keyUsage;
+        }).collect(Collectors.toSet()));
+        setImportedAt(certificateDetail.importedAt() != null ? Date.from(certificateDetail.importedAt()) : null);
+        setIssuedAt(certificateDetail.issuedAt() != null ? Date.from(certificateDetail.issuedAt()) : null);
+        setIssuer(certificateDetail.issuer());
+        setNotAfter(certificateDetail.notAfter() != null ? Date.from(certificateDetail.notAfter()) : null);
+        setNotBefore(certificateDetail.notBefore() != null ? Date.from(certificateDetail.notBefore()) : null);
+        setRevokedAt(certificateDetail.revokedAt() != null ? Date.from(certificateDetail.revokedAt()) : null);
+        setRenewalEligibility(certificateDetail.renewalEligibility());
+
+        if (certificateDetail.renewalSummary() != null) {
+            AcmRenewalSummary renewalSummary = newSubresource(AcmRenewalSummary.class);
+            renewalSummary.copyFrom(certificateDetail.renewalSummary());
+            setRenewalSummary(renewalSummary);
+        } else {
+            setRenewalSummary(null);
+        }
+
+        setRevocationReason(certificateDetail.revocationReasonAsString());
+        setSerial(certificateDetail.serial());
+        setSignatureAlgorithm(certificateDetail.signatureAlgorithm());
+        setSubject(certificateDetail.subject());
+        setStatus(certificateDetail.status());
+        setType(certificateDetail.type());
     }
 
     @Override
@@ -171,7 +398,7 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
             r -> r.certificateAuthorityArn(getCertificateAuthorityArn())
                 .domainName(getDomainName())
                 .domainValidationOptions(getDomainValidationOption().stream().map(AcmDomainValidationOption::toDomainValidationOption).collect(Collectors.toList()))
-                .idempotencyToken(UUID.randomUUID().toString())
+                .idempotencyToken(UUID.randomUUID().toString().replaceAll("-",""))
                 .options(getOptions().toCertificateOptions())
                 .subjectAlternativeNames(getSubjectAlternativeNames())
                 .validationMethod(getValidationMethod())
