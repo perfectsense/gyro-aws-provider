@@ -192,19 +192,25 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
             for (IpRange ipRange : permission.ipRanges()) {
                 SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
-                rule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), ipRange.description(), SecurityGroupRuleResource.PermissionType.IPV4, ipRange.cidrIp());
+                rule.copyPortProtocol(permission);
+                rule.setCidrBlock(ipRange.cidrIp());
+                rule.setDescription(ipRange.description());
                 getEgress().add(rule);
             }
 
             for (Ipv6Range ipRange : permission.ipv6Ranges()) {
                 SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
-                rule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), ipRange.description(), SecurityGroupRuleResource.PermissionType.IPV6, ipRange.cidrIpv6());
+                rule.copyPortProtocol(permission);
+                rule.setIpv6CidrBlock(ipRange.cidrIpv6());
+                rule.setDescription(ipRange.description());
                 getEgress().add(rule);
             }
 
             for (UserIdGroupPair groupPair : permission.userIdGroupPairs()) {
                 SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
-                rule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), groupPair.description(), SecurityGroupRuleResource.PermissionType.SG, groupPair.groupId());
+                rule.copyPortProtocol(permission);
+                rule.setSecurityGroup(findById(SecurityGroupResource.class, groupPair.groupId()));
+                rule.setDescription(groupPair.description());
                 getEgress().add(rule);
             }
         }
@@ -213,19 +219,25 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         for (IpPermission permission : group.ipPermissions()) {
             for (IpRange ipRange : permission.ipRanges()) {
                 SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
-                rule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), ipRange.description(), SecurityGroupRuleResource.PermissionType.IPV4, ipRange.cidrIp());
+                rule.copyPortProtocol(permission);
+                rule.setCidrBlock(ipRange.cidrIp());
+                rule.setDescription(ipRange.description());
                 getIngress().add(rule);
             }
 
             for (Ipv6Range ipRange : permission.ipv6Ranges()) {
                 SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
-                rule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), ipRange.description(), SecurityGroupRuleResource.PermissionType.IPV6, ipRange.cidrIpv6());
+                rule.copyPortProtocol(permission);
+                rule.setIpv6CidrBlock(ipRange.cidrIpv6());
+                rule.setDescription(ipRange.description());
                 getIngress().add(rule);
             }
 
             for (UserIdGroupPair groupPair : permission.userIdGroupPairs()) {
                 SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
-                rule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), groupPair.description(), SecurityGroupRuleResource.PermissionType.SG, groupPair.groupId());
+                rule.copyPortProtocol(permission);
+                rule.setSecurityGroup(findById(SecurityGroupResource.class, groupPair.groupId()));
+                rule.setDescription(groupPair.description());
                 getIngress().add(rule);
             }
         }
@@ -349,7 +361,9 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
         if (permission != null) {
             SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
-            defaultRule.copyFromCustom(permission.ipProtocol(), permission.fromPort(), permission.toPort(), permission.ipRanges().get(0).description(), SecurityGroupRuleResource.PermissionType.IPV4, "0.0.0.0/0");
+            defaultRule.copyPortProtocol(permission);
+            defaultRule.setDescription(permission.ipRanges().get(0).description());
+            defaultRule.setCidrBlock("0.0.0.0/0");
             defaultRule.delete(client, getGroupId());
         }
     }

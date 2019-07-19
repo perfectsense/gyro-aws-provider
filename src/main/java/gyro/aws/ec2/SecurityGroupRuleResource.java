@@ -2,7 +2,6 @@ package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
@@ -15,7 +14,7 @@ import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
 import java.util.Set;
 
-public abstract class SecurityGroupRuleResource extends AwsResource implements Copyable<IpPermission> {
+public abstract class SecurityGroupRuleResource extends AwsResource {
 
     private String cidrBlock;
     private String ipv6CidrBlock;
@@ -107,28 +106,6 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         this.securityGroup = securityGroup;
     }
 
-
-    @Override
-    public void copyFrom(IpPermission permission) {
-
-    }
-
-    enum PermissionType {IPV4, IPV6, SG}
-
-    void copyFromCustom(String protocol, Integer fromPort, Integer toPort, String description, PermissionType type, String value) {
-        setProtocol(protocol);
-        setToPort(toPort);
-        setFromPort(fromPort);
-        setDescription(description);
-        if (type.equals(PermissionType.IPV4)) {
-            setCidrBlock(value);
-        } else if (type.equals(PermissionType.IPV6)) {
-            setIpv6CidrBlock(value);
-        } else {
-            setSecurityGroup(findById(SecurityGroupResource.class, value));
-        }
-    }
-
     @Override
     public String primaryKey() {
         StringBuilder sb = new StringBuilder();
@@ -205,6 +182,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
         if (status != 1) {
             throw new GyroException("Only one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
         }
+    }
+
+    void copyPortProtocol(IpPermission permission) {
+        setProtocol(permission.ipProtocol());
+        setToPort(permission.toPort());
+        setFromPort(permission.fromPort());
     }
 }
 
