@@ -585,9 +585,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             setPrivateIpAddress(instance.privateIpAddress());
             setInstanceState(instance.state().nameAsString());
             setInstanceLaunchDate(Date.from(instance.launchTime()));
+            
+            loadVolume(getInstance(client));
         }
-
-        loadVolume(getInstance(client));
     }
 
     @Override
@@ -859,21 +859,19 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     private void loadVolume(Instance instance) {
-        if (instance != null) {
-            Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
-                .stream()
-                .map(BlockDeviceMappingResource::getDeviceName)
-                .collect(Collectors.toSet());
+        Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
+            .stream()
+            .map(BlockDeviceMappingResource::getDeviceName)
+            .collect(Collectors.toSet());
 
-            reservedDeviceNameSet.add(instance.rootDeviceName());
+        reservedDeviceNameSet.add(instance.rootDeviceName());
 
-            getVolume().clear();
+        getVolume().clear();
 
-            setVolume(instance.blockDeviceMappings().stream()
-                .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-                .map(this::getInstanceVolumeAttachment)
-                .collect(Collectors.toSet()));
-        }
+        setVolume(instance.blockDeviceMappings().stream()
+            .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
+            .map(this::getInstanceVolumeAttachment)
+            .collect(Collectors.toSet()));
     }
 
 
