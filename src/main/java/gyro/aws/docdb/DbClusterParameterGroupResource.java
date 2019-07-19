@@ -173,7 +173,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(

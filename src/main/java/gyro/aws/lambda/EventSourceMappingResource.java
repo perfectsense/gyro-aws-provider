@@ -318,6 +318,8 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
 
         setId(response.uuid());
 
+        state.save();
+
         waitToSave(client);
     }
 
@@ -359,13 +361,17 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     private void waitToSave(LambdaClient client) {
-        Wait.atMost(3, TimeUnit.MINUTES)
+        boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
+            .prompt(false)
             .until(() -> client.getEventSourceMapping(
                 r -> r.uuid(getId()))
                 .state().equals(getEnabled() ? "Enabled" : "Disabled")
             );
+
+        if (!waitResult) {
+            throw new GyroException(String.format("Unable to reach '%s' state for lambda event source mapping - %s", getEnabled() ? "Enabled" : "Disabled", getId()));
+        }
 
         copyFrom(client.getEventSourceMapping(r -> r.uuid(getId())));
     }

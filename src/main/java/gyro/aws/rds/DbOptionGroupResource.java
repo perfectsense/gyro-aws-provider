@@ -184,7 +184,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateOptionGroupResponse response = client.createOptionGroup(
             r -> r.engineName(getEngine())

@@ -195,7 +195,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbInstanceResponse response = client.createDBInstance(
@@ -211,12 +211,18 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
         setArn(response.dbInstance().dbInstanceArn());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
+        state.save();
+
+        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
             .until(() -> isAvailable(client));
 
-        doRefresh();
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for docdb instance - " + getDbInstanceIdentifier());
+        }
+
+        copyFrom(getDbInstance(client));
     }
 
     @Override
