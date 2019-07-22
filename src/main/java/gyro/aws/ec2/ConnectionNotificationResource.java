@@ -45,11 +45,11 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
     private EndpointServiceResource endpointService;
     private EndpointResource endpoint;
-    private String connectionNotificationArn;
+    private String arn;
     private Set<String> connectionEvents;
     private String id;
-    private String connectionNotificationState;
-    private String connectionNotificationType;
+    private String state;
+    private String type;
 
     private final Set<String> masterEventSet = new HashSet<>(Arrays.asList(
         "Accept",
@@ -84,12 +84,12 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      * The ARN of the SNS topic. (Required)
      */
     @Updatable
-    public String getConnectionNotificationArn() {
-        return connectionNotificationArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setConnectionNotificationArn(String connectionNotificationArn) {
-        this.connectionNotificationArn = connectionNotificationArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     /**
@@ -125,34 +125,34 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      * The state of the Connection Notification.
      */
     @Output
-    public String getConnectionNotificationState() {
-        return connectionNotificationState;
+    public String getState() {
+        return state;
     }
 
-    public void setConnectionNotificationState(String connectionNotificationState) {
-        this.connectionNotificationState = connectionNotificationState;
+    public void setState(String state) {
+        this.state = state;
     }
 
     /**
      * The notification type of the Connection Notification.
      */
     @Output
-    public String getConnectionNotificationType() {
-        return connectionNotificationType;
+    public String getType() {
+        return type;
     }
 
-    public void setConnectionNotificationType(String connectionNotificationType) {
-        this.connectionNotificationType = connectionNotificationType;
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
     public void copyFrom(ConnectionNotification connectionNotification) {
         setId(connectionNotification.connectionNotificationId());
         setConnectionEvents(connectionNotification.connectionEvents() != null ? new HashSet<>(connectionNotification.connectionEvents()) : null);
-        setConnectionNotificationArn(connectionNotification.connectionNotificationArn());
+        setArn(connectionNotification.connectionNotificationArn());
         setId(connectionNotification.connectionNotificationId());
-        setConnectionNotificationState(connectionNotification.connectionNotificationStateAsString());
-        setConnectionNotificationType(connectionNotification.connectionNotificationTypeAsString());
+        setState(connectionNotification.connectionNotificationStateAsString());
+        setType(connectionNotification.connectionNotificationTypeAsString());
         setEndpoint(!ObjectUtils.isBlank(connectionNotification.vpcEndpointId()) ? findById(EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
         setEndpointService(!ObjectUtils.isBlank(connectionNotification.serviceId()) ? findById(EndpointServiceResource.class, connectionNotification.serviceId()) : null);
     }
@@ -184,21 +184,21 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
             response = client.createVpcEndpointConnectionNotification(
                 r -> r.vpcEndpointId(getEndpoint().getId())
                     .connectionEvents(getConnectionEvents())
-                    .connectionNotificationArn(getConnectionNotificationArn())
+                    .connectionNotificationArn(getArn())
             );
         } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
                 r -> r.serviceId(getEndpointService().getId())
                     .connectionEvents(getConnectionEvents())
-                    .connectionNotificationArn(getConnectionNotificationArn())
+                    .connectionNotificationArn(getArn())
             );
         } else {
-            throw new GyroException("vpc-endpoint or vpc-endpoint-service required.");
+            throw new GyroException("endpoint or endpoint-service required.");
         }
 
         setId(response.connectionNotification().connectionNotificationId());
-        setConnectionNotificationType(response.connectionNotification().connectionNotificationTypeAsString());
-        setConnectionNotificationState(response.connectionNotification().connectionNotificationStateAsString());
+        setType(response.connectionNotification().connectionNotificationTypeAsString());
+        setState(response.connectionNotification().connectionNotificationStateAsString());
     }
 
     @Override
@@ -210,7 +210,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         client.modifyVpcEndpointConnectionNotification(
             r -> r.connectionNotificationId(getId())
                 .connectionEvents(getConnectionEvents())
-                .connectionNotificationArn(getConnectionNotificationArn())
+                .connectionNotificationArn(getArn())
         );
     }
 
