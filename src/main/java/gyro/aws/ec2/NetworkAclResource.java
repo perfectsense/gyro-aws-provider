@@ -155,7 +155,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateNetworkAclResponse response = client.createNetworkAcl(
-            r -> r.vpcId(getVpc().getVpcId())
+            r -> r.vpcId(getVpc().getId())
         );
 
         setId(response.networkAcl().networkAclId());

@@ -355,7 +355,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         } catch(Ec2Exception ex) {
             if (ex.getLocalizedMessage().contains("does not exist")) {
                 delete(ui, state);
-                throw new GyroException("The instance (" + getInstance().getId() + ") attachment failed, invalid instance.");
+                throw new GyroException("The instance (" + getInstance().getId() + ") attachment failed.");
             }
         }
     }

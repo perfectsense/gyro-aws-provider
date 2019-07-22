@@ -136,7 +136,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getVpcId()));
+        CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getId()));
 
         setId(response.routeTable().routeTableId());
         setOwnerId(response.routeTable().ownerId());

@@ -220,7 +220,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSecurityGroupResponse response = client.createSecurityGroup(
-            r -> r.vpcId(getVpc().getResourceId()).description(getDescription()).groupName(getName())
+            r -> r.vpcId(getVpc().getId()).description(getDescription()).groupName(getName())
         );
 
         setId(response.groupId());
@@ -291,7 +291,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             DescribeSecurityGroupsResponse response = client.describeSecurityGroups(
                 r -> r.filters(
                     f -> f.name("group-id").values(getId()),
-                    f -> f.name("vpc-id").values(getVpc().getResourceId())
+                    f -> f.name("vpc-id").values(getVpc().getId())
                 )
             );
 

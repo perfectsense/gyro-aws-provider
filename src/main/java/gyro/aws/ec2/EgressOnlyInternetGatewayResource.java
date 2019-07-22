@@ -89,7 +89,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {
-            CreateEgressOnlyInternetGatewayResponse response = client.createEgressOnlyInternetGateway(r -> r.vpcId(getVpc().getVpcId()));
+            CreateEgressOnlyInternetGatewayResponse response = client.createEgressOnlyInternetGateway(r -> r.vpcId(getVpc().getId()));
             EgressOnlyInternetGateway gateway = response.egressOnlyInternetGateway();
             setId(gateway.egressOnlyInternetGatewayId());
         }

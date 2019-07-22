@@ -181,7 +181,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
             DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
                 r -> r.filters(
-                    Filter.builder().name("vpc-id").values(getVpc().getResourceId()).build(),
+                    Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
                     Filter.builder().name("association.subnet-id").values(getId()).build()
                 )
             );
@@ -225,7 +225,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         CreateSubnetRequest request = CreateSubnetRequest.builder()
             .availabilityZone(getAvailabilityZone())
             .cidrBlock(getCidrBlock())
-            .vpcId(getVpc().getResourceId())
+            .vpcId(getVpc().getId())
             .build();
 
         CreateSubnetResponse response = client.createSubnet(request);
@@ -233,7 +233,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
         DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
             r -> r.filters(
-                Filter.builder().name("vpc-id").values(getVpc().getResourceId()).build(),
+                Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
                 Filter.builder().name("association.subnet-id").values(getId()).build()
             )
         );

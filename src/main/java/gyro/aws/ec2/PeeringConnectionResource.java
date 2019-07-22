@@ -220,8 +220,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
-            r -> r.vpcId(getVpc().getVpcId())
-                .peerVpcId(getPeerVpc().getVpcId())
+            r -> r.vpcId(getVpc().getId())
+                .peerVpcId(getPeerVpc().getId())
                 .peerOwnerId(getPeerVpc().getAccount())
                 .peerRegion(getPeerVpc().getRegion())
         );

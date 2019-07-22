@@ -253,7 +253,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
                     .name(getName())
                     .targetType(getTargetType())
                     .unhealthyThresholdCount(getHealthCheck().getUnhealthyThreshold())
-                    .vpcId(getVpc() != null ? getVpc().getVpcId() : null)
+                    .vpcId(getVpc() != null ? getVpc().getId() : null)
             );
         } else if (getTargetType().equals("lambda") && getHealthCheck() == null) {
             response = client.createTargetGroup(r -> r.healthCheckEnabled(false)

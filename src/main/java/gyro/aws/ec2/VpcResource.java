@@ -61,7 +61,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private Boolean provideIpv6CidrBlock;
 
     // Read-only
-    private String vpcId;
+    private String id;
     private String ownerId;
     private Boolean defaultVpc;
     private String region;
@@ -182,12 +182,12 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
      */
     @Id
     @Output
-    public String getVpcId() {
-        return vpcId;
+    public String getId() {
+        return id;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -244,12 +244,12 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
     @Override
     public String getResourceId() {
-        return getVpcId();
+        return getId();
     }
 
     @Override
     public void copyFrom(Vpc vpc) {
-        setVpcId(vpc.vpcId());
+        setId(vpc.vpcId());
         setCidrBlock(vpc.cidrBlock());
         setInstanceTenancy(vpc.instanceTenancyAsString());
         setDhcpOptions(!ObjectUtils.isBlank(vpc.dhcpOptionsId()) ? findById(DhcpOptionSetResource.class,vpc.dhcpOptionsId()) : null);
@@ -261,26 +261,26 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
         // DNS Settings
         DescribeVpcAttributeRequest request = DescribeVpcAttributeRequest.builder()
-            .vpcId(vpcId)
+            .vpcId(id)
             .attribute(VpcAttributeName.ENABLE_DNS_HOSTNAMES)
             .build();
         setEnableDnsHostnames(client.describeVpcAttribute(request).enableDnsHostnames().value());
 
         request = DescribeVpcAttributeRequest.builder()
-            .vpcId(vpcId)
+            .vpcId(id)
             .attribute(VpcAttributeName.ENABLE_DNS_SUPPORT)
             .build();
         setEnableDnsSupport(client.describeVpcAttribute(request).enableDnsSupport().value());
 
         // ClassicLink
         try {
-            DescribeVpcClassicLinkResponse clResponse = client.describeVpcClassicLink(r -> r.vpcIds(getVpcId()));
+            DescribeVpcClassicLinkResponse clResponse = client.describeVpcClassicLink(r -> r.vpcIds(getId()));
             for (VpcClassicLink classicLink : clResponse.vpcs()) {
                 setEnableClassicLink(classicLink.classicLinkEnabled());
                 break;
             }
 
-            DescribeVpcClassicLinkDnsSupportResponse cldResponse = client.describeVpcClassicLinkDnsSupport(r -> r.vpcIds(getVpcId()));
+            DescribeVpcClassicLinkDnsSupportResponse cldResponse = client.describeVpcClassicLinkDnsSupport(r -> r.vpcIds(getId()));
             for (ClassicLinkDnsSupport classicLink : cldResponse.vpcs()) {
                 setEnableClassicLinkDnsSupport(classicLink.classicLinkDnsSupported());
                 break;
@@ -323,7 +323,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         CreateVpcResponse response = client.createVpc(request);
 
         Vpc vpc = response.vpc();
-        setVpcId(response.vpc().vpcId());
+        setId(response.vpc().vpcId());
         setOwnerId(vpc.ownerId());
         setInstanceTenancy(vpc.instanceTenancyAsString());
         setRegion(credentials(AwsCredentials.class).getRegion());
@@ -350,7 +350,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         Ec2Client client = createClient(Ec2Client.class);
 
         DeleteVpcRequest request = DeleteVpcRequest.builder()
-                .vpcId(getVpcId())
+                .vpcId(getId())
                 .build();
 
         client.deleteVpc(request);
@@ -359,12 +359,12 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private Vpc getVpc(Ec2Client client) {
         Vpc vpc = null;
 
-        if (ObjectUtils.isBlank(getVpcId())) {
-            throw new GyroException("vpc-id is missing, unable to load vpc.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load vpc.");
         }
 
         try {
-            DescribeVpcsResponse response = client.describeVpcs(r -> r.vpcIds(Collections.singleton(getVpcId())));
+            DescribeVpcsResponse response = client.describeVpcs(r -> r.vpcIds(Collections.singleton(getId())));
 
             if (!response.vpcs().isEmpty()) {
                 vpc = response.vpcs().get(0);
@@ -383,7 +383,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         // DNS Settings
         if (changedProperties.isEmpty() || changedProperties.contains("enable-dns-hostnames")) {
             ModifyVpcAttributeRequest request = ModifyVpcAttributeRequest.builder()
-                    .vpcId(getVpcId())
+                    .vpcId(getId())
                     .enableDnsHostnames(AttributeBooleanValue.builder().value(getEnableDnsHostnames()).build())
                     .build();
 
@@ -392,14 +392,14 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
         if (changedProperties.isEmpty() || changedProperties.contains("enable-dns-support")) {
             ModifyVpcAttributeRequest request = ModifyVpcAttributeRequest.builder()
-                    .vpcId(getVpcId())
+                    .vpcId(getId())
                     .enableDnsSupport(AttributeBooleanValue.builder().value(getEnableDnsSupport()).build())
                     .build();
 
             client.modifyVpcAttribute(request);
 
             request = ModifyVpcAttributeRequest.builder()
-                    .vpcId(getVpcId())
+                    .vpcId(getId())
                     .enableDnsHostnames(AttributeBooleanValue.builder().value(getEnableDnsHostnames()).build())
                     .build();
 
@@ -409,9 +409,9 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         // DCHP Options
         if (changedProperties.isEmpty() || changedProperties.contains("dhcp-options")) {
             if (getDhcpOptions() != null) {
-                client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptions().getId()).vpcId(getVpcId()));
+                client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptions().getId()).vpcId(getId()));
             } else {
-                client.associateDhcpOptions(r -> r.vpcId(getVpcId()).dhcpOptionsId("default"));
+                client.associateDhcpOptions(r -> r.vpcId(getId()).dhcpOptionsId("default"));
             }
         }
 
@@ -419,15 +419,15 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         if (changedProperties.isEmpty() || changedProperties.contains("enable-classic-link") || changedProperties.contains("enable-classic-link-dns-support")) {
             try {
                 if (getEnableClassicLink()) {
-                    client.enableVpcClassicLink(r -> r.vpcId(getVpcId()));
+                    client.enableVpcClassicLink(r -> r.vpcId(getId()));
                 } else {
-                    client.disableVpcClassicLink(r -> r.vpcId(getVpcId()));
+                    client.disableVpcClassicLink(r -> r.vpcId(getId()));
                 }
 
                 if (getEnableClassicLinkDnsSupport()) {
-                    client.enableVpcClassicLinkDnsSupport(r -> r.vpcId(getVpcId()));
+                    client.enableVpcClassicLinkDnsSupport(r -> r.vpcId(getId()));
                 } else {
-                    client.disableVpcClassicLinkDnsSupport(r -> r.vpcId(getVpcId()));
+                    client.disableVpcClassicLinkDnsSupport(r -> r.vpcId(getId()));
                 }
             } catch (Ec2Exception ex) {
                 if (!ex.getLocalizedMessage().contains("not available in this region")) {
@@ -439,7 +439,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         // Tenancy
         if (changedProperties.contains("instance-tenancy")) {
             if (!ObjectUtils.isBlank(getInstanceTenancy()) && getInstanceTenancy().equals("default")) {
-                client.modifyVpcTenancy(r -> r.instanceTenancy(getInstanceTenancy()).vpcId(getVpcId()));
+                client.modifyVpcTenancy(r -> r.instanceTenancy(getInstanceTenancy()).vpcId(getId()));
             } else {
                 throw new GyroException("'instance-tenancy' can only be modified to `default`.");
             }

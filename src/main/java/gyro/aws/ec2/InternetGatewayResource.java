@@ -102,7 +102,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         if (getVpc() != null) {
             client.attachInternetGateway(r -> r.internetGatewayId(getId())
-                    .vpcId(getVpc().getVpcId())
+                    .vpcId(getVpc().getId())
             );
         }
     }

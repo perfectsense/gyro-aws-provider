@@ -11,7 +11,6 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
@@ -353,7 +352,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
 
-        builder.vpcId(getVpc().getVpcId());
+        builder.vpcId(getVpc().getId());
         builder.vpcEndpointType(getType());
         builder.privateDnsEnabled(getPrivateDnsEnabled());
         builder.serviceName(getServiceName());
@@ -493,7 +492,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         try {
             Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
-            Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getVpcId()).build();
+            Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getId()).build();
             DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
 
             if (!response.vpcEndpoints().isEmpty()) {

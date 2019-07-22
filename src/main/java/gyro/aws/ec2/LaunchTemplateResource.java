@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
- *         name: "example"
+ *         key-name: "example"
  *         security-groups: [
  *             $(aws::security-group security-group-launch-template-example-1),
  *             $(aws::security-group security-group-launch-template-example-2)

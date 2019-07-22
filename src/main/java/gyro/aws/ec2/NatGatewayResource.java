@@ -212,7 +212,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
             throw new GyroException("internet-gateway is required");
         }
 
-        if (!getSubnet().getVpc().getVpcId().equals(getInternetGateway().getVpc().getVpcId())) {
+        if (!getSubnet().getVpc().getId().equals(getInternetGateway().getVpc().getId())) {
             throw new GyroException("The subnet and intern-gateway needs to belong to the same vpc.");
         }
     }
