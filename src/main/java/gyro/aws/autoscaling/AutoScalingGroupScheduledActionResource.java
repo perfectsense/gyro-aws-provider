@@ -185,7 +185,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
         if (parent == null) {
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
-        return parent.getAutoScalingGroupName();
+        return parent.getName();
     }
 
     private void saveScheduledAction(AutoScalingClient client) {

@@ -186,7 +186,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
         if (parent == null) {
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
-        return parent.getAutoScalingGroupName();
+        return parent.getName();
     }
 
     private void saveLifecycleHook(AutoScalingClient client) {

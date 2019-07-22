@@ -91,7 +91,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         if (parent == null) {
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
-        return parent.getAutoScalingGroupName();
+        return parent.getName();
     }
 
     private void saveNotification(AutoScalingClient client) {
