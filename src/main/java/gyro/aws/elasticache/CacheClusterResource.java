@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *
  *     aws::elasticache-cluster cache-cluster-example
  *         az-mode: "cross-az"
- *         name: "cache-cluster-ex-1"
+ *         id: "cache-cluster-ex-1"
  *         cache-node-type: "cache.t2.micro"
  *         cache-param-group: $(aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example)
  *         cache-subnet-group: $(aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example)
@@ -76,7 +76,7 @@ import java.util.stream.Collectors;
 @Type("elasticache-cluster")
 public class CacheClusterResource extends AwsResource implements Copyable<CacheCluster> {
     private String azMode;
-    private String name;
+    private String id;
     private String cacheNodeType;
     private CacheParameterGroupResource cacheParamGroup;
     private List<String> cacheSecurityGroupNames;
@@ -117,12 +117,12 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
      * The name of the cache cluster. (Required)
      */
     @Id
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -418,7 +418,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     @Override
     public void copyFrom(CacheCluster cacheCluster) {
-        setName(cacheCluster.cacheClusterId());
+        setId(cacheCluster.cacheClusterId());
         setCacheNodeType(cacheCluster.cacheNodeType());
         setCacheParamGroup(findById(CacheParameterGroupResource.class, cacheCluster.cacheParameterGroup().cacheParameterGroupName()));
         setCacheSecurityGroupNames(cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
@@ -444,7 +444,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         setNodes(nodes);
         setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
-        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getName());
+        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getId());
         setStatus(cacheCluster.cacheClusterStatus());
 
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
@@ -475,7 +475,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
             .azMode(getAzMode())
-            .cacheClusterId(getName())
+            .cacheClusterId(getId())
             .cacheNodeType(getCacheNodeType())
             .cacheParameterGroupName(getCacheParamGroup().getName())
             .cacheSecurityGroupNames(getCacheSecurityGroupNames())
@@ -500,7 +500,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         CreateCacheClusterResponse response = client.createCacheCluster(builder.build());
 
         setStatus(response.cacheCluster().cacheClusterStatus());
-        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getName());
+        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getId());
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -538,7 +538,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         if (!properties.isEmpty()) {
             ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
-                .cacheClusterId(getName())
+                .cacheClusterId(getId())
                 .cacheNodeType(getCacheNodeType())
                 .cacheParameterGroupName(getCacheParamGroup().getName())
                 .cacheSecurityGroupNames(getCacheSecurityGroupNames())
@@ -590,7 +590,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheCluster(
-            r -> r.cacheClusterId(getName())
+            r -> r.cacheClusterId(getId())
         );
 
         Wait.atMost(3, TimeUnit.MINUTES)
@@ -669,13 +669,13 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     private CacheCluster getCacheCluster(ElastiCacheClient client) {
         CacheCluster cacheCluster = null;
 
-        if (ObjectUtils.isBlank(getName())) {
+        if (ObjectUtils.isBlank(getId())) {
             throw new GyroException("name is missing, unable to load cache cluster.");
         }
 
         try {
             DescribeCacheClustersResponse response = client.describeCacheClusters(
-                r -> r.cacheClusterId(getName()).showCacheNodeInfo(true)
+                r -> r.cacheClusterId(getId()).showCacheNodeInfo(true)
             );
 
             if (!response.cacheClusters().isEmpty()) {

@@ -114,7 +114,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
         CreateSnapshotResponse response = client.createSnapshot(
             r -> r.snapshotName(getSnapshotName())
                 .replicationGroupId(getReplicationGroupId())
-                .cacheClusterId(getCacheCluster() != null ? getCacheCluster().getName() : null)
+                .cacheClusterId(getCacheCluster() != null ? getCacheCluster().getId() : null)
         );
 
         setStatus(response.snapshot().snapshotStatus());
