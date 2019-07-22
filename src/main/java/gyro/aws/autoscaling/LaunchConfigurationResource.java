@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::launch-configuration launch-configuration
- *         launch-configuration-name: "launch-configuration-gyro-1"
+ *         name: "launch-configuration-gyro-1"
  *         ami-id: "ami-01e24be29428c15b2"
  *         instance-type: "t2.micro"
  *         key: "key-example"
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::launch-configuration launch-configuration
- *         launch-configuration-name: "launch-configuration-gyro-1"
+ *         name: "launch-configuration-gyro-1"
  *         instance: $(aws:instance instance)
  *         key: "instance-static"
  *         security-groups: [
@@ -352,7 +352,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         LaunchConfiguration launchConfiguration = null;
 
         if (ObjectUtils.isBlank(getLaunchConfigurationName())) {
-            throw new GyroException("launch-configuration-name is missing, unable to load launch configuration.");
+            throw new GyroException("name is missing, unable to load launch configuration.");
         }
 
         try {

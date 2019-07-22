@@ -19,21 +19,21 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    autoscaling-group: $(aws::autoscaling-group EXTERNAL/* | auto-scaling-group-name = '')
+ *    autoscaling-group: $(aws::autoscaling-group EXTERNAL/* | name = '')
  */
 @Type("autoscaling-group")
 public class AutoScalingGroupFinder extends AwsFinder<AutoScalingClient, AutoScalingGroup, AutoScalingGroupResource> {
-    private String autoScalingGroupName;
+    private String name;
 
     /**
      * The name of the Auto Scaling Group.
      */
-    public String getAutoScalingGroupName() {
-        return autoScalingGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setAutoScalingGroupName(String autoScalingGroupName) {
-        this.autoScalingGroupName = autoScalingGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -45,11 +45,11 @@ public class AutoScalingGroupFinder extends AwsFinder<AutoScalingClient, AutoSca
     protected List<AutoScalingGroup> findAws(AutoScalingClient client, Map<String, String> filters) {
         List<AutoScalingGroup> autoScalingGroups = new ArrayList<>();
 
-        if (filters.containsKey("auto-scaling-group-name") && !ObjectUtils.isBlank(filters.get("auto-scaling-group-name"))) {
+        if (filters.containsKey("name") && !ObjectUtils.isBlank(filters.get("name"))) {
             try {
                 autoScalingGroups.addAll(client.describeAutoScalingGroups(
                     DescribeAutoScalingGroupsRequest.builder()
-                        .autoScalingGroupNames(Collections.singleton(filters.get("auto-scaling-group-name")))
+                        .autoScalingGroupNames(Collections.singleton(filters.get("name")))
                         .build()).autoScalingGroups());
 
             } catch (AutoScalingException ex) {
