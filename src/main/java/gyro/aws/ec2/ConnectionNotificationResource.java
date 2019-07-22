@@ -11,15 +11,18 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNotificationResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcEndpointConnectionNotificationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -248,15 +251,20 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         return connectionNotification;
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if ((getEndpoint() == null && getEndpointService() == null)
             || (getEndpoint() != null && getEndpointService() != null)) {
-            throw new GyroException("Either 'endpoint' or 'endpoint-service' needs to be set. Not both at a time.");
+            errors.add(new ValidationError(this, null, "Either 'endpoint' or 'endpoint-service' needs to be set. Not both at a time."));
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {
-            throw new GyroException("The values - (" + getConnectionEvents().stream().filter(o -> !masterEventSet.contains(o)).collect(Collectors.joining(" , "))
-                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '", masterEventSet) + "' ].");
+            errors.add(new ValidationError(this, null, "The values - (" + getConnectionEvents().stream().filter(o -> !masterEventSet.contains(o)).collect(Collectors.joining(" , "))
+                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '", masterEventSet) + "' ]."));
         }
+
+        return errors;
     }
 }

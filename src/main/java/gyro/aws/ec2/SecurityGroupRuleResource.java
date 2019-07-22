@@ -2,11 +2,11 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -225,10 +225,15 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
             .build();
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getCidrBlocks().isEmpty() && getIpv6CidrBlocks().isEmpty() && getSecurityGroups().isEmpty()) {
-            throw new GyroException("At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
+            errors.add(new ValidationError(this, null, "At least one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!"));
         }
+
+        return errors;
     }
 }
 

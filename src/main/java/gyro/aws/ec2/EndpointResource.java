@@ -13,6 +13,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointResponse;
@@ -26,6 +27,7 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -459,20 +461,25 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         }
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getType().equals(VpcEndpointType.INTERFACE)) {
             if (!getRouteTables().isEmpty()) {
-                throw new GyroException("The param 'route-tables' cannot be set when the param 'type' is set to 'Interface'");
+                errors.add(new ValidationError(this, null, "The param 'route-tables' cannot be set when the param 'type' is set to 'Interface'"));
             }
         } else {
             if (!getSecurityGroups().isEmpty()) {
-                throw new GyroException("The param 'security-groups' cannot be set when the param 'type' is set to 'Gateway'");
+                errors.add(new ValidationError(this, null, "The param 'security-groups' cannot be set when the param 'type' is set to 'Gateway'"));
             }
 
             if (!getSubnets().isEmpty()) {
-                throw new GyroException("The param 'subnets' cannot be set when the param 'type' is set to 'Gateway'");
+                errors.add(new ValidationError(this, null, "The param 'subnets' cannot be set when the param 'type' is set to 'Gateway'"));
             }
         }
+
+        return errors;
     }
 
     private VpcEndpoint getVpcEndpoint(Ec2Client client) {

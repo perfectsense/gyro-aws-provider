@@ -10,6 +10,8 @@ import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
 
@@ -41,6 +43,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
      * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON. Valid values are ``ABANDON`` or ``CONTINUE``.
      */
     @Updatable
+    @ValidStrings({ "CONTINUE", "ABANDON" })
     public String getDefaultResult() {
         if (defaultResult == null) {
             defaultResult = "ABANDON";
@@ -56,6 +59,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     /**
      * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values are Integer between ``30`` and ``7200``.
      */
+    @Range(min = 30, max = 7200)
     @Updatable
     public Integer getHeartbeatTimeout() {
         if (heartbeatTimeout == null) {
@@ -73,6 +77,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
      * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCHING`` or ``autoscaling:EC2_INSTANCE_TERMINATING``.
      */
     @Updatable
+    @ValidStrings({ "autoscaling:EC2_INSTANCE_LAUNCHING", "autoscaling:EC2_INSTANCE_TERMINATING" })
     public String getLifecycleTransition() {
         if (lifecycleTransition == null) {
             lifecycleTransition = "autoscaling:EC2_INSTANCE_LAUNCHING";
@@ -202,21 +207,4 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
         );
     }
 
-    private void validate() {
-        if (!getLifecycleTransition().equals("autoscaling:EC2_INSTANCE_LAUNCHING")
-            && !getLifecycleTransition().equals("autoscaling:EC2_INSTANCE_TERMINATING")) {
-            throw new GyroException("Invalid value '" + getLifecycleTransition() + "' for the param 'lifecycle-transition'."
-                + " Valid options ['autoscaling:EC2_INSTANCE_LAUNCHING', 'autoscaling:EC2_INSTANCE_TERMINATING'].");
-        }
-
-        if (getHeartbeatTimeout() < 30 || getHeartbeatTimeout() > 7200) {
-            throw new GyroException("The value - (" + getHeartbeatTimeout()
-                + ") is invalid for param 'heartbeat-timeout'. Valid values [ Integer value between 30 and 7200 ].");
-        }
-
-        if (!getDefaultResult().equals("CONTINUE") && !getDefaultResult().equals("ABANDON")) {
-            throw new GyroException("Invalid value '" + getDefaultResult() + "' for the param 'default-result'."
-                + " Valid options ['CONTINUE', 'ABANDON'].");
-        }
-    }
 }

@@ -8,12 +8,15 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -336,61 +339,64 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         return parent.getAutoScalingGroupName();
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         // policy type validation
         if (!getPolicyType().equals("SimpleScaling")
             && !getPolicyType().equals("StepScaling")
             && !getPolicyType().equals("TargetTrackingScaling")) {
-            throw new GyroException("Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
-                + " Valid options ['SimpleScaling', 'StepScaling', 'TargetTrackingScaling'].");
+            errors.add(new ValidationError(this, null, "Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
+                + " Valid options ['SimpleScaling', 'StepScaling', 'TargetTrackingScaling']."));
         }
 
         // Attribute validation when not SimpleScaling
         if (!getPolicyType().equals("SimpleScaling")) {
             if (getCooldown() != null) {
-                throw new GyroException("The param 'cooldown' is only allowed when"
-                    + " 'policy-type' is 'SimpleScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'cooldown' is only allowed when"
+                    + " 'policy-type' is 'SimpleScaling'."));
             }
 
             if (getScalingAdjustment() != null) {
-                throw new GyroException("The param 'scaling-adjustment' is only allowed when"
-                    + " 'policy-type' is 'SimpleScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'scaling-adjustment' is only allowed when"
+                    + " 'policy-type' is 'SimpleScaling'."));
             }
         }
 
         // Attribute validation when not StepScaling
         if (!getPolicyType().equals("StepScaling")) {
             if (getMetricAggregationType() != null && !getMetricAggregationType().equalsIgnoreCase("average")) {
-                throw new GyroException("The param 'metric-aggregation-type' is only allowed when"
-                    + " 'policy-type' is 'StepScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'metric-aggregation-type' is only allowed when"
+                    + " 'policy-type' is 'StepScaling'."));
             }
 
             if (!getStepAdjustment().isEmpty()) {
-                throw new GyroException("The param 'step-adjustment' is only allowed when"
-                    + " 'policy-type' is 'StepScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'step-adjustment' is only allowed when"
+                    + " 'policy-type' is 'StepScaling'."));
             }
         }
 
         // Attribute validation when not TargetTrackingScaling
         if (!getPolicyType().equals("TargetTrackingScaling")) {
             if (getTargetValue() != null) {
-                throw new GyroException("The param 'target-value' is only allowed when"
-                    + " 'policy-type' is 'TargetTrackingScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'target-value' is only allowed when"
+                    + " 'policy-type' is 'TargetTrackingScaling'."));
             }
 
             if (getPredefinedMetricType() != null) {
-                throw new GyroException("The param 'predefined-metric-type' is only allowed when"
-                    + " 'policy-type' is 'TargetTrackingScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'predefined-metric-type' is only allowed when"
+                    + " 'policy-type' is 'TargetTrackingScaling'."));
             }
 
             if (getPredefinedMetricResourceLabel() != null) {
-                throw new GyroException("The param 'predefined-metric-resource-label' is only allowed when"
-                    + " 'policy-type' is 'TargetTrackingScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'predefined-metric-resource-label' is only allowed when"
+                    + " 'policy-type' is 'TargetTrackingScaling'."));
             }
 
             if (getDisableScaleIn()) {
-                throw new GyroException("The param 'disable-scale-in' is only allowed when"
-                    + " 'policy-type' is 'TargetTrackingScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'disable-scale-in' is only allowed when"
+                    + " 'policy-type' is 'TargetTrackingScaling'."));
             }
 
             // when simple or step
@@ -398,50 +404,52 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
                 || (getAdjustmentType().equals("ChangeInCapacity")
                 && getAdjustmentType().equals("ExactCapacity")
                 && getAdjustmentType().equals("PercentChangeInCapacity"))) {
-                throw new GyroException("Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
-                    + " Valid options ['ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity'].");
+                errors.add(new ValidationError(this, null, "Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
+                    + " Valid options ['ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity']."));
             } else if (!getAdjustmentType().equals("PercentChangeInCapacity") && getMinAdjustmentMagnitude() != null) {
-                throw new GyroException("The param 'min-adjustment-magnitude' is only allowed when 'adjustment-type' is 'PercentChangeInCapacity'.");
+                errors.add(new ValidationError(this, null, "The param 'min-adjustment-magnitude' is only allowed when 'adjustment-type' is 'PercentChangeInCapacity'."));
             }
         }
 
         // Attribute validation when SimpleScaling
         if (getPolicyType().equals("SimpleScaling")) {
             if (getEstimatedInstanceWarmup() != null) {
-                throw new GyroException("The param 'estimated-instance-warmup' is only allowed when"
-                    + " 'policy-type' is either 'StepScaling' or 'TargetTrackingScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'estimated-instance-warmup' is only allowed when"
+                    + " 'policy-type' is either 'StepScaling' or 'TargetTrackingScaling'."));
             }
 
             if (getCooldown() < 0) {
-                throw new GyroException("Invalid value '" + getCooldown() + "' for the param 'cooldown'. Needs to be a positive integer.");
+                errors.add(new ValidationError(this, null, "Invalid value '" + getCooldown() + "' for the param 'cooldown'. Needs to be a positive integer."));
             }
         }
 
         // Attribute validation when StepScaling
         if (getPolicyType().equals("StepScaling")) {
             if (getStepAdjustment().isEmpty()) {
-                throw new GyroException("the param 'step-adjustment' needs to have at least one step.");
+                errors.add(new ValidationError(this, null, "the param 'step-adjustment' needs to have at least one step."));
             }
 
             if (!getMetricAggregationType().equals("Minimum")
                 && !getMetricAggregationType().equals("Maximum")
                 && !getMetricAggregationType().equals("Average")) {
-                throw new GyroException("Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
-                    + " Valid options ['Minimum', 'Maximum', 'Average'].");
+                errors.add(new ValidationError(this, null, "Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
+                    + " Valid options ['Minimum', 'Maximum', 'Average']."));
             }
         }
 
         // Attribute validation when TargetTrackingScaling
         if (getPolicyType().equals("TargetTrackingScaling")) {
             if (getMinAdjustmentMagnitude() != null) {
-                throw new GyroException("The param 'min-adjustment-magnitude' is only allowed when"
-                    + " 'policy-type' is either 'StepScaling' or 'SimpleScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'min-adjustment-magnitude' is only allowed when"
+                    + " 'policy-type' is either 'StepScaling' or 'SimpleScaling'."));
             }
 
             if (getAdjustmentType() != null) {
-                throw new GyroException("The param 'adjustment-type' is only allowed when"
-                    + " 'policy-type' is either 'StepScaling' or 'SimpleScaling'.");
+                errors.add(new ValidationError(this, null, "The param 'adjustment-type' is only allowed when"
+                    + " 'policy-type' is either 'StepScaling' or 'SimpleScaling'."));
             }
         }
+
+        return errors;
     }
 }
