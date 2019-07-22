@@ -1,5 +1,5 @@
 aws::db-cluster db-cluster-example
-    name: "aurora-snapshot-cluster"
+    identifier: "aurora-snapshot-cluster"
     engine: "aurora-mysql"
     availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
     db-name: "clusterexample"
@@ -15,7 +15,7 @@ end
 
 aws::db-cluster-snapshot db-cluster-snapshot-example
     db-cluster: $(aws::db-cluster db-cluster-example)
-    name: "db-cluster-snapshot-example"
+    identifier: "db-cluster-snapshot-example"
     tags: {
         Name: "db-cluster-snapshot-example"
     }

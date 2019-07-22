@@ -21,27 +21,27 @@ import java.util.stream.Collectors;
 @Type("db-snapshot")
 public class DbSnapshotFinder extends AwsFinder<RdsClient, DBSnapshot, DbSnapshotResource> {
 
-    private String name;
+    private String identifier;
 
     /**
      * The identifier of the db snapshot.
      */
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
     protected List<DBSnapshot> findAws(RdsClient client, Map<String, String> filters) {
-        if (!filters.containsKey("name")) {
-            throw new IllegalArgumentException("'name' is required.");
+        if (!filters.containsKey("identifier")) {
+            throw new IllegalArgumentException("'identifier' is required.");
         }
 
         try {
-            return client.describeDBSnapshots(r -> r.dbSnapshotIdentifier(filters.get("name"))).dbSnapshots();
+            return client.describeDBSnapshots(r -> r.dbSnapshotIdentifier(filters.get("identifier"))).dbSnapshots();
         } catch (DbSnapshotNotFoundException ex) {
             return Collections.emptyList();
         }

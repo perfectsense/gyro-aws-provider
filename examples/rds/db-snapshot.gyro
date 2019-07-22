@@ -1,6 +1,6 @@
 aws::db-instance db-instance-example
     allocated-storage: 20
-    name: "db-snapshot-instance-example"
+    identifier: "db-snapshot-instance-example"
     storage-type: "gp2"
     engine: "mysql"
     engine-version: "5.7"
@@ -16,7 +16,7 @@ end
 
 aws::db-snapshot db-snapshot-example
     db-instance: $(aws::db-instance db-instance-example)
-    name: "db-snapshot-example"
+    identifier: "db-snapshot-example"
     tags: {
         Name: "db-snapshot-example"
     }

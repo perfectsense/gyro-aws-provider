@@ -25,7 +25,7 @@ import java.util.Set;
  *
  *    aws::db-snapshot db-snapshot-example
  *        db-instance: $(aws::db-instance db-instance-example)
- *        name: "db-snapshot-example"
+ *        identifier: "db-snapshot-example"
  *        tags: {
  *            Name: "db-snapshot-example"
  *        }
@@ -35,7 +35,7 @@ import java.util.Set;
 public class DbSnapshotResource extends RdsTaggableResource implements Copyable<DBSnapshot> {
 
     private DbInstanceResource dbInstance;
-    private String name;
+    private String identifier;
     private String engineVersion;
     private DbOptionGroupResource optionGroup;
 
@@ -54,12 +54,12 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
      * The unique identifier of the DB instance snapshot. (Required)
      */
     @Id
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -98,13 +98,13 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getName())) {
-            throw new GyroException("name is missing, unable to load db snapshot.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db snapshot.");
         }
 
         try {
             DescribeDbSnapshotsResponse response = client.describeDBSnapshots(
-                r -> r.dbSnapshotIdentifier(getName())
+                r -> r.dbSnapshotIdentifier(getIdentifier())
             );
 
             response.dbSnapshots().forEach(this::copyFrom);
@@ -121,8 +121,8 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbSnapshotResponse response = client.createDBSnapshot(
-                r -> r.dbInstanceIdentifier(getDbInstance().getName())
-                    .dbSnapshotIdentifier(getName())
+                r -> r.dbInstanceIdentifier(getDbInstance().getIdentifier())
+                    .dbSnapshotIdentifier(getIdentifier())
             );
 
             setArn(response.dbSnapshot().dbSnapshotArn());
@@ -135,7 +135,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     protected void doUpdate(Resource config, Set<String> changedProperties) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBSnapshot(
-            r -> r.dbSnapshotIdentifier(getName())
+            r -> r.dbSnapshotIdentifier(getIdentifier())
                     .engineVersion(getEngineVersion())
                     .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
         );
@@ -145,7 +145,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBSnapshot(
-            r -> r.dbSnapshotIdentifier(getName())
+            r -> r.dbSnapshotIdentifier(getIdentifier())
         );
     }
 }

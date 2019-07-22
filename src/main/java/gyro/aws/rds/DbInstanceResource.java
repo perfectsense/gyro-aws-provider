@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  *    aws::db-instance db-instance-example
  *        allocated-storage: 20
- *        name: "db-instance-example"
+ *        identifier: "db-instance-example"
  *        storage-type: "gp2"
  *        engine: "mysql"
  *        engine-version: "5.7"
@@ -62,7 +62,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private Boolean copyTagsToSnapshot;
     private DbClusterResource dbCluster;
     private String dbInstanceClass;
-    private String name;
+    private String identifier;
     private String dbName;
     private DbParameterGroupResource dbParameterGroup;
     private List<String> dbSecurityGroups;
@@ -226,12 +226,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The unique name of the DB instance. (Required)
      */
     @Id
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -691,7 +691,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
         setDbCluster(instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) : null);
         setDbInstanceClass(instance.dbInstanceClass());
-        setName(instance.dbInstanceIdentifier());
+        setIdentifier(instance.dbInstanceIdentifier());
         setDbName(instance.dbName());
 
         setDbParameterGroup(instance.dbParameterGroups().stream()
@@ -762,13 +762,13 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getName())) {
-            throw new GyroException("name is missing, unable to load db instance.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db instance.");
         }
 
         try {
             DescribeDbInstancesResponse response = client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getName())
+                r -> r.dbInstanceIdentifier(getIdentifier())
             );
 
             response.dbInstances().forEach(this::copyFrom);
@@ -790,9 +790,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getName() : null)
+                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getIdentifier() : null)
                     .dbInstanceClass(getDbInstanceClass())
-                    .dbInstanceIdentifier(getName())
+                    .dbInstanceIdentifier(getIdentifier())
                     .dbName(getDbName())
                     .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
                     .dbSecurityGroups(getDbSecurityGroups())
@@ -840,7 +840,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .until(() -> isAvailable(client));
 
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getName())
+            r -> r.dbInstanceIdentifier(getIdentifier())
         );
 
         setEndpointAddress(describeResponse.dbInstances().get(0).endpoint().address());
@@ -848,7 +848,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
     private boolean isAvailable(RdsClient client) {
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getName())
+            r -> r.dbInstanceIdentifier(getIdentifier())
         );
 
         return describeResponse.dbInstances().get(0).dbInstanceStatus().equals("available");
@@ -881,7 +881,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
                     .copyTagsToSnapshot(Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null : getCopyTagsToSnapshot())
                     .dbInstanceClass(Objects.equals(getDbInstanceClass(), current.getDbInstanceClass()) ? null : getDbInstanceClass())
-                    .dbInstanceIdentifier(getName())
+                    .dbInstanceIdentifier(getIdentifier())
                     .dbParameterGroupName(Objects.equals(getDbParameterGroup(), current.getDbParameterGroup())
                         ? null : parameterGroupName)
                     .dbSecurityGroups(Objects.equals(getDbSecurityGroups(), current.getDbSecurityGroups()) ? null : getDbSecurityGroups())
@@ -929,7 +929,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBInstance(
-            r -> r.dbInstanceIdentifier(getName())
+            r -> r.dbInstanceIdentifier(getIdentifier())
                     .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
                     .skipFinalSnapshot(getSkipFinalSnapshot())
                     .deleteAutomatedBackups(getDeleteAutomatedBackups())
@@ -944,7 +944,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private boolean isDeleted(RdsClient client) {
         try {
             client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getName())
+                r -> r.dbInstanceIdentifier(getIdentifier())
             );
 
         } catch (DbInstanceNotFoundException ex) {

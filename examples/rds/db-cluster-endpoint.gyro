@@ -1,5 +1,5 @@
 aws::db-cluster db-cluster-example
-    name: "db-cluster-endpoint-cluster"
+    identifier: "db-cluster-endpoint-cluster"
     engine: "aurora-mysql"
     availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
     db-name: "clusterexample"
@@ -14,7 +14,7 @@ aws::db-cluster db-cluster-example
 end
 
 aws::db-instance db-instance-example1
-    name: "db-cluster-endpoint-instance1"
+    identifier: "db-cluster-endpoint-instance1"
     db-instance-class: "db.t2.small"
     db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
@@ -25,7 +25,7 @@ aws::db-instance db-instance-example1
 end
 
 aws::db-instance db-instance-example2
-    name: "db-cluster-endpoint-instance2"
+    identifier: "db-cluster-endpoint-instance2"
     db-instance-class: "db.t2.small"
     db-cluster: $(aws::db-cluster db-cluster-example)
     engine: "aurora-mysql"
@@ -36,14 +36,14 @@ aws::db-instance db-instance-example2
 end
 
 aws::db-cluster-endpoint endpoint-example1
-    name: "endpoint1"
+    identifier: "endpoint1"
     db-cluster: $(aws::db-cluster db-cluster-example)
     endpoint-type: "READER"
     static-members: [$(aws::db-instance db-instance-example2)]
 end
 
 aws::db-cluster-endpoint endpoint-example2
-    name: "endpoint2"
+    identifier: "endpoint2"
     db-cluster: $(aws::db-cluster db-cluster-example)
     endpoint-type: "READER"
     excluded-members: [$(aws::db-instance db-instance-example2)]

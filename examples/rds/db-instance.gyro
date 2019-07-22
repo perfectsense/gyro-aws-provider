@@ -1,6 +1,6 @@
 aws::db-instance db-instance-example
     allocated-storage: 20
-    name: "db-instance-example"
+    identifier: "db-instance-example"
     storage-type: "gp2"
     engine: "mysql"
     engine-version: "5.7"
