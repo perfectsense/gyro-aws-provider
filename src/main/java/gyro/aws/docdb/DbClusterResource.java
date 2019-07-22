@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::docdb-cluster db-cluster-example
- *         name: "db-cluster-example"
+ *         identifier: "db-cluster-example"
  *         db-subnet-group: $(aws::db-subnet-group db-subnet-group-db-cluster-example)
  *         engine: "docdb"
  *         engine-version: "3.6.0"
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 public class DbClusterResource extends DocDbTaggableResource implements Copyable<DBCluster> {
 
     private Integer backupRetentionPeriod;
-    private String name;
+    private String identifier;
     private DbSubnetGroupResource dbSubnetGroup;
     private String engine;
     private String engineVersion;
@@ -102,12 +102,12 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
      * Name of the cluster. (Required)
      */
     @Id
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -345,7 +345,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
         CreateDbClusterResponse response = client.createDBCluster(
             o -> o.backupRetentionPeriod(getBackupRetentionPeriod())
-                .dbClusterIdentifier(getName())
+                .dbClusterIdentifier(getIdentifier())
                 .dbSubnetGroupName(getDbSubnetGroup().getName())
                 .engine(getEngine())
                 .engineVersion(getEngineVersion())
@@ -378,7 +378,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
         ModifyDbClusterRequest.Builder builder = ModifyDbClusterRequest.builder()
             .backupRetentionPeriod(getBackupRetentionPeriod())
-            .dbClusterIdentifier(getName())
+            .dbClusterIdentifier(getIdentifier())
             .dbClusterParameterGroupName(getDbClusterParamGroup().getName())
             .masterUserPassword(getMasterUserPassword())
             .port(getPort())
@@ -404,7 +404,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
         DeleteDbClusterRequest.Builder builder = DeleteDbClusterRequest
             .builder()
-            .dbClusterIdentifier(getName());
+            .dbClusterIdentifier(getIdentifier());
 
         if (ObjectUtils.isBlank(getPostDeleteSnapshotIdentifier())) {
             builder.skipFinalSnapshot(true);
@@ -425,12 +425,12 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     public void copyFrom(DBCluster dbCluster) {
 
         setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
-        setName(dbCluster.dbClusterIdentifier());
+        setIdentifier(dbCluster.dbClusterIdentifier());
         setDbSubnetGroup(findById(DbSubnetGroupResource.class, dbCluster.dbSubnetGroup()));
         setEngine(dbCluster.engine());
         setEngineVersion(dbCluster.engineVersion());
         setDbClusterParamGroup(findById(DbClusterParameterGroupResource.class, dbCluster.dbClusterParameterGroup()));
-        setName(dbCluster.dbClusterIdentifier());
+        setIdentifier(dbCluster.dbClusterIdentifier());
         setKmsKey(findById(KmsKeyResource.class, dbCluster.kmsKeyId()));
         setMasterUsername(dbCluster.masterUsername());
         setPort(dbCluster.port());
@@ -453,13 +453,13 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private DBCluster getDbCluster(DocDbClient client) {
         DBCluster dbCluster = null;
 
-        if (ObjectUtils.isBlank(getName())) {
-            throw new GyroException("name is missing, unable to load db cluster.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db cluster.");
         }
 
         try {
             DescribeDbClustersResponse response = client.describeDBClusters(
-                r -> r.dbClusterIdentifier(getName())
+                r -> r.dbClusterIdentifier(getIdentifier())
             );
 
             if (!response.dbClusters().isEmpty()) {

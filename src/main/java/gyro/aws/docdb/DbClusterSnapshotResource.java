@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  *
  *     aws::docdb-cluster-snapshot db-cluster-snapshot-example
  *         db-cluster: $(aws::db-cluster db-cluster-db-cluster-snapshot-example)
- *         name: "db-cluster-snapshot-example"
+ *         identifier: "db-cluster-snapshot-example"
  *
  *         tags: {
  *             Name: "db-cluster-snapshot-example"
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class DbClusterSnapshotResource extends DocDbTaggableResource implements Copyable<DBClusterSnapshot> {
 
     private DbClusterResource dbCluster;
-    private String name;
+    private String identifier;
 
     //-- Read-only Attributes
 
@@ -59,12 +59,12 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     /**
      * The name of the db cluster snapshot. (Required)
      */
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -104,8 +104,8 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-            r -> r.dbClusterIdentifier(getDbCluster().getName())
-                .dbClusterSnapshotIdentifier(getName())
+            r -> r.dbClusterIdentifier(getDbCluster().getIdentifier())
+                .dbClusterSnapshotIdentifier(getIdentifier())
         );
 
         setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
@@ -126,7 +126,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBClusterSnapshot(
-            r -> r.dbClusterSnapshotIdentifier(getName())
+            r -> r.dbClusterSnapshotIdentifier(getIdentifier())
         );
 
         Wait.atMost(1, TimeUnit.MINUTES)
@@ -139,7 +139,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     public void copyFrom(DBClusterSnapshot dbClusterSnapshot) {
         setArn(dbClusterSnapshot.dbClusterSnapshotArn());
         setDbCluster(findById(DbClusterResource.class, dbClusterSnapshot.dbClusterIdentifier()));
-        setName(dbClusterSnapshot.dbClusterSnapshotIdentifier());
+        setIdentifier(dbClusterSnapshot.dbClusterSnapshotIdentifier());
     }
 
     private boolean isAvailable(DocDbClient client) {
@@ -155,14 +155,14 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
             throw new GyroException("db-cluster is missing, unable to load db cluster snapshot.");
         }
 
-        if (ObjectUtils.isBlank(getName())) {
-            throw new GyroException("name is missing, unable to load db cluster snapshot.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db cluster snapshot.");
         }
 
         try {
             DescribeDbClusterSnapshotsResponse response = client.describeDBClusterSnapshots(
-                r -> r.dbClusterSnapshotIdentifier(getDbCluster().getName())
-                    .dbClusterSnapshotIdentifier(getName())
+                r -> r.dbClusterSnapshotIdentifier(getDbCluster().getIdentifier())
+                    .dbClusterSnapshotIdentifier(getIdentifier())
             );
 
             if (!response.dbClusterSnapshots().isEmpty()) {
