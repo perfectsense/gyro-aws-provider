@@ -86,7 +86,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The permission role for the snapshot policy. (Required)
+     * The permission role for the snapshot policy. (Required)0
      */
     @Updatable
     public RoleResource getExecutionRole() {
@@ -409,7 +409,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
         LifecyclePolicy lifecyclePolicy = null;
 
         if (ObjectUtils.isBlank(getId())) {
-            throw new GyroException("policy-id is missing, unable to load ebs snapshot policy.");
+            throw new GyroException("id is missing, unable to load ebs snapshot policy.");
         }
 
         try {

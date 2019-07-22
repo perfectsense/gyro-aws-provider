@@ -16,21 +16,21 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    lifecycle-policy: $(aws::dlm-lifecycle-policy EXTERNAL/* | policy-id = '')
+ *    lifecycle-policy: $(aws::dlm-lifecycle-policy EXTERNAL/* | id = '')
  */
 @Type("dlm-lifecycle-policy")
 public class LifecyclePolicyFinder extends AwsFinder<DlmClient, LifecyclePolicy, LifecyclePolicyResource> {
-    private String policyId;
+    private String id;
 
     /**
      * The policy ID.
      */
-    public String getPolicyId() {
-        return policyId;
+    public String getId() {
+        return id;
     }
 
-    public void setPolicyId(String policyId) {
-        this.policyId = policyId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -46,9 +46,9 @@ public class LifecyclePolicyFinder extends AwsFinder<DlmClient, LifecyclePolicy,
     protected List<LifecyclePolicy> findAws(DlmClient client, Map<String, String> filters) {
         List<LifecyclePolicy> lifecyclePolicies = new ArrayList<>();
 
-        if (filters.containsKey("policy-id") && !ObjectUtils.isBlank(filters.get("policy-id"))) {
+        if (filters.containsKey("id") && !ObjectUtils.isBlank(filters.get("id"))) {
             try {
-                lifecyclePolicies.add(client.getLifecyclePolicy(r -> r.policyId(filters.get("policy-id"))).policy());
+                lifecyclePolicies.add(client.getLifecyclePolicy(r -> r.policyId(filters.get("id"))).policy());
             } catch (ResourceNotFoundException ignore) {
                 // ignore
             }
