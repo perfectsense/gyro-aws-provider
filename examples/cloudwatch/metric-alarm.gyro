@@ -1,6 +1,6 @@
 aws::cloudwatch-metric-alarm metric-alarm-example-1
     name: "metric-alarm-example-1"
-    alarm-description: "metric-alarm-example-1"
+    description: "metric-alarm-example-1"
     comparison-operator: "GreaterThanOrEqualToThreshold"
     threshold: 0.1
     evaluation-periods: 1
@@ -12,7 +12,7 @@ end
 
 aws::cloudwatch-metric-alarm metric-alarm-example-2
     name: "metric-alarm-example-2"
-    alarm-description: "metric-alarm-example-2"
+    description: "metric-alarm-example-2"
     comparison-operator: "GreaterThanOrEqualToThreshold"
     threshold: 0.1
     evaluation-periods: 1

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-1
  *         name: "metric-alarm-example-1"
- *         alarm-description: "metric-alarm-example-1"
+ *         description: "metric-alarm-example-1"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
  *         evaluation-periods: 1
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-2
  *         name: "metric-alarm-example-2"
- *         alarm-description: "metric-alarm-example-2"
+ *         description: "metric-alarm-example-2"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
  *         evaluation-periods: 1
@@ -74,7 +74,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     private String name;
     private Boolean actionsEnabled;
     private Set<String> alarmActions;
-    private String alarmDescription;
+    private String description;
     private String comparisonOperator;
     private Integer datapointsToAlarm;
     private Map<String, String> dimensions;
@@ -141,12 +141,12 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * A description for the Metric Alarm.
      */
     @Updatable
-    public String getAlarmDescription() {
-        return alarmDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setAlarmDescription(String alarmDescription) {
-        this.alarmDescription = alarmDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -390,7 +390,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     public void copyFrom(MetricAlarm metricAlarm) {
         setActionsEnabled(metricAlarm.actionsEnabled());
         setAlarmActions(new HashSet<>(metricAlarm.alarmActions()));
-        setAlarmDescription(metricAlarm.alarmDescription());
+        setDescription(metricAlarm.alarmDescription());
         setComparisonOperator(metricAlarm.comparisonOperator() != null ? metricAlarm.comparisonOperator().toString() : null);
         setDatapointsToAlarm(metricAlarm.datapointsToAlarm());
         setEvaluateLowSampleCountPercentile(metricAlarm.evaluateLowSampleCountPercentile());
@@ -485,7 +485,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         builder = builder.alarmName(getName())
             .actionsEnabled(getActionsEnabled())
             .alarmActions(getAlarmActions())
-            .alarmDescription(getAlarmDescription())
+            .alarmDescription(getDescription())
             .comparisonOperator(getComparisonOperator())
             .datapointsToAlarm(getDatapointsToAlarm())
             .evaluateLowSampleCountPercentile(getEvaluateLowSampleCountPercentile())

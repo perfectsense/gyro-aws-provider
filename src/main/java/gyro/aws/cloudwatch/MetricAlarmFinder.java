@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 @Type("cloudwatch-metric-alarm")
 public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, MetricAlarmResource> {
     private String name;
-    private String alarmNamePrefix;
+    private String alarmPrefix;
     private String state;
-    private String actionNamePrefix;
+    private String actionPrefix;
 
     /**
      * The name of the alarm. Cannot be specified if 'alarm-prefix' specified.
@@ -37,12 +37,12 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
     /**
      * The prefix of the alarm. Cannot be specified if 'name' specified.
      */
-    public String getAlarmNamePrefix() {
-        return alarmNamePrefix;
+    public String getAlarmPrefix() {
+        return alarmPrefix;
     }
 
-    public void setAlarmNamePrefix(String alarmNamePrefix) {
-        this.alarmNamePrefix = alarmNamePrefix;
+    public void setAlarmPrefix(String alarmPrefix) {
+        this.alarmPrefix = alarmPrefix;
     }
 
     /**
@@ -59,12 +59,12 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
     /**
      * The action prefix of the alarm.
      */
-    public String getActionNamePrefix() {
-        return actionNamePrefix;
+    public String getActionPrefix() {
+        return actionPrefix;
     }
 
-    public void setActionNamePrefix(String actionNamePrefix) {
-        this.actionNamePrefix = actionNamePrefix;
+    public void setActionPrefix(String actionPrefix) {
+        this.actionPrefix = actionPrefix;
     }
 
     @Override

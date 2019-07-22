@@ -62,7 +62,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     private String eventPattern;
     private String managedBy;
     private RoleResource role;
-    private String ruleArn;
+    private String arn;
     private String name;
     private String scheduleExpression;
     private String state;
@@ -173,17 +173,17 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
      * The arn for the cloudwatch rule.
      */
     @Output
-    public String getRuleArn() {
-        return ruleArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setRuleArn(String ruleArn) {
-        this.ruleArn = ruleArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     @Override
     public void copyFrom(Rule rule) {
-        setRuleArn(rule.arn());
+        setArn(rule.arn());
         setName(rule.name());
         setDescription(rule.description());
         setEventPattern(rule.eventPattern());
@@ -275,7 +275,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
                             .roleArn(getRole() != null ? getRole().getArn() : null)
                             .state(getState())
             );
-            setRuleArn(ruleResponse.ruleArn());
+            setArn(ruleResponse.ruleArn());
         } else {
 
             PutRuleResponse ruleResponse = client.putRule(
@@ -285,7 +285,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
                             .roleArn(getRole() != null ? getRole().getArn() : null)
                             .state(getState())
             );
-            setRuleArn(ruleResponse.ruleArn());
+            setArn(ruleResponse.ruleArn());
         }
     }
 
