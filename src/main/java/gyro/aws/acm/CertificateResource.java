@@ -2,8 +2,10 @@ package gyro.aws.acm;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.acmpca.AcmPcaCertificateAuthority;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -57,7 +59,7 @@ import java.util.stream.Collectors;
  */
 @Type("acm-certificate")
 public class CertificateResource extends AwsResource implements Copyable<CertificateDetail> {
-    private String certificateAuthorityArn;
+    private AcmPcaCertificateAuthority certificateAuthority;
     private String domainName;
     private Set<AcmDomainValidationOption> domainValidationOption;
     private AcmCertificateOptions options;
@@ -88,12 +90,15 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
     private CertificateStatus status;
     private CertificateType type;
 
-    public String getCertificateAuthorityArn() {
-        return certificateAuthorityArn;
+    /**
+     * The certificate Authority to create the ACM certificate under.
+     */
+    public AcmPcaCertificateAuthority getCertificateAuthority() {
+        return certificateAuthority;
     }
 
-    public void setCertificateAuthorityArn(String certificateAuthorityArn) {
-        this.certificateAuthorityArn = certificateAuthorityArn;
+    public void setCertificateAuthority(AcmPcaCertificateAuthority certificateAuthority) {
+        this.certificateAuthority = certificateAuthority;
     }
 
     /**
@@ -431,7 +436,7 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
 
     @Override
     public void copyFrom(CertificateDetail certificateDetail) {
-        setCertificateAuthorityArn(certificateDetail.certificateAuthorityArn());
+        setCertificateAuthority(!ObjectUtils.isBlank(certificateDetail.certificateAuthorityArn()) ? findById(AcmPcaCertificateAuthority.class, certificateDetail.certificateAuthorityArn()) : null);
         setDomainName(certificateDetail.domainName());
         setSubjectAlternativeNames(new HashSet<>(certificateDetail.subjectAlternativeNames()));
         setDomainValidationOption(certificateDetail.domainValidationOptions().stream().map(o -> {
@@ -504,7 +509,7 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         AcmClient client = createClient(AcmClient.class);
 
         RequestCertificateResponse response = client.requestCertificate(
-            r -> r.certificateAuthorityArn(getCertificateAuthorityArn())
+            r -> r.certificateAuthorityArn(getCertificateAuthority() != null ? getCertificateAuthority().getArn() : null)
                 .domainName(getDomainName())
                 .domainValidationOptions(getDomainValidationOption().stream().map(AcmDomainValidationOption::toDomainValidationOption).collect(Collectors.toList()))
                 .idempotencyToken(UUID.randomUUID().toString().replaceAll("-",""))
