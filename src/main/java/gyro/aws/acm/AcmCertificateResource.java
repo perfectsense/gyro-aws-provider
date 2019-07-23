@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("acm-certificate")
-public class CertificateResource extends AwsResource implements Copyable<CertificateDetail> {
+public class AcmCertificateResource extends AwsResource implements Copyable<CertificateDetail> {
     private AcmPcaCertificateAuthority certificateAuthority;
     private String domainName;
     private Set<AcmDomainValidationOption> domainValidationOption;
@@ -538,7 +538,7 @@ public class CertificateResource extends AwsResource implements Copyable<Certifi
         }
 
         if (changedFieldNames.contains("tags")) {
-            saveTags(client, ((CertificateResource) current).getTags());
+            saveTags(client, ((AcmCertificateResource) current).getTags());
         }
     }
 
