@@ -4,6 +4,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.acmpca.model.CertificateAuthorityType;
 import software.amazon.awssdk.services.acmpca.model.CreateCertificateAuthorityRequest;
 import software.amazon.awssdk.services.acmpca.model.CreateCertificateAuthorityResponse;
 import software.amazon.awssdk.services.acmpca.model.DescribeCertificateAuthorityResponse;
+import software.amazon.awssdk.services.acmpca.model.InvalidStateException;
 import software.amazon.awssdk.services.acmpca.model.ListPermissionsResponse;
 import software.amazon.awssdk.services.acmpca.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.acmpca.model.Tag;
@@ -391,7 +393,11 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     public void delete(GyroUI ui, State state) {
         AcmPcaClient client = createClient(AcmPcaClient.class);
 
-        client.deleteCertificateAuthority(r -> r.certificateAuthorityArn(getArn()));
+        try {
+            client.deleteCertificateAuthority(r -> r.certificateAuthorityArn(getArn()));
+        } catch (InvalidStateException ex) {
+            throw new GyroException(String.format("Certificate Authority - %s cannot be deleted until disabled", getArn()));
+        }
     }
 
     private List<Tag> toTags() {
