@@ -111,11 +111,6 @@ aws::launch-template launch-template
 
     capacity-reservation: "open"
 
-    network-interfaces:[
-        $(aws::network-interface nic-example-launch-template-1),
-        $(aws::network-interface nic-example-launch-template-2)
-    ]
-
     tags: {
         Name: "launch-template-example-1"
     }
