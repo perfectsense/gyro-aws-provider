@@ -30,6 +30,7 @@ import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
+import software.amazon.awssdk.services.ec2.model.InstanceNetworkInterfaceSpecification;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
@@ -109,6 +110,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Set<BlockDeviceMappingResource> blockDeviceMapping;
     private Set<InstanceVolumeAttachment> volume;
     private InstanceProfileResource instanceProfile;
+    private LaunchTemplateSpecificationResource launchTemplate;
 
     // -- Readonly
 
@@ -390,6 +392,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         this.instanceProfile = instanceProfile;
     }
 
+    public LaunchTemplateSpecificationResource getLaunchTemplate() {
+        return launchTemplate;
+    }
+
+    public void setLaunchTemplate(LaunchTemplateSpecificationResource launchTemplate) {
+        this.launchTemplate = launchTemplate;
+    }
+
     /**
      * Instance ID of this instance.
      */
@@ -527,7 +537,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         validate(true);
 
-        loadAmi(client);
+        if (!ObjectUtils.isBlank(getAmiName()) || !ObjectUtils.isBlank(getAmiId())) {
+            loadAmi(client);
+        }
 
         RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
         builder = builder.imageId(getAmiId())
@@ -540,8 +552,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-            .subnetId(getSubnet().getSubnetId())
+            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()) : null)
+            .subnetId(getSubnet() != null ? getSubnet().getSubnetId() : null)
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .capacityReservationSpecification(getCapacityReservationSpecification())
@@ -555,8 +567,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
+        if (getLaunchTemplate() != null) {
+            builder.launchTemplate(getLaunchTemplate().toLaunchTemplateSpecification());
+        }
+
         RunInstancesRequest request = builder.build();
 
+        createInstance(client, request);
         boolean status = Wait.atMost(60, TimeUnit.SECONDS)
             .prompt(false)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -734,17 +751,17 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     private void validate(boolean isCreate) {
-        if (ObjectUtils.isBlank(getShutdownBehavior())
-            || ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION)) {
+        if ((getLaunchTemplate() != null && ObjectUtils.isBlank(getShutdownBehavior()))
+            || (!ObjectUtils.isBlank(getShutdownBehavior()) && ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION))) {
             throw new GyroException("The value - (" + getShutdownBehavior() + ") is invalid for parameter Shutdown Behavior.");
         }
 
-        if (ObjectUtils.isBlank(getInstanceType())
-            || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
+        if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))
+            || (!ObjectUtils.isBlank(getInstanceType()) && InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION))) {
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
         }
 
-        if (getSecurityGroups().isEmpty()) {
+        if (getLaunchTemplate() == null && getSecurityGroups().isEmpty()) {
             throw new GyroException("At least one security group is required.");
         }
 
@@ -755,8 +772,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
-        if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
-                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
+        if (getLaunchTemplate() != null && getLaunchTemplate().getLaunchTemplate().getNetworkInterfaces().isEmpty()) {
+            if (getSubnet() == null) {
+                throw new GyroException("Subnet is required when using a launch-template with network interface configured.");
+            }
+        } else {
+            if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided or when launch-template used with no network interface configured.");
+            }
         }
     }
 
