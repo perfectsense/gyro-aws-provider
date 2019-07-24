@@ -11,13 +11,6 @@ import gyro.core.resource.Output;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
-import gyro.core.validation.Max;
-import gyro.core.validation.Min;
-import gyro.core.validation.Range;
-import gyro.core.validation.Regex;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidNumbers;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
@@ -52,8 +45,6 @@ import java.util.Set;
 @Type("subnet")
 public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copyable<Subnet> {
 
-    private int test;
-
     private VpcResource vpc;
     private String cidrBlock;
     private String availabilityZone;
@@ -62,15 +53,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private NetworkAclResource networkAcl;
     private String aclAssociationId;
     private String defaultAclId;
-
-    @ValidNumbers({ 3, 5, 7 })
-    public int getTest() {
-        return test;
-    }
-
-    public void setTest(int test) {
-        this.test = test;
-    }
 
     /**
      * The VPC to create the Subnet in. (Required)
@@ -86,8 +68,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     /**
      * The IPv4 network range for the Subnet, in CIDR notation. (Required)
      */
-    @Required
-    @ValidStrings({ "foo", "bar" })
     public String getCidrBlock() {
         return cidrBlock;
     }
