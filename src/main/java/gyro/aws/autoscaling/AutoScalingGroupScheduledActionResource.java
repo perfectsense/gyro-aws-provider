@@ -8,12 +8,16 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScheduledUpdateGroupAction;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 public class AutoScalingGroupScheduledActionResource extends AwsResource implements Copyable<ScheduledUpdateGroupAction> {
@@ -41,6 +45,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     /**
      * The desired capacity of instances this scheduled action to scale to.
      */
+    @Min(0)
     @Updatable
     public Integer getDesiredCapacity() {
         return desiredCapacity;
@@ -53,6 +58,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     /**
      * The maximum number of instances this scheduled action to scale to.
      */
+    @Min(0)
     @Updatable
     public Integer getMaxSize() {
         return maxSize;
@@ -65,6 +71,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     /**
      * The minimum number of instances this scheduled action to scale to.
      */
+    @Min(0)
     @Updatable
     public Integer getMinSize() {
         return minSize;
@@ -201,30 +208,20 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
         );
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getMaxSize() == null && getMinSize() == null && getDesiredCapacity() == null) {
-            throw new GyroException("At least one of the params 'max-size' or 'min-size' or 'desired-capacity' needs to be provided.");
-        }
-
-        if (getMinSize() != null && getMinSize() < 0) {
-            throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter 'min-size'. Valid values [ Integer value grater or equal to 0 ].");
-        }
-
-        if (getMaxSize() != null && getMaxSize() < 0) {
-            throw new GyroException("The value - (" + getMaxSize()
-                + ") is invalid for parameter 'max-size'. Valid values [ Integer value grater or equal to 0 ].");
-        }
-
-        if (getDesiredCapacity() != null && getDesiredCapacity() < 0) {
-            throw new GyroException("The value - (" + getDesiredCapacity()
-                + ") is invalid for parameter 'desired-capacity'. Valid values [ Integer value grater or equal to 0 ].");
+            errors.add(new ValidationError(this, null, "At least one of the params 'max-size' or 'min-size' or 'desired-capacity' needs to be provided."));
         }
 
         if (getMinSize() != null && getMaxSize() != null && (getMaxSize() < getMinSize())) {
-            throw new GyroException("The value - (" + getMinSize()
+            errors.add(new ValidationError(this, null, "The value - (" + getMinSize()
                 + ") for parameter 'min-size' needs to be equal or smaller than the value - (" + getMaxSize()
-                + ") for parameter 'max-size'.");
+                + ") for parameter 'max-size'."));
         }
+
+        return errors;
     }
 }

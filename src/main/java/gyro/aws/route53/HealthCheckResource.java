@@ -14,6 +14,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.ChangeTagsForResourceRequest;
@@ -627,52 +628,55 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         }
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         //Type validation
         if (ObjectUtils.isBlank(getType())
             || HealthCheckType.fromValue(getType()).equals(HealthCheckType.UNKNOWN_TO_SDK_VERSION)) {
-            throw new GyroException(String.format("Invalid value '%s' for param 'type'. Valid values [ '%s' ]", getType(),
+            errors.add(new ValidationError(this, null, String.format("Invalid value '%s' for param 'type'. Valid values [ '%s' ]", getType(),
                 Stream.of(HealthCheckType.values())
                     .filter(o -> !o.equals(HealthCheckType.UNKNOWN_TO_SDK_VERSION))
-                    .map(Enum::toString).collect(Collectors.joining("', '"))));
+                    .map(Enum::toString).collect(Collectors.joining("', '")))));
         }
 
         //Attribute validation when type not CALCULATED
         if (!getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             if (!ObjectUtils.isBlank(getHealthThreshold())) {
-                throw new GyroException("The param 'health-threshold' is only allowed when"
-                    + " 'type' is 'CALCULATED'.");
+                errors.add(new ValidationError(this, null, "The param 'health-threshold' is only allowed when"
+                    + " 'type' is 'CALCULATED'."));
             }
 
             if (!getChildHealthChecks().isEmpty()) {
-                throw new GyroException("The param 'child-health-checks' is only allowed when"
-                    + " 'type' is 'CALCULATED'.");
+                errors.add(new ValidationError(this, null, "The param 'child-health-checks' is only allowed when"
+                    + " 'type' is 'CALCULATED'."));
             }
         }
 
         //Attribute validation when type not CLOUDWATCH_METRIC
         if (!getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (!ObjectUtils.isBlank(getInsufficientDataHealthStatus())) {
-                throw new GyroException(String.format("The param 'insufficient-data-health-status' is only allowed when"
-                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'insufficient-data-health-status' is only allowed when"
+                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (!ObjectUtils.isBlank(getAlarmName())) {
-                throw new GyroException(String.format("The param 'alarm-name' is only allowed when"
-                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'alarm-name' is only allowed when"
+                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (!ObjectUtils.isBlank(getAlarmRegion())) {
-                throw new GyroException(String.format("The param 'alarm-region' is only allowed when"
-                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'alarm-region' is only allowed when"
+                    + " 'type' is '%s'.",HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
         }
 
         //Attribute validation when type CALCULATED
         if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             if (ObjectUtils.isBlank(getHealthThreshold()) || getHealthThreshold() < 0) {
-                throw new GyroException("The value - (" + getHealthThreshold()
-                    + ") is invalid for parameter 'health-threshold'. Valid values [ Integer value grater or equal to 0. ]");
+                errors.add(new ValidationError(this, null, "The value - (" + getHealthThreshold()
+                    + ") is invalid for parameter 'health-threshold'. Valid values [ Integer value grater or equal to 0. ]"));
             }
         }
 
@@ -681,70 +685,70 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
             if (ObjectUtils.isBlank(getInsufficientDataHealthStatus())
                 || InsufficientDataHealthStatus.fromValue(getInsufficientDataHealthStatus())
                 .equals(InsufficientDataHealthStatus.UNKNOWN_TO_SDK_VERSION)) {
-                throw new GyroException(String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
+                errors.add(new ValidationError(this, null, String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
                         + " Valid values [ '%s' ]", getInsufficientDataHealthStatus(),
                     Stream.of(InsufficientDataHealthStatus.values())
                         .filter(o -> !o.equals(InsufficientDataHealthStatus.UNKNOWN_TO_SDK_VERSION))
-                        .map(Enum::toString).collect(Collectors.joining("', '"))));
+                        .map(Enum::toString).collect(Collectors.joining("', '")))));
             }
         }
 
         //Attribute validation when type is CALCULATED or CLOUDWATCH_METRIC
         if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED) && getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (!getRegions().isEmpty()) {
-                throw new GyroException(String.format("The param 'regions' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'regions' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (!ObjectUtils.isBlank(getRequestInterval())) {
-                throw new GyroException(String.format("The param 'request-interval' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'request-interval' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (!ObjectUtils.isBlank(getResourcePath())) {
-                throw new GyroException(String.format("The param 'resource-path' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'resource-path' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (!ObjectUtils.isBlank(getIpAddress())) {
-                throw new GyroException(String.format("The param 'ip-address' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'ip-address' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (!ObjectUtils.isBlank(getDomainName())) {
-                throw new GyroException(String.format("The param 'domain-name' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'domain-name' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (getMeasureLatency() != null) {
-                throw new GyroException(String.format("The param 'measure-latency' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'measure-latency' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (getPort() != null) {
-                throw new GyroException(String.format("The param 'port' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'port' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
 
             if (getFailureThreshold() != null) {
-                throw new GyroException(String.format("The param 'failure-threshold' is not allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'failure-threshold' is not allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_CALCULATED, HEALTH_CHECK_TYPE_CLOUD_WATCH)));
             }
         }
 
         //Attribute validation when type is HTTP_STR_MATCH or HTTPS_STR_MATCH
         if (!getType().equals(HEALTH_CHECK_TYPE_HTTP_STR_MATCH) && !getType().equals(HEALTH_CHECK_TYPE_HTTPS_STR_MATCH)) {
             if (getSearchString() != null) {
-                throw new GyroException(String.format("The param 'search-string' is only allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_HTTP_STR_MATCH, HEALTH_CHECK_TYPE_HTTPS_STR_MATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'search-string' is only allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_HTTP_STR_MATCH, HEALTH_CHECK_TYPE_HTTPS_STR_MATCH)));
             }
         }
 
         //Attribute validation when type is HTTPS or HTTPS_STR_MATCH
         if (!getType().equals(HEALTH_CHECK_TYPE_HTTPS) && !getType().equals(HEALTH_CHECK_TYPE_HTTPS_STR_MATCH)) {
             if (getEnableSni() != null) {
-                throw new GyroException(String.format("The param 'enable-sni' is only allowed when"
-                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_HTTP_STR_MATCH, HEALTH_CHECK_TYPE_HTTPS_STR_MATCH));
+                errors.add(new ValidationError(this, null, String.format("The param 'enable-sni' is only allowed when"
+                    + " 'type' is '%s' or '%s'.", HEALTH_CHECK_TYPE_HTTP_STR_MATCH, HEALTH_CHECK_TYPE_HTTPS_STR_MATCH)));
             }
         }
 
@@ -752,15 +756,15 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         if (!getType().equals(HEALTH_CHECK_TYPE_CALCULATED) && !getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             if (ObjectUtils.isBlank(getRequestInterval())
                 || (getRequestInterval() != 10 && getRequestInterval() != 30)) {
-                throw new GyroException("The value - (" + getRequestInterval()
-                    + ") is invalid for parameter 'request-interval'. Valid values [ 10, 30 ].");
+                errors.add(new ValidationError(this, null, "The value - (" + getRequestInterval()
+                    + ") is invalid for parameter 'request-interval'. Valid values [ 10, 30 ]."));
             }
 
             if (!getRegions().isEmpty() && !regionSet.containsAll(getRegions())) {
-                throw new GyroException(String.format("Invalid values [ '%s' ] for param 'regions'."
+                errors.add(new ValidationError(this, null, String.format("Invalid values [ '%s' ] for param 'regions'."
                         + " Valid values [ '%s' ]",
                     getRegions().stream().filter(o -> !regionSet.contains(o)).collect(Collectors.joining("', '")),
-                    String.join("', '", regionSet)));
+                    String.join("', '", regionSet))));
             }
         }
 
@@ -768,8 +772,10 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         if (getType().equals(HEALTH_CHECK_TYPE_TCP)) {
             if ((!ObjectUtils.isBlank(getIpAddress()) && !ObjectUtils.isBlank(getDomainName()))
                 || (ObjectUtils.isBlank(getIpAddress()) && ObjectUtils.isBlank(getDomainName()))) {
-                throw new GyroException(String.format("When parameter 'type' is '%s' either param 'ip-address' or 'domain-name' needs to be specified.", HEALTH_CHECK_TYPE_TCP));
+                errors.add(new ValidationError(this, null, String.format("When parameter 'type' is '%s' either param 'ip-address' or 'domain-name' needs to be specified.", HEALTH_CHECK_TYPE_TCP)));
             }
         }
+
+        return errors;
     }
 }

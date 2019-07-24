@@ -88,7 +88,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(

@@ -116,7 +116,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    public void doCreate() {
+    public void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDescription())

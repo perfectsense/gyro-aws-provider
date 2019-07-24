@@ -163,7 +163,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateEventSubscriptionResponse response = client.createEventSubscription(
             r -> r.enabled(getEnabled())

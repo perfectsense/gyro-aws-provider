@@ -62,11 +62,11 @@ public abstract class RdsTaggableResource extends AwsResource {
         return refreshed;
     }
 
-    protected abstract void doCreate();
+    protected abstract void doCreate(GyroUI ui, State state);
 
     @Override
     public final void create(GyroUI ui, State state) {
-        doCreate();
+        doCreate(ui, state);
         addTags();
     }
 

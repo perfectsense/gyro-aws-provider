@@ -10,14 +10,17 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
 import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -295,31 +298,36 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         );
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getEndDateType() == null || (!getEndDateType().equals("unlimited") && !getEndDateType().equals("limited"))) {
-            throw new GyroException("The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."
-                + "Valid values [ 'unlimited', 'limited' ]");
+            errors.add(new ValidationError(this, null, "The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."
+                + "Valid values [ 'unlimited', 'limited' ]"));
         }
 
         if (getEndDateType().equals("unlimited") && !ObjectUtils.isBlank(getEndDate())) {
-            throw new GyroException("The value - (" + getEndDate() + ") is invalid for parameter 'end-date' "
-                + "when param 'end-date-type' is set to 'unlimited'.");
+            errors.add(new ValidationError(this, null, "The value - (" + getEndDate() + ") is invalid for parameter 'end-date' "
+                + "when param 'end-date-type' is set to 'unlimited'."));
         }
 
         if (getEndDateType().equals("limited") && ObjectUtils.isBlank(getEndDate())) {
-            throw new GyroException("The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
-                + "when param 'end-date-type' is set to 'limited'.");
+            errors.add(new ValidationError(this, null, "The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
+                + "when param 'end-date-type' is set to 'limited'."));
         }
 
         if (getInstanceMatchCriteria() == null || (!getInstanceMatchCriteria().equals("open") && !getInstanceMatchCriteria().equals("targeted"))) {
-            throw new GyroException("The value - (" + getInstanceMatchCriteria() + ") is invalid for parameter 'instance-match-criteria'."
-                + "Valid values [ 'open', 'targeted' ]");
+            errors.add(new ValidationError(this, null, "The value - (" + getInstanceMatchCriteria() + ") is invalid for parameter 'instance-match-criteria'."
+                + "Valid values [ 'open', 'targeted' ]"));
         }
 
         if (getTenancy() == null || (!getTenancy().equals("default") && !getTenancy().equals("dedicated"))) {
-            throw new GyroException("The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
-                + "Valid values [ 'default', 'dedicated' ]");
+            errors.add(new ValidationError(this, null, "The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
+                + "Valid values [ 'default', 'dedicated' ]"));
         }
+
+        return errors;
     }
 
     private CapacityReservation getCapacityReservation(Ec2Client client) {

@@ -13,6 +13,7 @@ import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.Change;
@@ -22,7 +23,9 @@ import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -506,117 +509,122 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         );
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (! ROUTING_POLICY_SET.contains(getRoutingPolicy())) {
-            throw new GyroException(String.format("The value - (%s) is invalid for parameter 'routing-policy'."
-                + " Valid values [ '%s' ].",getRoutingPolicy(),String.join("', '", ROUTING_POLICY_SET)));
+            errors.add(new ValidationError(this, null, String.format("The value - (%s) is invalid for parameter 'routing-policy'."
+                + " Valid values [ '%s' ].",getRoutingPolicy(),String.join("', '", ROUTING_POLICY_SET))));
         }
 
         if (ObjectUtils.isBlank(getType())
             || RRType.fromValue(getType())
             .equals(RRType.UNKNOWN_TO_SDK_VERSION)) {
-            throw new GyroException(String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
+            errors.add(new ValidationError(this, null, String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
                     + " Valid values [ '%s' ]", getType(),
                 Stream.of(RRType.values())
                     .filter(o -> !o.equals(RRType.UNKNOWN_TO_SDK_VERSION))
-                    .map(Enum::toString).collect(Collectors.joining("', '"))));
+                    .map(Enum::toString).collect(Collectors.joining("', '")))));
         }
 
         if (getEnableAlias()) {
             if (!ObjectUtils.isBlank(getTtl())) {
-                throw new GyroException("The param 'ttl' is not allowed when 'enable-alias' is set to 'true'.");
+                errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'enable-alias' is set to 'true'."));
             }
 
             if (!getRecords().isEmpty()) {
-                throw new GyroException("The param 'records' is not allowed when 'enable-alias' is set to 'true'.");
+                errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'enable-alias' is set to 'true'."));
             }
 
             if (getEvaluateTargetHealth() == null) {
-                throw new GyroException("The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'.");
+                errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'."));
             }
 
             if (ObjectUtils.isBlank(getDnsName())) {
-                throw new GyroException("The param 'dns-name' is required when 'enable-alias' is set to 'true'.");
+                errors.add(new ValidationError(this, null, "The param 'dns-name' is required when 'enable-alias' is set to 'true'."));
             }
 
             if (ObjectUtils.isBlank(getAliasHostedZoneId())) {
-                throw new GyroException("The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'.");
+                errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'."));
             }
         } else {
             if (getEvaluateTargetHealth() != null) {
-                throw new GyroException("The param 'evaluate-target-health' is not allowed when 'enable-alias' is set to 'false' or not set.");
+                errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is not allowed when 'enable-alias' is set to 'false' or not set."));
             }
 
             if (getDnsName() != null) {
-                throw new GyroException("The param 'dns-name' is not allowed when 'enable-alias' is set to 'false' or not set.");
+                errors.add(new ValidationError(this, null, "The param 'dns-name' is not allowed when 'enable-alias' is set to 'false' or not set."));
             }
 
             if (getAliasHostedZoneId() != null) {
-                throw new GyroException("The param 'alias-hosted-zone-id' is not allowed when 'enable-alias' is set to 'false' or not set.");
+                errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is not allowed when 'enable-alias' is set to 'false' or not set."));
             }
 
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
-                throw new GyroException("The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
-                    + " Valid values [ Long 0 - 172800 ].");
+                errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
+                    + " Valid values [ Long 0 - 172800 ]."));
             }
 
             if (getRecords().isEmpty()) {
-                throw new GyroException("The param 'records' is required when 'enable-alias' is set to 'false' or not set.");
+                errors.add(new ValidationError(this, null, "The param 'records' is required when 'enable-alias' is set to 'false' or not set."));
             }
         }
 
         if (!getRoutingPolicy().equals("geolocation")) {
             if (!ObjectUtils.isBlank(getContinentCode())) {
-                throw new GyroException("The param 'continent-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
+                errors.add(new ValidationError(this, null, "The param 'continent-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
             }
 
             if (!ObjectUtils.isBlank(getCountryCode())) {
-                throw new GyroException("The param 'country-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
+                errors.add(new ValidationError(this, null, "The param 'country-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
             }
 
             if (!ObjectUtils.isBlank(getSubdivisionCode())) {
-                throw new GyroException("The param 'subdivision-code' is not allowed when 'routing-policy' is not set to 'geolocation'.");
+                errors.add(new ValidationError(this, null, "The param 'subdivision-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
             }
         } else {
             if (ObjectUtils.isBlank(getContinentCode()) && ObjectUtils.isBlank(getCountryCode()) && ObjectUtils.isBlank(getSubdivisionCode())) {
-                throw new GyroException("At least one of the param [ 'continent-code', 'country-code', 'subdivision-code']"
-                    + " is required when 'routing-policy' is set to 'geolocation'.");
+                errors.add(new ValidationError(this, null, "At least one of the param [ 'continent-code', 'country-code', 'subdivision-code']"
+                    + " is required when 'routing-policy' is set to 'geolocation'."));
             }
         }
 
         if (!getRoutingPolicy().equals("failover") && getFailover() != null) {
-            throw new GyroException("The param 'failover' is not allowed when 'routing-policy' is not set to 'failover'.");
+            errors.add(new ValidationError(this, null, "The param 'failover' is not allowed when 'routing-policy' is not set to 'failover'."));
         } else if (getRoutingPolicy().equals("failover")
             && (ObjectUtils.isBlank(getFailover()) || (!getFailover().equals("PRIMARY") && !getFailover().equals("SECONDARY")))) {
-            throw new GyroException("The param 'failover' is required when 'routing-policy' is set to 'failover'."
-                + " Valid values [ PRIMARY, SECONDARY ].");
+            errors.add(new ValidationError(this, null, "The param 'failover' is required when 'routing-policy' is set to 'failover'."
+                + " Valid values [ PRIMARY, SECONDARY ]."));
         }
 
         if (!getRoutingPolicy().equals("multivalue") && getMultiValueAnswer() != null) {
-            throw new GyroException("The param 'multi-value-answer' is not allowed when 'routing-policy' is not set to 'multivalue'.");
+            errors.add(new ValidationError(this, null, "The param 'multi-value-answer' is not allowed when 'routing-policy' is not set to 'multivalue'."));
         } else if (getRoutingPolicy().equals("multivalue")) {
             if (getMultiValueAnswer() == null) {
-                throw new GyroException("The param 'multi-value-answer' is required when 'routing-policy' is set to 'multivalue'.");
+                errors.add(new ValidationError(this, null, "The param 'multi-value-answer' is required when 'routing-policy' is set to 'multivalue'."));
             }
 
             if (getRecords().size() > 1) {
-                throw new GyroException("The param 'records' can only have one value when 'routing-policy' is set to 'multivalue'.");
+                errors.add(new ValidationError(this, null, "The param 'records' can only have one value when 'routing-policy' is set to 'multivalue'."));
             }
         }
 
         if (!getRoutingPolicy().equals("weighted") && getWeight() != null) {
-            throw new GyroException("The param 'weight' is not allowed when 'routing-policy' is not set to 'weighted'.");
+            errors.add(new ValidationError(this, null, "The param 'weight' is not allowed when 'routing-policy' is not set to 'weighted'."));
         } else if (getRoutingPolicy().equals("weighted")) {
             if ((getWeight() == null) || getWeight() < 0 || getWeight() > 255) {
-                throw new GyroException("The param 'weight' is required when 'routing-policy' is set to 'weighted'."
-                    + " Valid values [ Long 0 - 255 ].");
+                errors.add(new ValidationError(this, null, "The param 'weight' is required when 'routing-policy' is set to 'weighted'."
+                    + " Valid values [ Long 0 - 255 ]."));
             }
         }
 
         if (!getRoutingPolicy().equals("latency") && getRegion() != null) {
-            throw new GyroException("The param 'region' is not allowed when 'routing-policy' is not set to 'latency'.");
+            errors.add(new ValidationError(this, null, "The param 'region' is not allowed when 'routing-policy' is not set to 'latency'."));
         } else if (getRoutingPolicy().equals("latency") && ObjectUtils.isBlank(getRegion())) {
-            throw new GyroException("The param 'region' is required when 'routing-policy' is set to 'latency'.");
+            errors.add(new ValidationError(this, null, "The param 'region' is required when 'routing-policy' is set to 'latency'."));
         }
+
+        return errors;
     }
 }

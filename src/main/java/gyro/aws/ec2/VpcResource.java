@@ -7,6 +7,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
+import gyro.core.resource.TestValue;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -209,7 +210,8 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     /**
      * The owner ID.
      */
-    @Output(value = "owner-12345", randomSuffix = false)
+    @Output
+    @TestValue("owner-12345")
     public String getOwnerId() {
         return ownerId;
     }

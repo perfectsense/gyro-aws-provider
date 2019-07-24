@@ -16,6 +16,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
@@ -24,7 +25,9 @@ import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigura
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -372,16 +375,21 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         return launchConfiguration;
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getInstance() == null) {
 
             if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+                errors.add(new ValidationError(this, null, "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
             }
 
             if (getSecurityGroups().isEmpty()) {
-                throw new GyroException("At least one security group is required.");
+                errors.add(new ValidationError(this, null, "At least one security group is required."));
             }
         }
+
+        return errors;
     }
 }

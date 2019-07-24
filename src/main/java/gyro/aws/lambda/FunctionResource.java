@@ -14,6 +14,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -29,9 +30,11 @@ import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -770,19 +773,23 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
         int s3FieldCount = 0;
         s3FieldCount += !ObjectUtils.isBlank(getS3Bucket()) ? 1 : 0;
         s3FieldCount += !ObjectUtils.isBlank(getS3Key()) ? 1 : 0;
         s3FieldCount += !ObjectUtils.isBlank(getS3ObjectVersion()) ? 1 : 0;
 
         if (s3FieldCount > 0 && s3FieldCount < 3 ) {
-            throw new GyroException("Fields s3-bucket, s3-key and s3-object-version are needed to set together or none.");
+            errors.add(new ValidationError(this, null, "Fields s3-bucket, s3-key and s3-object-version are needed to set together or none."));
         }
 
         if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPath())) {
-            throw new GyroException("Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set.");
+            errors.add(new ValidationError(this, null, "Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set."));
         }
+
+        return errors;
     }
 
     private void setVersions(LambdaClient client) {

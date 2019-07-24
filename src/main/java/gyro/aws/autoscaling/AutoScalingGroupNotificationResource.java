@@ -9,11 +9,10 @@ import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.NotificationConfiguration;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
@@ -36,6 +35,12 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
      * The event on which to notify. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCH`` or ``autoscaling:EC2_INSTANCE_LAUNCH_ERROR`` or ``autoscaling:EC2_INSTANCE_TERMINATE`` or ``autoscaling:EC2_INSTANCE_TERMINATE_ERROR``. (Required)
      */
     @Updatable
+    @ValidStrings({
+        "autoscaling:EC2_INSTANCE_LAUNCH",
+        "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+        "autoscaling:EC2_INSTANCE_TERMINATE",
+        "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+    })
     public String getNotificationType() {
         return notificationType;
     }
@@ -102,19 +107,4 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         );
     }
 
-    private void validate() {
-        HashSet<String> validNotificationSet = new HashSet<>(
-            Arrays.asList(
-                "autoscaling:EC2_INSTANCE_LAUNCH",
-                "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
-                "autoscaling:EC2_INSTANCE_TERMINATE",
-                "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
-            )
-        );
-
-        if (ObjectUtils.isBlank(getNotificationType()) || !validNotificationSet.contains(getNotificationType())) {
-            throw new GyroException("The param 'notification-type' has invalid values."
-                + " Valid values [ '" + String.join("', '", validNotificationSet) + "' ].");
-        }
-    }
 }

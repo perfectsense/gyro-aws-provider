@@ -781,7 +781,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    public void doCreate() {
+    public void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbInstanceResponse response = client.createDBInstance(
             r -> r.allocatedStorage(getAllocatedStorage())
@@ -834,10 +834,16 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setArn(response.dbInstance().dbInstanceArn());
 
-        Wait.atMost(10, TimeUnit.MINUTES)
-            .checkEvery(15, TimeUnit.SECONDS)
-            .prompt(true)
+        state.save();
+
+        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for rds db instance" + getDbInstanceIdentifier());
+        }
 
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
             r -> r.dbInstanceIdentifier(getIdentifier())

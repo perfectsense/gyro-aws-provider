@@ -117,7 +117,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbSnapshotResponse response = client.createDBSnapshot(
