@@ -10,6 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.CloudWatchException;
 import software.amazon.awssdk.services.cloudwatch.model.DescribeAlarmsResponse;
@@ -17,9 +18,11 @@ import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricAlarm;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricAlarmRequest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -520,28 +523,33 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         }
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         boolean flatMetricPresent = !ObjectUtils.isBlank(getNamespace()) || !ObjectUtils.isBlank(getPeriod())
             || !ObjectUtils.isBlank(getStatistic()) || !getDimensions().isEmpty();
 
         boolean metricSetPresent = !getMetric().isEmpty();
 
         if ((flatMetricPresent && metricSetPresent) || (!flatMetricPresent && !metricSetPresent)) {
-            throw new GyroException("Either the param 'metric' or the collection of 'namespace', 'period', 'statistic' and optionally 'dimensions' must be specified. Not both together. ");
+            errors.add(new ValidationError(this, null, "Either the param 'metric' or the collection of 'namespace', 'period', 'statistic' and optionally 'dimensions' must be specified. Not both together. "));
         }
 
         if (flatMetricPresent) {
             if (ObjectUtils.isBlank(getNamespace())) {
-                throw new GyroException("The param 'namespace' is required when param 'metric' is not set.");
+                errors.add(new ValidationError(this, null, "The param 'namespace' is required when param 'metric' is not set."));
             }
 
             if (ObjectUtils.isBlank(getPeriod())) {
-                throw new GyroException("The param 'period' is required when param 'metric' is not set.");
+                errors.add(new ValidationError(this, null, "The param 'period' is required when param 'metric' is not set."));
             }
 
             if (ObjectUtils.isBlank(getStatistic())) {
-                throw new GyroException("The param 'statistic' is required when param 'metric' is not set.");
+                errors.add(new ValidationError(this, null, "The param 'statistic' is required when param 'metric' is not set."));
             }
         }
+
+        return errors;
     }
 }
