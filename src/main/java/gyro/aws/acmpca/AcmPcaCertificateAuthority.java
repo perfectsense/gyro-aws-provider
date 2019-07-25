@@ -124,6 +124,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     /**
      * Tags for the Certificate Authority.
      */
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
