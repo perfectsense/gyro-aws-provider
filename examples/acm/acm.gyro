@@ -6,8 +6,12 @@ aws::acm-certificate acm-certificate-example
     end
 
     options
-        preference: DISABLED
+        preference: ENABLED
     end
 
     validation-method: DNS
+
+    tags: {
+        Name: "acm-certificate-example"
+    }
 end
