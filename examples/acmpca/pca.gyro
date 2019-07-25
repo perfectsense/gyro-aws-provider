@@ -21,4 +21,8 @@ aws::certificate-authority certificate-authority-example
         ]
         principal: "acm.amazonaws.com"
     end
+
+    tags: {
+        Name: "certificate-authority-example"
+    }
 end
