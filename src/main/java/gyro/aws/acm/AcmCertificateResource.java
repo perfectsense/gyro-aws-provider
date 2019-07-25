@@ -449,10 +449,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
         AcmCertificateOptions options = newSubresource(AcmCertificateOptions.class);
         options.copyFrom(certificateDetail.options());
         setOptions(options);
-
-
         setArn(certificateDetail.certificateArn());
-
         setCreatedAt(certificateDetail.createdAt() != null ? Date.from(certificateDetail.createdAt()) : null);
         setExtendedKeyUsages(certificateDetail.extendedKeyUsages().stream().map(o -> {
             AcmExtendedKeyUsage extendedKeyUsage = newSubresource(AcmExtendedKeyUsage.class);
