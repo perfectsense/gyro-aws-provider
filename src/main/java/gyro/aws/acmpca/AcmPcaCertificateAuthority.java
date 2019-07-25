@@ -287,13 +287,17 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
         setSerial(certificateAuthority.serial());
         setEnabled(!getStatus().equals(CertificateAuthorityStatus.DISABLED));
 
-        AcmPcaClient client = createClient(AcmPcaClient.class);
+        if (!certificateAuthority.status().equals(CertificateAuthorityStatus.DELETED)) {
+            AcmPcaClient client = createClient(AcmPcaClient.class);
 
-        ListPermissionsResponse response = client.listPermissions(r -> r.certificateAuthorityArn(getArn()));
-        if (!response.permissions().isEmpty()) {
-            AcmPcaPermission permission = newSubresource(AcmPcaPermission.class);
-            permission.copyFrom(response.permissions().get(0));
-            setPermission(permission);
+            ListPermissionsResponse response = client.listPermissions(r -> r.certificateAuthorityArn(getArn()));
+            if (!response.permissions().isEmpty()) {
+                AcmPcaPermission permission = newSubresource(AcmPcaPermission.class);
+                permission.copyFrom(response.permissions().get(0));
+                setPermission(permission);
+            } else {
+                setPermission(null);
+            }
         } else {
             setPermission(null);
         }
