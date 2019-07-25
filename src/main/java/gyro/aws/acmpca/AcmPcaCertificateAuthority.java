@@ -63,6 +63,10 @@ import java.util.stream.Collectors;
  *             ]
  *             principal: "acm.amazonaws.com"
  *         end
+ *
+ *         tags: {
+ *             Name: "certificate-authority-example"
+ *         }
  *     end
  */
 @Type("certificate-authority")

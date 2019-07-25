@@ -57,6 +57,10 @@ import java.util.stream.Collectors;
  *         end
  *
  *         validation-method: DNS
+ *
+ *         tags: {
+ *             Name: "acm-certificate-example
+ *         }
  *     end
  */
 @Type("acm-certificate")
