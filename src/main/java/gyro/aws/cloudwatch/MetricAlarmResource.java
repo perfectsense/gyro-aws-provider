@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  *
  *         metric
  *             id: "e1"
- *             expression: "SUM(METRICS())"
+ *             expression: 'SUM(METRICS())'
  *             label: "Expression1"
  *             return-data: true
  *         end

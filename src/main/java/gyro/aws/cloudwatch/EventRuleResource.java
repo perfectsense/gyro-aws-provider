@@ -44,7 +44,7 @@ import java.util.Set;
  *        description: "first rule test"
  *        event-pattern-path: 'event-pattern.json'
  *        schedule-event: true
- *        schedule-expression: "rate(5 minutes)"
+ *        schedule-expression: 'rate(5 minutes)'
  *        state: "ENABLED"
  *
  *        target
