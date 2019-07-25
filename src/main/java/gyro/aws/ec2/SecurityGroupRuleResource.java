@@ -7,11 +7,14 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public abstract class SecurityGroupRuleResource extends AwsResource {
@@ -177,11 +180,15 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             .build();
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
         int status = (ObjectUtils.isBlank(getCidrBlock()) ? 0 : 1) + (ObjectUtils.isBlank(getIpv6CidrBlock()) ? 0 : 1) + (getSecurityGroup() == null ? 0 : 1);
         if (status != 1) {
-            throw new GyroException("Only one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!");
+            errors.add(new ValidationError(this, null,"Only one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!"));
         }
+
+        return errors;
     }
 
     void copyPortProtocol(IpPermission permission) {

@@ -155,7 +155,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(
             r -> r.dbParameterGroupFamily(getFamily())

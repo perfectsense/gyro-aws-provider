@@ -19,6 +19,9 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingGroup;
@@ -191,6 +194,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The maximum number of instances for the Auto Scaling group. (Required)
      */
+    @Min(0)
     @Updatable
     public Integer getMaxSize() {
         if (maxSize == null) {
@@ -207,6 +211,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The minimum number of instances for the Auto Scaling group. (Required)
      */
+    @Min(0)
     @Updatable
     public Integer getMinSize() {
         if (minSize == null) {
@@ -235,6 +240,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The default cool down period in sec for the Auto Scaling group. Defaults to 300 sec. See `Default Cool downs <https://docs.aws.amazon.com/autoscaling/ec2/userguide/Cooldown.html#cooldown-default/>`_.
      */
+    @Min(0)
     @Updatable
     public Integer getDefaultCooldown() {
         if (defaultCooldown == null) {
@@ -252,6 +258,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      * The type of health check to be performed on the Auto Scaling group. Defaults to EC2. Can be 'EC2' or 'ELB'. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
      */
     @Updatable
+    @ValidStrings({ "ELB", "EC2" })
     public String getHealthCheckType() {
         if (healthCheckType == null) {
             healthCheckType = "EC2";
@@ -267,6 +274,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The grace period after which health check is started, to give time for the Instances in the Auto scaling group to start up. Defaults to 0 sec. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
      */
+    @Min(0)
     @Updatable
     public Integer getHealthCheckGracePeriod() {
         if (healthCheckGracePeriod == null) {
@@ -1023,56 +1031,36 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         return calculatedDesiredCapacity;
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getLaunchTemplate() == null && getLaunchConfiguration() == null && getInstance() == null) {
-            throw new GyroException("Either 'launch-template' or 'launch-configuration' or 'instance' is required.");
-        }
-
-        if (!getHealthCheckType().equals("ELB") && !getHealthCheckType().equals("EC2")) {
-            throw new GyroException("The value - (" + getHealthCheckType()
-                + ") is invalid for parameter 'health-check-type'.");
-        }
-
-        if (getHealthCheckGracePeriod() < 0) {
-            throw new GyroException("The value - (" + getHealthCheckGracePeriod()
-                + ") is invalid for parameter 'health-check-grace-period'. Integer value greater or equal to 0.");
-        }
-
-        if (getDefaultCooldown() < 0) {
-            throw new GyroException("The value - (" + getDefaultCooldown()
-                + ") is invalid for parameter 'default-cooldown'. Integer value greater or equal to 0.");
-        }
-
-        if (getMaxSize() < 0) {
-            throw new GyroException("The value - (" + getMaxSize()
-                + ") is invalid for parameter 'max-size'. Integer value greater or equal to 0.");
-        }
-
-        if (getMinSize() < 0) {
-            throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter 'min-size'. Integer value greater or equal to 0.");
+            errors.add(new ValidationError(this, null, "Either 'launch-template' or 'launch-configuration' or 'instance' is required."));
         }
 
         if (getMinSize() > getMaxSize()) {
-            throw new GyroException("The value - (" + getMinSize()
-                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size'.");
+            errors.add(new ValidationError(this, null, "The value - (" + getMinSize()
+                + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size'."));
         }
 
         if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
-            throw new GyroException("The value - (" + getDesiredCapacity()
-                + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size'.");
+            errors.add(new ValidationError(this, null, "The value - (" + getDesiredCapacity()
+                + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size'."));
         }
 
         if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
-            throw new GyroException("When 'enabled-metrics-collection' is set to false, 'disabled-metrics' can't have items in it.");
+            errors.add(new ValidationError(this, null, "When 'enabled-metrics-collection' is set to false, 'disabled-metrics' can't have items in it."));
         }
 
         if (!MASTER_METRIC_SET.containsAll(getDisabledMetrics())) {
-            throw new GyroException("Invalid values for parameter 'disabled-metrics'.");
+            errors.add(new ValidationError(this, null, "Invalid values for parameter 'disabled-metrics'."));
         }
 
         if (!new HashSet<>(getTags().keySet()).containsAll(getPropagateAtLaunchTags())) {
-            throw new GyroException("'propagate-at-launch-tags' cannot contain keys not mentioned under 'tags'.");
+            errors.add(new ValidationError(this, null, "'propagate-at-launch-tags' cannot contain keys not mentioned under 'tags'."));
         }
+
+        return errors;
     }
 }
