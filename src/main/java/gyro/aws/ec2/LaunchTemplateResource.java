@@ -452,7 +452,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         }
 
         if (!getSecurityGroups().isEmpty() && !getNetworkInterfaces().isEmpty()) {
-            throw new GyroException("Either security group or network interface is to be provide.");
+            throw new GyroException("Either security group or network interface is to be provided, not both.");
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")
