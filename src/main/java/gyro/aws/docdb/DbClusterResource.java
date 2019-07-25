@@ -340,7 +340,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterResponse response = client.createDBCluster(
@@ -364,10 +364,16 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        state.save();
+
+        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for docdb cluster - " + getDbClusterIdentifier());
+        }
     }
 
     @Override

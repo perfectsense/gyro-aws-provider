@@ -7,6 +7,7 @@ import gyro.aws.waf.global.WebAclResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
+import gyro.core.resource.TestValue;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -290,7 +291,8 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * The domain name for this distribution (i.e. ``abc123893.cloudfront.net``).
      *
      */
-    @Output("abc123.cloudfront.net")
+    @Output
+    @TestValue("abc123.cloudfront.net")
     public String getDomainName() {
         return domainName;
     }

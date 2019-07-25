@@ -1,9 +1,12 @@
 package gyro.aws.s3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.s3.model.LifecycleExpiration;
 
 public class S3LifecycleRuleExpiration extends Diffable implements Copyable<LifecycleExpiration> {
@@ -56,9 +59,14 @@ public class S3LifecycleRuleExpiration extends Diffable implements Copyable<Life
             .build();
     }
 
-    private void validate() {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (getDays() != null && getExpiredObjectDeleteMarker() != null) {
-            throw new GyroException("Param 'days' and 'expired-object-delete-marker' cannot be both set together.");
+            errors.add(new ValidationError(this, null, "Param 'days' and 'expired-object-delete-marker' cannot be both set together."));
         }
+
+        return errors;
     }
 }

@@ -258,6 +258,8 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         setCreateTime(Date.from(response.createTime()));
         setState(response.stateAsString());
 
+        state.save();
+
         if (getAutoEnableIo()) {
             try {
                 client.modifyVolumeAttribute(
@@ -272,10 +274,14 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             }
         }
 
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
+        boolean waitResult = Wait.atMost(40, TimeUnit.SECONDS)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for ebs volume - " + getVolumeId());
+        }
     }
 
     @Override

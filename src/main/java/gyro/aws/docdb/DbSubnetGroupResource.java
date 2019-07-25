@@ -139,7 +139,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     @Override
-    protected void doCreate() {
+    protected void doCreate(GyroUI ui, State state) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(

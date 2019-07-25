@@ -502,10 +502,16 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         setStatus(response.cacheCluster().cacheClusterStatus());
         setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
 
-        Wait.atMost(3, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
+        state.save();
+
+        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
             .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for elasticache cluster - " + getCacheClusterId());
+        }
 
         CacheCluster cacheCluster = getCacheCluster(client);
         List<CacheClusterNode> nodes = new ArrayList<>();
