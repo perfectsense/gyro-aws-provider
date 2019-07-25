@@ -26,8 +26,6 @@ aws::db-event-subscription db-event-subscription-example
 end
 
 aws::sns-topic sns-topic-example
-    attributes: {
-        DisplayName: "sns-topic-example"
-    }
+    display-name: "sns-topic-example"
     name: "sns-topic"
 end

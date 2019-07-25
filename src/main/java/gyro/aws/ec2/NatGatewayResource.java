@@ -219,7 +219,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (!getSubnet().getVpc().getId().equals(getInternetGateway().getVpc().getId())) {
+        if (!getSubnet().getVpc().equals(getInternetGateway().getVpc())) {
             errors.add(new ValidationError(this, null, "The subnet and internet-gateway needs to belong to the same vpc."));
         }
 

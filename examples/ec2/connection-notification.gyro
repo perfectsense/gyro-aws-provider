@@ -36,12 +36,12 @@ aws::network-load-balancer nlb-example
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
-    subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a).id
+    subnet-mapping
+        subnet: $(aws::subnet subnet-us-east-2a)
     end
 
-    subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b).id
+    subnet-mapping
+        subnet: $(aws::subnet subnet-us-east-2b)
     end
 
     tags: {
@@ -51,7 +51,7 @@ end
 
 aws::vpc-endpoint-service endpoint-service-connection-notification-example
     network-load-balancers: [
-        $(aws::network-load-balancer nlb-example-2)
+        $(aws::network-load-balancer nlb-example)
     ]
 end
 
