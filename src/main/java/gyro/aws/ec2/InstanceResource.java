@@ -122,7 +122,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Date launchDate;
 
     /**
-     * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided and launch-template provided with no network interface. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
      */
     public String getAmiId() {
         return amiId;
@@ -133,7 +133,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * The Name of an AMI that would be used to launch the instance. Required if AMI Id not provided. See Amazon Machine Images (AMI) `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
+     * The Name of an AMI that would be used to launch the instance. Required if AMI Id not provided and launch-template provided with no network interface. See Amazon Machine Images (AMI) `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
      */
     public String getAmiName() {
         return amiName;
@@ -392,6 +392,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         this.instanceProfile = instanceProfile;
     }
 
+    /**
+     * The launch template specification to use to create the instance.
+     *
+     * @subresource gyro.core.ec2.LaunchTemplateSpecificationResource
+     */
     public LaunchTemplateSpecificationResource getLaunchTemplate() {
         return launchTemplate;
     }
@@ -573,7 +578,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         RunInstancesRequest request = builder.build();
 
-        createInstance(client, request);
         boolean status = Wait.atMost(60, TimeUnit.SECONDS)
             .prompt(false)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -772,7 +776,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
-        if (getLaunchTemplate() != null && getLaunchTemplate().getLaunchTemplate().getNetworkInterfaces().isEmpty()) {
+        if (getLaunchTemplate() != null && !getLaunchTemplate().getLaunchTemplate().getNetworkInterfaces().isEmpty()) {
             if (getSubnet() == null) {
                 throw new GyroException("Subnet is required when using a launch-template with network interface configured.");
             }
