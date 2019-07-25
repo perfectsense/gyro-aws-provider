@@ -175,7 +175,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -219,7 +219,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb instance - " + getDbInstanceIdentifier());
+            throw new GyroException("Unable to reach 'available' state for docdb instance - " + getIdentifier());
         }
 
         copyFrom(getDbInstance(client));

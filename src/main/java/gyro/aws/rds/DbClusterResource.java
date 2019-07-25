@@ -621,7 +621,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getDbClusterIdentifier());
+            throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getIdentifier());
         }
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(

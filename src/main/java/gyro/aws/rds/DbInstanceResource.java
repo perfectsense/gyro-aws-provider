@@ -842,7 +842,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for rds db instance" + getDbInstanceIdentifier());
+            throw new GyroException("Unable to reach 'available' state for rds db instance" + getIdentifier());
         }
 
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(

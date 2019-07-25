@@ -678,7 +678,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .defaultCooldown(getDefaultCooldown())
                 .healthCheckType(getHealthCheckType())
                 .healthCheckGracePeriod(getHealthCheckGracePeriod())
-                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getLaunchConfigurationName() : null)
+                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
                 .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
                 .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
                 .launchTemplate(
@@ -726,7 +726,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .defaultCooldown(getDefaultCooldown())
                 .healthCheckType(getHealthCheckType())
                 .healthCheckGracePeriod(getHealthCheckGracePeriod())
-                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getLaunchConfigurationName() : null)
+                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
                 .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
                 .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
                 .terminationPolicies(getTerminationPolicies())

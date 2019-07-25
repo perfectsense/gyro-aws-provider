@@ -82,7 +82,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
     //-- Read-only Attributes
 
-    private String dbClusterResourceId;
+    private String id;
     private String status;
     private String arn;
 
@@ -287,12 +287,12 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
      * The id for the db cluster.
      */
     @Output
-    public String getDbClusterResourceId() {
-        return dbClusterResourceId;
+    public String getId() {
+        return id;
     }
 
-    public void setDbClusterResourceId(String dbClusterResourceId) {
-        this.dbClusterResourceId = dbClusterResourceId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -320,7 +320,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -361,7 +361,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
                 .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
         );
 
-        setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
+        setId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
         state.save();
@@ -372,7 +372,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb cluster - " + getDbClusterIdentifier());
+            throw new GyroException("Unable to reach 'available' state for docdb cluster - " + getIdentifier());
         }
     }
 
@@ -446,7 +446,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setStorageEncrypted(dbCluster.storageEncrypted());
         setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
         setStatus(dbCluster.status());
-        setDbClusterResourceId(dbCluster.dbClusterResourceId());
+        setId(dbCluster.dbClusterResourceId());
         setArn(dbCluster.dbClusterArn());
     }
 

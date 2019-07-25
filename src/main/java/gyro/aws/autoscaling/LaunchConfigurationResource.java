@@ -75,7 +75,7 @@ import java.util.stream.Collectors;
 @Type("launch-configuration")
 public class LaunchConfigurationResource extends AwsResource implements Copyable<LaunchConfiguration> {
 
-    private String launchConfigurationName;
+    private String name;
     private InstanceResource instance;
     private String amiId;
     private Boolean ebsOptimized;
@@ -94,12 +94,12 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
      * The name of the launch configuration. (Required)
      */
     @Id
-    public String getLaunchConfigurationName() {
-        return launchConfigurationName;
+    public String getName() {
+        return name;
     }
 
-    public void setLaunchConfigurationName(String launchConfigurationName) {
-        this.launchConfigurationName = launchConfigurationName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -268,7 +268,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
         setEbsOptimized(launchConfiguration.ebsOptimized());
         setArn(launchConfiguration.launchConfigurationARN());
-        setLaunchConfigurationName(launchConfiguration.launchConfigurationName());
+        setName(launchConfiguration.launchConfigurationName());
         setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
         setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
@@ -295,7 +295,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         validate();
 
         CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
-            .launchConfigurationName(getLaunchConfigurationName())
+            .launchConfigurationName(getName())
             .ebsOptimized(getEbsOptimized())
             .imageId(getInstance() == null ? getAmiId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
@@ -348,19 +348,19 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        client.deleteLaunchConfiguration(r -> r.launchConfigurationName(getLaunchConfigurationName()));
+        client.deleteLaunchConfiguration(r -> r.launchConfigurationName(getName()));
     }
 
     private LaunchConfiguration getLaunchConfiguration(AutoScalingClient client) {
         LaunchConfiguration launchConfiguration = null;
 
-        if (ObjectUtils.isBlank(getLaunchConfigurationName())) {
+        if (ObjectUtils.isBlank(getName())) {
             throw new GyroException("name is missing, unable to load launch configuration.");
         }
 
         try {
             DescribeLaunchConfigurationsResponse response = client.describeLaunchConfigurations(
-                r -> r.launchConfigurationNames(getLaunchConfigurationName())
+                r -> r.launchConfigurationNames(getName())
             );
 
             if (!response.launchConfigurations().isEmpty()) {

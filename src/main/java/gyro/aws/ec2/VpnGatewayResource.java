@@ -219,7 +219,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
             .until(() -> isVpcAttached(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to attach vpc " + getVpc().getVpcId() + " with vpn gateway - " + getId());
+            throw new GyroException("Unable to attach vpc " + getVpc().getId() + " with vpn gateway - " + getId());
         }
     }
 

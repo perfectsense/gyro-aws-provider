@@ -280,7 +280,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for ebs volume - " + getVolumeId());
+            throw new GyroException("Unable to reach 'available' state for ebs volume - " + getId());
         }
     }
 

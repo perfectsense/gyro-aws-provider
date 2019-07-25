@@ -510,7 +510,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for elasticache cluster - " + getCacheClusterId());
+            throw new GyroException("Unable to reach 'available' state for elasticache cluster - " + getId());
         }
 
         CacheCluster cacheCluster = getCacheCluster(client);

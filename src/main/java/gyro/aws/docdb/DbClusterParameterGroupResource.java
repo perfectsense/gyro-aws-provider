@@ -153,7 +153,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 

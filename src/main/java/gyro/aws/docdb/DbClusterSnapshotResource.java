@@ -80,7 +80,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -118,7 +118,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb cluster snapshot - " + getDbClusterSnapshotIdentifier());
+            throw new GyroException("Unable to reach 'available' state for docdb cluster snapshot - " + getIdentifier());
         }
     }
 
