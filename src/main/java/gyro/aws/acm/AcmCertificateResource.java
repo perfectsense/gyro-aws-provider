@@ -6,6 +6,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.acmpca.AcmPcaCertificateAuthority;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -19,6 +20,7 @@ import software.amazon.awssdk.services.acm.model.CertificateStatus;
 import software.amazon.awssdk.services.acm.model.CertificateType;
 import software.amazon.awssdk.services.acm.model.DescribeCertificateResponse;
 import software.amazon.awssdk.services.acm.model.FailureReason;
+import software.amazon.awssdk.services.acm.model.InvalidStateException;
 import software.amazon.awssdk.services.acm.model.RenewalEligibility;
 import software.amazon.awssdk.services.acm.model.RequestCertificateResponse;
 import software.amazon.awssdk.services.acm.model.ResourceNotFoundException;
@@ -531,10 +533,14 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
 
         if (changedFieldNames.contains("options")) {
 
-            client.updateCertificateOptions(
-                r -> r.certificateArn(getArn())
-                    .options(getOptions().toCertificateOptions())
-            );
+            try {
+                client.updateCertificateOptions(
+                    r -> r.certificateArn(getArn())
+                        .options(getOptions().toCertificateOptions())
+                );
+            } catch (InvalidStateException ex) {
+                throw new GyroException("The ACM Certificate cannot be updated in its current state - " + getStatus().toString());
+            }
         }
 
         if (changedFieldNames.contains("tags")) {
