@@ -122,7 +122,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Date launchDate;
 
     /**
-     * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided and launch-template provided with no network interface. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The ID of an AMI that would be used to launch the instance. Required if AMI Name and launch-template not provided. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
      */
     public String getAmiId() {
         return amiId;
@@ -133,7 +133,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * The Name of an AMI that would be used to launch the instance. Required if AMI Id not provided and launch-template provided with no network interface. See Amazon Machine Images (AMI) `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
+     * The Name of an AMI that would be used to launch the instance. Required if AMI Id and launch-template not provided. See Amazon Machine Images (AMI) `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
      */
     public String getAmiName() {
         return amiName;
@@ -271,7 +271,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * Launch instance with the subnet specified. See `Vpcs and Subnets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html/>`_. (Required)
+     * Launch instance with the subnet specified. See `Vpcs and Subnets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html/>`_. Required if no launch template used, or launch template with security groups used.
      */
     public SubnetResource getSubnet() {
         return subnet;
@@ -607,7 +607,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             setInstanceState(instance.state().nameAsString());
             setInstanceLaunchDate(Date.from(instance.launchTime()));
             
-            loadVolume(getInstance(client));
+            loadVolume(instance);
         }
     }
 
@@ -776,14 +776,12 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
 
-        if (getLaunchTemplate() != null && !getLaunchTemplate().getLaunchTemplate().getNetworkInterfaces().isEmpty()) {
-            if (getSubnet() == null) {
-                throw new GyroException("Subnet is required when using a launch-template with network interface configured.");
-            }
-        } else {
+        if (getLaunchTemplate() == null) {
             if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
-                throw new GyroException("AMI name cannot be blank when AMI Id is not provided or when launch-template used with no network interface configured.");
+                throw new GyroException("AMI name cannot be blank when AMI Id is not provided or when launch-template is not used.");
             }
+        } else if (getLaunchTemplate().getLaunchTemplate().getNetworkInterfaces().isEmpty() && getSubnet() == null) {
+            throw new GyroException("Subnet is required when using a launch-template with security group configured.");
         }
     }
 
