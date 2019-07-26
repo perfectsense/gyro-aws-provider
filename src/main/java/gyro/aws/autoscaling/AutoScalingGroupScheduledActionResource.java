@@ -7,7 +7,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.Min;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -147,7 +147,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -165,7 +165,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -173,7 +173,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteScheduledAction(

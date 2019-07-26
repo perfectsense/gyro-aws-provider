@@ -8,7 +8,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
@@ -100,7 +100,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
@@ -110,7 +110,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
@@ -128,7 +128,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBClusterSnapshot(

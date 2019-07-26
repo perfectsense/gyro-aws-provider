@@ -9,7 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
@@ -235,7 +235,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         PublishLayerVersionRequest.Builder builder = PublishLayerVersionRequest.builder()
@@ -263,12 +263,12 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource resource, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteLayerVersion(

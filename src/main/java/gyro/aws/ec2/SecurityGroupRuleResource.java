@@ -5,7 +5,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
@@ -167,7 +167,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     }
 
     @Override
-    public final void create(GyroUI ui, State state) {
+    public final void create(GyroUI ui, Context context) {
         validate();
         doCreate();
     }
@@ -175,12 +175,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource implements C
     protected abstract void doCreate();
 
     @Override
-    public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+    public final void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) throws Exception {
         validate();
-        doUpdate(ui, state, current, changedFieldNames);
+        doUpdate(ui, context, current, changedFieldNames);
     }
 
-    protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;
+    protected abstract void doUpdate(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) throws Exception;
 
     public String getGroupId() {
         SecurityGroupResource parent = (SecurityGroupResource) parent();

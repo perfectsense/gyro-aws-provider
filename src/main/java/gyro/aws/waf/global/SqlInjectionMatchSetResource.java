@@ -5,7 +5,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse;
@@ -89,7 +89,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         WafClient client = getGlobalClient();
 
         CreateSqlInjectionMatchSetResponse response = client.createSqlInjectionMatchSet(
@@ -101,7 +101,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         WafClient client = getGlobalClient();
 
         client.deleteSqlInjectionMatchSet(

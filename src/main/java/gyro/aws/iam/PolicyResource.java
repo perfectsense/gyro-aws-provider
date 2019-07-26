@@ -9,7 +9,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
@@ -148,7 +148,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         CreatePolicyResponse response = client.createPolicy(
@@ -162,7 +162,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
@@ -182,7 +182,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
         client.deletePolicy(r -> r.policyArn(this.getArn()));

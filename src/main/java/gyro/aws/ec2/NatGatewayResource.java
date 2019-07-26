@@ -9,7 +9,7 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -125,7 +125,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -138,7 +138,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         NatGateway natGateway = response.natGateway();
         setNatGatewayId(natGateway.natGatewayId());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(7, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -151,12 +151,12 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteNatGateway(

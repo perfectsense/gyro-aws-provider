@@ -12,7 +12,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -781,7 +781,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbInstanceResponse response = client.createDBInstance(
             r -> r.allocatedStorage(getAllocatedStorage())
@@ -834,7 +834,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         setArn(response.dbInstance().dbInstanceArn());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
@@ -932,7 +932,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBInstance(
             r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())

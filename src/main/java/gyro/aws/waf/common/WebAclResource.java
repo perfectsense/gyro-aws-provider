@@ -7,7 +7,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
@@ -120,7 +120,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         CreateWebAclResponse response;
 
         CreateWebAclRequest.Builder builder = CreateWebAclRequest.builder()
@@ -136,7 +136,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         UpdateWebAclRequest.Builder builder = UpdateWebAclRequest.builder()
             .webACLId(getWebAclId())
             .defaultAction(getDefaultAction().toWafAction());

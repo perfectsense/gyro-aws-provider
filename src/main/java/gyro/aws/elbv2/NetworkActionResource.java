@@ -8,7 +8,7 @@ import gyro.core.resource.Resource;
 import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 
 import java.util.Set;
@@ -64,7 +64,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
@@ -74,7 +74,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
@@ -84,7 +84,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {}
+    public void delete(GyroUI ui, Context context) {}
 
     public Action toAction() {
         return Action.builder()

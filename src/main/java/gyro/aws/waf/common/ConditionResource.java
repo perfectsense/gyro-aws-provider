@@ -5,7 +5,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 
 import java.util.Set;
 
@@ -48,16 +48,16 @@ public class ConditionResource extends AbstractWafResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
 
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
 
     }
 

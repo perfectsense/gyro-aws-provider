@@ -6,7 +6,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -105,7 +105,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         // Priority check
         handlePriority();
 
@@ -113,7 +113,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         // Priority check
         handlePriority();
 
@@ -125,7 +125,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         saveActivatedRule(toActivatedRule(), true);
     }
 

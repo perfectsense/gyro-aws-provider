@@ -12,7 +12,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -340,7 +340,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterResponse response = client.createDBCluster(
@@ -364,7 +364,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -405,7 +405,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         DeleteDbClusterRequest.Builder builder = DeleteDbClusterRequest

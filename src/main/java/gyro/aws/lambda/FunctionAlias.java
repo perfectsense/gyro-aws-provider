@@ -9,7 +9,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateAliasRequest;
 import software.amazon.awssdk.services.lambda.model.CreateAliasResponse;
@@ -177,7 +177,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateAliasRequest.Builder builder = CreateAliasRequest.builder()
@@ -201,7 +201,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource resource, Set<String> changedFieldNames) {
         LambdaClient client = createClient(LambdaClient.class);
 
         UpdateAliasRequest.Builder builder = UpdateAliasRequest.builder()
@@ -223,7 +223,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteAlias(

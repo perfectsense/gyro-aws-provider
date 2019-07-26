@@ -12,7 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
@@ -567,7 +567,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         software.amazon.awssdk.services.rds.model.ScalingConfiguration scalingConfiguration = getScalingConfiguration() != null
             ? software.amazon.awssdk.services.rds.model.ScalingConfiguration.builder()
@@ -613,7 +613,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setArn(response.dbCluster().dbClusterArn());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
@@ -692,7 +692,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         if (getGlobalCluster() != null) {
             client.removeFromGlobalCluster(

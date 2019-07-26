@@ -11,7 +11,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequest;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
@@ -288,7 +288,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateEventSourceMappingRequest.Builder builder = CreateEventSourceMappingRequest.builder()
@@ -318,13 +318,13 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
 
         setId(response.uuid());
 
-        state.save();
+        context.save();
 
         waitToSave(client);
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource resource, Set<String> changedFieldNames) {
         if (!getState().equals("Enabled") && !getState().equals("Disabled")) {
             throw new GyroException(String.format("Event source mapping in '%s' state. Please try again.", getState()));
         }
@@ -352,7 +352,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteEventSourceMapping(

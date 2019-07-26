@@ -4,7 +4,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
@@ -81,17 +81,17 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         saveByteMatchTuple(false);
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         saveByteMatchTuple(true);
     }
 

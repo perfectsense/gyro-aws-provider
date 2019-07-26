@@ -11,7 +11,7 @@ import gyro.core.resource.TestValue;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -313,7 +313,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcRequest request = CreateVpcRequest.builder()
@@ -330,25 +330,27 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setInstanceTenancy(vpc.instanceTenancyAsString());
         setRegion(credentials(AwsCredentials.class).getRegion());
 
+        context.save();
         modifySettings(client, new HashSet<>());
+        throw new GyroException("Fail to finish modify vpc!");
     }
 
     @Override
-    public void testCreate(GyroUI ui, State state) throws Exception {
-        super.testCreate(ui, state);
+    public void testCreate(GyroUI ui, Context context) throws Exception {
+        super.testCreate(ui, context);
 
         setInstanceTenancy("default");
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         modifySettings(client, changedProperties);
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         DeleteVpcRequest request = DeleteVpcRequest.builder()

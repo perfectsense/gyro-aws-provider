@@ -12,7 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -302,7 +302,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         S3Client client = createClient(S3Client.class);
 
         client.createBucket(
@@ -337,7 +337,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         S3Client client = createClient(S3Client.class);
 
         if (changedFieldNames.contains("tags")) {
@@ -362,7 +362,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         S3Client client = createClient(S3Client.class);
         client.deleteBucket(
             r -> r.bucket(getName())

@@ -10,7 +10,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
@@ -156,7 +156,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbClusterEndpointResponse response = client.createDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
@@ -177,7 +177,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
@@ -195,7 +195,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())

@@ -13,7 +13,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -522,7 +522,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -566,7 +566,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -591,7 +591,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);
@@ -667,7 +667,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         if (getDisableApiTermination()) {
             throw new GyroException("The instance (" + getInstanceId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }

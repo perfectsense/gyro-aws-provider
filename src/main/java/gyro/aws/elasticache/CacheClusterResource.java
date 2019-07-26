@@ -16,7 +16,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
@@ -470,7 +470,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
@@ -502,7 +502,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         setStatus(response.cacheCluster().cacheClusterStatus());
         setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
@@ -527,7 +527,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
         Set<String> properties = new HashSet<>(changedProperties);
 
@@ -592,7 +592,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheCluster(

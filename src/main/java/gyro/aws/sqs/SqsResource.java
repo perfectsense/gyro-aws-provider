@@ -15,7 +15,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
@@ -371,13 +371,13 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         SqsClient client = createClient(SqsClient.class);
 
         if (ObjectUtils.isBlank(getQueue(client))) {
             createQueue(client);
 
-            state.save();
+            context.save();
 
             // Wait for the queue to be created.
             boolean waitResult = Wait.atMost(4, TimeUnit.MINUTES)
@@ -436,7 +436,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
 
         Map<QueueAttributeName, String> attributeUpdate = new HashMap<>();
 
@@ -460,7 +460,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         SqsClient client = createClient(SqsClient.class);
 
         client.deleteQueue(r -> r.queueUrl(getQueueUrl()));

@@ -6,7 +6,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.docdb.model.Tag;
@@ -48,18 +48,18 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
         return refreshed;
     }
 
-    protected abstract void doCreate(GyroUI ui, State state);
+    protected abstract void doCreate(GyroUI ui, Context context);
 
     @Override
-    public void create(GyroUI ui, State state) {
-        doCreate(ui, state);
+    public void create(GyroUI ui, Context context) {
+        doCreate(ui, context);
         saveTags();
     }
 
     protected abstract void doUpdate(Resource current, Set<String> changedProperties);
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         doUpdate(current, changedProperties);
         saveTags();
     }

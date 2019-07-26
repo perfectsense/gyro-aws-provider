@@ -9,7 +9,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
@@ -249,7 +249,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -276,7 +276,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -290,7 +290,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.cancelCapacityReservation(

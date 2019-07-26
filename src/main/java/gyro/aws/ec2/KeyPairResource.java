@@ -9,7 +9,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeKeyPairsResponse;
@@ -122,7 +122,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         if (ObjectUtils.isBlank(getPublicKey())) {
             setPublicKey(getPublicKeyFromPath());
         }
@@ -138,12 +138,12 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteKeyPair(r -> r.keyName(getKeyName()));

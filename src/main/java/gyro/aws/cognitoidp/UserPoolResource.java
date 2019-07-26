@@ -10,7 +10,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolResponse;
@@ -121,7 +121,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         CreateUserPoolResponse response = client.createUserPool(r -> r.poolName(getName())
@@ -132,10 +132,10 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
 
         client.deleteUserPool(r -> r.userPoolId(getId()));

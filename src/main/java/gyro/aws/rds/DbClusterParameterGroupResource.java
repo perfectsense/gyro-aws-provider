@@ -8,7 +8,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterParameterGroup;
@@ -155,7 +155,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(
             r -> r.dbParameterGroupFamily(getFamily())
@@ -173,7 +173,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()));
     }

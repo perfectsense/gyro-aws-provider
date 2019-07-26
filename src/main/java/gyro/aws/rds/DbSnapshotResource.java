@@ -8,7 +8,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.DBSnapshot;
@@ -117,7 +117,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbSnapshotResponse response = client.createDBSnapshot(
@@ -142,7 +142,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBSnapshot(
             r -> r.dbSnapshotIdentifier(getDbSnapshotIdentifier())

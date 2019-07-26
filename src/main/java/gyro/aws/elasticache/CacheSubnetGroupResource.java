@@ -10,7 +10,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
@@ -109,7 +109,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.createCacheSubnetGroup(
@@ -121,7 +121,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.modifyCacheSubnetGroup(
@@ -132,7 +132,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheSubnetGroup(

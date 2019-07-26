@@ -4,7 +4,7 @@ import gyro.aws.AwsResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.HealthCheck;
 
@@ -109,7 +109,7 @@ public class HealthCheckResource extends AwsResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         client.configureHealthCheck(r ->
@@ -118,12 +118,12 @@ public class HealthCheckResource extends AwsResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        create(ui, state);
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
+        create(ui, context);
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {}
+    public void delete(GyroUI ui, Context context) {}
 
     private HealthCheck toHealthCheck() {
         HealthCheck healthCheck = HealthCheck.builder()

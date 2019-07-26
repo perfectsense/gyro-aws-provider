@@ -13,7 +13,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -580,7 +580,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -651,7 +651,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource resource, Set<String> changedFieldNames) {
         validate();
 
         LambdaClient client = createClient(LambdaClient.class);
@@ -746,7 +746,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteFunction(

@@ -9,7 +9,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateEventSubscriptionResponse;
 import software.amazon.awssdk.services.rds.model.DescribeEventSubscriptionsResponse;
@@ -163,7 +163,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         CreateEventSubscriptionResponse response = client.createEventSubscription(
             r -> r.enabled(getEnabled())
@@ -190,7 +190,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteEventSubscription(
             r -> r.subscriptionName(getSubscriptionName())

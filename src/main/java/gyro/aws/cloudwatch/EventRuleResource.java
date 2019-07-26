@@ -14,7 +14,7 @@ import gyro.core.resource.Resource;
 
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.CloudWatchEventsException;
 import software.amazon.awssdk.services.cloudwatchevents.model.ListRulesResponse;
@@ -220,7 +220,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveRule(client);
@@ -228,14 +228,14 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveRule(client);
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         client.deleteRule(d -> d.force(true).name(getRuleName()));

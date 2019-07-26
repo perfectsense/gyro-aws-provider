@@ -10,7 +10,7 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
@@ -103,7 +103,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
         
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
@@ -116,7 +116,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         setArn(response.loadBalancers().get(0).loadBalancerArn());
         setDnsName(response.loadBalancers().get(0).dnsName());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
                 .checkEvery(30, TimeUnit.SECONDS)
@@ -127,19 +127,19 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
             throw new GyroException("Unable to reach 'Active' state for network load balancer - " + getName());
         }
 
-        super.create(ui, state);
+        super.create(ui, context);
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        super.update(ui, state, current, changedFieldNames);
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
+        super.update(ui, context, current, changedFieldNames);
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
 
-        super.delete(ui, state);
+        super.delete(ui, context);
 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)

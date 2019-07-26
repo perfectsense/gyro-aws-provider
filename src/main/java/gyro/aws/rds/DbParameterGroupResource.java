@@ -8,7 +8,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbParameterGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBParameterGroup;
@@ -158,7 +158,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbParameterGroupResponse response = client.createDBParameterGroup(
             r -> r.dbParameterGroupFamily(getFamily())
@@ -176,7 +176,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBParameterGroup(r -> r.dbParameterGroupName(getName()));
     }

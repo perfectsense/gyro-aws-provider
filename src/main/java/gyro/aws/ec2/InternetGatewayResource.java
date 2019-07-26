@@ -9,7 +9,7 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
@@ -93,7 +93,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateInternetGatewayResponse response = client.createInternetGateway();
@@ -108,12 +108,12 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         InternetGateway internetGateway = getInternetGateway(client);

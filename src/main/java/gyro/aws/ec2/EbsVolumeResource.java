@@ -11,7 +11,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVolumeAttributeResponse;
@@ -239,7 +239,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(true);
@@ -258,7 +258,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         setCreateTime(Date.from(response.createTime()));
         setState(response.stateAsString());
 
-        state.save();
+        context.save();
 
         if (getAutoEnableIo()) {
             try {
@@ -285,7 +285,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate(false);
@@ -314,7 +314,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVolume(

@@ -10,7 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
@@ -219,7 +219,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSubnetRequest request = CreateSubnetRequest.builder()
@@ -261,7 +261,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("network-acl")) {
@@ -289,7 +289,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteSubnet(r -> r.subnetId(getSubnetId()));

@@ -10,7 +10,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
@@ -216,7 +216,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSecurityGroupResponse response = client.createSecurityGroup(
@@ -231,7 +231,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         SecurityGroupResource current = (SecurityGroupResource) config;
 
         if (!current.isKeepDefaultEgressRules() && isKeepDefaultEgressRules()) {
@@ -254,7 +254,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         Wait.atMost(1, TimeUnit.MINUTES)

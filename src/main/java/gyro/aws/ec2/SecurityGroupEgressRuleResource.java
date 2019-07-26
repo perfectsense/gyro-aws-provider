@@ -2,7 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
@@ -16,20 +16,20 @@ public class SecurityGroupEgressRuleResource extends SecurityGroupRuleResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+    public void doUpdate(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedFieldNames.size() == 1 && changedFieldNames.contains("description")) {
             client.updateSecurityGroupRuleDescriptionsEgress(r -> r.groupId(getGroupId()).ipPermissions(getIpPermissionRequest()));
         } else {
-            current.delete(ui, state);
-            create(ui, state);
+            current.delete(ui, context);
+            create(ui, context);
         }
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         delete(client, getGroupId());

@@ -5,7 +5,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
@@ -67,7 +67,7 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         WafRegionalClient client = getRegionalClient();
 
         CreateRateBasedRuleResponse response = client.createRateBasedRule(
@@ -82,7 +82,7 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         WafRegionalClient client = getRegionalClient();
 
         client.updateRateBasedRule(
@@ -94,7 +94,7 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         WafRegionalClient client = getRegionalClient();
 
         client.deleteRateBasedRule(

@@ -11,7 +11,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyInstanceResponse;
@@ -172,7 +172,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
@@ -186,7 +186,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
         setTrafficPolicyInstanceId(trafficPolicyInstance.id());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -199,7 +199,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateTrafficPolicyInstance(
@@ -216,7 +216,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteTrafficPolicyInstance(

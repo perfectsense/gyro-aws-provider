@@ -9,7 +9,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.Range;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -156,7 +156,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -164,7 +164,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         validate();
@@ -172,7 +172,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteLifecycleHook(

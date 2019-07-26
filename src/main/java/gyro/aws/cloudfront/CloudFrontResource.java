@@ -12,7 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehaviors;
@@ -536,7 +536,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
         CreateDistributionResponse response = client.createDistribution(c -> c.distributionConfig(distributionConfig()));
@@ -549,7 +549,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
         UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
@@ -564,7 +564,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
         if (getEnabled()) {

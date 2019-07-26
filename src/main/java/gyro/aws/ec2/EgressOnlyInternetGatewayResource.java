@@ -9,7 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
@@ -85,7 +85,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {
@@ -96,12 +96,12 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
         client.deleteEgressOnlyInternetGateway(r -> r.egressOnlyInternetGatewayId(getGatewayId()));
     }

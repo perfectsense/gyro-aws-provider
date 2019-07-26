@@ -10,7 +10,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 
 import gyro.core.resource.Output;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Address;
 import software.amazon.awssdk.services.ec2.model.AllocateAddressResponse;
@@ -191,7 +191,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         try {
@@ -230,7 +230,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("is-standard-domain")) {
@@ -279,7 +279,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         Address address = getAddress(client);

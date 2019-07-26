@@ -5,7 +5,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
@@ -90,7 +90,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         WafClient client = getGlobalClient();
 
         CreateByteMatchSetResponse response = client.createByteMatchSet(
@@ -102,7 +102,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         WafClient client = getGlobalClient();
 
         client.deleteByteMatchSet(

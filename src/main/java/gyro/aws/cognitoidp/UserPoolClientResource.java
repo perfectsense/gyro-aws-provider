@@ -9,7 +9,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolClientResponse;
@@ -325,7 +325,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         CreateUserPoolClientResponse response = client.createUserPoolClient(r ->
                 r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
@@ -348,7 +348,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         client.updateUserPoolClient(r -> r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
                 .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
@@ -368,7 +368,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
         client.deleteUserPoolClient(r -> r.clientId(getId())
                                             .userPoolId(getUserPool().getId()));

@@ -7,7 +7,7 @@ import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
@@ -202,21 +202,21 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveTarget(client);
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedProperties) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         saveTarget(client);
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
 
         client.removeTargets(r -> r.force(true).rule(getRuleName()).ids(getTargetId()));

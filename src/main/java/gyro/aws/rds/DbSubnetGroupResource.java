@@ -9,7 +9,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBSubnetGroup;
@@ -116,7 +116,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDescription())
@@ -138,7 +138,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBSubnetGroup(
             r -> r.dbSubnetGroupName(getGroupName())

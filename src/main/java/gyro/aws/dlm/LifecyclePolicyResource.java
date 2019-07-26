@@ -11,7 +11,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.dlm.DlmClient;
 import software.amazon.awssdk.services.dlm.model.CreateLifecyclePolicyResponse;
 import software.amazon.awssdk.services.dlm.model.CreateRule;
@@ -338,7 +338,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         DlmClient client = createClient(DlmClient.class);
 
         CreateLifecyclePolicyResponse response = client.createLifecyclePolicy(
@@ -360,7 +360,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         DlmClient client = createClient(DlmClient.class);
 
         client.updateLifecyclePolicy(
@@ -377,7 +377,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         DlmClient client = createClient(DlmClient.class);
 
         client.deleteLifecyclePolicy(

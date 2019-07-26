@@ -12,7 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
@@ -344,7 +344,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, Context context) {
 
         validate();
 
@@ -375,7 +375,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         validate();
 
         ModifyVpcEndpointRequest.Builder builder = ModifyVpcEndpointRequest.builder();
@@ -446,7 +446,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpoints(

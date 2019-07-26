@@ -10,7 +10,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -173,7 +173,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(
@@ -197,7 +197,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         // Check to see if this parameter group is in use. If it's in use and be deleted then

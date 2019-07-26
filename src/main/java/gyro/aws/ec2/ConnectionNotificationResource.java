@@ -10,7 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
@@ -176,7 +176,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -205,7 +205,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, Context context, Resource current, Set<String> changedFieldNames) {
         Ec2Client client = createClient(Ec2Client.class);
 
         validate();
@@ -218,7 +218,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointConnectionNotifications(

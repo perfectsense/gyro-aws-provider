@@ -9,7 +9,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -195,7 +195,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    protected void doCreate(GyroUI ui, State state) {
+    protected void doCreate(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbInstanceResponse response = client.createDBInstance(
@@ -211,7 +211,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
         setArn(response.dbInstance().dbInstanceArn());
 
-        state.save();
+        context.save();
 
         boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
@@ -244,7 +244,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBInstance(

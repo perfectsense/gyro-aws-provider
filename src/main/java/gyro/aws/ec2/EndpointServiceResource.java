@@ -12,7 +12,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.State;
+import gyro.core.diff.Context;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AllowedPrincipal;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointServiceConfigurationResponse;
@@ -259,7 +259,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcEndpointServiceConfigurationResponse response = client.createVpcEndpointServiceConfiguration(
@@ -280,7 +280,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+    protected void doUpdate(GyroUI ui, Context context, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
         EndpointServiceResource currentEndpointService = (EndpointServiceResource) config;
@@ -344,7 +344,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, Context context) {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVpcEndpointServiceConfigurations(
