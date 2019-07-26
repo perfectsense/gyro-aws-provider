@@ -446,10 +446,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
         }
 
-        if (getSecurityGroups().isEmpty() && getNetworkInterfaces().isEmpty()) {
-            throw new GyroException("At least one security group or one network interface is required.");
-        }
-
         if (!getSecurityGroups().isEmpty() && !getNetworkInterfaces().isEmpty()) {
             throw new GyroException("Either security group or network interface is to be provided, not both.");
         }
