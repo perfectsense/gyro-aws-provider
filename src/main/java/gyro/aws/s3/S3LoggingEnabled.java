@@ -10,22 +10,26 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     private String targetBucket;
     private String targetPrefix;
 
+    /**
+     * The target destination bucket for the logs. (Required)
+     */
     @Updatable
     public String getTargetBucket() {
         return targetBucket;
     }
 
-    @Updatable
     public void setTargetBucket(String targetBucket) {
         this.targetBucket = targetBucket;
     }
 
+    /**
+     * The destination prefix on the bucket to place logs.
+     */
     @Updatable
     public String getTargetPrefix() {
         return targetPrefix;
     }
 
-    @Updatable
     public void setTargetPrefix(String targetPrefix) {
         this.targetPrefix = targetPrefix;
     }

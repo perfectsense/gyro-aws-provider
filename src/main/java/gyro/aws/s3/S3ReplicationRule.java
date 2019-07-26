@@ -24,9 +24,6 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
         return destination;
     }
 
-    /**
-     * @return
-     */
     public void setDestination(S3Destination destination) {
         this.destination = destination;
     }
@@ -103,8 +100,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
         this.filter = filter;
     }
     /**
-     * Describes additional filters for the objects which should be replicated. Currently
-     * only supports encrypted objects.
+     * Describes additional filters for the objects which should be replicated. Currently only supports encrypted objects.
      *
      * @subresource gyro.aws.s3.S3SourceSelectionCriteria
      */
