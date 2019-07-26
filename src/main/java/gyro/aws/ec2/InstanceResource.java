@@ -785,7 +785,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
                 throw new GyroException("AMI name cannot be blank when AMI Id is not provided or when launch-template is not used.");
             }
-        } else if (getLaunchTemplate().getLaunchTemplate().getNetworkInterfaces().isEmpty() && getSubnet() == null) {
+        } else if (!getLaunchTemplate().getLaunchTemplate().getSecurityGroups().isEmpty() && getSubnet() == null) {
             throw new GyroException("Subnet is required when using a launch-template with security group configured.");
         }
     }
