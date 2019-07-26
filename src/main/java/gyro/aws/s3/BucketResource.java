@@ -30,6 +30,9 @@ import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.Payer;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.GetBucketLoggingResponse;
+import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
+import software.amazon.awssdk.services.s3.model.GetBucketReplicationResponse;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 
 /**
  * Creates an S3 bucket with enabled/disabled object lock.
@@ -136,6 +140,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
     private String domainName;
+    private S3LoggingEnabled loggingEnabled;
+    private S3ReplicationConfiguration replicationConfiguration;
 
     @Id
     public String getName() {
@@ -273,6 +279,25 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.domainName = domainName;
     }
 
+    @Updatable
+    public S3LoggingEnabled getLoggingEnabled() {
+        return loggingEnabled;
+    }
+
+    public void setLoggingEnabled(S3LoggingEnabled loggingEnabled) {
+        this.loggingEnabled = loggingEnabled;
+    }
+
+
+    @Updatable
+    public S3ReplicationConfiguration getReplicationConfiguration() {
+        return replicationConfiguration;
+    }
+
+    public void setReplicationConfiguration(S3ReplicationConfiguration replicationConfiguration) {
+        this.replicationConfiguration = replicationConfiguration;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -283,6 +308,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
+        loadBucketLogging(client);
+        loadReplicationConfiguration(client);
         setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
@@ -334,6 +361,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (!getLifecycleRule().isEmpty()) {
             saveLifecycleRules(client);
         }
+
+        if(getReplicationConfiguration() != null && getReplicationConfiguration().getReplicationRule().isEmpty()){
+            saveReplicationConfiguration(client);
+        }
+
+        if (getLoggingEnabled() != null){
+            saveBucketLogging(client);
+        }
     }
 
     @Override
@@ -356,9 +391,16 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveRequestPayer(client);
         }
 
+        if(changedFieldNames.contains("logging-enabled")){
+            saveBucketLogging(client);
+        }
+
+        saveReplicationConfiguration(client);
+
         saveCorsRules(client);
 
         saveLifecycleRules(client);
+
     }
 
     @Override
@@ -531,6 +573,33 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         return getCorsRule().stream().allMatch(o -> currentCors.contains(o.primaryKey()));
     }
 
+    private void loadBucketLogging(S3Client client){
+        GetBucketLoggingResponse response = client.getBucketLogging(
+                r -> r.bucket(getName()).build()
+        );
+
+        if(response.loggingEnabled() != null){
+            setLoggingEnabled(newSubresource(S3LoggingEnabled.class));
+            getLoggingEnabled().copyFrom(response.loggingEnabled());
+        }
+    }
+
+    private void saveBucketLogging(S3Client client){
+        if(getLoggingEnabled() != null) {
+            client.putBucketLogging(
+                r -> r.bucket(getName())
+                    .bucketLoggingStatus(s -> s.loggingEnabled(
+                        getLoggingEnabled().toLoggingEnabled()
+                    ))
+            );
+        }else {
+            client.putBucketLogging(
+                r -> r.bucket(getName())
+                    .bucketLoggingStatus(BucketLoggingStatus.builder().build())
+            );
+        }
+    }
+
     private void loadLifecycleRules(S3Client client) {
         try {
             GetBucketLifecycleConfigurationResponse response = client.getBucketLifecycleConfiguration(
@@ -565,8 +634,40 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
+    private void loadReplicationConfiguration(S3Client client){
+        try{
+            GetBucketReplicationResponse response = client.getBucketReplication(
+                r -> r.bucket(getName())
+            );
+
+            if(response.replicationConfiguration() != null){
+                setReplicationConfiguration(newSubresource(S3ReplicationConfiguration.class));
+                getReplicationConfiguration().copyFrom(response.replicationConfiguration());
+            }
+
+        }catch (S3Exception ex){
+            if(!ex.awsErrorDetails().errorCode().equals("ReplicationConfigurationNotFoundError")){
+                throw ex;
+            }
+        }
+    }
+
+    private void saveReplicationConfiguration(S3Client client){
+        if(getReplicationConfiguration() == null || getReplicationConfiguration().getReplicationRule().isEmpty()){
+            client.deleteBucketReplication(
+                    r -> r.bucket(getName())
+            );
+        } else {
+            client.putBucketReplication(
+                    r -> r.bucket(getName())
+                        .replicationConfiguration(getReplicationConfiguration().toReplicationConfiguration())
+            );
+        }
+    }
+
     private String getBucketRegion(S3Client client) {
         GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
         return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
     }
+
 }
