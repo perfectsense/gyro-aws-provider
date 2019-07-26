@@ -10,24 +10,6 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     private String targetBucket;
     private String targetPrefix;
 
-    @Override
-    public void copyFrom(LoggingEnabled loggingEnabled) {
-        setTargetBucket(loggingEnabled.targetBucket());
-        setTargetPrefix(loggingEnabled.targetPrefix());
-    }
-
-    LoggingEnabled toLoggingEnabled(){
-        return LoggingEnabled.builder()
-                .targetBucket(getTargetBucket())
-                .targetPrefix(getTargetPrefix())
-                .build();
-    }
-
-    @Override
-    public String toDisplayString() {
-        return "server access logging";
-    }
-
     @Updatable
     public String getTargetBucket() {
         return targetBucket;
@@ -46,5 +28,23 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     @Updatable
     public void setTargetPrefix(String targetPrefix) {
         this.targetPrefix = targetPrefix;
+    }
+
+    @Override
+    public void copyFrom(LoggingEnabled loggingEnabled) {
+        setTargetBucket(loggingEnabled.targetBucket());
+        setTargetPrefix(loggingEnabled.targetPrefix());
+    }
+
+    LoggingEnabled toLoggingEnabled(){
+        return LoggingEnabled.builder()
+                .targetBucket(getTargetBucket())
+                .targetPrefix(getTargetPrefix())
+                .build();
+    }
+
+    @Override
+    public String toDisplayString() {
+        return "server access logging";
     }
 }
