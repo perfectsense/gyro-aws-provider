@@ -1,5 +1,5 @@
 aws::lambda-layer lambda-layer-example
-    layer-name: "lambda-layer-example"
+    name: "lambda-layer-example"
     description: "lambda-layer-example-desc"
     content-zip-path: "example-function.zip"
     compatible-runtimes: [

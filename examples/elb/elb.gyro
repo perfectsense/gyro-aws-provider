@@ -1,6 +1,6 @@
 
 aws::load-balancer elb
-    load-balancer-name: "elb"
+    name: "elb"
     security-groups: [
         $(aws::security-group security-group)
     ]
@@ -101,7 +101,7 @@ aws::instance instance-us-east-2b
 end
 
 aws::security-group security-group
-    group-name: "elb example - allow web traffic"
+    name: "elb example - allow web traffic"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true

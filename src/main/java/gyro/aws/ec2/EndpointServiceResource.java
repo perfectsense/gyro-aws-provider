@@ -207,6 +207,11 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     @Override
+    protected String getResourceId() {
+        return getId();
+    }
+
+    @Override
     public void copyFrom(ServiceConfiguration serviceConfiguration) {
         setId(serviceConfiguration.serviceId());
         setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
@@ -356,7 +361,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         ServiceConfiguration serviceConfiguration = null;
 
         if (ObjectUtils.isBlank(getId())) {
-            throw new GyroException("service-id is missing, unable to load endpoint service.");
+            throw new GyroException("id is missing, unable to load endpoint service.");
         }
 
         try {

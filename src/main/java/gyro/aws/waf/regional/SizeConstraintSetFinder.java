@@ -54,7 +54,7 @@ public class SizeConstraintSetFinder extends gyro.aws.waf.common.SizeConstraintS
         List<SizeConstraintSet> sizeConstraintSets = new ArrayList<>();
 
         try {
-            sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(filters.get("size-constraint-set-id"))).sizeConstraintSet());
+            sizeConstraintSets.add(client.getSizeConstraintSet(r -> r.sizeConstraintSetId(filters.get("id"))).sizeConstraintSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

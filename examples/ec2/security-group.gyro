@@ -8,7 +8,7 @@ aws::vpc vpc-security-group-example
 end
 
 aws::security-group security-group-example
-    group-name: "$(project) $(environment) - Allow web traffic only"
+    name: "$(project) $(environment) - Allow web traffic only"
     vpc: $(aws::vpc vpc-security-group-example)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
@@ -33,7 +33,7 @@ aws::security-group security-group-example
 end
 
 aws::security-group security-group
-    group-name: "security-group-reference-example"
+    name: "security-group-reference-example"
     vpc: $(aws::vpc vpc-security-group-example)
     description: "Allow sg reference"
     ingress
@@ -59,7 +59,7 @@ aws::vpc vpc-peer
 end
 
 aws::security-group security-group-peer
-    group-name: "security-group-peer"
+    name: "security-group-peer"
     vpc: $(aws::vpc vpc-peer)
     description: "Allow ipv6 outbound"
     egress

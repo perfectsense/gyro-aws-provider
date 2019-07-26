@@ -22,22 +22,22 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    lambda-layer: $(aws::lambda-layer EXTERNAL/* | layer-name = '' and version = '')
+ *    lambda-layer: $(aws::lambda-layer EXTERNAL/* | name = '' and version = '')
  */
 @Type("lambda-layer")
 public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse, LayerResource> {
-    private String layerName;
+    private String name;
     private String version;
 
     /**
      * The layer name.
      */
-    public String getLayerName() {
-        return layerName;
+    public String getName() {
+        return name;
     }
 
-    public void setLayerName(String layerName) {
-        this.layerName = layerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -79,8 +79,8 @@ public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse
     protected List<GetLayerVersionResponse> findAws(LambdaClient client, Map<String, String> filters) {
         List<GetLayerVersionResponse> getLayerVersions = new ArrayList<>();
 
-        if (!filters.containsKey("layer-name")) {
-            throw new IllegalArgumentException("'layer-name' is required.");
+        if (!filters.containsKey("name")) {
+            throw new IllegalArgumentException("'name' is required.");
         }
 
         if (filters.containsKey("version") && !isValidLong(filters.get("version"))) {
@@ -90,10 +90,10 @@ public class LayerFinder extends AwsFinder<LambdaClient, GetLayerVersionResponse
         if (filters.containsKey("version")) {
             getLayerVersions.add(
                 client.getLayerVersion(
-                    r -> r.layerName(filters.get("layer-name"))
+                    r -> r.layerName(filters.get("name"))
                         .versionNumber(Long.parseLong(filters.get("version")))));
         } else {
-            getLayerVersions.addAll(getAllLayerVersions(client, filters.get("layer-name")));
+            getLayerVersions.addAll(getAllLayerVersions(client, filters.get("name")));
         }
 
         return getLayerVersions;

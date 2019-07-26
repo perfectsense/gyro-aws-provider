@@ -19,7 +19,7 @@ aws::subnet subnet
 end
 
 aws::security-group security-group
-    group-name: "instance-example"
+    name: "instance-example"
     vpc: $(aws::vpc vpc)
     description: "instance example"
     keep-default-egress-rules: true
@@ -62,8 +62,8 @@ aws::instance instance-example
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"
-    subnet-id: $(aws::subnet subnet).subnet-id
-    security-group-ids: $(aws::security-group security-group).*.group-id
+    subnet-id: $(aws::subnet subnet).id
+    security-group-ids: $(aws::security-group security-group).*.id
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true

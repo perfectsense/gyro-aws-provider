@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 @Type("nat-gateway")
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implements Copyable<NatGateway> {
 
-    private String natGatewayId;
+    private String id;
     private ElasticIpResource elasticIp;
     private SubnetResource subnet;
     private InternetGatewayResource internetGateway;
@@ -89,22 +89,22 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
      */
     @Id
     @Output
-    public String getNatGatewayId() {
-        return natGatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setNatGatewayId(String natGatewayId) {
-        this.natGatewayId = natGatewayId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
-    protected String getId() {
-        return getNatGatewayId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(NatGateway natGateway) {
-        setNatGatewayId(natGateway.natGatewayId());
+        setId(natGateway.natGatewayId());
         setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
         setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
     }
@@ -131,12 +131,12 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         validate();
 
         CreateNatGatewayResponse response = client.createNatGateway(
-            r -> r.allocationId(getElasticIp().getAllocationId())
-                .subnetId(getSubnet().getSubnetId())
+            r -> r.allocationId(getElasticIp().getId())
+                .subnetId(getSubnet().getId())
         );
 
         NatGateway natGateway = response.natGateway();
-        setNatGatewayId(natGateway.natGatewayId());
+        setId(natGateway.natGatewayId());
 
         state.save();
 
@@ -160,7 +160,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteNatGateway(
-            r -> r.natGatewayId(getNatGatewayId())
+            r -> r.natGatewayId(getId())
         );
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -172,13 +172,13 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     private NatGateway getNatGateway(Ec2Client client) {
         NatGateway natGateway = null;
 
-        if (ObjectUtils.isBlank(getNatGatewayId())) {
-            throw new GyroException("nat-gateway-id is missing, unable to load nat gateway.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load nat gateway.");
         }
 
         try {
             DescribeNatGatewaysResponse response = client.describeNatGateways(
-                r -> r.natGatewayIds(getNatGatewayId())
+                r -> r.natGatewayIds(getId())
                     .maxResults(5)
             );
 
@@ -219,8 +219,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (!getSubnet().getVpc().getVpcId().equals(getInternetGateway().getVpc().getVpcId())) {
-            errors.add(new ValidationError(this, null, "The subnet and intern-gateway needs to belong to the same vpc."));
+        if (!getSubnet().getVpc().equals(getInternetGateway().getVpc())) {
+            errors.add(new ValidationError(this, null, "The subnet and internet-gateway needs to belong to the same vpc."));
         }
 
         return errors;

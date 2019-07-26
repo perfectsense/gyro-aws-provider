@@ -1,12 +1,12 @@
 aws::cloudwatch-event-rule rule-example
-    rule-name: "rule-example"
+    name: "rule-example"
     description: "rule test"
-    schedule-expression: "rate(5 minutes)"
+    schedule-expression: 'rate(5 minutes)'
     state: "ENABLED"
 end
 
 aws::cloudwatch-event-rule event-pattern-example
-    rule-name: "event-pattern-test"
+    name: "event-pattern-test"
     description: "first rule test"
     event-pattern: 'event-pattern.json'
     state: "ENABLED"
@@ -24,9 +24,9 @@ aws::cloudwatch-event-rule event-pattern-example
 end
 
 aws::cloudwatch-event-rule schedule-pattern-example
-    rule-name: "schedule-pattern-test"
+    name: "schedule-pattern-test"
     description: "second rule test"
-    schedule-expression: "rate(5 minutes)"
+    schedule-expression: 'rate(5 minutes)'
     state: "ENABLED"
 
     target

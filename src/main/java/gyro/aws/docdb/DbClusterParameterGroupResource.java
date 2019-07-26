@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * .. code-block:: gyro
  *
  *     aws::docdb-cluster-param-group db-cluster-param-group-example
- *         db-cluster-param-group-name: "db-cluster-param-group-example"
+ *         name: "db-cluster-param-group-example"
  *         db-param-group-family: "docdb3.6"
  *         description: "db-cluster-param-group-desc"
  *
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 @Type("docdb-cluster-param-group")
 public class DbClusterParameterGroupResource extends DocDbTaggableResource implements Copyable<DBClusterParameterGroup> {
 
-    private String dbClusterParamGroupName;
+    private String name;
     private String dbParamGroupFamily;
     private String description;
     private Boolean enableAuditLogs;
@@ -62,12 +62,12 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
      * Name of the db cluster parameter group. (Required)
      */
     @Id
-    public String getDbClusterParamGroupName() {
-        return dbClusterParamGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setDbClusterParamGroupName(String dbClusterParamGroupName) {
-        this.dbClusterParamGroupName = dbClusterParamGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -153,7 +153,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -177,7 +177,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+            r -> r.dbClusterParameterGroupName(getName())
                 .dbParameterGroupFamily(getDbParamGroupFamily())
                 .description(getDescription())
         );
@@ -205,10 +205,10 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         List<DBCluster> clusters = client.describeDBClusters().dbClusters();
 
         boolean using = clusters.stream()
-            .anyMatch(r -> r.dbClusterParameterGroup().equals(getDbClusterParamGroupName()) && r.status().equals("available"));
+            .anyMatch(r -> r.dbClusterParameterGroup().equals(getName()) && r.status().equals("available"));
 
         boolean deleting = clusters.stream()
-            .anyMatch(r -> r.dbClusterParameterGroup().equals(getDbClusterParamGroupName()) && r.status().equals("deleting"));
+            .anyMatch(r -> r.dbClusterParameterGroup().equals(getName()) && r.status().equals("deleting"));
 
         if (using) {
             throw new GyroException("Unable to delete DB Cluster Parameter Group. Group is in use.");
@@ -220,12 +220,12 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
                 .prompt(true)
                 .until(
                     () -> client.describeDBClusters().dbClusters().stream()
-                        .noneMatch(o -> o.dbClusterParameterGroup().equals(getDbClusterParamGroupName()))
+                        .noneMatch(o -> o.dbClusterParameterGroup().equals(getName()))
                 );
         }
 
         client.deleteDBClusterParameterGroup(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+            r -> r.dbClusterParameterGroupName(getName())
         );
     }
 
@@ -234,12 +234,12 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         DocDbClient client = createClient(DocDbClient.class);
 
         setArn(dbClusterParameterGroup.dbClusterParameterGroupArn());
-        setDbClusterParamGroupName(dbClusterParameterGroup.dbClusterParameterGroupName());
+        setName(dbClusterParameterGroup.dbClusterParameterGroupName());
         setDbParamGroupFamily(dbClusterParameterGroup.dbParameterGroupFamily());
         setDescription(dbClusterParameterGroup.description());
 
         DescribeDbClusterParametersResponse response = client.describeDBClusterParameters(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+            r -> r.dbClusterParameterGroupName(getName())
         );
 
         for (Parameter parameter : response.parameters()) {
@@ -259,7 +259,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
 
     private void saveParameters(DocDbClient client) {
         DescribeDbClusterParametersResponse response = client.describeDBClusterParameters(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+            r -> r.dbClusterParameterGroupName(getName())
         );
 
         List<Parameter> parameters = new ArrayList<>();
@@ -282,7 +282,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         }
 
         client.modifyDBClusterParameterGroup(
-            r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+            r -> r.dbClusterParameterGroupName(getName())
                 .parameters(parameters)
         );
     }
@@ -304,13 +304,13 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     private DBClusterParameterGroup getDbClusterParameterGroup(DocDbClient client) {
         DBClusterParameterGroup dbClusterParameterGroup = null;
 
-        if (ObjectUtils.isBlank(getDbClusterParamGroupName())) {
-            throw new GyroException("db-cluster-param-group-name is missing, unable to load db cluster parameter group.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db cluster parameter group.");
         }
 
         try{
             DescribeDbClusterParameterGroupsResponse response = client.describeDBClusterParameterGroups(
-                r -> r.dbClusterParameterGroupName(getDbClusterParamGroupName())
+                r -> r.dbClusterParameterGroupName(getName())
             );
 
             if (!response.dbClusterParameterGroups().isEmpty()) {

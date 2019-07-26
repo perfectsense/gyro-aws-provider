@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::lambda-function lambda-function-example
- *         function-name: "testFunction"
+ *         name: "testFunction"
  *         handler: "index.handler"
  *         runtime: "nodejs8.10"
  *         role: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
  */
 @Type("lambda-function")
 public class FunctionResource extends AwsResource implements Copyable<FunctionConfiguration> {
-    private String functionName;
+    private String name;
     private String description;
     private String s3Bucket;
     private String s3Key;
@@ -103,12 +103,12 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      * The name of the Lambda Function. (Required)
      */
     @Id
-    public String getFunctionName() {
-        return functionName;
+    public String getName() {
+        return name;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -504,7 +504,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
     @Override
     public void copyFrom(FunctionConfiguration configuration) {
-        setFunctionName(configuration.functionName());
+        setName(configuration.functionName());
         setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
         setDescription(configuration.description());
         setRuntime(configuration.runtimeAsString());
@@ -518,7 +518,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
 
         setArn(configuration.functionArn());
-        setArnNoVersion(getArn().replace("function:" + getFunctionName() + ":" + "$LATEST", "function:" + getFunctionName()));
+        setArnNoVersion(getArn().replace("function:" + getName() + ":" + "$LATEST", "function:" + getName()));
         setLastModified(configuration.lastModified());
         setMasterArn(configuration.masterArn());
         setRevisionId(configuration.revisionId());
@@ -555,7 +555,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setVersions(client);
 
         GetFunctionResponse response = client.getFunction(
-            r -> r.functionName(getFunctionName())
+            r -> r.functionName(getName())
         );
 
         setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
@@ -567,7 +567,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
         try {
             GetFunctionResponse response = client.getFunction(
-                r -> r.functionName(getFunctionName())
+                r -> r.functionName(getName())
             );
 
             copyFrom(response.configuration());
@@ -586,7 +586,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         LambdaClient client = createClient(LambdaClient.class);
 
         CreateFunctionRequest.Builder builder = CreateFunctionRequest.builder()
-            .functionName(getFunctionName())
+            .functionName(getName())
             .description(getDescription())
             .runtime(getRuntime())
             .role(getRole().getArn())
@@ -618,11 +618,11 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             builder = builder.vpcConfig(
                 v -> v.securityGroupIds(
                         getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getGroupId)
+                            .map(SecurityGroupResource::getId)
                             .collect(Collectors.toList()))
                     .subnetIds(
                         getSubnets().stream()
-                            .map(SubnetResource::getSubnetId)
+                            .map(SubnetResource::getId)
                             .collect(Collectors.toList()))
             );
         }
@@ -639,7 +639,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         if (getReservedConcurrentExecutions() != null) {
             try {
                 client.putFunctionConcurrency(
-                    r -> r.functionName(getFunctionName())
+                    r -> r.functionName(getName())
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
             } catch (Exception ex) {
@@ -663,12 +663,12 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         if (changeSet.contains("reserved-concurrent-executions")) {
             if (getReservedConcurrentExecutions() != null) {
                 client.putFunctionConcurrency(
-                    r -> r.functionName(getFunctionName())
+                    r -> r.functionName(getName())
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
             } else {
                 client.deleteFunctionConcurrency(
-                    r -> r.functionName(getFunctionName())
+                    r -> r.functionName(getName())
                 );
             }
 
@@ -679,7 +679,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             || changeSet.contains("content-zip-path") || changeSet.contains("file-hash")) {
 
             UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
-                .functionName(getFunctionName())
+                .functionName(getName())
                 .publish(getPublish())
                 .revisionId(getRevisionId());
             if (!ObjectUtils.isBlank(getS3Bucket())) {
@@ -719,7 +719,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
         if (!changeSet.isEmpty()) {
             client.updateFunctionConfiguration(
-                r -> r.functionName(getFunctionName())
+                r -> r.functionName(getName())
                     .description(getDescription())
                     .runtime(getRuntime())
                     .role(getRole().getArn())
@@ -733,11 +733,11 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                     .vpcConfig(
                         v -> v.securityGroupIds(
                             getSecurityGroups().stream()
-                                .map(SecurityGroupResource::getGroupId)
+                                .map(SecurityGroupResource::getId)
                                 .collect(Collectors.toList()))
                             .subnetIds(
                                 getSubnets().stream()
-                                    .map(SubnetResource::getSubnetId)
+                                    .map(SubnetResource::getId)
                                     .collect(Collectors.toList()))
                     )
                     .deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()))
@@ -750,7 +750,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         LambdaClient client = createClient(LambdaClient.class);
 
         client.deleteFunction(
-            r -> r.functionName(getFunctionName())
+            r -> r.functionName(getName())
         );
     }
 
@@ -794,7 +794,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
     private void setVersions(LambdaClient client) {
         ListVersionsByFunctionResponse versionsResponse = client.listVersionsByFunction(
-            r -> r.functionName(getFunctionName())
+            r -> r.functionName(getName())
         );
 
         getVersionMap().clear();

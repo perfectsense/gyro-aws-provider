@@ -22,33 +22,33 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    traffic-policy: $(aws::route53-traffic-policy EXTERNAL/* | traffic-policy-id = '' and traffic-policy-version = '')
+ *    traffic-policy: $(aws::route53-traffic-policy EXTERNAL/* | id = '' and version = '')
  */
 @Type("route53-traffic-policy")
 public class TrafficPolicyFinder extends AwsFinder<Route53Client, TrafficPolicy, TrafficPolicyResource> {
-    private String trafficPolicyId;
-    private String trafficPolicyVersion;
+    private String id;
+    private String version;
 
     /**
      * The ID of the traffic policy.
      */
-    public String getTrafficPolicyId() {
-        return trafficPolicyId;
+    public String getId() {
+        return id;
     }
 
-    public void setTrafficPolicyId(String trafficPolicyId) {
-        this.trafficPolicyId = trafficPolicyId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
      * The version of the traffic policy.
      */
-    public String getTrafficPolicyVersion() {
-        return trafficPolicyVersion;
+    public String getVersion() {
+        return version;
     }
 
-    public void setTrafficPolicyVersion(String trafficPolicyVersion) {
-        this.trafficPolicyVersion = trafficPolicyVersion;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     @Override
@@ -83,16 +83,16 @@ public class TrafficPolicyFinder extends AwsFinder<Route53Client, TrafficPolicy,
     protected List<TrafficPolicy> findAws(Route53Client client, Map<String, String> filters) {
         List<TrafficPolicy> trafficPolicies = new ArrayList<>();
 
-        if (!filters.containsKey("traffic-policy-id") || !filters.containsKey("traffic-policy-version")) {
-            throw new IllegalArgumentException("Both 'traffic-policy-id' and 'traffic-policy-version' are needed.");
+        if (!filters.containsKey("id") || !filters.containsKey("version")) {
+            throw new IllegalArgumentException("Both 'id' and 'version' are needed.");
         }
 
-        if (!isValidVersion(filters.get("traffic-policy-version"))) {
-            throw new IllegalArgumentException("'traffic-policy-version' needs to be a valid integer.");
+        if (!isValidVersion(filters.get("version"))) {
+            throw new IllegalArgumentException("'version' needs to be a valid integer.");
         }
 
         try {
-            GetTrafficPolicyResponse response = client.getTrafficPolicy(r -> r.id(filters.get("traffic-policy-id")).version(Integer.parseInt(filters.get("traffic-policy-version"))));
+            GetTrafficPolicyResponse response = client.getTrafficPolicy(r -> r.id(filters.get("id")).version(Integer.parseInt(filters.get("version"))));
 
             trafficPolicies.add(response.trafficPolicy());
 

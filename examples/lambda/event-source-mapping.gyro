@@ -8,7 +8,7 @@ aws::sqs-queue sqs-event-source-mapping-example
 end
 
 aws::lambda-function lambda-function-event-source-mapping-example-1
-    function-name: "testFunction-event-source-mapping-example-1"
+    name: "testFunction-event-source-mapping-example-1"
     handler: "index.handler"
     runtime: "nodejs8.10"
     role: "arn:aws:iam::242040583208:role/service-role/testFunction-role-pa0mec3c"
@@ -20,7 +20,7 @@ aws::lambda-function lambda-function-event-source-mapping-example-1
 end
 
 aws::lambda-function lambda-function-event-source-mapping-example-2
-    function-name: "testFunction-event-source-mapping-example-2"
+    name: "testFunction-event-source-mapping-example-2"
     handler: "index.handler"
     runtime: "nodejs8.10"
     role: "arn:aws:iam::242040583208:role/service-role/testFunction-role-pa0mec3c"
@@ -32,7 +32,7 @@ aws::lambda-function lambda-function-event-source-mapping-example-2
 end
 
 aws::lambda-alias lambda-alias-example
-    alias-name: "lambda-alias-example"
+    name: "lambda-alias-example"
     function: $(aws::lambda-function lambda-function-event-source-mapping-example-1)
     function-version: "3"
     description: "lambda-alias-example"
@@ -44,7 +44,7 @@ aws::lambda-event-source-mapping event-source-mapping-example-1
     function: $(aws::lambda-function lambda-function-event-source-mapping-example-2)
     batch-size: 2
     enabled: true
-    event-source-arn: "\($(aws::sqs-queue sqs-event-source-mapping-example).queue-arn)"
+    event-source-arn: "\($(aws::sqs-queue sqs-event-source-mapping-example).arn)"
 end
 
 aws::lambda-event-source-mapping event-source-mapping-example-2
@@ -52,12 +52,12 @@ aws::lambda-event-source-mapping event-source-mapping-example-2
     function-version: 2
     batch-size: 2
     enabled: true
-    event-source-arn: "\($(aws::sqs-queue sqs-event-source-mapping-example).queue-arn)"
+    event-source-arn: "\($(aws::sqs-queue sqs-event-source-mapping-example).arn)"
 end
 
 aws::lambda-event-source-mapping event-source-mapping-example-3
     alias: $(aws::lambda-alias lambda-alias-example)
     batch-size: 2
     enabled: true
-    event-source-arn: "\($(aws::sqs-queue sqs-event-source-mapping-example).queue-arn)"
+    event-source-arn: "\($(aws::sqs-queue sqs-event-source-mapping-example).arn)"
 end

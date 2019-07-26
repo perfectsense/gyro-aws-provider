@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  *    aws::db-instance db-instance-example
  *        allocated-storage: 20
- *        db-instance-identifier: "db-instance-example"
+ *        identifier: "db-instance-example"
  *        storage-type: "gp2"
  *        engine: "mysql"
  *        engine-version: "5.7"
@@ -62,7 +62,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private Boolean copyTagsToSnapshot;
     private DbClusterResource dbCluster;
     private String dbInstanceClass;
-    private String dbInstanceIdentifier;
+    private String identifier;
     private String dbName;
     private DbParameterGroupResource dbParameterGroup;
     private List<String> dbSecurityGroups;
@@ -226,12 +226,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The unique name of the DB instance. (Required)
      */
     @Id
-    public String getDbInstanceIdentifier() {
-        return dbInstanceIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDbInstanceIdentifier(String dbInstanceIdentifier) {
-        this.dbInstanceIdentifier = dbInstanceIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -691,7 +691,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
         setDbCluster(instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) : null);
         setDbInstanceClass(instance.dbInstanceClass());
-        setDbInstanceIdentifier(instance.dbInstanceIdentifier());
+        setIdentifier(instance.dbInstanceIdentifier());
         setDbName(instance.dbName());
 
         setDbParameterGroup(instance.dbParameterGroups().stream()
@@ -762,13 +762,13 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     public boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getDbInstanceIdentifier())) {
-            throw new GyroException("db-instance-identifier is missing, unable to load db instance.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db instance.");
         }
 
         try {
             DescribeDbInstancesResponse response = client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getIdentifier())
             );
 
             response.dbInstances().forEach(this::copyFrom);
@@ -790,13 +790,13 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getDbClusterIdentifier() : null)
+                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getIdentifier() : null)
                     .dbInstanceClass(getDbInstanceClass())
-                    .dbInstanceIdentifier(getDbInstanceIdentifier())
+                    .dbInstanceIdentifier(getIdentifier())
                     .dbName(getDbName())
                     .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
                     .dbSecurityGroups(getDbSecurityGroups())
-                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null)
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
                     .deletionProtection(getDeletionProtection())
                     .domain(getDomain())
                     .domainIAMRoleName(getDomainIamRoleName())
@@ -806,7 +806,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
                     .iops(getIops())
-                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyArn() : null)
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .licenseModel(getLicenseModel())
                     .masterUsername(getMasterUsername())
                     .masterUserPassword(getMasterUserPassword())
@@ -814,7 +814,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .monitoringRoleArn(getMonitoringRoleArn())
                     .multiAZ(getMultiAz())
                     .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
-                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null)
+                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null)
                     .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
                     .port(getPort())
                     .preferredBackupWindow(getPreferredBackupWindow())
@@ -828,7 +828,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .timezone(getTimezone())
                     .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
                         .stream()
-                        .map(SecurityGroupResource::getGroupId)
+                        .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
         );
 
@@ -842,11 +842,11 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for rds db instance" + getDbInstanceIdentifier());
+            throw new GyroException("Unable to reach 'available' state for rds db instance" + getIdentifier());
         }
 
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            r -> r.dbInstanceIdentifier(getIdentifier())
         );
 
         setEndpointAddress(describeResponse.dbInstances().get(0).endpoint().address());
@@ -854,7 +854,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
     private boolean isAvailable(RdsClient client) {
         DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            r -> r.dbInstanceIdentifier(getIdentifier())
         );
 
         return describeResponse.dbInstances().get(0).dbInstanceStatus().equals("available");
@@ -866,12 +866,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         DbInstanceResource current = (DbInstanceResource) config;
 
         String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
-        String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getGroupName() : null;
+        String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null;
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
-        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getKeyArn() : null;
+        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList()) : null;
 
         try {
@@ -887,7 +887,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
                     .copyTagsToSnapshot(Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null : getCopyTagsToSnapshot())
                     .dbInstanceClass(Objects.equals(getDbInstanceClass(), current.getDbInstanceClass()) ? null : getDbInstanceClass())
-                    .dbInstanceIdentifier(getDbInstanceIdentifier())
+                    .dbInstanceIdentifier(getIdentifier())
                     .dbParameterGroupName(Objects.equals(getDbParameterGroup(), current.getDbParameterGroup())
                         ? null : parameterGroupName)
                     .dbSecurityGroups(Objects.equals(getDbSecurityGroups(), current.getDbSecurityGroups()) ? null : getDbSecurityGroups())
@@ -935,7 +935,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBInstance(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            r -> r.dbInstanceIdentifier(getIdentifier())
                     .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
                     .skipFinalSnapshot(getSkipFinalSnapshot())
                     .deleteAutomatedBackups(getDeleteAutomatedBackups())
@@ -950,7 +950,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private boolean isDeleted(RdsClient client) {
         try {
             client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getIdentifier())
             );
 
         } catch (DbInstanceNotFoundException ex) {
@@ -959,5 +959,4 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         return false;
     }
-
 }

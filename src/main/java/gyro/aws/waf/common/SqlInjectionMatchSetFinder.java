@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.SqlInjectionMatchSet;
 
 abstract public class SqlInjectionMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, SqlInjectionMatchSet, U> {
-    private String sqlInjectionMatchSetId;
+    private String id;
 
     /**
      * The ID of sql injection match set.
      */
-    public String getSqlInjectionMatchSetId() {
-        return sqlInjectionMatchSetId;
+    public String getId() {
+        return id;
     }
 
-    public void setSqlInjectionMatchSetId(String sqlInjectionMatchSetId) {
-        this.sqlInjectionMatchSetId = sqlInjectionMatchSetId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

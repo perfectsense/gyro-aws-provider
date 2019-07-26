@@ -267,16 +267,16 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
                 throw new GyroException(String.format("Hosted zone %s is a private zone and must have at least one VPC.", getName()));
             }
 
-            Set<String> pendingVpcIds = getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
-            List<VPC> deleteVpcs = currentHostedZone.getVpcs().stream().filter(o -> !pendingVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
+            Set<String> pendingVpcIds = getVpcs().stream().map(VpcResource::getId).collect(Collectors.toSet());
+            List<VPC> deleteVpcs = currentHostedZone.getVpcs().stream().filter(o -> !pendingVpcIds.contains(o.getId())).map(this::getVpc).collect(Collectors.toList());
             for (VPC vpc : deleteVpcs) {
                 client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
             }
 
 
             try {
-                Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getVpcId).collect(Collectors.toSet());
-                List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getVpcId())).map(this::getVpc).collect(Collectors.toList());
+                Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getId).collect(Collectors.toSet());
+                List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getId())).map(this::getVpc).collect(Collectors.toList());
                 for (VPC vpc : addVpcs) {
                     client.associateVPCWithHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
                 }
@@ -322,7 +322,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
         return vpcResource == null
             ? null
             : VPC.builder()
-            .vpcId(vpcResource.getVpcId())
+            .vpcId(vpcResource.getId())
             .vpcRegion(vpcResource.getRegion())
             .build();
     }

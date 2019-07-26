@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.WebACL;
 
 abstract public class WebAclFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, WebACL, U> {
-    private String webAclId;
+    private String id;
 
     /**
      * The ID of web acl.
      */
-    public String getWebAclId() {
-        return webAclId;
+    public String getId() {
+        return id;
     }
 
-    public void setWebAclId(String webAclId) {
-        this.webAclId = webAclId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

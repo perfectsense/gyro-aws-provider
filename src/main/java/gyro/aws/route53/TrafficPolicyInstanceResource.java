@@ -49,7 +49,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     private String type;
     private Long ttl;
     private String state;
-    private String trafficPolicyInstanceId;
+    private String id;
 
     /**
      * Name of the Traffic Policy Instance. (Required)
@@ -137,17 +137,17 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
      */
     @Id
     @Output
-    public String getTrafficPolicyInstanceId() {
-        return trafficPolicyInstanceId;
+    public String getId() {
+        return id;
     }
 
-    public void setTrafficPolicyInstanceId(String trafficPolicyInstanceId) {
-        this.trafficPolicyInstanceId = trafficPolicyInstanceId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public void copyFrom(TrafficPolicyInstance trafficPolicyInstance) {
-        setTrafficPolicyInstanceId(trafficPolicyInstance.id());
+        setId(trafficPolicyInstance.id());
         setMessage(trafficPolicyInstance.message());
         setHostedZone(findById(HostedZoneResource.class, trafficPolicyInstance.hostedZoneId()));
         setType(trafficPolicyInstance.trafficPolicyTypeAsString());
@@ -178,13 +178,13 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
             r -> r.name(getName() + getHostedZone().getName())
                 .hostedZoneId(getHostedZone().getId())
-                .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
+                .trafficPolicyId(getTrafficPolicy().getId())
                 .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
         );
 
         TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
-        setTrafficPolicyInstanceId(trafficPolicyInstance.id());
+        setId(trafficPolicyInstance.id());
 
         state.save();
 
@@ -203,8 +203,8 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.updateTrafficPolicyInstance(
-            r -> r.id(getTrafficPolicyInstanceId())
-                .trafficPolicyId(getTrafficPolicy().getTrafficPolicyId())
+            r -> r.id(getId())
+                .trafficPolicyId(getTrafficPolicy().getId())
                 .trafficPolicyVersion(getTrafficPolicy().getVersion())
                 .ttl(getTtl())
         );
@@ -220,7 +220,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteTrafficPolicyInstance(
-            r -> r.id(getTrafficPolicyInstanceId())
+            r -> r.id(getId())
         );
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -232,13 +232,13 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     private TrafficPolicyInstance getTrafficPolicyInstance(Route53Client client) {
         TrafficPolicyInstance trafficPolicyInstance = null;
 
-        if (ObjectUtils.isBlank(getTrafficPolicyInstanceId())) {
-            throw new GyroException("traffic-policy-instance-id is missing, unable to load traffic policy instance.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load traffic policy instance.");
         }
 
         try {
             GetTrafficPolicyInstanceResponse response = client.getTrafficPolicyInstance(
-                r -> r.id(getTrafficPolicyInstanceId())
+                r -> r.id(getId())
             );
 
             trafficPolicyInstance = response.trafficPolicyInstance();

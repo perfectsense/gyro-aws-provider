@@ -1,5 +1,5 @@
 aws::lambda-function lambda-function-alias-example
-    function-name: "lambda-function-alias-example"
+    name: "lambda-function-alias-example"
     handler: "index.handler"
     runtime: "nodejs8.10"
     role: "arn:aws:iam::242040583208:role/service-role/testFunction-role-pa0mec3c"
@@ -11,7 +11,7 @@ aws::lambda-function lambda-function-alias-example
 end
 
 aws::lambda-alias lambda-alias-example
-    alias-name: "lambda-alias-example"
+    name: "lambda-alias-example"
     function: $(aws::lambda-function lambda-function-alias-example)
     function-version: "10"
     description: "lambda-alias-example"

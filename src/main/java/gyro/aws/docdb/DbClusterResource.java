@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::docdb-cluster db-cluster-example
- *         db-cluster-identifier: "db-cluster-example"
+ *         identifier: "db-cluster-example"
  *         db-subnet-group: $(aws::db-subnet-group db-subnet-group-db-cluster-example)
  *         engine: "docdb"
  *         engine-version: "3.6.0"
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 public class DbClusterResource extends DocDbTaggableResource implements Copyable<DBCluster> {
 
     private Integer backupRetentionPeriod;
-    private String dbClusterIdentifier;
+    private String identifier;
     private DbSubnetGroupResource dbSubnetGroup;
     private String engine;
     private String engineVersion;
@@ -82,7 +82,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
     //-- Read-only Attributes
 
-    private String dbClusterResourceId;
+    private String id;
     private String status;
     private String arn;
 
@@ -102,12 +102,12 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
      * Name of the cluster. (Required)
      */
     @Id
-    public String getDbClusterIdentifier() {
-        return dbClusterIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDbClusterIdentifier(String dbClusterIdentifier) {
-        this.dbClusterIdentifier = dbClusterIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -287,12 +287,12 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
      * The id for the db cluster.
      */
     @Output
-    public String getDbClusterResourceId() {
-        return dbClusterResourceId;
+    public String getId() {
+        return id;
     }
 
-    public void setDbClusterResourceId(String dbClusterResourceId) {
-        this.dbClusterResourceId = dbClusterResourceId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -320,7 +320,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -345,23 +345,23 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
         CreateDbClusterResponse response = client.createDBCluster(
             o -> o.backupRetentionPeriod(getBackupRetentionPeriod())
-                .dbClusterIdentifier(getDbClusterIdentifier())
-                .dbSubnetGroupName(getDbSubnetGroup().getDbSubnetGroupName())
+                .dbClusterIdentifier(getIdentifier())
+                .dbSubnetGroupName(getDbSubnetGroup().getName())
                 .engine(getEngine())
                 .engineVersion(getEngineVersion())
-                .dbClusterParameterGroupName(getDbClusterParamGroup().getDbClusterParamGroupName())
-                .kmsKeyId(getKmsKey() != null ? getKmsKey().getKeyId() : null)
+                .dbClusterParameterGroupName(getDbClusterParamGroup().getName())
+                .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
                 .masterUsername(getMasterUsername())
                 .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
                 .storageEncrypted(getStorageEncrypted())
                 .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
         );
 
-        setDbClusterResourceId(response.dbCluster().dbClusterResourceId());
+        setId(response.dbCluster().dbClusterResourceId());
         setArn(response.dbCluster().dbClusterArn());
 
         state.save();
@@ -372,7 +372,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb cluster - " + getDbClusterIdentifier());
+            throw new GyroException("Unable to reach 'available' state for docdb cluster - " + getIdentifier());
         }
     }
 
@@ -384,13 +384,13 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
         ModifyDbClusterRequest.Builder builder = ModifyDbClusterRequest.builder()
             .backupRetentionPeriod(getBackupRetentionPeriod())
-            .dbClusterIdentifier(getDbClusterIdentifier())
-            .dbClusterParameterGroupName(getDbClusterParamGroup().getDbClusterParamGroupName())
+            .dbClusterIdentifier(getIdentifier())
+            .dbClusterParameterGroupName(getDbClusterParamGroup().getName())
             .masterUserPassword(getMasterUserPassword())
             .port(getPort())
             .preferredBackupWindow(getPreferredBackupWindow())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
+            .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
 
         if (!resource.getEngineVersion().equals(getEngineVersion())) {
             builder.engineVersion(getEngineVersion());
@@ -410,7 +410,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
         DeleteDbClusterRequest.Builder builder = DeleteDbClusterRequest
             .builder()
-            .dbClusterIdentifier(getDbClusterIdentifier());
+            .dbClusterIdentifier(getIdentifier());
 
         if (ObjectUtils.isBlank(getPostDeleteSnapshotIdentifier())) {
             builder.skipFinalSnapshot(true);
@@ -431,12 +431,12 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     public void copyFrom(DBCluster dbCluster) {
 
         setBackupRetentionPeriod(dbCluster.backupRetentionPeriod());
-        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setIdentifier(dbCluster.dbClusterIdentifier());
         setDbSubnetGroup(findById(DbSubnetGroupResource.class, dbCluster.dbSubnetGroup()));
         setEngine(dbCluster.engine());
         setEngineVersion(dbCluster.engineVersion());
         setDbClusterParamGroup(findById(DbClusterParameterGroupResource.class, dbCluster.dbClusterParameterGroup()));
-        setDbClusterIdentifier(dbCluster.dbClusterIdentifier());
+        setIdentifier(dbCluster.dbClusterIdentifier());
         setKmsKey(findById(KmsKeyResource.class, dbCluster.kmsKeyId()));
         setMasterUsername(dbCluster.masterUsername());
         setPort(dbCluster.port());
@@ -446,7 +446,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
         setStorageEncrypted(dbCluster.storageEncrypted());
         setEnableCloudwatchLogsExports(dbCluster.enabledCloudwatchLogsExports().isEmpty() ? new ArrayList<>() : dbCluster.enabledCloudwatchLogsExports());
         setStatus(dbCluster.status());
-        setDbClusterResourceId(dbCluster.dbClusterResourceId());
+        setId(dbCluster.dbClusterResourceId());
         setArn(dbCluster.dbClusterArn());
     }
 
@@ -459,13 +459,13 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private DBCluster getDbCluster(DocDbClient client) {
         DBCluster dbCluster = null;
 
-        if (ObjectUtils.isBlank(getDbClusterIdentifier())) {
-            throw new GyroException("db-cluster-identifier is missing, unable to load db cluster.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db cluster.");
         }
 
         try {
             DescribeDbClustersResponse response = client.describeDBClusters(
-                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
+                r -> r.dbClusterIdentifier(getIdentifier())
             );
 
             if (!response.dbClusters().isEmpty()) {
