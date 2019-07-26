@@ -404,7 +404,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     @Override
     public void create(GyroUI ui, State state) {
-        validate();
+        localValidate();
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
@@ -419,7 +419,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        validate();
+        localValidate();
 
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
@@ -565,10 +565,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                 errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
                     + " Valid values [ Long 0 - 172800 ]."));
             }
-
-            if (getRecords().isEmpty()) {
-                errors.add(new ValidationError(this, null, "The param 'records' is required when 'enable-alias' is set to 'false' or not set."));
-            }
         }
 
         if (!getRoutingPolicy().equals("geolocation")) {
@@ -626,5 +622,11 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         }
 
         return errors;
+    }
+
+    private void localValidate() {
+        if (!getEnableAlias() && getRecords().isEmpty()) {
+            throw new GyroException("The param 'records' is required when 'enable-alias' is set to 'false' or not set.");
+        }
     }
 }
