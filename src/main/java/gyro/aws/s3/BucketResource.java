@@ -122,6 +122,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private List<S3LifecycleRule> lifecycleRule;
     private String domainName;
     private S3LoggingEnabled loggingEnabled;
+    private S3ReplicationConfiguration replicationConfiguration;
 
     @Id
     public String getName() {
@@ -268,6 +269,16 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.loggingEnabled = loggingEnabled;
     }
 
+
+    @Updatable
+    public S3ReplicationConfiguration getReplicationConfiguration() {
+        return replicationConfiguration;
+    }
+
+    public void setReplicationConfiguration(S3ReplicationConfiguration replicationConfiguration) {
+        this.replicationConfiguration = replicationConfiguration;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -279,6 +290,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadCorsRules(client);
         loadLifecycleRules(client);
         loadBucketLogging(client);
+        loadReplicationConfiguration(client);
         setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
@@ -331,6 +343,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveLifecycleRules(client);
         }
 
+        if(getReplicationConfiguration() != null && getReplicationConfiguration().getReplicationRule().isEmpty()){
+            saveReplicationConfiguration(client);
+        }
+
         if (getLoggingEnabled() != null){
             saveBucketLogging(client);
         }
@@ -360,9 +376,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveBucketLogging(client);
         }
 
+        saveReplicationConfiguration(client);
+
         saveCorsRules(client);
 
         saveLifecycleRules(client);
+
     }
 
     @Override
@@ -609,8 +628,40 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
+    private void loadReplicationConfiguration(S3Client client){
+        try{
+            GetBucketReplicationResponse response = client.getBucketReplication(
+                r -> r.bucket(getName())
+            );
+
+            if(response.replicationConfiguration() != null){
+                setReplicationConfiguration(newSubresource(S3ReplicationConfiguration.class));
+                getReplicationConfiguration().copyFrom(response.replicationConfiguration());
+            }
+
+        }catch (S3Exception ex){
+            if(!ex.awsErrorDetails().errorCode().equals("ReplicationConfigurationNotFoundError")){
+                throw ex;
+            }
+        }
+    }
+
+    private void saveReplicationConfiguration(S3Client client){
+        if(getReplicationConfiguration() == null || getReplicationConfiguration().getReplicationRule().isEmpty()){
+            client.deleteBucketReplication(
+                    r -> r.bucket(getName())
+            );
+        } else {
+            client.putBucketReplication(
+                    r -> r.bucket(getName())
+                        .replicationConfiguration(getReplicationConfiguration().toReplicationConfiguration())
+            );
+        }
+    }
+
     private String getBucketRegion(S3Client client) {
         GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
         return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
     }
+
 }
