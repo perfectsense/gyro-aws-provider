@@ -25,7 +25,7 @@ aws::subnet subnet-us-east-2b
 end
 
 aws::db-subnet-group db-subnet-group
-    group-name: "db-subnet-group-example"
+    name: "db-subnet-group-example"
     description: "db subnet group description"
     subnets: [
         $(aws::subnet subnet-us-east-2a),

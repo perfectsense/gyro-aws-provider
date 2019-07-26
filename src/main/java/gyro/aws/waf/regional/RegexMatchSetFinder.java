@@ -54,7 +54,7 @@ public class RegexMatchSetFinder extends gyro.aws.waf.common.RegexMatchSetFinder
         List<RegexMatchSet> regexMatchSets = new ArrayList<>();
 
         try {
-            regexMatchSets.add(client.getRegexMatchSet(r -> r.regexMatchSetId(filters.get("regex-match-set-id"))).regexMatchSet());
+            regexMatchSets.add(client.getRegexMatchSet(r -> r.regexMatchSetId(filters.get("id"))).regexMatchSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

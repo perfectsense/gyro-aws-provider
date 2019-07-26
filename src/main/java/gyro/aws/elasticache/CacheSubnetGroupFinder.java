@@ -16,22 +16,22 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-subnet-groups: $(aws::elasticache-subnet-group EXTERNAL/* | cache-subnet-group-name = 'cache-subnet-group-example')
+ *    cache-subnet-groups: $(aws::elasticache-subnet-group EXTERNAL/* | name = 'cache-subnet-group-example')
  */
 @Type("elasticache-subnet-group")
 public class CacheSubnetGroupFinder extends AwsFinder<ElastiCacheClient, CacheSubnetGroup, CacheSubnetGroupResource> {
 
-    private String cacheSubnetGroupName;
+    private String name;
 
     /**
      * The name of the cache subnet group.
      */
-    public String getCacheSubnetGroupName() {
-        return cacheSubnetGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setCacheSubnetGroupName(String cacheSubnetGroupName) {
-        this.cacheSubnetGroupName = cacheSubnetGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class CacheSubnetGroupFinder extends AwsFinder<ElastiCacheClient, CacheSu
     @Override
     protected List<CacheSubnetGroup> findAws(ElastiCacheClient client, Map<String, String> filters) {
         try {
-            return client.describeCacheSubnetGroups(r -> r.cacheSubnetGroupName(filters.get("cache-subnet-group-name"))).cacheSubnetGroups();
+            return client.describeCacheSubnetGroups(r -> r.cacheSubnetGroupName(filters.get("name"))).cacheSubnetGroups();
         } catch (CacheSubnetGroupNotFoundException ex) {
             return Collections.emptyList();
         }

@@ -136,7 +136,7 @@ aws::route-table route-table-example-for-endpoint-3
 end
 
 aws::security-group security-group-example-for-endpoint-1
-    group-name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-1"
+    name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-1"
     vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
@@ -161,7 +161,7 @@ aws::security-group security-group-example-for-endpoint-1
 end
 
 aws::security-group security-group-example-for-endpoint-2
-    group-name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-2"
+    name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-2"
     vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
     keep-default-egress-rules: true
@@ -186,7 +186,7 @@ aws::security-group security-group-example-for-endpoint-2
 end
 
 aws::security-group security-group-example-for-endpoint-3
-    group-name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-3"
+    name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-3"
     vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
     keep-default-egress-rules: true

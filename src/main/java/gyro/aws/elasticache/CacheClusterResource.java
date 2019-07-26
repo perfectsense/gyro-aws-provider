@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *
  *     aws::elasticache-cluster cache-cluster-example
  *         az-mode: "cross-az"
- *         cache-cluster-id: "cache-cluster-ex-1"
+ *         id: "cache-cluster-ex-1"
  *         cache-node-type: "cache.t2.micro"
  *         cache-param-group: $(aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example)
  *         cache-subnet-group: $(aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example)
@@ -76,7 +76,7 @@ import java.util.stream.Collectors;
 @Type("elasticache-cluster")
 public class CacheClusterResource extends AwsResource implements Copyable<CacheCluster> {
     private String azMode;
-    private String cacheClusterId;
+    private String id;
     private String cacheNodeType;
     private CacheParameterGroupResource cacheParamGroup;
     private List<String> cacheSecurityGroupNames;
@@ -117,12 +117,12 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
      * The name of the cache cluster. (Required)
      */
     @Id
-    public String getCacheClusterId() {
-        return cacheClusterId;
+    public String getId() {
+        return id;
     }
 
-    public void setCacheClusterId(String cacheClusterId) {
-        this.cacheClusterId = cacheClusterId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -418,7 +418,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     @Override
     public void copyFrom(CacheCluster cacheCluster) {
-        setCacheClusterId(cacheCluster.cacheClusterId());
+        setId(cacheCluster.cacheClusterId());
         setCacheNodeType(cacheCluster.cacheNodeType());
         setCacheParamGroup(findById(CacheParameterGroupResource.class, cacheCluster.cacheParameterGroup().cacheParameterGroupName()));
         setCacheSecurityGroupNames(cacheCluster.cacheSecurityGroups().stream().map(CacheSecurityGroupMembership::cacheSecurityGroupName).collect(Collectors.toList()));
@@ -444,7 +444,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         setNodes(nodes);
         setAzMode(cacheCluster.preferredAvailabilityZone().equalsIgnoreCase("multiple") ? "cross-az" : "single-az");
-        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
+        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getId());
         setStatus(cacheCluster.cacheClusterStatus());
 
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
@@ -475,11 +475,11 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
             .azMode(getAzMode())
-            .cacheClusterId(getCacheClusterId())
+            .cacheClusterId(getId())
             .cacheNodeType(getCacheNodeType())
-            .cacheParameterGroupName(getCacheParamGroup().getCacheParamGroupName())
+            .cacheParameterGroupName(getCacheParamGroup().getName())
             .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-            .cacheSubnetGroupName(getCacheSubnetGroup().getCacheSubnetGroupName())
+            .cacheSubnetGroupName(getCacheSubnetGroup().getName())
             .engine(getEngine())
             .engineVersion(getEngineVersion())
             .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
@@ -487,7 +487,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .port(getPort())
             .preferredAvailabilityZones(getPreferredAvailabilityZones())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
             .tags(toCacheTags(getTags()));
 
         if (("redis").equalsIgnoreCase(getEngine())) {
@@ -500,7 +500,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         CreateCacheClusterResponse response = client.createCacheCluster(builder.build());
 
         setStatus(response.cacheCluster().cacheClusterStatus());
-        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getCacheClusterId());
+        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getId());
 
         state.save();
 
@@ -510,7 +510,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for elasticache cluster - " + getCacheClusterId());
+            throw new GyroException("Unable to reach 'available' state for elasticache cluster - " + getId());
         }
 
         CacheCluster cacheCluster = getCacheCluster(client);
@@ -544,14 +544,14 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         if (!properties.isEmpty()) {
             ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
-                .cacheClusterId(getCacheClusterId())
+                .cacheClusterId(getId())
                 .cacheNodeType(getCacheNodeType())
-                .cacheParameterGroupName(getCacheParamGroup().getCacheParamGroupName())
+                .cacheParameterGroupName(getCacheParamGroup().getName())
                 .cacheSecurityGroupNames(getCacheSecurityGroupNames())
                 .engineVersion(getEngineVersion())
                 .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
                 .numCacheNodes(getNumCacheNodes());
 
             if (properties.contains("preferred-availability-zones")) {
@@ -596,7 +596,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheCluster(
-            r -> r.cacheClusterId(getCacheClusterId())
+            r -> r.cacheClusterId(getId())
         );
 
         Wait.atMost(3, TimeUnit.MINUTES)
@@ -675,13 +675,13 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     private CacheCluster getCacheCluster(ElastiCacheClient client) {
         CacheCluster cacheCluster = null;
 
-        if (ObjectUtils.isBlank(getCacheClusterId())) {
-            throw new GyroException("cache-cluster-id is missing, unable to load cache cluster.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("name is missing, unable to load cache cluster.");
         }
 
         try {
             DescribeCacheClustersResponse response = client.describeCacheClusters(
-                r -> r.cacheClusterId(getCacheClusterId()).showCacheNodeInfo(true)
+                r -> r.cacheClusterId(getId()).showCacheNodeInfo(true)
             );
 
             if (!response.cacheClusters().isEmpty()) {

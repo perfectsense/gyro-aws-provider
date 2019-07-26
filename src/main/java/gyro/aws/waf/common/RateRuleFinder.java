@@ -6,16 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 
 abstract public class RateRuleFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, RateBasedRule, U> {
-    private String ruleId;
+    private String id;
 
     /**
      * The ID of rate rule.
      */
-    public String getRuleId() {
-        return ruleId;
+    public String getId() {
+        return id;
     }
 
-    public void setRuleId(String ruleId) {
-        this.ruleId = ruleId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

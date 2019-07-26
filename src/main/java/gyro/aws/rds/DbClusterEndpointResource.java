@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *    aws::db-cluster-endpoint endpoint-example
- *        cluster-endpoint-identifier: "endpoint"
+ *        identifier: "endpoint"
  *        db-cluster: $(aws::db-cluster db-cluster-example)
  *        endpoint-type: "READER"
  *        static-members: [$(aws::db-instance db-instance-example)]
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @Type("db-cluster-endpoint")
 public class DbClusterEndpointResource extends AwsResource implements Copyable<DBClusterEndpoint> {
 
-    private String clusterEndpointIdentifier;
+    private String identifier;
     private DbClusterResource dbCluster;
     private String endpointType;
     private List<DbInstanceResource> excludedMembers;
@@ -49,12 +49,12 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
      * The unique identifier of the endpoint. (Required)
      */
     @Id
-    public String getClusterEndpointIdentifier() {
-        return clusterEndpointIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setClusterEndpointIdentifier(String clusterEndpointIdentifier) {
-        this.clusterEndpointIdentifier = clusterEndpointIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -136,14 +136,14 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     public boolean refresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getClusterEndpointIdentifier()) || ObjectUtils.isBlank(getDbCluster())) {
-            throw new GyroException("cluster-endpoint-identifier or db-cluster is missing, unable to load db cluster endpoint.");
+        if (ObjectUtils.isBlank(getIdentifier()) || ObjectUtils.isBlank(getDbCluster())) {
+            throw new GyroException("name or db-cluster is missing, unable to load db cluster endpoint.");
         }
 
         try {
             DescribeDbClusterEndpointsResponse response = client.describeDBClusterEndpoints(
-                r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
-                        .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+                r -> r.dbClusterEndpointIdentifier(getIdentifier())
+                        .dbClusterIdentifier(getDbCluster().getIdentifier())
             );
 
             response.dbClusterEndpoints().forEach(this::copyFrom);
@@ -159,17 +159,17 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     public void create(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         CreateDbClusterEndpointResponse response = client.createDBClusterEndpoint(
-            r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
-                    .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+            r -> r.dbClusterEndpointIdentifier(getIdentifier())
+                    .dbClusterIdentifier(getDbCluster().getIdentifier())
                     .endpointType(getEndpointType())
                     .excludedMembers(getExcludedMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getIdentifier)
                         .collect(Collectors.toList()))
 
                     .staticMembers(getStaticMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getIdentifier)
                         .collect(Collectors.toList()))
         );
 
@@ -180,16 +180,16 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBClusterEndpoint(
-            r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
+            r -> r.dbClusterEndpointIdentifier(getIdentifier())
                     .endpointType(getEndpointType())
                     .excludedMembers(getExcludedMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getIdentifier)
                         .collect(Collectors.toList()))
 
                     .staticMembers(getStaticMembers()
                         .stream()
-                        .map(DbInstanceResource::getDbInstanceIdentifier)
+                        .map(DbInstanceResource::getIdentifier)
                         .collect(Collectors.toList()))
         );
     }
@@ -198,8 +198,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterEndpoint(
-            r -> r.dbClusterEndpointIdentifier(getClusterEndpointIdentifier())
+            r -> r.dbClusterEndpointIdentifier(getIdentifier())
         );
     }
-
 }

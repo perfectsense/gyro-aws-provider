@@ -41,7 +41,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     private VpcResource vpc;
     private VpcResource peerVpc;
-    private String peeringConnectionId;
+    private String id;
     private Boolean allowDnsResolutionFromRemoteVpc;
     private Boolean allowEgressFromLocalClassicLinkToRemoteVpc;
     private Boolean allowEgressFromLocalVpcToRemoteClassicLink;
@@ -172,22 +172,22 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
      */
     @Id
     @Output
-    public String getPeeringConnectionId() {
-        return peeringConnectionId;
+    public String getId() {
+        return id;
     }
 
-    public void setPeeringConnectionId(String peeringConnectionId) {
-        this.peeringConnectionId = peeringConnectionId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
-    protected String getId() {
-        return getPeeringConnectionId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
-        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
+        setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
         setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
         setAllowDnsResolutionFromRemoteVpc(vpcPeeringConnection.requesterVpcInfo().peeringOptions().allowDnsResolutionFromRemoteVpc());
@@ -220,17 +220,17 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
-            r -> r.vpcId(getVpc().getVpcId())
-                .peerVpcId(getPeerVpc().getVpcId())
+            r -> r.vpcId(getVpc().getId())
+                .peerVpcId(getPeerVpc().getId())
                 .peerOwnerId(getPeerVpc().getAccount())
                 .peerRegion(getPeerVpc().getRegion())
         );
 
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
-        setPeeringConnectionId(vpcPeeringConnection.vpcPeeringConnectionId());
+        setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
         client.acceptVpcPeeringConnection(
-            r -> r.vpcPeeringConnectionId(getPeeringConnectionId())
+            r -> r.vpcPeeringConnectionId(getId())
         );
 
         modifyPeeringConnectionSettings(client);
@@ -247,19 +247,19 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getPeeringConnectionId()));
+        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
     }
 
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
         VpcPeeringConnection vpcPeeringConnection = null;
 
-        if (ObjectUtils.isBlank(getPeeringConnectionId())) {
-            throw new GyroException("vpc-peering-connection-id is missing, unable to load peering connection.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load peering connection.");
         }
 
         try {
             DescribeVpcPeeringConnectionsResponse response = client.describeVpcPeeringConnections(
-                r -> r.vpcPeeringConnectionIds(Collections.singleton(getPeeringConnectionId()))
+                r -> r.vpcPeeringConnectionIds(Collections.singleton(getId()))
             );
 
             if (!response.vpcPeeringConnections().isEmpty()) {
@@ -277,7 +277,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     private void modifyPeeringConnectionSettings(Ec2Client client) {
         client.modifyVpcPeeringConnectionOptions(
-            r -> r.vpcPeeringConnectionId(getPeeringConnectionId())
+            r -> r.vpcPeeringConnectionId(getId())
                 .accepterPeeringConnectionOptions(
                     acp -> acp.allowDnsResolutionFromRemoteVpc(getPeerAllowDnsResolutionFromRemoteVpc())
                         .allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc())

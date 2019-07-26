@@ -57,7 +57,7 @@ public class WebAclFinder extends gyro.aws.waf.common.WebAclFinder<WafClient, We
         List<WebACL> webACLS = new ArrayList<>();
 
         try {
-            webACLS.add(client.getWebACL(r -> r.webACLId(filters.get("web-acl-id"))).webACL());
+            webACLS.add(client.getWebACL(r -> r.webACLId(filters.get("id"))).webACL());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

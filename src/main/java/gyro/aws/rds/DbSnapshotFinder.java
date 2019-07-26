@@ -16,32 +16,32 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-snapshots: $(aws::db-snapshot EXTERNAL/* | db-snapshot-identifier = 'db-snapshot-example')
+ *    db-snapshots: $(aws::db-snapshot EXTERNAL/* | name = 'db-snapshot-example')
  */
 @Type("db-snapshot")
 public class DbSnapshotFinder extends AwsFinder<RdsClient, DBSnapshot, DbSnapshotResource> {
 
-    private String dbSnapshotIdentifier;
+    private String identifier;
 
     /**
      * The identifier of the db snapshot.
      */
-    public String getDbSnapshotIdentifier() {
-        return dbSnapshotIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDbSnapshotIdentifier(String dbSnapshotIdentifier) {
-        this.dbSnapshotIdentifier = dbSnapshotIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
     protected List<DBSnapshot> findAws(RdsClient client, Map<String, String> filters) {
-        if (!filters.containsKey("db-snapshot-identifier")) {
-            throw new IllegalArgumentException("'db-snapshot-identifier' is required.");
+        if (!filters.containsKey("identifier")) {
+            throw new IllegalArgumentException("'identifier' is required.");
         }
 
         try {
-            return client.describeDBSnapshots(r -> r.dbSnapshotIdentifier(filters.get("db-snapshot-identifier"))).dbSnapshots();
+            return client.describeDBSnapshots(r -> r.dbSnapshotIdentifier(filters.get("identifier"))).dbSnapshots();
         } catch (DbSnapshotNotFoundException ex) {
             return Collections.emptyList();
         }

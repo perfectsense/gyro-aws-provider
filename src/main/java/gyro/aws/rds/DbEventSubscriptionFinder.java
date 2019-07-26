@@ -16,32 +16,32 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    subscriptions: $(aws::db-event-subscription EXTERNAL/* | subscription-name = 'db-event-subscription-example')
+ *    subscriptions: $(aws::db-event-subscription EXTERNAL/* | name = 'db-event-subscription-example')
  */
 @Type("db-event-subscription")
 public class DbEventSubscriptionFinder extends AwsFinder<RdsClient, EventSubscription, DbEventSubscriptionResource> {
 
-    private String subscriptionName;
+    private String name;
 
     /**
      * The name of the event subscription.
      */
-    public String getSubscriptionName() {
-        return subscriptionName;
+    public String getName() {
+        return name;
     }
 
-    public void setSubscriptionName(String subscriptionName) {
-        this.subscriptionName = subscriptionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     protected List<EventSubscription> findAws(RdsClient client, Map<String, String> filters) {
-        if (!filters.containsKey("subscription-name")) {
-            throw new IllegalArgumentException("'subscription-name' is required.");
+        if (!filters.containsKey("name")) {
+            throw new IllegalArgumentException("'name' is required.");
         }
 
         try {
-            return client.describeEventSubscriptions(r -> r.subscriptionName(filters.get("subscription-name"))).eventSubscriptionsList();
+            return client.describeEventSubscriptions(r -> r.subscriptionName(filters.get("name"))).eventSubscriptionsList();
         } catch (SubscriptionNotFoundException ex) {
             return Collections.emptyList();
         }

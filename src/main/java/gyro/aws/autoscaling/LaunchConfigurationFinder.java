@@ -19,21 +19,21 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    launch-configuration: $(aws::launch-configuration EXTERNAL/* | launch-configuration-name = '')
+ *    launch-configuration: $(aws::launch-configuration EXTERNAL/* | name = '')
  */
 @Type("launch-configuration")
 public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, LaunchConfiguration, LaunchConfigurationResource> {
-    private String launchConfigurationName;
+    private String name;
 
     /**
      * The Launch Configuration Name.
      */
-    public String getLaunchConfigurationName() {
-        return launchConfigurationName;
+    public String getName() {
+        return name;
     }
 
-    public void setLaunchConfigurationName(String launchConfigurationName) {
-        this.launchConfigurationName = launchConfigurationName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -45,11 +45,11 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
     protected List<LaunchConfiguration> findAws(AutoScalingClient client, Map<String, String> filters) {
         List<LaunchConfiguration> launchConfigurations = new ArrayList<>();
 
-        if (filters.containsKey("launch-configuration-name") && !ObjectUtils.isBlank(filters.get("launch-configuration-name"))) {
+        if (filters.containsKey("name") && !ObjectUtils.isBlank(filters.get("name"))) {
             try {
                 launchConfigurations.addAll(client.describeLaunchConfigurations(
                     DescribeLaunchConfigurationsRequest.builder()
-                        .launchConfigurationNames(Collections.singleton(filters.get("launch-configuration-name")))
+                        .launchConfigurationNames(Collections.singleton(filters.get("name")))
                         .build()).launchConfigurations());
             } catch (AutoScalingException ex) {
                 if (!ex.getLocalizedMessage().contains("does not exist")) {

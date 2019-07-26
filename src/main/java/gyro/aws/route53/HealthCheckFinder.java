@@ -18,21 +18,21 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    health-check: $(aws::route53-health-check EXTERNAL/* | health-check-id = '')
+ *    health-check: $(aws::route53-health-check EXTERNAL/* | id = '')
  */
 @Type("route53-health-check")
 public class HealthCheckFinder extends AwsFinder<Route53Client, HealthCheck, HealthCheckResource> {
-    private String healthCheckId;
+    private String id;
 
     /**
      * The ID of the Health Check.
      */
-    public String getHealthCheckId() {
-        return healthCheckId;
+    public String getId() {
+        return id;
     }
 
-    public void setHealthCheckId(String healthCheckId) {
-        this.healthCheckId = healthCheckId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class HealthCheckFinder extends AwsFinder<Route53Client, HealthCheck, Hea
         List<HealthCheck> healthChecks = new ArrayList<>();
 
         try {
-            GetHealthCheckResponse response = client.getHealthCheck(r -> r.healthCheckId(filters.get("health-check-id")));
+            GetHealthCheckResponse response = client.getHealthCheck(r -> r.healthCheckId(filters.get("id")));
             healthChecks.add(response.healthCheck());
         } catch (NoSuchHealthCheckException ignore) {
             //ignore

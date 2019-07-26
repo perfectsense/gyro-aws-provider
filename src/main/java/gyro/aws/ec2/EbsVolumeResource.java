@@ -54,7 +54,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     private Integer size;
     private EbsSnapshotResource snapshot;
     private String state;
-    private String volumeId;
+    private String id;
     private String volumeType;
     private Boolean autoEnableIo;
 
@@ -155,12 +155,12 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
      */
     @Id
     @Output
-    public String getVolumeId() {
-        return volumeId;
+    public String getId() {
+        return id;
     }
 
-    public void setVolumeId(String volumeId) {
-        this.volumeId = volumeId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -197,7 +197,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
     @Override
     public void copyFrom(Volume volume) {
-        setVolumeId(volume.volumeId());
+        setId(volume.volumeId());
         setAvailabilityZone(volume.availabilityZone());
         setCreateTime(Date.from(volume.createTime()));
         setEncrypted(volume.encrypted());
@@ -211,7 +211,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         Ec2Client client = createClient(Ec2Client.class);
 
         DescribeVolumeAttributeResponse responseAutoEnableIo = client.describeVolumeAttribute(
-            r -> r.volumeId(getVolumeId())
+            r -> r.volumeId(getId())
                 .attribute(VolumeAttributeName.AUTO_ENABLE_IO)
         );
 
@@ -234,8 +234,8 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     @Override
-    protected String getId() {
-        return getVolumeId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
@@ -248,13 +248,13 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             r -> r.availabilityZone(getAvailabilityZone())
                 .encrypted(getEncrypted())
                 .iops(getVolumeType().equals("io1") ? getIops() : null)
-                .kmsKeyId(getKms() != null ? getKms().getKeyId() : null)
+                .kmsKeyId(getKms() != null ? getKms().getId() : null)
                 .size(getSize())
-                .snapshotId(getSnapshot() != null ? getSnapshot().getSnapshotId() : null)
+                .snapshotId(getSnapshot() != null ? getSnapshot().getId() : null)
                 .volumeType(getVolumeType())
         );
 
-        setVolumeId(response.volumeId());
+        setId(response.volumeId());
         setCreateTime(Date.from(response.createTime()));
         setState(response.stateAsString());
 
@@ -263,12 +263,12 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         if (getAutoEnableIo()) {
             try {
                 client.modifyVolumeAttribute(
-                    r -> r.volumeId(getVolumeId())
+                    r -> r.volumeId(getId())
                         .autoEnableIO(a -> a.value(getAutoEnableIo()))
                 );
             } catch (Exception ex) {
                 ui.write("\n@|bold,blue EBS Volume resource - error enabling "
-                    + "'auto enable io' to volume with Id - %s. |@", getVolumeId());
+                    + "'auto enable io' to volume with Id - %s. |@", getId());
                 ui.write("\n@|bold,blue Error message - %s |@", ex.getMessage());
                 ui.write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
             }
@@ -280,7 +280,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for ebs volume - " + getVolumeId());
+            throw new GyroException("Unable to reach 'available' state for ebs volume - " + getId());
         }
     }
 
@@ -293,7 +293,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         if (changedProperties.contains("iops") || changedProperties.contains("size") || changedProperties.contains("volume-type")) {
 
             client.modifyVolume(
-                r -> r.volumeId(getVolumeId())
+                r -> r.volumeId(getId())
                     .iops(getVolumeType().equals("io1") ? getIops() : null)
                     .size(getSize())
                     .volumeType(getVolumeType())
@@ -302,7 +302,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
         if (changedProperties.contains("auto-enable-io")) {
             client.modifyVolumeAttribute(
-                r -> r.volumeId(getVolumeId())
+                r -> r.volumeId(getId())
                     .autoEnableIO(a -> a.value(getAutoEnableIo()))
             );
         }
@@ -318,20 +318,20 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteVolume(
-            r -> r.volumeId(getVolumeId())
+            r -> r.volumeId(getId())
         );
     }
 
     private Volume getVolume(Ec2Client client) {
         Volume volume = null;
 
-        if (ObjectUtils.isBlank(getVolumeId())) {
-            throw new GyroException("volume-id is missing, unable to load volume.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load volume.");
         }
 
         try {
             DescribeVolumesResponse response = client.describeVolumes(
-                r -> r.volumeIds(Collections.singleton(getVolumeId()))
+                r -> r.volumeIds(Collections.singleton(getId()))
             );
 
             if (!response.volumes().isEmpty()) {
@@ -363,7 +363,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         Volume volume = null;
 
         try {
-            DescribeVolumesResponse response = client.describeVolumes(r -> r.volumeIds(Collections.singletonList(getVolumeId())));
+            DescribeVolumesResponse response = client.describeVolumes(r -> r.volumeIds(Collections.singletonList(getId())));
 
             if (!response.volumes().isEmpty()) {
                 volume = response.volumes().get(0);

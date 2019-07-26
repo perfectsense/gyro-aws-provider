@@ -38,7 +38,7 @@ aws::subnet subnet-cache-cluster-example-3
 end
 
 aws::security-group security-group-cache-cluster-example-1
-    group-name: "security-group-cache-cluster-example-1"
+    name: "security-group-cache-cluster-example-1"
     vpc: $(aws::vpc vpc-cache-cluster-example)
     description: "security group instance example 1"
     keep-default-egress-rules: true
@@ -65,7 +65,7 @@ aws::security-group security-group-cache-cluster-example-1
 end
 
 aws::security-group security-group-cache-cluster-example-2
-    group-name: "security-group-cache-cluster-example-2"
+    name: "security-group-cache-cluster-example-2"
     vpc: $(aws::vpc vpc-cache-cluster-example)
     description: "security group instance example 2"
     keep-default-egress-rules: true
@@ -92,7 +92,7 @@ aws::security-group security-group-cache-cluster-example-2
 end
 
 aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example
-    cache-subnet-group-name: "cache-subnet-group-cache-cluster-example"
+    name: "cache-subnet-group-cache-cluster-example"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
         $(aws::subnet subnet-cache-cluster-example),
@@ -102,7 +102,7 @@ aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example
 end
 
 aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example-2
-    cache-subnet-group-name: "cache-subnet-group-cache-cluster-example-2"
+    name: "cache-subnet-group-cache-cluster-example-2"
     description: "cache-subnet-group-cache-cluster-desc"
     subnets: [
         $(aws::subnet subnet-cache-cluster-example),
@@ -112,20 +112,20 @@ aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example-2
 end
 
 aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example
-    cache-param-group-name: "cache-param-group-group-cache-cluster-example"
+    name: "cache-param-group-group-cache-cluster-example"
     cache-param-group-family: "memcached1.5"
     description: "cache-param-group-desc-group-cache-cluster"
 end
 
 aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example-2
-    cache-param-group-name: "cache-param-group-group-cache-cluster-example-2"
+    name: "cache-param-group-group-cache-cluster-example-2"
     cache-param-group-family: "memcached1.5"
     description: "cache-param-group-desc-group-cache-cluster"
 end
 
 aws::elasticache-cluster cache-cluster-example
     az-mode: "cross-az"
-    cache-cluster-id: "cache-cluster-ex-1"
+    id: "cache-cluster-ex-1"
     cache-node-type: "cache.t2.micro"
     cache-param-group: $(aws::elasticache-parameter-group cache-param-group-group-cache-cluster-example)
     cache-subnet-group: $(aws::elasticache-subnet-group cache-subnet-group-cache-cluster-example)

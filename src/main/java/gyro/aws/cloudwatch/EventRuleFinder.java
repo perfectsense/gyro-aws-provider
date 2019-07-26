@@ -17,21 +17,21 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    event-rule: $(aws::cloudwatch-event-rule EXTERNAL/* | rule-name = '')
+ *    event-rule: $(aws::cloudwatch-event-rule EXTERNAL/* | name = '')
  */
 @Type("cloudwatch-event-rule")
 public class EventRuleFinder extends AwsFinder<CloudWatchEventsClient, Rule, EventRuleResource> {
-    private String ruleName;
+    private String name;
 
     /**
      * The name of the rule.
      */
-    public String getRuleName() {
-        return ruleName;
+    public String getName() {
+        return name;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -56,6 +56,6 @@ public class EventRuleFinder extends AwsFinder<CloudWatchEventsClient, Rule, Eve
 
     @Override
     protected List<Rule> findAws(CloudWatchEventsClient client, Map<String, String> filters) {
-        return client.listRules(r -> r.namePrefix(filters.get("rule-name"))).rules();
+        return client.listRules(r -> r.namePrefix(filters.get("name"))).rules();
     }
 }

@@ -16,22 +16,22 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-subnet-group: $(aws::db-subnet-group EXTERNAL/* | group-name = 'db-subnet-group-db-cluster-example')
+ *    db-subnet-group: $(aws::db-subnet-group EXTERNAL/* | name = 'db-subnet-group-db-cluster-example')
  */
 @Type("db-subnet-group")
 public class DbSubnetGroupFinder extends AwsFinder<RdsClient, DBSubnetGroup, DbSubnetGroupResource> {
 
-    private String groupName;
+    private String name;
 
     /**
      * The name of the subnet group.
      */
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

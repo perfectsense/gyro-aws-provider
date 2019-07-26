@@ -250,7 +250,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     private String getNetworkAclId() {
         NetworkAclResource parent = (NetworkAclResource) parentResource();
         if (parent != null) {
-            return parent.getNetworkAclId();
+            return parent.getId();
         }
         return null;
     }

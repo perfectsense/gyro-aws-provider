@@ -54,7 +54,7 @@ public class RuleFinder extends gyro.aws.waf.common.RuleFinder<WafRegionalClient
         List<Rule> rules = new ArrayList<>();
 
         try {
-            rules.add(client.getRule(r -> r.ruleId(filters.get("rule-id"))).rule());
+            rules.add(client.getRule(r -> r.ruleId(filters.get("id"))).rule());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

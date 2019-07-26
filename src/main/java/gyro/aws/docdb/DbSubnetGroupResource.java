@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::db-subnet-group db-subnet-group-example
- *         db-subnet-group-name: "db-subnet-group-example"
- *         db-subnet-group-description: "db-subnet-group-example-description"
+ *         name: "db-subnet-group-example"
+ *         description: "db-subnet-group-example-description"
  *         subnets: [
  *             $(aws::subnet subnet-db-subnet-group-example-1),
  *             $(aws::subnet subnet-db-subnet-group-example-2)
@@ -45,8 +45,8 @@ import java.util.stream.Collectors;
 @Type("docdb-subnet-group")
 public class DbSubnetGroupResource extends DocDbTaggableResource implements Copyable<DBSubnetGroup> {
 
-    private String dbSubnetGroupDescription;
-    private String dbSubnetGroupName;
+    private String description;
+    private String name;
     private Set<SubnetResource> subnets;
 
     //-- Read-only Attributes
@@ -58,24 +58,24 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
      * Description of the db subnet group.
      */
     @Updatable
-    public String getDbSubnetGroupDescription() {
-        return dbSubnetGroupDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDbSubnetGroupDescription(String dbSubnetGroupDescription) {
-        this.dbSubnetGroupDescription = dbSubnetGroupDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
      * Name of the db subnet group. (Required)
      */
     @Id
-    public String getDbSubnetGroupName() {
-        return dbSubnetGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setDbSubnetGroupName(String dbSubnetGroupName) {
-        this.dbSubnetGroupName = dbSubnetGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -119,7 +119,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -143,8 +143,8 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         DocDbClient client = createClient(DocDbClient.class);
 
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
-            r -> r.dbSubnetGroupDescription(getDbSubnetGroupDescription())
-                .dbSubnetGroupName(getDbSubnetGroupName())
+            r -> r.dbSubnetGroupDescription(getDescription())
+                .dbSubnetGroupName(getName())
                 .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
         );
 
@@ -156,8 +156,8 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         DocDbClient client = createClient(DocDbClient.class);
 
         client.modifyDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getDbSubnetGroupName())
-                .dbSubnetGroupDescription(getDbSubnetGroupDescription())
+            r -> r.dbSubnetGroupName(getName())
+                .dbSubnetGroupDescription(getDescription())
                 .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
         );
     }
@@ -167,15 +167,15 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getDbSubnetGroupName())
+            r -> r.dbSubnetGroupName(getName())
         );
     }
 
     @Override
     public void copyFrom(DBSubnetGroup dbSubnetGroup) {
         setArn(dbSubnetGroup.dbSubnetGroupArn());
-        setDbSubnetGroupDescription(dbSubnetGroup.dbSubnetGroupDescription());
-        setDbSubnetGroupName(dbSubnetGroup.dbSubnetGroupName());
+        setDescription(dbSubnetGroup.dbSubnetGroupDescription());
+        setName(dbSubnetGroup.dbSubnetGroupName());
         setStatus(dbSubnetGroup.subnetGroupStatus());
         setSubnets(dbSubnetGroup.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
 
@@ -185,13 +185,13 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     private DBSubnetGroup getDbSubnetGroup(DocDbClient client) {
         DBSubnetGroup dbSubnetGroup = null;
 
-        if (ObjectUtils.isBlank(getDbSubnetGroupName())) {
-            throw new GyroException("db-subnet-group-name is missing, unable to load db subnet group.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load db subnet group.");
         }
 
         try {
             DescribeDbSubnetGroupsResponse response = client.describeDBSubnetGroups(
-                r -> r.dbSubnetGroupName(getDbSubnetGroupName())
+                r -> r.dbSubnetGroupName(getName())
             );
 
             if (!response.dbSubnetGroups().isEmpty()) {

@@ -54,12 +54,12 @@ import java.util.Set;
  *         end
  *
  *         target
- *             id: $(aws::instance instance-us-east-2a | instance-id)
+ *             id: $(aws::instance instance-us-east-2a).id
  *             port: "80"
  *         end
  *
  *         target
- *             id: $(aws::instance instance-us-east-2b | instance-id)
+ *             id: $(aws::instance instance-us-east-2b).id
  *             port: "443"
  *         end
  *
@@ -253,7 +253,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
                     .name(getName())
                     .targetType(getTargetType())
                     .unhealthyThresholdCount(getHealthCheck().getUnhealthyThreshold())
-                    .vpcId(getVpc() != null ? getVpc().getVpcId() : null)
+                    .vpcId(getVpc() != null ? getVpc().getId() : null)
             );
         } else if (getTargetType().equals("lambda") && getHealthCheck() == null) {
             response = client.createTargetGroup(r -> r.healthCheckEnabled(false)

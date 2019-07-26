@@ -47,13 +47,13 @@ public class SubnetMappings extends Diffable {
 
     @Override
     public String primaryKey() {
-        return String.format("%s/%s", getIpAddress() != null ? getIpAddress().getAllocationId() : null, getSubnet().getSubnetId());
+        return String.format("%s/%s", getIpAddress() != null ? getIpAddress().getId() : null, getSubnet().getId());
     }
 
     public SubnetMapping toSubnetMappings() {
         return SubnetMapping.builder()
-                .allocationId(getIpAddress() != null ? getIpAddress().getAllocationId() : null)
-                .subnetId(getSubnet() != null ? getSubnet().getSubnetId() : null)
+                .allocationId(getIpAddress() != null ? getIpAddress().getId() : null)
+                .subnetId(getSubnet() != null ? getSubnet().getId() : null)
                 .build();
     }
 }

@@ -46,7 +46,7 @@ import java.util.Set;
 @Type("ec2-capacity-reservation")
 public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation> implements Copyable<CapacityReservation> {
 
-    private String capacityReservationId;
+    private String id;
     private String availabilityZone;
     private Boolean ebsOptimized;
     private Date endDate;
@@ -65,12 +65,12 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
      */
     @Id
     @Output
-    public String getCapacityReservationId() {
-        return capacityReservationId;
+    public String getId() {
+        return id;
     }
 
-    public void setCapacityReservationId(String capacityReservationId) {
-        this.capacityReservationId = capacityReservationId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -211,13 +211,13 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     @Override
-    protected String getId() {
-        return getCapacityReservationId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(CapacityReservation capacityReservation) {
-        setCapacityReservationId(capacityReservation.capacityReservationId());
+        setId(capacityReservation.capacityReservationId());
         setAvailabilityZone(capacityReservation.availabilityZone());
         setEbsOptimized(capacityReservation.ebsOptimized());
         setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
@@ -269,7 +269,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
 
         CapacityReservation capacityReservation = response.capacityReservation();
 
-        setCapacityReservationId(capacityReservation.capacityReservationId());
+        setId(capacityReservation.capacityReservationId());
         setAvailableInstanceCount(capacityReservation.availableInstanceCount());
         setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
 
@@ -282,7 +282,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         validate();
 
         client.modifyCapacityReservation(
-            r -> r.capacityReservationId(getCapacityReservationId())
+            r -> r.capacityReservationId(getId())
                 .endDate(getEndDate() != null ? getEndDate().toInstant() : null)
                 .endDateType(getEndDateType())
                 .instanceCount(getInstanceCount())
@@ -294,7 +294,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         Ec2Client client = createClient(Ec2Client.class);
 
         client.cancelCapacityReservation(
-            r -> r.capacityReservationId(getCapacityReservationId())
+            r -> r.capacityReservationId(getId())
         );
     }
 
@@ -333,13 +333,13 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     private CapacityReservation getCapacityReservation(Ec2Client client) {
         CapacityReservation capacityReservation = null;
 
-        if (ObjectUtils.isBlank(getCapacityReservationId())) {
-            throw new GyroException("capacity-reservation-id is missing, unable to load capacity reservation.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load capacity reservation.");
         }
 
         try {
             DescribeCapacityReservationsResponse response = client.describeCapacityReservations(
-                r -> r.capacityReservationIds(Collections.singleton(getCapacityReservationId()))
+                r -> r.capacityReservationIds(Collections.singleton(getId()))
             );
 
             if (!response.capacityReservations().isEmpty()) {

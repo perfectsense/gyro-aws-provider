@@ -18,7 +18,7 @@ aws::subnet  subnet-example-nic
 end
 
 aws::security-group nic-security-group-example
-    group-name: "$(project) $(environment) - Allow web traffic only"
+    name: "$(project) $(environment) - Allow web traffic only"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
     keep-default-egress-rules: true

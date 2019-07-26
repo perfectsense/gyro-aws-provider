@@ -38,7 +38,7 @@ import java.util.Set;
 @Type("customer-gateway")
 public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> implements Copyable<CustomerGateway> {
 
-    private String customerGatewayId;
+    private String id;
     private String publicIp;
     private Integer bgpAsn;
 
@@ -69,8 +69,8 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
-    protected String getId() {
-        return getCustomerGatewayId();
+    protected String getResourceId() {
+        return getId();
     }
 
     /**
@@ -78,17 +78,17 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
      */
     @Id
     @Output
-    public String getCustomerGatewayId() {
-        return customerGatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setCustomerGatewayId(String customerGatewayId) {
-        this.customerGatewayId = customerGatewayId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public void copyFrom(CustomerGateway customerGateway) {
-        setCustomerGatewayId(customerGateway.customerGatewayId());
+        setId(customerGateway.customerGatewayId());
         setPublicIp(customerGateway.ipAddress());
         setBgpAsn(!ObjectUtils.isBlank(customerGateway.bgpAsn()) ? Integer.parseInt(customerGateway.bgpAsn()) : null);
     }
@@ -124,7 +124,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
 
         CreateCustomerGatewayResponse response = client.createCustomerGateway(builder.build());
 
-        setCustomerGatewayId(response.customerGateway().customerGatewayId());
+        setId(response.customerGateway().customerGatewayId());
     }
 
     @Override
@@ -136,18 +136,18 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteCustomerGateway(r -> r.customerGatewayId(getCustomerGatewayId()));
+        client.deleteCustomerGateway(r -> r.customerGatewayId(getId()));
     }
 
     private CustomerGateway getCustomerGateway(Ec2Client client) {
         CustomerGateway customerGateway = null;
 
-        if (ObjectUtils.isBlank(getCustomerGatewayId())) {
-            throw new GyroException("customer-gateway-id is missing, unable to load customer gateway.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load customer gateway.");
         }
 
         try {
-            DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getCustomerGatewayId()));
+            DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getId()));
 
             if (!response.customerGateways().isEmpty()) {
                 customerGateway = response.customerGateways().get(0);

@@ -20,7 +20,7 @@ import java.util.Set;
 public abstract class DocDbTaggableResource<T> extends AwsResource {
     private Map<String, String> tags;
 
-    protected abstract String getId();
+    protected abstract String getResourceId();
 
     @Updatable
     public Map<String, String> getTags() {
@@ -74,21 +74,21 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
 
         if (!diff.entriesOnlyOnLeft().isEmpty()) {
             client.removeTagsFromResource(
-                r -> r.resourceName(getId())
+                r -> r.resourceName(getResourceId())
                     .tagKeys(diff.entriesOnlyOnLeft().keySet())
             );
         }
 
         if (!diff.entriesOnlyOnRight().isEmpty()) {
             client.addTagsToResource(
-                r -> r.resourceName(getId())
+                r -> r.resourceName(getResourceId())
                     .tags(toDocDbTags(diff.entriesOnlyOnRight()))
             );
         }
 
         if (!diff.entriesDiffering().isEmpty()) {
             client.removeTagsFromResource(
-                r -> r.resourceName(getId())
+                r -> r.resourceName(getResourceId())
                     .tagKeys(diff.entriesDiffering().keySet())
             );
 
@@ -96,7 +96,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
             diff.entriesDiffering().keySet().forEach(o -> addTags.put(o, diff.entriesDiffering().get(o).rightValue()));
 
             client.addTagsToResource(
-                r -> r.resourceName(getId())
+                r -> r.resourceName(getResourceId())
                     .tags(toDocDbTags(addTags))
             );
         }
@@ -110,7 +110,7 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
         DocDbClient client = createClient(DocDbClient.class);
 
         ListTagsForResourceResponse response = client.listTagsForResource(
-            r -> r.resourceName(getId())
+            r -> r.resourceName(getResourceId())
         );
 
         Map<String, String> tags = new HashMap<>();
