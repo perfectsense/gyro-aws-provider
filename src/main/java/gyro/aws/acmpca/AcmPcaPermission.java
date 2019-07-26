@@ -129,6 +129,11 @@ public class AcmPcaPermission extends AwsResource implements Copyable<Permission
         );
     }
 
+    @Override
+    public String primaryKey() {
+        return getPrincipal();
+    }
+
     private String getAccountNumber() {
         StsClient client = createClient(StsClient.class);
         GetCallerIdentityResponse response = client.getCallerIdentity();
