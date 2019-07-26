@@ -4,17 +4,13 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.s3.model.ReplicationRuleAndOperator;
 import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.ReplicationRuleFilter;
-import software.amazon.awssdk.services.s3.model.Tag;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class S3ReplicationRuleFilter extends Diffable implements Copyable<ReplicationRuleFilter> {
     private String prefix;
-/*    private Map<String, String> tags;*/
     private S3Tag tag;
     private S3ReplicationRuleAndOperator andOperator;
 
@@ -59,34 +55,6 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
         this.tag = tag;
     }
 
-
-
-/*    @Updatable
-    public Map<String, String> getTags() {
-        if(tags == null){
-            tags = new HashMap<>();
-        }
-        return tags;
-    }
-
-    public void setTags(Map<String, String> tags) {
-        this.tags = tags;
-    }
-
-    @Updatable
-    public List<S3Tag> getS3tag() {
-        if(s3tag == null){
-            s3tag = new ArrayList<>();
-        }
-
-        return s3tag;
-    }
-
-    public void setS3tag(List<S3Tag> s3tag) {
-        this.s3tag = s3tag;
-    }
- */
-
     @Override
     public void copyFrom(ReplicationRuleFilter replicationRuleFilter){
         if(replicationRuleFilter.prefix() != null){
@@ -106,34 +74,6 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
         }
     }
 
-/*    private void copyFromUsingMapTags(ReplicationRuleFilter replicationRuleFilter){
-        String filterPrefix = replicationRuleFilter.prefix();
-        String filterAndPrefix = "";
-
-        Map<String, String> filterTag = new HashMap<>();
-        Map<String, String> filterAndTags = new HashMap<>();
-
-        if(replicationRuleFilter.and() != null){
-            filterAndPrefix = replicationRuleFilter.and().prefix();
-            filterAndTags = fromTags(replicationRuleFilter.and().tags());
-        }
-
-        if(replicationRuleFilter.tag() != null){
-            filterTag = fromTags(Collections.singletonList(replicationRuleFilter.tag()));
-        }
-
-        if(ObjectUtils.isBlank(filterAndPrefix)){
-            setPrefix(filterPrefix);
-        } else {
-            setPrefix(filterAndPrefix);
-        }
-
-        if(filterAndTags.isEmpty()){
-            setTags(filterTag);
-        } else{
-            setTags(filterAndTags);
-        }
-    }*/
 
     @Override
     public String toDisplayString() {
@@ -158,25 +98,6 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
 
         return builder.build();
     }
-
-/*    ReplicationRuleFilter toReplicationRuleFilter(){
-        ReplicationRuleFilter.Builder builder = ReplicationRuleFilter.builder();
-
-        if(getTags().isEmpty()){
-            builder.prefix(ObjectUtils.isBlank(getPrefix()) ? "" : getPrefix());
-        } else if (getTags().size() == 1 && ObjectUtils.isBlank(getPrefix())){
-            builder.tag(toTag(getTags()))
-                    .prefix(getPrefix());
-        } else {
-            builder = builder.prefix(null)
-                    .and(
-                        l -> l.prefix(getPrefix())
-                        .tags(toTags(getTags()))
-                    );
-        }
-
-        return builder.build();
-    }*/
 
     private Map<String, String> fromTags(List<Tag> tags){
         Map<String, String> tagMap = new HashMap<>();
