@@ -330,9 +330,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setInstanceTenancy(vpc.instanceTenancyAsString());
         setRegion(credentials(AwsCredentials.class).getRegion());
 
-        context.save();
         modifySettings(client, new HashSet<>());
-        throw new GyroException("Fail to finish modify vpc!");
     }
 
     @Override
