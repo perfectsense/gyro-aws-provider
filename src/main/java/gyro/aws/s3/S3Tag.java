@@ -10,7 +10,7 @@ public class S3Tag extends Diffable implements Copyable<Tag> {
     private String value;
 
     /**
-     * The tags key value. (Required)
+     * The tag's key. (Required)
      */
     @Updatable
     public String getKey() {
@@ -22,7 +22,7 @@ public class S3Tag extends Diffable implements Copyable<Tag> {
     }
 
     /**
-     * The value for the tag. (Required)
+     * The tag's value. (Required)
      */
     @Updatable
     public String getValue() {
