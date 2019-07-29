@@ -1,0 +1,44 @@
+aws::s3-bucket bucket-example
+    name: "sandbox-bucket-example-logging"
+    tags: {
+        Name: "bucket-example",
+        Name2: "something"
+    }
+    enable-accelerate-config: true
+    enable-versioning: true
+
+    replication-configuration
+        role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+
+        replication-rule
+            id: "example_to_east_1"
+            destination
+                bucket: "arn:aws:s3:::beam-sandbox-brightspot-us-east-1a"
+            end
+            priority: 1
+            status: enabled
+            delete-marker-replication-status: disabled
+        end
+
+         replication-rule
+            id: "another_example_to_east_1"
+            destination
+                bucket: "arn:aws:s3:::beam-sandbox-brightspot-us-east-1a"
+            end
+
+            filter
+                and-operator
+                    prefix: "logs"
+                    tag
+                        key: "super"
+                        value: "metroid"
+                    end
+                end
+            end
+
+            priority: 2
+            status: enabled
+            delete-marker-replication-status: disabled
+        end
+    end
+end
