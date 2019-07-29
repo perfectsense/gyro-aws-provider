@@ -336,7 +336,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         if (parent == null) {
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
-        return parent.getAutoScalingGroupName();
+        return parent.getName();
     }
 
     @Override

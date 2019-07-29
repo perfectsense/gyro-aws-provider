@@ -11,7 +11,6 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -329,6 +328,11 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     @Override
+    protected String getResourceId() {
+        return getId();
+    }
+
+    @Override
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -350,16 +354,16 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
 
-        builder.vpcId(getVpc().getVpcId());
+        builder.vpcId(getVpc().getId());
         builder.vpcEndpointType(getType());
         builder.privateDnsEnabled(getPrivateDnsEnabled());
         builder.serviceName(getServiceName());
 
         if (getType().equals(VpcEndpointType.INTERFACE)) {
-            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()));
-            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()));
+            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
+            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
         } else {
-            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toList()));
+            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toList()));
             builder.policyDocument(getPolicy());
         }
 
@@ -385,8 +389,8 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         if (changedProperties.contains("route-tables")) {
 
-            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
-            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getRouteTableId).collect(Collectors.toSet());
+            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
+            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
 
             List<String> removeRouteTableIds = currentRouteTableIds.stream().filter(o -> !pendingRouteTableIds.contains(o)).collect(Collectors.toList());
             List<String> addRouteTableIds = pendingRouteTableIds.stream().filter(o -> !currentRouteTableIds.contains(o)).collect(Collectors.toList());
@@ -401,8 +405,8 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         }
 
         if (changedProperties.contains("subnets")) {
-            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
-            Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toSet());
+            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
+            Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
 
             List<String> removeSubnetIds = currentSubnetIds.stream().filter(o -> !pendingSubnetIds.contains(o)).collect(Collectors.toList());
             List<String> addSubnetIds = pendingSubnetIds.stream().filter(o -> !currentSubnetIds.contains(o)).collect(Collectors.toList());
@@ -417,8 +421,8 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         }
 
         if (changedProperties.contains("security-groups")) {
-            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
-            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toSet());
+            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
+            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
 
             List<String> removeSecurityGroupIds = currentSecurityGroupIds.stream().filter(o -> !pendingSecurityGroupIds.contains(o)).collect(Collectors.toList());
             List<String> addSecurityGroupIds = pendingSecurityGroupIds.stream().filter(o -> !currentSecurityGroupIds.contains(o)).collect(Collectors.toList());
@@ -495,7 +499,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         try {
             Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
-            Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getVpcId()).build();
+            Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getId()).build();
             DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
 
             if (!response.vpcEndpoints().isEmpty()) {

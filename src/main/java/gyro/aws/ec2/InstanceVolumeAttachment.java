@@ -62,8 +62,8 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
 
         client.attachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(getVolume().getVolumeId())
-                .instanceId(parent.getInstanceId())
+                .volumeId(getVolume().getId())
+                .instanceId(parent.getId())
         );
     }
 
@@ -77,21 +77,21 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
 
         client.detachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(currentAttachment.getVolume().getVolumeId())
-                .instanceId(parent.getInstanceId())
+                .volumeId(currentAttachment.getVolume().getId())
+                .instanceId(parent.getId())
         );
 
         boolean success = Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.SECONDS)
             .prompt(true)
-            .until(() -> client.describeVolumes(r -> r.volumeIds(Collections.singleton(currentAttachment.getVolume().getVolumeId())))
+            .until(() -> client.describeVolumes(r -> r.volumeIds(Collections.singleton(currentAttachment.getVolume().getId())))
                 .volumes().get(0).state().equals(VolumeState.AVAILABLE));
 
         if (success) {
             client.attachVolume(
                 r -> r.device(getDeviceName())
-                    .volumeId(getVolume().getVolumeId())
-                    .instanceId(parent.getInstanceId())
+                    .volumeId(getVolume().getId())
+                    .instanceId(parent.getId())
             );
         } else {
             ui.write("\n@|bold,blue Skipping adding volume since volume delete is still pending for the instance");
@@ -106,8 +106,8 @@ public class InstanceVolumeAttachment extends AwsResource implements Copyable<In
 
         client.detachVolume(
             r -> r.device(getDeviceName())
-                .volumeId(getVolume().getVolumeId())
-                .instanceId(parent.getInstanceId())
+                .volumeId(getVolume().getId())
+                .instanceId(parent.getId())
         );
     }
 

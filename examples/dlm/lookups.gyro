@@ -1,1 +1,1 @@
-lifecycle-policy: $(external-query aws::dlm-lifecycle-policy { policy-id: '' })
+lifecycle-policy: $(external-query aws::dlm-lifecycle-policy { id: '' })

@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::launch-template launch-template
- *         launch-template-name: "launch-template-gyro-1"
+ *         name: "launch-template-gyro-1"
  *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
@@ -76,8 +76,8 @@ import java.util.stream.Collectors;
 @Type("launch-template")
 public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> implements Copyable<LaunchTemplate> {
 
-    private String launchTemplateId;
-    private String launchTemplateName;
+    private String id;
+    private String name;
 
     private String amiId;
     private String amiName;
@@ -102,12 +102,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The name of the launch template. (Required)
      */
-    public String getLaunchTemplateName() {
-        return launchTemplateName;
+    public String getName() {
+        return name;
     }
 
-    public void setLaunchTemplateName(String launchTemplateName) {
-        this.launchTemplateName = launchTemplateName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -347,12 +347,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      */
     @Id
     @Output
-    public String getLaunchTemplateId() {
-        return launchTemplateId;
+    public String getId() {
+        return id;
     }
 
-    public void setLaunchTemplateId(String launchTemplateId) {
-        this.launchTemplateId = launchTemplateId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -368,14 +368,14 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     @Override
-    protected String getId() {
-        return getLaunchTemplateId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(LaunchTemplate launchTemplate) {
-        setLaunchTemplateId(launchTemplate.launchTemplateId());
-        setLaunchTemplateName(launchTemplate.launchTemplateName());
+        setId(launchTemplate.launchTemplateId());
+        setName(launchTemplate.launchTemplateName());
         setVersion(launchTemplate.latestVersionNumber());
     }
 
@@ -401,7 +401,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         validate(client);
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
-            r -> r.launchTemplateName(getLaunchTemplateName())
+            r -> r.launchTemplateName(getName())
                 .launchTemplateData(
                     l -> l.cpuOptions(getCoreCount() > 0
                         ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
@@ -413,7 +413,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .instanceInitiatedShutdownBehavior(getShutdownBehavior())
                         .keyName(getKeyName())
                         .monitoring(o -> o.enabled(getEnableMonitoring()))
-                        .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
+                        .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
                         .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
                         .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                             getBlockDeviceMapping()
@@ -426,10 +426,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .networkInterfaces(!getNetworkInterfaces().isEmpty()
                             ? getNetworkInterfaces().stream()
                             .map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest.builder()
-                                .networkInterfaceId(o.getNetworkInterfaceId()).build())
+                                .networkInterfaceId(o.getId()).build())
                             .collect(Collectors.toList()) : null)));
 
-        setLaunchTemplateId(response.launchTemplate().launchTemplateId());
+        setId(response.launchTemplate().launchTemplateId());
         setVersion(response.launchTemplate().latestVersionNumber());
     }
 
@@ -442,7 +442,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteLaunchTemplate(r -> r.launchTemplateId(getLaunchTemplateId()));
+        client.deleteLaunchTemplate(r -> r.launchTemplateId(getId()));
     }
 
     private void validate(Ec2Client client) {
@@ -494,12 +494,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplate getLaunchTemplate(Ec2Client client) {
         LaunchTemplate launchTemplate = null;
 
-        if (ObjectUtils.isBlank(getLaunchTemplateId())) {
-            throw new GyroException("launch-template-id is missing, unable to load instance.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load instance.");
         }
 
         try {
-            DescribeLaunchTemplatesResponse response = client.describeLaunchTemplates(r -> r.launchTemplateIds(getLaunchTemplateId()));
+            DescribeLaunchTemplatesResponse response = client.describeLaunchTemplates(r -> r.launchTemplateIds(getId()));
 
             if (!response.launchTemplates().isEmpty()) {
                 launchTemplate = response.launchTemplates().get(0);

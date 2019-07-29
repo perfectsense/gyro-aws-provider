@@ -49,7 +49,7 @@ import java.util.Set;
 @Type("elastic-ip")
 public class ElasticIpResource extends Ec2TaggableResource<Address> implements Copyable<Address> {
 
-    private String allocationId;
+    private String id;
     private String publicIp;
     private Boolean isStandardDomain;
     private InstanceResource instance;
@@ -152,22 +152,22 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
      */
     @Id
     @Output
-    public String getAllocationId() {
-        return allocationId;
+    public String getId() {
+        return id;
     }
 
-    public void setAllocationId(String allocationId) {
-        this.allocationId = allocationId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
-    protected String getId() {
-        return getAllocationId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(Address address) {
-        setAllocationId(address.allocationId());
+        setId(address.allocationId());
         setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
         setPublicIp(address.publicIp());
         setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
@@ -199,7 +199,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
                 r -> r.address(getPublicIp())
                     .domain(getIsStandardDomain() ? DomainType.STANDARD : DomainType.VPC)
             );
-            setAllocationId(response.allocationId());
+            setId(response.allocationId());
             setPublicIp(response.publicIp());
 
             if ((getInstance() != null || getNetworkInterface() != null) && (!getAllowReAssociation())) {
@@ -207,14 +207,14 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             }
 
             if (getNetworkInterface() != null) {
-                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                    .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
+                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
+                    .networkInterfaceId(getNetworkInterface().getId())
                     .allowReassociation(getAllowReAssociation())
                     .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
                 setAssociationId(resp.associationId());
             } else if (getInstance() != null) {
-                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                    .instanceId(getInstance().getInstanceId())
+                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
+                    .instanceId(getInstance().getId())
                     .allowReassociation(getAllowReAssociation()));
                 setAssociationId(resp.associationId());
             }
@@ -236,7 +236,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         if (changedProperties.contains("is-standard-domain")) {
             if (!getIsStandardDomain()) {
                 MoveAddressToVpcResponse response = client.moveAddressToVpc(r -> r.publicIp(getPublicIp()));
-                setAllocationId(response.allocationId());
+                setId(response.allocationId());
                 setIsStandardDomain(false);
             } else {
                 throw new GyroException(MessageFormat.format("Elastic Ip - {0}, VPC domain to Standard domain not feasible. ", getPublicIp()));
@@ -250,8 +250,8 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
             if (changedProperties.contains("instance")) {
                 if (getInstance() != null) {
-                    AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                        .instanceId(getInstance().getInstanceId())
+                    AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
+                        .instanceId(getInstance().getId())
                         .allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
@@ -263,8 +263,8 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
             if (changedProperties.contains("network-interface")) {
                 if (getNetworkInterface() != null) {
-                    AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getAllocationId())
-                        .networkInterfaceId(getNetworkInterface().getNetworkInterfaceId())
+                    AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
+                        .networkInterfaceId(getNetworkInterface().getId())
                         .allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
@@ -293,7 +293,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         }
 
         try {
-            client.releaseAddress(r -> r.allocationId(getAllocationId()));
+            client.releaseAddress(r -> r.allocationId(getId()));
         } catch (Ec2Exception eex) {
             if (eex.awsErrorDetails().errorCode().equals("InvalidAllocationID.NotFound")) {
                 throw new GyroException(MessageFormat.format("Elastic Ip - {0} not found.", getPublicIp()));
@@ -306,13 +306,13 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     private Address getAddress(Ec2Client client) {
         Address address = null;
 
-        if (ObjectUtils.isBlank(getAllocationId())) {
-            throw new GyroException("allocation-id is missing, unable to load elastic-ip.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load elastic-ip.");
         }
 
         try {
             DescribeAddressesResponse response = client.describeAddresses(
-                r -> r.allocationIds(Collections.singleton(getAllocationId()))
+                r -> r.allocationIds(Collections.singleton(getId()))
             );
 
             if (!response.addresses().isEmpty()) {

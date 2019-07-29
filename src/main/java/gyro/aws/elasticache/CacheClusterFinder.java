@@ -16,22 +16,22 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-clusters: $(aws::elasticache-cluster EXTERNAL/* | cache-cluster-id = 'cache-cluster-ex-1')
+ *    cache-clusters: $(aws::elasticache-cluster EXTERNAL/* | id = 'cache-cluster-ex-1')
  */
 @Type("elasticache-cluster")
 public class CacheClusterFinder extends AwsFinder<ElastiCacheClient, CacheCluster, CacheClusterResource> {
 
-    private String cacheClusterId;
+    private String id;
 
     /**
      * The identifier of the cache cluster.
      */
-    public String getCacheClusterId() {
-        return cacheClusterId;
+    public String getId() {
+        return id;
     }
 
-    public void setCacheClusterId(String cacheClusterId) {
-        this.cacheClusterId = cacheClusterId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class CacheClusterFinder extends AwsFinder<ElastiCacheClient, CacheCluste
     @Override
     protected List<CacheCluster> findAws(ElastiCacheClient client, Map<String, String> filters) {
         try {
-            return client.describeCacheClusters(r -> r.cacheClusterId(filters.get("cache-cluster-id")).showCacheNodeInfo(true)).cacheClusters();
+            return client.describeCacheClusters(r -> r.cacheClusterId(filters.get("id")).showCacheNodeInfo(true)).cacheClusters();
         } catch (CacheClusterNotFoundException ex) {
             return Collections.emptyList();
         }

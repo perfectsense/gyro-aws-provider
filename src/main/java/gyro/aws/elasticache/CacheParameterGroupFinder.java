@@ -16,22 +16,22 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-param-groups: $(aws::elasticache-parameter-group EXTERNAL/* | cache-param-group-name = 'cache-param-group-example')
+ *    cache-param-groups: $(aws::elasticache-parameter-group EXTERNAL/* | name = 'cache-param-group-example')
  */
 @Type("elasticache-parameter-group")
 public class CacheParameterGroupFinder extends AwsFinder<ElastiCacheClient, CacheParameterGroup, CacheParameterGroupResource> {
 
-    private String cacheParamGroupName;
+    private String name;
 
     /**
      * The name of the cache parameter group.
      */
-    public String getCacheParamGroupName() {
-        return cacheParamGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setCacheParamGroupName(String cacheParamGroupName) {
-        this.cacheParamGroupName = cacheParamGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class CacheParameterGroupFinder extends AwsFinder<ElastiCacheClient, Cach
     @Override
     protected List<CacheParameterGroup> findAws(ElastiCacheClient client, Map<String, String> filters) {
         try {
-            return client.describeCacheParameterGroups(r -> r.cacheParameterGroupName(filters.get("cache-param-group-name"))).cacheParameterGroups();
+            return client.describeCacheParameterGroups(r -> r.cacheParameterGroupName(filters.get("name"))).cacheParameterGroups();
         } catch (CacheParameterGroupNotFoundException ex) {
             return Collections.emptyList();
         }

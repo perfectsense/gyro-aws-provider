@@ -9,14 +9,13 @@ end
 aws::network-acl network-acl
     vpc: $(aws::vpc vpc)
 
-    rule
-            cidr-block: ["0.0.0.0/0"]
-            protocol : "6"
-            rule-action : "allow"
-            rule-number : 103
-            egress-rule : false
-            from-port: 80
-            to-port: 80
+    egress-rule
+        cidr-block: ["0.0.0.0/0"]
+        protocol : "6"
+        rule-action : "allow"
+        rule-number : 103
+        from-port: 80
+        to-port: 80
     end
 
     tags: {

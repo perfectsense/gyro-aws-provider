@@ -6,13 +6,16 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 
 abstract public class ByteMatchSetFinder<T extends SdkClient, U extends AwsResource> extends AwsFinder<T, ByteMatchSet, U> {
-    private String byteMatchSetId;
+    private String id;
 
-    public String getByteMatchSetId() {
-        return byteMatchSetId;
+    /**
+     * The ID of the byte match set.
+     */
+    public String getId() {
+        return id;
     }
 
-    public void setByteMatchSetId(String byteMatchSetId) {
-        this.byteMatchSetId = byteMatchSetId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -55,7 +55,7 @@ public class RateRuleFinder extends gyro.aws.waf.common.RateRuleFinder<WafClient
         List<RateBasedRule> rules = new ArrayList<>();
 
         try {
-            rules.add(client.getRateBasedRule(r -> r.ruleId(filters.get("rule-id"))).rule());
+            rules.add(client.getRateBasedRule(r -> r.ruleId(filters.get("id"))).rule());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }

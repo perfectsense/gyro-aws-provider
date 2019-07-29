@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::load-balancer elb
- *         load-balancer-name: "elb"
+ *         name: "elb"
  *         security-groups: [
  *             $(aws::security-group security-group)
  *         ]
@@ -73,7 +73,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private HealthCheckResource healthCheck;
     private Set<InstanceResource> instances;
     private Set<ListenerResource> listener;
-    private String loadBalancerName;
+    private String name;
     private String scheme;
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
@@ -137,12 +137,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
      * The load balancer name. (Required)
      */
     @Id
-    public String getLoadBalancerName() {
-        return loadBalancerName;
+    public String getName() {
+        return name;
     }
 
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -224,13 +224,13 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         if (getLoadBalancer(client) != null) {
-            throw new GyroException(String.format("A load balancer with the name '%s' exists.", getLoadBalancerName()));
+            throw new GyroException(String.format("A load balancer with the name '%s' exists.", getName()));
         }
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
-                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getGroupId).collect(Collectors.toList()))
-                .subnets(getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList()))
-                .loadBalancerName(getLoadBalancerName())
+                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
+                .loadBalancerName(getName())
                 .scheme(getScheme())
         );
 
@@ -238,12 +238,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         if (!getInstances().isEmpty()) {
             client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
-                .loadBalancerName(getLoadBalancerName()));
+                .loadBalancerName(getName()));
         }
 
         // modify connection timeout with enabled set to true, then set to what is actually configured.
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getLoadBalancerName()));
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getLoadBalancerName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
     }
 
     @Override
@@ -262,18 +262,18 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         if (!instanceAdditions.isEmpty()) {
             client.registerInstancesWithLoadBalancer(r -> r.instances(instanceAdditions)
-                .loadBalancerName(getLoadBalancerName()));
+                .loadBalancerName(getName()));
         }
 
         if (!instanceSubtractions.isEmpty()) {
             client.deregisterInstancesFromLoadBalancer(r -> r.instances(instanceSubtractions)
-                .loadBalancerName(getLoadBalancerName()));
+                .loadBalancerName(getName()));
         }
 
         //-- Subnets
 
-        List<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList());
-        List<String> currentSubnetIds = currentResource.getSubnets().stream().map(SubnetResource::getSubnetId).collect(Collectors.toList());
+        List<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
+        List<String> currentSubnetIds = currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
 
         List<String> subnetAdditions = new ArrayList<>(pendingSubnetIds);
         subnetAdditions.removeAll(currentSubnetIds);
@@ -282,19 +282,19 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         subnetSubtractions.removeAll(pendingSubnetIds);
 
         client.attachLoadBalancerToSubnets(r -> r.subnets(subnetAdditions)
-            .loadBalancerName(getLoadBalancerName()));
+            .loadBalancerName(getName()));
 
         client.detachLoadBalancerFromSubnets(r -> r.subnets(subnetSubtractions)
-            .loadBalancerName(getLoadBalancerName()));
+            .loadBalancerName(getName()));
 
         //-- Security Groups
 
         List<String> pendingSecurityGroupIds = getSecurityGroups().stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList());
 
         List<String> currentSecurityGroupIds = currentResource.getSecurityGroups().stream()
-            .map(SecurityGroupResource::getGroupId)
+            .map(SecurityGroupResource::getId)
             .collect(Collectors.toList());
 
         List<String> sgAdditions = new ArrayList<>(pendingSecurityGroupIds);
@@ -302,25 +302,25 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         if (!sgAdditions.isEmpty()) {
             client.applySecurityGroupsToLoadBalancer(r -> r.securityGroups(sgAdditions)
-                    .loadBalancerName(getLoadBalancerName()));
+                    .loadBalancerName(getName()));
         }
 
         //-- Attributes
 
         // modify connection timeout with enabled set to true, then set to what is actually configured.
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getLoadBalancerName()));
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getLoadBalancerName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
-        client.deleteLoadBalancer(r -> r.loadBalancerName(getLoadBalancerName()));
+        client.deleteLoadBalancer(r -> r.loadBalancerName(getName()));
     }
 
     @Override
     public void copyFrom(LoadBalancerDescription description) {
-        setLoadBalancerName(description.loadBalancerName());
+        setName(description.loadBalancerName());
         setDnsName(description.dnsName());
         setScheme(description.scheme());
 
@@ -355,7 +355,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
-        DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(getLoadBalancerName()));
+        DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(getName()));
         LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
         loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
         setAttribute(loadBalancerAttributes);
@@ -364,7 +364,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {
         LoadBalancerDescription loadBalancerDescription = null;
         try {
-            DescribeLoadBalancersResponse response = client.describeLoadBalancers(r -> r.loadBalancerNames(getLoadBalancerName()));
+            DescribeLoadBalancersResponse response = client.describeLoadBalancers(r -> r.loadBalancerNames(getName()));
 
             if (!response.loadBalancerDescriptions().isEmpty()) {
                 loadBalancerDescription = response.loadBalancerDescriptions().get(0);
@@ -379,7 +379,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private Set<Instance> toInstances() {
         Set<Instance> instance = new LinkedHashSet<>();
         for (InstanceResource instanceResource : getInstances()) {
-            instance.add(Instance.builder().instanceId(instanceResource.getInstanceId()).build());
+            instance.add(Instance.builder().instanceId(instanceResource.getId()).build());
         }
 
         return instance;

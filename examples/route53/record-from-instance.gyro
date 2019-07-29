@@ -26,7 +26,7 @@ aws::route53-hosted-zone hosted-zone
 end
 
 aws::security-group security-group
-    group-name: "instance-example"
+    name: "instance-example"
     vpc: $(aws::vpc vpc)
     description: "instance example"
     keep-default-egress-rules: true

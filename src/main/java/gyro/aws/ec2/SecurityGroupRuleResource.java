@@ -152,7 +152,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     public String getGroupId() {
         SecurityGroupResource parent = (SecurityGroupResource) parent();
         if (parent != null) {
-            return parent.getGroupId();
+            return parent.getId();
         }
 
         return null;
@@ -170,7 +170,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
         }
 
         if (getSecurityGroup() != null) {
-            permissionBuilder.userIdGroupPairs(UserIdGroupPair.builder().groupId(getSecurityGroup().getGroupId()).description(getDescription()).build());
+            permissionBuilder.userIdGroupPairs(UserIdGroupPair.builder().groupId(getSecurityGroup().getId()).description(getDescription()).build());
         }
 
         return permissionBuilder

@@ -43,7 +43,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     private String availabilityZone;
 
     // Read-only
-    private String vpnGatewayId;
+    private String id;
 
     /**
      * The private Autonomous System Number (ASN) for the Amazon side of a BGP session. If you're using a 16-bit ASN, it must be in the ``64512`` to ``65534`` range. If you're using a 32-bit ASN, it must be in the ``4200000000`` to ``4294967294`` range.
@@ -88,22 +88,22 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
      */
     @Id
     @Output
-    public String getVpnGatewayId() {
-        return vpnGatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setVpnGatewayId(String vpnGatewayId) {
-        this.vpnGatewayId = vpnGatewayId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
-    protected String getId() {
-        return getVpnGatewayId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(VpnGateway vpnGateway) {
-        setVpnGatewayId(vpnGateway.vpnGatewayId());
+        setId(vpnGateway.vpnGatewayId());
         setAmazonSideAsn(vpnGateway.amazonSideAsn());
 
         if (!vpnGateway.vpcAttachments().isEmpty()
@@ -146,7 +146,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
         CreateVpnGatewayResponse response = client.createVpnGateway(builder.build());
 
-        setVpnGatewayId(response.vpnGateway().vpnGatewayId());
+        setId(response.vpnGateway().vpnGatewayId());
 
         state.save();
 
@@ -162,7 +162,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         VpnGatewayResource oldResource = (VpnGatewayResource) config;
 
         if (oldResource.getVpc() != null) {
-            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
+            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpc().getResourceId()).vpnGatewayId(getId()));
         }
 
         if (getVpc() != null) {
@@ -178,10 +178,10 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {
-            client.detachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
+            client.detachVpnGateway(r -> r.vpcId(getVpc().getResourceId()).vpnGatewayId(getId()));
         }
 
-        client.deleteVpnGateway(r -> r.vpnGatewayId(getVpnGatewayId()));
+        client.deleteVpnGateway(r -> r.vpnGatewayId(getId()));
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -202,7 +202,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
             return true;
         } catch (Ec2Exception ex) {
-            if (ex.awsErrorDetails().errorMessage().startsWith("The vpnGateway ID '" + getVpnGatewayId() + "' does not exist")) {
+            if (ex.awsErrorDetails().errorMessage().startsWith("The vpnGateway ID '" + getId() + "' does not exist")) {
                 return false;
             }
 
@@ -211,7 +211,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     }
 
     private void attachVpc(Ec2Client client) {
-        client.attachVpnGateway(r -> r.vpcId(getVpc().getId()).vpnGatewayId(getVpnGatewayId()));
+        client.attachVpnGateway(r -> r.vpcId(getVpc().getResourceId()).vpnGatewayId(getId()));
 
         boolean waitResult = Wait.atMost(90, TimeUnit.SECONDS)
             .checkEvery(10, TimeUnit.SECONDS)
@@ -219,7 +219,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
             .until(() -> isVpcAttached(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to attach vpc " + getVpc().getVpcId() + " with vpn gateway - " + getId());
+            throw new GyroException("Unable to attach vpc " + getVpc().getId() + " with vpn gateway - " + getId());
         }
     }
 
@@ -233,12 +233,12 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
     private VpnGateway getVpnGateway(Ec2Client client) {
         VpnGateway vpnGateway = null;
-        if (ObjectUtils.isBlank(getVpnGatewayId())) {
-            throw new GyroException("vpn-gateway-id is missing, unable to vpn gateway.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to vpn gateway.");
         }
 
         try {
-            DescribeVpnGatewaysResponse response = client.describeVpnGateways(r -> r.vpnGatewayIds(getVpnGatewayId()));
+            DescribeVpnGatewaysResponse response = client.describeVpnGateways(r -> r.vpnGatewayIds(getId()));
 
             if (!response.vpnGateways().isEmpty()) {
                 vpnGateway = response.vpnGateways().get(0);

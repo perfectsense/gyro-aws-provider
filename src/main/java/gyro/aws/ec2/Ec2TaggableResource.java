@@ -57,7 +57,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
         }
     }
 
-    protected abstract String getId();
+    protected abstract String getResourceId();
 
     protected boolean doRefresh() {
         return true;
@@ -71,7 +71,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
         DescribeTagsIterable response = client.describeTagsPaginator(
             r -> r.filters(
                 f -> f.name("resource-id")
-                    .values(getId())
+                    .values(getResourceId())
                     .build())
                 .build());
 
@@ -149,7 +149,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
             }
 
             executeService(() -> {
-                client.deleteTags(r -> r.resources(getId()).tags(tagObjects));
+                client.deleteTags(r -> r.resources(getResourceId()).tags(tagObjects));
                 return null;
             });
         }
@@ -162,7 +162,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
             }
 
             executeService(() -> {
-                client.createTags(r -> r.resources(getId()).tags(tagObjects));
+                client.createTags(r -> r.resources(getResourceId()).tags(tagObjects));
                 return null;
             });
         }
@@ -176,7 +176,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
             }
 
             executeService(() -> {
-                client.createTags(r -> r.resources(getId()).tags(tagObjects));
+                client.createTags(r -> r.resources(getResourceId()).tags(tagObjects));
                 return null;
             });
         }

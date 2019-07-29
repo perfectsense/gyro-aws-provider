@@ -15,21 +15,21 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    event-source-mapping: $(aws::lambda-event-source-mapping EXTERNAL/* | event-source-mapping-id = '')
+ *    event-source-mapping: $(aws::lambda-event-source-mapping EXTERNAL/* | id = '')
  */
 @Type("lambda-event-source-mapping")
 public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSourceMappingResponse, EventSourceMappingResource> {
-    private String eventSourceMappingId;
+    private String id;
 
     /**
      * The id of the event source mapping.
      */
-    public String getEventSourceMappingId() {
-        return eventSourceMappingId;
+    public String getId() {
+        return id;
     }
 
-    public void setEventSourceMappingId(String eventSourceMappingId) {
-        this.eventSourceMappingId = eventSourceMappingId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -44,12 +44,12 @@ public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSo
     protected List<GetEventSourceMappingResponse> findAws(LambdaClient client, Map<String, String> filters) {
         List<GetEventSourceMappingResponse> getEventSourceMappingResponses = new ArrayList<>();
 
-        if (!filters.containsKey("event-source-mapping-id")) {
-            throw new IllegalArgumentException("'event-source-mapping-id' is required.");
+        if (!filters.containsKey("id")) {
+            throw new IllegalArgumentException("'id' is required.");
         }
 
         try {
-            getEventSourceMappingResponses.add(client.getEventSourceMapping(r -> r.uuid(filters.get("event-source-mapping-id"))));
+            getEventSourceMappingResponses.add(client.getEventSourceMapping(r -> r.uuid(filters.get("id"))));
         } catch (ResourceNotFoundException ignore) {
             // ignore
         }

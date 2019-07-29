@@ -63,7 +63,7 @@ import java.util.stream.Stream;
 @Type("route53-health-check")
 public class HealthCheckResource extends AwsResource implements Copyable<HealthCheck> {
 
-    private String healthCheckId;
+    private String id;
     private Set<HealthCheckResource> childHealthChecks;
     private Boolean disabled;
     private Boolean enableSni;
@@ -363,17 +363,17 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
      */
     @Id
     @Output
-    public String getHealthCheckId() {
-        return healthCheckId;
+    public String getId() {
+        return id;
     }
 
-    public void setHealthCheckId(String healthCheckId) {
-        this.healthCheckId = healthCheckId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public void copyFrom(HealthCheck healthCheck) {
-        setHealthCheckId(healthCheck.id());
+        setId(healthCheck.id());
         HealthCheckConfig healthCheckConfig = healthCheck.healthCheckConfig();
         setChildHealthChecks(healthCheckConfig.childHealthChecks().stream().map(o -> findById(HealthCheckResource.class, o)).collect(Collectors.toSet()));
         setDisabled(healthCheckConfig.disabled());
@@ -438,7 +438,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
 
         HealthCheck healthCheck = response.healthCheck();
 
-        setHealthCheckId(healthCheck.id());
+        setId(healthCheck.id());
 
         saveTags(client, new HashMap<>());
     }
@@ -462,20 +462,20 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
         client.deleteHealthCheck(
-            r -> r.healthCheckId(getHealthCheckId())
+            r -> r.healthCheckId(getId())
         );
     }
 
     private HealthCheck getHealthCheck(Route53Client client) {
         HealthCheck healthCheck;
 
-        if (ObjectUtils.isBlank(getHealthCheckId())) {
-            throw new GyroException("health-check-id is missing, unable to health check.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to health check.");
         }
 
         try {
             GetHealthCheckResponse response = client.getHealthCheck(
-                r -> r.healthCheckId(getHealthCheckId())
+                r -> r.healthCheckId(getId())
             );
 
             healthCheck = response.healthCheck();
@@ -491,7 +491,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             return HealthCheckConfig.builder()
                 .type(getType())
-                .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getHealthCheckId).collect(Collectors.toList()))
+                .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getId).collect(Collectors.toList()))
                 .disabled(getDisabled())
                 .inverted(getInverted())
                 .healthThreshold(getHealthThreshold())
@@ -532,15 +532,15 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     private UpdateHealthCheckRequest getUpdateHealthCheckRequest() {
         if (getType().equals(HEALTH_CHECK_TYPE_CALCULATED)) {
             return UpdateHealthCheckRequest.builder()
-                .healthCheckId(getHealthCheckId())
-                .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getHealthCheckId).collect(Collectors.toList()))
+                .healthCheckId(getId())
+                .childHealthChecks(getChildHealthChecks().stream().map(HealthCheckResource::getId).collect(Collectors.toList()))
                 .disabled(getDisabled())
                 .inverted(getInverted())
                 .healthThreshold(getHealthThreshold())
                 .build();
         } else if (getType().equals(HEALTH_CHECK_TYPE_CLOUD_WATCH)) {
             return UpdateHealthCheckRequest.builder()
-                .healthCheckId(getHealthCheckId())
+                .healthCheckId(getId())
                 .disabled(getDisabled())
                 .insufficientDataHealthStatus(getInsufficientDataHealthStatus())
                 .inverted(getInverted())
@@ -551,7 +551,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
                 .build();
         } else {
             return UpdateHealthCheckRequest.builder()
-                .healthCheckId(getHealthCheckId())
+                .healthCheckId(getId())
                 .disabled(getDisabled())
                 .enableSNI(getEnableSni())
                 .failureThreshold(getFailureThreshold())
@@ -590,19 +590,19 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
 
             if (getTags().isEmpty()) {
                 tagRequest = ChangeTagsForResourceRequest.builder()
-                    .resourceId(getHealthCheckId())
+                    .resourceId(getId())
                     .resourceType(TagResourceType.HEALTHCHECK)
                     .removeTagKeys(diff.entriesOnlyOnLeft().keySet())
                     .build();
             } else if (diff.entriesOnlyOnLeft().isEmpty()) {
                 tagRequest = ChangeTagsForResourceRequest.builder()
-                    .resourceId(getHealthCheckId())
+                    .resourceId(getId())
                     .resourceType(TagResourceType.HEALTHCHECK)
                     .addTags(getRoute53Tags(getTags()))
                     .build();
             } else {
                 tagRequest = ChangeTagsForResourceRequest.builder()
-                    .resourceId(getHealthCheckId())
+                    .resourceId(getId())
                     .resourceType(TagResourceType.HEALTHCHECK)
                     .addTags(getRoute53Tags(getTags()))
                     .removeTagKeys(diff.entriesOnlyOnLeft().keySet())
@@ -615,7 +615,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
 
     private void loadTags(Route53Client client) {
         ListTagsForResourceResponse response = client.listTagsForResource(
-            r -> r.resourceId(getHealthCheckId())
+            r -> r.resourceId(getId())
                 .resourceType(TagResourceType.HEALTHCHECK)
         );
 

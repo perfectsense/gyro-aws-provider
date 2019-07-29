@@ -49,7 +49,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private String cidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
-    private String subnetId;
+    private String id;
     private NetworkAclResource networkAcl;
     private String aclAssociationId;
     private String defaultAclId;
@@ -142,22 +142,22 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
      */
     @Id
     @Output
-    public String getSubnetId() {
-        return subnetId;
+    public String getId() {
+        return id;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
-    public String getId() {
-        return getSubnetId();
+    public String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(Subnet subnet) {
-        setSubnetId(subnet.subnetId());
+        setId(subnet.subnetId());
         setCidrBlock(subnet.cidrBlock());
         setAvailabilityZone(subnet.availabilityZone());
         setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
@@ -168,13 +168,13 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (ObjectUtils.isBlank(getSubnetId())) {
-            throw new GyroException("subnet-id is missing, unable to load subnet.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load subnet.");
         }
 
         try {
             DescribeSubnetsRequest request = DescribeSubnetsRequest.builder()
-                .subnetIds(getSubnetId())
+                .subnetIds(getId())
                 .build();
 
             client.describeSubnets(request).subnets().forEach(this::copyFrom);
@@ -182,7 +182,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
                 r -> r.filters(
                     Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
-                    Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
+                    Filter.builder().name("association.subnet-id").values(getId()).build()
                 )
             );
 
@@ -192,7 +192,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
                     setNetworkAcl(!ObjectUtils.isBlank(acl.networkAclId()) ? findById(NetworkAclResource.class, acl.networkAclId()) : null);
                     if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
-                            .filter(a -> getSubnetId().equals(a.subnetId()))
+                            .filter(a -> getId().equals(a.subnetId()))
                             .map(NetworkAclAssociation::networkAclAssociationId)
                             .forEach(this::setAclAssociationId);
                     }
@@ -201,7 +201,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
                     setNetworkAcl(null);
                     if (!acl.associations().isEmpty()) {
                         acl.associations().stream()
-                            .filter(a -> getSubnetId().equals(a.subnetId()))
+                            .filter(a -> getId().equals(a.subnetId()))
                             .map(NetworkAclAssociation::networkAclAssociationId)
                             .forEach(this::setAclAssociationId);
                     }
@@ -229,12 +229,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             .build();
 
         CreateSubnetResponse response = client.createSubnet(request);
-        setSubnetId(response.subnet().subnetId());
+        setId(response.subnet().subnetId());
 
         DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
             r -> r.filters(
                 Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
-                Filter.builder().name("association.subnet-id").values(getSubnetId()).build()
+                Filter.builder().name("association.subnet-id").values(getId()).build()
             )
         );
 
@@ -242,7 +242,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             if (!acl.associations().isEmpty()) {
                 setDefaultAclId(acl.networkAclId());
                 acl.associations().stream()
-                    .filter(a -> getSubnetId().equals(a.subnetId()))
+                    .filter(a -> getId().equals(a.subnetId()))
                     .map(NetworkAclAssociation::networkAclAssociationId)
                     .forEach(this::setAclAssociationId);
             }
@@ -251,7 +251,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         if (getNetworkAcl() != null) {
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
-                    .networkAclId(getNetworkAcl().getNetworkAclId())
+                    .networkAclId(getNetworkAcl().getId())
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
@@ -265,7 +265,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         Ec2Client client = createClient(Ec2Client.class);
 
         if (changedProperties.contains("network-acl")) {
-            String acl = getNetworkAcl() != null ? getNetworkAcl().getNetworkAclId() : getDefaultAclId();
+            String acl = getNetworkAcl() != null ? getNetworkAcl().getId() : getDefaultAclId();
             ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
                 r -> r.associationId(getAclAssociationId())
                     .networkAclId(acl)
@@ -280,7 +280,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private void modifyAttribute(Ec2Client client) {
         if (getMapPublicIpOnLaunch() != null) {
             ModifySubnetAttributeRequest request = ModifySubnetAttributeRequest.builder()
-                .subnetId(getSubnetId())
+                .subnetId(getId())
                 .mapPublicIpOnLaunch(AttributeBooleanValue.builder().value(getMapPublicIpOnLaunch()).build())
                 .build();
 
@@ -292,7 +292,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.deleteSubnet(r -> r.subnetId(getSubnetId()));
+        client.deleteSubnet(r -> r.subnetId(getId()));
     }
-
 }

@@ -36,12 +36,12 @@ aws::network-load-balancer nlb-example
     ip-address-type: "ipv4"
     scheme: "internet-facing"
 
-    subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2a).subnet-id
+    subnet-mapping
+        subnet: $(aws::subnet subnet-us-east-2a)
     end
 
-    subnet-mappings
-        subnet-id: $(aws::subnet subnet-us-east-2b).subnet-id
+    subnet-mapping
+        subnet: $(aws::subnet subnet-us-east-2b)
     end
 
     tags: {
@@ -51,13 +51,13 @@ end
 
 aws::vpc-endpoint-service endpoint-service-connection-notification-example
     network-load-balancers: [
-        $(aws::network-load-balancer nlb-example-2)
+        $(aws::network-load-balancer nlb-example)
     ]
 end
 
 aws::vpc-connection-notification connection-notification-example
     endpoint-service: $(aws::vpc-endpoint-service endpoint-service-connection-notification-example)
-    connection-notification-arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
+    arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
     connection-events: [
         "Accept"
     ]

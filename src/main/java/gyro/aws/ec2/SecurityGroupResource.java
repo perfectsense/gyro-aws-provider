@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * .. code-block:: gyro
  *
  *     aws::security-group security-group-example
- *         group-name: "security-group-example"
+ *         name: "security-group-example"
  *         vpc: $(aws::vpc vpc-security-group-example)
  *         description: "security group example"
  *
@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 @Type("security-group")
 public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> implements Copyable<SecurityGroup> {
 
-    private String groupName;
+    private String name;
     private VpcResource vpc;
     private String description;
     private List<SecurityGroupIngressRuleResource> ingress;
@@ -59,18 +59,18 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private Boolean keepDefaultEgressRules;
 
     // Read-only
-    private String groupId;
+    private String id;
     private String ownerId;
 
     /**
      * The name of the Security Group. (Required)
      */
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -150,12 +150,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
      */
     @Id
     @Output
-    public String getGroupId() {
-        return groupId;
+    public String getId() {
+        return id;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -171,14 +171,14 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     @Override
-    protected String getId() {
-        return getGroupId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
     public void copyFrom(SecurityGroup group) {
         setVpc(findById(VpcResource.class, group.vpcId()));
-        setGroupId(group.groupId());
+        setId(group.groupId());
         setOwnerId(group.ownerId());
         setDescription(group.description());
 
@@ -263,10 +263,10 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSecurityGroupResponse response = client.createSecurityGroup(
-            r -> r.vpcId(getVpc().getId()).description(getDescription()).groupName(getGroupName())
+            r -> r.vpcId(getVpc().getId()).description(getDescription()).groupName(getName())
         );
 
-        setGroupId(response.groupId());
+        setId(response.groupId());
 
         if (!isKeepDefaultEgressRules()) {
             deleteDefaultEgressRule(client);
@@ -306,7 +306,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             .prompt(false)
             .until(() -> {
                     try {
-                        client.deleteSecurityGroup(r -> r.groupId(getGroupId()));
+                        client.deleteSecurityGroup(r -> r.groupId(getId()));
                     } catch (Ec2Exception e) {
                         // DependencyViolation should be retried since this resource may be waiting for a
                         // previously deleted resource to finish deleting.
@@ -323,8 +323,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private SecurityGroup getSecurityGroup(Ec2Client client) {
         SecurityGroup securityGroup = null;
 
-        if (ObjectUtils.isBlank(getGroupId())) {
-            throw new GyroException("group-id is missing, unable to load security group.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load security group.");
         }
 
         if (getVpc() == null) {
@@ -334,7 +334,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         try {
             DescribeSecurityGroupsResponse response = client.describeSecurityGroups(
                 r -> r.filters(
-                    f -> f.name("group-id").values(getGroupId()),
+                    f -> f.name("group-id").values(getId()),
                     f -> f.name("vpc-id").values(getVpc().getId())
                 )
             );
@@ -364,7 +364,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             defaultRule.copyPortProtocol(permission);
             defaultRule.setDescription(permission.ipRanges().get(0).description());
             defaultRule.setCidrBlock("0.0.0.0/0");
-            defaultRule.delete(client, getGroupId());
+            defaultRule.delete(client, getId());
         }
     }
 }

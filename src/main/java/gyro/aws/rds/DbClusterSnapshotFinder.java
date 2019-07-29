@@ -19,32 +19,32 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    cluster-snapshots: $(aws::db-cluster-snapshot EXTERNAL/* | db-cluster-snapshot-identifier = 'db-cluster-snapshot-example')
+ *    cluster-snapshots: $(aws::db-cluster-snapshot EXTERNAL/* | identifier = 'db-cluster-snapshot-example')
  */
 @Type("db-cluster-snapshot")
 public class DbClusterSnapshotFinder extends AwsFinder<RdsClient, DBClusterSnapshot, DbClusterSnapshotResource> {
 
-    private String dbClusterSnapshotIdentifier;
+    private String identifier;
 
     /**
      * The identifier of the cluster snapshot.
      */
-    public String getDbClusterSnapshotIdentifier() {
-        return dbClusterSnapshotIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDbClusterSnapshotIdentifier(String dbClusterSnapshotIdentifier) {
-        this.dbClusterSnapshotIdentifier = dbClusterSnapshotIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
     protected List<DBClusterSnapshot> findAws(RdsClient client, Map<String, String> filters) {
-        if (!filters.containsKey("db-cluster-snapshot-identifier")) {
-            throw new IllegalArgumentException("'db-cluster-snapshot-identifier' is required.");
+        if (!filters.containsKey("identifier")) {
+            throw new IllegalArgumentException("'identifier' is required.");
         }
 
         try {
-            return client.describeDBClusterSnapshots(r -> r.dbClusterSnapshotIdentifier(filters.get("db-cluster-snapshot-identifier"))).dbClusterSnapshots();
+            return client.describeDBClusterSnapshots(r -> r.dbClusterSnapshotIdentifier(filters.get("identifier"))).dbClusterSnapshots();
         } catch (DbClusterSnapshotNotFoundException ex) {
             return Collections.emptyList();
         }

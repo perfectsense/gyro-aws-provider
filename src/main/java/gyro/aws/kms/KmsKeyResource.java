@@ -68,8 +68,8 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private Boolean bypassPolicyLockoutSafetyCheck;
     private String description;
     private Boolean enabled;
-    private String keyArn;
-    private String keyId;
+    private String arn;
+    private String id;
     private String keyManager;
     private Boolean keyRotation;
     private String keyState;
@@ -159,24 +159,24 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
      */
     @Id
     @Output
-    public String getKeyArn() {
-        return keyArn;
+    public String getArn() {
+        return arn;
     }
 
-    public void setKeyArn(String keyArn) {
-        this.keyArn = keyArn;
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     /**
      * The id for this key.
      */
     @Output
-    public String getKeyId() {
-        return keyId;
+    public String getId() {
+        return id;
     }
 
-    public void setKeyId(String keyId) {
-        this.keyId = keyId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -285,8 +285,8 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     public void copyFrom(KeyMetadata keyMetadata) {
         setDescription(keyMetadata.description());
         setEnabled(keyMetadata.enabled());
-        setKeyArn(keyMetadata.arn());
-        setKeyId(keyMetadata.keyId());
+        setArn(keyMetadata.arn());
+        setId(keyMetadata.keyId());
         setKeyManager(keyMetadata.keyManagerAsString());
         setKeyState(keyMetadata.keyStateAsString());
         setKeyUsage(keyMetadata.keyUsageAsString());
@@ -295,14 +295,14 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         KmsClient client = createClient(KmsClient.class);
 
         getAliases().clear();
-        ListAliasesResponse aliasResponse = client.listAliases(r -> r.keyId(getKeyId()));
+        ListAliasesResponse aliasResponse = client.listAliases(r -> r.keyId(getId()));
         if (aliasResponse != null) {
             for (AliasListEntry alias : aliasResponse.aliases()) {
                 getAliases().add(alias.aliasName());
             }
         }
 
-        GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getKeyId()).policyName("default"));
+        GetKeyPolicyResponse policyResponse = client.getKeyPolicy(r -> r.keyId(getId()).policyName("default"));
         if (policyResponse != null) {
             setPolicy(policyResponse.policy());
         }
@@ -313,7 +313,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         KmsClient client = createClient(KmsClient.class);
 
         try {
-            DescribeKeyResponse keyResponse = client.describeKey(r -> r.keyId(getKeyId()));
+            DescribeKeyResponse keyResponse = client.describeKey(r -> r.keyId(getId()));
             KeyMetadata keyMetadata = keyResponse.keyMetadata();
 
             if (!keyMetadata.keyStateAsString().equals("PENDING_DELETION")) {
@@ -350,15 +350,15 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                             .tags(toTag())
             );
 
-            setKeyArn(response.keyMetadata().arn());
-            setKeyId(response.keyMetadata().keyId());
+            setArn(response.keyMetadata().arn());
+            setId(response.keyMetadata().keyId());
             setKeyManager(response.keyMetadata().keyManagerAsString());
             setKeyState(response.keyMetadata().keyStateAsString());
 
             try {
                 if (getAliases() != null) {
                     for (String alias : getAliases()) {
-                        client.createAlias(r -> r.aliasName(alias).targetKeyId(getKeyId()));
+                        client.createAlias(r -> r.aliasName(alias).targetKeyId(getId()));
                     }
                 }
 
@@ -368,11 +368,11 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             }
 
             if (getKeyRotation() != null && getKeyRotation()) {
-                client.enableKeyRotation(r -> r.keyId(getKeyId()));
+                client.enableKeyRotation(r -> r.keyId(getId()));
             }
 
             if (getEnabled() != null && !getEnabled()) {
-                client.disableKey(r -> r.keyId(getKeyId()));
+                client.disableKey(r -> r.keyId(getId()));
             }
         } else {
             throw new GyroException("Duplicate aliases are not allowed in the same region");
@@ -386,9 +386,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
         try {
             if (getEnabled() && !currentResource.getEnabled()) {
-                client.enableKey(r -> r.keyId(getKeyId()));
+                client.enableKey(r -> r.keyId(getId()));
             } else if (!getEnabled() && currentResource.getEnabled()) {
-                client.disableKey(r -> r.keyId(getKeyId()));
+                client.disableKey(r -> r.keyId(getId()));
             }
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is either pending import or pending deletion. It must be "
@@ -397,9 +397,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
         try {
             if (getKeyRotation() && !currentResource.getKeyRotation()) {
-                client.enableKeyRotation(r -> r.keyId(getKeyId()));
+                client.enableKeyRotation(r -> r.keyId(getId()));
             } else if (!getKeyRotation() && currentResource.getKeyRotation()) {
-                client.disableKeyRotation(r -> r.keyId(getKeyId()));
+                client.disableKeyRotation(r -> r.keyId(getId()));
             }
         } catch (KmsException ex) {
             throw new GyroException("This key must be enabled to update key rotation.");
@@ -415,18 +415,18 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 List<String> aliasAdditions = new ArrayList<>(getAliases());
                 aliasAdditions.removeAll(currentResource.getAliases());
 
-                aliasAdditions.forEach(alias -> client.createAlias(r -> r.aliasName(alias).targetKeyId(getKeyId())));
+                aliasAdditions.forEach(alias -> client.createAlias(r -> r.aliasName(alias).targetKeyId(getId())));
 
             } catch (AlreadyExistsException ex) {
                 throw new GyroException(ex.getMessage());
             }
 
             client.tagResource(r -> r.tags(toTag())
-                    .keyId(getKeyArn())
+                    .keyId(getArn())
             );
 
             client.updateKeyDescription(r -> r.description(getDescription())
-                    .keyId(getKeyId()));
+                    .keyId(getId()));
 
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
@@ -434,13 +434,13 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
         client.putKeyPolicy(r -> r.policy(getPolicy())
                 .policyName("default")
-                .keyId(getKeyId()));
+                .keyId(getId()));
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         KmsClient client = createClient(KmsClient.class);
-        client.scheduleKeyDeletion(r -> r.keyId(getKeyId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
+        client.scheduleKeyDeletion(r -> r.keyId(getId()).pendingWindowInDays(Integer.valueOf(getPendingWindow())));
     }
 
     private List<Tag> toTag() {

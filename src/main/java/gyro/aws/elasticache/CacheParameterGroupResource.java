@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::elasticache-parameter-group cache-param-group-example
- *         cache-param-group-name: "cache-param-group-example"
+ *         name: "cache-param-group-example"
  *         cache-param-group-family: "redis5.0"
  *         description: "cache-param-group-desc"
  *
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  */
 @Type("elasticache-parameter-group")
 public class CacheParameterGroupResource extends AwsResource implements Copyable<CacheParameterGroup> {
-    private String cacheParamGroupName;
+    private String name;
     private String cacheParamGroupFamily;
     private String description;
     private List<CacheParameter> parameters;
@@ -57,12 +57,12 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
      * The name of the cache parameter group. (Required)
      */
     @Id
-    public String getCacheParamGroupName() {
-        return cacheParamGroupName;
+    public String getName() {
+        return name;
     }
 
-    public void setCacheParamGroupName(String cacheParamGroupName) {
-        this.cacheParamGroupName = cacheParamGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -107,11 +107,11 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     public void copyFrom(CacheParameterGroup cacheParameterGroup) {
         setCacheParamGroupFamily(cacheParameterGroup.cacheParameterGroupFamily());
         setDescription(cacheParameterGroup.description());
-        setCacheParamGroupName(cacheParameterGroup.cacheParameterGroupName());
+        setName(cacheParameterGroup.cacheParameterGroupName());
 
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
         DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
-            r -> r.cacheParameterGroupName(getCacheParamGroupName())
+            r -> r.cacheParameterGroupName(getName())
         );
 
         configParamSet = getParameters().stream().map(CacheParameter::getName).collect(Collectors.toSet());
@@ -145,7 +145,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
         client.createCacheParameterGroup(
             r -> r.description(getDescription())
                 .cacheParameterGroupFamily(getCacheParamGroupFamily())
-                .cacheParameterGroupName(getCacheParamGroupName())
+                .cacheParameterGroupName(getName())
         );
 
         saveParameters(client);
@@ -163,7 +163,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
         ElastiCacheClient client = createClient(ElastiCacheClient.class);
 
         client.deleteCacheParameterGroup(
-            r -> r.cacheParameterGroupName(getCacheParamGroupName())
+            r -> r.cacheParameterGroupName(getName())
         );
     }
 
@@ -192,7 +192,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
 
         //Add modified params
         DescribeCacheParametersResponse paramResponse = client.describeCacheParameters(
-            r -> r.cacheParameterGroupName(getCacheParamGroupName())
+            r -> r.cacheParameterGroupName(getName())
         );
 
         Map<String, String> currentParamMap = paramResponse.parameters()
@@ -231,7 +231,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
             List<CacheParameter> parameters = start > end ? new ArrayList<>() : modifiedParameters.subList(start, end);
             if (start < modifiedParameters.size() || !parameters.isEmpty()) {
                 client.modifyCacheParameterGroup(
-                    r -> r.cacheParameterGroupName(getCacheParamGroupName())
+                    r -> r.cacheParameterGroupName(getName())
                         .parameterNameValues(parameters.stream().map(CacheParameter::getParameterNameValue).collect(Collectors.toList()))
                 );
                 start = start + max;
@@ -244,13 +244,13 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     private CacheParameterGroup getCacheParameterGroup(ElastiCacheClient client) {
         CacheParameterGroup cacheParameterGroup = null;
 
-        if (ObjectUtils.isBlank(getCacheParamGroupName())) {
-            throw new GyroException("cache-param-group-name is missing, unable to load cache parameter group.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load cache parameter group.");
         }
 
         try {
             DescribeCacheParameterGroupsResponse response = client.describeCacheParameterGroups(
-                r -> r.cacheParameterGroupName(getCacheParamGroupName())
+                r -> r.cacheParameterGroupName(getName())
             );
 
             if (!response.cacheParameterGroups().isEmpty()) {

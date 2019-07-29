@@ -8,7 +8,7 @@ aws::vpc vpc-db-instance-example
 end
 
 aws::security-group security-group-db-instance-example-1
-    group-name: "db-instance-example-1"
+    name: "db-instance-example-1"
     vpc: $(aws::vpc vpc-db-instance-example)
     description: "db-instance-example-1"
     keep-default-egress-rules: true
@@ -27,7 +27,7 @@ aws::security-group security-group-db-instance-example-1
 end
 
 aws::security-group security-group-db-instance-example-2
-    group-name: "db-instance-example-2"
+    name: "db-instance-example-2"
     vpc: $(aws::vpc vpc-db-instance-example)
     description: "db-instance-example-2"
     keep-default-egress-rules: true
@@ -66,8 +66,8 @@ aws::subnet subnet-db-instance-example-2
 end
 
 aws::docdb-subnet-group db-subnet-group-db-instance-example
-    db-subnet-group-name: "db-subnet-group-db-instance-example"
-    db-subnet-group-description: "db-subnet-group-db-instance-example-description"
+    name: "db-subnet-group-db-instance-example"
+    description: "db-subnet-group-db-instance-example-description"
     subnets: [
         $(aws::subnet subnet-db-instance-example-1),
         $(aws::subnet subnet-db-instance-example-2)
@@ -79,7 +79,7 @@ aws::docdb-subnet-group db-subnet-group-db-instance-example
 end
 
 aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example
-    db-cluster-param-group-name: "db-cluster-param-group-db-instance-example"
+    name: "db-cluster-param-group-db-instance-example"
     db-param-group-family: "docdb3.6"
     description: "db-cluster-param-group-db-instance-example-desc"
 
@@ -89,7 +89,7 @@ aws::docdb-cluster-param-group db-cluster-param-group-db-instance-example
 end
 
 aws::docdb-cluster db-cluster-db-instance-example
-    db-cluster-identifier: "db-cluster-db-instance-example"
+    identifier: "db-cluster-db-instance-example"
     db-subnet-group: $(aws::docdb-subnet-group db-subnet-group-db-instance-example)
     engine: "docdb"
     engine-version: "3.6.0"
@@ -114,7 +114,7 @@ end
 aws::docdb-instance db-instance-example
     availability-zone: "us-east-2a"
     db-instance-class: "db.r4.large"
-    db-instance-identifier: "db-instance-example"
+    identifier: "db-instance-example"
     engine: "docdb"
     preferred-maintenance-window: "wed:03:28-wed:04:58"
     promotion-tier: 1

@@ -39,7 +39,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
     private EbsVolumeResource volume;
     private String description;
-    private String snapshotId;
+    private String id;
 
     private String dataEncryptionKeyId;
     private Boolean encrypted;
@@ -79,12 +79,12 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
      */
     @Id
     @Output
-    public String getSnapshotId() {
-        return snapshotId;
+    public String getId() {
+        return id;
     }
 
-    public void setSnapshotId(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -209,7 +209,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
     @Override
     public void copyFrom(Snapshot snapshot) {
-        setSnapshotId(snapshot.snapshotId());
+        setId(snapshot.snapshotId());
         setDataEncryptionKeyId(snapshot.dataEncryptionKeyId());
         setDescription(snapshot.description());
         setEncrypted(snapshot.encrypted());
@@ -240,8 +240,8 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     @Override
-    protected String getId() {
-        return getSnapshotId();
+    protected String getResourceId() {
+        return getId();
     }
 
     @Override
@@ -250,10 +250,10 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
         CreateSnapshotResponse response = client.createSnapshot(
             r -> r.description(getDescription())
-                .volumeId(getVolume().getVolumeId())
+                .volumeId(getVolume().getId())
         );
 
-        setSnapshotId(response.snapshotId());
+        setId(response.snapshotId());
     }
 
     @Override
@@ -266,20 +266,20 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteSnapshot(
-            r -> r.snapshotId(getSnapshotId())
+            r -> r.snapshotId(getId())
         );
     }
 
     private Snapshot getSnapshot(Ec2Client client) {
         Snapshot snapshot = null;
 
-        if (ObjectUtils.isBlank(getSnapshotId())) {
-            throw new GyroException("snapshot-id is missing, unable to load snapshot.");
+        if (ObjectUtils.isBlank(getId())) {
+            throw new GyroException("id is missing, unable to load snapshot.");
         }
 
         try {
             DescribeSnapshotsResponse response = client.describeSnapshots(
-                r -> r.snapshotIds(getSnapshotId())
+                r -> r.snapshotIds(getId())
             );
 
             if (!response.snapshots().isEmpty()) {

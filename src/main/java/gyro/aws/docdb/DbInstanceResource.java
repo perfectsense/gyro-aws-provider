@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *     aws::docdb-instance db-instance-example
  *         availability-zone: "us-east-2a"
  *         db-instance-class: "db.r4.large"
- *         db-instance-identifier: "db-instance-example"
+ *         identifier: "db-instance-example"
  *         engine: "docdb"
  *         preferred-maintenance-window: "wed:03:28-wed:04:58"
  *         promotion-tier: 1
@@ -47,7 +47,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     private Boolean autoMinorVersionUpgrade;
     private String availabilityZone;
     private String dbInstanceClass;
-    private String dbInstanceIdentifier;
+    private String identifier;
     private String engine;
     private String preferredMaintenanceWindow;
     private Integer promotionTier;
@@ -96,12 +96,12 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Name of the database instance. (Required)
      */
-    public String getDbInstanceIdentifier() {
-        return dbInstanceIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDbInstanceIdentifier(String dbInstanceIdentifier) {
-        this.dbInstanceIdentifier = dbInstanceIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -175,7 +175,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     @Override
-    protected String getId() {
+    protected String getResourceId() {
         return getArn();
     }
 
@@ -202,11 +202,11 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
             r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                 .availabilityZone(getAvailabilityZone())
                 .dbInstanceClass(getDbInstanceClass())
-                .dbInstanceIdentifier(getDbInstanceIdentifier())
+                .dbInstanceIdentifier(getIdentifier())
                 .engine(getEngine())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
-                .dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
+                .dbClusterIdentifier(getDbCluster().getIdentifier())
         );
 
         setArn(response.dbInstance().dbInstanceArn());
@@ -219,7 +219,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
             .until(() -> isAvailable(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb instance - " + getDbInstanceIdentifier());
+            throw new GyroException("Unable to reach 'available' state for docdb instance - " + getIdentifier());
         }
 
         copyFrom(getDbInstance(client));
@@ -232,7 +232,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
         client.modifyDBInstance(
             r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                 .dbInstanceClass(getDbInstanceClass())
-                .dbInstanceIdentifier(getDbInstanceIdentifier())
+                .dbInstanceIdentifier(getIdentifier())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .promotionTier(getPromotionTier())
         );
@@ -248,7 +248,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
         DocDbClient client = createClient(DocDbClient.class);
 
         client.deleteDBInstance(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+            r -> r.dbInstanceIdentifier(getIdentifier())
         );
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -279,13 +279,13 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     private DBInstance getDbInstance(DocDbClient client) {
         DBInstance dbInstance = null;
 
-        if (ObjectUtils.isBlank(getDbInstanceIdentifier())) {
-            throw new GyroException("db-instance-identifier is missing, unable to load db instance.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db instance.");
         }
 
         try {
             DescribeDbInstancesResponse response = client.describeDBInstances(
-                r -> r.dbInstanceIdentifier(getDbInstanceIdentifier())
+                r -> r.dbInstanceIdentifier(getIdentifier())
             );
 
             if (!response.dbInstances().isEmpty()) {

@@ -207,14 +207,14 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
-                .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
-                .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
-                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
+                .gatewayId(getGateway() != null ? getGateway().getId() : null)
+                .instanceId(getInstance() != null ? getInstance().getId() : null)
+                .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
+                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
                 .transitGatewayId(getTransitGatewayId())
-                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
-                .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
-                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
+                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
+                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
+                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
 
@@ -224,14 +224,14 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
             .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-            .gatewayId(getGateway() != null ? getGateway().getInternetGatewayId() : null)
-            .instanceId(getInstance() != null ? getInstance().getInstanceId() : null)
-            .natGatewayId(getNatGateway() != null ? getNatGateway().getNatGatewayId() : null)
-            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getNetworkInterfaceId() : null)
+            .gatewayId(getGateway() != null ? getGateway().getId() : null)
+            .instanceId(getInstance() != null ? getInstance().getId() : null)
+            .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
+            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
             .transitGatewayId(getTransitGatewayId())
-            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getPeeringConnectionId() : null)
-            .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
-            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getGatewayId() : null)
+            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
+            .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
+            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
 
@@ -241,7 +241,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .routeTableId(getRouteTable() != null ? getRouteTable().getRouteTableId() : null)
+                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
         );
     }
 
@@ -254,7 +254,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         try {
             DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTable().getRouteTableId()).build()
+                Filter.builder().name("route-table-id").values(getRouteTable().getId()).build()
             ));
 
             for (RouteTable routeTable : response.routeTables()) {

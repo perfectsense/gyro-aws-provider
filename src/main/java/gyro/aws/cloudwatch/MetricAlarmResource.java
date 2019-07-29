@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-1
- *         alarm-name: "metric-alarm-example-1"
- *         alarm-description: "metric-alarm-example-1"
+ *         name: "metric-alarm-example-1"
+ *         description: "metric-alarm-example-1"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
  *         evaluation-periods: 1
@@ -48,15 +48,15 @@ import java.util.stream.Collectors;
  *     end
  *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-2
- *         alarm-name: "metric-alarm-example-2"
- *         alarm-description: "metric-alarm-example-2"
+ *         name: "metric-alarm-example-2"
+ *         description: "metric-alarm-example-2"
  *         comparison-operator: "GreaterThanOrEqualToThreshold"
  *         threshold: 0.1
  *         evaluation-periods: 1
  *
  *         metric
  *             id: "e1"
- *             expression: "SUM(METRICS())"
+ *             expression: 'SUM(METRICS())'
  *             label: "Expression1"
  *             return-data: true
  *         end
@@ -74,10 +74,10 @@ import java.util.stream.Collectors;
 @Type("cloudwatch-metric-alarm")
 public class MetricAlarmResource extends AwsResource implements Copyable<MetricAlarm> {
 
-    private String alarmName;
+    private String name;
     private Boolean actionsEnabled;
     private Set<String> alarmActions;
-    private String alarmDescription;
+    private String description;
     private String comparisonOperator;
     private Integer datapointsToAlarm;
     private Map<String, String> dimensions;
@@ -100,12 +100,12 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     /**
      * The name of the Metric Alarm. (Required)
      */
-    public String getAlarmName() {
-        return alarmName;
+    public String getName() {
+        return name;
     }
 
-    public void setAlarmName(String alarmName) {
-        this.alarmName = alarmName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -144,12 +144,12 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * A description for the Metric Alarm.
      */
     @Updatable
-    public String getAlarmDescription() {
-        return alarmDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setAlarmDescription(String alarmDescription) {
-        this.alarmDescription = alarmDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -393,7 +393,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     public void copyFrom(MetricAlarm metricAlarm) {
         setActionsEnabled(metricAlarm.actionsEnabled());
         setAlarmActions(new HashSet<>(metricAlarm.alarmActions()));
-        setAlarmDescription(metricAlarm.alarmDescription());
+        setDescription(metricAlarm.alarmDescription());
         setComparisonOperator(metricAlarm.comparisonOperator() != null ? metricAlarm.comparisonOperator().toString() : null);
         setDatapointsToAlarm(metricAlarm.datapointsToAlarm());
         setEvaluateLowSampleCountPercentile(metricAlarm.evaluateLowSampleCountPercentile());
@@ -456,16 +456,16 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     public void delete(GyroUI ui, State state) {
         CloudWatchClient client = createClient(CloudWatchClient.class);
 
-        client.deleteAlarms(r -> r.alarmNames(Collections.singleton(getAlarmName())));
+        client.deleteAlarms(r -> r.alarmNames(Collections.singleton(getName())));
     }
 
     private MetricAlarm getMetricAlarm(CloudWatchClient client) {
-        if (ObjectUtils.isBlank(getAlarmName())) {
-            throw new GyroException("alarm-name is missing, unable to load metric alarm.");
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("name is missing, unable to load metric alarm.");
         }
 
         try {
-            DescribeAlarmsResponse response = client.describeAlarms(r -> r.alarmNames(Collections.singleton(getAlarmName())));
+            DescribeAlarmsResponse response = client.describeAlarms(r -> r.alarmNames(Collections.singleton(getName())));
 
             if (response.metricAlarms().isEmpty()) {
                 return null;
@@ -485,10 +485,10 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
         validate();
 
         PutMetricAlarmRequest.Builder builder = PutMetricAlarmRequest.builder();
-        builder = builder.alarmName(getAlarmName())
+        builder = builder.alarmName(getName())
             .actionsEnabled(getActionsEnabled())
             .alarmActions(getAlarmActions())
-            .alarmDescription(getAlarmDescription())
+            .alarmDescription(getDescription())
             .comparisonOperator(getComparisonOperator())
             .datapointsToAlarm(getDatapointsToAlarm())
             .evaluateLowSampleCountPercentile(getEvaluateLowSampleCountPercentile())

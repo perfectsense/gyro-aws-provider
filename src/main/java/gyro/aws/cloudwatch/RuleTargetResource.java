@@ -226,7 +226,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
         EventRuleResource ruleResource = (EventRuleResource) parent();
 
         if (ruleResource != null) {
-            return ruleResource.getRuleName();
+            return ruleResource.getName();
         }
         return null;
     }

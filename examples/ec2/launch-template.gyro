@@ -19,7 +19,7 @@ aws::subnet subnet
 end
 
 aws::security-group security-group-launch-template-example-1
-    group-name: "security-group-launch-template-example-1"
+    name: "security-group-launch-template-example-1"
     vpc: $(aws::vpc vpc-launch-template-example)
     description: "security group launch-template example 1"
     keep-default-egress-rules: true
@@ -46,7 +46,7 @@ aws::security-group security-group-launch-template-example-1
 end
 
 aws::security-group security-group-launch-template-example-2
-    group-name: "security-group-launch-template-example-2"
+    name: "security-group-launch-template-example-2"
     vpc: $(aws::vpc vpc-launch-template-example)
     description: "security group launch-template example 2"
     keep-default-egress-rules: true
@@ -91,7 +91,7 @@ aws::network-interface nic-example-launch-template-2
 end
 
 aws::launch-template launch-template
-    launch-template-name: "launch-template-gyro-1"
+    name: "launch-template-gyro-1"
     ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"

@@ -24,7 +24,7 @@ import java.util.Set;
  *
  *    aws::db-cluster-snapshot db-cluster-snapshot-example
  *        db-cluster: $(aws::db-cluster db-cluster-example)
- *        db-cluster-snapshot-identifier: "db-cluster-snapshot-example"
+ *        identifier: "db-cluster-snapshot-example"
  *        tags: {
  *            Name: "db-cluster-snapshot-example"
  *        }
@@ -34,7 +34,7 @@ import java.util.Set;
 public class DbClusterSnapshotResource extends RdsTaggableResource implements Copyable<DBClusterSnapshot> {
 
     private DbClusterResource dbCluster;
-    private String dbClusterSnapshotIdentifier;
+    private String identifier;
 
     /**
      * The DB cluster to create a snapshot for. (Required)
@@ -51,12 +51,12 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
      * The unique identifier of the DB cluster snapshot. (Required)
      */
     @Id
-    public String getDbClusterSnapshotIdentifier() {
-        return dbClusterSnapshotIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setDbClusterSnapshotIdentifier(String dbClusterSnapshotIdentifier) {
-        this.dbClusterSnapshotIdentifier = dbClusterSnapshotIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
@@ -69,13 +69,13 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getDbClusterSnapshotIdentifier())) {
-            throw new GyroException("db-cluster-snapshot-identifier is missing, unable to load db cluster snapshot.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db cluster snapshot.");
         }
 
         try {
             DescribeDbClusterSnapshotsResponse response = client.describeDBClusterSnapshots(
-                r -> r.dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
+                r -> r.dbClusterSnapshotIdentifier(getIdentifier())
             );
 
             response.dbClusterSnapshots().forEach(this::copyFrom);
@@ -92,8 +92,8 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
         try {
             RdsClient client = createClient(RdsClient.class);
             CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-                r -> r.dbClusterIdentifier(getDbCluster().getDbClusterIdentifier())
-                    .dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
+                r -> r.dbClusterIdentifier(getDbCluster().getIdentifier())
+                    .dbClusterSnapshotIdentifier(getIdentifier())
             );
 
             setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
@@ -111,8 +111,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBClusterSnapshot(
-            r -> r.dbClusterSnapshotIdentifier(getDbClusterSnapshotIdentifier())
+            r -> r.dbClusterSnapshotIdentifier(getIdentifier())
         );
     }
-
 }

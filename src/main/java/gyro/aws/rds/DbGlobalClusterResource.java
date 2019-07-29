@@ -23,7 +23,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *    aws::db-global-cluster db-global-cluster-example
- *        global-cluster-identifier: "aurora-global-cluster"
+ *        identifier: "aurora-global-cluster"
  *        engine: "aurora"
  *    end
  */
@@ -34,7 +34,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     private Boolean deletionProtection;
     private String engine;
     private String engineVersion;
-    private String globalClusterIdentifier;
+    private String identifier;
     private DbClusterResource sourceDbCluster;
     private Boolean storageEncrypted;
 
@@ -87,12 +87,12 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
      * The unique identifier of the global database cluster. (Required)
      */
     @Id
-    public String getGlobalClusterIdentifier() {
-        return globalClusterIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setGlobalClusterIdentifier(String globalClusterIdentifier) {
-        this.globalClusterIdentifier = globalClusterIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     /**
@@ -136,13 +136,13 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     public boolean refresh() {
         RdsClient client = createClient(RdsClient.class);
 
-        if (ObjectUtils.isBlank(getGlobalClusterIdentifier())) {
-            throw new GyroException("global-cluster-identifier is missing, unable to load db global cluster.");
+        if (ObjectUtils.isBlank(getIdentifier())) {
+            throw new GyroException("identifier is missing, unable to load db global cluster.");
         }
 
         try {
             DescribeGlobalClustersResponse response = client.describeGlobalClusters(
-                r -> r.globalClusterIdentifier(getGlobalClusterIdentifier())
+                r -> r.globalClusterIdentifier(getIdentifier())
             );
 
             response.globalClusters().forEach(this::copyFrom);
@@ -162,7 +162,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
                     .deletionProtection(getDeletionProtection())
                     .engine(getEngine())
                     .engineVersion(getEngineVersion())
-                    .globalClusterIdentifier(getGlobalClusterIdentifier())
+                    .globalClusterIdentifier(getIdentifier())
                     .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
                     .storageEncrypted(getStorageEncrypted())
         );
@@ -175,8 +175,8 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
         // The modify global cluster api currently return a 500
         client.modifyGlobalCluster(
             r -> r.deletionProtection(getDeletionProtection())
-                    .globalClusterIdentifier(current.getGlobalClusterIdentifier())
-                    .newGlobalClusterIdentifier(getGlobalClusterIdentifier())
+                    .globalClusterIdentifier(current.getIdentifier())
+                    .newGlobalClusterIdentifier(getIdentifier())
         );
     }
 
@@ -184,8 +184,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     public void delete(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
         client.deleteGlobalCluster(
-            r -> r.globalClusterIdentifier(getGlobalClusterIdentifier())
+            r -> r.globalClusterIdentifier(getIdentifier())
         );
     }
-
 }

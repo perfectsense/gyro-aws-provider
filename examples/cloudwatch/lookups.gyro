@@ -1,2 +1,2 @@
-event-rule: $(external-query aws::cloudwatch-event-rule { rule-name: '' })
-metric-alarm: $(external-query aws::cloudwatch-metric-alarm { alarm-name: '' })
+event-rule: $(external-query aws::cloudwatch-event-rule { name: '' })
+metric-alarm: $(external-query aws::cloudwatch-metric-alarm { name: '' })

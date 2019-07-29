@@ -56,7 +56,7 @@ aws::elastic-ip elastic-ip-example-2
 end
 
 aws::security-group security-group-elastic-ip
-    group-name: "instance-example"
+    name: "instance-example"
     vpc: $(aws::vpc vpc-elastic-ip)
     description: "instance example"
     keep-default-egress-rules: true

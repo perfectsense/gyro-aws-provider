@@ -14,35 +14,35 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    metric-alarm: $(aws::cloudwatch-metric-alarm EXTERNAL/* | alarm-name = '')
+ *    metric-alarm: $(aws::cloudwatch-metric-alarm EXTERNAL/* | name = '')
  */
 @Type("cloudwatch-metric-alarm")
 public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, MetricAlarmResource> {
-    private String alarmName;
-    private String alarmNamePrefix;
+    private String name;
+    private String alarmPrefix;
     private String state;
-    private String actionNamePrefix;
+    private String actionPrefix;
 
     /**
      * The name of the alarm. Cannot be specified if 'alarm-prefix' specified.
      */
-    public String getAlarmName() {
-        return alarmName;
+    public String getName() {
+        return name;
     }
 
-    public void setAlarmName(String alarmName) {
-        this.alarmName = alarmName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * The prefix of the alarm. Cannot be specified if 'alarm-name' specified.
+     * The prefix of the alarm. Cannot be specified if 'name' specified.
      */
-    public String getAlarmNamePrefix() {
-        return alarmNamePrefix;
+    public String getAlarmPrefix() {
+        return alarmPrefix;
     }
 
-    public void setAlarmNamePrefix(String alarmNamePrefix) {
-        this.alarmNamePrefix = alarmNamePrefix;
+    public void setAlarmPrefix(String alarmPrefix) {
+        this.alarmPrefix = alarmPrefix;
     }
 
     /**
@@ -59,12 +59,12 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
     /**
      * The action prefix of the alarm.
      */
-    public String getActionNamePrefix() {
-        return actionNamePrefix;
+    public String getActionPrefix() {
+        return actionPrefix;
     }
 
-    public void setActionNamePrefix(String actionNamePrefix) {
-        this.actionNamePrefix = actionNamePrefix;
+    public void setActionPrefix(String actionPrefix) {
+        this.actionPrefix = actionPrefix;
     }
 
     @Override
@@ -74,12 +74,12 @@ public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, 
 
     @Override
     protected List<MetricAlarm> findAws(CloudWatchClient client, Map<String, String> filters) {
-        if (filters.containsKey("alarm-name") && filters.containsKey("alarm-prefix")) {
-            throw new IllegalArgumentException("Either 'alarm-name' or 'alarm-prefix' can be specified, not both.");
+        if (filters.containsKey("name") && filters.containsKey("alarm-prefix")) {
+            throw new IllegalArgumentException("Either 'name' or 'alarm-prefix' can be specified, not both.");
         }
 
         return client.describeAlarmsPaginator(
-            r -> r.alarmNames(filters.get("alarm-name"))
+            r -> r.alarmNames(filters.get("name"))
                 .alarmNamePrefix(filters.get("alarm-prefix"))
                 .actionPrefix(filters.get("action-prefix"))
                 .stateValue(filters.get("state"))).metricAlarms().stream().collect(Collectors.toList());

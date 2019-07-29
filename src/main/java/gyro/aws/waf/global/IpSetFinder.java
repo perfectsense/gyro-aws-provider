@@ -55,7 +55,7 @@ public class IpSetFinder extends gyro.aws.waf.common.IpSetFinder<WafClient, IpSe
         List<IPSet> ipSets = new ArrayList<>();
 
         try {
-            ipSets.add(client.getIPSet(r -> r.ipSetId(filters.get("ip-set-id"))).ipSet());
+            ipSets.add(client.getIPSet(r -> r.ipSetId(filters.get("id"))).ipSet());
         } catch (WafNonexistentItemException ignore) {
             //ignore
         }
