@@ -41,9 +41,11 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     }
 
     LoggingEnabled toLoggingEnabled(){
+        String prefix = getTargetPrefix() == null ? "" : getTargetPrefix();
+
         return LoggingEnabled.builder()
                 .targetBucket(getTargetBucket())
-                .targetPrefix(getTargetPrefix())
+                .targetPrefix(prefix)
                 .build();
     }
 }
