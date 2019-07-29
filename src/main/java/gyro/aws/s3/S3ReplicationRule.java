@@ -1,10 +1,11 @@
 package gyro.aws.s3;
 
-import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.DeleteMarkerReplicationStatus;
+import software.amazon.awssdk.services.s3.model.ReplicationRule;
+import software.amazon.awssdk.services.s3.model.ReplicationRuleStatus;
 
 public class S3ReplicationRule extends Diffable implements Copyable<ReplicationRule> {
     private S3Destination destination;
@@ -29,7 +30,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
     /**
-     * Priority of this rule. Defaults to 1
+     * Priority of this rule. Defaults to ``1``
      */
     @Updatable
     public Integer getPriority() {
@@ -66,7 +67,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
      /**
-     * The state of this replication rule. Valid valiues ``Enabled`` or ``Disabled``. (Required)
+     * The state of this replication rule. Valid values are ``Enabled`` or ``Disabled``. (Required)
      */
     @Updatable
     public ReplicationRuleStatus getStatus() {
@@ -78,7 +79,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
     /**
-     * State of the delete marker replication. Valid values ``Enabled`` or ``Disabled``. (Required)
+     * State of the delete marker replication. Valid values are ``Enabled`` or ``Disabled``. (Required)
      */
     @Updatable
     public DeleteMarkerReplicationStatus getDeleteMarkerReplicationStatus() {

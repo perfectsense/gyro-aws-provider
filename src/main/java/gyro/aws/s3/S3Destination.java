@@ -40,7 +40,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     /**
-     * KMS Key ID or ALIAS ARN to encrypt objects with when replicated to destination. Required of SSE is enabled.
+     * KMS Key ID or ALIAS ARN to encrypt objects with when replicated to destination. Required if SSE is enabled.
      */
     @Updatable
     public String getEncryptionConfiguration() {
@@ -52,7 +52,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     /**
-     * Sets the ownership of the replica. Valid values ``DESTINATION``
+     * Sets the ownership of the replica. Valid value is ``DESTINATION``
      */
     @Updatable
     public OwnerOverride getOwnerOverride() {
@@ -64,7 +64,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     /**
-     * Storage class for replicated object. Defaults to class of source object. Valid values: ``DEEP_ARCHIVE``, ``GLACIER``, ``INTELLIGENT_TIERING``, ``ONEZONE_IA``, ``REDUCED_REDUNDANCY``, ``STANDARD``, ``STANDARD_IA``
+     * Storage class for replicated object. Defaults to class of source object. Valid values are ``DEEP_ARCHIVE``, ``GLACIER``, ``INTELLIGENT_TIERING``, ``ONEZONE_IA``, ``REDUCED_REDUNDANCY``, ``STANDARD``, ``STANDARD_IA``
      */
     @Updatable
     public StorageClass getStorageClass() {

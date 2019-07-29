@@ -4,10 +4,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.ReplicationRuleFilter;
 
-import java.util.*;
 
 public class S3ReplicationRuleFilter extends Diffable implements Copyable<ReplicationRuleFilter> {
     private String prefix;
@@ -39,7 +37,6 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
     public void setAndOperator(S3ReplicationRuleAndOperator andOperator) {
         this.andOperator = andOperator;
     }
-
 
     /**
      * Tag used to select the objects that will be replicated
