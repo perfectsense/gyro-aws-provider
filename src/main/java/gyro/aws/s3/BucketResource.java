@@ -580,6 +580,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if(response.loggingEnabled() != null){
             setLoggingEnabled(newSubresource(S3LoggingEnabled.class));
             getLoggingEnabled().copyFrom(response.loggingEnabled());
+        } else {
+            setLoggingEnabled(null);
         }
     }
 
@@ -639,14 +641,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                 r -> r.bucket(getName())
             );
 
-            if(response.replicationConfiguration() != null){
-                setReplicationConfiguration(newSubresource(S3ReplicationConfiguration.class));
-                getReplicationConfiguration().copyFrom(response.replicationConfiguration());
-            }
+            setReplicationConfiguration(newSubresource(S3ReplicationConfiguration.class));
+            getReplicationConfiguration().copyFrom(response.replicationConfiguration());
 
         }catch (S3Exception ex){
             if(!ex.awsErrorDetails().errorCode().equals("ReplicationConfigurationNotFoundError")){
                 throw ex;
+            } else {
+                setReplicationConfiguration(null);
             }
         }
     }

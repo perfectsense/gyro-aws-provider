@@ -127,6 +127,8 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
             destination.copyFrom(replicationRule.destination());
 
             setDestination(destination);
+        } else {
+            setDestination(null);
         }
 
         if(replicationRule.deleteMarkerReplication() != null){

@@ -54,9 +54,7 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
 
     @Override
     public void copyFrom(ReplicationRuleFilter replicationRuleFilter){
-        if(replicationRuleFilter.prefix() != null){
-            setPrefix(replicationRuleFilter.prefix());
-        }
+        setPrefix(replicationRuleFilter.prefix());
 
         if(replicationRuleFilter.tag() != null){
             S3Tag tag = newSubresource(S3Tag.class);
@@ -83,7 +81,7 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
     ReplicationRuleFilter toReplicationRuleFilter(){
         ReplicationRuleFilter.Builder builder = ReplicationRuleFilter.builder();
 
-        if(getPrefix() != null && !ObjectUtils.isBlank(getPrefix())){
+        if(!ObjectUtils.isBlank(getPrefix())){
             builder.prefix(getPrefix());
         } else if (getTag() != null){
             builder.tag(getTag().toTag());

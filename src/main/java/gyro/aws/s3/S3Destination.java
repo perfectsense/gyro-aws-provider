@@ -83,9 +83,14 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
 
         if (destination.encryptionConfiguration() != null){
             setEncryptionConfiguration(destination.encryptionConfiguration().replicaKmsKeyID());
+        } else {
+            encryptionConfiguration = null;
         }
+
         if (destination.accessControlTranslation() != null) {
             setOwnerOverride(destination.accessControlTranslation().owner());
+        } else {
+            setOwnerOverride(null);
         }
     }
 
