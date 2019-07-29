@@ -17,7 +17,7 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
     /**
      * Object prefix that this rule applies to.
      */
-   @Updatable
+    @Updatable
     public String getPrefix(){
         return prefix;
     }
@@ -65,12 +65,16 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
             S3Tag tag = newSubresource(S3Tag.class);
             tag.copyFrom(replicationRuleFilter.tag());
             setTag(tag);
+        } else{
+            setTag(null);
         }
 
         if(replicationRuleFilter.and() != null){
             S3ReplicationRuleAndOperator and = newSubresource(S3ReplicationRuleAndOperator.class);
             and.copyFrom(replicationRuleFilter.and());
             setAndOperator(and);
+        } else{
+            setAndOperator(null);
         }
     }
 
