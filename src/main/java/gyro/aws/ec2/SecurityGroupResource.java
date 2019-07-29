@@ -16,7 +16,10 @@ import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
+import software.amazon.awssdk.services.ec2.model.IpRange;
+import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
+import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  *
  *         ingress
  *             description: "allow inbound http traffic"
- *             cidr-blocks: ["0.0.0.0/0"]
+ *             cidr-block: "0.0.0.0/0"
  *             protocol: "TCP"
  *             from-port: 80
  *             to-port: 80
@@ -187,16 +190,56 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
                 continue;
             }
 
-            SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
-            rule.copyFrom(permission);
-            getEgress().add(rule);
+            for (IpRange ipRange : permission.ipRanges()) {
+                SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
+                rule.copyPortProtocol(permission);
+                rule.setCidrBlock(ipRange.cidrIp());
+                rule.setDescription(ipRange.description());
+                getEgress().add(rule);
+            }
+
+            for (Ipv6Range ipRange : permission.ipv6Ranges()) {
+                SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
+                rule.copyPortProtocol(permission);
+                rule.setIpv6CidrBlock(ipRange.cidrIpv6());
+                rule.setDescription(ipRange.description());
+                getEgress().add(rule);
+            }
+
+            for (UserIdGroupPair groupPair : permission.userIdGroupPairs()) {
+                SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
+                rule.copyPortProtocol(permission);
+                rule.setSecurityGroup(findById(SecurityGroupResource.class, groupPair.groupId()));
+                rule.setDescription(groupPair.description());
+                getEgress().add(rule);
+            }
         }
 
         getIngress().clear();
         for (IpPermission permission : group.ipPermissions()) {
-            SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
-            rule.copyFrom(permission);
-            getIngress().add(rule);
+            for (IpRange ipRange : permission.ipRanges()) {
+                SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
+                rule.copyPortProtocol(permission);
+                rule.setCidrBlock(ipRange.cidrIp());
+                rule.setDescription(ipRange.description());
+                getIngress().add(rule);
+            }
+
+            for (Ipv6Range ipRange : permission.ipv6Ranges()) {
+                SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
+                rule.copyPortProtocol(permission);
+                rule.setIpv6CidrBlock(ipRange.cidrIpv6());
+                rule.setDescription(ipRange.description());
+                getIngress().add(rule);
+            }
+
+            for (UserIdGroupPair groupPair : permission.userIdGroupPairs()) {
+                SecurityGroupIngressRuleResource rule = newSubresource(SecurityGroupIngressRuleResource.class);
+                rule.copyPortProtocol(permission);
+                rule.setSecurityGroup(findById(SecurityGroupResource.class, groupPair.groupId()));
+                rule.setDescription(groupPair.description());
+                getIngress().add(rule);
+            }
         }
     }
 
@@ -245,7 +288,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
                     o -> o.getToPort() == null
                         && o.getFromPort() == null
                         && o.getProtocol().equals("-1")
-                        && o.getCidrBlocks().contains("0.0.0.0/0"))
+                        && !ObjectUtils.isBlank(o.getCidrBlock())
+                        && o.getCidrBlock().equals("0.0.0.0/0"))
             ) {
 
                 deleteDefaultEgressRule(createClient(Ec2Client.class));
@@ -315,8 +359,12 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             && o.fromPort() == null && o.toPort() == null
             && o.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")).findFirst().orElse(null);
 
-        SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
-        defaultRule.copyFrom(permission);
-        defaultRule.delete(client, getId());
+        if (permission != null) {
+            SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
+            defaultRule.copyPortProtocol(permission);
+            defaultRule.setDescription(permission.ipRanges().get(0).description());
+            defaultRule.setCidrBlock("0.0.0.0/0");
+            defaultRule.delete(client, getId());
+        }
     }
 }
