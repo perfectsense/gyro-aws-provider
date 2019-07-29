@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    certificate-authority: $(external-query aws::certificate-authority {})
+ *    certificate-authority: $(external-query aws::acmpca-certificate-authority {})
  */
-@Type("certificate-authority")
+@Type("acmpca-certificate-authority")
 public class AcmPcaCerificateAuthorityFinder extends AwsFinder<AcmPcaClient, CertificateAuthority, AcmPcaCertificateAuthority> {
     private String arn;
 

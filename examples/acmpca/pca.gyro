@@ -1,4 +1,4 @@
-aws::certificate-authority certificate-authority-example
+aws::acmpca-certificate-authority certificate-authority-example
     type: "ROOT"
     configuration
         key-algorithm: "RSA_2048"

@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     aws::certificate-authority certificate-authority-example
+ *     aws::acmpca-certificate-authority certificate-authority-example
  *         type: "ROOT"
  *         configuration
  *             key-algorithm: "RSA_2048"
@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
  *         }
  *     end
  */
-@Type("certificate-authority")
+@Type("acmpca-certificate-authority")
 public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<CertificateAuthority> {
     private AcmPcaCertificateAuthorityConfiguration configuration;
     private CertificateAuthorityType type;

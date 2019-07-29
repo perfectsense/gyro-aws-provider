@@ -1,2 +1,2 @@
-certificate-authority: $(external-query aws::certificate-authority { })
-certificate-authority: $(external-query aws::certificate-authority { arn: "arn:aws:acm-pca:us-east-2:242040583208:certificate-authority/e0452af4-83a3-426c-9742-caac6b8a9a7f"})
+certificate-authority: $(external-query aws::acmpca-certificate-authority { })
+certificate-authority: $(external-query aws::acmpca-certificate-authority { arn: "arn:aws:acm-pca:us-east-2:242040583208:certificate-authority/e0452af4-83a3-426c-9742-caac6b8a9a7f"})
