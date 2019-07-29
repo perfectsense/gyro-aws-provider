@@ -57,11 +57,10 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     }
 
     ReplicationConfiguration toReplicationConfiguration(){
-        List<ReplicationRule> rules = getReplicationRule().stream().map(S3ReplicationRule::toReplicationRule).collect(Collectors.toList());
-
         return ReplicationConfiguration.builder()
                 .role(getRole())
-                .rules(rules)
+                .rules(getReplicationRule().stream().map(S3ReplicationRule::toReplicationRule)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }
