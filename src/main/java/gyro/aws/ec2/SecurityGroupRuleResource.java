@@ -121,8 +121,8 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             sb.append(getCidrBlock());
         } else if (!ObjectUtils.isBlank(getIpv6CidrBlock())) {
             sb.append(getIpv6CidrBlock());
-        } else if (getSecurityGroup() != null && !ObjectUtils.isBlank(getSecurityGroup().getGroupId())){
-            sb.append(getSecurityGroup().getGroupId());
+        } else if (getSecurityGroup() != null && !ObjectUtils.isBlank(getSecurityGroup().getId())){
+            sb.append(getSecurityGroup().getId());
         }
 
         return sb.toString();
