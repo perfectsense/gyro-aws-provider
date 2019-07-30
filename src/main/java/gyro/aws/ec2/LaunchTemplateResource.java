@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -240,7 +241,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
+     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. Required if Network Interface not configured.
      */
     public List<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
@@ -328,7 +329,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * A set of Network Interfaces to be attached to the instances being launched using this template.
+     * A set of Network Interfaces to be attached to the instances being launched using this template. Required if Security Group not provided.
      */
     public Set<NetworkInterfaceResource> getNetworkInterfaces() {
         if (networkInterfaces == null) {
@@ -413,7 +414,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .instanceInitiatedShutdownBehavior(getShutdownBehavior())
                         .keyName(getKeyName())
                         .monitoring(o -> o.enabled(getEnableMonitoring()))
-                        .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+                        .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()) : null)
                         .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
                         .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                             getBlockDeviceMapping()
@@ -423,12 +424,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         )
                         .capacityReservationSpecification(getCapacityReservationSpecification())
                         .iamInstanceProfile(getLaunchTemplateInstanceProfile())
-                        .networkInterfaces(!getNetworkInterfaces().isEmpty()
-                            ? getNetworkInterfaces().stream()
-                            .map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest.builder()
-                                .networkInterfaceId(o.getId()).build())
-                            .collect(Collectors.toList()) : null)));
-
+                        .networkInterfaces(!getNetworkInterfaces().isEmpty() ? toNetworkInterfaceSpecificationRequest() : null)));
         setId(response.launchTemplate().launchTemplateId());
         setVersion(response.launchTemplate().latestVersionNumber());
     }
@@ -450,8 +446,8 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
         }
 
-        if (getSecurityGroups().isEmpty()) {
-            throw new GyroException("At least one security group is required.");
+        if (!getSecurityGroups().isEmpty() && !getNetworkInterfaces().isEmpty()) {
+            throw new GyroException("Either security group or network interface is to be provided, not both.");
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")
@@ -534,5 +530,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         return LaunchTemplateIamInstanceProfileSpecificationRequest.builder()
             .arn(getInstanceProfile().getArn())
             .build();
+    }
+
+    private List<LaunchTemplateInstanceNetworkInterfaceSpecificationRequest> toNetworkInterfaceSpecificationRequest() {
+        AtomicInteger deviceIndex = new AtomicInteger();
+        return getNetworkInterfaces().stream().map(
+            o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest.builder().networkInterfaceId(o.getId()).deviceIndex(deviceIndex.getAndIncrement()).build()
+        ).collect(Collectors.toList());
     }
 }
