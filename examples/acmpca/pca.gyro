@@ -1,0 +1,28 @@
+aws::acmpca-certificate-authority certificate-authority-example
+    type: "ROOT"
+    configuration
+        key-algorithm: "RSA_2048"
+        signing-algorithm: "SHA256WITHRSA"
+        subject
+            country: "US"
+            organization: "Gyro LLC"
+            organizational-unit: "Dev"
+            state: "Virginia"
+            common-name: "VA R2"
+            locality: "Reston"
+        end
+    end
+
+    permission
+        actions: [
+            "IssueCertificate",
+            "GetCertificate",
+            "ListPermissions"
+        ]
+        principal: "acm.amazonaws.com"
+    end
+
+    tags: {
+        Name: "certificate-authority-example"
+    }
+end
