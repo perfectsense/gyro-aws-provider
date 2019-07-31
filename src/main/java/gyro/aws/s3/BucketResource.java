@@ -126,6 +126,81 @@ import java.util.stream.Collectors;
  *             end
  *         end
  *     end
+ *
+ * Example with replication configuration
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example
+ *         name: "example-bucket-us-east-2"
+ *         tags: {
+ *             Name: "bucket-example",
+ *             Name2: "something"
+ *         }
+ *         enable-accelerate-config: true
+ *         enable-versioning: true
+ *
+ *         replication-configuration
+ *             role: "arn:aws:iam::############:role/example-role"
+ *             replication-rule
+ *                 id: "example_to_east_1"
+ *
+ *                 destination
+ *                     bucket: "example-bucket-us-east-1"
+ *                 end
+ *
+ *                 filter
+ *                     prefix: "logs/"
+ *                 end
+ *
+ *                 priority: 1
+ *                 status: enabled
+ *                 delete-marker-replication-status: disabled
+ *             end
+ *
+ *             replication-rule
+ *                 id: "another_example_to_east_1"
+ *
+ *                 destination
+ *                     bucket: "example-bucket-us-east-1"
+ *                 end
+ *
+ *                 filter
+ *                     and-operator
+ *                         prefix: "thousand-year-door"
+ *                         tag
+ *                             key: "paper"
+ *                             value: "mario"
+ *                         end
+ *                     end
+ *                 end
+ *
+ *                 priority: 2
+ *                 status: enabled
+ *                 delete-marker-replication-status: disabled
+ *             end
+ *         end
+ *     end
+ *
+ * Example with logging enabled
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example
+ *         name: "bucket-example"
+ *         enable-object-lock: false
+ *         tags: {
+ *             Name: "bucket-example",
+ *             Name2: "something"
+ *         }
+ *
+ *         logging-enabled
+ *             bucket: "bucket-example"
+ *         end
+ *
+ *         enable-accelerate-config: true
+ *         enable-versioning: true
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
@@ -278,6 +353,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.domainName = domainName;
     }
 
+    /**
+     * Configure where access logs are sent.
+     *
+     * @subresource gyro.aws.s3.S3LoggingEnabled
+     */
     @Updatable
     public S3LoggingEnabled getLoggingEnabled() {
         return loggingEnabled;
@@ -287,7 +367,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.loggingEnabled = loggingEnabled;
     }
 
-
+    /**
+     * Configure the replication rules for the bucket.
+     *
+     * @subresource gyro.aws.s3.S3ReplicationConfiguration
+     */
     @Updatable
     public S3ReplicationConfiguration getReplicationConfiguration() {
         return replicationConfiguration;

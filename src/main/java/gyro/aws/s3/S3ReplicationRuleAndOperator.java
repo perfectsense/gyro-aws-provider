@@ -1,6 +1,5 @@
 package gyro.aws.s3;
 
-import com.psddev.dari.util.CompactMap;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;

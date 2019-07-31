@@ -1,0 +1,15 @@
+aws::s3-bucket bucket-example
+    name: "bucket-example"
+    enable-object-lock: false
+    tags: {
+        Name: "bucket-example",
+        Name2: "something"
+    }
+
+    logging-enabled
+        bucket: "bucket-example"
+    end
+
+    enable-accelerate-config: true
+    enable-versioning: true
+end
