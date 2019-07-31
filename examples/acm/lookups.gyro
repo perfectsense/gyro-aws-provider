@@ -1,0 +1,1 @@
+acm-certificate: $(external-query aws::acm-certificate { certificate-status: "ISSUED"})

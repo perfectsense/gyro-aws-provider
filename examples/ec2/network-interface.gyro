@@ -26,7 +26,7 @@ aws::security-group nic-security-group-example
     @for port, type -in [80, 'http', 443, 'https']
         ingress
             description: "allow inbound $(type) traffic, ipv4 only"
-            cidr-blocks: ["0.0.0.0/0"]
+            cidr-block: "0.0.0.0/0"
             protocol: "TCP"
             from-port: $(port)
             to-port: $(port)
@@ -35,7 +35,7 @@ aws::security-group nic-security-group-example
 
     egress
         description: "allow outbound http traffic, ipv6 only"
-        ipv6-cidr-blocks: ["::/0"]
+        ipv6-cidr-block: "::/0"
         protocol: "TCP"
         from-port: 80
         to-port: 80

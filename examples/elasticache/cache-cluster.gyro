@@ -45,7 +45,7 @@ aws::security-group security-group-cache-cluster-example-1
 
     ingress
         description: "allow inbound http traffic, ipv4 only"
-        cidr-blocks: ["0.0.0.0/0"]
+        cidr-block: "0.0.0.0/0"
         protocol: "TCP"
         from-port: 22
         to-port: 22
@@ -53,7 +53,7 @@ aws::security-group security-group-cache-cluster-example-1
 
     egress
         description: "allow outbound http traffic, ipv6 only"
-        ipv6-cidr-blocks: ["::/0"]
+        ipv6-cidr-block: "::/0"
         protocol: "TCP"
         from-port: 22
         to-port: 22
@@ -72,7 +72,7 @@ aws::security-group security-group-cache-cluster-example-2
 
     ingress
         description: "allow inbound http traffic, ipv4 only"
-        cidr-blocks: ["0.0.0.0/0"]
+        cidr-block: "0.0.0.0/0"
         protocol: "TCP"
         from-port: 22
         to-port: 22
@@ -80,7 +80,7 @@ aws::security-group security-group-cache-cluster-example-2
 
     egress
         description: "allow outbound http traffic, ipv6 only"
-        ipv6-cidr-blocks: ["::/0"]
+        ipv6-cidr-block: "::/0"
         protocol: "TCP"
         from-port: 22
         to-port: 22
