@@ -1,6 +1,7 @@
 package gyro.aws.s3;
 
 import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.ReplicationConfiguration;
@@ -11,18 +12,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class S3ReplicationConfiguration extends Diffable implements Copyable<ReplicationConfiguration> {
-    private String role;
+    private RoleResource role;
     private List<S3ReplicationRule> replicationRule;
 
     /**
      * The ARN for an IAM Role that the s3 bucket assumes when replicating objects. (Required)
      */
     @Updatable
-    public String getRole() {
+    public RoleResource getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(RoleResource role) {
         this.role = role;
     }
 
@@ -46,7 +47,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
 
     @Override
     public void copyFrom(ReplicationConfiguration replicationConfiguration) {
-        setRole(replicationConfiguration.role());
+        setRole(findById(RoleResource.class, replicationConfiguration.role()));
 
         getReplicationRule().clear();
         for (ReplicationRule replicationRule : replicationConfiguration.rules()){
@@ -58,7 +59,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
 
     ReplicationConfiguration toReplicationConfiguration(){
         return ReplicationConfiguration.builder()
-                .role(getRole())
+                .role(getRole().getArn())
                 .rules(getReplicationRule().stream().map(S3ReplicationRule::toReplicationRule)
                         .collect(Collectors.toList()))
                 .build();

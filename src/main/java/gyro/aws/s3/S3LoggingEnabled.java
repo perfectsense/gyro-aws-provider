@@ -7,44 +7,44 @@ import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.s3.model.LoggingEnabled;
 
 public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnabled> {
-    private String targetBucket;
-    private String targetPrefix;
+    private BucketResource bucket;
+    private String prefix;
 
     /**
      * The target destination bucket for the logs. (Required)
      */
     @Updatable
-    public String getTargetBucket() {
-        return targetBucket;
+    public BucketResource getBucket() {
+        return bucket;
     }
 
-    public void setTargetBucket(String targetBucket) {
-        this.targetBucket = targetBucket;
+    public void setBucket(BucketResource targetBucket) {
+        this.bucket = targetBucket;
     }
 
     /**
      * The destination prefix on the bucket to place logs.
      */
     @Updatable
-    public String getTargetPrefix() {
-        return targetPrefix;
+    public String getPrefix() {
+        return prefix;
     }
 
-    public void setTargetPrefix(String targetPrefix) {
-        this.targetPrefix = targetPrefix;
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
 
     @Override
     public void copyFrom(LoggingEnabled loggingEnabled) {
-        setTargetBucket(loggingEnabled.targetBucket());
-        setTargetPrefix(loggingEnabled.targetPrefix());
+        setBucket(findById(BucketResource.class, loggingEnabled.targetBucket()));
+        setPrefix(loggingEnabled.targetPrefix());
     }
 
     LoggingEnabled toLoggingEnabled(){
-        String prefix = getTargetPrefix() == null ? "" : getTargetPrefix();
+        String prefix = getPrefix() == null ? "" : getPrefix();
 
         return LoggingEnabled.builder()
-                .targetBucket(getTargetBucket())
+                .targetBucket(getBucket().getName())
                 .targetPrefix(prefix)
                 .build();
     }

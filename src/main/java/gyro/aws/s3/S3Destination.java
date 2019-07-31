@@ -3,14 +3,13 @@ package gyro.aws.s3;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.s3.model.AccessControlTranslation;
 import software.amazon.awssdk.services.s3.model.Destination;
 import software.amazon.awssdk.services.s3.model.OwnerOverride;
 import software.amazon.awssdk.services.s3.model.StorageClass;
 
 public class S3Destination extends Diffable implements Copyable<Destination> {
     private String account;
-    private String bucket;
+    private BucketResource bucket;
     private String encryptionConfiguration;
     private OwnerOverride ownerOverride;
     private StorageClass storageClass;
@@ -31,11 +30,11 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
      * ARN of the destination bucket. (Required)
      */
     @Updatable
-    public String getBucket() {
+    public BucketResource getBucket() {
         return bucket;
     }
 
-    public void setBucket(String bucket) {
+    public void setBucket(BucketResource bucket) {
         this.bucket = bucket;
     }
 
@@ -75,10 +74,14 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
         this.storageClass = storageClass;
     }
 
+    private String getBucketNameFromArn(String bucketArn){
+        return bucketArn.split(":")[5];
+    }
+
     @Override
     public void copyFrom(Destination destination) {
         setAccount(destination.account());
-        setBucket(destination.bucket());
+        setBucket(findById(BucketResource.class, getBucketNameFromArn(destination.bucket())));
         setStorageClass(destination.storageClass());
 
         if (destination.encryptionConfiguration() != null){
@@ -97,7 +100,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     Destination toDestination(){
         Destination.Builder builder = Destination.builder()
                 .account(getAccount())
-                .bucket(getBucket());
+                .bucket("arn:aws:s3:::" + getBucket().getName());
 
         if (getEncryptionConfiguration() != null){
             builder.encryptionConfiguration(
