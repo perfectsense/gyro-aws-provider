@@ -14,6 +14,9 @@ public class S3SourceSelectionCriteria extends Diffable implements Copyable<Sour
      */
     @Updatable
     public SseKmsEncryptedObjectsStatus getSseKmsEncryptedObjectsStatus() {
+        if(sseKmsEncryptedObjectsStatus == null){
+            this.sseKmsEncryptedObjectsStatus = SseKmsEncryptedObjectsStatus.ENABLED;
+        }
         return sseKmsEncryptedObjectsStatus;
     }
 
@@ -23,9 +26,7 @@ public class S3SourceSelectionCriteria extends Diffable implements Copyable<Sour
 
     @Override
     public void copyFrom(SourceSelectionCriteria sourceSelectionCriteria) {
-        if(sourceSelectionCriteria.sseKmsEncryptedObjects() != null){
-            setSseKmsEncryptedObjectsStatus(sourceSelectionCriteria.sseKmsEncryptedObjects().status());
-        }
+        setSseKmsEncryptedObjectsStatus(sourceSelectionCriteria.sseKmsEncryptedObjects().status());
     }
 
     @Override
@@ -34,14 +35,9 @@ public class S3SourceSelectionCriteria extends Diffable implements Copyable<Sour
     }
 
     SourceSelectionCriteria toSourceSelectionCriteria(){
-        SourceSelectionCriteria.Builder builder = SourceSelectionCriteria.builder();
-
-        if(getSseKmsEncryptedObjectsStatus() != null){
-            builder.sseKmsEncryptedObjects(
-                k -> k.status(getSseKmsEncryptedObjectsStatus())
-            );
-        }
-
-        return builder.build();
+        return SourceSelectionCriteria.builder()
+                .sseKmsEncryptedObjects(
+                        k -> k.status(getSseKmsEncryptedObjectsStatus())
+                ).build();
     }
 }
