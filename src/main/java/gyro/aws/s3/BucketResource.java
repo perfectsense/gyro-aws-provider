@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.Payer;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -266,6 +267,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     @Output
     public String getDomainName() {
+        if (domainName == null) {
+            S3Client client = createClient(S3Client.class);
+            domainName = String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
+        }
+
         return domainName;
     }
 
@@ -283,7 +289,6 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
-        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
     @Override
