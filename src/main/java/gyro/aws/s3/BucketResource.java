@@ -419,6 +419,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
+
+        state.save();
         setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
 
         if (!getTags().isEmpty()) {
