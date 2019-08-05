@@ -3,6 +3,7 @@
 @repository: 'https://artifactory.psdops.com/gyro-snapshots'
 @plugin: 'gyro:gyro-aws-provider:0.15-SNAPSHOT'
 @plugin: 'gyro:gyro-beam-enterprise-plugin:0.15-SNAPSHOT'
+@plugin: 'gyro:gyro-container-plugin:0.15-SNAPSHOT'
 
 project: "beam-sandbox"
 account: "psd-beam-sandbox"
@@ -13,4 +14,9 @@ environment: "sandbox"
     project: $(project)
     account: $(account)
     region: "us-east-2"
+@end
+
+@file-backend 'aws::s3', 'local'
+    bucket: 'project-ops'
+    prefix: 'containers'
 @end
