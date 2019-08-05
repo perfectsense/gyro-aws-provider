@@ -1,8 +1,6 @@
 package gyro.aws;
 
-import com.google.common.collect.ImmutableSet;
 import gyro.core.FileBackend;
-import gyro.core.NamespaceUtils;
 import gyro.core.Type;
 import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
@@ -13,7 +11,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 import java.util.stream.Stream;
 
 @Type("aws::s3")
@@ -41,11 +38,6 @@ public class S3FileBackend extends FileBackend {
     @Override
     public Stream<String> list() throws Exception {
         return null;
-    }
-
-    @Override
-    public Set<String> getNameSpaces() {
-        return ImmutableSet.of(NamespaceUtils.getNamespace(getClass()));
     }
 
     @Override
