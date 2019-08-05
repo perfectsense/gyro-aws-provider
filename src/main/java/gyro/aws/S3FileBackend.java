@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.stream.Stream;
 
-@Type("aws::s3")
+@Type("s3")
 public class S3FileBackend extends FileBackend {
 
     private String bucket;
