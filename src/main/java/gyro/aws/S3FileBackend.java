@@ -9,12 +9,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.stream.Stream;
 
 @Type("s3")
