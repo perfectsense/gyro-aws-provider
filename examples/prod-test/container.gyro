@@ -1,0 +1,45 @@
+gyro::container-config apache-production
+    name: "apache-production"
+    memory: "0.2"
+    data: {
+      function: site,
+      max_http_header_size: 16384,
+      rsyslog_enabled: false,
+      project: '',
+      hsts: false,
+      hsts_preload: false,
+      hsts_max_age: 31536000,
+      hsts_subdomains: true,
+      apache: {
+        timeout: 310,
+        keepalive: 'On',
+        keepaliverequests: 100,
+        ext_status: true,
+        keepalivetimeout: 305,
+        user: www-data,
+        group: www-data
+      }
+    }
+    @uses-file-backend: 'local'
+end
+
+gyro::container-config apache-frontend
+    name: "apache-layer"
+    memory: "0.4"
+    data: {
+       function: site,
+       max_http_header_size: 16384,
+       rsyslog_enabled: false,
+       project: '',
+       hsts: true,
+       hsts_preload: false,
+       hsts_max_age: 222,
+       hsts_subdomains: true,
+       apache: {
+          timeout: 359,
+          group: www-data
+       }
+    }
+    @container-import: [$(gyro::container-config apache-production)]
+    @uses-file-backend: 'local'
+end
