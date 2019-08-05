@@ -4,19 +4,15 @@ import com.google.common.collect.ImmutableSet;
 import gyro.core.FileBackend;
 import gyro.core.NamespaceUtils;
 import gyro.core.Type;
-
 import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
-
-import gyro.core.scope.RootScope;
-import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -25,18 +21,6 @@ public class S3FileBackend extends FileBackend {
 
     private String bucket;
     private  String prefix;
-    RootScope root;
-    private String configPath;
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    private String filePath;
 
     public String getBucket() {
         return bucket;
@@ -60,55 +44,55 @@ public class S3FileBackend extends FileBackend {
     }
 
     @Override
-    public InputStream openInput(String file) throws Exception {
-        return null;
-    }
-
-    @Override
     public Set<String> getNameSpaces() {
         return ImmutableSet.of(NamespaceUtils.getNamespace(getClass()));
     }
 
     @Override
+    public InputStream openInput(String file) throws Exception {
+        return client().getObject(r -> r.bucket(getBucket()).key(file));
+    }
+
+    @Override
     public OutputStream openOutput(String file) throws Exception {
+        return new OutputStream() {
+            StringBuilder sb = new StringBuilder();
 
-        root = getRootScope();
+            @Override
+            public void write(int b) throws IOException {
+                sb.append(b);
+            }
 
-        Credentials credentials = root.getSettings(CredentialsSettings.class)
-                .getCredentialsByName()
-                .get("aws::default");
-
-        S3Client s3Client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
-
-        S3AsyncClient client = AwsResource.createClient(S3AsyncClient.class, (AwsCredentials) credentials);
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(getPrefix()).append(getFileLocation());
-
-        PutObjectRequest pr = PutObjectRequest.builder()
-               .bucket(getBucket())
-               .key(sb.toString())
-               .build();
-
-        Path filePath = Paths.get(file);
-        s3Client.putObject(pr, filePath);
-        return null;
+            public void close() {
+                upload(getBucket(), file, sb.toString());
+            }
+        };
     }
 
     @Override
     public void delete(String file) throws Exception {
-
+        client().deleteObject(r -> r.bucket(getBucket()).key(file));
     }
 
-    public void setPath(String prefix) {
-        StringBuilder sb  = new StringBuilder();
+    private void upload(String bucket, String path, String content) {
+        PutObjectRequest request = PutObjectRequest.builder()
+            .bucket(bucket)
+            .key(path)
+            .build();
 
-        sb.append(getPrefix()).append("/");
-        sb.append(getName());
-        sb.append(getFilePath());
+        RequestBody body = RequestBody.fromString(content);
 
-        setFilePath(sb.toString());
+        client().putObject(request, body);
+    }
+
+    private S3Client client() {
+        Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
+            .getCredentialsByName()
+            .get("aws::default");
+
+        S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
+
+        return client;
     }
 
 }
