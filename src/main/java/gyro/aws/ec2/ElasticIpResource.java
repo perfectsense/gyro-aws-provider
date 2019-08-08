@@ -61,6 +61,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     /**
      * Requested public ip for acquirement. See `Elastic IP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html/>`_.
      */
+    @Output
     public String getPublicIp() {
         return publicIp;
     }
