@@ -452,7 +452,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveLifecycleRules(client);
         }
 
-        if(getReplicationConfiguration() != null && getReplicationConfiguration().getReplicationRule().isEmpty()){
+        if(getReplicationConfiguration() != null){
             saveReplicationConfiguration(client);
         }
 

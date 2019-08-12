@@ -138,6 +138,8 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
 
         if(replicationRule.deleteMarkerReplication() != null){
             setDeleteMarkerReplicationStatus(replicationRule.deleteMarkerReplication().status());
+        } else {
+            setDeleteMarkerReplicationStatus(null);
         }
 
         if(replicationRule.filter() != null){
@@ -148,6 +150,8 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
             S3SourceSelectionCriteria criteria = newSubresource(S3SourceSelectionCriteria.class);
             criteria.copyFrom(replicationRule.sourceSelectionCriteria());
             setSourceSelectionCriteria(criteria);
+        } else {
+            setSourceSelectionCriteria(null);
         }
     }
 
