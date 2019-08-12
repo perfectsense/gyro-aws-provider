@@ -1,42 +1,42 @@
-    aws::s3-bucket bucket-example
-        name: "example-bucket-us-east-2"
-        tags: {
-            Name: "bucket-example",
-            Name2: "something"
-        }
-        enable-accelerate-config: true
-        enable-versioning: true
-        replication-configuration
-            role: "arn:aws:iam::############:role/example-role"
-            replication-rule
-                id: "example_to_east_1"
-                destination
-                    bucket: "example-bucket-us-east-1"
-                end
-                filter
-                    prefix: "logs/" 
-                end
-                priority: 1
-                status: enabled
-                delete-marker-replication-status: disabled
+aws::s3-bucket bucket-example
+    name: "example-bucket-us-east-2"
+    tags: {
+        Name: "bucket-example",
+        Name2: "something"
+    }
+    enable-accelerate-config: true
+    enable-versioning: true
+    replication-configuration
+        role: "arn:aws:iam::############:role/example-role"
+        replication-rule
+            id: "example_to_east_1"
+            destination
+                bucket: "example-bucket-us-east-1"
             end
-            replication-rule
-                id: "another_example_to_east_1"
-                destination
-                    bucket: "example-bucket-us-east-1"
-                end
-                filter
-                    and-operator
-                        prefix: "thousand-year-door"
-                        tag
-                            key: "paper"
-                            value: "mario"
-                        end
+            filter
+                prefix: "logs/"
+            end
+            priority: 1
+            status: enabled
+            delete-marker-replication-status: disabled
+        end
+        replication-rule
+            id: "another_example_to_east_1"
+            destination
+                bucket: "example-bucket-us-east-1"
+            end
+            filter
+                and-operator
+                    prefix: "thousand-year-door"
+                    tag
+                        key: "paper"
+                        value: "mario"
                     end
                 end
-                priority: 2
-                status: enabled
-                delete-marker-replication-status: disabled
             end
+            priority: 2
+            status: enabled
+            delete-marker-replication-status: disabled
         end
     end
+end
