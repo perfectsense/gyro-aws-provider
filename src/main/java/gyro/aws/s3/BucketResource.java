@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.Payer;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -346,6 +347,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     @Output
     public String getDomainName() {
+        if (domainName == null) {
+            S3Client client = createClient(S3Client.class);
+            domainName = String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
+        }
+
         return domainName;
     }
 
@@ -393,7 +399,6 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadLifecycleRules(client);
         loadBucketLogging(client);
         loadReplicationConfiguration(client);
-        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
     }
 
     @Override
@@ -753,8 +758,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     private String getBucketRegion(S3Client client) {
-        GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
-        return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
+        try {
+            GetBucketLocationResponse response = client.getBucketLocation(r -> r.bucket(getName()));
+            return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
+        } catch (NoSuchBucketException ex) {
+            throw new GyroException(String.format("Bucket %s was not found.", getName()));
+        }
     }
 
 }
