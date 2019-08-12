@@ -25,13 +25,13 @@ public class S3SourceSelectionCriteria extends Diffable implements Copyable<Sour
     }
 
     @Override
-    public void copyFrom(SourceSelectionCriteria sourceSelectionCriteria) {
-        setSseKmsEncryptedObjectsStatus(sourceSelectionCriteria.sseKmsEncryptedObjects().status());
+    public String primaryKey() {
+        return "source selection criteria";
     }
 
     @Override
-    public String primaryKey() {
-        return "source selection criteria";
+    public void copyFrom(SourceSelectionCriteria sourceSelectionCriteria) {
+        setSseKmsEncryptedObjectsStatus(sourceSelectionCriteria.sseKmsEncryptedObjects().status());
     }
 
     SourceSelectionCriteria toSourceSelectionCriteria(){

@@ -34,14 +34,14 @@ public class S3Tag extends Diffable implements Copyable<Tag> {
     }
 
     @Override
-    public void copyFrom(Tag tag) {
-        setKey(tag.key());
-        setValue(tag.value());
+    public String primaryKey() {
+        return getKey() + " - " + getValue();
     }
 
     @Override
-    public String primaryKey() {
-        return getKey() + " - " + getValue();
+    public void copyFrom(Tag tag) {
+        setKey(tag.key());
+        setValue(tag.value());
     }
 
     Tag toTag(){

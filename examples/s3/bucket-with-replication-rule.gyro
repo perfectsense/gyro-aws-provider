@@ -6,6 +6,7 @@ aws::s3-bucket bucket-example
     }
     enable-accelerate-config: true
     enable-versioning: true
+
     replication-configuration
         role: "arn:aws:iam::############:role/example-role"
         replication-rule
@@ -20,6 +21,7 @@ aws::s3-bucket bucket-example
             status: enabled
             delete-marker-replication-status: disabled
         end
+
         replication-rule
             id: "another_example_to_east_1"
             destination

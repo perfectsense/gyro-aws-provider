@@ -44,6 +44,11 @@ public class S3ReplicationRuleAndOperator extends Diffable implements Copyable<R
     }
 
     @Override
+    public String primaryKey() {
+        return "replication rule and operator";
+    }
+
+    @Override
     public void copyFrom(ReplicationRuleAndOperator replicationRuleAndOperator) {
         setPrefix(replicationRuleAndOperator.prefix());
 
@@ -65,10 +70,5 @@ public class S3ReplicationRuleAndOperator extends Diffable implements Copyable<R
         }
 
         return builder.build();
-    }
-
-    @Override
-    public String primaryKey() {
-        return "replication rule and operator";
     }
 }

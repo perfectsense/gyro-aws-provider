@@ -46,6 +46,11 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     }
 
     @Override
+    public String primaryKey(){
+        return "replication configuration";
+    }
+
+    @Override
     public void copyFrom(ReplicationConfiguration replicationConfiguration) {
         setRole(findById(RoleResource.class, replicationConfiguration.role()));
 

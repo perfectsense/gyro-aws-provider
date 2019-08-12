@@ -35,6 +35,11 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     }
 
     @Override
+    public String primaryKey(){
+        return "logging enabled";
+    }
+
+    @Override
     public void copyFrom(LoggingEnabled loggingEnabled) {
         setBucket(findById(BucketResource.class, loggingEnabled.targetBucket()));
         setPrefix(loggingEnabled.targetPrefix());

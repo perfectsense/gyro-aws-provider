@@ -115,6 +115,11 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
     @Override
+    public String primaryKey() {
+        return getId();
+    }
+
+    @Override
     public void copyFrom(ReplicationRule replicationRule) {
         setPriority(replicationRule.priority());
         setPrefix(replicationRule.prefix());
@@ -144,11 +149,6 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
             criteria.copyFrom(replicationRule.sourceSelectionCriteria());
             setSourceSelectionCriteria(criteria);
         }
-    }
-
-    @Override
-    public String primaryKey(){
-        return getId();
     }
 
     ReplicationRule toReplicationRule(){

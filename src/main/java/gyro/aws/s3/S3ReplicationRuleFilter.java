@@ -53,6 +53,11 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
     }
 
     @Override
+    public String primaryKey() {
+        return "replication rule filter";
+    }
+
+    @Override
     public void copyFrom(ReplicationRuleFilter replicationRuleFilter){
         setPrefix(replicationRuleFilter.prefix());
 
@@ -71,11 +76,6 @@ public class S3ReplicationRuleFilter extends Diffable implements Copyable<Replic
         } else{
             setAndOperator(null);
         }
-    }
-
-    @Override
-    public String primaryKey() {
-        return "replication rule filter";
     }
 
     ReplicationRuleFilter toReplicationRuleFilter(){
