@@ -63,7 +63,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     /**
-     * Storage class for replicated object. Defaults to class of source object. Valid values are ``DEEP_ARCHIVE``, ``GLACIER``, ``INTELLIGENT_TIERING``, ``ONEZONE_IA``, ``REDUCED_REDUNDANCY``, ``STANDARD``, ``STANDARD_IA``
+     * Storage class for replicated object. Defaults to class of source object. Valid values are ``DEEP_ARCHIVE`` or ``GLACIER`` or ``INTELLIGENT_TIERING`` or ``ONEZONE_IA`` or ``REDUCED_REDUNDANCY`` or ``STANDARD`` or ``STANDARD_IA``
      */
     @Updatable
     public StorageClass getStorageClass() {
