@@ -10,7 +10,7 @@ public class S3SourceSelectionCriteria extends Diffable implements Copyable<Sour
     private SseKmsEncryptedObjectsStatus sseKmsEncryptedObjectsStatus;
 
     /**
-     * Status of Server Side Encryption. Valid values are ``ENABLED`` and ``DISABLED``
+     * Status of Server Side Encryption. Valid values are ``ENABLED`` or ``DISABLED``
      */
     @Updatable
     public SseKmsEncryptedObjectsStatus getSseKmsEncryptedObjectsStatus() {
