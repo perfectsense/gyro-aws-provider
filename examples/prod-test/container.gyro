@@ -1,3 +1,11 @@
+gyro::container-config apache-global
+    name: "apache-global"
+    image: "xyz"
+    @extends-container: $(container-defaults "git@github.com:perfectsense/gyro-container-plugin.git" "/examples/apache.yml")
+    file-backend: "local"
+    file-backend-path: "testHash"
+end
+
 gyro::container-config apache-production
     name: "apache-production"
     memory: "0.2"
@@ -5,11 +13,6 @@ gyro::container-config apache-production
       function: site,
       max_http_header_size: 16384,
       rsyslog_enabled: false,
-      project: '',
-      hsts: false,
-      hsts_preload: false,
-      hsts_max_age: 31536000,
-      hsts_subdomains: true,
       apache: {
         timeout: 310,
         keepalive: 'On',
@@ -20,26 +23,20 @@ gyro::container-config apache-production
         group: www-data
       }
     }
-    @uses-file-backend: 'local'
+    @extends-container: [$(gyro::container-config apache-global)]
+    file-backend: "local"
+    file-backend-path: "testHash"
 end
 
 gyro::container-config apache-frontend
     name: "apache-layer"
-    memory: "0.4"
+    memory: "0.6"
     data: {
        function: site,
-       max_http_header_size: 16384,
-       rsyslog_enabled: false,
-       project: '',
-       hsts: true,
-       hsts_preload: false,
-       hsts_max_age: 222,
-       hsts_subdomains: true,
-       apache: {
-          timeout: 359,
-          group: www-data
-       }
+       max_http_header_size: 22222,
+       rsyslog_enabled: true
     }
-    @container-import: [$(gyro::container-config apache-production)]
-    @uses-file-backend: 'local'
+    file-backend: "local"
+    file-backend-path: "testHash"
+    @extends-container: [$(gyro::container-config apache-production)]
 end
