@@ -1,13 +1,13 @@
 aws::s3-bucket bucket-example
-    name: "bucket-example"
+    name: "beam-sandbox-logging-enabled"
     enable-object-lock: false
     tags: {
         Name: "bucket-example",
         Name2: "something"
     }
 
-    logging-enabled
-        bucket: "bucket-example"
+    logging
+        bucket: "beam-sandbox-s3-logs"
     end
 
     enable-accelerate-config: true

@@ -215,7 +215,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
     private String domainName;
-    private S3LoggingEnabled loggingEnabled;
+    private S3LoggingEnabled logging;
     private S3ReplicationConfiguration replicationConfiguration;
 
     @Id
@@ -365,12 +365,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
      * @subresource gyro.aws.s3.S3LoggingEnabled
      */
     @Updatable
-    public S3LoggingEnabled getLoggingEnabled() {
-        return loggingEnabled;
+    public S3LoggingEnabled getLogging() {
+        return logging;
     }
 
-    public void setLoggingEnabled(S3LoggingEnabled loggingEnabled) {
-        this.loggingEnabled = loggingEnabled;
+    public void setLogging(S3LoggingEnabled logging) {
+        this.logging= logging;
     }
 
     /**
@@ -456,7 +456,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveReplicationConfiguration(client);
         }
 
-        if (getLoggingEnabled() != null){
+        if (getLogging() != null) {
             saveBucketLogging(client);
         }
     }
@@ -481,7 +481,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveRequestPayer(client);
         }
 
-        if(changedFieldNames.contains("logging-enabled")){
+        if (changedFieldNames.contains("logging")) {
             saveBucketLogging(client);
         }
 
@@ -668,20 +668,20 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                 r -> r.bucket(getName()).build()
         );
 
-        if(response.loggingEnabled() != null){
-            setLoggingEnabled(newSubresource(S3LoggingEnabled.class));
-            getLoggingEnabled().copyFrom(response.loggingEnabled());
+        if (response.loggingEnabled() != null) {
+            setLogging(newSubresource(S3LoggingEnabled.class));
+            getLogging().copyFrom(response.loggingEnabled());
         } else {
-            setLoggingEnabled(null);
+            setLogging(null);
         }
     }
 
     private void saveBucketLogging(S3Client client){
-        if(getLoggingEnabled() != null) {
+        if (getLogging() != null) {
             client.putBucketLogging(
                 r -> r.bucket(getName())
                     .bucketLoggingStatus(s -> s.loggingEnabled(
-                        getLoggingEnabled().toLoggingEnabled()
+                        getLogging().toLoggingEnabled()
                     ))
             );
         } else {
