@@ -269,7 +269,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     public String getDomainName() {
         if (domainName == null) {
             S3Client client = createClient(S3Client.class);
-            domainName = String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
+            try {
+                domainName = String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
+            } catch (GyroException ignore) {
+                //ignore
+            }
         }
 
         return domainName;
@@ -576,6 +580,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
         } catch (NoSuchBucketException ex) {
             throw new GyroException(String.format("Bucket %s was not found.", getName()));
+        } catch (S3Exception exx) {
+            if (exx.awsErrorDetails().errorCode().equalsIgnoreCase("AccessDenied")) {
+                throw new GyroException(String.format("You don't have access to Bucket %s.", getName()));
+            } else {
+                throw exx;
+            }
         }
     }
 }
