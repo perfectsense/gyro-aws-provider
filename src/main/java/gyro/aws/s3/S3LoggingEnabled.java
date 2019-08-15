@@ -35,7 +35,7 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     }
 
     @Override
-    public String primaryKey(){
+    public String primaryKey() {
         return "logging enabled";
     }
 
@@ -45,7 +45,7 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
         setPrefix(loggingEnabled.targetPrefix());
     }
 
-    LoggingEnabled toLoggingEnabled(){
+    LoggingEnabled toLoggingEnabled() {
         String prefix = getPrefix() == null ? "" : getPrefix();
 
         return LoggingEnabled.builder()

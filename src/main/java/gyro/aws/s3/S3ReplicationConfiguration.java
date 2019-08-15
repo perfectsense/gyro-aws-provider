@@ -35,7 +35,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
      */
     @Updatable
     public List<S3ReplicationRule> getReplicationRule() {
-        if(replicationRule == null){
+        if(replicationRule == null) {
             replicationRule = new ArrayList<>();
         }
         return replicationRule;
@@ -46,7 +46,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     }
 
     @Override
-    public String primaryKey(){
+    public String primaryKey() {
         return "replication configuration";
     }
 
@@ -55,14 +55,14 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
         setRole(findById(RoleResource.class, replicationConfiguration.role()));
 
         getReplicationRule().clear();
-        for (ReplicationRule replicationRule : replicationConfiguration.rules()){
+        for (ReplicationRule replicationRule : replicationConfiguration.rules()) {
             S3ReplicationRule s3ReplicationRule = newSubresource(S3ReplicationRule.class);
             s3ReplicationRule.copyFrom(replicationRule);
             getReplicationRule().add(s3ReplicationRule);
         }
     }
 
-    ReplicationConfiguration toReplicationConfiguration(){
+    ReplicationConfiguration toReplicationConfiguration() {
         return ReplicationConfiguration.builder()
                 .role(getRole().getArn())
                 .rules(getReplicationRule().stream().map(S3ReplicationRule::toReplicationRule)

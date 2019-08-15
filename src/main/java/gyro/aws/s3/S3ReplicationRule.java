@@ -127,7 +127,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
         setStatus(replicationRule.status());
         setFilter(newSubresource(S3ReplicationRuleFilter.class));
 
-        if(replicationRule.destination() != null){
+        if (replicationRule.destination() != null) {
             S3Destination destination = newSubresource(S3Destination.class);
             destination.copyFrom(replicationRule.destination());
 
@@ -136,17 +136,17 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
             setDestination(null);
         }
 
-        if(replicationRule.deleteMarkerReplication() != null){
+        if (replicationRule.deleteMarkerReplication() != null) {
             setDeleteMarkerReplicationStatus(replicationRule.deleteMarkerReplication().status());
         } else {
             setDeleteMarkerReplicationStatus(null);
         }
 
-        if(replicationRule.filter() != null){
+        if (replicationRule.filter() != null) {
             getFilter().copyFrom(replicationRule.filter());
         }
 
-        if(replicationRule.sourceSelectionCriteria() != null){
+        if (replicationRule.sourceSelectionCriteria() != null) {
             S3SourceSelectionCriteria criteria = newSubresource(S3SourceSelectionCriteria.class);
             criteria.copyFrom(replicationRule.sourceSelectionCriteria());
             setSourceSelectionCriteria(criteria);
@@ -155,10 +155,10 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
         }
     }
 
-    ReplicationRule toReplicationRule(){
+    ReplicationRule toReplicationRule() {
         ReplicationRule.Builder builder = ReplicationRule.builder();
 
-        if(getFilter() == null){
+        if (getFilter() == null) {
             setFilter(newSubresource(S3ReplicationRuleFilter.class));
         }
 
@@ -172,7 +172,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
             )
             .filter(getFilter().toReplicationRuleFilter());
 
-        if(getSourceSelectionCriteria() != null){
+        if (getSourceSelectionCriteria() != null) {
             builder.sourceSelectionCriteria(getSourceSelectionCriteria().toSourceSelectionCriteria());
         }
 

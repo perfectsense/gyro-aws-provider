@@ -34,7 +34,7 @@ public class S3SourceSelectionCriteria extends Diffable implements Copyable<Sour
         setSseKmsEncryptedObjectsStatus(sourceSelectionCriteria.sseKmsEncryptedObjects().status());
     }
 
-    SourceSelectionCriteria toSourceSelectionCriteria(){
+    SourceSelectionCriteria toSourceSelectionCriteria() {
         return SourceSelectionCriteria.builder()
                 .sseKmsEncryptedObjects(
                         k -> k.status(getSseKmsEncryptedObjectsStatus())

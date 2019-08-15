@@ -452,7 +452,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveLifecycleRules(client);
         }
 
-        if(getReplicationConfiguration() != null){
+        if (getReplicationConfiguration() != null) {
             saveReplicationConfiguration(client);
         }
 
@@ -663,7 +663,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         return getCorsRule().stream().allMatch(o -> currentCors.contains(o.primaryKey()));
     }
 
-    private void loadBucketLogging(S3Client client){
+    private void loadBucketLogging(S3Client client) {
         GetBucketLoggingResponse response = client.getBucketLogging(
                 r -> r.bucket(getName()).build()
         );
@@ -684,7 +684,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                         getLoggingEnabled().toLoggingEnabled()
                     ))
             );
-        }else {
+        } else {
             client.putBucketLogging(
                 r -> r.bucket(getName())
                     .bucketLoggingStatus(BucketLoggingStatus.builder().build())
@@ -726,8 +726,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
-    private void loadReplicationConfiguration(S3Client client){
-        try{
+    private void loadReplicationConfiguration(S3Client client) {
+        try {
             GetBucketReplicationResponse response = client.getBucketReplication(
                 r -> r.bucket(getName())
             );
@@ -735,8 +735,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             setReplicationConfiguration(newSubresource(S3ReplicationConfiguration.class));
             getReplicationConfiguration().copyFrom(response.replicationConfiguration());
 
-        }catch (S3Exception ex){
-            if(!ex.awsErrorDetails().errorCode().equals("ReplicationConfigurationNotFoundError")){
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("ReplicationConfigurationNotFoundError")) {
                 throw ex;
             } else {
                 setReplicationConfiguration(null);
@@ -744,8 +744,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
-    private void saveReplicationConfiguration(S3Client client){
-        if(getReplicationConfiguration() == null || getReplicationConfiguration().getReplicationRule().isEmpty()){
+    private void saveReplicationConfiguration(S3Client client) {
+        if (getReplicationConfiguration() == null || getReplicationConfiguration().getReplicationRule().isEmpty()) {
             client.deleteBucketReplication(
                     r -> r.bucket(getName())
             );
@@ -765,5 +765,4 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             throw new GyroException(String.format("Bucket %s was not found.", getName()));
         }
     }
-
 }

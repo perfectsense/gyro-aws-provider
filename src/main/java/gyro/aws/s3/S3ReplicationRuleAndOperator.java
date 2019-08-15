@@ -52,8 +52,8 @@ public class S3ReplicationRuleAndOperator extends Diffable implements Copyable<R
     public void copyFrom(ReplicationRuleAndOperator replicationRuleAndOperator) {
         setPrefix(replicationRuleAndOperator.prefix());
 
-        if(replicationRuleAndOperator.tags() != null){
-            for (Tag tag : replicationRuleAndOperator.tags()){
+        if (replicationRuleAndOperator.tags() != null) {
+            for (Tag tag : replicationRuleAndOperator.tags()) {
                 S3Tag s3tag = newSubresource(S3Tag.class);
                 s3tag.copyFrom(tag);
                 getTag().add(s3tag);
@@ -61,11 +61,11 @@ public class S3ReplicationRuleAndOperator extends Diffable implements Copyable<R
         }
     }
 
-    ReplicationRuleAndOperator toReplicationRuleAndOperator(){
+    ReplicationRuleAndOperator toReplicationRuleAndOperator() {
         ReplicationRuleAndOperator.Builder builder = ReplicationRuleAndOperator.builder();
         builder.prefix(getPrefix());
 
-        if(!getTag().isEmpty()){
+        if (!getTag().isEmpty()) {
             builder.tags(getTag().stream().map(S3Tag::toTag).collect(Collectors.toList()));
         }
 

@@ -44,7 +44,7 @@ public class S3Tag extends Diffable implements Copyable<Tag> {
         setValue(tag.value());
     }
 
-    Tag toTag(){
+    Tag toTag() {
         return Tag.builder()
                 .key(getKey())
                 .value(getValue())

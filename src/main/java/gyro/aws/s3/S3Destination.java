@@ -84,10 +84,10 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
         setBucket(findById(BucketResource.class, getBucketNameFromArn(destination.bucket())));
         setStorageClass(destination.storageClass());
 
-        if (destination.encryptionConfiguration() != null){
+        if (destination.encryptionConfiguration() != null) {
             setEncryptionConfiguration(destination.encryptionConfiguration().replicaKmsKeyID());
         } else {
-            encryptionConfiguration = null;
+            setEncryptionConfiguration(null);
         }
 
         if (destination.accessControlTranslation() != null) {
@@ -97,24 +97,24 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
         }
     }
 
-    Destination toDestination(){
+    Destination toDestination() {
         Destination.Builder builder = Destination.builder()
                 .account(getAccount())
                 .bucket("arn:aws:s3:::" + getBucket().getName());
 
-        if (getEncryptionConfiguration() != null){
+        if (getEncryptionConfiguration() != null) {
             builder.encryptionConfiguration(
                 c -> c.replicaKmsKeyID(getEncryptionConfiguration())
             );
         }
 
-        if (getOwnerOverride() != null){
+        if (getOwnerOverride() != null) {
             builder.accessControlTranslation(
                     t -> t.owner(getOwnerOverride())
             );
         }
 
-        if (getStorageClass() != null){
+        if (getStorageClass() != null) {
             builder.storageClass(getStorageClass());
         }
 
