@@ -300,7 +300,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .imageId(getInstance() == null ? getAmiId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
             .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .userData(getUserData())
             .keyName(getKey() != null ? getKey().getName() : null)
             .instanceType(getInstance() == null ? getInstanceType() : null)
             .instanceId(getInstance() != null ? getInstance().getId() : null)
