@@ -3,16 +3,13 @@ package gyro.aws.s3;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.s3.model.AccessControlTranslation;
 import software.amazon.awssdk.services.s3.model.Destination;
-import software.amazon.awssdk.services.s3.model.OwnerOverride;
 import software.amazon.awssdk.services.s3.model.StorageClass;
 
 public class S3Destination extends Diffable implements Copyable<Destination> {
     private String account;
     private BucketResource bucket;
-    private String encryptionConfiguration;
-    private OwnerOverride ownerOverride;
+    private S3EncryptionConfiguration encryptionConfiguration;
     private S3AccessControlTranslation accessControlTranslation;
     private StorageClass storageClass;
 
@@ -41,29 +38,16 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     /**
-     * KMS Key ID or ALIAS ARN to encrypt objects with when replicated to destination. Required if SSE is enabled.
+     * Sets the KMS key for the destination bucket.
      */
     @Updatable
-    public String getEncryptionConfiguration() {
+    public S3EncryptionConfiguration getEncryptionConfiguration() {
         return encryptionConfiguration;
     }
 
-    public void setEncryptionConfiguration(String encryptionConfiguration) {
+    public void setEncryptionConfiguration(S3EncryptionConfiguration encryptionConfiguration) {
         this.encryptionConfiguration = encryptionConfiguration;
     }
-
-    /**
-     * Sets the ownership of the replica. Valid value is ``DESTINATION``
-     */
-    @Updatable
-    public OwnerOverride getOwnerOverride() {
-        return ownerOverride;
-    }
-
-    public void setOwnerOverride(OwnerOverride ownerOverride) {
-        this.ownerOverride = ownerOverride;
-    }
-
 
     /**
      * Changes the owner of the replicated object to the destination bucket in cross account scenarios. Account is required if this value is set.
@@ -94,22 +78,28 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     @Override
+    public String primaryKey() {
+        return getBucket().getName();
+    }
+
+    @Override
     public void copyFrom(Destination destination) {
         setAccount(destination.account());
         setBucket(findById(BucketResource.class, getBucketNameFromArn(destination.bucket())));
         setStorageClass(destination.storageClass());
 
         if (destination.encryptionConfiguration() != null) {
-            setEncryptionConfiguration(destination.encryptionConfiguration().replicaKmsKeyID());
-        } else {
-            setEncryptionConfiguration(null);
+            S3EncryptionConfiguration s3EncryptionConfiguration = newSubresource(S3EncryptionConfiguration.class);
+            s3EncryptionConfiguration.copyFrom(destination.encryptionConfiguration());
+
+            setEncryptionConfiguration(s3EncryptionConfiguration);
         }
 
         if (destination.accessControlTranslation() != null) {
-            S3AccessControlTranslation accessControlTranslation = newSubresource(S3AccessControlTranslation.class);
-            accessControlTranslation.copyFrom(destination.accessControlTranslation());
+            S3AccessControlTranslation s3AccessControlTranslation = newSubresource(S3AccessControlTranslation.class);
+            s3AccessControlTranslation.copyFrom(destination.accessControlTranslation());
 
-            setAccessControlTranslation(accessControlTranslation);
+            setAccessControlTranslation(s3AccessControlTranslation);
         }
     }
 
@@ -119,9 +109,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
                 .bucket("arn:aws:s3:::" + getBucket().getName());
 
         if (getEncryptionConfiguration() != null) {
-            builder.encryptionConfiguration(
-                c -> c.replicaKmsKeyID(getEncryptionConfiguration())
-            );
+            builder.encryptionConfiguration(getEncryptionConfiguration().toEncryptionConfiguration());
         }
 
         if (getAccessControlTranslation() != null) {
