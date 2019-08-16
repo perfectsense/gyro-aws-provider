@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public class S3FileBackend extends FileBackend {
 
     private String bucket;
-    private  String prefix;
+    private String prefix;
 
     public String getBucket() {
         return bucket;
