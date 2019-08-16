@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class S3ReplicationConfiguration extends Diffable implements Copyable<ReplicationConfiguration> {
     private RoleResource role;
-    private List<S3ReplicationRule> replicationRule;
+    private List<S3ReplicationRule> rule;
 
     /**
      * The ARN for an IAM Role that the s3 bucket assumes when replicating objects. (Required)
@@ -34,15 +34,15 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
      * @subresource gyro.aws.s3.ReplicationRule
      */
     @Updatable
-    public List<S3ReplicationRule> getReplicationRule() {
-        if(replicationRule == null) {
-            replicationRule = new ArrayList<>();
+    public List<S3ReplicationRule> getRule() {
+        if(rule == null) {
+            rule = new ArrayList<>();
         }
-        return replicationRule;
+        return rule;
     }
 
-    public void setReplicationRule(List<S3ReplicationRule> replicationRule) {
-        this.replicationRule = replicationRule;
+    public void setRule(List<S3ReplicationRule> rule) {
+        this.rule = rule;
     }
 
     @Override
@@ -54,18 +54,18 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     public void copyFrom(ReplicationConfiguration replicationConfiguration) {
         setRole(findById(RoleResource.class, replicationConfiguration.role()));
 
-        getReplicationRule().clear();
+        getRule().clear();
         for (ReplicationRule replicationRule : replicationConfiguration.rules()) {
             S3ReplicationRule s3ReplicationRule = newSubresource(S3ReplicationRule.class);
             s3ReplicationRule.copyFrom(replicationRule);
-            getReplicationRule().add(s3ReplicationRule);
+            getRule().add(s3ReplicationRule);
         }
     }
 
     ReplicationConfiguration toReplicationConfiguration() {
         return ReplicationConfiguration.builder()
                 .role(getRole().getArn())
-                .rules(getReplicationRule().stream().map(S3ReplicationRule::toReplicationRule)
+                .rules(getRule().stream().map(S3ReplicationRule::toReplicationRule)
                         .collect(Collectors.toList()))
                 .build();
     }

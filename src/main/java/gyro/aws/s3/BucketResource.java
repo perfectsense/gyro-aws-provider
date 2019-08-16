@@ -133,7 +133,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
- *         name: "example-bucket-us-east-2"
+ *         name: "beam-sandbox-bucket-us-east-2"
  *         tags: {
  *             Name: "bucket-example",
  *             Name2: "something"
@@ -142,30 +142,25 @@ import java.util.stream.Collectors;
  *         enable-versioning: true
  *
  *         replication-configuration
- *             role: "arn:aws:iam::############:role/example-role"
- *             replication-rule
+ *             role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+ *             rule
  *                 id: "example_to_east_1"
- *
  *                 destination
- *                     bucket: "example-bucket-us-east-1"
+ *                     bucket: "beam-sandbox-ops-us-east-1a"
  *                 end
- *
  *                 filter
  *                     prefix: "logs/"
  *                 end
- *
  *                 priority: 1
  *                 status: enabled
  *                 delete-marker-replication-status: disabled
  *             end
  *
- *             replication-rule
+ *             rule
  *                 id: "another_example_to_east_1"
- *
  *                 destination
- *                     bucket: "example-bucket-us-east-1"
+ *                     bucket: "beam-sandbox-ops-us-east-1a"
  *                 end
- *
  *                 filter
  *                     and-operator
  *                         prefix: "thousand-year-door"
@@ -175,7 +170,6 @@ import java.util.stream.Collectors;
  *                         end
  *                     end
  *                 end
- *
  *                 priority: 2
  *                 status: enabled
  *                 delete-marker-replication-status: disabled
@@ -183,20 +177,21 @@ import java.util.stream.Collectors;
  *         end
  *     end
  *
+ *
  * Example with logging enabled
  * -------
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
- *         name: "bucket-example"
+ *         name: "beam-sandbox-logging-enabled"
  *         enable-object-lock: false
  *         tags: {
  *             Name: "bucket-example",
  *             Name2: "something"
  *         }
  *
- *         logging-enabled
- *             bucket: "bucket-example"
+ *         logging
+ *             bucket: "beam-sandbox-s3-logs"
  *         end
  *
  *         enable-accelerate-config: true
@@ -474,7 +469,6 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         saveCorsRules(client);
 
         saveLifecycleRules(client);
-
     }
 
     @Override
@@ -729,7 +723,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     private void saveReplicationConfiguration(S3Client client) {
-        if (getReplicationConfiguration() == null || getReplicationConfiguration().getReplicationRule().isEmpty()) {
+        if (getReplicationConfiguration() == null || getReplicationConfiguration().getRule().isEmpty()) {
             client.deleteBucketReplication(
                     r -> r.bucket(getName())
             );
