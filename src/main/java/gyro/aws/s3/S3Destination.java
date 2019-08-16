@@ -3,6 +3,7 @@ package gyro.aws.s3;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import software.amazon.awssdk.services.s3.model.AccessControlTranslation;
 import software.amazon.awssdk.services.s3.model.Destination;
 import software.amazon.awssdk.services.s3.model.OwnerOverride;
 import software.amazon.awssdk.services.s3.model.StorageClass;
@@ -12,6 +13,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     private BucketResource bucket;
     private String encryptionConfiguration;
     private OwnerOverride ownerOverride;
+    private S3AccessControlTranslation accessControlTranslation;
     private StorageClass storageClass;
 
     /**
@@ -62,6 +64,19 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
         this.ownerOverride = ownerOverride;
     }
 
+
+    /**
+     * Changes the owner of the replicated object to the destination bucket in cross account scenarios. Account is required if this value is set.
+     */
+    @Updatable
+    public S3AccessControlTranslation getAccessControlTranslation() {
+        return accessControlTranslation;
+    }
+
+    public void setAccessControlTranslation(S3AccessControlTranslation accessControlTranslation) {
+        this.accessControlTranslation = accessControlTranslation;
+    }
+
     /**
      * Storage class for replicated object. Defaults to class of source object. Valid values are ``DEEP_ARCHIVE`` or ``GLACIER`` or ``INTELLIGENT_TIERING`` or ``ONEZONE_IA`` or ``REDUCED_REDUNDANCY`` or ``STANDARD`` or ``STANDARD_IA``
      */
@@ -91,9 +106,10 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
         }
 
         if (destination.accessControlTranslation() != null) {
-            setOwnerOverride(destination.accessControlTranslation().owner());
-        } else {
-            setOwnerOverride(null);
+            S3AccessControlTranslation accessControlTranslation = newSubresource(S3AccessControlTranslation.class);
+            accessControlTranslation.copyFrom(destination.accessControlTranslation());
+
+            setAccessControlTranslation(accessControlTranslation);
         }
     }
 
@@ -108,10 +124,8 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
             );
         }
 
-        if (getOwnerOverride() != null) {
-            builder.accessControlTranslation(
-                    t -> t.owner(getOwnerOverride())
-            );
+        if (getAccessControlTranslation() != null) {
+            builder.accessControlTranslation(getAccessControlTranslation().toAccessControlTranslation());
         }
 
         if (getStorageClass() != null) {
