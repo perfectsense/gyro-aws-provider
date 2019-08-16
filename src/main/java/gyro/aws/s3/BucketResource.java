@@ -31,6 +31,9 @@ import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.Payer;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.GetBucketLoggingResponse;
+import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
+import software.amazon.awssdk.services.s3.model.GetBucketReplicationResponse;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -124,6 +127,98 @@ import java.util.stream.Collectors;
  *             end
  *         end
  *     end
+ *
+ * Example with replication configuration
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example
+ *         name: "beam-sandbox-bucket-us-east-2"
+ *         tags: {
+ *             Name: "bucket-example",
+ *             Name2: "something"
+ *         }
+ *         enable-accelerate-config: true
+ *         enable-versioning: true
+ *
+ *         replication-configuration
+ *             role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+ *             rule
+ *                 id: "example_with_encryption"
+ *                 destination
+ *                     bucket: "beam-sandbox-ops-us-east-1a"
+ *                     encryption-configuration
+ *                         kms-key: "arn:aws:kms:us-east-1:242040583208:key/c5245825-8526-4032-a67c-21656f220312"
+ *                     end
+ *                 end
+ *
+ *                 source-selection-criteria
+ *                     sse-kms-encrypted-objects-status: ENABLED
+ *                 end
+ *
+ *                 filter
+ *                     prefix: "logs/"
+ *                 end
+ *                 priority: 1
+ *                 status: enabled
+ *                 delete-marker-replication-status: disabled
+ *             end
+ *
+ *             rule
+ *                 id: "example_with_complex_filter"
+ *                 destination
+ *                     bucket: "beam-sandbox-ops-us-east-1a"
+ *                 end
+ *                 filter
+ *                     and-operator
+ *                         prefix: "thousand-year-door"
+ *                         tag
+ *                             key: "paper"
+ *                             value: "mario"
+ *                         end
+ *                     end
+ *                 end
+ *                 priority: 2
+ *                 status: enabled
+ *                 delete-marker-replication-status: disabled
+ *             end
+ *
+ *             rule
+ *                 id: "example_with_access_control"
+ *                 destination
+ *                     bucket: "beam-sandbox-ops-us-east-1a"
+ *                     account: "242040583208"
+ *                     access-control-translation
+ *                         owner-override: destination
+ *                     end
+ *                 end
+ *                 priority: 3
+ *                 status: enabled
+ *                 delete-marker-replication-status: disabled
+ *             end
+ *         end
+ *     end
+ *
+ *
+ * Example with logging enabled
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example
+ *         name: "beam-sandbox-logging-enabled"
+ *         enable-object-lock: false
+ *         tags: {
+ *             Name: "bucket-example",
+ *             Name2: "something"
+ *         }
+ *
+ *         logging
+ *             bucket: "beam-sandbox-s3-logs"
+ *         end
+ *
+ *         enable-accelerate-config: true
+ *         enable-versioning: true
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
@@ -136,6 +231,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String requestPayer;
     private List<S3CorsRule> corsRule;
     private List<S3LifecycleRule> lifecycleRule;
+    private String domainName;
+    private S3LoggingEnabled logging;
+    private S3ReplicationConfiguration replicationConfiguration;
 
     @Id
     public String getName() {
@@ -264,6 +362,34 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.lifecycleRule = lifecycleRule;
     }
 
+    /**
+     * Configure where access logs are sent.
+     *
+     * @subresource gyro.aws.s3.S3LoggingEnabled
+     */
+    @Updatable
+    public S3LoggingEnabled getLogging() {
+        return logging;
+    }
+
+    public void setLogging(S3LoggingEnabled logging) {
+        this.logging= logging;
+    }
+
+    /**
+     * Configure the replication rules for the bucket.
+     *
+     * @subresource gyro.aws.s3.S3ReplicationConfiguration
+     */
+    @Updatable
+    public S3ReplicationConfiguration getReplicationConfiguration() {
+        return replicationConfiguration;
+    }
+
+    public void setReplicationConfiguration(S3ReplicationConfiguration replicationConfiguration) {
+        this.replicationConfiguration = replicationConfiguration;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -274,6 +400,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadRequestPayer(client);
         loadCorsRules(client);
         loadLifecycleRules(client);
+        loadBucketLogging(client);
+        loadReplicationConfiguration(client);
     }
 
     @Override
@@ -299,6 +427,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
+        state.save();
 
         if (!getTags().isEmpty()) {
             saveTags(client);
@@ -323,6 +452,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (!getLifecycleRule().isEmpty()) {
             saveLifecycleRules(client);
         }
+
+        if (getReplicationConfiguration() != null) {
+            saveReplicationConfiguration(client);
+        }
+
+        if (getLogging() != null) {
+            saveBucketLogging(client);
+        }
     }
 
     @Override
@@ -344,6 +481,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (changedFieldNames.contains("request-payer")) {
             saveRequestPayer(client);
         }
+
+        if (changedFieldNames.contains("logging")) {
+            saveBucketLogging(client);
+        }
+
+        saveReplicationConfiguration(client);
 
         saveCorsRules(client);
 
@@ -520,6 +663,35 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         return getCorsRule().stream().allMatch(o -> currentCors.contains(o.primaryKey()));
     }
 
+    private void loadBucketLogging(S3Client client) {
+        GetBucketLoggingResponse response = client.getBucketLogging(
+                r -> r.bucket(getName()).build()
+        );
+
+        if (response.loggingEnabled() != null) {
+            setLogging(newSubresource(S3LoggingEnabled.class));
+            getLogging().copyFrom(response.loggingEnabled());
+        } else {
+            setLogging(null);
+        }
+    }
+
+    private void saveBucketLogging(S3Client client) {
+        if (getLogging() != null) {
+            client.putBucketLogging(
+                r -> r.bucket(getName())
+                    .bucketLoggingStatus(s -> s.loggingEnabled(
+                        getLogging().toLoggingEnabled()
+                    ))
+            );
+        } else {
+            client.putBucketLogging(
+                r -> r.bucket(getName())
+                    .bucketLoggingStatus(BucketLoggingStatus.builder().build())
+            );
+        }
+    }
+
     private void loadLifecycleRules(S3Client client) {
         try {
             GetBucketLifecycleConfigurationResponse response = client.getBucketLifecycleConfiguration(
@@ -550,6 +722,37 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                     .lifecycleConfiguration(
                         l -> l.rules(getLifecycleRule().stream().map(S3LifecycleRule::toLifecycleRule).collect(Collectors.toList()))
                     )
+            );
+        }
+    }
+
+    private void loadReplicationConfiguration(S3Client client) {
+        try {
+            GetBucketReplicationResponse response = client.getBucketReplication(
+                r -> r.bucket(getName())
+            );
+
+            setReplicationConfiguration(newSubresource(S3ReplicationConfiguration.class));
+            getReplicationConfiguration().copyFrom(response.replicationConfiguration());
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("ReplicationConfigurationNotFoundError")) {
+                throw ex;
+            } else {
+                setReplicationConfiguration(null);
+            }
+        }
+    }
+
+    private void saveReplicationConfiguration(S3Client client) {
+        if (getReplicationConfiguration() == null || getReplicationConfiguration().getRule().isEmpty()) {
+            client.deleteBucketReplication(
+                    r -> r.bucket(getName())
+            );
+        } else {
+            client.putBucketReplication(
+                    r -> r.bucket(getName())
+                            .replicationConfiguration(getReplicationConfiguration().toReplicationConfiguration())
             );
         }
     }

@@ -1,0 +1,15 @@
+aws::s3-bucket bucket-example
+    name: "beam-sandbox-logging-enabled"
+    enable-object-lock: false
+    tags: {
+        Name: "bucket-example",
+        Name2: "something"
+    }
+
+    logging
+        bucket: "beam-sandbox-s3-logs"
+    end
+
+    enable-accelerate-config: true
+    enable-versioning: true
+end
