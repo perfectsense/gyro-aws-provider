@@ -73,7 +73,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
         this.storageClass = storageClass;
     }
 
-    private String getBucketNameFromArn(String bucketArn){
+    private String getBucketNameFromArn(String bucketArn) {
         return bucketArn.split(":")[5];
     }
 

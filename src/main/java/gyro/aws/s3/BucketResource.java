@@ -676,7 +676,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
-    private void saveBucketLogging(S3Client client){
+    private void saveBucketLogging(S3Client client) {
         if (getLogging() != null) {
             client.putBucketLogging(
                 r -> r.bucket(getName())
