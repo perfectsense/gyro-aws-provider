@@ -345,20 +345,6 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.lifecycleRule = lifecycleRule;
     }
 
-    @Output
-    public String getDomainName() {
-        if (domainName == null) {
-            S3Client client = createClient(S3Client.class);
-            domainName = String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
-        }
-
-        return domainName;
-    }
-
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
-    }
-
     /**
      * Configure where access logs are sent.
      *
@@ -424,9 +410,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
-
         state.save();
-        setDomainName(String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client)));
 
         if (!getTags().isEmpty()) {
             saveTags(client);
@@ -752,9 +736,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         } else {
             client.putBucketReplication(
                     r -> r.bucket(getName())
-                        .replicationConfiguration(getReplicationConfiguration().toReplicationConfiguration())
+                            .replicationConfiguration(getReplicationConfiguration().toReplicationConfiguration())
             );
         }
+    }
+
+    public String getDomainName() {
+        S3Client client = createClient(S3Client.class);
+        return String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
     }
 
     private String getBucketRegion(S3Client client) {
@@ -763,6 +752,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             return ObjectUtils.isBlank(response.locationConstraintAsString()) ? "us-east-1" : response.locationConstraintAsString();
         } catch (NoSuchBucketException ex) {
             throw new GyroException(String.format("Bucket %s was not found.", getName()));
+        } catch (S3Exception exx) {
+            if (exx.awsErrorDetails().errorCode().equalsIgnoreCase("AccessDenied")) {
+                throw new GyroException(String.format("You don't have access to Bucket %s.", getName()));
+            } else {
+                throw exx;
+            }
         }
     }
 }
