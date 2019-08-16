@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.stream.Stream;
@@ -42,21 +43,21 @@ public class S3FileBackend extends FileBackend {
 
     @Override
     public InputStream openInput(String file) throws Exception {
-        return client().getObject(r -> r.bucket(getBucket()).key(file));
+        return client().getObject(r -> r.bucket(getBucket()).key(prefixed(file)));
     }
 
     @Override
     public OutputStream openOutput(String file) throws Exception {
         return new ByteArrayOutputStream() {
             public void close() {
-                upload(getBucket(), file, RequestBody.fromBytes(toByteArray()));
+                upload(getBucket(), prefixed(file), RequestBody.fromBytes(toByteArray()));
             }
         };
     }
 
     @Override
     public void delete(String file) throws Exception {
-        client().deleteObject(r -> r.bucket(getBucket()).key(file));
+        client().deleteObject(r -> r.bucket(getBucket()).key(prefixed(file)));
     }
 
     private void upload(String bucket, String path, RequestBody body) {
@@ -76,6 +77,10 @@ public class S3FileBackend extends FileBackend {
         S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
 
         return client;
+    }
+
+    private String prefixed(String file) {
+        return getPrefix() != null ? getPrefix() + '/' + file : file;
     }
 
 }
