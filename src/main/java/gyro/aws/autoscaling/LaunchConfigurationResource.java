@@ -264,7 +264,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
         setInstanceType(launchConfiguration.instanceType());
         setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(KeyPairResource.class, launchConfiguration.keyName()) : null);
-        setUserData(launchConfiguration.userData());
+        setUserData(new String(Base64.decodeBase64(launchConfiguration.userData())));
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
         setEbsOptimized(launchConfiguration.ebsOptimized());
         setArn(launchConfiguration.launchConfigurationARN());
@@ -300,7 +300,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .imageId(getInstance() == null ? getAmiId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
             .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-            .userData(getUserData())
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .keyName(getKey() != null ? getKey().getName() : null)
             .instanceType(getInstance() == null ? getInstanceType() : null)
             .instanceId(getInstance() != null ? getInstance().getId() : null)
