@@ -12,7 +12,6 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
@@ -247,18 +246,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         this.instanceProfile = instanceProfile;
     }
 
-    /**
-     * The arn of the launch configuration.
-     */
-    @Output
-    public String getArn() {
-        return arn;
-    }
-
-    public void setArn(String arn) {
-        this.arn = arn;
-    }
-
     @Override
     public void copyFrom(LaunchConfiguration launchConfiguration) {
         setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
@@ -267,7 +254,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         setUserData(new String(Base64.decodeBase64(launchConfiguration.userData())));
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
         setEbsOptimized(launchConfiguration.ebsOptimized());
-        setArn(launchConfiguration.launchConfigurationARN());
         setName(launchConfiguration.launchConfigurationName());
         setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
         setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
