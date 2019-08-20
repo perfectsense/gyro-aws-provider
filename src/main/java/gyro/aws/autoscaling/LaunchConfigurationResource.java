@@ -87,8 +87,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private Set<BlockDeviceMappingResource> blockDeviceMapping;
     private InstanceProfileResource instanceProfile;
 
-    private String arn;
-
     /**
      * The name of the launch configuration. (Required)
      */
