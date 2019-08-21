@@ -11,6 +11,7 @@ import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
@@ -382,63 +383,22 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        LaunchTemplate launchTemplate = getLaunchTemplate(client);
-
-        if (launchTemplate == null) {
-            return false;
-        }
-
-        copyFrom(launchTemplate);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate(client);
-
-        CreateLaunchTemplateResponse response = client.createLaunchTemplate(
-            r -> r.launchTemplateName(getName())
-                .launchTemplateData(
-                    l -> l.cpuOptions(getCoreCount() > 0
-                        ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
-                        .disableApiTermination(getDisableApiTermination())
-                        .ebsOptimized(getEbsOptimized())
-                        .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                        .imageId(getAmiId())
-                        .instanceType(getInstanceType())
-                        .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                        .keyName(getKeyName())
-                        .monitoring(o -> o.enabled(getEnableMonitoring()))
-                        .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()) : null)
-                        .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                        .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                            getBlockDeviceMapping()
-                                .stream()
-                                .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
-                                .collect(Collectors.toList()) : null
-                        )
-                        .capacityReservationSpecification(getCapacityReservationSpecification())
-                        .iamInstanceProfile(getLaunchTemplateInstanceProfile())
-                        .networkInterfaces(!getNetworkInterfaces().isEmpty() ? toNetworkInterfaceSpecificationRequest() : null)));
-        setId(response.launchTemplate().launchTemplateId());
-        setVersion(response.launchTemplate().latestVersionNumber());
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteLaunchTemplate(r -> r.launchTemplateId(getId()));
+        throw new NotImplementedException();
     }
 
     private void validate(Ec2Client client) {

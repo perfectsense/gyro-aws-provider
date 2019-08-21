@@ -10,6 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBSubnetGroup;
@@ -117,14 +118,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
 
     @Override
     public void doCreate(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
-            r -> r.dbSubnetGroupDescription(getDescription())
-                    .dbSubnetGroupName(getName())
-                    .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
-        );
-
-        setArn(response.dbSubnetGroup().dbSubnetGroupArn());
+        throw new NotImplementedException();
     }
 
     @Override

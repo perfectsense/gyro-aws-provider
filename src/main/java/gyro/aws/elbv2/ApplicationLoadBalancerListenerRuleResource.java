@@ -10,6 +10,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateRuleResponse;
@@ -162,13 +163,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        CreateRuleResponse response = client.createRule(r -> r.actions(toActions())
-                .conditions(toConditions())
-                .listenerArn(getAlbListener().getArn())
-                .priority(getPriority()));
-
-        setArn(response.rules().get(0).ruleArn());
+        throw new NotImplementedException();
     }
 
     @Override

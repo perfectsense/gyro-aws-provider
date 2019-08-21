@@ -14,6 +14,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -329,54 +330,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
     @Override
     public void create(GyroUI ui, State state) {
-        KmsClient client = createClient(KmsClient.class);
-
-        if (getAliases().isEmpty()) {
-            throw new GyroException("At least one alias must be provided.");
-        }
-
-        List<String> newList = getAliases().stream()
-                .distinct()
-                .collect(Collectors.toList());
-
-        if (newList.size() == getAliases().size()) {
-
-            CreateKeyResponse response = client.createKey(
-                r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
-                            .description(getDescription())
-                            .keyUsage(getKeyUsage())
-                            .origin(getOrigin())
-                            .policy(getPolicy())
-                            .tags(toTag())
-            );
-
-            setArn(response.keyMetadata().arn());
-            setId(response.keyMetadata().keyId());
-            setKeyManager(response.keyMetadata().keyManagerAsString());
-            setKeyState(response.keyMetadata().keyStateAsString());
-
-            try {
-                if (getAliases() != null) {
-                    for (String alias : getAliases()) {
-                        client.createAlias(r -> r.aliasName(alias).targetKeyId(getId()));
-                    }
-                }
-
-            } catch (AlreadyExistsException ex) {
-                delete(ui, state);
-                throw new GyroException(ex.getMessage());
-            }
-
-            if (getKeyRotation() != null && getKeyRotation()) {
-                client.enableKeyRotation(r -> r.keyId(getId()));
-            }
-
-            if (getEnabled() != null && !getEnabled()) {
-                client.disableKey(r -> r.keyId(getId()));
-            }
-        } else {
-            throw new GyroException("Duplicate aliases are not allowed in the same region");
-        }
+        throw new NotImplementedException();
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.ChangeTagsForResourceRequest;
@@ -427,20 +428,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
 
     @Override
     public void create(GyroUI ui, State state) {
-        validate();
-
-        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
-
-        CreateHealthCheckResponse response = client.createHealthCheck(
-            r -> r.callerReference(UUID.randomUUID().toString())
-                .healthCheckConfig(getCreateHealthCheckRequest())
-        );
-
-        HealthCheck healthCheck = response.healthCheck();
-
-        setId(healthCheck.id());
-
-        saveTags(client, new HashMap<>());
+        throw new NotImplementedException();
     }
 
     @Override

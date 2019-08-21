@@ -10,6 +10,7 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroupNotFoundException;
@@ -140,15 +141,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        client.createCacheParameterGroup(
-            r -> r.description(getDescription())
-                .cacheParameterGroupFamily(getCacheParamGroupFamily())
-                .cacheParameterGroupName(getName())
-        );
-
-        saveParameters(client);
+        throw new NotImplementedException();
     }
 
     @Override

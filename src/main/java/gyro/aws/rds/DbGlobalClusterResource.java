@@ -10,6 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DescribeGlobalClustersResponse;
 import software.amazon.awssdk.services.rds.model.GlobalCluster;
@@ -156,16 +157,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
 
     @Override
     public void create(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        client.createGlobalCluster(
-            r -> r.databaseName(getDatabaseName())
-                    .deletionProtection(getDeletionProtection())
-                    .engine(getEngine())
-                    .engineVersion(getEngineVersion())
-                    .globalClusterIdentifier(getIdentifier())
-                    .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
-                    .storageEncrypted(getStorageEncrypted())
-        );
+        throw new NotImplementedException();
     }
 
     @Override

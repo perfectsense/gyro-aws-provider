@@ -12,6 +12,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -146,14 +147,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-
-        if (!getTags().isEmpty()) {
-            List<Tag> tag = new ArrayList<>();
-            getTags().forEach((key, value) -> tag.add(Tag.builder().key(key).value(value).build()));
-            client.addTags(r -> r.tags(tag)
-                    .resourceArns(getArn()));
-        }
+        throw new NotImplementedException();
     }
 
     @Override

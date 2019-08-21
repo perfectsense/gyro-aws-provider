@@ -8,6 +8,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 
@@ -81,10 +82,7 @@ public class CertificateResource extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-
-        client.addListenerCertificates(r -> r.certificates(toCertificate())
-                                            .listenerArn(getListenerArn()));
+        throw new NotImplementedException();
     }
 
     @Override

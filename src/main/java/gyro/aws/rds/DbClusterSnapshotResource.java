@@ -8,6 +8,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
@@ -89,17 +90,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        try {
-            RdsClient client = createClient(RdsClient.class);
-            CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-                r -> r.dbClusterIdentifier(getDbCluster().getIdentifier())
-                    .dbClusterSnapshotIdentifier(getIdentifier())
-            );
-
-            setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
-        } catch (InvalidDbClusterStateException ex) {
-            throw new GyroException(ex.getLocalizedMessage());
-        }
+        throw new NotImplementedException();
     }
 
     @Override

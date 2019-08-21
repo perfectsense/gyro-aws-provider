@@ -42,6 +42,7 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Reservation;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -644,131 +645,22 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     @Override
     public boolean refresh() {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        AutoScalingGroup autoScalingGroup = getAutoScalingGroup(client);
-
-        if (autoScalingGroup == null) {
-            return false;
-        }
-
-        boolean isDesiredCapacitySet = getDesiredCapacity() != null;
-
-        copyFrom(autoScalingGroup);
-
-        if (!isDesiredCapacitySet) {
-            setDesiredCapacity(null);
-        }
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        validate();
-
-        client.createAutoScalingGroup(
-            r -> r.autoScalingGroupName(getName())
-                .maxSize(getMaxSize())
-                .minSize(getMinSize())
-                .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
-                .desiredCapacity(getDesiredCapacity())
-                .defaultCooldown(getDefaultCooldown())
-                .healthCheckType(getHealthCheckType())
-                .healthCheckGracePeriod(getHealthCheckGracePeriod())
-                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
-                .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
-                .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
-                .launchTemplate(
-                    LaunchTemplateSpecification.builder()
-                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
-                        .build()
-                )
-                .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
-                .serviceLinkedRoleARN(getServiceLinkedRoleArn())
-                .placementGroup(getPlacementGroup())
-                .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getName).collect(Collectors.toList()))
-                .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toList()))
-                .instanceId(getInstance() != null ? getInstance().getId() : null)
-                .terminationPolicies(getTerminationPolicies())
-        );
-
-        AutoScalingGroup autoScalingGroup = getAutoScalingGroup(client);
-
-        if (autoScalingGroup != null) {
-            setArn(autoScalingGroup.autoScalingGroupARN());
-        }
-
-        if (getEnableMetricsCollection()) {
-            saveMetrics(client);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        validate();
-
-        client.updateAutoScalingGroup(
-            r -> r.autoScalingGroupName(getName())
-                .launchTemplate(
-                    LaunchTemplateSpecification.builder()
-                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
-                        .build()
-                )
-                .maxSize(getMaxSize())
-                .minSize(getMinSize())
-                .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
-                .desiredCapacity(getDesiredCapacity() != null ? getDesiredCapacity() : getCalculatedDesiredCapacity(((AutoScalingGroupResource) current).actualDesiredCapacity))
-                .defaultCooldown(getDefaultCooldown())
-                .healthCheckType(getHealthCheckType())
-                .healthCheckGracePeriod(getHealthCheckGracePeriod())
-                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
-                .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
-                .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
-                .terminationPolicies(getTerminationPolicies())
-        );
-
-        if (changedFieldNames.contains("enable-metrics-collection") || changedFieldNames.contains("disabled-metrics")) {
-            if (getEnableMetricsCollection()) {
-                saveMetrics(client);
-            } else {
-                client.disableMetricsCollection(
-                    r -> r.autoScalingGroupName(getName())
-                );
-            }
-        }
-
-        AutoScalingGroupResource oldResource = (AutoScalingGroupResource) current;
-
-        if (changedFieldNames.contains("tags") || changedFieldNames.contains("propagate-at-launch-tags")) {
-            if (!getTags().isEmpty()) {
-                saveTags(client, getTags(), getPropagateAtLaunchTags(), false);
-
-                removeStaleTags(client, oldResource);
-            } else {
-                saveTags(client, oldResource.getTags(), oldResource.getPropagateAtLaunchTags(), true);
-            }
-        }
-
-        if (changedFieldNames.contains("classic-load-balancers")) {
-            saveLoadBalancerNames(client, oldResource.getClassicLoadBalancers());
-        }
-
-        if (changedFieldNames.contains("target-groups")) {
-            saveTargetGroupArns(client, oldResource.getTargetGroups());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        // have option of graceful delete with configurable timeouts.
-        client.deleteAutoScalingGroup(r -> r.autoScalingGroupName(getName()).forceDelete(true));
+        throw new NotImplementedException();
     }
 
     @Override

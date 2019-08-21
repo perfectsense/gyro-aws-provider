@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -188,61 +189,22 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
     @Override
     public boolean refresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Route route = getRoute(client);
-
-        if (route == null) {
-            return false;
-        }
-
-        copyFrom(route);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
-                .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .gatewayId(getGateway() != null ? getGateway().getId() : null)
-                .instanceId(getInstance() != null ? getInstance().getId() : null)
-                .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
-                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
-                .transitGatewayId(getTransitGatewayId())
-                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
-                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
-                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
-            .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-            .gatewayId(getGateway() != null ? getGateway().getId() : null)
-            .instanceId(getInstance() != null ? getInstance().getId() : null)
-            .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
-            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
-            .transitGatewayId(getTransitGatewayId())
-            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
-            .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
-            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
-                .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
-        );
+        throw new NotImplementedException();
     }
 
     private Route getRoute(Ec2Client client) {

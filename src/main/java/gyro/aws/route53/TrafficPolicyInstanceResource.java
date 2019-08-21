@@ -12,6 +12,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyInstanceResponse;
@@ -173,29 +174,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) {
-        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
-
-        CreateTrafficPolicyInstanceResponse response = client.createTrafficPolicyInstance(
-            r -> r.name(getName() + getHostedZone().getName())
-                .hostedZoneId(getHostedZone().getId())
-                .trafficPolicyId(getTrafficPolicy().getId())
-                .trafficPolicyVersion(getTrafficPolicy().getVersion())
-                .ttl(getTtl())
-        );
-
-        TrafficPolicyInstance trafficPolicyInstance = response.trafficPolicyInstance();
-        setId(trafficPolicyInstance.id());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isTrafficPolicyInstanceReady(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'Applied' state for route53 traffic policy - " + getName());
-        }
+        throw new NotImplementedException();
     }
 
     @Override

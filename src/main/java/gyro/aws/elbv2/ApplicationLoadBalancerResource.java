@@ -9,6 +9,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
@@ -104,20 +105,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-
-        CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
-                .name(getName())
-                .scheme(getScheme())
-                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-                .type(LoadBalancerTypeEnum.APPLICATION)
-        );
-
-        setArn(response.loadBalancers().get(0).loadBalancerArn());
-        setDnsName(response.loadBalancers().get(0).dnsName());
-
-        super.create(ui, state);
+        throw new NotImplementedException();
     }
 
     @Override

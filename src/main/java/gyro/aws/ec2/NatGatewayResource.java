@@ -12,6 +12,7 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNatGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
@@ -111,62 +112,22 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        NatGateway natGateway = getNatGateway(client);
-
-        if (natGateway == null) {
-            return false;
-        }
-
-        copyFrom(natGateway);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate();
-
-        CreateNatGatewayResponse response = client.createNatGateway(
-            r -> r.allocationId(getElasticIp().getId())
-                .subnetId(getSubnet().getId())
-        );
-
-        NatGateway natGateway = response.natGateway();
-        setId(natGateway.natGatewayId());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(7, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for nat gateway - " + getId());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteNatGateway(
-            r -> r.natGatewayId(getId())
-        );
-
-        Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> isDeleted(client));
+        throw new NotImplementedException();
     }
 
     private NatGateway getNatGateway(Ec2Client client) {

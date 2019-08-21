@@ -10,6 +10,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -181,80 +182,22 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
     @Override
     protected boolean doRefresh() {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DBInstance dbInstance = getDbInstance(client);
-
-        if (dbInstance == null) {
-            return false;
-        }
-
-        copyFrom(dbInstance);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        CreateDbInstanceResponse response = client.createDBInstance(
-            r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-                .availabilityZone(getAvailabilityZone())
-                .dbInstanceClass(getDbInstanceClass())
-                .dbInstanceIdentifier(getIdentifier())
-                .engine(getEngine())
-                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .promotionTier(getPromotionTier())
-                .dbClusterIdentifier(getDbCluster().getIdentifier())
-        );
-
-        setArn(response.dbInstance().dbInstanceArn());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(1, TimeUnit.MINUTES)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb instance - " + getIdentifier());
-        }
-
-        copyFrom(getDbInstance(client));
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(Resource current, Set changedProperties) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        client.modifyDBInstance(
-            r -> r.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-                .dbInstanceClass(getDbInstanceClass())
-                .dbInstanceIdentifier(getIdentifier())
-                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .promotionTier(getPromotionTier())
-        );
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> isAvailable(client));
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        client.deleteDBInstance(
-            r -> r.dbInstanceIdentifier(getIdentifier())
-        );
-
-        Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> getDbInstance(client) == null);
+        throw new NotImplementedException();
     }
 
     @Override

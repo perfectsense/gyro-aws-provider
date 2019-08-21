@@ -11,6 +11,7 @@ import gyro.core.Type;
 
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Address;
 import software.amazon.awssdk.services.ec2.model.AllocateAddressResponse;
@@ -178,130 +179,22 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Address address = getAddress(client);
-
-        if (address == null) {
-            return false;
-        }
-
-        copyFrom(address);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        try {
-            AllocateAddressResponse response = client.allocateAddress(
-                r -> r.address(getPublicIp())
-                    .domain(getIsStandardDomain() ? DomainType.STANDARD : DomainType.VPC)
-            );
-            setId(response.allocationId());
-            setPublicIp(response.publicIp());
-
-            if ((getInstance() != null || getNetworkInterface() != null) && (!getAllowReAssociation())) {
-                throw new GyroException("Please set 'allow-re-association' to true in order for any associations.");
-            }
-
-            if (getNetworkInterface() != null) {
-                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                    .networkInterfaceId(getNetworkInterface().getId())
-                    .allowReassociation(getAllowReAssociation())
-                    .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
-                setAssociationId(resp.associationId());
-            } else if (getInstance() != null) {
-                AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                    .instanceId(getInstance().getId())
-                    .allowReassociation(getAllowReAssociation()));
-                setAssociationId(resp.associationId());
-            }
-        } catch (Ec2Exception eex) {
-            if (eex.awsErrorDetails().errorCode().equals("InvalidAddress.NotFound")) {
-                throw new GyroException(MessageFormat.format("Elastic Ip - {0} Unavailable/Not found.", getPublicIp()));
-            } else if (eex.awsErrorDetails().errorCode().equals("AddressLimitExceeded")) {
-                throw new GyroException("The maximum number of addresses has been reached.");
-            } else {
-                throw eex;
-            }
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (changedProperties.contains("is-standard-domain")) {
-            if (!getIsStandardDomain()) {
-                MoveAddressToVpcResponse response = client.moveAddressToVpc(r -> r.publicIp(getPublicIp()));
-                setId(response.allocationId());
-                setIsStandardDomain(false);
-            } else {
-                throw new GyroException(MessageFormat.format("Elastic Ip - {0}, VPC domain to Standard domain not feasible. ", getPublicIp()));
-            }
-        }
-
-        if (changedProperties.contains("instance") || changedProperties.contains("network-interface")) {
-            if (!getAllowReAssociation()) {
-                throw new GyroException("Please set the allow-re-association to true in order for any associations.");
-            }
-
-            if (changedProperties.contains("instance")) {
-                if (getInstance() != null) {
-                    AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                        .instanceId(getInstance().getId())
-                        .allowReassociation(getAllowReAssociation()));
-                    setAssociationId(resp.associationId());
-                } else {
-                    if (!changedProperties.contains("network-interface")) {
-                        client.disassociateAddress(r -> r.associationId(getAssociationId()));
-                    }
-                }
-            }
-
-            if (changedProperties.contains("network-interface")) {
-                if (getNetworkInterface() != null) {
-                    AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                        .networkInterfaceId(getNetworkInterface().getId())
-                        .allowReassociation(getAllowReAssociation()));
-                    setAssociationId(resp.associationId());
-                } else {
-                    if (!changedProperties.contains("instance")) {
-                        client.disassociateAddress(r -> r.associationId(getAssociationId()));
-                    }
-                }
-            }
-        }
-
-        doRefresh();
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Address address = getAddress(client);
-
-        try {
-            if (address != null && address.associationId() != null) {
-                client.disassociateAddress(r -> r.associationId(getAssociationId()));
-            }
-        } catch (Ec2Exception e) {
-            throw new GyroException("Non managed associated resource");
-        }
-
-        try {
-            client.releaseAddress(r -> r.allocationId(getId()));
-        } catch (Ec2Exception eex) {
-            if (eex.awsErrorDetails().errorCode().equals("InvalidAllocationID.NotFound")) {
-                throw new GyroException(MessageFormat.format("Elastic Ip - {0} not found.", getPublicIp()));
-            } else {
-                throw eex;
-            }
-        }
+        throw new NotImplementedException();
     }
 
     private Address getAddress(Ec2Client client) {

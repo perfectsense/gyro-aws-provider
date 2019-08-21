@@ -7,6 +7,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.docdb.model.Tag;
@@ -39,29 +40,21 @@ public abstract class DocDbTaggableResource<T> extends AwsResource {
 
     @Override
     public boolean refresh() {
-        boolean refreshed = doRefresh();
-
-        if (refreshed) {
-            loadTags();
-        }
-
-        return refreshed;
+        throw new NotImplementedException();
     }
 
     protected abstract void doCreate(GyroUI ui, State state);
 
     @Override
     public void create(GyroUI ui, State state) {
-        doCreate(ui, state);
-        saveTags();
+        throw new NotImplementedException();
     }
 
     protected abstract void doUpdate(Resource current, Set<String> changedProperties);
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        doUpdate(current, changedProperties);
-        saveTags();
+        throw new NotImplementedException();
     }
 
     private void saveTags() {

@@ -10,6 +10,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
@@ -149,16 +150,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
-
-        CreatePolicyResponse response = client.createPolicy(
-            r -> r.policyName(getName())
-                        .policyDocument(getPolicyDocument())
-                        .description(getDescription())
-                        .path(getPath())
-        );
-
-        setArn(response.policy().arn());
+        throw new NotImplementedException();
     }
 
     @Override

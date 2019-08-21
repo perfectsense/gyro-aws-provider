@@ -9,6 +9,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
@@ -226,17 +227,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Snapshot snapshot = getSnapshot(client);
-
-        if (snapshot == null) {
-            return false;
-        }
-
-        copyFrom(snapshot);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
@@ -246,28 +237,17 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateSnapshotResponse response = client.createSnapshot(
-            r -> r.description(getDescription())
-                .volumeId(getVolume().getId())
-        );
-
-        setId(response.snapshotId());
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteSnapshot(
-            r -> r.snapshotId(getId())
-        );
+        throw new NotImplementedException();
     }
 
     private Snapshot getSnapshot(Ec2Client client) {

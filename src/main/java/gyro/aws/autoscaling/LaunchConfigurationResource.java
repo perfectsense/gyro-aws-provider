@@ -19,11 +19,9 @@ import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
-import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
-import software.amazon.awssdk.services.autoscaling.model.CreateLaunchConfigurationRequest;
-import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsResponse;
-import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
+import software.amazon.awssdk.services.autoscaling.model.*;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -275,53 +273,12 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     @Override
     public boolean refresh() {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        LaunchConfiguration launchConfiguration = getLaunchConfiguration(client);
-
-        if (launchConfiguration == null) {
-            return false;
-        }
-
-        copyFrom(launchConfiguration);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        validate();
-
-        CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
-            .launchConfigurationName(getName())
-            .ebsOptimized(getEbsOptimized())
-            .imageId(getInstance() == null ? getAmiId() : null)
-            .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-            .keyName(getKey() != null ? getKey().getName() : null)
-            .instanceType(getInstance() == null ? getInstanceType() : null)
-            .instanceId(getInstance() != null ? getInstance().getId() : null)
-            .associatePublicIpAddress(getAssociatePublicIp())
-            .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                getBlockDeviceMapping()
-                    .stream()
-                    .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
-                    .collect(Collectors.toList()) : null)
-            .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
-            .build();
-
-        // Wait for instance profile to be ready for use if present
-        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
-            .prompt(false)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .until(() -> createLaunchConfig(client, request));
-
-        if (!status) {
-            throw new GyroException("Invalid IamInstanceProfile: " + getInstanceProfile().getArn());
-        }
+        throw new NotImplementedException();
     }
 
     private boolean createLaunchConfig(AutoScalingClient client, CreateLaunchConfigurationRequest request) {
@@ -346,9 +303,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        client.deleteLaunchConfiguration(r -> r.launchConfigurationName(getName()));
+        throw new NotImplementedException();
     }
 
     private LaunchConfiguration getLaunchConfiguration(AutoScalingClient client) {

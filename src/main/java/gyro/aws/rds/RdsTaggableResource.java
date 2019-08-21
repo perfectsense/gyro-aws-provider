@@ -6,6 +6,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.rds.model.Tag;
@@ -66,8 +67,7 @@ public abstract class RdsTaggableResource extends AwsResource {
 
     @Override
     public final void create(GyroUI ui, State state) {
-        doCreate(ui, state);
-        addTags();
+        throw new NotImplementedException();
     }
 
     protected abstract void doUpdate(Resource config, Set<String> changedProperties);

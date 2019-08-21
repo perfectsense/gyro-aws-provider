@@ -29,6 +29,7 @@ import software.amazon.awssdk.services.cloudfront.model.Origins;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
 import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionResponse;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -519,79 +520,22 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
     @Override
     public boolean refresh() {
-        CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
-
-        try {
-            GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
-
-            Distribution distribution = response.distribution();
-
-            copyFrom(distribution);
-
-        } catch (NoSuchDistributionException ex) {
-            return false;
-        }
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
-
-        CreateDistributionResponse response = client.createDistribution(c -> c.distributionConfig(distributionConfig()));
-        setId(response.distribution().id());
-        setArn(response.distribution().arn());
-        setDomainName(response.distribution().domainName());
-        setEtag(response.eTag());
-
-        applyTags(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
-
-        UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
-            .id(getId())
-            .ifMatch(getEtag()));
-
-        setEtag(response.eTag());
-
-        if (changedFieldNames.contains("tags")) {
-            applyTags(client);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
-
-        if (getEnabled()) {
-            setEnabled(false);
-
-            client.updateDistribution(r -> r.distributionConfig(distributionConfig())
-                .id(getId())
-                .ifMatch(getEtag()));
-
-            boolean deploying = true;
-            do {
-                GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
-                setEtag(response.eTag());
-
-                if (response.distribution().status().equals("Deployed")) {
-                    deploying = false;
-                } else {
-                    try {
-                        Thread.sleep(60000);
-                    } catch (InterruptedException ie) {
-                        throw new GyroException(ie.getMessage());
-                    }
-                }
-            } while (deploying);
-        }
-
-        client.deleteDistribution(r -> r.id(getId()).ifMatch(getEtag()));
+        throw new NotImplementedException();
     }
 
     private void applyTags(CloudFrontClient client) {

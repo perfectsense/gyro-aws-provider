@@ -9,6 +9,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreateInstanceProfileResponse;
 import software.amazon.awssdk.services.iam.model.GetInstanceProfileResponse;
@@ -113,16 +114,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
 
     @Override
     public void create(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
-
-        CreateInstanceProfileResponse response =
-                client.createInstanceProfile(r -> r.instanceProfileName(getName()).path(getPath()));
-
-        setArn(response.instanceProfile().arn());
-
-        if (getRole() != null) {
-            client.addRoleToInstanceProfile(r -> r.instanceProfileName(getName()).roleName(getRole().getName()));
-        }
+        throw new NotImplementedException();
     }
 
     @Override

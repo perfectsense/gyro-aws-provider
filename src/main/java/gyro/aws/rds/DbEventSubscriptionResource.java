@@ -10,6 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateEventSubscriptionResponse;
 import software.amazon.awssdk.services.rds.model.DescribeEventSubscriptionsResponse;
@@ -164,17 +165,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateEventSubscriptionResponse response = client.createEventSubscription(
-            r -> r.enabled(getEnabled())
-                    .eventCategories(getEventCategories())
-                    .sourceIds(getSourceIds())
-                    .sourceType(getSourceType())
-                    .subscriptionName(getName())
-                    .snsTopicArn(getSnsTopic().getArn())
-        );
-
-        setArn(response.eventSubscription().eventSubscriptionArn());
+        throw new NotImplementedException();
     }
 
     @Override

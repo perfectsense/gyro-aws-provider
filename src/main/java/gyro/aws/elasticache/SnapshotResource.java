@@ -8,6 +8,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
@@ -109,15 +110,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        CreateSnapshotResponse response = client.createSnapshot(
-            r -> r.snapshotName(getSnapshotName())
-                .replicationGroupId(getReplicationGroupId())
-                .cacheClusterId(getCacheCluster() != null ? getCacheCluster().getId() : null)
-        );
-
-        setStatus(response.snapshot().snapshotStatus());
+        throw new NotImplementedException();
     }
 
     @Override

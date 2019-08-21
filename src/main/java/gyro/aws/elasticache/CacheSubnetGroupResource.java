@@ -11,6 +11,7 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
@@ -110,14 +111,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        client.createCacheSubnetGroup(
-            r -> r.cacheSubnetGroupName(getName())
-                .cacheSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
-        );
-
+        throw new NotImplementedException();
     }
 
     @Override

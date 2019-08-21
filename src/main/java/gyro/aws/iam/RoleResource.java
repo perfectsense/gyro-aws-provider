@@ -10,6 +10,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
@@ -225,26 +226,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
-
-        CreateRoleResponse response = client.createRole(r -> r.assumeRolePolicyDocument(getAssumeRolePolicy())
-                .description(getDescription())
-                .maxSessionDuration(getMaxSessionDuration())
-                .path(getPath())
-                .roleName(getName())
-                .permissionsBoundary(getPermissionsBoundaryArn())
-                .tags(toTags(getTags())));
-
-        setArn(response.role().arn());
-
-        try {
-            for (PolicyResource policy : getPolicies()) {
-                client.attachRolePolicy(r -> r.roleName(getName()).policyArn(policy.getArn()));
-            }
-        } catch (Exception err) {
-            delete(ui, state);
-            throw new GyroException(err.getMessage());
-        }
+        throw new NotImplementedException();
     }
 
     @Override

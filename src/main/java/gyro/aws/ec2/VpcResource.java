@@ -6,33 +6,18 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.TestValue;
-import gyro.core.resource.Updatable;
+import gyro.core.resource.*;
 import gyro.core.Type;
-import gyro.core.resource.Output;
+import gyro.core.scope.DiffableScope;
+import gyro.core.scope.RootScope;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
-import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
-import software.amazon.awssdk.services.ec2.model.CreateVpcRequest;
-import software.amazon.awssdk.services.ec2.model.CreateVpcResponse;
-import software.amazon.awssdk.services.ec2.model.DeleteVpcRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcAttributeRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcClassicLinkDnsSupportResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcClassicLinkResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeVpcsResponse;
-import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.ModifyVpcAttributeRequest;
-import software.amazon.awssdk.services.ec2.model.Vpc;
-import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
-import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
+import software.amazon.awssdk.services.ec2.model.*;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Creates a VPC with the specified IPv4 CIDR block.
@@ -299,38 +284,42 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Vpc vpc = getVpc(client);
-
-        if (vpc == null) {
-            return false;
-        }
-
-        copyFrom(vpc);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
+        Map<String, String> rootTags = getRootScopeTags();
+
         Ec2Client client = createClient(Ec2Client.class);
+        DescribeVpcsResponse response = client.describeVpcs();
 
-        CreateVpcRequest request = CreateVpcRequest.builder()
-                .cidrBlock(getCidrBlock())
-                .amazonProvidedIpv6CidrBlock(getProvideIpv6CidrBlock())
-                .instanceTenancy(getInstanceTenancy())
-                .build();
+        if(response != null && !response.vpcs().isEmpty()){
+            Vpc vpc = getVpcByTgas(response.vpcs(), rootTags);
+            setId(vpc.vpcId());
+            setOwnerId(vpc.ownerId());
+            setInstanceTenancy(vpc.instanceTenancyAsString());
+            setRegion(credentials(AwsCredentials.class).getRegion());
+        }
+    }
 
-        CreateVpcResponse response = client.createVpc(request);
+    private Vpc getVpcByTgas(List<Vpc> vpcs, Map<String, String> rootTags) {
+        Vpc myVpc = null;
+        for(Vpc vpc : vpcs){
+            List<Tag> tags = vpc.tags();
+            Boolean tagsMatch = true;
+            for(Tag tag : tags){
+                tagsMatch = tagsMatch && rootTags.containsKey(tag.key())
+                                      && rootTags.get(tag.key()) == tag.value();
+            }
 
-        Vpc vpc = response.vpc();
-        setId(response.vpc().vpcId());
-        setOwnerId(vpc.ownerId());
-        setInstanceTenancy(vpc.instanceTenancyAsString());
-        setRegion(credentials(AwsCredentials.class).getRegion());
+            if(tagsMatch) {
+                myVpc = vpc;
+                continue;
+            }
+        }
 
-        modifySettings(client, new HashSet<>());
+        return myVpc;
     }
 
     @Override
@@ -342,20 +331,12 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        modifySettings(client, changedProperties);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        DeleteVpcRequest request = DeleteVpcRequest.builder()
-                .vpcId(getId())
-                .build();
-
-        client.deleteVpc(request);
+        throw new NotImplementedException();
     }
 
     private Vpc getVpc(Ec2Client client) {

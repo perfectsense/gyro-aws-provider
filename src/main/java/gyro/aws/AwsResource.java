@@ -1,7 +1,10 @@
 package gyro.aws;
 
 import gyro.core.GyroException;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
+import gyro.core.scope.DiffableScope;
+import gyro.core.scope.RootScope;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
@@ -10,6 +13,9 @@ import software.amazon.awssdk.regions.Region;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AwsResource extends Resource {
 
@@ -53,6 +59,16 @@ public abstract class AwsResource extends Resource {
         } catch (Exception ex) {
             throw new GyroException(String.format("Unable to create %s !", clientClass), ex);
         }
+    }
+
+    protected Map<String, String> getRootScopeTags(){
+        Map<String, String> tags = new HashMap<>();
+        DiffableScope scope = DiffableInternals.getScope(this);
+        RootScope rootScope = scope.getRootScope();
+        tags.put("project", (String) rootScope.get("project"));
+        tags.put("account", (String) rootScope.get("account"));
+        tags.put("serial", (String) rootScope.get("serial"));
+        return tags;
     }
 
     @FunctionalInterface

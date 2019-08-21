@@ -3,6 +3,7 @@ package gyro.aws.ec2;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.util.Set;
 
@@ -37,17 +38,17 @@ import java.util.Set;
 public class NetworkAclEgressRuleResource extends NetworkAclRuleResource {
     @Override
     public void create(GyroUI ui, State state) {
-        create(true);
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        update(true);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        delete(true);
+        throw new NotImplementedException();
     }
 
     @Override

@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIden
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolClientResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolClientResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolClientType;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -309,69 +310,22 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
 
     @Override
     public boolean refresh() {
-        try {
-            CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-            DescribeUserPoolClientResponse response = client.describeUserPoolClient(r -> r.clientId(getId())
-                                                                                            .userPoolId(getUserPool().getId()));
-            this.copyFrom(response.userPoolClient());
-
-            return true;
-        } catch (CognitoIdentityProviderException ex) {
-            ex.printStackTrace();
-        }
-
-        return false;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-        CreateUserPoolClientResponse response = client.createUserPoolClient(r ->
-                r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
-                .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
-                .allowedOAuthScopes(getAllowedOAuthScopes())
-                .callbackURLs(getCallbackUrls())
-                .clientName(getName())
-                .defaultRedirectURI(getDefaultRedirectUri())
-                .explicitAuthFlowsWithStrings(getExplicitAuthFlows())
-                .generateSecret(getGenerateSecret())
-                .logoutURLs(getLogoutUrls())
-                .readAttributes(getReadAttributes())
-                .refreshTokenValidity(getRefreshTokenValidity())
-                .supportedIdentityProviders(getSupportedIdentityProviders())
-                .userPoolId(getUserPool().getId())
-                .writeAttributes(getWriteAttributes()));
-
-        setId(response.userPoolClient().clientId());
-        setSecret(response.userPoolClient().clientSecret());
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-        client.updateUserPoolClient(r -> r.allowedOAuthFlowsUserPoolClient(getAllowedOAuthFlowsClient())
-                .allowedOAuthFlowsWithStrings(getAllowedOAuthFlows())
-                .allowedOAuthScopes(getAllowedOAuthScopes())
-                .callbackURLs(getCallbackUrls())
-                .clientId(getId())
-                .clientName(getName())
-                .defaultRedirectURI(getDefaultRedirectUri())
-                .explicitAuthFlowsWithStrings(getExplicitAuthFlows())
-                .logoutURLs(getLogoutUrls())
-                .readAttributes(getReadAttributes())
-                .refreshTokenValidity(getRefreshTokenValidity())
-                .supportedIdentityProviders(getSupportedIdentityProviders())
-                .userPoolId(getUserPool().getId())
-                .writeAttributes(getWriteAttributes())
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-        client.deleteUserPoolClient(r -> r.clientId(getId())
-                                            .userPoolId(getUserPool().getId()));
+        throw new NotImplementedException();
     }
 
 }

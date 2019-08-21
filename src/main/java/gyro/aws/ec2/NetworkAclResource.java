@@ -10,6 +10,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
@@ -137,40 +138,22 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        NetworkAcl networkAcl = getNetworkAcl(client);
-
-        if (networkAcl == null) {
-            return false;
-        }
-
-        copyFrom(networkAcl);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateNetworkAclResponse response = client.createNetworkAcl(
-            r -> r.vpcId(getVpc().getId())
-        );
-
-        setId(response.networkAcl().networkAclId());
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteNetworkAcl(r -> r.networkAclId(getId()));
+        throw new NotImplementedException();
     }
 
     private NetworkAcl getNetworkAcl(Ec2Client client) {

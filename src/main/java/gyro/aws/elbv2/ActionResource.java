@@ -10,6 +10,7 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
@@ -170,17 +171,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
-            return;
-        }
-
-        if (parentResource() instanceof ApplicationLoadBalancerListenerRuleResource) {
-            ApplicationLoadBalancerListenerRuleResource parent = (ApplicationLoadBalancerListenerRuleResource) parentResource();
-            parent.createAction(this);
-        } else {
-            ApplicationLoadBalancerListenerResource parent = (ApplicationLoadBalancerListenerResource) parentResource();
-            parent.createDefaultAction(this);
-        }
+        throw new NotImplementedException();
     }
 
     @Override

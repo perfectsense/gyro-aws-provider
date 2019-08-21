@@ -17,6 +17,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
@@ -457,152 +458,22 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     @Override
     public boolean refresh() {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        CacheCluster cacheCluster = getCacheCluster(client);
-
-        if (cacheCluster == null) {
-            return false;
-        }
-
-        copyFrom(cacheCluster);
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        CreateCacheClusterRequest.Builder builder = CreateCacheClusterRequest.builder()
-            .azMode(getAzMode())
-            .cacheClusterId(getId())
-            .cacheNodeType(getCacheNodeType())
-            .cacheParameterGroupName(getCacheParamGroup().getName())
-            .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-            .cacheSubnetGroupName(getCacheSubnetGroup().getName())
-            .engine(getEngine())
-            .engineVersion(getEngineVersion())
-            .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
-            .numCacheNodes(getNumCacheNodes())
-            .port(getPort())
-            .preferredAvailabilityZones(getPreferredAvailabilityZones())
-            .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-            .tags(toCacheTags(getTags()));
-
-        if (("redis").equalsIgnoreCase(getEngine())) {
-            builder.replicationGroupId(getReplicationGroupId())
-                .snapshotArns(getSnapshotArns())
-                .snapshotRetentionLimit(getSnapshotRetentionLimit())
-                .snapshotWindow(getSnapshotWindow());
-        }
-
-        CreateCacheClusterResponse response = client.createCacheCluster(builder.build());
-
-        setStatus(response.cacheCluster().cacheClusterStatus());
-        setArn("arn:aws:elasticache:" + getRegion() + ":" + getAccountNumber() + ":cluster:" + getId());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(1, TimeUnit.MINUTES)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for elasticache cluster - " + getId());
-        }
-
-        CacheCluster cacheCluster = getCacheCluster(client);
-        List<CacheClusterNode> nodes = new ArrayList<>();
-        if (cacheCluster != null) {
-            for (CacheNode model : cacheCluster.cacheNodes()) {
-                CacheClusterNode node = newSubresource(CacheClusterNode.class);
-                node.copyFrom(model);
-                nodes.add(node);
-            }
-
-            setNodes(nodes);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-        Set<String> properties = new HashSet<>(changedProperties);
-
-        CacheClusterResource currentCacheClusterResource = (CacheClusterResource) current;
-
-        if (properties.contains("tags")) {
-            Map<String, String> pendingTags = getTags();
-            Map<String, String> currentTags = currentCacheClusterResource.getTags();
-
-            saveTags(pendingTags, currentTags, client);
-
-            properties.remove("tags");
-        }
-
-        if (!properties.isEmpty()) {
-            ModifyCacheClusterRequest.Builder builder = ModifyCacheClusterRequest.builder()
-                .cacheClusterId(getId())
-                .cacheNodeType(getCacheNodeType())
-                .cacheParameterGroupName(getCacheParamGroup().getName())
-                .cacheSecurityGroupNames(getCacheSecurityGroupNames())
-                .engineVersion(getEngineVersion())
-                .notificationTopicArn(getNotificationTopic() != null ? getNotificationTopic().getArn() : null)
-                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-                .numCacheNodes(getNumCacheNodes());
-
-            if (properties.contains("preferred-availability-zones")) {
-                List<String> newAvailabilityZones = new ArrayList<>(getPreferredAvailabilityZones());
-                newAvailabilityZones.removeAll(currentCacheClusterResource.getPreferredAvailabilityZones());
-
-                if (newAvailabilityZones.size() > 0) {
-                    builder.newAvailabilityZones(newAvailabilityZones);
-                }
-            }
-
-            if (("redis").equalsIgnoreCase(getEngine())) {
-                builder.snapshotRetentionLimit(getSnapshotRetentionLimit())
-                    .snapshotWindow(getSnapshotWindow());
-            }
-
-            ModifyCacheClusterRequest modifyCacheClusterRequest = builder.applyImmediately(getApplyImmediately()).build();
-
-            client.modifyCacheCluster(modifyCacheClusterRequest);
-
-            Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
-                .prompt(true)
-                .until(() -> isAvailable(client));
-
-            CacheCluster cacheCluster = getCacheCluster(client);
-            List<CacheClusterNode> nodes = new ArrayList<>();
-            if (cacheCluster != null) {
-                for (CacheNode model : cacheCluster.cacheNodes()) {
-                    CacheClusterNode node = newSubresource(CacheClusterNode.class);
-                    node.copyFrom(model);
-                    nodes.add(node);
-                }
-
-                setNodes(nodes);
-            }
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        ElastiCacheClient client = createClient(ElastiCacheClient.class);
-
-        client.deleteCacheCluster(
-            r -> r.cacheClusterId(getId())
-        );
-
-        Wait.atMost(3, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> getCacheCluster(client) == null);
+        throw new NotImplementedException();
     }
 
     private List<Tag> toCacheTags(Map<String, String> tagMap) {

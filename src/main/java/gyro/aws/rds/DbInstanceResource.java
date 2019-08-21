@@ -13,6 +13,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -782,74 +783,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
     @Override
     public void doCreate(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateDbInstanceResponse response = client.createDBInstance(
-            r -> r.allocatedStorage(getAllocatedStorage())
-                    .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-                    .availabilityZone(getAvailabilityZone())
-                    .backupRetentionPeriod(getBackupRetentionPeriod())
-                    .characterSetName(getCharacterSetName())
-                    .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getIdentifier() : null)
-                    .dbInstanceClass(getDbInstanceClass())
-                    .dbInstanceIdentifier(getIdentifier())
-                    .dbName(getDbName())
-                    .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
-                    .dbSecurityGroups(getDbSecurityGroups())
-                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
-                    .deletionProtection(getDeletionProtection())
-                    .domain(getDomain())
-                    .domainIAMRoleName(getDomainIamRoleName())
-                    .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
-                    .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
-                    .enablePerformanceInsights(getEnablePerformanceInsights())
-                    .engine(getEngine())
-                    .engineVersion(getEngineVersion())
-                    .iops(getIops())
-                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
-                    .licenseModel(getLicenseModel())
-                    .masterUsername(getMasterUsername())
-                    .masterUserPassword(getMasterUserPassword())
-                    .monitoringInterval(getMonitoringInterval())
-                    .monitoringRoleArn(getMonitoringRoleArn())
-                    .multiAZ(getMultiAz())
-                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
-                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null)
-                    .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
-                    .port(getPort())
-                    .preferredBackupWindow(getPreferredBackupWindow())
-                    .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                    .promotionTier(getPromotionTier())
-                    .publiclyAccessible(getPubliclyAccessible())
-                    .storageEncrypted(getStorageEncrypted())
-                    .storageType(getStorageType())
-                    .tdeCredentialArn(getTdeCredentialArn())
-                    .tdeCredentialPassword(getTdeCredentialPassword())
-                    .timezone(getTimezone())
-                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
-                        .stream()
-                        .map(SecurityGroupResource::getId)
-                        .collect(Collectors.toList()) : null)
-        );
-
-        setArn(response.dbInstance().dbInstanceArn());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(1, TimeUnit.MINUTES)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for rds db instance" + getIdentifier());
-        }
-
-        DescribeDbInstancesResponse describeResponse = client.describeDBInstances(
-            r -> r.dbInstanceIdentifier(getIdentifier())
-        );
-
-        setEndpointAddress(describeResponse.dbInstances().get(0).endpoint().address());
+        throw new NotImplementedException();
     }
 
     private boolean isAvailable(RdsClient client) {

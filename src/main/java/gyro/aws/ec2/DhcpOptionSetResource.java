@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeValue;
 import software.amazon.awssdk.services.ec2.model.CreateDhcpOptionsResponse;
@@ -169,47 +170,22 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        DhcpOptions dhcpOptions = getDhcpOptions(client);
-
-        if (dhcpOptions == null) {
-            return false;
-        }
-
-        copyFrom(dhcpOptions);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Collection<NewDhcpConfiguration> configs = new ArrayList<>();
-        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME, !ObjectUtils.isBlank(getDomainName()) ? Collections.singletonList(getDomainName()) : new ArrayList<>());
-        addDhcpConfiguration(configs, CONFIG_DOMAIN_NAME_SERVERS, new ArrayList<>(getDomainNameServers()));
-        addDhcpConfiguration(configs, CONFIG_NTP_SERVERS, new ArrayList<>(getNtpServers()));
-        addDhcpConfiguration(configs, CONFIG_NETBIOS_SERVERS, new ArrayList<>(getNetbiosNameServers()));
-        addDhcpConfiguration(configs, CONFIG_NETBIOS_NODE_TYPE, !ObjectUtils.isBlank(getNetbiosNodeType()) ? Collections.singletonList(getNetbiosNodeType()) : new ArrayList<>());
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateDhcpOptionsResponse response = client.createDhcpOptions(
-            r -> r.dhcpConfigurations(configs)
-        );
-
-        String optionsId = response.dhcpOptions().dhcpOptionsId();
-        setId(optionsId);
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteDhcpOptions(r -> r.dhcpOptionsId(getId()));
+        throw new NotImplementedException();
     }
 
     private void addDhcpConfiguration(Collection<NewDhcpConfiguration> dhcpConfigurations, String configName, List<String> newConfiguration) {

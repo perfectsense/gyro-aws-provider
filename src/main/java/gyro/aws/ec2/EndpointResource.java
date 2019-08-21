@@ -13,6 +13,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointResponse;
@@ -334,135 +335,22 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        VpcEndpoint endpoint = getVpcEndpoint(client);
-
-        if (endpoint == null) {
-            return false;
-        }
-
-        copyFrom(endpoint);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void doCreate(GyroUI ui, State state) {
-
-        validate();
-
-        CreateVpcEndpointRequest.Builder builder = CreateVpcEndpointRequest.builder();
-
-        builder.vpcId(getVpc().getId());
-        builder.vpcEndpointType(getType());
-        builder.privateDnsEnabled(getPrivateDnsEnabled());
-        builder.serviceName(getServiceName());
-
-        if (getType().equals(VpcEndpointType.INTERFACE)) {
-            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
-            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
-        } else {
-            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toList()));
-            builder.policyDocument(getPolicy());
-        }
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateVpcEndpointResponse response = client.createVpcEndpoint(builder.build());
-
-        VpcEndpoint endpoint = response.vpcEndpoint();
-
-        setId(endpoint.vpcEndpointId());
-
-        copyFrom(getVpcEndpoint(client));
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        validate();
-
-        ModifyVpcEndpointRequest.Builder builder = ModifyVpcEndpointRequest.builder();
-        builder.vpcEndpointId(getId());
-
-        EndpointResource oldEndpoint = (EndpointResource) config;
-
-        if (changedProperties.contains("route-tables")) {
-
-            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
-            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
-
-            List<String> removeRouteTableIds = currentRouteTableIds.stream().filter(o -> !pendingRouteTableIds.contains(o)).collect(Collectors.toList());
-            List<String> addRouteTableIds = pendingRouteTableIds.stream().filter(o -> !currentRouteTableIds.contains(o)).collect(Collectors.toList());
-
-            if (!addRouteTableIds.isEmpty()) {
-                builder.addRouteTableIds(addRouteTableIds);
-            }
-
-            if (!removeRouteTableIds.isEmpty()) {
-                builder.removeRouteTableIds(removeRouteTableIds);
-            }
-        }
-
-        if (changedProperties.contains("subnets")) {
-            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
-            Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
-
-            List<String> removeSubnetIds = currentSubnetIds.stream().filter(o -> !pendingSubnetIds.contains(o)).collect(Collectors.toList());
-            List<String> addSubnetIds = pendingSubnetIds.stream().filter(o -> !currentSubnetIds.contains(o)).collect(Collectors.toList());
-
-            if (!addSubnetIds.isEmpty()) {
-                builder.addSubnetIds(addSubnetIds);
-            }
-
-            if (!removeSubnetIds.isEmpty()) {
-                builder.removeSubnetIds(removeSubnetIds);
-            }
-        }
-
-        if (changedProperties.contains("security-groups")) {
-            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
-            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
-
-            List<String> removeSecurityGroupIds = currentSecurityGroupIds.stream().filter(o -> !pendingSecurityGroupIds.contains(o)).collect(Collectors.toList());
-            List<String> addSecurityGroupIds = pendingSecurityGroupIds.stream().filter(o -> !currentSecurityGroupIds.contains(o)).collect(Collectors.toList());
-
-            if (!addSecurityGroupIds.isEmpty()) {
-                builder.addSecurityGroupIds(addSecurityGroupIds);
-            }
-
-            if (!removeSecurityGroupIds.isEmpty()) {
-                builder.removeSecurityGroupIds(removeSecurityGroupIds);
-            }
-        }
-
-        if (changedProperties.contains("policy-doc-path")) {
-            builder.policyDocument(getPolicy());
-        }
-
-        if (changedProperties.contains("policy")) {
-            builder.policyDocument(getPolicy());
-        }
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.modifyVpcEndpoint(builder.build());
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVpcEndpoints(
-            r -> r.vpcEndpointIds(getId())
-        );
-
-        // Delay for residual dependency to be gone. 2 Min
-        try {
-            Thread.sleep(120000);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+        throw new NotImplementedException();
     }
 
     @Override

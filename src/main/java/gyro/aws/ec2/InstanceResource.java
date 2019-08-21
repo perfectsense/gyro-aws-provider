@@ -15,6 +15,7 @@ import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
@@ -527,185 +528,22 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
     @Override
     protected boolean doRefresh() {
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Instance instance = getInstance(client);
-
-        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED) {
-            return false;
-        }
-
-        copyFrom(instance);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate(true);
-
-        if (!ObjectUtils.isBlank(getAmiName()) || !ObjectUtils.isBlank(getAmiId())) {
-            loadAmi(client);
-        }
-
-        RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
-        builder = builder.imageId(getAmiId())
-            .ebsOptimized(getEbsOptimized())
-            .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-            .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-            .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
-            .instanceType(getInstanceType())
-            .keyName(getKey() != null ? getKey().getName() : null)
-            .maxCount(1)
-            .minCount(1)
-            .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()) : null)
-            .subnetId(getSubnet() != null ? getSubnet().getId() : null)
-            .disableApiTermination(getDisableApiTermination())
-            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-            .capacityReservationSpecification(getCapacityReservationSpecification())
-            .iamInstanceProfile(getIamInstanceProfile());
-
-        if (!getBlockDeviceMapping().isEmpty()) {
-            builder = builder.blockDeviceMappings(
-                getBlockDeviceMapping().stream()
-                    .map(BlockDeviceMappingResource::getBlockDeviceMapping)
-                    .collect(Collectors.toList())
-            );
-        }
-
-        if (getLaunchTemplate() != null) {
-            builder.launchTemplate(getLaunchTemplate().toLaunchTemplateSpecification());
-        }
-
-        RunInstancesRequest request = builder.build();
-
-        boolean status = Wait.atMost(60, TimeUnit.SECONDS)
-            .prompt(false)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .until(() -> createInstance(client, request));
-
-        if (!status) {
-            throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
-        }
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isInstanceRunning(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'running' state for ec2 instance - " + getInstanceId());
-        }
-
-        Instance instance = getInstance(client);
-
-        if (instance != null) {
-            setPublicDnsName(instance.publicDnsName());
-            setPublicIpAddress(instance.publicIpAddress());
-            setPrivateIpAddress(instance.privateIpAddress());
-            setInstanceState(instance.state().nameAsString());
-            setInstanceLaunchDate(Date.from(instance.launchTime()));
-            
-            loadVolume(instance);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate(false);
-
-        if (changedProperties.contains("shutdown-behavior")) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .instanceInitiatedShutdownBehavior(o -> o.value(getShutdownBehavior()))
-            );
-        }
-
-        if (changedProperties.contains("disable-api-termination")) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .disableApiTermination(o -> o.value(getDisableApiTermination()))
-            );
-        }
-
-        if (changedProperties.contains("source-dest-check")) {
-            Instance instance = getInstance(client);
-
-            if (instance != null) {
-                client.modifyNetworkInterfaceAttribute(
-                    r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-                );
-            }
-        }
-
-        if (changedProperties.contains("security-groups")) {
-            List<String> securityGroupIds = new ArrayList<>();
-            getSecurityGroups().forEach(r -> securityGroupIds.add(r.getId()));
-
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .groups(securityGroupIds)
-            );
-        }
-
-        boolean instanceStopped = isInstanceStopped(client);
-
-        if (changedProperties.contains("instance-type")
-            && validateInstanceStop(ui, instanceStopped, "instance-type", getInstanceType())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .instanceType(o -> o.value(getInstanceType()))
-            );
-        }
-
-        if (changedProperties.contains("ebs-optimized")
-            && validateInstanceStop(ui, instanceStopped, "ebs-optimized", getEbsOptimized().toString())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .ebsOptimized(o -> o.value(getEbsOptimized()))
-            );
-        }
-
-        if (changedProperties.contains("user-data")
-            && validateInstanceStop(ui, instanceStopped, "user-data", getUserData())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .userData(o -> o.value(SdkBytes.fromByteArray(getUserData().getBytes())))
-            );
-        }
-
-        if (changedProperties.contains("capacity-reservation")
-            && validateInstanceStop(ui, instanceStopped, "capacity-reservation", getCapacityReservation())) {
-            client.modifyInstanceCapacityReservationAttributes(
-                r -> r.instanceId(getId())
-                    .capacityReservationSpecification(getCapacityReservationSpecification())
-            );
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        if (getDisableApiTermination()) {
-            throw new GyroException("The instance (" + getId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
-        }
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.terminateInstances(r -> r.instanceIds(Collections.singletonList(getId())));
-
-        Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> isInstanceTerminated(client));
+        throw new NotImplementedException();
     }
 
     private void init(Instance instance, Ec2Client client) {

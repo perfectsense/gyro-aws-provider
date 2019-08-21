@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
@@ -95,48 +96,22 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CustomerGateway customerGateway = getCustomerGateway(client);
-
-        if (customerGateway == null) {
-            return false;
-        }
-
-        copyFrom(customerGateway);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        CreateCustomerGatewayRequest.Builder builder = CreateCustomerGatewayRequest.builder();
-        builder.publicIp(getPublicIp());
-        builder.type(GatewayType.IPSEC_1);
-
-        if (getBgpAsn() > 0) {
-            builder.bgpAsn(getBgpAsn());
-        } else {
-            builder.bgpAsn(65000);
-        }
-
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateCustomerGatewayResponse response = client.createCustomerGateway(builder.build());
-
-        setId(response.customerGateway().customerGatewayId());
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteCustomerGateway(r -> r.customerGatewayId(getId()));
+        throw new NotImplementedException();
     }
 
     private CustomerGateway getCustomerGateway(Ec2Client client) {

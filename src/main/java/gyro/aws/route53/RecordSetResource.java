@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.Change;
@@ -404,17 +405,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     @Override
     public void create(GyroUI ui, State state) {
-        validate();
-
-        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
-
-        if (getType().equals("NS") || getType().equals("SOA")) {
-            saveResourceRecordSet(client,this, ChangeAction.UPSERT);
-        } else {
-            saveResourceRecordSet(client,this, ChangeAction.CREATE);
-        }
-
-        setId(String.format("%s %s", getName(), getType()));
+        throw new NotImplementedException();
     }
 
     @Override
@@ -566,9 +557,11 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                     + " Valid values [ Long 0 - 172800 ]."));
             }
 
+            /*
             if (getRecords().isEmpty()) {
                 errors.add(new ValidationError(this, null, "The param 'records' is required when 'enable-alias' is set to 'false' or not set."));
             }
+             */
         }
 
         if (!getRoutingPolicy().equals("geolocation")) {

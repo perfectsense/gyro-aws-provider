@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolDomainResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DomainDescriptionType;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Set;
 
@@ -80,53 +81,22 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
 
     @Override
     public boolean refresh() {
-        try {
-            CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-            DescribeUserPoolDomainResponse response = client.describeUserPoolDomain(r -> r.domain(getDomain()));
-
-            this.copyFrom(response.domainDescription());
-
-            return true;
-        } catch (CognitoIdentityProviderException ex) {
-            ex.printStackTrace();
-        }
-
-        return false;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-        if (getCertificateArn() != null) {
-            client.createUserPoolDomain(r -> r.domain(getDomain())
-                    .userPoolId(getUserPool().getId())
-                    .customDomainConfig(c -> c.certificateArn(getCertificateArn())));
-        } else {
-            client.createUserPoolDomain(r -> r.domain(getDomain())
-                    .userPoolId(getUserPool().getId()));
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-        client.updateUserPoolDomain(r -> r.domain(getDomain())
-                .userPoolId(getUserPool().getId()));
-
-        if (getCertificateArn() != null) {
-            client.updateUserPoolDomain(r -> r.customDomainConfig(c -> c.certificateArn(getCertificateArn())));
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-        client.deleteUserPoolDomain(r -> r.domain(getDomain())
-                                            .userPoolId(getUserPool().getId()));
+        throw new NotImplementedException();
     }
 
 }

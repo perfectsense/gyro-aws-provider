@@ -10,6 +10,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
@@ -202,52 +203,22 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        VpcPeeringConnection vpcPeeringConnection = getVpcPeeringConnection(client);
-
-        if (vpcPeeringConnection == null) {
-            return false;
-        }
-
-        copyFrom(vpcPeeringConnection);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
-            r -> r.vpcId(getVpc().getId())
-                .peerVpcId(getPeerVpc().getId())
-                .peerOwnerId(getPeerVpc().getAccount())
-                .peerRegion(getPeerVpc().getRegion())
-        );
-
-        VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
-        setId(vpcPeeringConnection.vpcPeeringConnectionId());
-
-        client.acceptVpcPeeringConnection(
-            r -> r.vpcPeeringConnectionId(getId())
-        );
-
-        modifyPeeringConnectionSettings(client);
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        modifyPeeringConnectionSettings(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
+        throw new NotImplementedException();
     }
 
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {

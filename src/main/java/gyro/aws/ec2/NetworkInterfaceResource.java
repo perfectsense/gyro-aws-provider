@@ -12,6 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -268,188 +269,22 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        NetworkInterface networkInterface = getNetworkInterface(client);
-
-        if (networkInterface == null) {
-            return false;
-        }
-
-        copyFrom(networkInterface);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateNetworkInterfaceRequest.Builder builder = CreateNetworkInterfaceRequest.builder();
-
-        builder.subnetId(getSubnet().getId());
-        builder.description(getDescription());
-
-        if (!getSecurityGroups().isEmpty()) {
-            builder.groups(getSecurityGroups()
-                .stream()
-                .map(SecurityGroupResource::getId)
-                .collect(Collectors.toList()));
-        }
-
-        List<PrivateIpAddressSpecification> privateIpAddressSpecifications = new ArrayList<>();
-        privateIpAddressSpecifications.add(
-                PrivateIpAddressSpecification.builder()
-                        .privateIpAddress(getPrimaryIpv4Address())
-                        .primary(true)
-                        .build()
-        );
-
-        if (!getIpv4Addresses().isEmpty()) {
-            privateIpAddressSpecifications.addAll(
-                    getIpv4Addresses().stream().map(o -> PrivateIpAddressSpecification.builder()
-                            .privateIpAddress(o)
-                            .build()).collect(Collectors.toList())
-            );
-        }
-
-        if (getPrimaryIpv4Address() != null) {
-            builder.privateIpAddresses(privateIpAddressSpecifications);
-        }
-
-        CreateNetworkInterfaceResponse response = client.createNetworkInterface(builder.build());
-
-        NetworkInterface networkInterface = response.networkInterface();
-
-        setId(networkInterface.networkInterfaceId());
-
-        try {
-
-            if (getInstance() != null) {
-                AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
-                        .attachNetworkInterface(n -> n.networkInterfaceId(getId())
-                                .instanceId(getInstance().getId())
-                                .deviceIndex(getDeviceIndex())
-                );
-
-                setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
-
-                if (getDeleteOnTermination().equals(true)) {
-
-                    NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder()
-                            .deleteOnTermination(getDeleteOnTermination())
-                            .attachmentId(getAttachmentId())
-                            .build();
-
-                    client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getId())
-                            .attachment(changes)
-                    );
-                }
-            }
-
-            if (!getSourceDestCheck()) {
-                client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getId())
-                        .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-                );
-            }
-        } catch(Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                delete(ui, state);
-                throw new GyroException("The instance (" + getInstance().getId() + ") attachment failed.");
-            }
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (changedProperties.contains("delete-on-termination") && getAttachmentId() != null) {
-            NetworkInterfaceAttachmentChanges changes = NetworkInterfaceAttachmentChanges.builder()
-                    .deleteOnTermination(getDeleteOnTermination())
-                    .attachmentId(getAttachmentId())
-                    .build();
-
-            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getId())
-                    .attachment(changes)
-            );
-        }
-
-        if (changedProperties.contains("instance")) {
-            if (getInstance() != null) {
-                AttachNetworkInterfaceResponse attachNetworkInterfaceResponse = client
-                        .attachNetworkInterface(n -> n.networkInterfaceId(getId())
-                                .instanceId(getInstance().getId())
-                                .deviceIndex(getDeviceIndex())
-                        );
-                setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
-            } else {
-                detachInstance(client);
-            }
-        }
-
-        if (changedProperties.contains("ipv4-addresses") ) {
-
-            NetworkInterfaceResource currentNetworkInterfaceResource = (NetworkInterfaceResource) config;
-
-            HashSet<String> current = new HashSet<>(currentNetworkInterfaceResource.getIpv4Addresses());
-            HashSet<String> pending = new HashSet<>(getIpv4Addresses());
-
-            List<String> deleteIpv4Addresses = current.stream().filter(o -> !pending.contains(o)).collect(Collectors.toList());
-            if (!deleteIpv4Addresses.isEmpty()) {
-                client.unassignPrivateIpAddresses(
-                        r -> r.networkInterfaceId(getId())
-                                .privateIpAddresses(deleteIpv4Addresses)
-                );
-            }
-
-            List<String> addIpv4Addresses = pending.stream().filter(o -> !current.contains(o)).collect(Collectors.toList());
-            if (!addIpv4Addresses.isEmpty()) {
-                client.assignPrivateIpAddresses(r -> r.allowReassignment(true)
-                        .networkInterfaceId(getId())
-                        .privateIpAddresses(addIpv4Addresses)
-                );
-            }
-        }
-
-        if (changedProperties.contains("security-groups")) {
-            client.modifyNetworkInterfaceAttribute(
-                    r -> r.networkInterfaceId(getId())
-                            .groups(getSecurityGroups()
-                                .stream()
-                                .map(SecurityGroupResource::getId)
-                                .collect(Collectors.toList()))
-            );
-        }
-
-        if (changedProperties.contains("source-dest-check")) {
-            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getId())
-                    .sourceDestCheck(a -> a.value(getSourceDestCheck()))
-            );
-        }
-
-        if (changedProperties.contains("description")) {
-            client.modifyNetworkInterfaceAttribute(r -> r.networkInterfaceId(getId())
-                    .description(d -> d.value(getDescription()))
-            );
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        detachInstance(client);
-
-        client.deleteNetworkInterface(d -> d.networkInterfaceId(getId()));
-
-        //wait for the detachment from subnet.
-        Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(2, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> client.describeNetworkInterfaces(
-                r -> r.filters(Filter.builder().name("subnet-id").values(getSubnet().getId()).build())
-            ).networkInterfaces().stream().noneMatch(o -> o.networkInterfaceId().equals(getId())));
+        throw new NotImplementedException();
     }
 
     private NetworkInterface getNetworkInterface(Ec2Client client) {

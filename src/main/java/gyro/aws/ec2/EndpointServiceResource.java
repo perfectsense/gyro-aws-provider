@@ -13,6 +13,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AllowedPrincipal;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointServiceConfigurationResponse;
@@ -250,111 +251,22 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        ServiceConfiguration serviceConfiguration = getServiceConfiguration(client);
-
-        if (serviceConfiguration == null) {
-            return false;
-        }
-
-        copyFrom(serviceConfiguration);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateVpcEndpointServiceConfigurationResponse response = client.createVpcEndpointServiceConfiguration(
-            r -> r.acceptanceRequired(getAcceptanceRequired())
-                .networkLoadBalancerArns(getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toList()))
-        );
-
-        setId(response.serviceConfiguration().serviceId());
-
-        if (!getPrincipals().isEmpty()) {
-            client.modifyVpcEndpointServicePermissions(
-                r -> r.serviceId(getId())
-                    .addAllowedPrincipals(getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toList()))
-            );
-        }
-
-        copyFrom(response.serviceConfiguration());
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        EndpointServiceResource currentEndpointService = (EndpointServiceResource) config;
-
-        if (changedProperties.contains("acceptance-required") || changedProperties.contains("network-load-balancers")) {
-
-            ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest.builder()
-                .serviceId(getId());
-
-            builder.acceptanceRequired(getAcceptanceRequired());
-
-            Set<String> currentNlbArns = currentEndpointService.getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
-            Set<String> pendingNlbArns = getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
-
-            Set<String> deleteNlbArns = new HashSet<>(currentNlbArns);
-            deleteNlbArns.removeAll(pendingNlbArns);
-
-            if (!deleteNlbArns.isEmpty()) {
-                builder.removeNetworkLoadBalancerArns(deleteNlbArns);
-            }
-
-            Set<String> addNlbArns = new HashSet<>(pendingNlbArns);
-            addNlbArns.removeAll(currentNlbArns);
-
-            if (!currentNlbArns.isEmpty()) {
-                builder.addNetworkLoadBalancerArns(addNlbArns);
-            }
-
-            client.modifyVpcEndpointServiceConfiguration(builder.build());
-        }
-
-        if (changedProperties.contains("principals")) {
-            ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
-                .serviceId(getId());
-
-            Set<String> currentIamArns = currentEndpointService.getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
-            Set<String> pendingIamArns = getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
-
-            Set<String> deleteIamRoleArns = new HashSet<>(currentIamArns);
-            deleteIamRoleArns.removeAll(pendingIamArns);
-
-            boolean doUpdate = false;
-
-            if (!deleteIamRoleArns.isEmpty()) {
-                builder.removeAllowedPrincipals(deleteIamRoleArns);
-                doUpdate = true;
-            }
-
-            Set<String> addIamRoleArns = new HashSet<>(pendingIamArns);
-            addIamRoleArns.removeAll(currentIamArns);
-
-            if (!addIamRoleArns.isEmpty()) {
-                builder.addAllowedPrincipals(addIamRoleArns);
-                doUpdate = true;
-            }
-
-            if (doUpdate) {
-                client.modifyVpcEndpointServicePermissions(builder.build());
-            }
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVpcEndpointServiceConfigurations(
-            r -> r.serviceIds(getId())
-        );
+        throw new NotImplementedException();
     }
 
     private ServiceConfiguration getServiceConfiguration(Ec2Client client) {

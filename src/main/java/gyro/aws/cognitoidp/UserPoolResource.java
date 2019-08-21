@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIden
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserPoolType;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Map;
 import java.util.Set;
@@ -105,40 +106,22 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
 
     @Override
     public boolean refresh() {
-        try {
-            CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-            DescribeUserPoolResponse response = client.describeUserPool(r -> r.userPoolId(getId()));
-
-            this.copyFrom(response.userPool());
-
-            return true;
-        } catch (CognitoIdentityProviderException ex) {
-            ex.printStackTrace();
-        }
-
-        return false;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-        CreateUserPoolResponse response = client.createUserPool(r -> r.poolName(getName())
-            .userPoolTags(getTags()));
-
-        setArn(response.userPool().arn());
-        setId(response.userPool().id());
+        throw new NotImplementedException();
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        throw new NotImplementedException();
+    }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        CognitoIdentityProviderClient client = createClient(CognitoIdentityProviderClient.class);
-
-        client.deleteUserPool(r -> r.userPoolId(getId()));
+        throw new NotImplementedException();
     }
 
 }

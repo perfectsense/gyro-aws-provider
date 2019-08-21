@@ -9,6 +9,7 @@ import gyro.core.resource.Updatable;
 
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 
@@ -118,14 +119,7 @@ public class ListenerResource extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parent()) instanceof Create) {
-            return;
-        }
-
-        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
-        client.createLoadBalancerListeners(r -> r.listeners(toListener())
-            .loadBalancerName(getLoadBalancer()));
-
+        throw new NotImplementedException();
     }
 
     @Override

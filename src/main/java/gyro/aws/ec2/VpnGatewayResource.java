@@ -11,6 +11,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayResponse;
@@ -117,83 +118,22 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        VpnGateway vpnGateway = getVpnGateway(client);
-
-        if (vpnGateway == null){
-            return false;
-        }
-
-        copyFrom(vpnGateway);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateVpnGatewayRequest.Builder builder = CreateVpnGatewayRequest.builder().type(GatewayType.IPSEC_1);
-
-        if (getAmazonSideAsn() > 0) {
-            builder = builder.amazonSideAsn(getAmazonSideAsn());
-        }
-
-        if (!ObjectUtils.isBlank(getAvailabilityZone())) {
-            builder = builder.availabilityZone(getAvailabilityZone());
-        }
-
-        CreateVpnGatewayResponse response = client.createVpnGateway(builder.build());
-
-        setId(response.vpnGateway().vpnGatewayId());
-
-        state.save();
-
-        if (getVpc() != null) {
-            attachVpc(client);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        VpnGatewayResource oldResource = (VpnGatewayResource) config;
-
-        if (oldResource.getVpc() != null) {
-            client.detachVpnGateway(r -> r.vpcId(oldResource.getVpc().getResourceId()).vpnGatewayId(getId()));
-        }
-
-        if (getVpc() != null) {
-            Wait.atMost(1, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
-                .prompt(true)
-                .until(() -> replaceVpc(client));
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (getVpc() != null) {
-            client.detachVpnGateway(r -> r.vpcId(getVpc().getResourceId()).vpnGatewayId(getId()));
-        }
-
-        client.deleteVpnGateway(r -> r.vpnGatewayId(getId()));
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> isVpnDeleted(client));
-
-        // Delay for the vpc to be fully cleared.
-        try {
-            Thread.sleep(30000);
-        } catch (InterruptedException error) {
-            Thread.currentThread().interrupt();
-        }
+        throw new NotImplementedException();
     }
 
     private boolean replaceVpc(Ec2Client client) {

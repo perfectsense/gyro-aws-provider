@@ -8,6 +8,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
@@ -135,16 +136,14 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
 
     @Override
     public final void create(GyroUI ui, State state) {
-        validate();
-        doCreate();
+        throw new NotImplementedException();
     }
 
     protected abstract void doCreate();
 
     @Override
     public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        validate();
-        doUpdate(ui, state, current, changedFieldNames);
+        throw new NotImplementedException();
     }
 
     protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;

@@ -12,6 +12,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointConnectionNotificationResponse;
@@ -162,68 +163,22 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
     @Override
     public boolean refresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        ConnectionNotification connectionNotification = getConnectionNotification(client);
-
-        if (connectionNotification == null) {
-            return false;
-        }
-
-        copyFrom(connectionNotification);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate();
-
-        CreateVpcEndpointConnectionNotificationResponse response = null;
-
-        if (getEndpoint() != null) {
-            response = client.createVpcEndpointConnectionNotification(
-                r -> r.vpcEndpointId(getEndpoint().getId())
-                    .connectionEvents(getConnectionEvents())
-                    .connectionNotificationArn(getArn())
-            );
-        } else if (getEndpointService() != null) {
-            response = client.createVpcEndpointConnectionNotification(
-                r -> r.serviceId(getEndpointService().getId())
-                    .connectionEvents(getConnectionEvents())
-                    .connectionNotificationArn(getArn())
-            );
-        } else {
-            throw new GyroException("endpoint or endpoint-service required.");
-        }
-
-        setId(response.connectionNotification().connectionNotificationId());
-        setType(response.connectionNotification().connectionNotificationTypeAsString());
-        setState(response.connectionNotification().connectionNotificationStateAsString());
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate();
-
-        client.modifyVpcEndpointConnectionNotification(
-            r -> r.connectionNotificationId(getId())
-                .connectionEvents(getConnectionEvents())
-                .connectionNotificationArn(getArn())
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVpcEndpointConnectionNotifications(
-            r -> r.connectionNotificationIds(Collections.singleton(getId()))
-        );
+        throw new NotImplementedException();
     }
 
     private ConnectionNotification getConnectionNotification(Ec2Client client) {

@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterParameterGroup;
@@ -156,15 +157,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(
-            r -> r.dbParameterGroupFamily(getFamily())
-                .dbClusterParameterGroupName(getName())
-                .description(getDescription())
-        );
-
-        setArn(response.dbClusterParameterGroup().dbClusterParameterGroupArn());
-        modifyClusterParameterGroup();
+        throw new NotImplementedException();
     }
 
     @Override

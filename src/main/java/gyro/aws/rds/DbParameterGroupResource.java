@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbParameterGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBParameterGroup;
@@ -159,15 +160,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateDbParameterGroupResponse response = client.createDBParameterGroup(
-            r -> r.dbParameterGroupFamily(getFamily())
-                    .dbParameterGroupName(getName())
-                    .description(getDescription())
-        );
-
-        setArn(response.dbParameterGroup().dbParameterGroupArn());
-        modifyParameterGroup();
+        throw new NotImplementedException();
     }
 
     @Override

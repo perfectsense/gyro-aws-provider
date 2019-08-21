@@ -10,6 +10,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
@@ -71,39 +72,22 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
 
     @Override
     public boolean refresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        EgressOnlyInternetGateway egressOnlyInternetGateway = getEgressOnlyInternetGateway(client);
-
-        if (egressOnlyInternetGateway == null) {
-            return false;
-        }
-
-        copyFrom(egressOnlyInternetGateway);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (getVpc() != null) {
-            CreateEgressOnlyInternetGatewayResponse response = client.createEgressOnlyInternetGateway(r -> r.vpcId(getVpc().getId()));
-            EgressOnlyInternetGateway gateway = response.egressOnlyInternetGateway();
-            setId(gateway.egressOnlyInternetGatewayId());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-        client.deleteEgressOnlyInternetGateway(r -> r.egressOnlyInternetGatewayId(getId()));
+        throw new NotImplementedException();
     }
 
     private EgressOnlyInternetGateway getEgressOnlyInternetGateway(Ec2Client client) {

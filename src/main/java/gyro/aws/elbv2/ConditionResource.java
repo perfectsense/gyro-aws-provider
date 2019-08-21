@@ -11,6 +11,7 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
 import java.util.ArrayList;
@@ -80,12 +81,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
-            return;
-        }
-
-        ApplicationLoadBalancerListenerRuleResource parent = (ApplicationLoadBalancerListenerRuleResource) parentResource();
-        parent.createCondition(this);
+        throw new NotImplementedException();
     }
 
     @Override

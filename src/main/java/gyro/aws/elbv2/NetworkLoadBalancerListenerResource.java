@@ -7,6 +7,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -88,17 +89,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-
-        CreateListenerResponse response =
-                client.createListener(r -> r.certificates(Certificate.builder().certificateArn(getDefaultCertificate()).build())
-                        .defaultActions(toDefaultActions())
-                        .loadBalancerArn(getNlb().getArn())
-                        .port(getPort())
-                        .protocol(getProtocol())
-                        .sslPolicy(getSslPolicy()));
-
-        setArn(response.listeners().get(0).listenerArn());
+        throw new NotImplementedException();
     }
 
     @Override

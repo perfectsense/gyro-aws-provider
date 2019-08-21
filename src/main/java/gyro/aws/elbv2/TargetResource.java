@@ -7,6 +7,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.InvalidTargetException;
@@ -113,9 +114,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        client.registerTargets(r -> r.targets(toTarget())
-                                    .targetGroupArn(getTargetGroup().getArn()));
+        throw new NotImplementedException();
     }
 
     @Override

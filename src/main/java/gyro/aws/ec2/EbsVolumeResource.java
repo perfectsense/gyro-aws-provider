@@ -12,6 +12,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVolumeAttributeResponse;
@@ -220,17 +221,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Volume volume = getVolume(client);
-
-        if (volume == null) {
-            return false;
-        }
-
-        copyFrom(volume);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
@@ -240,86 +231,17 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate(true);
-
-        CreateVolumeResponse response = client.createVolume(
-            r -> r.availabilityZone(getAvailabilityZone())
-                .encrypted(getEncrypted())
-                .iops(getVolumeType().equals("io1") ? getIops() : null)
-                .kmsKeyId(getKms() != null ? getKms().getId() : null)
-                .size(getSize())
-                .snapshotId(getSnapshot() != null ? getSnapshot().getId() : null)
-                .volumeType(getVolumeType())
-        );
-
-        setId(response.volumeId());
-        setCreateTime(Date.from(response.createTime()));
-        setState(response.stateAsString());
-
-        state.save();
-
-        if (getAutoEnableIo()) {
-            try {
-                client.modifyVolumeAttribute(
-                    r -> r.volumeId(getId())
-                        .autoEnableIO(a -> a.value(getAutoEnableIo()))
-                );
-            } catch (Exception ex) {
-                ui.write("\n@|bold,blue EBS Volume resource - error enabling "
-                    + "'auto enable io' to volume with Id - %s. |@", getId());
-                ui.write("\n@|bold,blue Error message - %s |@", ex.getMessage());
-                ui.write("\n@|bold,blue Please retry to enable 'auto enable io' again. |@");
-            }
-        }
-
-        boolean waitResult = Wait.atMost(40, TimeUnit.SECONDS)
-            .checkEvery(5, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for ebs volume - " + getId());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        validate(false);
-
-        if (changedProperties.contains("iops") || changedProperties.contains("size") || changedProperties.contains("volume-type")) {
-
-            client.modifyVolume(
-                r -> r.volumeId(getId())
-                    .iops(getVolumeType().equals("io1") ? getIops() : null)
-                    .size(getSize())
-                    .volumeType(getVolumeType())
-            );
-        }
-
-        if (changedProperties.contains("auto-enable-io")) {
-            client.modifyVolumeAttribute(
-                r -> r.volumeId(getId())
-                    .autoEnableIO(a -> a.value(getAutoEnableIo()))
-            );
-        }
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> isAvailable(client));
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVolume(
-            r -> r.volumeId(getId())
-        );
+        throw new NotImplementedException();
     }
 
     private Volume getVolume(Ec2Client client) {

@@ -8,6 +8,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Tag;
@@ -86,12 +87,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
 
     @Override
     public final boolean refresh() {
-        boolean refreshed = doRefresh();
-
-        getTags().clear();
-        getTags().putAll(loadTags());
-
-        return refreshed;
+        throw new NotImplementedException();
     }
 
     protected abstract void doCreate(GyroUI ui, State state);

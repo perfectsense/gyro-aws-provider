@@ -11,6 +11,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
@@ -245,79 +246,22 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
     @Override
     protected boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        SecurityGroup group = getSecurityGroup(client);
-
-        if (group == null) {
-            return false;
-        }
-
-        copyFrom(group);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateSecurityGroupResponse response = client.createSecurityGroup(
-            r -> r.vpcId(getVpc().getId()).description(getDescription()).groupName(getName())
-        );
-
-        setId(response.groupId());
-
-        if (!isKeepDefaultEgressRules()) {
-            deleteDefaultEgressRule(client);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
-        SecurityGroupResource current = (SecurityGroupResource) config;
-
-        if (!current.isKeepDefaultEgressRules() && isKeepDefaultEgressRules()) {
-            throw new GyroException("Default rule removed. Cannot be undone.");
-        }
-
-        if (current.isKeepDefaultEgressRules() && !isKeepDefaultEgressRules()) {
-            if (getEgress()
-                .stream()
-                .noneMatch(
-                    o -> o.getToPort() == null
-                        && o.getFromPort() == null
-                        && o.getProtocol().equals("-1")
-                        && !ObjectUtils.isBlank(o.getCidrBlock())
-                        && o.getCidrBlock().equals("0.0.0.0/0"))
-            ) {
-
-                deleteDefaultEgressRule(createClient(Ec2Client.class));
-            }
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(2, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> {
-                    try {
-                        client.deleteSecurityGroup(r -> r.groupId(getId()));
-                    } catch (Ec2Exception e) {
-                        // DependencyViolation should be retried since this resource may be waiting for a
-                        // previously deleted resource to finish deleting.
-                        if ("DependencyViolation".equals(e.awsErrorDetails().errorCode())) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
+        throw new NotImplementedException();
     }
 
     private SecurityGroup getSecurityGroup(Ec2Client client) {

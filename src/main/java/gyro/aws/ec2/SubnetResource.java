@@ -11,6 +11,7 @@ import gyro.core.resource.Output;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
@@ -166,115 +167,17 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (ObjectUtils.isBlank(getId())) {
-            throw new GyroException("id is missing, unable to load subnet.");
-        }
-
-        try {
-            DescribeSubnetsRequest request = DescribeSubnetsRequest.builder()
-                .subnetIds(getId())
-                .build();
-
-            client.describeSubnets(request).subnets().forEach(this::copyFrom);
-
-            DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
-                r -> r.filters(
-                    Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
-                    Filter.builder().name("association.subnet-id").values(getId()).build()
-                )
-            );
-
-            for (NetworkAcl acl: aclResponse.networkAcls()) {
-
-                if (!acl.isDefault().equals(true)) {
-                    setNetworkAcl(!ObjectUtils.isBlank(acl.networkAclId()) ? findById(NetworkAclResource.class, acl.networkAclId()) : null);
-                    if (!acl.associations().isEmpty()) {
-                        acl.associations().stream()
-                            .filter(a -> getId().equals(a.subnetId()))
-                            .map(NetworkAclAssociation::networkAclAssociationId)
-                            .forEach(this::setAclAssociationId);
-                    }
-                } else {
-                    setDefaultAclId(acl.networkAclId());
-                    setNetworkAcl(null);
-                    if (!acl.associations().isEmpty()) {
-                        acl.associations().stream()
-                            .filter(a -> getId().equals(a.subnetId()))
-                            .map(NetworkAclAssociation::networkAclAssociationId)
-                            .forEach(this::setAclAssociationId);
-                    }
-                }
-            }
-        } catch (Ec2Exception ex) {
-            if (ex.getLocalizedMessage().contains("does not exist")) {
-                return false;
-            }
-
-            throw ex;
-        }
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateSubnetRequest request = CreateSubnetRequest.builder()
-            .availabilityZone(getAvailabilityZone())
-            .cidrBlock(getCidrBlock())
-            .vpcId(getVpc().getId())
-            .build();
-
-        CreateSubnetResponse response = client.createSubnet(request);
-        setId(response.subnet().subnetId());
-
-        DescribeNetworkAclsResponse aclResponse = client.describeNetworkAcls(
-            r -> r.filters(
-                Filter.builder().name("vpc-id").values(getVpc().getId()).build(),
-                Filter.builder().name("association.subnet-id").values(getId()).build()
-            )
-        );
-
-        for (NetworkAcl acl: aclResponse.networkAcls()) {
-            if (!acl.associations().isEmpty()) {
-                setDefaultAclId(acl.networkAclId());
-                acl.associations().stream()
-                    .filter(a -> getId().equals(a.subnetId()))
-                    .map(NetworkAclAssociation::networkAclAssociationId)
-                    .forEach(this::setAclAssociationId);
-            }
-        }
-
-        if (getNetworkAcl() != null) {
-            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
-                r -> r.associationId(getAclAssociationId())
-                    .networkAclId(getNetworkAcl().getId())
-            );
-
-            setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
-        }
-
-        modifyAttribute(client);
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        if (changedProperties.contains("network-acl")) {
-            String acl = getNetworkAcl() != null ? getNetworkAcl().getId() : getDefaultAclId();
-            ReplaceNetworkAclAssociationResponse replaceNetworkAclAssociationResponse = client.replaceNetworkAclAssociation(
-                r -> r.associationId(getAclAssociationId())
-                    .networkAclId(acl)
-            );
-
-            setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
-        }
-
-        modifyAttribute(client);
+        throw new NotImplementedException();
     }
 
     private void modifyAttribute(Ec2Client client) {
@@ -290,8 +193,6 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteSubnet(r -> r.subnetId(getId()));
+        throw new NotImplementedException();
     }
 }

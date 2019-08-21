@@ -13,6 +13,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyResponse;
@@ -153,34 +154,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
 
     @Override
     public void create(GyroUI ui, State state) {
-        validate(true);
-
-        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
-
-        TrafficPolicy trafficPolicy = null;
-
-        if (ObjectUtils.isBlank(getId())) {
-            CreateTrafficPolicyResponse response = client.createTrafficPolicy(
-                r -> r.name(getName())
-                    .comment(getComment())
-                    .document(getDocument())
-            );
-
-            trafficPolicy = response.trafficPolicy();
-
-        } else {
-            CreateTrafficPolicyVersionResponse response = client.createTrafficPolicyVersion(
-                r -> r.comment(getComment())
-                    .id(getId())
-                    .document(getDocument())
-            );
-
-            trafficPolicy = response.trafficPolicy();
-        }
-
-        setId(trafficPolicy.id());
-        setVersion(trafficPolicy.version());
-        setName(trafficPolicy.name());
+        throw new NotImplementedException();
     }
 
     @Override

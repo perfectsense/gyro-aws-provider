@@ -14,6 +14,7 @@ import gyro.core.resource.Resource;
 
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
@@ -221,29 +222,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
-
-        if (getLoadBalancer(client) != null) {
-            throw new GyroException(String.format("A load balancer with the name '%s' exists.", getName()));
-        }
-
-        CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
-                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-                .loadBalancerName(getName())
-                .scheme(getScheme())
-        );
-
-        setDnsName(response.dnsName());
-
-        if (!getInstances().isEmpty()) {
-            client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
-                .loadBalancerName(getName()));
-        }
-
-        // modify connection timeout with enabled set to true, then set to what is actually configured.
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
+        throw new NotImplementedException();
     }
 
     @Override

@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.dlm.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.dlm.model.RetainRule;
 import software.amazon.awssdk.services.dlm.model.Schedule;
 import software.amazon.awssdk.services.dlm.model.Tag;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collections;
 import java.util.Date;
@@ -324,65 +325,22 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
 
     @Override
     public boolean refresh() {
-        DlmClient client = createClient(DlmClient.class);
-
-        LifecyclePolicy policy = getPolicy(client);
-
-        if (policy == null) {
-            return false;
-        }
-
-        copyFrom(policy);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        DlmClient client = createClient(DlmClient.class);
-
-        CreateLifecyclePolicyResponse response = client.createLifecyclePolicy(
-            r -> r.description(getDescription())
-                .executionRoleArn(getExecutionRole().getArn())
-                .policyDetails(
-                    pd -> pd.resourceTypesWithStrings(Collections.singletonList(getResourceType()))
-                        .schedules(Collections.singleton(getSchedule()))
-                        .targetTags(getTags(getTargetTags()))
-                )
-                .state(getState())
-        );
-
-        setId(response.policyId());
-
-        LifecyclePolicy policy = getPolicy(client);
-        setDateCreated(Date.from(policy.dateCreated()));
-        setDateModified(Date.from(policy.dateModified()));
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        DlmClient client = createClient(DlmClient.class);
-
-        client.updateLifecyclePolicy(
-            r -> r.policyId(getId())
-                .description(getDescription())
-                .executionRoleArn(getExecutionRole().getArn())
-                .policyDetails(
-                    pd -> pd.resourceTypesWithStrings(Collections.singletonList(getResourceType()))
-                        .schedules(Collections.singleton(getSchedule()))
-                        .targetTags(getTags(getTargetTags()))
-                )
-                .state(getState())
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        DlmClient client = createClient(DlmClient.class);
-
-        client.deleteLifecyclePolicy(
-            r -> r.policyId(getId())
-        );
+        throw new NotImplementedException();
     }
 
     private Schedule getSchedule() {

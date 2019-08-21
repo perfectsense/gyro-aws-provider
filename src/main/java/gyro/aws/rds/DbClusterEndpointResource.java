@@ -11,6 +11,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
@@ -157,23 +158,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
 
     @Override
     public void create(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateDbClusterEndpointResponse response = client.createDBClusterEndpoint(
-            r -> r.dbClusterEndpointIdentifier(getIdentifier())
-                    .dbClusterIdentifier(getDbCluster().getIdentifier())
-                    .endpointType(getEndpointType())
-                    .excludedMembers(getExcludedMembers()
-                        .stream()
-                        .map(DbInstanceResource::getIdentifier)
-                        .collect(Collectors.toList()))
-
-                    .staticMembers(getStaticMembers()
-                        .stream()
-                        .map(DbInstanceResource::getIdentifier)
-                        .collect(Collectors.toList()))
-        );
-
-        setEndpointAddress(response.endpoint());
+        throw new NotImplementedException();
     }
 
     @Override

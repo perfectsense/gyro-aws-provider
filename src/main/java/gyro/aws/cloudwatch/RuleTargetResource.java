@@ -11,6 +11,7 @@ import gyro.core.scope.State;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -203,23 +204,17 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        saveTarget(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        saveTarget(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        client.removeTargets(r -> r.force(true).rule(getRuleName()).ids(getTargetId()));
+        throw new NotImplementedException();
     }
 
     private String getRuleName() {

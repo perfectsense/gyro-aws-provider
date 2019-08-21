@@ -10,6 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateOptionGroupResponse;
 import software.amazon.awssdk.services.rds.model.DescribeOptionGroupsResponse;
@@ -185,16 +186,7 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        RdsClient client = createClient(RdsClient.class);
-        CreateOptionGroupResponse response = client.createOptionGroup(
-            r -> r.engineName(getEngine())
-                    .optionGroupDescription(getDescription())
-                    .majorEngineVersion(getMajorEngineVersion())
-                    .optionGroupName(getName())
-        );
-
-        setArn(response.optionGroup().optionGroupArn());
-        modifyOptionGroup(new ArrayList<>());
+        throw new NotImplementedException();
     }
 
     @Override

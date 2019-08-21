@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -257,28 +258,17 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
 
     @Override
     public void create(GyroUI ui, State state) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        validate();
-        savePolicy(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        validate();
-        savePolicy(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        client.deletePolicy(
-            r -> r.autoScalingGroupName(getParentId())
-                .policyName(getPolicyName())
-        );
+        throw new NotImplementedException();
     }
 
     @Override

@@ -13,6 +13,7 @@ import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -231,44 +232,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-
-        CreateTargetGroupResponse response = null;
-
-        if (!getTargetType().equals("lambda") && getHealthCheck() == null) {
-            throw new GyroException("A health check must be provided for instance and ip target types.");
-        }
-
-        if (getHealthCheck() != null) {
-            response = client.createTargetGroup(r -> r.healthCheckEnabled(true)
-                    .healthCheckIntervalSeconds(getHealthCheck().getInterval())
-                    .healthCheckPath(getHealthCheck().getPath())
-                    .healthCheckPort(getHealthCheck().getPort())
-                    .healthCheckProtocol(getHealthCheck().getProtocol())
-                    .healthCheckTimeoutSeconds(getHealthCheck().getTimeout())
-                    .healthyThresholdCount(getHealthCheck().getHealthyThreshold())
-                    .matcher(Matcher.builder().httpCode(getHealthCheck().getMatcher()).build())
-                    .port(getPort())
-                    .protocol(getProtocol())
-                    .name(getName())
-                    .targetType(getTargetType())
-                    .unhealthyThresholdCount(getHealthCheck().getUnhealthyThreshold())
-                    .vpcId(getVpc() != null ? getVpc().getId() : null)
-            );
-        } else if (getTargetType().equals("lambda") && getHealthCheck() == null) {
-            response = client.createTargetGroup(r -> r.healthCheckEnabled(false)
-                    .name(getName())
-                    .targetType(getTargetType()));
-        }
-
-        setArn(response.targetGroups().get(0).targetGroupArn());
-
-        if (!getTags().isEmpty()) {
-            List<Tag> tag = new ArrayList<>();
-            getTags().forEach((key, value) -> tag.add(Tag.builder().key(key).value(value).build()));
-            client.addTags(r -> r.tags(tag)
-                    .resourceArns(getArn()));
-        }
+        throw new NotImplementedException();
     }
 
     @Override

@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.acm.model.RequestCertificateResponse;
 import software.amazon.awssdk.services.acm.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.acm.model.Tag;
 import software.amazon.awssdk.services.acm.model.ValidationMethod;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -494,66 +495,22 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
 
     @Override
     public boolean refresh() {
-        AcmClient client = createClient(AcmClient.class);
-
-        try {
-            DescribeCertificateResponse response = client.describeCertificate(r -> r.certificateArn(getArn()));
-
-            copyFrom(response.certificate());
-
-            return true;
-        } catch (ResourceNotFoundException ex) {
-            return false;
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        AcmClient client = createClient(AcmClient.class);
-
-        RequestCertificateResponse response = client.requestCertificate(
-            r -> r.certificateAuthorityArn(getCertificateAuthority() != null ? getCertificateAuthority().getArn() : null)
-                .domainName(getDomainName())
-                .domainValidationOptions(getDomainValidationOption().stream().map(AcmDomainValidationOption::toDomainValidationOption).collect(Collectors.toList()))
-                .idempotencyToken(UUID.randomUUID().toString().replaceAll("-",""))
-                .options(getOptions().toCertificateOptions())
-                .subjectAlternativeNames(getSubjectAlternativeNames())
-                .validationMethod(getValidationMethod())
-        );
-
-        setArn(response.certificateArn());
-
-        if (!getTags().isEmpty()) {
-            saveTags(client, new HashMap<>());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AcmClient client = createClient(AcmClient.class);
-
-        if (changedFieldNames.contains("options")) {
-
-            try {
-                client.updateCertificateOptions(
-                    r -> r.certificateArn(getArn())
-                        .options(getOptions().toCertificateOptions())
-                );
-            } catch (InvalidStateException ex) {
-                throw new GyroException("The ACM Certificate cannot be updated in its current state - " + getStatus().toString());
-            }
-        }
-
-        if (changedFieldNames.contains("tags")) {
-            saveTags(client, ((AcmCertificateResource) current).getTags());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AcmClient client = createClient(AcmClient.class);
-
-        client.deleteCertificate(r -> r.certificateArn(getArn()));
+        throw new NotImplementedException();
     }
 
     private void saveTags(AcmClient client, Map<String, String> oldTags) {

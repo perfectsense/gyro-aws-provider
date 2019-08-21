@@ -12,6 +12,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateHostedZoneResponse;
@@ -216,37 +217,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
 
     @Override
     public void create(GyroUI ui, State state) {
-        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
-
-        VpcResource firstVpcResource = !getVpcs().isEmpty() ? getVpcs().iterator().next() : null;
-
-        CreateHostedZoneResponse response = client.createHostedZone(
-            r -> r.name(getName())
-                .delegationSetId(getDelegationSetId())
-                .hostedZoneConfig(
-                    o -> o.comment(getComment())
-                        .privateZone(getPrivateZone())
-                )
-                .vpc(getVpc(firstVpcResource))
-            .callerReference(UUID.randomUUID().toString())
-        );
-
-        HostedZone hostedZone = response.hostedZone();
-
-        setId(hostedZone.id());
-        setResourceRecordSetCount(hostedZone.resourceRecordSetCount());
-        setDescription(hostedZone.linkedService() != null ? hostedZone.linkedService().description() : null);
-        setServicePrincipal(hostedZone.linkedService() != null ? hostedZone.linkedService().servicePrincipal() : null);
-
-        if (getVpcs().size() > 1) {
-            for (VpcResource vpcResource : getVpcs()) {
-                if (!vpcResource.equals(firstVpcResource)) {
-                    client.associateVPCWithHostedZone(
-                        r -> r.hostedZoneId(getId())
-                            .vpc(getVpc(vpcResource)));
-                }
-            }
-        }
+        throw new NotImplementedException();
     }
 
     @Override

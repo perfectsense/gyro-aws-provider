@@ -11,6 +11,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -125,61 +126,27 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
 
     @Override
     protected boolean doRefresh() {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DBSubnetGroup dbSubnetGroup = getDbSubnetGroup(client);
-
-        if (dbSubnetGroup == null) {
-            return false;
-        }
-
-        copyFrom(dbSubnetGroup);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
-            r -> r.dbSubnetGroupDescription(getDescription())
-                .dbSubnetGroupName(getName())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-        );
-
-        setArn(response.dbSubnetGroup().dbSubnetGroupArn());
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(Resource current, Set changedProperties) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        client.modifyDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getName())
-                .dbSubnetGroupDescription(getDescription())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        client.deleteDBSubnetGroup(
-            r -> r.dbSubnetGroupName(getName())
-        );
+        throw new NotImplementedException();
     }
 
     @Override
     public void copyFrom(DBSubnetGroup dbSubnetGroup) {
-        setArn(dbSubnetGroup.dbSubnetGroupArn());
-        setDescription(dbSubnetGroup.dbSubnetGroupDescription());
-        setName(dbSubnetGroup.dbSubnetGroupName());
-        setStatus(dbSubnetGroup.subnetGroupStatus());
-        setSubnets(dbSubnetGroup.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
-
-        loadTags();
+        throw new NotImplementedException();
     }
 
     private DBSubnetGroup getDbSubnetGroup(DocDbClient client) {

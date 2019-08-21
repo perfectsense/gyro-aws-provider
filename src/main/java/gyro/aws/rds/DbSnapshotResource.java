@@ -9,6 +9,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.DBSnapshot;
@@ -118,17 +119,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        try {
-            RdsClient client = createClient(RdsClient.class);
-            CreateDbSnapshotResponse response = client.createDBSnapshot(
-                r -> r.dbInstanceIdentifier(getDbInstance().getIdentifier())
-                    .dbSnapshotIdentifier(getIdentifier())
-            );
-
-            setArn(response.dbSnapshot().dbSnapshotArn());
-        } catch (InvalidDbInstanceStateException ex) {
-            throw new GyroException(ex.getLocalizedMessage());
-        }
+        throw new NotImplementedException();
     }
 
     @Override

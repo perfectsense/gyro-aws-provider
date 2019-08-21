@@ -10,6 +10,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
@@ -119,72 +120,22 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
     @Override
     public boolean doRefresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        RouteTable routeTable = getRouteTable(client);
-
-        if (routeTable == null) {
-            return false;
-        }
-
-        copyFrom(routeTable);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        CreateRouteTableResponse response = client.createRouteTable(r -> r.vpcId(getVpc().getId()));
-
-        setId(response.routeTable().routeTableId());
-        setOwnerId(response.routeTable().ownerId());
-
-        for (String subnetId : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())) {
-            client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        RouteTableResource currentResource = (RouteTableResource) current;
-
-        List<String> additions = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
-        additions.removeAll(currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
-
-        Set<String> subtractions = currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
-        subtractions.removeAll(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()));
-
-        for (String subnetId : additions) {
-            client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
-        }
-
-        RouteTable routeTable = getRouteTable(client);
-
-        List<String> routeTableAssociations = routeTable.associations().stream()
-            .filter(o -> !o.main() && subtractions.contains(o.subnetId()))
-            .map(RouteTableAssociation::routeTableAssociationId)
-            .collect(Collectors.toList());
-
-        routeTableAssociations.forEach(o ->  client.disassociateRouteTable(r -> r.associationId(o)));
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        RouteTable routeTable = getRouteTable(client);
-
-        if (routeTable != null) {
-            for (RouteTableAssociation rta : routeTable.associations()) {
-                client.disassociateRouteTable(r -> r.associationId(rta.routeTableAssociationId()));
-            }
-
-            client.deleteRouteTable(r -> r.routeTableId(getId()));
-        }
+        throw new NotImplementedException();
     }
 
     private RouteTable getRouteTable(Ec2Client client) {

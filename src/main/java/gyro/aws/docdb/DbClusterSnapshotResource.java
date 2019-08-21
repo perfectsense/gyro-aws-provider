@@ -9,6 +9,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
@@ -86,59 +87,22 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
     @Override
     protected boolean doRefresh() {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DBClusterSnapshot dbClusterSnapshot = getDbClusterSnapshot(client);
-
-        if (dbClusterSnapshot == null) {
-            return false;
-        }
-
-        copyFrom(dbClusterSnapshot);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        CreateDbClusterSnapshotResponse response = client.createDBClusterSnapshot(
-            r -> r.dbClusterIdentifier(getDbCluster().getIdentifier())
-                .dbClusterSnapshotIdentifier(getIdentifier())
-        );
-
-        setArn(response.dbClusterSnapshot().dbClusterSnapshotArn());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(5, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb cluster snapshot - " + getIdentifier());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(Resource current, Set changedProperties) {
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        client.deleteDBClusterSnapshot(
-            r -> r.dbClusterSnapshotIdentifier(getIdentifier())
-        );
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> getDbClusterSnapshot(client) == null);
+        throw new NotImplementedException();
     }
 
     @Override

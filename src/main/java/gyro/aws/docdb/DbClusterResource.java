@@ -13,6 +13,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -326,105 +327,22 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
 
     @Override
     public boolean doRefresh() {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DBCluster dbCluster = getDbCluster(client);
-
-        if (dbCluster == null) {
-            return false;
-        }
-
-        copyFrom(dbCluster);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        CreateDbClusterResponse response = client.createDBCluster(
-            o -> o.backupRetentionPeriod(getBackupRetentionPeriod())
-                .dbClusterIdentifier(getIdentifier())
-                .dbSubnetGroupName(getDbSubnetGroup().getName())
-                .engine(getEngine())
-                .engineVersion(getEngineVersion())
-                .dbClusterParameterGroupName(getDbClusterParamGroup().getName())
-                .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
-                .masterUsername(getMasterUsername())
-                .masterUserPassword(getMasterUserPassword())
-                .port(getPort())
-                .preferredBackupWindow(getPreferredBackupWindow())
-                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-                .storageEncrypted(getStorageEncrypted())
-                .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
-        );
-
-        setId(response.dbCluster().dbClusterResourceId());
-        setArn(response.dbCluster().dbClusterArn());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for docdb cluster - " + getIdentifier());
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(Resource current, Set changedProperties) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DbClusterResource resource = (DbClusterResource) current;
-
-        ModifyDbClusterRequest.Builder builder = ModifyDbClusterRequest.builder()
-            .backupRetentionPeriod(getBackupRetentionPeriod())
-            .dbClusterIdentifier(getIdentifier())
-            .dbClusterParameterGroupName(getDbClusterParamGroup().getName())
-            .masterUserPassword(getMasterUserPassword())
-            .port(getPort())
-            .preferredBackupWindow(getPreferredBackupWindow())
-            .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .vpcSecurityGroupIds(getVpcSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
-
-        if (!resource.getEngineVersion().equals(getEngineVersion())) {
-            builder.engineVersion(getEngineVersion());
-        }
-
-        client.modifyDBCluster(builder.build());
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> isAvailable(client));
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DeleteDbClusterRequest.Builder builder = DeleteDbClusterRequest
-            .builder()
-            .dbClusterIdentifier(getIdentifier());
-
-        if (ObjectUtils.isBlank(getPostDeleteSnapshotIdentifier())) {
-            builder.skipFinalSnapshot(true);
-        } else {
-            builder.finalDBSnapshotIdentifier(getPostDeleteSnapshotIdentifier())
-                .skipFinalSnapshot(false);
-        }
-
-        client.deleteDBCluster(builder.build());
-
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(true)
-            .until(() -> getDbCluster(client) == null);
+        throw new NotImplementedException();
     }
 
     @Override

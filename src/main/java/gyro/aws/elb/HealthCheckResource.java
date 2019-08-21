@@ -5,6 +5,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.HealthCheck;
 
@@ -110,11 +111,7 @@ public class HealthCheckResource extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) {
-        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
-
-        client.configureHealthCheck(r ->
-                r.loadBalancerName(getLoadBalancer())
-                        .healthCheck(toHealthCheck()));
+        throw new NotImplementedException();
     }
 
     @Override

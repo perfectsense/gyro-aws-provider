@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.cloudwatchevents.model.Rule;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
 
 import software.amazon.awssdk.utils.IoUtils;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -206,39 +207,22 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
 
     @Override
     public boolean refresh() {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        Rule rule = getRule(client);
-
-        if (rule == null) {
-            return false;
-        }
-
-        copyFrom(rule);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        saveRule(client);
-
+        throw new NotImplementedException();
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        saveRule(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        CloudWatchEventsClient client = createClient(CloudWatchEventsClient.class);
-
-        client.deleteRule(d -> d.force(true).name(getName()));
+        throw new NotImplementedException();
     }
 
     private Rule getRule(CloudWatchEventsClient client) {

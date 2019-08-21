@@ -5,6 +5,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import com.psddev.dari.util.ObjectUtils;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
@@ -153,56 +154,15 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     }
 
     public void create(boolean egress) {
-        Ec2Client client = createClient(Ec2Client.class);
-        
-        if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
-            if ((getToPort() != null && getFromPort() != null) || (getIcmpType() != null && getIcmpCode() != null)) {
-                client.createNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
-                    .cidrBlock(getCidrBlock())
-                    .ipv6CidrBlock(getIpv6CidrBlock())
-                    .ruleNumber(getRuleNumber())
-                    .ruleAction(getRuleAction())
-                    .egress(egress)
-                    .protocol(getProtocol())
-                    .icmpTypeCode(c -> c.type(getIcmpType())
-                        .code(getIcmpCode()))
-                    .portRange(r1 -> r1.from(getFromPort()).to(getToPort())));
-            }
-        } else {
-            if (getToPort() != null && getFromPort() != null) {
-                throw new GyroException("Traffic on all ports are allowed for this protocol");
-            } else {
-                client.createNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
-                    .cidrBlock(getCidrBlock())
-                    .ipv6CidrBlock(getIpv6CidrBlock())
-                    .ruleNumber(getRuleNumber())
-                    .ruleAction(getRuleAction())
-                    .egress(egress)
-                    .protocol(getProtocol()));
-            }
-        }
+        throw new NotImplementedException();
     }
 
     public void update(boolean egress) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.replaceNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())
-            .ruleNumber(getRuleNumber())
-            .ruleAction(getRuleAction())
-            .cidrBlock(getCidrBlock())
-            .ipv6CidrBlock(getIpv6CidrBlock())
-            .egress(egress)
-            .protocol(getProtocol())
-            .icmpTypeCode(c -> c.type(getIcmpType())
-                .code(getIcmpCode()))
-            .portRange(r1 -> r1.from(getFromPort()).to(getToPort())));
+        throw new NotImplementedException();
     }
 
     public void delete(boolean egress) {
-        Ec2Client client = createClient(Ec2Client.class);
-        client.deleteNetworkAclEntry(d -> d.networkAclId(getNetworkAclId())
-            .egress(egress)
-            .ruleNumber(getRuleNumber()));
+        throw new NotImplementedException();
     }
 
     public String toDisplayString(boolean egress) {

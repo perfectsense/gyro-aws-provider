@@ -13,6 +13,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -421,45 +422,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        S3Client client = createClient(S3Client.class);
-
-        client.createBucket(
-            r -> r.bucket(getName())
-                .objectLockEnabledForBucket(getEnableObjectLock())
-        );
-        state.save();
-
-        if (!getTags().isEmpty()) {
-            saveTags(client);
-        }
-
-        if (getEnableAccelerateConfig()) {
-            saveAccelerateConfig(client);
-        }
-
-        if (getEnableVersioning()) {
-            saveEnableVersioning(client);
-        }
-
-        if (getRequestPayer().equalsIgnoreCase(Payer.REQUESTER.name())) {
-            saveRequestPayer(client);
-        }
-
-        if (!getCorsRule().isEmpty()) {
-            saveCorsRules(client);
-        }
-
-        if (!getLifecycleRule().isEmpty()) {
-            saveLifecycleRules(client);
-        }
-
-        if (getReplicationConfiguration() != null) {
-            saveReplicationConfiguration(client);
-        }
-
-        if (getLogging() != null) {
-            saveBucketLogging(client);
-        }
+        throw new NotImplementedException();
     }
 
     @Override

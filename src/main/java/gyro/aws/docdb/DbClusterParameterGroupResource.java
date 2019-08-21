@@ -11,6 +11,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import org.apache.commons.lang.NotImplementedException;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -159,74 +160,22 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
 
     @Override
     protected boolean doRefresh() {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        DBClusterParameterGroup dbClusterParameterGroup = getDbClusterParameterGroup(client);
-
-        if (dbClusterParameterGroup == null) {
-            return false;
-        }
-
-        copyFrom(dbClusterParameterGroup);
-
-        return true;
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        CreateDbClusterParameterGroupResponse response = client.createDBClusterParameterGroup(
-            r -> r.dbClusterParameterGroupName(getName())
-                .dbParameterGroupFamily(getDbParamGroupFamily())
-                .description(getDescription())
-        );
-
-        setArn(response.dbClusterParameterGroup().dbClusterParameterGroupArn());
-
-        if (getEnableAuditLogs() || !getEnableTls() || !getEnableTtlMonitor()) {
-            saveParameters(client);
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     protected void doUpdate(Resource current, Set changedProperties) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        saveParameters(client);
+        throw new NotImplementedException();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        DocDbClient client = createClient(DocDbClient.class);
-
-        // Check to see if this parameter group is in use. If it's in use and be deleted then
-        // wait up to 5 minutes for the deletion to complete.
-        List<DBCluster> clusters = client.describeDBClusters().dbClusters();
-
-        boolean using = clusters.stream()
-            .anyMatch(r -> r.dbClusterParameterGroup().equals(getName()) && r.status().equals("available"));
-
-        boolean deleting = clusters.stream()
-            .anyMatch(r -> r.dbClusterParameterGroup().equals(getName()) && r.status().equals("deleting"));
-
-        if (using) {
-            throw new GyroException("Unable to delete DB Cluster Parameter Group. Group is in use.");
-        }
-
-        if (deleting) {
-            Wait.atMost(5, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
-                .prompt(true)
-                .until(
-                    () -> client.describeDBClusters().dbClusters().stream()
-                        .noneMatch(o -> o.dbClusterParameterGroup().equals(getName()))
-                );
-        }
-
-        client.deleteDBClusterParameterGroup(
-            r -> r.dbClusterParameterGroupName(getName())
-        );
+        throw new NotImplementedException();
     }
 
     @Override
