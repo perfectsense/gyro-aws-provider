@@ -317,7 +317,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
            } else if (getInstanceProfile() != null
                     && ex.awsErrorDetails().errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())
                     && !ex.awsErrorDetails().errorCode().equals("ValidationError")) {
-                return false;
+               return false;
             } else {
                throw ex;
            }
