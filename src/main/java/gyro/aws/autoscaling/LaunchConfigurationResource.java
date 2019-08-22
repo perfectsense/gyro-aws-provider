@@ -303,8 +303,8 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .checkEvery(10, TimeUnit.SECONDS)
             .until(() -> createLaunchConfig(client, request));
 
-        if (!status && getInstanceProfile() != null) {
-            throw new GyroException("Invalid IamInstanceProfile: " + getInstanceProfile().getArn());
+        if (!status) {
+            throw new GyroException("Unable to reach 'available' state for launch configuration - " + getName());
         }
     }
 
