@@ -312,13 +312,11 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         try {
             client.createLaunchConfiguration(request);
         } catch (AutoScalingException ex) {
-           if (ex.awsErrorDetails().errorCode().equals("InternalFailure")) {
-               return false;
-           } else if (getInstanceProfile() != null
+           if (getInstanceProfile() != null
                     && ex.awsErrorDetails().errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())
                     && !ex.awsErrorDetails().errorCode().equals("ValidationError")) {
                return false;
-            } else {
+           } else {
                throw ex;
            }
         }
