@@ -13,7 +13,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    key-pair: $(aws::key-pair EXTERNAL/* | key-name = '')
+ *    key-pair: $(external-query aws::key-pair { key-name: ''})
  */
 @Type("key-pair")
 public class KeyPairFinder extends AwsFinder<Ec2Client, KeyPairInfo, KeyPairResource> {

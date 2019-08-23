@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    role: $(aws::iam-role EXTERNAL/* | name = '')
+ *    role: $(external-query aws::iam-role { name: ''})
  */
 @Type("iam-role")
 public class RoleFinder extends AwsFinder<IamClient, Role, RoleResource> {

@@ -7,7 +7,7 @@ import gyro.core.Type;
  *
  * .. code-block:: gyro
  *
- *    nlb-listener: $(aws::network-load-balancer-listener EXTERNAL/* | arn = '')
+ *    nlb-listener: $(external-query aws::network-load-balancer-listener { arn: ''})
  */
 @Type("network-load-balancer-listener")
 public class NetworkLoadBalancerListenerFinder extends ListenerFinder<NetworkLoadBalancerListenerResource> {

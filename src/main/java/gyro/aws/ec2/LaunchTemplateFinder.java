@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    launch-template: $(aws::launch-template EXTERNAL/* | launch-template-name = '')
+ *    launch-template: $(external-query aws::launch-template { launch-template-name: ''})
  */
 @Type("launch-template")
 public class LaunchTemplateFinder extends Ec2TaggableAwsFinder<Ec2Client, LaunchTemplate, LaunchTemplateResource> {

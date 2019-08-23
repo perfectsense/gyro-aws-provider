@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    egress-gateway: $(aws::egress-only-internet-gateway EXTERNAL/* | egress-only-internet-gateway-id = 'eigw-0f5c4f2180ecf5127')
+ *    egress-gateway: $(external-query aws::egress-only-internet-gateway { egress-only-internet-gateway-id: 'eigw-0f5c4f2180ecf5127'})
  */
 @Type("egress-only-internet-gateway")
 public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, EgressOnlyInternetGateway, EgressOnlyInternetGatewayResource> {

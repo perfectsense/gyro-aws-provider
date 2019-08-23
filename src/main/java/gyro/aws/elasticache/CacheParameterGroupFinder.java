@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cache-param-groups: $(aws::elasticache-parameter-group EXTERNAL/* | name = 'cache-param-group-example')
+ *    cache-param-groups: $(external-query aws::elasticache-parameter-group { name: 'cache-param-group-example'})
  */
 @Type("elasticache-parameter-group")
 public class CacheParameterGroupFinder extends AwsFinder<ElastiCacheClient, CacheParameterGroup, CacheParameterGroupResource> {

@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    cluster-parameter-groups: $(aws::db-cluster-parameter-group EXTERNAL/* | name = 'cluster-parameter-group-example')
+ *    cluster-parameter-groups: $(external-query aws::db-cluster-parameter-group { name: 'cluster-parameter-group-example'})
  */
 @Type("db-cluster-parameter-group")
 public class DbClusterParameterGroupFinder extends AwsFinder<RdsClient, DBClusterParameterGroup, DbClusterParameterGroupResource> {

@@ -13,7 +13,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    endpoints: $(aws::db-cluster-endpoint EXTERNAL/* | db-cluster-endpoint-type = 'reader')
+ *    endpoints: $(external-query aws::db-cluster-endpoint { db-cluster-endpoint-type: 'reader'})
  */
 @Type("db-cluster-endpoint")
 public class DbClusterEndpointFinder extends AwsFinder<RdsClient, DBClusterEndpoint, DbClusterEndpointResource> {

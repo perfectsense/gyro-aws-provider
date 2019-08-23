@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    alb-listener-rule: $(aws::application-load-balancer-listener-rule EXTERNAL/* | arn = '')
+ *    alb-listener-rule: $(external-query aws::application-load-balancer-listener-rule { arn: ''})
  */
 @Type("application-load-balancer-listener-rule")
 public class ApplicationLoadBalancerListenerRuleFinder extends AwsFinder<ElasticLoadBalancingV2Client, Rule, ApplicationLoadBalancerListenerRuleResource> {

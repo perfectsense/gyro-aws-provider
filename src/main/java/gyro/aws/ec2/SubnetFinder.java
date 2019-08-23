@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    subnet: $(aws::subnet EXTERNAL/* | availability-zone = '####')
+ *    subnet: $(external-query aws::subnet { availability-zone: '####'})
  */
 @Type("subnet")
 public class SubnetFinder extends Ec2TaggableAwsFinder<Ec2Client, Subnet, SubnetResource> {

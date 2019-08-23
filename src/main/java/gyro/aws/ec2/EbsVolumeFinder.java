@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    ebs-volume: $(aws::ebs-volume EXTERNAL/* | volume-id = '')
+ *    ebs-volume: $(external-query aws::ebs-volume { volume-id: ''})
  */
 @Type("ebs-volume")
 public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, EbsVolumeResource> {

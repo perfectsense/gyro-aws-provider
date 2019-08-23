@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    lambda-function: $(aws::lambda-function EXTERNAL/* | name = '')
+ *    lambda-function: $(external-query aws::lambda-function { name: ''})
  */
 @Type("lambda-function")
 public class FunctionFinder extends AwsFinder<LambdaClient, FunctionConfiguration, FunctionResource> {

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    endpoint: $(aws::vpc-endpoint EXTERNAL/* | service-name = '')
+ *    endpoint: $(external-query aws::vpc-endpoint { service-name: ''})
  */
 @Type("vpc-endpoint")
 public class EndpointFinder extends Ec2TaggableAwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {

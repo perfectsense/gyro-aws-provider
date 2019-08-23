@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    lambda-alias: $(aws::lambda-alias EXTERNAL/* | function-name = '' | name = '')
+ *    lambda-alias: $(external-query aws::lambda-alias { function-name: '' | name = ''})
  */
 @Type("lambda-alias")
 public class FunctionAliasFinder extends AwsFinder<LambdaClient, GetAliasResponse, FunctionAlias> {

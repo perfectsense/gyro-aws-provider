@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
+ *    elastic-ip: $(external-query aws::elastic-ip { allocation-id: ''})
  */
 @Type("elastic-ip")
 public class ElasticIpFinder extends Ec2TaggableAwsFinder<Ec2Client, Address, ElasticIpResource> {

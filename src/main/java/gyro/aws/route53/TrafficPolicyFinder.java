@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    traffic-policy: $(aws::route53-traffic-policy EXTERNAL/* | id = '' and version = '')
+ *    traffic-policy: $(external-query aws::route53-traffic-policy { id: '', version: ''})
  */
 @Type("route53-traffic-policy")
 public class TrafficPolicyFinder extends AwsFinder<Route53Client, TrafficPolicy, TrafficPolicyResource> {

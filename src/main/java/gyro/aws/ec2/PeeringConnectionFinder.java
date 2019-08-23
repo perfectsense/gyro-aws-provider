@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    peering-connection: $(aws::vpc-peering-connection EXTERNAL/* | vpc-peering-connection-id = '')
+ *    peering-connection: $(external-query aws::vpc-peering-connection { vpc-peering-connection-id: ''})
  */
 @Type("vpc-peering-connection")
 public class PeeringConnectionFinder extends Ec2TaggableAwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {

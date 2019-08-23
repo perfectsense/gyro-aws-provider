@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    clusters: $(aws::db-cluster EXTERNAL/* | db-cluster-id = 'aurora-mysql-cluster')
+ *    clusters: $(external-query aws::db-cluster { db-cluster-id: 'aurora-mysql-cluster'})
  */
 @Type("db-cluster")
 public class DbClusterFinder extends AwsFinder<RdsClient, DBCluster, DbClusterResource> {

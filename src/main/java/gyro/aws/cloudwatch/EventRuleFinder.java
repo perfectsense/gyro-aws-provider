@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    event-rule: $(aws::cloudwatch-event-rule EXTERNAL/* | name = '')
+ *    event-rule: $(external-query aws::cloudwatch-event-rule { name: 'scale up rule' })
  */
 @Type("cloudwatch-event-rule")
 public class EventRuleFinder extends AwsFinder<CloudWatchEventsClient, Rule, EventRuleResource> {

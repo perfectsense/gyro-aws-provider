@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    cloudfront: $(aws::cloudfront EXTERNAL/* | id = '')
+ *    cloudfront: $(external-query aws::cloudfront { id: 'E1QBYJ3V1SUL1G' })
  */
 @Type("cloudfront")
 public class CloudFrontFinder extends AwsFinder<CloudFrontClient, Distribution, CloudFrontResource> {

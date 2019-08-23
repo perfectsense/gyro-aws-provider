@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    instance: $(aws::instance EXTERNAL/* | affinity = 'default')
+ *    instance: $(external-query aws::instance { affinity: 'default'})
  */
 @Type("instance")
 public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, InstanceResource> {

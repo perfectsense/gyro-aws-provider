@@ -19,7 +19,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    cluster-snapshots: $(aws::db-cluster-snapshot EXTERNAL/* | identifier = 'db-cluster-snapshot-example')
+ *    cluster-snapshots: $(external-query aws::db-cluster-snapshot { identifier: 'db-cluster-snapshot-example'})
  */
 @Type("db-cluster-snapshot")
 public class DbClusterSnapshotFinder extends AwsFinder<RdsClient, DBClusterSnapshot, DbClusterSnapshotResource> {

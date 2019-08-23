@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    ebs-snapshot: $(aws::ebs-snapshot EXTERNAL/* | owner-alias = 'amazon')
+ *    ebs-snapshot: $(external-query aws::ebs-snapshot { owner-alias: 'amazon'})
  */
 @Type("ebs-snapshot")
 public class EbsSnapshotFinder extends Ec2TaggableAwsFinder<Ec2Client, Snapshot, EbsSnapshotResource> {

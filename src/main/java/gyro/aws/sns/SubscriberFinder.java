@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    subscriber: $(aws::sns-subscriber EXTERNAL/* | arn = '')
+ *    subscriber: $(external-query aws::sns-subscriber { arn: ''})
  */
 @Type("sns-subscriber")
 public class SubscriberFinder extends AwsFinder<SnsClient, Subscription, SubscriberResource> {

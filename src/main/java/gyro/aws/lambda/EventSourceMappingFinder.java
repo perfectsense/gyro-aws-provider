@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    event-source-mapping: $(aws::lambda-event-source-mapping EXTERNAL/* | id = '')
+ *    event-source-mapping: $(external-query aws::lambda-event-source-mapping { id: ''})
  */
 @Type("lambda-event-source-mapping")
 public class EventSourceMappingFinder extends AwsFinder<LambdaClient, GetEventSourceMappingResponse, EventSourceMappingResource> {
