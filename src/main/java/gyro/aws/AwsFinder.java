@@ -72,9 +72,6 @@ public abstract class AwsFinder<C extends SdkClient, M, R extends AwsResource> e
             .collect(Collectors.toList());
     }
 
-    /**
-     * Convert {tagKey: tagValue} to {tag:Key: tagValue}
-     */
     @SuppressWarnings("unchecked")
     private Map<String, String> convertFilters(Map<String, Object> query) {
         Map<String, String> filters = new HashMap<>();
