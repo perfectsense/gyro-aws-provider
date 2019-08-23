@@ -25,6 +25,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
     private static final String NAME_KEY = "Name";
 
     private Map<String, String> tags;
+    private boolean tagsLoaded = false;
 
     @Updatable
     public Map<String, String> getTags() {
@@ -63,6 +64,17 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
         return true;
     }
 
+    protected void refreshTags() {
+        if (tagsLoaded) {
+            return;
+        }
+
+        getTags().clear();
+        getTags().putAll(loadTags());
+
+        tagsLoaded = true;
+    }
+
     private Map<String, String> loadTags() {
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -88,8 +100,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
     public final boolean refresh() {
         boolean refreshed = doRefresh();
 
-        getTags().clear();
-        getTags().putAll(loadTags());
+        refreshTags();
 
         return refreshed;
     }
