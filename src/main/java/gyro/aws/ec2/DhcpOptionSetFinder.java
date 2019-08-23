@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *    dhcp-options: $(aws::dhcp-options EXTERNAL/* | dhcp-options-id = '')
  */
 @Type("dhcp-options")
-public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpOptionSetResource> {
+public class DhcpOptionSetFinder extends Ec2TaggableAwsFinder<Ec2Client, DhcpOptions, DhcpOptionSetResource> {
 
     private String dhcpOptionsId;
     private String key;

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *    network-acl: $(aws::network-acl EXTERNAL/* | network-acl-id = '')
  */
 @Type("network-acl")
-public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
+public class NetworkAclFinder extends Ec2TaggableAwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
 
     private String associationAssociationId;
     private String associationNetworkAclId;

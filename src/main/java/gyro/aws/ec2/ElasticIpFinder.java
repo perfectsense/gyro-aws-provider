@@ -17,7 +17,7 @@ import java.util.Map;
  *    elastic-ip: $(aws::elastic-ip EXTERNAL/* | allocation-id = '')
  */
 @Type("elastic-ip")
-public class ElasticIpFinder extends AwsFinder<Ec2Client, Address, ElasticIpResource> {
+public class ElasticIpFinder extends Ec2TaggableAwsFinder<Ec2Client, Address, ElasticIpResource> {
 
     private String allocationId;
     private String associationId;

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *    route-table: $(aws::route-table EXTERNAL/* | route-table-id = '')
  */
 @Type("route-table")
-public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTableResource> {
+public class RouteTableFinder extends Ec2TaggableAwsFinder<Ec2Client, RouteTable, RouteTableResource> {
 
     private String associationRouteTableAssociationId;
     private String associationRouteTableId;

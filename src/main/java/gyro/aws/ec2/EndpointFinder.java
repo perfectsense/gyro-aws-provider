@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *    endpoint: $(aws::vpc-endpoint EXTERNAL/* | service-name = '')
  */
 @Type("vpc-endpoint")
-public class EndpointFinder extends AwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
+public class EndpointFinder extends Ec2TaggableAwsFinder<Ec2Client, VpcEndpoint, EndpointResource> {
 
     private String serviceName;
     private String vpcId;

@@ -17,7 +17,7 @@ import java.util.Map;
  *    customer-gateway: $(aws::customer-gateway EXTERNAL/* | state = 'available')
  */
 @Type("customer-gateway")
-public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway, CustomerGatewayResource> {
+public class CustomerGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, CustomerGateway, CustomerGatewayResource> {
 
     private String bgpAsn;
     private String customerGatewayId;

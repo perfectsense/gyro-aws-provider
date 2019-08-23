@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *    peering-connection: $(aws::vpc-peering-connection EXTERNAL/* | vpc-peering-connection-id = '')
  */
 @Type("vpc-peering-connection")
-public class PeeringConnectionFinder extends AwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {
+public class PeeringConnectionFinder extends Ec2TaggableAwsFinder<Ec2Client, VpcPeeringConnection, PeeringConnectionResource> {
 
     private String accepterVpcInfoCidrBlock;
     private String accepterVpcInfoOwnerId;

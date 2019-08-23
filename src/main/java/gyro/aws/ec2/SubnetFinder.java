@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *    subnet: $(aws::subnet EXTERNAL/* | availability-zone = '####')
  */
 @Type("subnet")
-public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
+public class SubnetFinder extends Ec2TaggableAwsFinder<Ec2Client, Subnet, SubnetResource> {
 
     private String availabilityZone;
     private String availabilityZoneId;

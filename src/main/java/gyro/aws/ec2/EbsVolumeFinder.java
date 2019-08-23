@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  *    ebs-volume: $(aws::ebs-volume EXTERNAL/* | volume-id = '')
  */
 @Type("ebs-volume")
-public class EbsVolumeFinder extends AwsFinder<Ec2Client, Volume, EbsVolumeResource> {
+public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, EbsVolumeResource> {
 
     private String attachmentAttachTime;
     private String attachmentDeleteOnTermination;
