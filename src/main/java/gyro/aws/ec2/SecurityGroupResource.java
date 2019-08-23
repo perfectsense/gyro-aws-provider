@@ -241,6 +241,8 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
                 getIngress().add(rule);
             }
         }
+
+        refreshTags();
     }
 
     @Override

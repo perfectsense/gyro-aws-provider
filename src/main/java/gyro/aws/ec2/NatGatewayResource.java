@@ -107,6 +107,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
         setId(natGateway.natGatewayId());
         setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
         setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
+
+        refreshTags();
     }
 
     @Override

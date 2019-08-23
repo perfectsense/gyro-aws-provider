@@ -325,6 +325,8 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
             entry.copyFrom(dnsEntry);
             getDnsEntries().add(entry);
         }
+
+        refreshTags();
     }
 
     @Override

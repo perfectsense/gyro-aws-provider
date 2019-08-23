@@ -198,6 +198,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         setPeerAllowDnsResolutionFromRemoteVpc(vpcPeeringConnection.accepterVpcInfo().peeringOptions().allowDnsResolutionFromRemoteVpc());
         setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(vpcPeeringConnection.accepterVpcInfo().peeringOptions().allowEgressFromLocalClassicLinkToRemoteVpc());
         setPeerAllowEgressFromLocalVpcToRemoteClassicLink(vpcPeeringConnection.accepterVpcInfo().peeringOptions().allowEgressFromLocalVpcToRemoteClassicLink());
+
+        refreshTags();
     }
 
     @Override

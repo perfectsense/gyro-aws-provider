@@ -165,6 +165,8 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
                 setNetbiosNodeType(!config.values().isEmpty() ? config.values().get(0).value() : null);
             }
         }
+
+        refreshTags();
     }
 
     @Override

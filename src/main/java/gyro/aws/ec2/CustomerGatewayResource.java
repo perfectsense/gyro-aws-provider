@@ -91,6 +91,8 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
         setId(customerGateway.customerGatewayId());
         setPublicIp(customerGateway.ipAddress());
         setBgpAsn(!ObjectUtils.isBlank(customerGateway.bgpAsn()) ? Integer.parseInt(customerGateway.bgpAsn()) : null);
+
+        refreshTags();
     }
 
     @Override

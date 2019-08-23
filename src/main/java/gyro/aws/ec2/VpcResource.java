@@ -295,6 +295,8 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
 
         setRegion(credentials(AwsCredentials.class).getRegion());
         setAccount(getAccountNumber());
+
+        refreshTags();
     }
 
     @Override

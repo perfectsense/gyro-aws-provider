@@ -222,6 +222,8 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
         setStateMessage(snapshot.stateMessage());
         setVolumeSize(snapshot.volumeSize());
         setVolume(!ObjectUtils.isBlank(snapshot.volumeId()) ? findById(EbsVolumeResource.class, snapshot.volumeId()) : null);
+
+        refreshTags();
     }
 
     @Override

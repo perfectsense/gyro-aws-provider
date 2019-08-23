@@ -174,6 +174,8 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
         setInstance(!ObjectUtils.isBlank(address.instanceId()) ? findById(InstanceResource.class, address.instanceId()) : null);
         setAssociationId(address.associationId());
+
+        refreshTags();
     }
 
     @Override

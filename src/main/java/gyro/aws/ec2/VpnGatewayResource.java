@@ -113,6 +113,8 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         } else {
             setVpc(null);
         }
+
+        refreshTags();
     }
 
     @Override

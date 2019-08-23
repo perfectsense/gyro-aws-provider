@@ -246,6 +246,8 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         for (AllowedPrincipal allowedPrincipal: response.allowedPrincipals()) {
             getPrincipals().add(findById(RoleResource.class,allowedPrincipal.principal()));
         }
+
+        refreshTags();
     }
 
     @Override

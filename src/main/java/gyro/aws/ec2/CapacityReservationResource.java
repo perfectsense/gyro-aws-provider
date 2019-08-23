@@ -230,6 +230,8 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         setAvailableInstanceCount(capacityReservation.availableInstanceCount());
         setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
         setInstanceCount(capacityReservation.totalInstanceCount());
+
+        refreshTags();
     }
 
     @Override

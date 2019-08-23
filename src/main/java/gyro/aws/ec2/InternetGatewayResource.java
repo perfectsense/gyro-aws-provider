@@ -75,6 +75,8 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         } else {
             setVpc(null);
         }
+
+        refreshTags();
     }
 
     @Override

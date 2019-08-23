@@ -216,6 +216,8 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         );
 
         setAutoEnableIo(responseAutoEnableIo.autoEnableIO().value());
+
+        refreshTags();
     }
 
     @Override
