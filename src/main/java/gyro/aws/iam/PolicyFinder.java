@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    policy: $(aws::iam-policy EXTERNAL/* | arn = '')
+ *    policy: $(external-query aws::iam-policy { arn: ''})
  */
 @Type("iam-policy")
 public class PolicyFinder extends AwsFinder<IamClient, Policy, PolicyResource> {

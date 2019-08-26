@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    nat-gateway: $(aws::nat-gateway EXTERNAL/* | nat-gateway-id = '')
+ *    nat-gateway: $(external-query aws::nat-gateway { nat-gateway-id: ''})
  */
 @Type("nat-gateway")
-public class NatGatewayFinder extends AwsFinder<Ec2Client, NatGateway, NatGatewayResource> {
+public class NatGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, NatGateway, NatGatewayResource> {
 
     private String natGatewayId;
     private String state;

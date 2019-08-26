@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    global-clusters: $(aws::db-global-cluster EXTERNAL/* | db-cluster-id = 'aurora-global-cluster')
+ *    global-clusters: $(external-query aws::db-global-cluster { db-cluster-id: 'aurora-global-cluster'})
  */
 @Type("db-global-cluster")
 public class DbGlobalClusterFinder extends AwsFinder<RdsClient, GlobalCluster, DbGlobalClusterResource> {

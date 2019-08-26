@@ -162,6 +162,8 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         setAvailabilityZone(subnet.availabilityZone());
         setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
         setVpc(findById(VpcResource.class, subnet.vpcId()));
+
+        refreshTags();
     }
 
     @Override

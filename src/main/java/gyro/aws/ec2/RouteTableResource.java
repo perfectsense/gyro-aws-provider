@@ -115,6 +115,8 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
                 getSubnets().add(!ObjectUtils.isBlank(rta.subnetId()) ? findById(SubnetResource.class, rta.subnetId()) : null);
             }
         }
+
+        refreshTags();
     }
 
     @Override

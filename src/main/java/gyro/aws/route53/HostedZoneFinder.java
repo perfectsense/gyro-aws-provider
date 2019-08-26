@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    hosted-zone: $(aws::route53-hosted-zone EXTERNAL/* | hosted-zone-id = '')
+ *    hosted-zone: $(external-query aws::route53-hosted-zone { hosted-zone-id: ''})
  */
 @Type("route53-hosted-zone")
 public class HostedZoneFinder extends AwsFinder<Route53Client, HostedZone, HostedZoneResource> {

@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    network-interface: $(aws::network-interface EXTERNAL/* | description = '')
+ *    network-interface: $(external-query aws::network-interface { description: ''})
  */
 @Type("network-interface")
-public class NetworkInterfaceFinder extends AwsFinder<Ec2Client, NetworkInterface, NetworkInterfaceResource> {
+public class NetworkInterfaceFinder extends Ec2TaggableAwsFinder<Ec2Client, NetworkInterface, NetworkInterfaceResource> {
 
     private String addressesPrivateIpAddress;
     private String addressesPrimary;

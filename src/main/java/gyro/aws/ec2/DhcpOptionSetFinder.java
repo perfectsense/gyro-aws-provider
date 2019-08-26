@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    dhcp-options: $(aws::dhcp-options EXTERNAL/* | dhcp-options-id = '')
+ *    dhcp-options: $(external-query aws::dhcp-options { dhcp-options-id: ''})
  */
 @Type("dhcp-options")
-public class DhcpOptionSetFinder extends AwsFinder<Ec2Client, DhcpOptions, DhcpOptionSetResource> {
+public class DhcpOptionSetFinder extends Ec2TaggableAwsFinder<Ec2Client, DhcpOptions, DhcpOptionSetResource> {
 
     private String dhcpOptionsId;
     private String key;

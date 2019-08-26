@@ -378,6 +378,8 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         setId(launchTemplate.launchTemplateId());
         setName(launchTemplate.launchTemplateName());
         setVersion(launchTemplate.latestVersionNumber());
+
+        refreshTags();
     }
 
     @Override

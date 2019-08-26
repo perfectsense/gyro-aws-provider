@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    keys: $(aws::kms-key EXTERNAL/* | key-id = '')
+ *    keys: $(external-query aws::kms-key { key-id: ''})
  */
 @Type("kms-key")
 public class KmsKeyFinder extends AwsFinder<KmsClient, KeyMetadata, KmsKeyResource> {

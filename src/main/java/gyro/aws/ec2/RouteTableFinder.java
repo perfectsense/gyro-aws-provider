@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    route-table: $(aws::route-table EXTERNAL/* | route-table-id = '')
+ *    route-table: $(external-query aws::route-table { route-table-id: ''})
  */
 @Type("route-table")
-public class RouteTableFinder extends AwsFinder<Ec2Client, RouteTable, RouteTableResource> {
+public class RouteTableFinder extends Ec2TaggableAwsFinder<Ec2Client, RouteTable, RouteTableResource> {
 
     private String associationRouteTableAssociationId;
     private String associationRouteTableId;

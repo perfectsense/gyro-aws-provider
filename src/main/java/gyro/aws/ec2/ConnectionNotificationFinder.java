@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    connection-notification: $(aws::vpc-connection-notification EXTERNAL/* | connection-notification-arn = '')
+ *    connection-notification: $(external-query aws::vpc-connection-notification { connection-notification-arn: ''})
  */
 @Type("vpc-connection-notification")
 public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, ConnectionNotification, ConnectionNotificationResource> {

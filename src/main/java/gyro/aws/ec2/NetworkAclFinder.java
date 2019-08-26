@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    network-acl: $(aws::network-acl EXTERNAL/* | network-acl-id = '')
+ *    network-acl: $(external-query aws::network-acl { network-acl-id: ''})
  */
 @Type("network-acl")
-public class NetworkAclFinder extends AwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
+public class NetworkAclFinder extends Ec2TaggableAwsFinder<Ec2Client, NetworkAcl, NetworkAclResource> {
 
     private String associationAssociationId;
     private String associationNetworkAclId;

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    sns: $(aws::sns-topic EXTERNAL/* | arn = '')
+ *    sns: $(external-query aws::sns-topic { arn: ''})
  */
 @Type("sns-topic")
 public class TopicFinder extends AwsFinder<SnsClient, Topic, TopicResource> {

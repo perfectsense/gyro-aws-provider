@@ -13,7 +13,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    sqs: $(aws::sqs-queue EXTERNAL/* | name = '')
+ *    sqs: $(external-query aws::sqs-queue { name: ''})
  */
 @Type("sqs-queue")
 public class SqsFinder extends AwsFinder<SqsClient, String, SqsResource> {

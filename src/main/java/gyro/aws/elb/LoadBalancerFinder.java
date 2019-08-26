@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *      $(aws::load-balancer EXTERNAL/* | name = 'my elb')
+ *    load-balancer: $(external-query aws::load-balancer { name: 'my elb'})
  */
 @Type("load-balancer")
 public class LoadBalancerFinder extends AwsFinder<ElasticLoadBalancingClient, LoadBalancerDescription, LoadBalancerResource> {

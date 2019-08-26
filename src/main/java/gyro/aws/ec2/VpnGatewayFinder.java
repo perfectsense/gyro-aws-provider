@@ -15,10 +15,10 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    vpn-gateway: $(aws::vpn-gateway EXTERNAL/* | vpn-gateway-id = '')
+ *    vpn-gateway: $(external-query aws::vpn-gateway { vpn-gateway-id: ''})
  */
 @Type("vpn-gateway")
-public class VpnGatewayFinder extends AwsFinder<Ec2Client, VpnGateway, VpnGatewayResource> {
+public class VpnGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, VpnGateway, VpnGatewayResource> {
 
     private String amazonSideAsn;
     private String attachmentState;

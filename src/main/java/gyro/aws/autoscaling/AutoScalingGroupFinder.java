@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    autoscaling-group: $(aws::autoscaling-group EXTERNAL/* | name = '')
+ *    autoscaling-group: $(external-query aws::autoscaling-group { name: 'frontend' })
  */
 @Type("autoscaling-group")
 public class AutoScalingGroupFinder extends AwsFinder<AutoScalingClient, AutoScalingGroup, AutoScalingGroupResource> {

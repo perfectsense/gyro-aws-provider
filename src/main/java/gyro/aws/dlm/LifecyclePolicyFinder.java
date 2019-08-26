@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    lifecycle-policy: $(aws::dlm-lifecycle-policy EXTERNAL/* | id = '')
+ *    lifecycle-policy: $(external-query aws::dlm-lifecycle-policy { id: 'policy-xxxxxxxxxxx' })
  */
 @Type("dlm-lifecycle-policy")
 public class LifecyclePolicyFinder extends AwsFinder<DlmClient, LifecyclePolicy, LifecyclePolicyResource> {

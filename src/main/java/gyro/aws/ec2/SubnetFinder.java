@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    subnet: $(aws::subnet EXTERNAL/* | availability-zone = '####')
+ *    subnet: $(external-query aws::subnet { availability-zone: '####'})
  */
 @Type("subnet")
-public class SubnetFinder extends AwsFinder<Ec2Client, Subnet, SubnetResource> {
+public class SubnetFinder extends Ec2TaggableAwsFinder<Ec2Client, Subnet, SubnetResource> {
 
     private String availabilityZone;
     private String availabilityZoneId;

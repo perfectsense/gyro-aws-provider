@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    vpc: $(aws::vpc EXTERNAL/* | tag.Name = "vpc-example-for-network-acl")
+ *    vpc: $(external-query aws::vpc { tag: { Name: "vpc-example-for-network-acl" }})
  */
 @Type("vpc")
-public class VpcFinder extends AwsFinder<Ec2Client, Vpc, VpcResource> {
+public class VpcFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc, VpcResource> {
 
     private String cidr;
     private String ipv4CidrBlock;

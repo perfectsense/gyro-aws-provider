@@ -133,6 +133,8 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
         }
 
         setVpc(findById(VpcResource.class, networkAcl.vpcId()));
+
+        refreshTags();
     }
 
     @Override

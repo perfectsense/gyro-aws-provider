@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    security-group: $(aws::security-group EXTERNAL/* | group-name = '')
+ *    security-group: $(external-query aws::security-group { group-name: ''})
  */
 @Type("security-group")
-public class SecurityGroupFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
+public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, SecurityGroup, SecurityGroupResource> {
 
     private String description;
     private String egressCidr;

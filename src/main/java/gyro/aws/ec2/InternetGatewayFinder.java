@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    internet-gateway: $(aws::internet-gateway EXTERNAL/* | internet-gateway-id = '')
+ *    internet-gateway: $(external-query aws::internet-gateway { internet-gateway-id: ''})
  */
 @Type("internet-gateway")
-public class InternetGatewayFinder extends AwsFinder<Ec2Client, InternetGateway, InternetGatewayResource> {
+public class InternetGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, InternetGateway, InternetGatewayResource> {
 
     private String attachmentState;
     private String attachmentVpcId;

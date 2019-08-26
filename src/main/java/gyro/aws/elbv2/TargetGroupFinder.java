@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    target-group: $(aws::load-balancer-target-group EXTERNAL/* | arn = '')
+ *    target-group: $(external-query aws::load-balancer-target-group { arn: ''})
  */
 @Type("load-balancer-target-group")
 public class TargetGroupFinder extends AwsFinder<ElasticLoadBalancingV2Client, TargetGroup, TargetGroupResource> {

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-parameter-groups: $(aws::db-parameter-group EXTERNAL/* | name = 'db-parameter-group-example')
+ *    db-parameter-groups: $(external-query aws::db-parameter-group { name: 'db-parameter-group-example'})
  */
 @Type("db-parameter-group")
 public class DbParameterGroupFinder extends AwsFinder<RdsClient, DBParameterGroup, DbParameterGroupResource> {

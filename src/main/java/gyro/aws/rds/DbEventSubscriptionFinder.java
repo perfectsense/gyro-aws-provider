@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    subscriptions: $(aws::db-event-subscription EXTERNAL/* | name = 'db-event-subscription-example')
+ *    subscriptions: $(external-query aws::db-event-subscription { name: 'db-event-subscription-example'})
  */
 @Type("db-event-subscription")
 public class DbEventSubscriptionFinder extends AwsFinder<RdsClient, EventSubscription, DbEventSubscriptionResource> {

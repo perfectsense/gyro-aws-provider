@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    health-check: $(aws::route53-health-check EXTERNAL/* | id = '')
+ *    health-check: $(external-query aws::route53-health-check { id: ''})
  */
 @Type("route53-health-check")
 public class HealthCheckFinder extends AwsFinder<Route53Client, HealthCheck, HealthCheckResource> {

@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    capacity-reservations: $(aws::ec2-capacity-reservation EXTERNAL/* | capacity-reservation-id = 'cr-071f2771deb1ea5d4')
+ *    capacity-reservations: $(external-query aws::ec2-capacity-reservation { capacity-reservation-id: 'cr-071f2771deb1ea5d4'})
  */
 @Type("ec2-capacity-reservation")
-public class CapacityReservationFinder extends AwsFinder<Ec2Client, CapacityReservation, CapacityReservationResource> {
+public class CapacityReservationFinder extends Ec2TaggableAwsFinder<Ec2Client, CapacityReservation, CapacityReservationResource> {
     private String capacityReservationId;
 
     /**

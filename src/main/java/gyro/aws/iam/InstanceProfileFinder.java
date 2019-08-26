@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    instance-profile: $(aws::iam-instance-profile EXTERNAL/* | name = '')
+ *    instance-profile: $(external-query aws::iam-instance-profile { name: ''})
  */
 @Type("iam-instance-profile")
 public class InstanceProfileFinder extends AwsFinder<IamClient, InstanceProfile, InstanceProfileResource> {

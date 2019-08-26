@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    option-groups: $(aws::db-option-group EXTERNAL/* | name = 'option-group-example')
+ *    option-groups: $(external-query aws::db-option-group { name: 'option-group-example'})
  */
 @Type("db-option-group")
 public class DbOptionGroupFinder extends AwsFinder<RdsClient, OptionGroup, DbOptionGroupResource> {

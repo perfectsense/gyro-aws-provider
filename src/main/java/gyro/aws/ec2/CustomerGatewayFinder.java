@@ -14,10 +14,10 @@ import java.util.Map;
  *
  * .. code-block:: gyro
  *
- *    customer-gateway: $(aws::customer-gateway EXTERNAL/* | state = 'available')
+ *    customer-gateway: $(external-query aws::customer-gateway { state: 'available'})
  */
 @Type("customer-gateway")
-public class CustomerGatewayFinder extends AwsFinder<Ec2Client, CustomerGateway, CustomerGatewayResource> {
+public class CustomerGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, CustomerGateway, CustomerGatewayResource> {
 
     private String bgpAsn;
     private String customerGatewayId;

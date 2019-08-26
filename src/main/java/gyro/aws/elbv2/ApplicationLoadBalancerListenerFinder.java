@@ -7,7 +7,7 @@ import gyro.core.Type;
  *
  * .. code-block:: gyro
  *
- *    alb-listener: $(aws::application-load-balancer-listener EXTERNAL/* | arn = '')
+ *    alb-listener: $(external-query aws::application-load-balancer-listener { arn: ''})
  */
 @Type("application-load-balancer-listener")
 public class ApplicationLoadBalancerListenerFinder extends ListenerFinder<ApplicationLoadBalancerListenerResource> {

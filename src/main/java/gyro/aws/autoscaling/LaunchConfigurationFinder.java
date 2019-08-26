@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    launch-configuration: $(aws::launch-configuration EXTERNAL/* | name = '')
+ *    launch-configuration: $(external-query aws::launch-configuration { name: 'frontend' })
  */
 @Type("launch-configuration")
 public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, LaunchConfiguration, LaunchConfigurationResource> {

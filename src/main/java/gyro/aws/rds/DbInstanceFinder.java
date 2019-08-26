@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-instances: $(aws::db-instance EXTERNAL/* | db-instance-id = 'db-instance-example')
+ *    db-instances: $(external-query aws::db-instance { db-instance-id: 'db-instance-example'})
  */
 @Type("db-instance")
 public class DbInstanceFinder extends AwsFinder<RdsClient, DBInstance, DbInstanceResource> {

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    metric-alarm: $(aws::cloudwatch-metric-alarm EXTERNAL/* | name = '')
+ *    metric-alarm: $(external-query aws::cloudwatch-metric-alarm { name: 'scale up rule' })
  */
 @Type("cloudwatch-metric-alarm")
 public class MetricAlarmFinder extends AwsFinder<CloudWatchClient, MetricAlarm, MetricAlarmResource> {

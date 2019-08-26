@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-subnet-group: $(aws::db-subnet-group EXTERNAL/* | name = 'db-subnet-group-db-cluster-example')
+ *    db-subnet-group: $(external-query aws::db-subnet-group { name: 'db-subnet-group-db-cluster-example'})
  */
 @Type("db-subnet-group")
 public class DbSubnetGroupFinder extends AwsFinder<RdsClient, DBSubnetGroup, DbSubnetGroupResource> {

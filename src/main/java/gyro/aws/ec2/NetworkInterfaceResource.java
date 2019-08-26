@@ -264,6 +264,8 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             setAttachmentId(attachment.attachmentId());
             setDeleteOnTermination(attachment.deleteOnTermination());
         }
+
+        refreshTags();
     }
 
     @Override

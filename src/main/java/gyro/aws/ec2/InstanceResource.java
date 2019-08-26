@@ -757,6 +757,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
 
         loadVolume(instance);
+
+        refreshTags();
     }
 
     private void validate(boolean isCreate) {
