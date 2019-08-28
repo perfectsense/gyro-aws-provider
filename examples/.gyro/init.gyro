@@ -2,7 +2,7 @@
 @repository: 'https://artifactory.psdops.com/public'
 @repository: 'https://artifactory.psdops.com/gyro-snapshots'
 @plugin: 'gyro:gyro-aws-provider:0.15-SNAPSHOT'
-@plugin: 'gyro:gyro-beam-enterprise-plugin:0.15-SNAPSHOT'
+@plugin: 'gyro:gyro-brightspot-plugin:0.15-SNAPSHOT'
 
 project: "beam-sandbox"
 account: "psd-beam-sandbox"
@@ -13,4 +13,10 @@ environment: "sandbox"
     project: $(project)
     account: $(account)
     region: "us-east-2"
+@end
+
+@discovery::beam-servers 'something'
+    regions: [ 'us-east-1', 'us-east-2' ]
+    instances: [ $(aws::instance instance-example-1),
+                 $(aws::instance instance-example-2) ]
 @end
