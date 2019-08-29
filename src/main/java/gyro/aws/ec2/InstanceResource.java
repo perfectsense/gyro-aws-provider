@@ -30,7 +30,6 @@ import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
-import software.amazon.awssdk.services.ec2.model.InstanceNetworkInterfaceSpecification;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
