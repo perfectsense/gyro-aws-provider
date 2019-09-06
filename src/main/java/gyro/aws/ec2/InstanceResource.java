@@ -30,7 +30,6 @@ import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
-import software.amazon.awssdk.services.ec2.model.InstanceNetworkInterfaceSpecification;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
@@ -111,11 +110,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Set<InstanceVolumeAttachment> volume;
     private InstanceProfileResource instanceProfile;
     private LaunchTemplateSpecificationResource launchTemplate;
+    private String privateIpAddress;
 
     // -- Readonly
 
     private String id;
-    private String privateIpAddress;
     private String publicIpAddress;
     private String publicDnsName;
     private String instanceState;
@@ -421,7 +420,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * The private IP of this instance.
      */
-    @Output
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -568,6 +566,10 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .capacityReservationSpecification(getCapacityReservationSpecification())
             .iamInstanceProfile(getIamInstanceProfile());
+
+        if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
+            builder = builder.privateIpAddress(getPrivateIpAddress());
+        }
 
         if (!getBlockDeviceMapping().isEmpty()) {
             builder = builder.blockDeviceMappings(
