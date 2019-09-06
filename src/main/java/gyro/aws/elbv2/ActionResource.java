@@ -159,7 +159,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
 
         setOrder(action.order());
-        setTargetGroup(action.targetGroupArn() != null ? parentResource().findById(TargetGroupResource.class, action.targetGroupArn()) : null);
+        setTargetGroup(action.targetGroupArn() != null ? findById(TargetGroupResource.class, action.targetGroupArn()) : null);
         setType(action.typeAsString());
     }
 
