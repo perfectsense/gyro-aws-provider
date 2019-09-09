@@ -26,16 +26,13 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::route route-example
+ *     route
  *         destination-cidr-block: 0.0.0.0/0
- *         route-table: $(aws::route-table route-table-example)
  *         gateway: $(aws::internet-gateway ig-example)
  *     end
  */
-@Type("route")
 public class RouteResource extends AwsResource implements Copyable<Route> {
 
-    private RouteTableResource routeTable;
     private String destinationCidrBlock;
     private String destinationIpv6CidrBlock;
     private String destinationPrefixListId;
@@ -46,17 +43,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     private NetworkInterfaceResource networkInterface;
     private String transitGatewayId;
     private PeeringConnectionResource vpcPeeringConnection;
-
-    /**
-     * The Route Table to add this Route to.
-     */
-    public RouteTableResource getRouteTable() {
-        return routeTable;
-    }
-
-    public void setRouteTable(RouteTableResource routeTable) {
-        this.routeTable = routeTable;
-    }
 
     /**
      * An IPv4 destination CIDR block of the Route.
@@ -91,7 +77,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * Associate an Egress Only Internet Gateway to the Route. Only valid with IPv6 destination CIDR.
      */
-    @Updatable
     public EgressOnlyInternetGatewayResource getEgressGateway() {
         return egressGateway;
     }
@@ -103,7 +88,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * Associate an Internet Gateway to the Route. Only valid with IPv4 destination CIDR.
      */
-    @Updatable
     public InternetGatewayResource getGateway() {
         return gateway;
     }
@@ -115,7 +99,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * Associate a NAT instance running in your VPC to the Route.
      */
-    @Updatable
     public InstanceResource getInstance() {
         return instance;
     }
@@ -127,7 +110,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * Associate a NAT Gateway to the Route. Only valid with IPv4 destination CIDR.
      */
-    @Updatable
     public NatGatewayResource getNatGateway() {
         return natGateway;
     }
@@ -139,7 +121,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * Associate a Network Interface to the Route.
      */
-    @Updatable
     public NetworkInterfaceResource getNetworkInterface() {
         return networkInterface;
     }
@@ -151,7 +132,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * The ID of a transit gateway to associate to the Route.
      */
-    @Updatable
     public String getTransitGatewayId() {
         return transitGatewayId;
     }
@@ -163,7 +143,6 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     /**
      * Associate a VPC Peering Connection to the Route.
      */
-    @Updatable
     public PeeringConnectionResource getVpcPeeringConnection() {
         return vpcPeeringConnection;
     }
@@ -187,18 +166,20 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     @Override
+    public String primaryKey() {
+        return String.format("%s %s %s %s %s %s %s %s", (getDestinationIpv6CidrBlock()),
+            (getGateway() != null ? getGateway().getId() : null),
+            (getInstance() != null ? getInstance().getId() : null),
+            (getNatGateway() != null ? getNatGateway().getId() : null),
+            (getNetworkInterface() != null ? getNetworkInterface().getId() : null),
+            (getTransitGatewayId()),
+            (getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null),
+            (getEgressGateway() != null ? getEgressGateway().getId() : null));
+    }
+
+    @Override
     public boolean refresh() {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        Route route = getRoute(client);
-
-        if (route == null) {
-            return false;
-        }
-
-        copyFrom(route);
-
-        return true;
+        return false;
     }
 
     @Override
@@ -213,26 +194,14 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
                 .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
                 .transitGatewayId(getTransitGatewayId())
                 .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
-                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
+                .routeTableId(((RouteTableResource) parent()).getId())
                 .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Ec2Client client = createClient(Ec2Client.class);
 
-        client.replaceRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
-            .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-            .gatewayId(getGateway() != null ? getGateway().getId() : null)
-            .instanceId(getInstance() != null ? getInstance().getId() : null)
-            .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
-            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
-            .transitGatewayId(getTransitGatewayId())
-            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
-            .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
-            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
-        );
     }
 
     @Override
@@ -241,38 +210,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
         client.deleteRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
                 .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .routeTableId(getRouteTable() != null ? getRouteTable().getId() : null)
+                .routeTableId(((RouteTableResource) parent()).getId())
         );
-    }
-
-    private Route getRoute(Ec2Client client) {
-        Route route = null;
-
-        if (getRouteTable() == null) {
-            throw new GyroException("route-table is missing, unable to load route.");
-        }
-
-        try {
-            DescribeRouteTablesResponse response = client.describeRouteTables(r -> r.filters(
-                Filter.builder().name("route-table-id").values(getRouteTable().getId()).build()
-            ));
-
-            for (RouteTable routeTable : response.routeTables()) {
-                for (Route r : routeTable.routes()) {
-                    if ((r.destinationCidrBlock() != null && r.destinationCidrBlock().equals(getDestinationCidrBlock()))
-                        || (r.destinationIpv6CidrBlock() != null && r.destinationIpv6CidrBlock().equals(getDestinationCidrBlock()))
-                        || (r.destinationPrefixListId() != null && r.destinationPrefixListId().equals(getDestinationPrefixListId()))) {
-                        route = r;
-                        break;
-                    }
-                }
-            }
-        } catch (Ec2Exception ex) {
-            if (!ex.getLocalizedMessage().contains("does not exist")) {
-                throw ex;
-            }
-        }
-
-        return route;
     }
 }

@@ -81,6 +81,11 @@ aws::route-table route-table-example
         $(aws::subnet subnet)
     ]
 
+    route
+        destination-cidr-block: "0.0.0.0/0"
+        instance: $(aws::instance instance-example)
+    end
+
     tags: {
         Name: "route-table-example"
     }
