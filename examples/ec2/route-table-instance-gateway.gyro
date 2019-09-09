@@ -90,30 +90,3 @@ aws::route-table route-table-example
         Name: "route-table-example"
     }
 end
-
-workflow 'replace-route'
-    for-type: 'aws::route'
-
-    stage 'delete-existing-route'
-        confirm-diff: true
-
-        delete
-            type: 'aws::route'
-            name: "$(NAME)"
-        end
-    end
-
-    stage 'create-new-route'
-        create
-            aws::route "$(NAME)"
-                _extends: $(PENDING)
-            end
-        end
-    end
-end
-
-aws::route route-example
-    route-table: $(aws::route-table route-table-example)
-    destination-cidr-block: "0.0.0.0/0"
-    instance: $(aws::instance instance-example)
-end
