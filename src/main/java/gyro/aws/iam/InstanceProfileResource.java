@@ -90,6 +90,8 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     @Override
     public void copyFrom(InstanceProfile instanceProfile) {
         setArn(instanceProfile.arn());
+        setName(instanceProfile.instanceProfileName());
+        setPath(instanceProfile.path());
 
         if (!instanceProfile.roles().isEmpty()) {
             findById(RoleResource.class, instanceProfile.roles().get(0).arn());
