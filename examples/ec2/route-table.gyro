@@ -52,13 +52,12 @@ aws::route-table route-table-example
         $(aws::subnet subnet-public-us-east-2c)
     ]
 
+    route
+        destination-cidr-block: "10.1.0.0/32"
+        gateway: $(aws::internet-gateway ig-example)
+    end
+
     tags: {
         Name: "route-table-example"
     }
-end
-
-aws::route route-example
-    route-table: $(aws::route-table route-table-example)
-    destination-cidr-block: "0.0.0.0/0"
-    gateway: $(aws::internet-gateway ig-example)
 end

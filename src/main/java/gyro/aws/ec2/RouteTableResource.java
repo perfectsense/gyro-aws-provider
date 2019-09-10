@@ -33,6 +33,11 @@ import java.util.stream.Collectors;
  *     aws::route-table route-table-example
  *         vpc: $(aws::vpc vpc-example)
  *
+ *         route
+ *             destination-cidr-block: 0.0.0.0/0
+ *             gateway: $(aws::internet-gateway ig-example)
+ *         end
+ *
  *         tags:
  *             Name: route-table-example
  *         end
@@ -43,6 +48,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
     private VpcResource vpc;
     private Set<SubnetResource> subnets;
+    private Set<RouteResource> route;
     private String id;
     private String ownerId;
 
@@ -71,6 +77,22 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
     public void setSubnets(Set<SubnetResource> subnets) {
         this.subnets = subnets;
+    }
+
+    /**
+     * Routes part of this Route Table.
+     */
+    @Updatable
+    public Set<RouteResource> getRoute() {
+        if (route == null) {
+            route = new HashSet<>();
+        }
+
+        return route;
+    }
+
+    public void setRoute(Set<RouteResource> route) {
+        this.route = route;
     }
 
     /**
@@ -115,6 +137,14 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
                 getSubnets().add(!ObjectUtils.isBlank(rta.subnetId()) ? findById(SubnetResource.class, rta.subnetId()) : null);
             }
         }
+
+        setRoute(routeTable.routes().stream()
+            .filter(o -> o.gatewayId() == null || !o.gatewayId().equals("local"))
+            .map(o -> {
+            RouteResource routeResource = newSubresource(RouteResource.class);
+            routeResource.copyFrom(o);
+            return routeResource;
+        }).collect(Collectors.toSet()));
 
         refreshTags();
     }
