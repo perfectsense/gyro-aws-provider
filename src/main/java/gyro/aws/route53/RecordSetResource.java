@@ -440,14 +440,12 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
-        ListResourceRecordSetsResponse response = client.listResourceRecordSets(
+        List<ResourceRecordSet> records = client.listResourceRecordSetsPaginator(
             r -> r.hostedZoneId(getHostedZone().getId())
-                .startRecordName(getName())
-                .startRecordType(getType())
-        );
+        ).resourceRecordSets().stream().collect(Collectors.toList());
 
-        if (!response.resourceRecordSets().isEmpty()) {
-            return response.resourceRecordSets().get(0);
+        if (!records.isEmpty()) {
+            return records.stream().filter(o -> o.name().equals(getName())).findFirst().orElse(null);
         }
 
         return null;
