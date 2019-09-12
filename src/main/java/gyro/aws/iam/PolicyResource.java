@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyVersionResponse;
+import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.Policy;
 import software.amazon.awssdk.services.iam.model.PolicyVersion;
 import software.amazon.awssdk.utils.IoUtils;
@@ -132,11 +133,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     public boolean refresh() {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
-        GetPolicyResponse response = client.getPolicy(
-            r -> r.policyArn(getArn())
-        );
-
-        Policy policy = response.policy();
+        Policy policy = getPolicy(client);
 
         if (policy != null) {
             copyFrom(policy);
@@ -190,6 +187,18 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     public String formatPolicy(String policy) {
         return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    }
+
+    private Policy getPolicy(IamClient client) {
+        try {
+            GetPolicyResponse response = client.getPolicy(
+                r -> r.policyArn(getArn())
+            );
+
+            return response.policy();
+        } catch (NoSuchEntityException ex) {
+            return null;
+        }
     }
 
     @Override
