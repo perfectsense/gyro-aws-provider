@@ -512,6 +512,18 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
+    public String getLocation() {
+        if (getSubnet() != null) {
+            return getSubnet().getAvailabilityZone() != null
+                    ? getSubnet().getAvailabilityZone()
+                    : getSubnet().getVpc() != null
+                            ? getSubnet().getVpc().getRegion()
+                            : "";
+        }
+        return "";
+    }
+
+    @Override
     protected String getResourceId() {
         return getId();
     }
