@@ -130,6 +130,27 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     @Override
+    public void copyFrom(Policy policy) {
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+
+        setName(policy.policyName());
+        setDescription(policy.description());
+        setArn(policy.arn());
+
+        for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
+            setPastVersionId(versions.versionId());
+        }
+
+        GetPolicyVersionResponse versionResponse = client.getPolicyVersion(
+            r -> r.versionId(getPastVersionId())
+                .policyArn(getArn())
+        );
+
+        String encode = URLDecoder.decode(versionResponse.policyVersion().document());
+        setPolicyDocument(formatPolicy(encode));
+    }
+
+    @Override
     public boolean refresh() {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
@@ -199,26 +220,5 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
         } catch (NoSuchEntityException ex) {
             return null;
         }
-    }
-
-    @Override
-    public void copyFrom(Policy policy) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
-
-        setName(policy.policyName());
-        setDescription(policy.description());
-        setArn(policy.arn());
-
-        for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
-            setPastVersionId(versions.versionId());
-        }
-
-        GetPolicyVersionResponse versionResponse = client.getPolicyVersion(
-            r -> r.versionId(getPastVersionId())
-                .policyArn(getArn())
-        );
-
-        String encode = URLDecoder.decode(versionResponse.policyVersion().document());
-        setPolicyDocument(formatPolicy(encode));
     }
 }
