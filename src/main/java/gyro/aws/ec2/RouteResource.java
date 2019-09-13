@@ -5,16 +5,10 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
-import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Route;
-import software.amazon.awssdk.services.ec2.model.RouteTable;
 
 import java.util.Set;
 
@@ -167,14 +161,31 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s %s %s %s %s %s %s", (getDestinationIpv6CidrBlock()),
-            (getGateway() != null ? getGateway().getId() : null),
-            (getInstance() != null ? getInstance().getId() : null),
-            (getNatGateway() != null ? getNatGateway().getId() : null),
-            (getNetworkInterface() != null ? getNetworkInterface().getId() : null),
-            (getTransitGatewayId()),
-            (getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null),
-            (getEgressGateway() != null ? getEgressGateway().getId() : null));
+        String primaryKey = getDestinationCidrBlock();
+        if (getDestinationIpv6CidrBlock() != null) {
+            primaryKey = getDestinationIpv6CidrBlock();
+        }
+
+        String secondaryKey;
+        if (getGateway() != null) {
+            secondaryKey = getGateway().getId();
+        } else if (getInstance() != null) {
+            secondaryKey = getInstance().getId();
+        } else if (getNatGateway() != null) {
+            secondaryKey = getNatGateway().getId();
+        } else if (getNetworkInterface() != null) {
+            secondaryKey = getNetworkInterface().getId();
+        } else if (getTransitGatewayId() != null) {
+            secondaryKey = getTransitGatewayId();
+        } else if (getVpcPeeringConnection() != null) {
+            secondaryKey = getVpcPeeringConnection().getId();
+        } else if (getEgressGateway() != null) {
+            secondaryKey = getEgressGateway().getId();
+        } else {
+            throw new GyroException("Invalid route.");
+        }
+
+        return String.format("%s to %s", primaryKey, secondaryKey);
     }
 
     @Override
