@@ -542,7 +542,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         Instance instance = getInstance(client);
 
-        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED) {
+        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED || instance.state().name() == InstanceStateName.SHUTTING_DOWN) {
             return false;
         }
 
@@ -758,15 +758,11 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         );
         setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
-        if (!instance.networkInterfaces().isEmpty()) {
-            DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
-                r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                    .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
-            );
-            setSourceDestCheck(response.sourceDestCheck().value());
-        } else {
-            setSourceDestCheck(instance.sourceDestCheck());
-        }
+        DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
+            r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
+        );
+        setSourceDestCheck(response.sourceDestCheck().value());
 
         attributeResponse = client.describeInstanceAttribute(
             r -> r.instanceId(getId()).attribute(InstanceAttributeName.USER_DATA)
