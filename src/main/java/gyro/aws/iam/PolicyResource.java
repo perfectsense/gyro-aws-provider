@@ -76,7 +76,6 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     /**
      * The name of the policy. (Required)
      */
-    @Updatable
     public String getName() {
         return this.name;
     }
