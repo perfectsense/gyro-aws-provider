@@ -758,11 +758,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         );
         setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
-        DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
-            r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
-        );
-        setSourceDestCheck(response.sourceDestCheck().value());
+        if (!instance.networkInterfaces().isEmpty()) {
+            DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
+                r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                    .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
+            );
+            setSourceDestCheck(response.sourceDestCheck().value());
+        } else {
+            setSourceDestCheck(instance.sourceDestCheck());
+        }
 
         attributeResponse = client.describeInstanceAttribute(
             r -> r.instanceId(getId()).attribute(InstanceAttributeName.USER_DATA)
