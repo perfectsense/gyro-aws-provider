@@ -168,14 +168,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
     @Override
     public void copyFrom(Address address) {
-        setId(address.allocationId());
-        setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
-        setPublicIp(address.publicIp());
-        setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
-        setInstance(!ObjectUtils.isBlank(address.instanceId()) ? findById(InstanceResource.class, address.instanceId()) : null);
-        setAssociationId(address.associationId());
-
-        refreshTags();
+        loadAddress(address, true);
     }
 
     @Override
@@ -278,7 +271,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             }
         }
 
-        doRefresh();
+        loadAddress(getAddress(client), false);
     }
 
     @Override
@@ -329,5 +322,18 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         }
 
         return address;
+    }
+
+    private void loadAddress(Address address, boolean refreshTags) {
+        setId(address.allocationId());
+        setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
+        setPublicIp(address.publicIp());
+        setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
+        setInstance(!ObjectUtils.isBlank(address.instanceId()) ? findById(InstanceResource.class, address.instanceId()) : null);
+        setAssociationId(address.associationId());
+
+        if (refreshTags) {
+            refreshTags();
+        }
     }
 }
