@@ -13,7 +13,9 @@ import gyro.core.scope.State;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
+import software.amazon.awssdk.services.iam.model.GetRoleResponse;
 import software.amazon.awssdk.services.iam.model.ListAttachedRolePoliciesResponse;
+import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.Role;
 import software.amazon.awssdk.services.iam.model.Tag;
 import software.amazon.awssdk.utils.IoUtils;
@@ -212,7 +214,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     public boolean refresh() {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
-        Role role = client.getRole(r -> r.roleName(getName())).role();
+        Role role = getRole(client);
 
         if (role != null) {
             this.copyFrom(role);
@@ -297,6 +299,16 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         }
 
         client.deleteRole(r -> r.roleName(getName()));
+    }
+
+    private Role getRole(IamClient client) {
+        try {
+            GetRoleResponse response = client.getRole(r -> r.roleName(getName()));
+
+            return response.role();
+        } catch (NoSuchEntityException ex) {
+            return null;
+        }
     }
 
     public String formatPolicy(String policy) {
