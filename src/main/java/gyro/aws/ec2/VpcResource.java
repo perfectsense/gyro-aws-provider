@@ -414,8 +414,6 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         if (changedProperties.isEmpty() || changedProperties.contains("dhcp-options")) {
             if (getDhcpOptions() != null) {
                 client.associateDhcpOptions(r -> r.dhcpOptionsId(getDhcpOptions().getId()).vpcId(getId()));
-            } else {
-                client.associateDhcpOptions(r -> r.vpcId(getId()).dhcpOptionsId("default"));
             }
         }
 
