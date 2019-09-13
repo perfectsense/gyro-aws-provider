@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.Route;
 import software.amazon.awssdk.services.ec2.model.RouteTable;
 import software.amazon.awssdk.services.ec2.model.RouteTableAssociation;
 
@@ -138,13 +139,22 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
             }
         }
 
-        setRoute(routeTable.routes().stream()
-            .filter(o -> o.gatewayId() == null || !o.gatewayId().equals("local"))
-            .map(o -> {
+        getRoute().clear();
+        for (Route route : routeTable.routes()) {
+            if ("local".equals(route.gatewayId())) {
+                continue;
+            }
+
+            if (route.destinationPrefixListId() != null) {
+                continue;
+            }
+
+
             RouteResource routeResource = newSubresource(RouteResource.class);
-            routeResource.copyFrom(o);
-            return routeResource;
-        }).collect(Collectors.toSet()));
+            routeResource.copyFrom(route);
+
+            getRoute().add(routeResource);
+        }
 
         refreshTags();
     }
