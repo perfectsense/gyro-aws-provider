@@ -778,7 +778,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         DescribeAutoScalingGroupsResponse response = client.describeAutoScalingGroups(r -> r.autoScalingGroupNames(getName()));
         AutoScalingGroup group = response.autoScalingGroups().size() == 1 ? response.autoScalingGroups().get(0) : null;
         if (group == null) {
-            throw new GyroException("Unable to load autoscaling group: " + getName());
+            return Collections.emptyList();
         }
 
         List<String> instanceIds = group.instances()
@@ -786,18 +786,22 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             .map(software.amazon.awssdk.services.autoscaling.model.Instance::instanceId)
             .collect(Collectors.toList());
 
-        Ec2Client ec2Client = createClient(Ec2Client.class);
-        DescribeInstancesResponse instancesResponse = ec2Client.describeInstances(r -> r.instanceIds(instanceIds));
+        if (!instanceIds.isEmpty()) {
+            Ec2Client ec2Client = createClient(Ec2Client.class);
+            DescribeInstancesResponse instancesResponse = ec2Client.describeInstances(r -> r.instanceIds(instanceIds));
 
-        List<GyroInstance> instances = new ArrayList<>();
-        for (Reservation reservation : instancesResponse.reservations()) {
-            instances.addAll(reservation.instances()
-                .stream()
-                .map(this::getGyroInstance)
-                .collect(Collectors.toList()));
+            List<GyroInstance> instances = new ArrayList<>();
+            for (Reservation reservation : instancesResponse.reservations()) {
+                instances.addAll(reservation.instances()
+                    .stream()
+                    .map(this::getGyroInstance)
+                    .collect(Collectors.toList()));
+            }
+
+            return instances;
         }
 
-        return instances;
+        return Collections.emptyList();
     }
 
     private GyroInstance getGyroInstance(Instance instance) {
