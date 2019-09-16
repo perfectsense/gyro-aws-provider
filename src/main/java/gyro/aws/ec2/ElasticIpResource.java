@@ -277,8 +277,6 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
                 }
             }
         }
-
-        doRefresh();
     }
 
     @Override
