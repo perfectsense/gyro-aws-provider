@@ -542,7 +542,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         Instance instance = getInstance(client);
 
-        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED) {
+        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED || instance.state().name() == InstanceStateName.SHUTTING_DOWN) {
             return false;
         }
 
