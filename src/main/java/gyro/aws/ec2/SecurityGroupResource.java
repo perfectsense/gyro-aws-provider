@@ -184,13 +184,11 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
 
         getEgress().clear();
         for (IpPermission permission : group.ipPermissionsEgress()) {
-            if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1")
-                && permission.fromPort() == null && permission.toPort() == null
-                && permission.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")) {
-                continue;
-            }
-
             for (IpRange ipRange : permission.ipRanges()) {
+                if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1") && ipRange.cidrIp().equals("0.0.0.0/0")) {
+                    continue;
+                }
+
                 SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
                 rule.copyPortProtocol(permission);
                 rule.setCidrBlock(ipRange.cidrIp());
@@ -199,6 +197,10 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
             }
 
             for (Ipv6Range ipRange : permission.ipv6Ranges()) {
+                if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1") && ipRange.cidrIpv6().equals("::/0")) {
+                    continue;
+                }
+
                 SecurityGroupEgressRuleResource rule = newSubresource(SecurityGroupEgressRuleResource.class);
                 rule.copyPortProtocol(permission);
                 rule.setIpv6CidrBlock(ipRange.cidrIpv6());
@@ -284,18 +286,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
         }
 
         if (current.isKeepDefaultEgressRules() && !isKeepDefaultEgressRules()) {
-            if (getEgress()
-                .stream()
-                .noneMatch(
-                    o -> o.getToPort() == null
-                        && o.getFromPort() == null
-                        && o.getProtocol().equals("-1")
-                        && !ObjectUtils.isBlank(o.getCidrBlock())
-                        && o.getCidrBlock().equals("0.0.0.0/0"))
-            ) {
-
-                deleteDefaultEgressRule(createClient(Ec2Client.class));
-            }
+            deleteDefaultEgressRule(createClient(Ec2Client.class));
         }
     }
 
@@ -357,15 +348,27 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private void deleteDefaultEgressRule(Ec2Client client) {
         SecurityGroup group = getSecurityGroup(client);
 
-        IpPermission permission = group.ipPermissionsEgress().stream().filter(o -> o.ipProtocol().equals("-1")
-            && o.fromPort() == null && o.toPort() == null
-            && o.ipRanges().get(0).cidrIp().equals("0.0.0.0/0")).findFirst().orElse(null);
+        IpPermission permission = group.ipPermissionsEgress().stream()
+            .filter(o -> o.ipProtocol().equals("-1") && o.ipRanges().stream().anyMatch(oo -> oo.cidrIp().equals("0.0.0.0/0")))
+            .findFirst().orElse(null);
 
         if (permission != null) {
             SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
             defaultRule.copyPortProtocol(permission);
-            defaultRule.setDescription(permission.ipRanges().get(0).description());
+            defaultRule.setDescription(permission.ipRanges().stream().filter(o -> o.cidrIp().equals("0.0.0.0/0")).findFirst().get().description());
             defaultRule.setCidrBlock("0.0.0.0/0");
+            defaultRule.delete(client, getId());
+        }
+
+        IpPermission permissionIpv6 = group.ipPermissionsEgress().stream()
+            .filter(o -> o.ipProtocol().equals("-1") && o.ipv6Ranges().stream().anyMatch(oo -> oo.cidrIpv6().equals("::/0")))
+            .findFirst().orElse(null);
+
+        if (permissionIpv6 != null) {
+            SecurityGroupEgressRuleResource defaultRule = newSubresource(SecurityGroupEgressRuleResource.class);
+            defaultRule.copyPortProtocol(permissionIpv6);
+            defaultRule.setDescription(permissionIpv6.ipv6Ranges().stream().filter(o -> o.cidrIpv6().equals("::/0")).findFirst().get().description());
+            defaultRule.setIpv6CidrBlock("::/0");
             defaultRule.delete(client, getId());
         }
     }
