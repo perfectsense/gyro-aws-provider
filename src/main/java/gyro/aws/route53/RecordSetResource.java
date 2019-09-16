@@ -196,6 +196,10 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      */
     @Updatable
     public String getName() {
+        if (name != null) {
+            name = StringUtils.ensureEnd(name, ".");
+        }
+
         return name;
     }
 
