@@ -55,7 +55,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Starting port for this Security Group Rule. (Required)
+     * Starting port for this Security Group Rule. Required if `protocol` is not set as `-1`.
      */
     public Integer getFromPort() {
         return fromPort;
@@ -66,7 +66,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Ending port for this Security Group Rule. (Required)
+     * Ending port for this Security Group Rule. Required if `protocol` is not set as `-1`.
      */
     public Integer getToPort() {
         return toPort;
@@ -113,9 +113,9 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     public String primaryKey() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(getToPort()).append(" ")
-            .append(getFromPort()).append(" ")
-            .append(getProtocol()).append(" ");
+        sb.append(getToPort() != null ? getToPort() : "all").append(" ")
+            .append(getFromPort() != null ? getFromPort() : "all").append(" ")
+            .append(getProtocol().equals("-1") ? "all" : getProtocol()).append(" ");
 
         if (!ObjectUtils.isBlank(getCidrBlock())) {
             sb.append(getCidrBlock());
@@ -186,6 +186,10 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
         int status = (ObjectUtils.isBlank(getCidrBlock()) ? 0 : 1) + (ObjectUtils.isBlank(getIpv6CidrBlock()) ? 0 : 1) + (getSecurityGroup() == null ? 0 : 1);
         if (status != 1) {
             errors.add(new ValidationError(this, null,"Only one of 'cidr-blocks', 'ipv6-cidr-blocks' or 'security-groups' needs to be configured!"));
+        }
+
+        if (getProtocol().equals("-1") && (getFromPort() != null || getToPort() != null)) {
+            errors.add(new ValidationError(this, null,"When 'protocol' set to '-1', 'from-port' and 'to-port' cannot be configured."));
         }
 
         return errors;
