@@ -113,8 +113,8 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     public String primaryKey() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(getToPort() != null ? getToPort() : "all").append(" ")
-            .append(getFromPort() != null ? getFromPort() : "all").append(" ")
+        sb.append(getFromPort() != null ? getFromPort() : "0").append(" ")
+            .append(getToPort() != null ? getToPort() : "65535").append(" ")
             .append(getProtocol().equals("-1") ? "all" : getProtocol()).append(" ");
 
         if (!ObjectUtils.isBlank(getCidrBlock())) {
