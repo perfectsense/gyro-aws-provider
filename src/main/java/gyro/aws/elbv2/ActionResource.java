@@ -99,11 +99,6 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     @Override
-    public String primaryKey() {
-        return String.format("%d %s", getOrder(), getType());
-    }
-
-    @Override
     public void copyFrom(Action action) {
         AuthenticateCognitoActionConfig cognitoConfig = action.authenticateCognitoConfig();
         if (cognitoConfig != null) {
