@@ -130,7 +130,10 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getUserPoolArn(), getUserPoolClient().getId(), getUserPoolDomain().getDomain());
+        return String.format("%s %s %s",
+            getUserPoolArn() != null ? getUserPoolArn() : "",
+            getUserPoolClient().getId() != null ? getUserPoolClient().getId() : getUserPoolClient().getName(),
+            getUserPoolDomain().getDomain());
     }
 
     @Override
