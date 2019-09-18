@@ -1,8 +1,7 @@
 @highlander: true
 @repository: 'https://artifactory.psdops.com/public'
 @repository: 'https://artifactory.psdops.com/gyro-snapshots'
-@plugin: 'gyro:gyro-aws-provider:0.15-SNAPSHOT'
-@plugin: 'gyro:gyro-beam-enterprise-plugin:0.15-SNAPSHOT'
+@plugin: 'gyro:gyro-aws-provider:0.99.0-SNAPSHOT'
 
 project: "beam-sandbox"
 account: "psd-beam-sandbox"
