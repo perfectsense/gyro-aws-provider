@@ -1,0 +1,93 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc ami example"
+     }
+end
+
+aws::subnet subnet
+    vpc: $(aws::vpc vpc)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.0.0/16"
+    map-public-ip-on-launch: true
+
+    tags: {
+        Name: "subnet ami example"
+    }
+end
+
+aws::security-group security-group
+    name: "instance-example"
+    vpc: $(aws::vpc vpc)
+    description: "instance example"
+    keep-default-egress-rules: true
+
+    ingress
+        description: "allow inbound ssh traffic, ipv4 only"
+        cidr-block: "0.0.0.0/0"
+        protocol: "TCP"
+        from-port: 22
+        to-port: 22
+    end
+
+    tags: {
+        Name: "security group ami example"
+    }
+end
+
+aws::key-pair key-pair-example
+    name: "key-pair-example"
+    public-key-path: "example-public-key.pub"
+end
+
+aws::instance instance-example-source
+    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key: $(aws::key-pair key-pair-example)
+    subnet: $(aws::subnet subnet)
+    security-groups: [
+        $(aws::security-group security-group)
+    ]
+    disable-api-termination: false
+    ebs-optimized: false
+    source-dest-check: true
+
+    tags: {
+        Name: "instance-ami-example-source"
+    }
+
+    block-device-mapping
+        device-name: "/dev/sdb"
+        volume-size: 100
+        auto-enable-io: false
+    end
+
+    volume
+        device-name: "/dev/sde"
+        volume: $(aws::ebs-volume volume)
+    end
+
+    capacity-reservation: "none"
+end
+
+aws::ebs-volume volume
+    availability-zone: "us-east-2a"
+    size: 100
+    auto-enable-io: false
+    tags: {
+        Name: "ebs-volume-for-instance-ami-example-source"
+    }
+end
+
+aws::ami ami-example
+    name: "ami-example"
+    description: "ami-example"
+    instance: $(aws::instance instance-example-source)
+
+    tags: {
+        Name: "ami-example"
+    }
+end
