@@ -9,6 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query instance.
+ *
+ * .. code-block:: gyro
+ *
+ *    ami: $(external-query aws::ami { name: 'ami-example'})
+ */
 @Type("ami")
 public class AmiFinder extends Ec2TaggableAwsFinder<Ec2Client, Image, AmiResource> {
     private String architecture;
