@@ -55,7 +55,7 @@ public class NetworkActionResource extends AwsResource {
 
     @Override
     public String primaryKey() {
-        return String.format("%s %s", getTargetGroup(), getType());
+        return getType();
     }
 
     @Override
