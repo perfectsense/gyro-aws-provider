@@ -14,18 +14,16 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationSpecification;
-import software.amazon.awssdk.services.ec2.model.DescribeImagesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstanceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfaceAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
@@ -57,7 +55,7 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     aws::instance instance-example
- *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+ *         ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
  *         key: "example"
@@ -90,8 +88,7 @@ import java.util.stream.Collectors;
 @Type("instance")
 public class InstanceResource extends Ec2TaggableResource<Instance> implements GyroInstance, Copyable<Instance> {
 
-    private String amiId;
-    private String amiName;
+    private AmiResource ami;
     private Integer coreCount;
     private Integer threadPerCore;
     private Boolean ebsOptimized;
@@ -121,25 +118,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Date launchDate;
 
     /**
-     * The ID of an AMI that would be used to launch the instance. Required if AMI Name and launch-template not provided. See Finding an AMI `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The AMI to be used to launch the Instance. (Required)
      */
-    public String getAmiId() {
-        return amiId;
+    public AmiResource getAmi() {
+        return ami;
     }
 
-    public void setAmiId(String amiId) {
-        this.amiId = amiId;
-    }
-
-    /**
-     * The Name of an AMI that would be used to launch the instance. Required if AMI Id and launch-template not provided. See Amazon Machine Images (AMI) `<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
-     */
-    public String getAmiName() {
-        return amiName;
-    }
-
-    public void setAmiName(String amiName) {
-        this.amiName = amiName;
+    public void setAmi(AmiResource ami) {
+        this.ami = ami;
     }
 
     /**
@@ -555,14 +541,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        validate(true);
-
-        if (!ObjectUtils.isBlank(getAmiName()) || !ObjectUtils.isBlank(getAmiId())) {
-            loadAmi(client);
-        }
-
         RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
-        builder = builder.imageId(getAmiId())
+        builder = builder.imageId(getAmi().getId())
             .ebsOptimized(getEbsOptimized())
             .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
@@ -633,8 +613,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
-
-        validate(false);
 
         if (changedProperties.contains("shutdown-behavior")) {
             client.modifyInstanceAttribute(
@@ -723,7 +701,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     private void init(Instance instance, Ec2Client client) {
-        setAmiId(instance.imageId());
+        setAmi(findById(AmiResource.class, instance.imageId()));
         setCoreCount(instance.cpuOptions().coreCount());
         setThreadPerCore(instance.cpuOptions().threadsPerCore());
         setEbsOptimized(instance.ebsOptimized());
@@ -775,62 +753,40 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         refreshTags();
     }
 
-    private void validate(boolean isCreate) {
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
         if ((getLaunchTemplate() != null && ObjectUtils.isBlank(getShutdownBehavior()))
             || (!ObjectUtils.isBlank(getShutdownBehavior()) && ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION))) {
-            throw new GyroException("The value - (" + getShutdownBehavior() + ") is invalid for parameter Shutdown Behavior.");
+            errors.add(new ValidationError(this, "shutdown-behavior", "The value - (" + getShutdownBehavior() + ") is invalid for parameter 'shutdown-behavior'."));
         }
 
         if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))
             || (!ObjectUtils.isBlank(getInstanceType()) && InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION))) {
-            throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
+            errors.add(new ValidationError(this, "instance-type", "The value - (" + getInstanceType() + ") is invalid for parameter 'instance-type'"));
         }
 
         if (getLaunchTemplate() == null && getSecurityGroups().isEmpty()) {
-            throw new GyroException("At least one security group is required.");
+            errors.add(new ValidationError(this, "security-groups", "At least one 'security-group' is required."));
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")
             && !getCapacityReservation().equalsIgnoreCase("open")
             && !getCapacityReservation().startsWith("cr-")) {
-            throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
-                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
+            errors.add(new ValidationError(this,"capacity-reservation", "The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
+                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]"));
         }
 
         if (getLaunchTemplate() == null) {
-            if (ObjectUtils.isBlank(getAmiId()) && ObjectUtils.isBlank(getAmiName())) {
-                throw new GyroException("AMI name cannot be blank when AMI Id is not provided or when launch-template is not used.");
+            if (getAmi() == null) {
+                errors.add(new ValidationError(this, "ami", "ami cannot be blank when launch-template is not used."));
             }
         } else if (!getLaunchTemplate().getLaunchTemplate().getSecurityGroups().isEmpty() && getSubnet() == null) {
-            throw new GyroException("Subnet is required when using a launch-template with security group configured.");
-        }
-    }
-
-    private void loadAmi(Ec2Client client) {
-        DescribeImagesRequest amiRequest;
-
-        if (ObjectUtils.isBlank(getAmiId())) {
-            amiRequest = DescribeImagesRequest.builder().filters(
-                Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
-            ).build();
-
-        } else {
-            amiRequest = DescribeImagesRequest.builder().imageIds(getAmiId()).build();
+            errors.add(new ValidationError(this, "subnet", "Subnet is required when using a launch-template with security group configured."));
         }
 
-        try {
-            DescribeImagesResponse response = client.describeImages(amiRequest);
-            if (response.images().isEmpty()) {
-                throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
-            }
-            setAmiId(response.images().get(0).imageId());
-        } catch (Ec2Exception ex) {
-            if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
-                throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
-            }
-
-            throw ex;
-        }
+        return errors;
     }
 
     private Instance getInstance(Ec2Client client) {
