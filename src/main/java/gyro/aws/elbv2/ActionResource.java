@@ -37,8 +37,6 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     private FixedResponseAction fixedResponseAction;
     private Integer order;
     private RedirectAction redirectAction;
-    private TargetGroupResource targetGroup;
-    private String type;
 
     /**
      *  Authentication through user pools supported by Amazon Cognito. (Optional)
@@ -98,34 +96,6 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     public void setRedirectAction(RedirectAction redirectAction) {
         this.redirectAction = redirectAction;
-    }
-
-    /**
-     *  The target group that this action is associated with. (Required)
-     */
-    public TargetGroupResource getTargetGroup() {
-        return targetGroup;
-    }
-
-    public void setTargetGroup(TargetGroupResource targetGroup) {
-        this.targetGroup = targetGroup;
-    }
-
-    /**
-     *  The type of action to perform. (Required)
-     */
-    @Updatable
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    @Override
-    public String primaryKey() {
-        return String.format("%d %s", getOrder(), getType());
     }
 
     @Override
