@@ -214,17 +214,23 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeImageAttributeResponse response = client.describeImageAttribute(r -> r.imageId(getId()).attribute(ImageAttributeName.LAUNCH_PERMISSION));
+        try {
+            DescribeImageAttributeResponse response = client.describeImageAttribute(r -> r.imageId(getId()).attribute(ImageAttributeName.LAUNCH_PERMISSION));
 
-        setLaunchPermission(response.launchPermissions().stream().filter(o -> o.userId() != null).map(o -> {
-            AmiLaunchPermission launchPermission = newSubresource(AmiLaunchPermission.class);
-            launchPermission.copyFrom(o);
-            return launchPermission;
-        }).collect(Collectors.toSet()));
+            setLaunchPermission(response.launchPermissions().stream().filter(o -> o.userId() != null).map(o -> {
+                AmiLaunchPermission launchPermission = newSubresource(AmiLaunchPermission.class);
+                launchPermission.copyFrom(o);
+                return launchPermission;
+            }).collect(Collectors.toSet()));
 
-        response = client.describeImageAttribute(r -> r.imageId(getId()).attribute(ImageAttributeName.PRODUCT_CODES));
+            response = client.describeImageAttribute(r -> r.imageId(getId()).attribute(ImageAttributeName.PRODUCT_CODES));
 
-        setProductCodes(response.productCodes().stream().map(ProductCode::productCodeId).collect(Collectors.toSet()));
+            setProductCodes(response.productCodes().stream().map(ProductCode::productCodeId).collect(Collectors.toSet()));
+        } catch (Ec2Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("AuthFailure")) {
+                throw ex;
+            }
+        }
 
         refreshTags();
     }
