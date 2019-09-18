@@ -43,7 +43,7 @@ aws::key-pair key-pair-example
 end
 
 aws::instance instance-example-source
-    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: $(aws::key-pair key-pair-example)

@@ -45,7 +45,7 @@ aws::security-group security-group
 end
 
 aws::instance instance
-    ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
     instance-type: "t2.micro"
     key: "example"
 
