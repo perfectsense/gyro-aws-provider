@@ -18,16 +18,20 @@ import software.amazon.awssdk.services.ec2.model.CreateImageRequest;
 import software.amazon.awssdk.services.ec2.model.CreateImageResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeImageAttributeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeImagesResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Image;
 import software.amazon.awssdk.services.ec2.model.ImageAttributeName;
 import software.amazon.awssdk.services.ec2.model.ImageState;
 import software.amazon.awssdk.services.ec2.model.OperationType;
 import software.amazon.awssdk.services.ec2.model.PermissionGroup;
 import software.amazon.awssdk.services.ec2.model.ProductCode;
+import software.amazon.awssdk.services.ec2.model.Snapshot;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -372,6 +376,10 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deregisterImage(r -> r.imageId(getId()));
+
+        getSnapshots(client).forEach(o -> {
+            client.deleteSnapshot(r -> r.snapshotId(o.snapshotId()));
+        });
     }
 
     private Image getImage(Ec2Client client) {
@@ -403,5 +411,17 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         }
 
         return errors;
+    }
+
+    private List<Snapshot> getSnapshots(Ec2Client client) {
+        DescribeSnapshotsResponse response = client.describeSnapshots(
+            r -> r.filters(Collections.singleton(
+                Filter.builder()
+                    .name("description")
+                    .values(String.format("Created by CreateImage(*) for %s from *", getId()))
+                    .build()
+            )));
+
+        return response.snapshots();
     }
 }
