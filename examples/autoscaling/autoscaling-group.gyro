@@ -87,7 +87,7 @@ end
 
 aws::launch-template launch-template-auto-scaling-group-example
     name: "launch-template-gyro-1"
-    ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "example"
@@ -101,7 +101,7 @@ aws::launch-template launch-template-auto-scaling-group-example
 end
 
 aws::instance instance-auto-scaling-group-example
-    ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"

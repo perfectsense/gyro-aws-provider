@@ -84,7 +84,7 @@ aws::subnet subnet-us-east-2a
 end
 
 aws::instance instance-us-east-2a
-    ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "jc-pair-example"
@@ -112,7 +112,7 @@ aws::subnet subnet-us-east-2b
 end
 
 aws::instance instance-us-east-2b
-    ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "jc-pair-example"
