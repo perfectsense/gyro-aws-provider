@@ -271,6 +271,8 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
 
         setId(response.imageId());
 
+        state.save();
+
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .until(() -> getImage(client).state().equals(ImageState.AVAILABLE));
