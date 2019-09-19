@@ -293,6 +293,8 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
                 ));
         }
 
+        state.save();
+
         if (!getProductCodes().isEmpty()) {
             client.modifyImageAttribute(
                 r -> r.imageId(getId())
