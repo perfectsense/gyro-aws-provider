@@ -384,7 +384,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
 
     private Image getImage(Ec2Client client) {
         if (ObjectUtils.isBlank(getId())) {
-            throw new GyroException("Id is missing, unable to load Ami.");
+            throw new GyroException("Id is missing, unable to load AMI.");
         }
 
         try {
