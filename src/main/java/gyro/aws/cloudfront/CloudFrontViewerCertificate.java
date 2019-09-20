@@ -19,7 +19,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
     @Updatable
     public Boolean getCloudfrontDefaultCertificate() {
         if (cloudfrontDefaultCertificate == null) {
-            cloudfrontDefaultCertificate = true;
+            cloudfrontDefaultCertificate = acmCertificateArn == null && iamCertificateId == null;
         }
 
         return cloudfrontDefaultCertificate;
