@@ -2,6 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.ec2.AmiResource;
 import gyro.aws.ec2.BlockDeviceMappingResource;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.KeyPairResource;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  *
  *     aws::launch-configuration launch-configuration
  *         name: "launch-configuration-gyro-1"
- *         ami-id: "ami-01e24be29428c15b2"
+ *         ami: "ami-01e24be29428c15b2"
  *         instance-type: "t2.micro"
  *         key: "key-example"
  *         security-groups: [
@@ -76,7 +77,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     private String name;
     private InstanceResource instance;
-    private String amiId;
+    private AmiResource ami;
     private Boolean ebsOptimized;
     private String instanceType;
     private KeyPairResource key;
@@ -111,14 +112,14 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided. See `Finding an AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The AMI that would be used to launch the instance. Required if Instance not provided. See `Finding an AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
      */
-    public String getAmiId() {
-        return amiId;
+    public AmiResource getAmi() {
+        return ami;
     }
 
-    public void setAmiId(String amiId) {
-        this.amiId = amiId;
+    public void setAmi(AmiResource ami) {
+        this.ami = ami;
     }
 
     /**
@@ -281,7 +282,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
             .launchConfigurationName(getName())
             .ebsOptimized(getEbsOptimized())
-            .imageId(getInstance() == null ? getAmiId() : null)
+            .imageId(getInstance() == null ? getAmi().getId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
             .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
