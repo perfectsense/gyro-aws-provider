@@ -25,7 +25,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
         return cloudfrontDefaultCertificate;
     }
 
-    public void setCloudfrontDefaultCertificate(boolean cloudfrontDefaultCertificate) {
+    public void setCloudfrontDefaultCertificate(Boolean cloudfrontDefaultCertificate) {
         this.cloudfrontDefaultCertificate = cloudfrontDefaultCertificate;
     }
 
