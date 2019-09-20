@@ -366,7 +366,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     @Override
     public void copyFrom(ResourceRecordSet recordSet) {
-        setName(recordSet.name());
+        setName(recordSet.name().replace("\\052", "*"));
         setType(recordSet.typeAsString());
         setFailover(recordSet.failoverAsString());
         setHealthCheck(findById(HealthCheckResource.class, recordSet.healthCheckId()));
@@ -449,7 +449,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         ).resourceRecordSets().stream().collect(Collectors.toList());
 
         if (!records.isEmpty()) {
-            return records.stream().filter(o -> o.name().equals(getName())).findFirst().orElse(null);
+            return records.stream().filter(o -> o.name().equals(getName().replace("*", "\\052"))).findFirst().orElse(null);
         }
 
         return null;
