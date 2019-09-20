@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  *
  *     aws::launch-template launch-template
  *         name: "launch-template-gyro-1"
- *         ami-name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
+ *         ami: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2"
  *         shutdown-behavior: "STOP"
  *         instance-type: "t2.micro"
  *         key-name: "example"
@@ -80,8 +80,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String id;
     private String name;
 
-    private String amiId;
-    private String amiName;
+    private AmiResource ami;
     private Integer coreCount;
     private Integer threadPerCore;
     private Boolean ebsOptimized;
@@ -112,25 +111,14 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * The ID of an AMI that would be used to launch the instance. Required if AMI Name not provided. See `Finding an AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The AMI to be used to launch the Instance created by this Template. (Required)
      */
-    public String getAmiId() {
-        return amiId;
+    public AmiResource getAmi() {
+        return ami;
     }
 
-    public void setAmiId(String amiId) {
-        this.amiId = amiId;
-    }
-
-    /**
-     * The Name of an AMI that would be used to launch the instance. Required if AMI Id not provided. See `Amazon Machine Images (AMI) <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html/>`_.
-     */
-    public String getAmiName() {
-        return amiName;
-    }
-
-    public void setAmiName(String amiName) {
-        this.amiName = amiName;
+    public void setAmi(AmiResource ami) {
+        this.ami = ami;
     }
 
     /**
@@ -411,7 +399,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .disableApiTermination(getDisableApiTermination())
                         .ebsOptimized(getEbsOptimized())
                         .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                        .imageId(getAmiId())
+                        .imageId(getAmi().getId())
                         .instanceType(getInstanceType())
                         .instanceInitiatedShutdownBehavior(getShutdownBehavior())
                         .keyName(getKeyName())
@@ -457,35 +445,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             && !getCapacityReservation().startsWith("cr-")) {
             throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
                 + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
-        }
-
-        DescribeImagesRequest amiRequest;
-
-        if (ObjectUtils.isBlank(getAmiId())) {
-            if (ObjectUtils.isBlank(getAmiName())) {
-                throw new GyroException("AMI name cannot be blank when AMI Id is not provided.");
-            }
-
-            amiRequest = DescribeImagesRequest.builder().filters(
-                Collections.singletonList(Filter.builder().name("name").values(getAmiName()).build())
-            ).build();
-
-        } else {
-            amiRequest = DescribeImagesRequest.builder().imageIds(getAmiId()).build();
-        }
-
-        try {
-            DescribeImagesResponse response = client.describeImages(amiRequest);
-            if (response.images().isEmpty()) {
-                throw new GyroException("No AMI found for value - (" + getAmiName() + ") as an AMI Name.");
-            }
-            setAmiId(response.images().get(0).imageId());
-        } catch (Ec2Exception ex) {
-            if (ex.awsErrorDetails().errorCode().equalsIgnoreCase("InvalidAMIID.Malformed")) {
-                throw new GyroException("No AMI found for value - (" + getAmiId() + ") as an AMI Id.");
-            }
-
-            throw ex;
         }
     }
 

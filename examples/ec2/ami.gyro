@@ -3,7 +3,7 @@ aws::vpc vpc
     provide-ipv6-cidr-block: true
 
     tags: {
-        Name: "vpc instance example"
+        Name: "vpc ami example"
      }
 end
 
@@ -14,7 +14,7 @@ aws::subnet subnet
     map-public-ip-on-launch: true
 
     tags: {
-        Name: "subnet instance example"
+        Name: "subnet ami example"
     }
 end
 
@@ -33,15 +33,20 @@ aws::security-group security-group
     end
 
     tags: {
-        Name: "security group instance example"
+        Name: "security group ami example"
     }
 end
 
-aws::instance instance-example
+aws::key-pair key-pair-example
+    name: "key-pair-example"
+    public-key-path: "example-public-key.pub"
+end
+
+aws::instance instance-example-source
     ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key: "example"
+    key: $(aws::key-pair key-pair-example)
     subnet: $(aws::subnet subnet)
     security-groups: [
         $(aws::security-group security-group)
@@ -51,7 +56,7 @@ aws::instance instance-example
     source-dest-check: true
 
     tags: {
-        Name: "instance-example"
+        Name: "instance-ami-example-source"
     }
 
     block-device-mapping
@@ -73,6 +78,16 @@ aws::ebs-volume volume
     size: 100
     auto-enable-io: false
     tags: {
-        Name: "ebs-volume-example"
+        Name: "ebs-volume-for-instance-ami-example-source"
+    }
+end
+
+aws::ami ami-example
+    name: "ami-example"
+    description: "ami-example"
+    instance: $(aws::instance instance-example-source)
+
+    tags: {
+        Name: "ami-example"
     }
 end

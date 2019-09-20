@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
 
-public class BlockDeviceMappingResource extends Diffable implements Copyable<LaunchTemplateBlockDeviceMapping> {
+public class BlockDeviceMappingResource extends Diffable implements Copyable<BlockDeviceMapping> {
     private String deviceName;
     private Boolean deleteOnTermination;
     private Boolean encrypted;
@@ -158,7 +158,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Lau
     }
 
     @Override
-    public void copyFrom(LaunchTemplateBlockDeviceMapping blockDeviceMapping) {
+    public void copyFrom(BlockDeviceMapping blockDeviceMapping) {
         setDeviceName(blockDeviceMapping.deviceName());
         setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
         setEncrypted(blockDeviceMapping.ebs().encrypted());
