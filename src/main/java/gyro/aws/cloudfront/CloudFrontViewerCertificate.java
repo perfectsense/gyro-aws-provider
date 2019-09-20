@@ -17,7 +17,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
      * Use the default CloudFront SSL certificate (i.e. ``*.cloudfront.net``).
      */
     @Updatable
-    public boolean getCloudfrontDefaultCertificate() {
+    public Boolean getCloudfrontDefaultCertificate() {
         if (cloudfrontDefaultCertificate == null) {
             cloudfrontDefaultCertificate = true;
         }
