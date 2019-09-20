@@ -27,7 +27,6 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
-import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
@@ -77,11 +76,6 @@ import java.util.stream.Collectors;
  *             auto-enable-io: false
  *         end
  *
- *         volume
- *             device-name: "/dev/sde"
- *             volume: $(aws::ebs-volume volume)
- *         end
- *
  *         capacity-reservation: "none"
  *     end
  */
@@ -104,7 +98,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private String userData;
     private String capacityReservation;
     private Set<BlockDeviceMappingResource> blockDeviceMapping;
-    private Set<InstanceVolumeAttachment> volume;
     private InstanceProfileResource instanceProfile;
     private LaunchTemplateSpecificationResource launchTemplate;
     private String privateIpAddress;
@@ -349,24 +342,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * Attach existing volumes to the instance.
-     *
-     * @subresource gyro.core.ec2.InstanceVolumeAttachment
-     */
-    @Updatable
-    public Set<InstanceVolumeAttachment> getVolume() {
-        if (volume == null) {
-            volume = new HashSet<>();
-        }
-
-        return volume;
-    }
-
-    public void setVolume(Set<InstanceVolumeAttachment> volume) {
-        this.volume = volume;
-    }
-
-    /**
      * Attach IAM Instance profile.
      */
     public InstanceProfileResource getInstanceProfile() {
@@ -605,8 +580,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             setPrivateIpAddress(instance.privateIpAddress());
             setInstanceState(instance.state().nameAsString());
             setInstanceLaunchDate(Date.from(instance.launchTime()));
-            
-            loadVolume(instance);
         }
     }
 
@@ -748,8 +721,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setUserData(attributeResponse.userData().value() == null
             ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
 
-        loadVolume(instance);
-
         refreshTags();
     }
 
@@ -858,30 +829,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return IamInstanceProfileSpecification.builder()
             .arn(getInstanceProfile().getArn())
             .build();
-    }
-
-    private void loadVolume(Instance instance) {
-        Set<String> reservedDeviceNameSet = getBlockDeviceMapping()
-            .stream()
-            .map(BlockDeviceMappingResource::getDeviceName)
-            .collect(Collectors.toSet());
-
-        reservedDeviceNameSet.add(instance.rootDeviceName());
-
-        getVolume().clear();
-
-        setVolume(instance.blockDeviceMappings().stream()
-            .filter(o -> !reservedDeviceNameSet.contains(o.deviceName()))
-            .map(this::getInstanceVolumeAttachment)
-            .collect(Collectors.toSet()));
-    }
-
-
-    private InstanceVolumeAttachment getInstanceVolumeAttachment(InstanceBlockDeviceMapping instanceBlockDeviceMapping) {
-        InstanceVolumeAttachment instanceVolumeAttachment = newSubresource(InstanceVolumeAttachment.class);
-        instanceVolumeAttachment.copyFrom(instanceBlockDeviceMapping);
-
-        return instanceVolumeAttachment;
     }
 
     private boolean createInstance(Ec2Client client, RunInstancesRequest request) {

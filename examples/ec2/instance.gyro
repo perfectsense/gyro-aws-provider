@@ -37,11 +37,16 @@ aws::security-group security-group
     }
 end
 
+aws::key-pair key-pair-example
+    name: "key-pair-example"
+    public-key-path: "example-public-key.pub"
+end
+
 aws::instance instance-example
     ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
-    key: "example"
+    key: $(aws::key-pair key-pair-example)
     subnet: $(aws::subnet subnet)
     security-groups: [
         $(aws::security-group security-group)
@@ -60,11 +65,6 @@ aws::instance instance-example
         auto-enable-io: false
     end
 
-    volume
-        device-name: "/dev/sde"
-        volume: $(aws::ebs-volume volume)
-    end
-
     capacity-reservation: "none"
 end
 
@@ -75,4 +75,10 @@ aws::ebs-volume volume
     tags: {
         Name: "ebs-volume-example"
     }
+end
+
+aws::instance-volume-attachment volume-attachment
+    device-name: "/dev/sde"
+    volume: $(aws::ebs-volume volume)
+    instance: $(aws::instance instance-example)
 end

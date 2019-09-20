@@ -65,11 +65,6 @@ aws::instance instance-example-source
         auto-enable-io: false
     end
 
-    volume
-        device-name: "/dev/sde"
-        volume: $(aws::ebs-volume volume)
-    end
-
     capacity-reservation: "none"
 end
 
@@ -80,6 +75,12 @@ aws::ebs-volume volume
     tags: {
         Name: "ebs-volume-for-instance-ami-example-source"
     }
+end
+
+aws::instance-volume-attachment volume-attachment
+    device-name: "/dev/sde"
+    volume: $(aws::ebs-volume volume)
+    instance: $(aws::instance instance-example)
 end
 
 aws::ami ami-example
