@@ -3,16 +3,25 @@ package gyro.aws.ec2;
 import gyro.aws.AwsResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
+import software.amazon.awssdk.services.ec2.model.Volume;
+import software.amazon.awssdk.services.ec2.model.VolumeAttachment;
+import software.amazon.awssdk.services.ec2.model.VolumeAttachmentState;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.ATTACHED;
+import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.DETACHED;
 
 @Type("instance-volume-attachment")
 public class InstanceVolumeAttachmentResource extends AwsResource {
@@ -76,6 +85,11 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
                 .volumeId(getVolume().getId())
                 .instanceId(getInstance().getId())
         );
+
+        Wait.atMost(120, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .until(() -> getAttachmentState(client) == ATTACHED);
     }
 
     @Override
@@ -92,6 +106,11 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
                 .volumeId(getVolume().getId())
                 .instanceId(getInstance().getId())
         );
+
+        Wait.atMost(120, TimeUnit.SECONDS)
+            .prompt(false)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .until(() -> getAttachmentState(client) == DETACHED);
     }
 
     private Instance getInstance(Ec2Client client) {
@@ -114,5 +133,18 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
         }
 
         return instance;
+    }
+
+    private VolumeAttachmentState getAttachmentState(Ec2Client client) {
+        DescribeVolumesResponse response = client.describeVolumes(r -> r.volumeIds(getVolume().getId()));
+        for (Volume volume : response.volumes()) {
+            for (VolumeAttachment attachment : volume.attachments()) {
+                if (attachment.device().equals(getDeviceName())) {
+                    return attachment.state();
+                }
+            }
+        }
+
+        return DETACHED;
     }
 }
