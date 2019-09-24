@@ -69,6 +69,10 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
 
         Instance instance = getInstance(client);
 
+        if (instance == null) {
+            return false;
+        }
+
         InstanceBlockDeviceMapping blockDeviceMapping = instance.blockDeviceMappings().stream()
             .filter(o -> o.deviceName().equals(getDeviceName()) && o.ebs().volumeId().equals(getVolume().getId()))
             .findFirst().orElse(null);
