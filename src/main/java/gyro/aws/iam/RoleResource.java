@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +52,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     private String arn;
     private String assumeRolePolicy;
     private String description;
-    private List<PolicyResource> policies;
+    private Set<PolicyResource> policies;
     private Integer maxSessionDuration;
     private String name;
     private String path;
@@ -108,15 +109,15 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
      * The policies associated with the role. (Optional)
      */
     @Updatable
-    public List<PolicyResource> getPolicies() {
+    public Set<PolicyResource> getPolicies() {
         if (policies == null) {
-            policies = new ArrayList<>();
+            policies = new HashSet<>();
         }
 
         return policies;
     }
 
-    public void setPolicies(List<PolicyResource> policies) {
+    public void setPolicies(Set<PolicyResource> policies) {
         this.policies = policies;
     }
 
@@ -286,7 +287,9 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
         client.untagRole(r -> r.roleName(getName()).tagKeys(removeTags));
 
-        client.tagRole(r -> r.roleName(getName()).tags(toTags(getTags())));
+        if (!getTags().isEmpty()) {
+            client.tagRole(r -> r.roleName(getName()).tags(toTags(getTags())));
+        }
     }
 
     @Override
