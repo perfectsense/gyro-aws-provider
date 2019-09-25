@@ -350,7 +350,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         getSubnets().clear();
         description.subnets().forEach(r -> getSubnets().add(findById(SubnetResource.class, r)));
 
-        HealthCheckResource healthCheckResource = new HealthCheckResource();
+        HealthCheckResource healthCheckResource = newSubresource(HealthCheckResource.class);
         healthCheckResource.setHealthyThreshold(description.healthCheck().healthyThreshold());
         healthCheckResource.setInterval(description.healthCheck().interval());
         healthCheckResource.setTarget(description.healthCheck().target());
@@ -361,7 +361,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         getListener().clear();
         for (ListenerDescription listenerDescription : description.listenerDescriptions()) {
             Listener listener = listenerDescription.listener();
-            ListenerResource listenerResource = new ListenerResource();
+            ListenerResource listenerResource = newSubresource(ListenerResource.class);
             listenerResource.setInstancePort(listener.instancePort());
             listenerResource.setInstanceProtocol(listener.instanceProtocol());
             listenerResource.setLoadBalancerPort(listener.loadBalancerPort());
