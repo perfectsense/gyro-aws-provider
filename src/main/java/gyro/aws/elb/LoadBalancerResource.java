@@ -78,6 +78,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
     private LoadBalancerAttributes attribute;
+    private String hostedZoneId;
 
     /**
      * The public DNS name of this load balancer.
@@ -204,6 +205,18 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         this.attribute = attribute;
     }
 
+    /**
+     * The hosted zone ID for the Load Balancer.
+     */
+    @Output
+    public String getHostedZoneId() {
+        return hostedZoneId;
+    }
+
+    public void setHostedZoneId(String hostedZoneId) {
+        this.hostedZoneId = hostedZoneId;
+    }
+
     @Override
     public boolean refresh() {
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
@@ -244,6 +257,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         // modify connection timeout with enabled set to true, then set to what is actually configured.
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
+
+        LoadBalancerDescription loadBalancer = getLoadBalancer(client);
+        copyFrom(loadBalancer);
     }
 
     @Override
@@ -323,6 +339,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         setName(description.loadBalancerName());
         setDnsName(description.dnsName());
         setScheme(description.scheme());
+        setHostedZoneId(description.canonicalHostedZoneNameID());
 
         getInstances().clear();
         description.instances().forEach(i -> getInstances().add(findById(InstanceResource.class, i.instanceId())));
