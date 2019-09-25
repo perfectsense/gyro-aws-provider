@@ -286,7 +286,9 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
         client.untagRole(r -> r.roleName(getName()).tagKeys(removeTags));
 
-        client.tagRole(r -> r.roleName(getName()).tags(toTags(getTags())));
+        if (!getTags().isEmpty()) {
+            client.tagRole(r -> r.roleName(getName()).tags(toTags(getTags())));
+        }
     }
 
     @Override
