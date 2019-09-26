@@ -23,18 +23,18 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::waf-size-constraint-set-regional size-constraint-set-example
- *     name: "size-constraint-set-example"
+ *     aws::waf-size-constraint-set-regional size-constraint-set-example
+ *         name: "size-constraint-set-example"
  *
- *     size-constraint
- *         field-to-match
- *             type: "METHOD"
+ *         size-constraint
+ *             field-to-match
+ *                 type: "METHOD"
+ *             end
+ *             text-transformation: "NONE"
+ *             comparison-operator: "EQ"
+ *             size: 10
  *         end
- *         text-transformation: "NONE"
- *         comparison-operator: "EQ"
- *         size: 10
  *     end
- * end
  */
 @Type("waf-size-constraint-set-regional")
 public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstraintSetResource {

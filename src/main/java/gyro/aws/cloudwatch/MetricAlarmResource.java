@@ -47,6 +47,8 @@ import java.util.stream.Collectors;
  *         statistic: "SampleCount"
  *     end
  *
+ * .. code-block:: gyro
+ *
  *     aws::cloudwatch-metric-alarm metric-alarm-example-2
  *         name: "metric-alarm-example-2"
  *         description: "metric-alarm-example-2"
@@ -165,7 +167,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     }
 
     /**
-     * Number of data points to breach to trigger this Metric Alarm. Valid values [ Integer greater than 0 ].
+     * Number of data points to breach to trigger this Metric Alarm. Valid value Integer greater than ``0``.
      */
     @Updatable
     public Integer getDatapointsToAlarm() {

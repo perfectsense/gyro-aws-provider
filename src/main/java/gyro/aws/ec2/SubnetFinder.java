@@ -140,7 +140,7 @@ public class SubnetFinder extends Ec2TaggableAwsFinder<Ec2Client, Subnet, Subnet
     }
 
     /**
-     * The state of the subnet . Valid values are ``pending `` or `` available``.
+     * The state of the subnet . Valid values are ``pending`` or ``available``.
      */
     public String getState() {
         return state;

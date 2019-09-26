@@ -23,16 +23,16 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::waf-xss-match-set-regional xss-match-set-example
- *     name: "xss-match-set-example"
+ *     aws::waf-xss-match-set-regional xss-match-set-example
+ *         name: "xss-match-set-example"
  *
- *     xss-match-tuple
- *         field-to-match
- *             type: "METHOD"
+ *         xss-match-tuple
+ *             field-to-match
+ *                 type: "METHOD"
+ *             end
+ *             text-transformation: "NONE"
  *         end
- *         text-transformation: "NONE"
  *     end
- * end
  */
 @Type("waf-xss-match-set-regional")
 public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource {

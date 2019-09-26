@@ -40,34 +40,36 @@ import java.util.concurrent.TimeUnit;
  *
  * .. code-block:: gyro
  *
- * aws::sqs-queue sqs-example996556
- *      name : "testRedrive3345itest12345"
- *      visibility-timeout : 400
- *      message-retention-period : 864000
- *      maximum-message-size : 258048
- *      delay-seconds : 140
- *      receive-message-wait-time-seconds : 5
- *      kms-master-key-id : 23
- *      kms-data-key-reuse-period-seconds : 200
- *      policy: 'policy.json'
- *      dead-letter-queue-name : "testRedrive3345itest123"
- *      max-receive-count : "5"
- * end
+ *     aws::sqs-queue sqs-example996556
+ *          name : "testRedrive3345itest12345"
+ *          visibility-timeout : 400
+ *          message-retention-period : 864000
+ *          maximum-message-size : 258048
+ *          delay-seconds : 140
+ *          receive-message-wait-time-seconds : 5
+ *          kms-master-key-id : 23
+ *          kms-data-key-reuse-period-seconds : 200
+ *          policy: 'policy.json'
+ *          dead-letter-queue-name : "testRedrive3345itest123"
+ *          max-receive-count : "5"
+ *     end
  *
- * aws::sqs-queue sqs-example2.fifo
- *      name : "testxyz"
- *      visibility-timeout : 400
- *      message-retention-period : 864000
- *      maximum-message-size : 258048
- *      delay-seconds : 140
- *      receive-message-wait-time-seconds : 5
- *      kms-master-key-id : 23
- *      kms-data-key-reuse-period-seconds : 200
- *      policy: 'policy.json'
- *      dead-letter-target-arn : "arn:aws:sqs:us-east-2:242040583208:testRedrive3345.fifo"
- *      max-receive-count : "5"
- *      content-based-deduplication : 'true'
- * end
+ * .. code-block:: gyro
+ *
+ *     aws::sqs-queue sqs-example2.fifo
+ *          name : "testxyz"
+ *          visibility-timeout : 400
+ *          message-retention-period : 864000
+ *          maximum-message-size : 258048
+ *          delay-seconds : 140
+ *          receive-message-wait-time-seconds : 5
+ *          kms-master-key-id : 23
+ *          kms-data-key-reuse-period-seconds : 200
+ *          policy: 'policy.json'
+ *          dead-letter-target-arn : "arn:aws:sqs:us-east-2:242040583208:testRedrive3345.fifo"
+ *          max-receive-count : "5"
+ *          content-based-deduplication : 'true'
+ *     end
  */
 
 @Type("sqs-queue")

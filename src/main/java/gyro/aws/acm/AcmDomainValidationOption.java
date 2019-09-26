@@ -81,6 +81,8 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
 
     /**
      * Contains the CNAME record that you add to your DNS database for domain validation.
+     *
+     * @subresource gyro.aws.acm.AcmResourceRecord
      */
     @Output
     public AcmResourceRecord getResourceRecord() {

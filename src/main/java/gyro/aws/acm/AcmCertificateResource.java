@@ -120,6 +120,8 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
 
     /**
      * The domain validation option that you want ACM to use to send you emails so that you can validate domain ownership. (Required)
+     *
+     * @subresource gyro.aws.acm.AcmDomainValidationOption
      */
     public Set<AcmDomainValidationOption> getDomainValidationOption() {
         return domainValidationOption;
@@ -157,7 +159,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
     }
 
     /**
-     * The method you want to use if you are requesting a public certificate to validate that you own or control domain. Valid values ``DNS`` or ``EMAIl``. Defaults to ``DNS``
+     * The method you want to use if you are requesting a public certificate to validate that you own or control domain. Valid values are ``DNS`` or ``EMAIl``. Defaults to ``DNS``
      */
     public ValidationMethod getValidationMethod() {
         if (validationMethod == null) {
@@ -262,6 +264,8 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
 
     /**
      * A Set of Key Usage
+     *
+     * @subresource gyro.aws.acm.AcmKeyUsage
      */
     @Output
     public Set<AcmKeyUsage> getKeyUsages() {
@@ -358,6 +362,8 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
 
     /**
      * The information about the status of ACM's managed renewal for the certificate.
+     *
+     * @subresource gyro.aws.acm.AcmRenewalSummary
      */
     @Output
     public AcmRenewalSummary getRenewalSummary() {

@@ -154,7 +154,7 @@ public class VpcFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc, VpcResource>
     }
 
     /**
-     * The state of the VPC . Valid values are ``pending `` or `` available``.
+     * The state of the VPC . Valid values are ``pending`` or ``available``.
      */
     public String getState() {
         return state;

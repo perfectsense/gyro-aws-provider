@@ -222,7 +222,7 @@ public class RouteTableFinder extends Ec2TaggableAwsFinder<Ec2Client, RouteTable
     }
 
     /**
-     * The state of a route in the route table (active | blackhole ). The blackhole state indicates that the route's target isn't available . Valid values are ``for example, the specified gateway isn't attached to the VPC, the specified NAT instance has been terminated, and so on``.
+     * The state of a route in the route table. Valid values are ``active`` or ``blackhole``.
      */
     @Filter("route.state")
     public String getState() {

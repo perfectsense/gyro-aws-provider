@@ -23,6 +23,20 @@ import java.util.concurrent.TimeUnit;
 import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.ATTACHED;
 import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.DETACHED;
 
+/**
+ * Attach a Volume to an Instance.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::instance-volume-attachment attachment
+ *         device-name: "/dev/sde"
+ *         volume: $(aws::ebs-volume volume)
+ *         instance: $(aws::instance instance-example)
+ *     end
+ */
 @Type("instance-volume-attachment")
 public class InstanceVolumeAttachmentResource extends AwsResource {
 

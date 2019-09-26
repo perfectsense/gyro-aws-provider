@@ -141,7 +141,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     /**
-     * The list of target resources which can be invoked when an event pattern is matched or scheduled. See `AWS Services CloudWatch events <https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html/>`_.
+     * The list of target resources which can be invoked when an event pattern is matched or scheduled.
      *
      * @subresource gyro.aws.cloudwatch.RuleTargetResource
      */

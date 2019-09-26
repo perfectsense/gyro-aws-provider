@@ -51,7 +51,7 @@ public class AmiFinder extends Ec2TaggableAwsFinder<Ec2Client, Image, AmiResourc
     private String virtualizationType;
 
     /**
-     * The Image architecture. Valid values are ``i386`` or ``x86_64`` or ``arm64 ``.
+     * The Image architecture. Valid values are ``i386`` or ``x86_64`` or ``arm64``.
      */
     public String getArchitecture() {
         return architecture;
@@ -322,7 +322,7 @@ public class AmiFinder extends Ec2TaggableAwsFinder<Ec2Client, Image, AmiResourc
     }
 
     /**
-     * The state of the Image. Valid values are ``available`` or ``pending`` or ``failed ``.
+     * The state of the Image. Valid values are ``available`` or ``pending`` or ``failed``.
      */
     public String getState() {
         return state;

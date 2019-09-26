@@ -36,9 +36,6 @@ import java.util.Set;
  *         public-key-path: "example-public-key.pub"
  *     end
  *
- * Example
- * -------
- *
  * .. code-block:: gyro
  *
  *     aws::key-pair key-pair-example

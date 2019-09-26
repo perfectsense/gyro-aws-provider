@@ -70,9 +70,6 @@ import java.util.stream.Collectors;
  *         ]
  *     end
  *
- * Example
- * -------
- *
  * .. code-block:: gyro
  *
  *     aws::autoscaling-group auto-scaling-group-example
@@ -238,7 +235,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The default cool down period in sec for the Auto Scaling group. Defaults to 300 sec. See `Default Cool downs <https://docs.aws.amazon.com/autoscaling/ec2/userguide/Cooldown.html#cooldown-default/>`_.
+     * The default cool down period in sec for the Auto Scaling group. Defaults to ``300`` sec. See `Default Cool downs <https://docs.aws.amazon.com/autoscaling/ec2/userguide/Cooldown.html#cooldown-default/>`_.
      */
     @Min(0)
     @Updatable
@@ -255,7 +252,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The type of health check to be performed on the Auto Scaling group. Defaults to EC2. Can be 'EC2' or 'ELB'. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
+     * The type of health check to be performed on the Auto Scaling group. Defaults to ``EC2``. Valid values are ``EC2`` or ``ELB``. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
      */
     @Updatable
     @ValidStrings({ "ELB", "EC2" })
@@ -272,7 +269,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The grace period after which health check is started, to give time for the Instances in the Auto scaling group to start up. Defaults to 0 sec. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
+     * The grace period after which health check is started, to give time for the Instances in the Auto scaling group to start up. Defaults to ``0`` sec. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
      */
     @Min(0)
     @Updatable
@@ -380,7 +377,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Tags in Auto Scaling Groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`
+     * Tags in Auto Scaling Groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`_.
      */
     @Updatable
     public Set<String> getPropagateAtLaunchTags() {

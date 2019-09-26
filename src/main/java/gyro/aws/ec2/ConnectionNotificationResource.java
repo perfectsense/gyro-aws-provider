@@ -96,7 +96,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The events this notification is subscribing to. Defaults to all values. Valid values [ 'Accept', 'Connect', 'Delete' ] (Required)
+     * The events this notification is subscribing to. Defaults to all values. Valid values are ``Accept`` or ``Connect`` or ``Delete``.
      */
     @Updatable
     public Set<String> getConnectionEvents() {

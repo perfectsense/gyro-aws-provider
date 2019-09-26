@@ -42,7 +42,7 @@ public class VpnGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, VpnGateway
     }
 
     /**
-     * The current state of the attachment between the gateway and the VPC . Valid values are `` attaching `` or `` attached `` or `` detaching `` or `` detached``.
+     * The current state of the attachment between the gateway and the VPC . Valid values are ``attaching`` or ``attached`` or ``detaching`` or ``detached``.
      */
     @Filter("attachment.state")
     public String getAttachmentState() {
@@ -77,7 +77,7 @@ public class VpnGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, VpnGateway
     }
 
     /**
-     * The state of the virtual private gateway . Valid values are ``pending `` or `` available `` or `` deleting `` or `` deleted``.
+     * The state of the virtual private gateway . Valid values are ``pending`` or ``available`` or ``deleting`` or ``deleted``.
      */
     public String getState() {
         return state;

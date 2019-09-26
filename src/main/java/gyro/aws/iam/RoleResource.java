@@ -122,7 +122,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The maximum duration of the role, in seconds. Valid values are between 3600 and 43200. (Optional)
+     * The maximum duration of the role, in seconds. Valid values are between ``3600`` and ``43200``. (Optional)
      */
     @Updatable
     public Integer getMaxSessionDuration() {

@@ -21,25 +21,27 @@ import java.util.Set;
  * Example
  * -------
  *
- * aws::regex-pattern-set-regional regex-pattern-set-match-set-example
- *     name: "regex-pattern-set-match-set-example"
+ * .. code-block:: gyro
  *
- *     patterns: [
- *         "pattern1",
- *         "pattern2"
- *     ]
- * end
+ *     aws::regex-pattern-set-regional regex-pattern-set-match-set-example
+ *         name: "regex-pattern-set-match-set-example"
  *
- * aws::waf-regex-match-set-regional regex-match-set-example
- *     name: "regex-match-set-example"
- *     regex-match-tuple
- *         field-to-match
- *             type: "METHOD"
- *         end
- *         text-transformation: "NONE"
- *         regex-pattern-set: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example)
+ *         patterns: [
+ *             "pattern1",
+ *             "pattern2"
+ *         ]
  *     end
- * end
+ *
+ *     aws::waf-regex-match-set-regional regex-match-set-example
+ *         name: "regex-match-set-example"
+ *         regex-match-tuple
+ *             field-to-match
+ *                 type: "METHOD"
+ *             end
+ *             text-transformation: "NONE"
+ *             regex-pattern-set: $(aws::regex-pattern-set-regional regex-pattern-set-match-set-example)
+ *         end
+ *     end
  */
 @Type("waf-regex-match-set-regional")
 public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetResource {
