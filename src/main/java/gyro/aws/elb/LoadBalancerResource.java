@@ -224,10 +224,13 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         Map<String, Integer> healthMap = new HashMap<>();
 
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
-        for (InstanceState is : client.describeInstanceHealth(r -> r.loadBalancerName(getName())).instanceStates()) {
+        List<InstanceState> instanceStates = client.describeInstanceHealth(r -> r.loadBalancerName(getName())).instanceStates();
+        for (InstanceState is : instanceStates) {
             int count = healthMap.getOrDefault(is.state(), 0);
             healthMap.put(is.state(), count + 1);
         }
+
+        healthMap.put("Total", instanceStates.size());
 
         return healthMap;
     }
