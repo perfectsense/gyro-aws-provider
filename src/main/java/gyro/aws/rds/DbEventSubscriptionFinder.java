@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query db event subscription.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    subscriptions: $(external-query aws::db-event-subscription { name: 'db-event-subscription-example'})

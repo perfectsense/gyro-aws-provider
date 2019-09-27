@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 /**
  * Create a db cluster endpoint.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-cluster-endpoint endpoint-example

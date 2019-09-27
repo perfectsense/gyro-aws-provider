@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query bucket name.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *   bucket-name: $(external-query aws::s3-bucket { name: 'bucket-example'})

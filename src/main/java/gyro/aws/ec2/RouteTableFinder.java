@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query route table.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    route-table: $(external-query aws::route-table { route-table-id: ''})

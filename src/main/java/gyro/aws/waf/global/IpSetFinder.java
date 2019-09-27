@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query ip set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    ip-sets: $(external-query aws::waf-ip-set)

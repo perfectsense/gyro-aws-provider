@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query instance.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    instance: $(external-query aws::instance { affinity: 'default'})

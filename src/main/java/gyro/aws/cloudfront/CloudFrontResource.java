@@ -42,6 +42,9 @@ import java.util.stream.Collectors;
 /**
  * Create a CloudFront distribution.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::cloudfront cloudfront-example

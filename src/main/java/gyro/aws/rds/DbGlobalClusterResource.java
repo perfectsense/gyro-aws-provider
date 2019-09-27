@@ -20,6 +20,9 @@ import java.util.Set;
 /**
  * Create a global cluster.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-global-cluster db-global-cluster-example

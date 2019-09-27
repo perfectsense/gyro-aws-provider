@@ -13,6 +13,9 @@ import java.util.Map;
 /**
  * Query vpn gateway.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    vpn-gateway: $(external-query aws::vpn-gateway { vpn-gateway-id: ''})

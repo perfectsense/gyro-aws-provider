@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query subnet.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    subnet: $(external-query aws::subnet { availability-zone: '####'})

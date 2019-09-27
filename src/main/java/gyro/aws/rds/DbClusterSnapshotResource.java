@@ -20,6 +20,9 @@ import java.util.Set;
 /**
  * Create a db cluster snapshot.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-cluster-snapshot db-cluster-snapshot-example

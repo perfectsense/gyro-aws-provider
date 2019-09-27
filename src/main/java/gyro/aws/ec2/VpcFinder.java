@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query vpc.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    vpc: $(external-query aws::vpc { tag: { Name: "vpc-example-for-network-acl" }})

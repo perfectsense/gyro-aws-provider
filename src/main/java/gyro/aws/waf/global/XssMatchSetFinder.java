@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query xss match set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    xss-match-sets: $(external-query aws::waf-xss-match-set)

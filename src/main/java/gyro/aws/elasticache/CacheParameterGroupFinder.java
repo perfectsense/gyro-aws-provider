@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query cache parameter group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cache-param-groups: $(external-query aws::elasticache-parameter-group { name: 'cache-param-group-example'})

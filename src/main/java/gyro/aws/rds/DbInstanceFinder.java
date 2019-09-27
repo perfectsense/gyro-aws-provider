@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query db instance.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    db-instances: $(external-query aws::db-instance { db-instance-id: 'db-instance-example'})

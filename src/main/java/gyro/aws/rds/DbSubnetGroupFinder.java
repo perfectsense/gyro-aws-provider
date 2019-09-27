@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query db subnet group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    db-subnet-group: $(external-query aws::db-subnet-group { name: 'db-subnet-group-db-cluster-example'})

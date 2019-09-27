@@ -12,6 +12,9 @@ import java.util.Map;
 /**
  * Query instance.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    ami: $(external-query aws::ami { name: 'ami-example'})

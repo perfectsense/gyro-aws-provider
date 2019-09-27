@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query byte match set regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    byte-match-sets: $(external-query aws::waf-byte-match-set-regional)

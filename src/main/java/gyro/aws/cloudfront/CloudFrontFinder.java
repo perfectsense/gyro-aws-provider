@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 /**
  * Query cloudfront.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cloudfront: $(external-query aws::cloudfront { id: 'E1QBYJ3V1SUL1G' })

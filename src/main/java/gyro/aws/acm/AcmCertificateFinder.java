@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query acm-certificate.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    acm-certificate: $(external-query aws::acm-certificate { certificate-status: "ISSUED"})

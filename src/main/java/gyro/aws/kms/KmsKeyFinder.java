@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query kms key.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    keys: $(external-query aws::kms-key { key-id: ''})

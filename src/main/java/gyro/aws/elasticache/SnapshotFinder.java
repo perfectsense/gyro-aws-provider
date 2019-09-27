@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query cache snapshot.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cache-snapshots: $(external-query aws::elasticache-snapshot { snapshot-name: 'cache-snapshot-example'})

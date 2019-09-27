@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query db parameter group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    db-parameter-groups: $(external-query aws::db-parameter-group { name: 'db-parameter-group-example'})

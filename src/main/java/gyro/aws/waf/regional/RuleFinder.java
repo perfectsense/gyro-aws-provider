@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query rule regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    rules: $(external-query aws::waf-rule-regional)

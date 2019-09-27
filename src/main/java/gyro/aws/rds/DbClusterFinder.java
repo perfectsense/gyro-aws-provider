@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query db cluster.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    clusters: $(external-query aws::db-cluster { db-cluster-id: 'aurora-mysql-cluster'})

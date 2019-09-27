@@ -11,6 +11,9 @@ import java.util.Map;
 /**
  * Query db cluster endpoint.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    endpoints: $(external-query aws::db-cluster-endpoint { db-cluster-endpoint-type: 'reader'})

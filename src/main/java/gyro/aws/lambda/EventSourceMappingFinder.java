@@ -13,6 +13,9 @@ import java.util.Map;
 /**
  * Query lambda event source mapping.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    event-source-mapping: $(external-query aws::lambda-event-source-mapping { id: ''})

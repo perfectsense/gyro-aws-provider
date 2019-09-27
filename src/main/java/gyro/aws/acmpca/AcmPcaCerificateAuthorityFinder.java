@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query certificate authority.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    certificate-authority: $(external-query aws::acmpca-certificate-authority {})

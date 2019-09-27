@@ -5,6 +5,9 @@ import gyro.core.Type;
 /**
  * Query application load balancer listeners.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    alb-listener: $(external-query aws::application-load-balancer-listener { arn: ''})

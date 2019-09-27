@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query peering connection.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    peering-connection: $(external-query aws::vpc-peering-connection { vpc-peering-connection-id: ''})

@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query rule.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    rules: $(external-query aws::waf-rule)

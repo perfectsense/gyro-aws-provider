@@ -12,6 +12,9 @@ import java.util.Map;
 /**
  * Query customer gateway.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    customer-gateway: $(external-query aws::customer-gateway { state: 'available'})

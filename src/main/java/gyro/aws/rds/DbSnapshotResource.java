@@ -21,6 +21,9 @@ import java.util.Set;
 /**
  * Create a db snapshot.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-snapshot db-snapshot-example

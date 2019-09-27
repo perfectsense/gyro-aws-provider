@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query db cluster snapshot.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cluster-snapshots: $(external-query aws::db-cluster-snapshot { identifier: 'db-cluster-snapshot-example'})

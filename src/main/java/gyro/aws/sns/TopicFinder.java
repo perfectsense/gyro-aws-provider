@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query SNS topics.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    sns: $(external-query aws::sns-topic { arn: ''})

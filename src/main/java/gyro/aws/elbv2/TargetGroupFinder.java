@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query target groups.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    target-group: $(external-query aws::load-balancer-target-group { arn: ''})

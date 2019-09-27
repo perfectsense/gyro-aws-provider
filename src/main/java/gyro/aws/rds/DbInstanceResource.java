@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 /**
  * Create a db instance.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-instance db-instance-example

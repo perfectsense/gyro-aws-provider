@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query record set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    record-set: $(external-query aws::route53-record-set { hosted-zone-id: '', start-record-name: '', start-record-type: ''})

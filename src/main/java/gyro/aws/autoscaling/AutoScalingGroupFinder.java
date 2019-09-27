@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 /**
  * Query auto scaling group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    autoscaling-group: $(external-query aws::autoscaling-group { name: 'frontend' })

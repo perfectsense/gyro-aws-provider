@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 /**
  * Query lambda alias.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    lambda-alias: $(external-query aws::lambda-alias { function-name: '' | name = ''})

@@ -5,6 +5,9 @@ import gyro.core.Type;
 /**
  * Query network load balancer listeners.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    nlb-listener: $(external-query aws::network-load-balancer-listener { arn: ''})

@@ -24,6 +24,9 @@ import java.util.Set;
 /**
  * Create a db event subscription.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-event-subscription db-event-subscription-example

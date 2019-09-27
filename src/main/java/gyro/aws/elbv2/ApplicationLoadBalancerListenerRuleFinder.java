@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 /**
  * Query application load balancer listener rules.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    alb-listener-rule: $(external-query aws::application-load-balancer-listener-rule { arn: ''})

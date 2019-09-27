@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query size constraint set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    size-constraint-sets: $(external-query aws::waf-size-constraint-set)

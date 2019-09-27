@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query vpc connection notification.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    connection-notification: $(external-query aws::vpc-connection-notification { connection-notification-arn: ''})

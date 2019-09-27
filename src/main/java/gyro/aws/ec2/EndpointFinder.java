@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query vpc endpoint.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    endpoint: $(external-query aws::vpc-endpoint { service-name: ''})

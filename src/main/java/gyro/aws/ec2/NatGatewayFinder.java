@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query nat gateway.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    nat-gateway: $(external-query aws::nat-gateway { nat-gateway-id: ''})

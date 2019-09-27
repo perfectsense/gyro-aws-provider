@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query for classic load balancers.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    load-balancer: $(external-query aws::load-balancer { name: 'my elb'})

@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query ec2 capacity reservation.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    capacity-reservations: $(external-query aws::ec2-capacity-reservation { capacity-reservation-id: 'cr-071f2771deb1ea5d4'})

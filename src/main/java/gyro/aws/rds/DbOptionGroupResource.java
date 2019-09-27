@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 /**
  * Create a db option group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-option-group db-option-group-example

@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query global cluster.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    global-clusters: $(external-query aws::db-global-cluster { db-cluster-id: 'aurora-global-cluster'})

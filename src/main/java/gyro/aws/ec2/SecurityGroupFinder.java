@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query security group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    security-group: $(external-query aws::security-group { group-name: ''})

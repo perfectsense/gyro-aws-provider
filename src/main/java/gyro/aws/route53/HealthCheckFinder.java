@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 /**
  * Query route53 health check.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    health-check: $(external-query aws::route53-health-check { id: ''})

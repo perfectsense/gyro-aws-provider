@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query waf acl regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    waf-acl: $(external-query aws::waf-web-acl-regional)

@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query regex match set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    regex-match-sets: $(external-query aws::waf-regex-match-set)

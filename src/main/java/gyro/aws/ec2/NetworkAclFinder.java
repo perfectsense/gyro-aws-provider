@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query network acl.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    network-acl: $(external-query aws::network-acl { network-acl-id: ''})
