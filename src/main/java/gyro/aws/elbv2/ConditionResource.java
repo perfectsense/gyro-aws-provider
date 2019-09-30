@@ -80,7 +80,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
+        if (DiffableInternals.hasChange(parentResource(), Create.class)) {
             return;
         }
 
@@ -90,7 +90,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        if (DiffableInternals.getChange(parentResource()) instanceof Update) {
+        if (DiffableInternals.hasChange(parentResource(), Update.class)) {
             return;
         }
 
@@ -100,7 +100,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public void delete(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
+        if (DiffableInternals.hasChange(parentResource(), Delete.class)) {
             return;
         }
 

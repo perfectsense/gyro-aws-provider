@@ -118,7 +118,7 @@ public class ListenerResource extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parent()) instanceof Create) {
+        if (DiffableInternals.hasChange(parent(), Create.class)) {
             return;
         }
 
@@ -136,7 +136,7 @@ public class ListenerResource extends AwsResource {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        if (DiffableInternals.getChange(parent()) instanceof Delete) {
+        if (DiffableInternals.hasChange(parent(), Delete.class)) {
             return;
         }
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
