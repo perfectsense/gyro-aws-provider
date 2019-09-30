@@ -712,8 +712,9 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         validate();
 
+        AutoScalingGroupResource oldResource = (AutoScalingGroupResource) current;
         client.updateAutoScalingGroup(
-            r -> r.autoScalingGroupName(getName())
+            r -> r.autoScalingGroupName(oldResource.getName())
                 .launchTemplate(
                     LaunchTemplateSpecification.builder()
                         .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
@@ -741,8 +742,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 );
             }
         }
-
-        AutoScalingGroupResource oldResource = (AutoScalingGroupResource) current;
 
         if (changedFieldNames.contains("tags") || changedFieldNames.contains("propagate-at-launch-tags")) {
             if (!getTags().isEmpty()) {
