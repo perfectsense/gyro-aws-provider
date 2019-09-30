@@ -296,12 +296,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         if (!instanceAdditions.isEmpty()) {
             client.registerInstancesWithLoadBalancer(r -> r.instances(instanceAdditions)
-                .loadBalancerName(getName()));
+                .loadBalancerName(currentResource.getName()));
         }
 
         if (!instanceSubtractions.isEmpty()) {
             client.deregisterInstancesFromLoadBalancer(r -> r.instances(instanceSubtractions)
-                .loadBalancerName(getName()));
+                .loadBalancerName(currentResource.getName()));
         }
 
         //-- Subnets
@@ -316,10 +316,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         subnetSubtractions.removeAll(pendingSubnetIds);
 
         client.attachLoadBalancerToSubnets(r -> r.subnets(subnetAdditions)
-            .loadBalancerName(getName()));
+            .loadBalancerName(currentResource.getName()));
 
         client.detachLoadBalancerFromSubnets(r -> r.subnets(subnetSubtractions)
-            .loadBalancerName(getName()));
+            .loadBalancerName(currentResource.getName()));
 
         //-- Security Groups
 
@@ -336,14 +336,14 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         if (!sgAdditions.isEmpty()) {
             client.applySecurityGroupsToLoadBalancer(r -> r.securityGroups(sgAdditions)
-                    .loadBalancerName(getName()));
+                    .loadBalancerName(currentResource.getName()));
         }
 
         //-- Attributes
 
         // modify connection timeout with enabled set to true, then set to what is actually configured.
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(currentResource.getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(currentResource.getName()));
     }
 
     @Override
