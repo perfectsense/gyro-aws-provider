@@ -1,4 +1,4 @@
-@DocGroup("WAF-Regional")
+@DocGroup("WAF - Regional")
 
 package gyro.aws.waf.regional;
 
