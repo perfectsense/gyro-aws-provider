@@ -72,7 +72,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private Long ttl;
     private String type;
     private Long weight;
-    private Set<String> records;
+    private List<String> records;
     private String routingPolicy;
     private Boolean enableAlias;
     private String aliasHostedZoneId;
@@ -295,15 +295,15 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      * A list of ip addresses for the Record Set. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
-    public Set<String> getRecords() {
+    public List<String> getRecords() {
         if (records == null) {
-            records = new HashSet<>();
+            records = new ArrayList<>();
         }
 
         return records;
     }
 
-    public void setRecords(Set<String> records) {
+    public void setRecords(List<String> records) {
         this.records = records;
     }
 
@@ -375,7 +375,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         setWeight(recordSet.weight());
         setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
         setTtl(recordSet.ttl());
-        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toSet()));
+        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toList()));
         setId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
