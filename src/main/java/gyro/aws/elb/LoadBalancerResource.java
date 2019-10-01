@@ -19,14 +19,17 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBala
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Instance;
+import software.amazon.awssdk.services.elasticloadbalancing.model.InstanceState;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerNotFoundException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -215,6 +218,21 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     public void setHostedZoneId(String hostedZoneId) {
         this.hostedZoneId = hostedZoneId;
+    }
+
+    public Map<String, Integer> instanceHealth() {
+        Map<String, Integer> healthMap = new HashMap<>();
+
+        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+        List<InstanceState> instanceStates = client.describeInstanceHealth(r -> r.loadBalancerName(getName())).instanceStates();
+        for (InstanceState is : instanceStates) {
+            int count = healthMap.getOrDefault(is.state(), 0);
+            healthMap.put(is.state(), count + 1);
+        }
+
+        healthMap.put("Total", instanceStates.size());
+
+        return healthMap;
     }
 
     @Override
