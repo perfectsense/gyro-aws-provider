@@ -737,10 +737,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             errors.add(new ValidationError(this, "instance-type", "The value - (" + getInstanceType() + ") is invalid for parameter 'instance-type'"));
         }
 
-        if (getLaunchTemplate() == null && getSecurityGroups().isEmpty()) {
-            errors.add(new ValidationError(this, "security-groups", "At least one 'security-group' is required."));
-        }
-
         if (!getCapacityReservation().equalsIgnoreCase("none")
             && !getCapacityReservation().equalsIgnoreCase("open")
             && !getCapacityReservation().startsWith("cr-")) {
