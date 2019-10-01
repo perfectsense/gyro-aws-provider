@@ -13,6 +13,9 @@ import java.util.Map;
 /**
  * Query db cluster parameter group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cluster-parameter-groups: $(external-query aws::db-cluster-parameter-group { name: 'cluster-parameter-group-example'})

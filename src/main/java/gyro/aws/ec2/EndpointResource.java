@@ -140,7 +140,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The set of Route Tables being associated with the Endpoint. (Required if ```type-interface``` set to true.)
+     * The set of Route Tables being associated with the Endpoint. (Required if ``type-interface`` set to true.)
      */
     @Updatable
     public Set<RouteTableResource> getRouteTables() {

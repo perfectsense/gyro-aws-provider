@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 /**
  * Query launch configuration.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    launch-configuration: $(external-query aws::launch-configuration { name: 'frontend' })

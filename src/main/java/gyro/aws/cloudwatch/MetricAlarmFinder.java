@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query metric alarm.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    metric-alarm: $(external-query aws::cloudwatch-metric-alarm { name: 'scale up rule' })

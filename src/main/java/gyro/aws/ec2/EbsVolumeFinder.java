@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 /**
  * Query volume.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    ebs-volume: $(external-query aws::ebs-volume { volume-id: ''})

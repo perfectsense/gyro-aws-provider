@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query size constraint set regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    size-constraint-sets: $(external-query aws::waf-size-constraint-set-regional)

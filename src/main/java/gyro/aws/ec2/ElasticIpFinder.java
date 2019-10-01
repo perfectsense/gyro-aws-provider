@@ -12,6 +12,9 @@ import java.util.Map;
 /**
  * Query elastic ip.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    elastic-ip: $(external-query aws::elastic-ip { allocation-id: ''})

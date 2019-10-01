@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query xss match set regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    xss-match-sets: $(external-query aws::waf-xss-match-set-regional)

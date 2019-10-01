@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query byte match set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    byte-match-sets: $(external-query aws::waf-byte-match-set)

@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *         tags: {
  *             Name: "kms-example"
  *         }
- * end
+ *     end
  */
 
 @Type("kms-key")

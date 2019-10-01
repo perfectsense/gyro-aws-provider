@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query traffic policy instance.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    traffic-policy-instance: $(external-query aws::route53-traffic-policy-instance { id: ''})

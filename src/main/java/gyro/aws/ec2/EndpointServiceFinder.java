@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query vpc endpoint service.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    endpoint-service: $(external-query aws::vpc-endpoint-service { service-name: ''})
@@ -49,7 +52,7 @@ public class EndpointServiceFinder extends Ec2TaggableAwsFinder<Ec2Client, Servi
     }
 
     /**
-     * The state of the service . Valid values are ``Pending `` or `` Available `` or `` Deleting `` or `` Deleted `` or `` Failed``.
+     * The state of the service . Valid values are ``Pending`` or ``Available`` or ``Deleting`` or ``Deleted`` or ``Failed``.
      */
     public String getServiceState() {
         return serviceState;

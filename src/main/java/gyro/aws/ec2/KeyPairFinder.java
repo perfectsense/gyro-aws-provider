@@ -11,6 +11,9 @@ import java.util.Map;
 /**
  * Query key pair.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    key-pair: $(external-query aws::key-pair { key-name: ''})

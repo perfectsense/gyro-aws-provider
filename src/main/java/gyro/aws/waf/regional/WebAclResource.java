@@ -27,29 +27,29 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- * aws::waf-web-acl-regional waf-web-acl-example
- *     name: "waf-web-acl-example"
- *     metric-name: "wafAclExample"
- *     default-action
- *         type: "ALLOW"
- *     end
- *
- *     rule
- *         action
+ *     aws::waf-web-acl-regional waf-web-acl-example
+ *         name: "waf-web-acl-example"
+ *         metric-name: "wafAclExample"
+ *         default-action
  *             type: "ALLOW"
  *         end
- *         priority: 1
- *         rule: $(aws::waf-rule-regional rule-example-waf)
- *     end
  *
- *     rule
- *         action
- *             type: "ALLOW"
+ *         rule
+ *             action
+ *                 type: "ALLOW"
+ *             end
+ *             priority: 1
+ *             rule: $(aws::waf-rule-regional rule-example-waf)
  *         end
- *         priority: 2
- *         rule: $(aws::waf-rate-rule-regional rate-rule-example-waf)
+ *
+ *         rule
+ *             action
+ *                 type: "ALLOW"
+ *             end
+ *             priority: 2
+ *             rule: $(aws::waf-rate-rule-regional rate-rule-example-waf)
+ *         end
  *     end
- * end
  */
 @Type("waf-web-acl-regional")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {

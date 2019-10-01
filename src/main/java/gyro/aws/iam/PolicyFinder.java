@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query IAM policies.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    policy: $(external-query aws::iam-policy { arn: ''})

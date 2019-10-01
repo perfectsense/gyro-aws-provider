@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query vpc.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    vpc: $(external-query aws::vpc { tag: { Name: "vpc-example-for-network-acl" }})
@@ -154,7 +157,7 @@ public class VpcFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc, VpcResource>
     }
 
     /**
-     * The state of the VPC . Valid values are ``pending `` or `` available``.
+     * The state of the VPC . Valid values are ``pending`` or ``available``.
      */
     public String getState() {
         return state;

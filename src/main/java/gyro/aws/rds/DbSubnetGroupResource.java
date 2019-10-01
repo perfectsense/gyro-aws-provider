@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 /**
  * Create a db subnet group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-subnet-group db-subnet-group

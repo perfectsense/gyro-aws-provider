@@ -18,6 +18,8 @@ public class AcmRenewalSummary extends Diffable implements Copyable<RenewalSumma
 
     /**
      * Information about the validation of each domain name in the certificate.
+     *
+     * @subresource gyro.aws.acm.AcmDomainValidationOption
      */
     @Output
     public Set<AcmDomainValidationOption> getDomainValidationOptions() {

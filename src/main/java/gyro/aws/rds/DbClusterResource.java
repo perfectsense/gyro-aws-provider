@@ -30,6 +30,9 @@ import java.util.stream.Collectors;
 /**
  * Create a Aurora cluster.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-cluster db-cluster-example

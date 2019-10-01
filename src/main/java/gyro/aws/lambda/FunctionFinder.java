@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query lambda function.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    lambda-function: $(external-query aws::lambda-function { name: ''})

@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query ebs snapshot.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    ebs-snapshot: $(external-query aws::ebs-snapshot { owner-alias: 'amazon'})

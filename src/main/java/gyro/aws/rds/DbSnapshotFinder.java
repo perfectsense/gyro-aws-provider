@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query db snapshot.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    db-snapshots: $(external-query aws::db-snapshot { name: 'db-snapshot-example'})

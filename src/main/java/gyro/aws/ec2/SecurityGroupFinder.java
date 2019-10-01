@@ -1,6 +1,5 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -13,6 +12,9 @@ import java.util.stream.Collectors;
 
 /**
  * Query security group.
+ *
+ * Example
+ * -------
  *
  * .. code-block:: gyro
  *
@@ -261,7 +263,7 @@ public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Securit
     }
 
     /**
-     * The IP protocol for an inbound security group rule . Valid values are ``tcp `` or `` udp `` or `` icmp or a protocol number``.
+     * The IP protocol for an inbound security group rule . Valid values are ``tcp`` or ``udp`` or ``icmp`` or a protocol number.
      */
     @Filter("ip-permission.protocol")
     public String getIngressProtocol() {

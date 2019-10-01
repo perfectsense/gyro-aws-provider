@@ -22,14 +22,14 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::waf-ip-set ip-set-example
- *     name: "ip-set-example"
+ *     aws::waf-ip-set ip-set-example
+ *         name: "ip-set-example"
  *
- *     ip-set-descriptor
- *         type: "IPV4"
- *         value: "190.0.0.26/32"
+ *         ip-set-descriptor
+ *             type: "IPV4"
+ *             value: "190.0.0.26/32"
+ *         end
  *     end
- * end
  */
 @Type("waf-ip-set")
 public class IpSetResource extends gyro.aws.waf.common.IpSetResource {

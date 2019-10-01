@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query instance profiles.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    instance-profile: $(external-query aws::iam-instance-profile { name: ''})

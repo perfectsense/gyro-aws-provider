@@ -112,7 +112,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The type of policy. Defaults to 'SimpleScaling'. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. (Required)
+     * The type of policy. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. Defaults to ``SimpleScaling``
      */
     public String getPolicyType() {
         if (policyType == null) {
@@ -138,7 +138,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * Scaling in by the target tracking policy is enabled/disabled. Defaulted to false.
+     * Scaling in by the target tracking policy is enabled/disabled. Defaulted to ``false``.
      */
     @Updatable
     public Boolean getDisableScaleIn() {
@@ -178,9 +178,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * Predefined defines metric resource label.
-     *
-     * Valid values are ``ASGAverageCPUUtilization`` or ``ASGAverageNetworkIn`` or ``ASGAverageNetworkOut`` or ``ALBRequestCountPerTarget``.
+     * Predefined defines metric resource label. Valid values are ``ASGAverageCPUUtilization`` or ``ASGAverageNetworkIn`` or ``ASGAverageNetworkOut`` or ``ALBRequestCountPerTarget``.
      */
     @Updatable
     public String getPredefinedMetricResourceLabel() {

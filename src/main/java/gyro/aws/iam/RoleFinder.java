@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query IAM roles.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    role: $(external-query aws::iam-role { name: ''})

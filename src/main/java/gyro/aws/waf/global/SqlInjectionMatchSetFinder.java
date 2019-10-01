@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query sql injection match set.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    sql-injection-match-sets: $(external-query aws::waf-sql-injection-match-set)

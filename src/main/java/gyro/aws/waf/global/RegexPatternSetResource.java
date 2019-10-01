@@ -20,14 +20,14 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::waf-regex-pattern-set regex-pattern-set-example
- *     name: "regex-pattern-set-example"
+ *     aws::waf-regex-pattern-set regex-pattern-set-example
+ *         name: "regex-pattern-set-example"
  *
- *     patterns: [
- *         "pattern1",
- *         "pattern2"
- *     ]
- * end
+ *         patterns: [
+ *             "pattern1",
+ *             "pattern2"
+ *         ]
+ *     end
  */
 @Type("waf-regex-pattern-set")
 public class RegexPatternSetResource extends CommonRegexPatternSet {

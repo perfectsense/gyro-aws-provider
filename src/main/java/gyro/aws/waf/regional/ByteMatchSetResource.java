@@ -23,18 +23,18 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::waf-byte-match-set-regional byte-match-set-example
- *     name: "byte-match-set-example"
+ *     aws::waf-byte-match-set-regional byte-match-set-example
+ *         name: "byte-match-set-example"
  *
- *     byte-match-tuple
- *         field-to-match
- *             type: "METHOD"
+ *         byte-match-tuple
+ *             field-to-match
+ *                 type: "METHOD"
+ *             end
+ *             text-transformation: "NONE"
+ *             positional-constraint: "CONTAINS"
+ *             target-string: "target-string"
  *         end
- *         text-transformation: "NONE"
- *         positional-constraint: "CONTAINS"
- *         target-string: "target-string"
  *     end
- * end
  */
 @Type("waf-byte-match-set-regional")
 public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResource {

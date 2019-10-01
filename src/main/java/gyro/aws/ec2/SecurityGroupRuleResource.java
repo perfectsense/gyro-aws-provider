@@ -28,7 +28,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     private SecurityGroupResource securityGroup;
 
     /**
-     * Protocol for this Security Group Rule. `-1` is equivalent to "all". Other valid values are "tcp", "udp", or "icmp". Defaults to "tcp".
+     * Protocol for this Security Group Rule. ``-1`` is equivalent to "all". Other valid values are ``tcp`` or ``udp``or ``icmp``. Defaults to ``tcp``.
      */
     public String getProtocol() {
         if (protocol != null) {
@@ -55,7 +55,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Starting port for this Security Group Rule. Required if `protocol` is not set as `-1`.
+     * Starting port for this Security Group Rule. Required if ``protocol`` is not set as ``-1``.
      */
     public Integer getFromPort() {
         return fromPort;
@@ -66,7 +66,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Ending port for this Security Group Rule. Required if `protocol` is not set as `-1`.
+     * Ending port for this Security Group Rule. Required if ``protocol`` is not set as ``-1``.
      */
     public Integer getToPort() {
         return toPort;
@@ -77,7 +77,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * The IPv4 CIDR block to apply this Security Group Rule to. Required if `ipv6-cidr-block` or `security-group` not mentioned.
+     * The IPv4 CIDR block to apply this Security Group Rule to. Required if ``ipv6-cidr-block`` or ``security-group`` not mentioned.
      */
     public String getCidrBlock() {
         return cidrBlock;
@@ -88,7 +88,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * The IPv6 CIDR blocks to apply this Security Group Rule to. Required if `cidr-block` or `security-group` not mentioned.
+     * The IPv6 CIDR blocks to apply this Security Group Rule to. Required if ``cidr-block`` or ``security-group`` not mentioned.
      */
     public String getIpv6CidrBlock() {
         return ipv6CidrBlock;

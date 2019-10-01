@@ -15,6 +15,9 @@ import java.util.Map;
 /**
  * Query event rule.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    event-rule: $(external-query aws::cloudwatch-event-rule { name: 'scale up rule' })

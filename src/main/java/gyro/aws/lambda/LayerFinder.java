@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 /**
  * Query lambda layer.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    lambda-layer: $(external-query aws::lambda-layer { name: '' and version = ''})

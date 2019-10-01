@@ -11,6 +11,9 @@ import java.util.Map;
 /**
  * Query SQS queues.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    sqs: $(external-query aws::sqs-queue { name: ''})

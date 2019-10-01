@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query cache subnet group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cache-subnet-groups: $(external-query aws::elasticache-subnet-group { name: 'cache-subnet-group-example'})

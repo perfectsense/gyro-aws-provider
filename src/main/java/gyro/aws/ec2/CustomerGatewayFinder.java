@@ -12,6 +12,9 @@ import java.util.Map;
 /**
  * Query customer gateway.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    customer-gateway: $(external-query aws::customer-gateway { state: 'available'})
@@ -72,7 +75,7 @@ public class CustomerGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Custo
     }
 
     /**
-     * The type of customer gateway. Currently, the only supported type is ipsec.1.
+     * The type of customer gateway. Currently, the only supported type is ``ipsec.1``.
      */
     public String getType() {
         return type;

@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query sql injection match set regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    sql-injection-match-sets: $(external-query aws::waf-sql-injection-match-set-regional)

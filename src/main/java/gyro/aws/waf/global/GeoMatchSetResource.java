@@ -22,14 +22,14 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::waf-geo-match-set geo-match-set-example
- *     name: "geo-match-set-example"
+ *     aws::waf-geo-match-set geo-match-set-example
+ *         name: "geo-match-set-example"
  *
- *     geo-match-constraint
- *         type: "Country"
- *         value: "TL"
+ *         geo-match-constraint
+ *             type: "Country"
+ *             value: "TL"
+ *         end
  *     end
- * end
  */
 @Type("waf-geo-match-set")
 public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource {

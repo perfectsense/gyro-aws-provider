@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query cache cluster.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    cache-clusters: $(external-query aws::elasticache-cluster { id: 'cache-cluster-ex-1'})

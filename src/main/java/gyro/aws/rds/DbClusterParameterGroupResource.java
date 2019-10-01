@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 /**
  * Create a cluster parameter group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    aws::db-cluster-parameter-group cluster-parameter-group

@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query geo match set regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    geo-match-sets: $(external-query aws::waf-geo-match-set-regional)

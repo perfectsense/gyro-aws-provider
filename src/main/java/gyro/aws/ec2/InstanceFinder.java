@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query instance.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    instance: $(external-query aws::instance { affinity: 'default'})
@@ -141,7 +144,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * The attach time for an EBS volume mapped to the instance, for example, 2010-09-15T17:15:20.000Z.
+     * The attach time for an EBS volume mapped to the instance, for example, ``2010-09-15T17:15:20.000Z``.
      */
     @Filter("block-device-mapping.attach-time")
     public String getBlockDeviceMappingAttachTime() {
@@ -324,7 +327,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * The state of the instance, as a 16-bit unsigned integer. The high byte is used for internal purposes and should be ignored. The low byte is set based on the state represented. The valid values are: 0 (pending), 16 (running), 32 (shutting-down), 48 (terminated), 64 (stopping), and 80 (stopped).
+     * The state of the instance, as a 16-bit unsigned integer. The high byte is used for internal purposes and should be ignored. The low byte is set based on the state represented. The valid values are: ``0`` (pending) or ``16`` (running) or ``32`` (shutting-down) or ``48`` (terminated) or ``64`` (stopping) or ``80`` (stopped).
      */
     public String getInstanceStateCode() {
         return instanceStateCode;

@@ -17,6 +17,9 @@ import java.util.Map;
 /**
  * Query user pools.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    user-pool: $(external-query aws::cognito-user-pool {id: 'us-east-1_xxxxxxx' })

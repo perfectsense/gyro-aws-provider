@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 /**
  * Query traffic policy.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    traffic-policy: $(external-query aws::route53-traffic-policy { id: '', version: ''})

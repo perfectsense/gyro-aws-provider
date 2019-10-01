@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query egress only internet gateway.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    egress-gateway: $(external-query aws::egress-only-internet-gateway { egress-only-internet-gateway-id: 'eigw-0f5c4f2180ecf5127'})

@@ -16,6 +16,9 @@ import java.util.Map;
 /**
  * Query ip set regional.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    ip-sets: $(external-query aws::waf-ip-set-regional)

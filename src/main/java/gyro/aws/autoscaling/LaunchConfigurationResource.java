@@ -54,9 +54,6 @@ import java.util.stream.Collectors;
  *         associate-public-ip: true
  *     end
  *
- * Example
- * -------
- *
  * .. code-block:: gyro
  *
  *     aws::launch-configuration launch-configuration
@@ -149,7 +146,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
+     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
     public KeyPairResource getKey() {
         return key;

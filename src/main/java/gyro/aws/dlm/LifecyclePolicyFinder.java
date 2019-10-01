@@ -14,6 +14,9 @@ import java.util.Map;
 /**
  * Query ebs snapshot lifecycle policy.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    lifecycle-policy: $(external-query aws::dlm-lifecycle-policy { id: 'policy-xxxxxxxxxxx' })

@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 /**
  * Query dhcp options.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    dhcp-options: $(external-query aws::dhcp-options { dhcp-options-id: ''})

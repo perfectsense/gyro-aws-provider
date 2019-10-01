@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query db option group.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    option-groups: $(external-query aws::db-option-group { name: 'option-group-example'})

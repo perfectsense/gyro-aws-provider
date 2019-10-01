@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query network interface.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    network-interface: $(external-query aws::network-interface { description: ''})

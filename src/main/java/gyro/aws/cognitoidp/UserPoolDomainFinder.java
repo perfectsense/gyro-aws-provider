@@ -18,6 +18,9 @@ import java.util.Map;
 /**
  * Query user pool clients.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    user-pool-domain: $(external-query aws::cognito-user-pool-domain { domain: 'domain'})

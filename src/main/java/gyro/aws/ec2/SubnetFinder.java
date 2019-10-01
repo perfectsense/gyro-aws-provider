@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query subnet.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    subnet: $(external-query aws::subnet { availability-zone: '####'})
@@ -140,7 +143,7 @@ public class SubnetFinder extends Ec2TaggableAwsFinder<Ec2Client, Subnet, Subnet
     }
 
     /**
-     * The state of the subnet . Valid values are ``pending `` or `` available``.
+     * The state of the subnet . Valid values are ``pending`` or ``available``.
      */
     public String getState() {
         return state;

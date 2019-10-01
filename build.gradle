@@ -67,7 +67,7 @@ dependencies {
     implementation 'software.amazon.awssdk:acmpca'
     implementation 'org.json:json:20180813'
 
-    gyroDoclet "gyro:gyro-doclet:0.15-SNAPSHOT"
+    gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
 }
 
 task referenceDocs(type: Javadoc) {

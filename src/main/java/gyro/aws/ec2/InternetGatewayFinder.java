@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Query internet gateway.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    internet-gateway: $(external-query aws::internet-gateway { internet-gateway-id: ''})

@@ -1,6 +1,5 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -13,6 +12,9 @@ import java.util.stream.Collectors;
 
 /**
  * Query peering connection.
+ *
+ * Example
+ * -------
  *
  * .. code-block:: gyro
  *
@@ -118,7 +120,7 @@ public class PeeringConnectionFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc
     }
 
     /**
-     * The status of the VPC peering connection . Valid values are ``pending-acceptance `` or `` failed `` or `` expired `` or `` provisioning `` or `` active `` or `` deleting `` or `` deleted `` or `` rejected``.
+     * The status of the VPC peering connection . Valid values are ``pending-acceptance`` or ``failed`` or ``expired`` or ``provisioning`` or ``active`` or ``deleting`` or ``deleted`` or ``rejected``.
      */
     public String getStatusCode() {
         return statusCode;

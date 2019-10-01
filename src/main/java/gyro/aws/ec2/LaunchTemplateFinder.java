@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Query launch template.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    launch-template: $(external-query aws::launch-template { launch-template-name: ''})

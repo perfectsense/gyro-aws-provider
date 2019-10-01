@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query SNS subscriptions.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    subscriber: $(external-query aws::sns-subscriber { arn: ''})

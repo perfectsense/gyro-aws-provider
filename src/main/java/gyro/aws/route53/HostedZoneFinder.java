@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Query hosted zone.
  *
+ * Example
+ * -------
+ *
  * .. code-block:: gyro
  *
  *    hosted-zone: $(external-query aws::route53-hosted-zone { hosted-zone-id: ''})

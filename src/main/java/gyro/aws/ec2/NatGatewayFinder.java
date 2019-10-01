@@ -1,6 +1,5 @@
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
@@ -12,6 +11,9 @@ import java.util.stream.Collectors;
 
 /**
  * Query nat gateway.
+ *
+ * Example
+ * -------
  *
  * .. code-block:: gyro
  *
@@ -39,7 +41,7 @@ public class NatGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, NatGateway
     }
 
     /**
-     * The state of the NAT gateway . Valid values are ``pending `` or `` failed `` or `` available `` or `` deleting `` or `` deleted``.
+     * The state of the NAT gateway . Valid values are ``pending`` or ``failed`` or ``available`` or ``deleting`` or ``deleted``.
      */
     public String getState() {
         return state;
