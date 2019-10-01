@@ -65,7 +65,7 @@ public class NetworkActionResource extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (DiffableInternals.hasChange(parentResource(), Create.class)) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Create) {
             return;
         }
 
@@ -75,7 +75,7 @@ public class NetworkActionResource extends AwsResource {
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        if (DiffableInternals.hasChange(parentResource(), Update.class)) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Update) {
             return;
         }
 

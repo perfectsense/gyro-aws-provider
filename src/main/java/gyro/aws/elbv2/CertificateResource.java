@@ -92,7 +92,7 @@ public class CertificateResource extends AwsResource {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        if (DiffableInternals.hasChange(parentResource(), Delete.class)) {
+        if (DiffableInternals.getChange(parentResource()) instanceof Delete) {
             return;
         }
 
