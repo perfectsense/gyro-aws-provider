@@ -449,7 +449,12 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         ).resourceRecordSets().stream().collect(Collectors.toList());
 
         if (!records.isEmpty()) {
-            return records.stream().filter(o -> o.name().equals(getName().replace("*", "\\052"))).findFirst().orElse(null);
+            return records
+                .stream()
+                .filter(o -> o.name().equals(getName().replace("*", "\\052")))
+                .filter(o -> o.type().name().equalsIgnoreCase(getType()))
+                .findFirst()
+                .orElse(null);
         }
 
         return null;
