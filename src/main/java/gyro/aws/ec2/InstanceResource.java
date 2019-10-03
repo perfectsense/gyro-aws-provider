@@ -326,7 +326,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Set Block device Mapping for the instance.
      *
-     * @subresource gyro.core.ec2.BlockDeviceMappingResource
+     * @subresource gyro.aws.ec2.BlockDeviceMappingResource
      */
     public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
@@ -354,7 +354,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * The launch template specification to use to create the instance.
      *
-     * @subresource gyro.core.ec2.LaunchTemplateSpecificationResource
+     * @subresource gyro.aws.ec2.LaunchTemplateSpecificationResource
      */
     public LaunchTemplateSpecificationResource getLaunchTemplate() {
         return launchTemplate;
