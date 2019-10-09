@@ -56,7 +56,7 @@ public class AliasTarget extends Diffable {
 
     @Override
     public String primaryKey() {
-        return getDnsName();
+        return "alias";
     }
 
 }
