@@ -74,6 +74,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     /**
      * The alias target of the record.
+     * @subresource gyro.aws.route53.AliasTarget
      */
     @Updatable
     public AliasTarget getAlias() {
@@ -109,6 +110,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     /**
      * The geolocation configuration of the record.
+     * @subresource gyro.aws.route53.Geolocation
      */
     @Updatable
     public Geolocation getGeolocation() {
