@@ -11,7 +11,7 @@ public class AliasTarget extends Diffable {
     private Boolean evaluateTargetHealth;
 
     /**
-     * Dns name to associate with this Record Set.
+     * Dns name to associate with this Record Set. (Required)
      */
     @Updatable
     public String getDnsName() {
@@ -27,7 +27,7 @@ public class AliasTarget extends Diffable {
     }
 
     /**
-     * The Hosted Zone where the 'dns name' belongs as configured.
+     * The Hosted Zone where the 'dns name' belongs as configured. (Required)
      */
     @Updatable
     public String getHostedZoneId() {
@@ -39,7 +39,7 @@ public class AliasTarget extends Diffable {
     }
 
     /**
-     * Enable target health evaluation with this Record Set.
+     * Enable target health evaluation with this Record Set. (Required)
      */
     @Updatable
     public Boolean getEvaluateTargetHealth() {
