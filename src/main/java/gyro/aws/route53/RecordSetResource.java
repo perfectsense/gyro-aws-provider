@@ -57,16 +57,14 @@ import java.util.stream.Stream;
 public class RecordSetResource extends AwsResource implements Copyable<ResourceRecordSet> {
     private AliasTarget alias;
     private String comment;
-    private String continentCode;
-    private String countryCode;
     private String failover;
+    private Geolocation geolocation;
     private HostedZoneResource hostedZone;
     private HealthCheckResource healthCheck;
     private Boolean multiValueAnswer;
     private String name;
     private String region;
     private String setIdentifier;
-    private String subdivisionCode;
     private TrafficPolicyInstanceResource trafficPolicyInstance;
     private Long ttl;
     private String type;
@@ -101,30 +99,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The continent code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
-     */
-    @Updatable
-    public String getContinentCode() {
-        return continentCode != null ? continentCode.toUpperCase() : null;
-    }
-
-    public void setContinentCode(String continentCode) {
-        this.continentCode = continentCode;
-    }
-
-    /**
-     * The country code. At least one of continent code, country code or subdivision code required if 'type' selected as ``geolocation``.
-     */
-    @Updatable
-    public String getCountryCode() {
-        return countryCode != null ? countryCode.toUpperCase() : null;
-    }
-
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
-
-    /**
      * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to ``failover``.
      */
     @Updatable
@@ -134,6 +108,18 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     public void setFailover(String failover) {
         this.failover = failover;
+    }
+
+    /**
+     * The geolocation configuration of the record.
+     */
+    @Updatable
+    public Geolocation getGeolocation() {
+        return geolocation;
+    }
+
+    public void setGeolocation(Geolocation geolocation) {
+        this.geolocation = geolocation;
     }
 
     /**
@@ -209,18 +195,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     public void setSetIdentifier(String setIdentifier) {
         this.setIdentifier = setIdentifier;
-    }
-
-    /**
-     * The sub division code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
-     */
-    @Updatable
-    public String getSubdivisionCode() {
-        return subdivisionCode != null ? subdivisionCode.toUpperCase() : null;
-    }
-
-    public void setSubdivisionCode(String subdivisionCode) {
-        this.subdivisionCode = subdivisionCode;
     }
 
     /**
@@ -338,9 +312,10 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         }
 
         if (recordSet.geoLocation() != null) {
-            setCountryCode(recordSet.geoLocation().countryCode());
-            setContinentCode(recordSet.geoLocation().continentCode());
-            setSubdivisionCode(recordSet.geoLocation().subdivisionCode());
+            setGeolocation(newSubresource(Geolocation.class));
+            getGeolocation().setCountryCode(recordSet.geoLocation().countryCode());
+            getGeolocation().setContinentCode(recordSet.geoLocation().continentCode());
+            getGeolocation().setSubdivisionCode(recordSet.geoLocation().subdivisionCode());
         }
     }
 
@@ -436,10 +411,11 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
         switch (recordSetResource.getRoutingPolicy()) {
             case "geolocation":
+                Geolocation geolocation = recordSetResource.getGeolocation();
                 recordSetBuilder.geoLocation(
-                    g -> g.continentCode(recordSetResource.getContinentCode())
-                        .countryCode(recordSetResource.getCountryCode())
-                        .subdivisionCode(recordSetResource.getSubdivisionCode()));
+                    g -> g.continentCode(geolocation.getContinentCode())
+                        .countryCode(geolocation.getCountryCode())
+                        .subdivisionCode(geolocation.getSubdivisionCode()));
                 break;
             case "failover":
                 recordSetBuilder.failover(recordSetResource.getFailover());
@@ -509,23 +485,11 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             }
         }
 
-        if (!getRoutingPolicy().equals("geolocation")) {
-            if (!ObjectUtils.isBlank(getContinentCode())) {
-                errors.add(new ValidationError(this, null, "The param 'continent-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
-            }
+        if (!getRoutingPolicy().equals("geolocation") && getGeolocation() != null) {
+            errors.add(new ValidationError(this, null, "The param 'geolocation' is not allowed when 'routing-policy' is not set to 'geolocation'."));
 
-            if (!ObjectUtils.isBlank(getCountryCode())) {
-                errors.add(new ValidationError(this, null, "The param 'country-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
-            }
-
-            if (!ObjectUtils.isBlank(getSubdivisionCode())) {
-                errors.add(new ValidationError(this, null, "The param 'subdivision-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
-            }
-        } else {
-            if (ObjectUtils.isBlank(getContinentCode()) && ObjectUtils.isBlank(getCountryCode()) && ObjectUtils.isBlank(getSubdivisionCode())) {
-                errors.add(new ValidationError(this, null, "At least one of the param [ 'continent-code', 'country-code', 'subdivision-code']"
-                    + " is required when 'routing-policy' is set to 'geolocation'."));
-            }
+        } else if (getRoutingPolicy().equals("geolocation") && getGeolocation() == null) {
+            errors.add(new ValidationError(this, null, "The param 'geolocation' is required when 'routing-policy' is set to 'geolocation'."));
         }
 
         if (!getRoutingPolicy().equals("failover") && getFailover() != null) {
