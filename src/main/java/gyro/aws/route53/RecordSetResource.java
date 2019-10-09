@@ -49,6 +49,39 @@ import java.util.stream.Stream;
  *         routing-policy: "failover"
  *         health-check: $(aws::route53-health-check health-check-record-set-example-calculated)
  *     end
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::route53-record-set record-set-geolocation-example
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+ *         name: "record-set-geolocation-example."
+ *         type: "A"
+ *         ttl: 300
+ *         records: [
+ *             "192.0.2.235",
+ *             "192.0.2.236"
+ *         ]
+ *         set-identifier: "set_id"
+ *         routing-policy: "geolocation"
+ *
+ *         geolocation
+ *             country-code: 'US'
+ *         end
+ *     end
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::route53-record-set record-set-alias-example
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+ *         name: "record-set-alias-example."
+ *         type: "A"
+ *
+ *         alias
+ *             hosted-zone-id: $(aws::load-balancer elb).hosted-zone-id
+ *             evaluate-target-health: false
+ *             dns-name: $(aws::load-balancer elb).*.dns-name
+ *         end
+ *     end
  */
 @Type("route53-record-set")
 public class RecordSetResource extends AwsResource implements Copyable<ResourceRecordSet> {
