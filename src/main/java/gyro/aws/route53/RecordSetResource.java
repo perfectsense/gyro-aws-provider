@@ -55,11 +55,10 @@ import java.util.stream.Stream;
  */
 @Type("route53-record-set")
 public class RecordSetResource extends AwsResource implements Copyable<ResourceRecordSet> {
+    private AliasTarget alias;
     private String comment;
     private String continentCode;
     private String countryCode;
-    private String dnsName;
-    private Boolean evaluateTargetHealth;
     private String failover;
     private HostedZoneResource hostedZone;
     private HealthCheckResource healthCheck;
@@ -74,11 +73,21 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private Long weight;
     private List<String> records;
     private String routingPolicy;
-    private Boolean enableAlias;
-    private String aliasHostedZoneId;
     private String id;
 
     private static final Set<String> ROUTING_POLICY_SET = ImmutableSet.of("geolocation", "failover", "multivalue", "weighted", "latency", "simple");
+
+    /**
+     * The alias target of the record.
+     */
+    @Updatable
+    public AliasTarget getAlias() {
+        return alias;
+    }
+
+    public void setAlias(AliasTarget alias) {
+        this.alias = alias;
+    }
 
     /**
      * A comment when creating/updating/deleting a Record Set.
@@ -113,35 +122,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
-    }
-
-    /**
-     * Dns name to associate with this Record Set. Required if 'enable alias' is set to ``true``.
-     */
-    @Updatable
-    public String getDnsName() {
-
-        if (dnsName != null) {
-            dnsName = StringUtils.ensureEnd(dnsName, ".");
-        }
-
-        return dnsName;
-    }
-
-    public void setDnsName(String dnsName) {
-        this.dnsName = dnsName;
-    }
-
-    /**
-     * Enable target health evaluation with this Record Set. Required if 'enable alias' is set to ``true``.
-     */
-    @Updatable
-    public Boolean getEvaluateTargetHealth() {
-        return evaluateTargetHealth;
-    }
-
-    public void setEvaluateTargetHealth(Boolean evaluateTargetHealth) {
-        this.evaluateTargetHealth = evaluateTargetHealth;
     }
 
     /**
@@ -324,34 +304,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Enable alias. Defaults to false.
-     */
-    @Updatable
-    public Boolean getEnableAlias() {
-        if (enableAlias == null) {
-            enableAlias = false;
-        }
-
-        return enableAlias;
-    }
-
-    public void setEnableAlias(Boolean enableAlias) {
-        this.enableAlias = enableAlias;
-    }
-
-    /**
-     * The Hosted Zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to ``true``.
-     */
-    @Updatable
-    public String getAliasHostedZoneId() {
-        return aliasHostedZoneId;
-    }
-
-    public void setAliasHostedZoneId(String aliasHostedZoneId) {
-        this.aliasHostedZoneId = aliasHostedZoneId;
-    }
-
-    /**
      * The ID of the Record Set.
      */
     @Id
@@ -379,9 +331,10 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         setId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
-            setDnsName(recordSet.aliasTarget().dnsName());
-            setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
-            setAliasHostedZoneId(recordSet.aliasTarget().hostedZoneId());
+            setAlias(newSubresource(AliasTarget.class));
+            getAlias().setDnsName(recordSet.aliasTarget().dnsName());
+            getAlias().setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
+            getAlias().setHostedZoneId(recordSet.aliasTarget().hostedZoneId());
         }
 
         if (recordSet.geoLocation() != null) {
@@ -468,11 +421,12 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstance() != null ? recordSetResource.getTrafficPolicyInstance().getId() : null)
             .type(recordSetResource.getType());
 
-        if (recordSetResource.getEnableAlias()) {
+        if (recordSetResource.getAlias() != null) {
+            AliasTarget alias = recordSetResource.getAlias();
             recordSetBuilder.aliasTarget(
-                a -> a.dnsName(recordSetResource.getDnsName())
-                    .evaluateTargetHealth(recordSetResource.getEvaluateTargetHealth())
-                    .hostedZoneId(recordSetResource.getAliasHostedZoneId()));
+                a -> a.dnsName(alias.getDnsName())
+                    .evaluateTargetHealth(alias.getEvaluateTargetHealth())
+                    .hostedZoneId(alias.getHostedZoneId()));
         } else {
             recordSetBuilder.resourceRecords(recordSetResource.getRecords().stream()
                 .map(o -> ResourceRecord.builder().value(o).build())
@@ -535,7 +489,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                     .map(Enum::toString).collect(Collectors.joining("', '")))));
         }
 
-        if (getEnableAlias()) {
+        if (alias != null) {
             if (!ObjectUtils.isBlank(getTtl())) {
                 errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'enable-alias' is set to 'true'."));
             }
@@ -544,30 +498,18 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                 errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'enable-alias' is set to 'true'."));
             }
 
-            if (getEvaluateTargetHealth() == null) {
+            if (alias.getEvaluateTargetHealth() == null) {
                 errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'."));
             }
 
-            if (ObjectUtils.isBlank(getDnsName())) {
+            if (ObjectUtils.isBlank(alias.getDnsName())) {
                 errors.add(new ValidationError(this, null, "The param 'dns-name' is required when 'enable-alias' is set to 'true'."));
             }
 
-            if (ObjectUtils.isBlank(getAliasHostedZoneId())) {
+            if (ObjectUtils.isBlank(alias.getHostedZoneId())) {
                 errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'."));
             }
         } else {
-            if (getEvaluateTargetHealth() != null) {
-                errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is not allowed when 'enable-alias' is set to 'false' or not set."));
-            }
-
-            if (getDnsName() != null) {
-                errors.add(new ValidationError(this, null, "The param 'dns-name' is not allowed when 'enable-alias' is set to 'false' or not set."));
-            }
-
-            if (getAliasHostedZoneId() != null) {
-                errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is not allowed when 'enable-alias' is set to 'false' or not set."));
-            }
-
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
                 errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
                     + " Valid values [ Long 0 - 172800 ]."));
