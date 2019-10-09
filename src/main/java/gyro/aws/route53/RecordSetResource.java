@@ -498,17 +498,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                 errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'enable-alias' is set to 'true'."));
             }
 
-            if (alias.getEvaluateTargetHealth() == null) {
-                errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'."));
-            }
-
-            if (ObjectUtils.isBlank(alias.getDnsName())) {
-                errors.add(new ValidationError(this, null, "The param 'dns-name' is required when 'enable-alias' is set to 'true'."));
-            }
-
-            if (ObjectUtils.isBlank(alias.getHostedZoneId())) {
-                errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'."));
-            }
         } else {
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
                 errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."

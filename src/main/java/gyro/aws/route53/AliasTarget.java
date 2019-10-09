@@ -3,6 +3,7 @@ package gyro.aws.route53;
 import com.psddev.dari.util.StringUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 public class AliasTarget extends Diffable {
 
@@ -13,6 +14,7 @@ public class AliasTarget extends Diffable {
     /**
      * Dns name to associate with this Record Set. (Required)
      */
+    @Required
     @Updatable
     public String getDnsName() {
         if (dnsName != null) {
@@ -29,6 +31,7 @@ public class AliasTarget extends Diffable {
     /**
      * The Hosted Zone where the 'dns name' belongs as configured. (Required)
      */
+    @Required
     @Updatable
     public String getHostedZoneId() {
         return hostedZoneId;
@@ -41,6 +44,7 @@ public class AliasTarget extends Diffable {
     /**
      * Enable target health evaluation with this Record Set. (Required)
      */
+    @Required
     @Updatable
     public Boolean getEvaluateTargetHealth() {
         return evaluateTargetHealth;
