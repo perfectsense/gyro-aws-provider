@@ -12,7 +12,7 @@
  *
  * .. code:: shell
  *
- *     @plugin: 'gyro:gyro-aws-provider:0.99.0-SNAPSHOT'
+ *     {@literal @}plugin: 'gyro:gyro-aws-provider:0.99.0-SNAPSHOT'
  *
  * This lets Gyro load the AWS provider plugin and lets you start managing AWS resources using Gyro.
  *
