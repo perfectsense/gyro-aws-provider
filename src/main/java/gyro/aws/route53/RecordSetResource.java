@@ -491,21 +491,21 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
         if (alias != null) {
             if (!ObjectUtils.isBlank(getTtl())) {
-                errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'enable-alias' is set to 'true'."));
+                errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'alias' is set."));
             }
 
             if (!getRecords().isEmpty()) {
-                errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'enable-alias' is set to 'true'."));
+                errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'alias' is set."));
             }
 
         } else {
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
-                errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
+                errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'alias' is not set."
                     + " Valid values [ Long 0 - 172800 ]."));
             }
 
             if (getRecords().isEmpty()) {
-                errors.add(new ValidationError(this, null, "The param 'records' is required when 'enable-alias' is set to 'false' or not set."));
+                errors.add(new ValidationError(this, null, "The param 'records' is required when 'alias' is not set."));
             }
         }
 
