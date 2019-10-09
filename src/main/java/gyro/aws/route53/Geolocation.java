@@ -10,7 +10,7 @@ public class Geolocation extends Diffable {
     private String subdivisionCode;
 
     /**
-     * The continent code. At least one of continent code, country code or subdivision code is required. if type selected as ``geolocation``.
+     * The continent code. At least one of continent code, country code or subdivision code is required.
      */
     @Updatable
     public String getContinentCode() {
@@ -22,7 +22,7 @@ public class Geolocation extends Diffable {
     }
 
     /**
-     * The country code. At least one of continent code, country code or subdivision code required if 'type' selected as ``geolocation``.
+     * The country code. At least one of continent code, country code or subdivision code is required.
      */
     @Updatable
     public String getCountryCode() {
@@ -34,7 +34,7 @@ public class Geolocation extends Diffable {
     }
 
     /**
-     * The sub division code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
+     * The sub division code. At least one of continent code, country code or subdivision code is required.
      */
     @Updatable
     public String getSubdivisionCode() {
