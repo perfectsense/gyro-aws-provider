@@ -1,7 +1,12 @@
 package gyro.aws.route53;
 
+import com.psddev.dari.util.StringUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
+
+import java.util.Collections;
+import java.util.List;
 
 public class Geolocation extends Diffable {
 
@@ -48,6 +53,16 @@ public class Geolocation extends Diffable {
     @Override
     public String primaryKey() {
         return "geolocation configuration";
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        if (StringUtils.isBlank(getContinentCode()) && StringUtils.isBlank(getCountryCode()) && StringUtils.isBlank(getSubdivisionCode())) {
+            return Collections.singletonList(new ValidationError(this, null, "At least one of the param 'continent-code', 'country-code' or 'subdivision-code'"
+                + " is required."));
+        }
+
+        return Collections.emptyList();
     }
 
 }
