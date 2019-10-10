@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  * -------
  *
  * .. code-block:: gyro
+ *
  *     aws::route-table route-table-example
  *         vpc: $(aws::vpc vpc-example)
  *
