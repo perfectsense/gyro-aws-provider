@@ -1,8 +1,21 @@
 /**
  * AWS
- * ---
+ * ===
  *
  * The AWS provider implements support for Amazon Web Services cloud provider.
+ *
+ * Usage
+ * +++++
+ *
+ * The AWS provider is implemented as a plugin. To use it add the plugin to your init file.
+ * It uses the format ``@plugin: gyro:gyro-aws-provider:<version>``.
+ *
+ * .. code:: shell
+ *
+ *     {@literal @}repository: 'https://artifactory.psdops.com/gyro-releases'
+ *     {@literal @}plugin: 'gyro:gyro-aws-provider:0.99.0'
+ *
+ * This lets Gyro load the AWS provider plugin and lets you start managing AWS resources using Gyro.
  *
  * Authentication
  * ++++++++++++++
