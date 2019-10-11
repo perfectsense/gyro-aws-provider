@@ -195,6 +195,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         this.subnets = subnets;
     }
 
+    /**
+     *  List of tags associated with the load balancer. (Optional)
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
