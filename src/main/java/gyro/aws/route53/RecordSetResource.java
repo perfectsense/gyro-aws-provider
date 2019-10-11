@@ -3,7 +3,6 @@ package gyro.aws.route53;
 import com.psddev.dari.util.StringUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -18,13 +17,11 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.Change;
 import software.amazon.awssdk.services.route53.model.ChangeAction;
-import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,33 +49,74 @@ import java.util.stream.Stream;
  *         routing-policy: "failover"
  *         health-check: $(aws::route53-health-check health-check-record-set-example-calculated)
  *     end
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::route53-record-set record-set-geolocation-example
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+ *         name: "record-set-geolocation-example."
+ *         type: "A"
+ *         ttl: 300
+ *         records: [
+ *             "192.0.2.235",
+ *             "192.0.2.236"
+ *         ]
+ *         set-identifier: "set_id"
+ *         routing-policy: "geolocation"
+ *
+ *         geolocation
+ *             country-code: 'US'
+ *         end
+ *     end
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::route53-record-set record-set-alias-example
+ *         hosted-zone: $(aws::route53-hosted-zone hosted-zone-record-set-example)
+ *         name: "record-set-alias-example."
+ *         type: "A"
+ *
+ *         alias
+ *             hosted-zone-id: $(aws::load-balancer elb).hosted-zone-id
+ *             evaluate-target-health: false
+ *             dns-name: $(aws::load-balancer elb).*.dns-name
+ *         end
+ *     end
  */
 @Type("route53-record-set")
 public class RecordSetResource extends AwsResource implements Copyable<ResourceRecordSet> {
+    private AliasTarget alias;
     private String comment;
-    private String continentCode;
-    private String countryCode;
-    private String dnsName;
-    private Boolean evaluateTargetHealth;
     private String failover;
+    private Geolocation geolocation;
     private HostedZoneResource hostedZone;
     private HealthCheckResource healthCheck;
     private Boolean multiValueAnswer;
     private String name;
     private String region;
     private String setIdentifier;
-    private String subdivisionCode;
     private TrafficPolicyInstanceResource trafficPolicyInstance;
     private Long ttl;
     private String type;
     private Long weight;
     private List<String> records;
     private String routingPolicy;
-    private Boolean enableAlias;
-    private String aliasHostedZoneId;
     private String id;
 
     private static final Set<String> ROUTING_POLICY_SET = ImmutableSet.of("geolocation", "failover", "multivalue", "weighted", "latency", "simple");
+
+    /**
+     * The alias target of the record.
+     * @subresource gyro.aws.route53.AliasTarget
+     */
+    @Updatable
+    public AliasTarget getAlias() {
+        return alias;
+    }
+
+    public void setAlias(AliasTarget alias) {
+        this.alias = alias;
+    }
 
     /**
      * A comment when creating/updating/deleting a Record Set.
@@ -92,59 +130,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The continent code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
-     */
-    @Updatable
-    public String getContinentCode() {
-        return continentCode != null ? continentCode.toUpperCase() : null;
-    }
-
-    public void setContinentCode(String continentCode) {
-        this.continentCode = continentCode;
-    }
-
-    /**
-     * The country code. At least one of continent code, country code or subdivision code required if 'type' selected as ``geolocation``.
-     */
-    @Updatable
-    public String getCountryCode() {
-        return countryCode != null ? countryCode.toUpperCase() : null;
-    }
-
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
-
-    /**
-     * Dns name to associate with this Record Set. Required if 'enable alias' is set to ``true``.
-     */
-    @Updatable
-    public String getDnsName() {
-
-        if (dnsName != null) {
-            dnsName = StringUtils.ensureEnd(dnsName, ".");
-        }
-
-        return dnsName;
-    }
-
-    public void setDnsName(String dnsName) {
-        this.dnsName = dnsName;
-    }
-
-    /**
-     * Enable target health evaluation with this Record Set. Required if 'enable alias' is set to ``true``.
-     */
-    @Updatable
-    public Boolean getEvaluateTargetHealth() {
-        return evaluateTargetHealth;
-    }
-
-    public void setEvaluateTargetHealth(Boolean evaluateTargetHealth) {
-        this.evaluateTargetHealth = evaluateTargetHealth;
-    }
-
-    /**
      * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to ``failover``.
      */
     @Updatable
@@ -154,6 +139,19 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     public void setFailover(String failover) {
         this.failover = failover;
+    }
+
+    /**
+     * The geolocation configuration of the record.
+     * @subresource gyro.aws.route53.Geolocation
+     */
+    @Updatable
+    public Geolocation getGeolocation() {
+        return geolocation;
+    }
+
+    public void setGeolocation(Geolocation geolocation) {
+        this.geolocation = geolocation;
     }
 
     /**
@@ -229,18 +227,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     public void setSetIdentifier(String setIdentifier) {
         this.setIdentifier = setIdentifier;
-    }
-
-    /**
-     * The sub division code. At least one of continent code, country code or subdivision code required if type selected as ``geolocation``.
-     */
-    @Updatable
-    public String getSubdivisionCode() {
-        return subdivisionCode != null ? subdivisionCode.toUpperCase() : null;
-    }
-
-    public void setSubdivisionCode(String subdivisionCode) {
-        this.subdivisionCode = subdivisionCode;
     }
 
     /**
@@ -324,34 +310,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Enable alias. Defaults to false.
-     */
-    @Updatable
-    public Boolean getEnableAlias() {
-        if (enableAlias == null) {
-            enableAlias = false;
-        }
-
-        return enableAlias;
-    }
-
-    public void setEnableAlias(Boolean enableAlias) {
-        this.enableAlias = enableAlias;
-    }
-
-    /**
-     * The Hosted Zone where the 'dns name' belongs as configured. Required if 'enable alias' is set to ``true``.
-     */
-    @Updatable
-    public String getAliasHostedZoneId() {
-        return aliasHostedZoneId;
-    }
-
-    public void setAliasHostedZoneId(String aliasHostedZoneId) {
-        this.aliasHostedZoneId = aliasHostedZoneId;
-    }
-
-    /**
      * The ID of the Record Set.
      */
     @Id
@@ -379,15 +337,17 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         setId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
-            setDnsName(recordSet.aliasTarget().dnsName());
-            setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
-            setAliasHostedZoneId(recordSet.aliasTarget().hostedZoneId());
+            setAlias(newSubresource(AliasTarget.class));
+            getAlias().setDnsName(recordSet.aliasTarget().dnsName());
+            getAlias().setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
+            getAlias().setHostedZoneId(recordSet.aliasTarget().hostedZoneId());
         }
 
         if (recordSet.geoLocation() != null) {
-            setCountryCode(recordSet.geoLocation().countryCode());
-            setContinentCode(recordSet.geoLocation().continentCode());
-            setSubdivisionCode(recordSet.geoLocation().subdivisionCode());
+            setGeolocation(newSubresource(Geolocation.class));
+            getGeolocation().setCountryCode(recordSet.geoLocation().countryCode());
+            getGeolocation().setContinentCode(recordSet.geoLocation().continentCode());
+            getGeolocation().setSubdivisionCode(recordSet.geoLocation().subdivisionCode());
         }
     }
 
@@ -468,11 +428,12 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             .trafficPolicyInstanceId(recordSetResource.getTrafficPolicyInstance() != null ? recordSetResource.getTrafficPolicyInstance().getId() : null)
             .type(recordSetResource.getType());
 
-        if (recordSetResource.getEnableAlias()) {
+        if (recordSetResource.getAlias() != null) {
+            AliasTarget alias = recordSetResource.getAlias();
             recordSetBuilder.aliasTarget(
-                a -> a.dnsName(recordSetResource.getDnsName())
-                    .evaluateTargetHealth(recordSetResource.getEvaluateTargetHealth())
-                    .hostedZoneId(recordSetResource.getAliasHostedZoneId()));
+                a -> a.dnsName(alias.getDnsName())
+                    .evaluateTargetHealth(alias.getEvaluateTargetHealth())
+                    .hostedZoneId(alias.getHostedZoneId()));
         } else {
             recordSetBuilder.resourceRecords(recordSetResource.getRecords().stream()
                 .map(o -> ResourceRecord.builder().value(o).build())
@@ -482,10 +443,11 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
         switch (recordSetResource.getRoutingPolicy()) {
             case "geolocation":
+                Geolocation geolocation = recordSetResource.getGeolocation();
                 recordSetBuilder.geoLocation(
-                    g -> g.continentCode(recordSetResource.getContinentCode())
-                        .countryCode(recordSetResource.getCountryCode())
-                        .subdivisionCode(recordSetResource.getSubdivisionCode()));
+                    g -> g.continentCode(geolocation.getContinentCode())
+                        .countryCode(geolocation.getCountryCode())
+                        .subdivisionCode(geolocation.getSubdivisionCode()));
                 break;
             case "failover":
                 recordSetBuilder.failover(recordSetResource.getFailover());
@@ -535,66 +497,31 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                     .map(Enum::toString).collect(Collectors.joining("', '")))));
         }
 
-        if (getEnableAlias()) {
+        if (alias != null) {
             if (!ObjectUtils.isBlank(getTtl())) {
-                errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'enable-alias' is set to 'true'."));
+                errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'alias' is set."));
             }
 
             if (!getRecords().isEmpty()) {
-                errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'enable-alias' is set to 'true'."));
+                errors.add(new ValidationError(this, null, "The param 'records' is not allowed when 'alias' is set."));
             }
 
-            if (getEvaluateTargetHealth() == null) {
-                errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is required when 'enable-alias' is set to 'true'."));
-            }
-
-            if (ObjectUtils.isBlank(getDnsName())) {
-                errors.add(new ValidationError(this, null, "The param 'dns-name' is required when 'enable-alias' is set to 'true'."));
-            }
-
-            if (ObjectUtils.isBlank(getAliasHostedZoneId())) {
-                errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is required when 'enable-alias' is set to 'true'."));
-            }
         } else {
-            if (getEvaluateTargetHealth() != null) {
-                errors.add(new ValidationError(this, null, "The param 'evaluate-target-health' is not allowed when 'enable-alias' is set to 'false' or not set."));
-            }
-
-            if (getDnsName() != null) {
-                errors.add(new ValidationError(this, null, "The param 'dns-name' is not allowed when 'enable-alias' is set to 'false' or not set."));
-            }
-
-            if (getAliasHostedZoneId() != null) {
-                errors.add(new ValidationError(this, null, "The param 'alias-hosted-zone-id' is not allowed when 'enable-alias' is set to 'false' or not set."));
-            }
-
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
-                errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'enable-alias' is set to 'false' or not set."
+                errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'alias' is not set."
                     + " Valid values [ Long 0 - 172800 ]."));
             }
 
             if (getRecords().isEmpty()) {
-                errors.add(new ValidationError(this, null, "The param 'records' is required when 'enable-alias' is set to 'false' or not set."));
+                errors.add(new ValidationError(this, null, "The param 'records' is required when 'alias' is not set."));
             }
         }
 
-        if (!getRoutingPolicy().equals("geolocation")) {
-            if (!ObjectUtils.isBlank(getContinentCode())) {
-                errors.add(new ValidationError(this, null, "The param 'continent-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
-            }
+        if (!getRoutingPolicy().equals("geolocation") && getGeolocation() != null) {
+            errors.add(new ValidationError(this, null, "The param 'geolocation' is not allowed when 'routing-policy' is not set to 'geolocation'."));
 
-            if (!ObjectUtils.isBlank(getCountryCode())) {
-                errors.add(new ValidationError(this, null, "The param 'country-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
-            }
-
-            if (!ObjectUtils.isBlank(getSubdivisionCode())) {
-                errors.add(new ValidationError(this, null, "The param 'subdivision-code' is not allowed when 'routing-policy' is not set to 'geolocation'."));
-            }
-        } else {
-            if (ObjectUtils.isBlank(getContinentCode()) && ObjectUtils.isBlank(getCountryCode()) && ObjectUtils.isBlank(getSubdivisionCode())) {
-                errors.add(new ValidationError(this, null, "At least one of the param [ 'continent-code', 'country-code', 'subdivision-code']"
-                    + " is required when 'routing-policy' is set to 'geolocation'."));
-            }
+        } else if (getRoutingPolicy().equals("geolocation") && getGeolocation() == null) {
+            errors.add(new ValidationError(this, null, "The param 'geolocation' is required when 'routing-policy' is set to 'geolocation'."));
         }
 
         if (!getRoutingPolicy().equals("failover") && getFailover() != null) {

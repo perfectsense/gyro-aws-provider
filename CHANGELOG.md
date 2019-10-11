@@ -2,4 +2,5 @@
 
 ISSUES FIXED:
 
-* [159](https://github.com/perfectsense/gyro-aws-provider/issues/159>): Route53 alias and geo-location should be complex types.
+* [159](https://github.com/perfectsense/gyro-aws-provider/issues/159): Route53 alias and geo-location should be complex types.
+* [158](https://github.com/perfectsense/gyro-aws-provider/issues/158): Add tags support to Classic ELB.

@@ -24,6 +24,8 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerNotFoundException;
+import software.amazon.awssdk.services.elasticloadbalancing.model.Tag;
+import software.amazon.awssdk.services.elasticloadbalancing.model.TagKeyOnly;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,6 +82,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     private String scheme;
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
+    private Map<String, String> tags;
     private LoadBalancerAttributes attribute;
     private String hostedZoneId;
 
@@ -193,6 +196,22 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
+     *  List of tags associated with the load balancer. (Optional)
+     */
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
+    /**
      * The attributes for the Load Balancer.
      */
     @Updatable
@@ -276,6 +295,14 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
 
+        if (!getTags().isEmpty()) {
+            client.addTags(r -> r.loadBalancerNames(getName())
+                .tags(getTags().entrySet()
+                    .stream()
+                    .map(e -> Tag.builder().key(e.getKey()).value(e.getValue()).build())
+                    .collect(Collectors.toList())));
+        }
+
         LoadBalancerDescription loadBalancer = getLoadBalancer(client);
         copyFrom(loadBalancer);
     }
@@ -344,6 +371,25 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         // modify connection timeout with enabled set to true, then set to what is actually configured.
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
         client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
+
+        //-- tags
+        if (changedFieldNames.contains("tags")) {
+            if (!currentResource.getTags().isEmpty()) {
+                client.removeTags(r -> r.loadBalancerNames(currentResource.getName())
+                    .tags(currentResource.getTags().entrySet()
+                        .stream()
+                        .map(e -> TagKeyOnly.builder().key(e.getKey()).build())
+                        .collect(Collectors.toList())));
+            }
+
+            if (!getTags().isEmpty()) {
+                client.addTags(r -> r.loadBalancerNames(currentResource.getName())
+                    .tags(getTags().entrySet()
+                        .stream()
+                        .map(e -> Tag.builder().key(e.getKey()).value(e.getValue()).build())
+                        .collect(Collectors.toList())));
+            }
+        }
     }
 
     @Override
@@ -394,6 +440,11 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
         loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
         setAttribute(loadBalancerAttributes);
+
+        getTags().clear();
+        client.describeTags(r -> r.loadBalancerNames(getName()))
+            .tagDescriptions().forEach(d -> d.tags()
+                .forEach(t -> getTags().put(t.key(), t.value())));
     }
 
     private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {
