@@ -33,7 +33,7 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
     }
 
     /**
-     * The domain name that ACM used to send domain validation emails.
+     * The domain name that ACM used to send domain validation emails. (Required)
      */
     public String getValidationDomain() {
         return validationDomain;
