@@ -39,21 +39,21 @@ import java.util.Set;
  * -------
  *
  * .. code-block:: gyro
- *      aws::cloudwatch-event-rule event-pattern-example
- *        name: "event-pattern-test"
- *        description: "first rule test"
- *        event-pattern-path: 'event-pattern.json'
- *        schedule-event: true
- *        schedule-expression: 'rate(5 minutes)'
- *        state: "ENABLED"
+ * 
+ *     aws::cloudwatch-event-rule event-pattern-example
+ *         name: "event-pattern-test"
+ *         description: "first rule test"
+ *         event-pattern-path: 'event-pattern.json'
+ *         schedule-event: true
+ *         schedule-expression: 'rate(5 minutes)'
+ *         state: "ENABLED"
  *
- *        target
- *           target-id: "event-pattern-match-target1"
- *           target-arn: "arn:aws:sqs:us-east-2:242040583208:cloudwatch-test.fifo"
- *           message-group-id: "test123"
- *        end
- * end
- *
+ *         target
+ *             target-id: "event-pattern-match-target1"
+ *             target-arn: "arn:aws:sqs:us-east-2:242040583208:cloudwatch-test.fifo"
+ *             message-group-id: "test123"
+ *         end
+ *     end
  */
 @Type("cloudwatch-event-rule")
 public class EventRuleResource extends AwsResource implements Copyable<Rule> {
