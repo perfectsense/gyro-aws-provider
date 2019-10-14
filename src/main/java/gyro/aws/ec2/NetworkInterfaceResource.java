@@ -39,28 +39,28 @@ import java.util.stream.Collectors;
  * -------
  *
  * .. code-block:: gyro
- *      aws::network-interface network-interface-example
- *          description: "network-interface-example"
- *          subnet: $(aws::subnet subnet-example-nic)
- *          instance: $(aws::instance instance-example-nic)
- *          device-index: 1
- *          delete-on-termination: false
- *          source-dest-check: false
- *          security-groups: [
- *                  $(aws::security-group security-group-nic-1),
- *                  $(aws::security-group security-group-nic-2),
- *                  $(aws::security-group security-group-nic-3)
- *                  ]
- *          primary-ipv4-address: "10.0.0.32"
- *          ipv4-addresses: [
- *              "10.0.0.55",
- *              "10.0.0.36"
- *          ]
- *          tags: {
- *              Name: "network-interface-example"
- *          }
- *      end
  *
+ *     aws::network-interface network-interface-example
+ *         description: "network-interface-example"
+ *         subnet: $(aws::subnet subnet-example-nic)
+ *         instance: $(aws::instance instance-example-nic)
+ *         device-index: 1
+ *         delete-on-termination: false
+ *         source-dest-check: false
+ *         security-groups: [
+ *             $(aws::security-group security-group-nic-1),
+ *             $(aws::security-group security-group-nic-2),
+ *             $(aws::security-group security-group-nic-3)
+ *         ]
+ *         primary-ipv4-address: "10.0.0.32"
+ *         ipv4-addresses: [
+ *             "10.0.0.55",
+ *             "10.0.0.36"
+ *         ]
+ *         tags: {
+ *             Name: "network-interface-example"
+ *         }
+ *     end
  */
 
 @Type("network-interface")
