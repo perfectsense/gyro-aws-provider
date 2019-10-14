@@ -650,11 +650,16 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
 
         boolean isDesiredCapacitySet = getDesiredCapacity() != null;
+        boolean isAvailabilityZoneSet = !getAvailabilityZones().isEmpty();
 
         copyFrom(autoScalingGroup);
 
         if (!isDesiredCapacitySet) {
             setDesiredCapacity(null);
+        }
+
+        if (!isAvailabilityZoneSet) {
+            setAvailabilityZones(null);
         }
 
         return true;
