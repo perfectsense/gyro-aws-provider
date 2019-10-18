@@ -439,22 +439,32 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     // -- GyroInstance Implementation
 
     @Override
-    public String getInstanceId() {
+    public String getGyroInstanceId() {
         return getId();
     }
 
     @Override
-    public String getState() {
+    public String getGyroInstanceState() {
         return getInstanceState();
     }
 
     @Override
-    public String getHostname() {
+    public String getGyroInstanceHostname() {
         return getPublicDnsName();
     }
 
     @Override
-    public String getName() {
+    public String getGyroInstancePrivateIpAddress() {
+        return getPrivateIpAddress();
+    }
+
+    @Output
+    public String getGyroInstancePublicIpAddress() {
+        return getPublicIpAddress();
+    }
+
+    @Override
+    public String getGyroInstanceName() {
         if (getTags().isEmpty()) {
             return DiffableInternals.getName(this);
         }
@@ -463,7 +473,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public String getLaunchDate() {
+    public String getGyroInstanceLaunchDate() {
         if (getInstanceLaunchDate() != null) {
             return getInstanceLaunchDate().toString();
         }
@@ -472,7 +482,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public String getLocation() {
+    public String getGyroInstanceLocation() {
         if (getSubnet() != null) {
             return getSubnet().getAvailabilityZone() != null
                     ? getSubnet().getAvailabilityZone()
@@ -533,8 +543,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .capacityReservationSpecification(getCapacityReservationSpecification())
             .iamInstanceProfile(getIamInstanceProfile());
 
-        if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
-            builder = builder.privateIpAddress(getPrivateIpAddress());
+        if (!ObjectUtils.isBlank(getGyroInstancePrivateIpAddress())) {
+            builder = builder.privateIpAddress(getGyroInstancePrivateIpAddress());
         }
 
         if (!getBlockDeviceMapping().isEmpty()) {
@@ -568,7 +578,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .until(() -> isInstanceRunning(client));
 
         if (!waitResult) {
-            throw new GyroException("Unable to reach 'running' state for ec2 instance - " + getInstanceId());
+            throw new GyroException("Unable to reach 'running' state for ec2 instance - " + getGyroInstanceId());
         }
 
         Instance instance = getInstance(client);
@@ -831,7 +841,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             RunInstancesResponse response = client.runInstances(request);
             if (!response.instances().isEmpty()) {
                 setId(response.instances().get(0).instanceId());
-              
+
                 if (!getSourceDestCheck()) {
                     client.modifyNetworkInterfaceAttribute(
                         r -> r.networkInterfaceId(response.instances().get(0).networkInterfaces().get(0).networkInterfaceId())
