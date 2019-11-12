@@ -9,8 +9,8 @@ The **AWS Provider for Gyro** enables users to easily work with Amazon Web Servi
 
 To learn more about Gyro see [getgyro.io](https://getgyro.io) and [gyro](https://github.com/perfectsense/gyro). 
 
-* [API Docs](https://gyro.dev/providers/aws/index.html)
-* [Issues](https://github.com/perfectsense/gyro-aws-provider/issues)
+* [Resource Documentation](https://gyro.dev/providers/aws/index.html)
+* [Submit an Issue](https://github.com/perfectsense/gyro-aws-provider/issues)
 * [Getting Help](#getting-help)
 
 ## Using the AWS Provider
@@ -117,4 +117,4 @@ $
 
 ## License
 
-This software is open source under the [Apache License 2.0](https://github.com/perfectsense/gyro/blob/master/LICENSE).
+This software is open source under the [Apache License 2.0](https://github.com/perfectsense/gyro-aws-provider/blob/master/LICENSE).
