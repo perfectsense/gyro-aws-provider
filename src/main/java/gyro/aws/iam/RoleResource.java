@@ -29,8 +29,10 @@ import gyro.core.scope.State;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
+import software.amazon.awssdk.services.iam.model.GetRolePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetRoleResponse;
 import software.amazon.awssdk.services.iam.model.ListAttachedRolePoliciesResponse;
+import software.amazon.awssdk.services.iam.model.ListRolePoliciesResponse;
 import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.Role;
 import software.amazon.awssdk.services.iam.model.Tag;
@@ -74,6 +76,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     private String path;
     private String permissionsBoundaryArn;
     private Map<String, String> tags;
+    private Set<RolePolicyResource> inlinePolicy;
 
     /**
      * The arn of the role.
@@ -206,6 +209,24 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         this.tags = tags;
     }
 
+    /**
+     * A list of inline rile policies.RolePolicyResource
+     *
+     * @subresource gyro.aws.iam.
+     */
+    @Updatable
+    public Set<RolePolicyResource> getInlinePolicy() {
+        if (inlinePolicy == null) {
+            inlinePolicy = new HashSet<>();
+        }
+
+        return inlinePolicy;
+    }
+
+    public void setInlinePolicy(Set<RolePolicyResource> inlinePolicy) {
+        this.inlinePolicy = inlinePolicy;
+    }
+
     @Override
     public void copyFrom(Role role) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
@@ -224,6 +245,15 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         ListAttachedRolePoliciesResponse policyResponse = client.listAttachedRolePolicies(r -> r.roleName(getName()));
         for (AttachedPolicy attachedPolicy: policyResponse.attachedPolicies()) {
             getPolicies().add(findById(PolicyResource.class, attachedPolicy.policyArn()));
+        }
+
+        getInlinePolicy().clear();
+        ListRolePoliciesResponse inlinePolicyResponse = client.listRolePolicies(r -> r.roleName(getName()));
+        for (String inlinePolicy : inlinePolicyResponse.policyNames()) {
+            GetRolePolicyResponse policy = client.getRolePolicy(r -> r.roleName(getName()).policyName(inlinePolicy));
+            RolePolicyResource policyResource = newSubresource(RolePolicyResource.class);
+            policyResource.copyFrom(policy);
+            getInlinePolicy().add(policyResource);
         }
     }
 
