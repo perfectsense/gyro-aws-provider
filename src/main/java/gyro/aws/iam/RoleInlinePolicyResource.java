@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
-public class RolePolicyResource extends AwsResource implements Copyable<GetRolePolicyResponse> {
+public class RoleInlinePolicyResource extends AwsResource implements Copyable<GetRolePolicyResponse> {
     private String name;
     private String policyDocument;
 

@@ -76,7 +76,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     private String path;
     private String permissionsBoundaryArn;
     private Map<String, String> tags;
-    private Set<RolePolicyResource> inlinePolicy;
+    private Set<RoleInlinePolicyResource> inlinePolicy;
 
     /**
      * The arn of the role.
@@ -215,7 +215,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
      * @subresource gyro.aws.iam.
      */
     @Updatable
-    public Set<RolePolicyResource> getInlinePolicy() {
+    public Set<RoleInlinePolicyResource> getInlinePolicy() {
         if (inlinePolicy == null) {
             inlinePolicy = new HashSet<>();
         }
@@ -223,7 +223,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         return inlinePolicy;
     }
 
-    public void setInlinePolicy(Set<RolePolicyResource> inlinePolicy) {
+    public void setInlinePolicy(Set<RoleInlinePolicyResource> inlinePolicy) {
         this.inlinePolicy = inlinePolicy;
     }
 
@@ -251,7 +251,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         ListRolePoliciesResponse inlinePolicyResponse = client.listRolePolicies(r -> r.roleName(getName()));
         for (String inlinePolicy : inlinePolicyResponse.policyNames()) {
             GetRolePolicyResponse policy = client.getRolePolicy(r -> r.roleName(getName()).policyName(inlinePolicy));
-            RolePolicyResource policyResource = newSubresource(RolePolicyResource.class);
+            RoleInlinePolicyResource policyResource = newSubresource(RoleInlinePolicyResource.class);
             policyResource.copyFrom(policy);
             getInlinePolicy().add(policyResource);
         }
