@@ -14,6 +14,8 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Set;
 
 public class RoleInlinePolicyResource extends AwsResource implements Copyable<GetRolePolicyResponse> {
@@ -62,7 +64,11 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
     @Override
     public void copyFrom(GetRolePolicyResponse policy) {
         setName(policy.policyName());
-        setPolicyDocument(policy.policyDocument());
+        try {
+            setPolicyDocument(URLDecoder.decode(policy.policyDocument(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            setPolicyDocument(policy.policyDocument());
+        }
     }
 
     @Override
