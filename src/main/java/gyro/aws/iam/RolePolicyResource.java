@@ -52,6 +52,11 @@ public class RolePolicyResource extends AwsResource implements Copyable<GetRoleP
     }
 
     @Override
+    public String primaryKey() {
+        return getName();
+    }
+
+    @Override
     public void copyFrom(GetRolePolicyResponse policy) {
         setName(policy.policyName());
         setPolicyDocument(policy.policyDocument());
