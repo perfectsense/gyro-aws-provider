@@ -7,6 +7,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.GetRolePolicyResponse;
 import software.amazon.awssdk.utils.IoUtils;
@@ -22,6 +23,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
     /**
      * The name of the policy. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -33,6 +35,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
     /**
      * The policy document. A policy path or policy string is allowed. (Required)
      */
+    @Required
     @Updatable
     public String getPolicyDocument() {
         if (this.policyDocument != null && this.policyDocument.contains(".json")) {
