@@ -38,6 +38,7 @@ import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -115,7 +116,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private Long ttl;
     private String type;
     private Long weight;
-    private List<String> records;
+    private Set<String> records;
     private String routingPolicy;
     private String id;
 
@@ -297,15 +298,15 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      * A list of ip addresses for the Record Set. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
-    public List<String> getRecords() {
+    public Set<String> getRecords() {
         if (records == null) {
-            records = new ArrayList<>();
+            records = new HashSet<>();
         }
 
         return records;
     }
 
-    public void setRecords(List<String> records) {
+    public void setRecords(Set<String> records) {
         this.records = records;
     }
 
@@ -349,7 +350,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         setWeight(recordSet.weight());
         setTrafficPolicyInstance(findById(TrafficPolicyInstanceResource.class, recordSet.trafficPolicyInstanceId()));
         setTtl(recordSet.ttl());
-        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toList()));
+        setRecords(recordSet.resourceRecords().stream().map(ResourceRecord::value).collect(Collectors.toSet()));
         setId(String.format("%s %s", getName(), getType()));
 
         if (recordSet.aliasTarget() != null) {
