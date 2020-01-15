@@ -22,6 +22,35 @@ import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
+/**
+ * Add ingress and egress rules to a security group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::security-group backend
+ *         vpc: $(aws::vpc vpc)
+ *
+ *         name: "backend"
+ *         description: "backend"
+ *     end
+ *
+ *     aws::security-group-rules backend
+ *         security-group: $(aws::security-group backend)
+ *
+ *         ingress
+ *             protocol: -1
+ *             security-group: $SELF.security-group
+ *         end
+ *
+ *         ingress
+ *             protocol: -1
+ *             security-group: $(aws::security-group master)
+ *         end
+ *     end
+ */
 @Type("security-group-rules")
 public class SecurityGroupRulesResource extends AwsResource {
 
