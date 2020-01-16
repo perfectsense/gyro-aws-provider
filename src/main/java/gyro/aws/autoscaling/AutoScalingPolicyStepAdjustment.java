@@ -72,4 +72,12 @@ public class AutoScalingPolicyStepAdjustment extends Diffable implements Copyabl
             .metricIntervalUpperBound(getMetricIntervalUpperBound())
             .build();
     }
+
+    @Override
+    public String primaryKey() {
+        return String.format("adjustment - %s; lower-bound - %s; upper-bound - %s",
+            getScalingAdjustment() != null ? getScalingAdjustment() : "",
+            getMetricIntervalLowerBound() != null ? getMetricIntervalLowerBound() : "",
+            getMetricIntervalUpperBound() != null ? getMetricIntervalUpperBound() : "");
+    }
 }
