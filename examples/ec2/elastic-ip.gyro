@@ -59,6 +59,14 @@ aws::security-group security-group-elastic-ip
     name: "instance-example"
     vpc: $(aws::vpc vpc-elastic-ip)
     description: "instance example"
+
+    tags: {
+        Name: "security group example elastic ip"
+    }
+end
+
+aws::security-group-rules security-group-elastic-ip-rules
+    security-group: $(aws::security-group security-group-elastic-ip)
     keep-default-egress-rules: true
 
     ingress
@@ -68,10 +76,6 @@ aws::security-group security-group-elastic-ip
         from-port: 22
         to-port: 22
     end
-
-    tags: {
-        Name: "security group example elastic ip"
-    }
 end
 
 aws::instance instance-example-elastic-ip

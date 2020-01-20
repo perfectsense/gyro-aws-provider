@@ -29,6 +29,14 @@ aws::security-group security-group
     name: "instance-example"
     vpc: $(aws::vpc vpc)
     description: "instance example"
+
+    tags: {
+        Name: "record-from-instance"
+    }
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group)
     keep-default-egress-rules: true
 
     ingress
@@ -38,10 +46,6 @@ aws::security-group security-group
         from-port: 22
         to-port: 22
     end
-
-    tags: {
-        Name: "record-from-instance"
-    }
 end
 
 aws::instance instance

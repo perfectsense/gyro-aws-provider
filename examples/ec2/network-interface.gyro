@@ -21,6 +21,10 @@ aws::security-group nic-security-group-example
     name: "$(project) $(environment) - Allow web traffic only"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules nic-security-group-example-rules
+    security-group: $(aws::security-group nic-security-group-example)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']
