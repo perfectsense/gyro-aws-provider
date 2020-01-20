@@ -1,0 +1,32 @@
+aws::vpc vpc-security-group-rule-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc-security-group-rule-example"
+    }
+end
+
+aws::security-group backend
+    vpc: $(aws::vpc vpc-security-group-rule-example)
+    name: "backend"
+    description: "backend"
+end
+
+aws::security-group master
+    vpc: $(aws::vpc vpc-security-group-rule-example)
+    name: "master"
+    description: "master"
+end
+
+aws::security-group-rules backend
+    security-group: $(aws::security-group backend)
+    ingress
+        protocol: -1
+        security-group: $SELF.security-group
+    end
+    ingress
+        protocol: -1
+        security-group: $(aws::security-group master)
+    end
+end
