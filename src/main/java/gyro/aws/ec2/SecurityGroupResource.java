@@ -47,14 +47,6 @@ import software.amazon.awssdk.services.ec2.model.SecurityGroup;
  *         name: "security-group-example"
  *         vpc: $(aws::vpc vpc-security-group-example)
  *         description: "security group example"
- *
- *         ingress
- *             description: "allow inbound http traffic"
- *             cidr-block: "0.0.0.0/0"
- *             protocol: "TCP"
- *             from-port: 80
- *             to-port: 80
- *         end
  *     end
  */
 @Type("security-group")
