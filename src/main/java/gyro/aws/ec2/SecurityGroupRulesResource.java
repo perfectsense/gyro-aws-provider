@@ -111,7 +111,7 @@ public class SecurityGroupRulesResource extends AwsResource {
      * Whether to keep the default egress rule. If false, the rule will be deleted.
      */
     @Updatable
-    public Boolean isKeepDefaultEgressRules() {
+    public Boolean getKeepDefaultEgressRules() {
         if (keepDefaultEgressRules == null) {
             keepDefaultEgressRules = true;
         }
@@ -137,7 +137,7 @@ public class SecurityGroupRulesResource extends AwsResource {
         getEgress().clear();
         for (IpPermission permission : group.ipPermissionsEgress()) {
             for (IpRange ipRange : permission.ipRanges()) {
-                if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1") && ipRange.cidrIp()
+                if (getKeepDefaultEgressRules() && permission.ipProtocol().equals("-1") && ipRange.cidrIp()
                     .equals("0.0.0.0/0")) {
                     continue;
                 }
@@ -150,7 +150,7 @@ public class SecurityGroupRulesResource extends AwsResource {
             }
 
             for (Ipv6Range ipRange : permission.ipv6Ranges()) {
-                if (isKeepDefaultEgressRules() && permission.ipProtocol().equals("-1") && ipRange.cidrIpv6()
+                if (getKeepDefaultEgressRules() && permission.ipProtocol().equals("-1") && ipRange.cidrIpv6()
                     .equals("::/0")) {
                     continue;
                 }
@@ -203,7 +203,7 @@ public class SecurityGroupRulesResource extends AwsResource {
     public void create(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (!isKeepDefaultEgressRules()) {
+        if (!getKeepDefaultEgressRules()) {
             deleteDefaultEgressRule(client);
         }
     }
@@ -212,11 +212,11 @@ public class SecurityGroupRulesResource extends AwsResource {
     public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) throws Exception {
         SecurityGroupRulesResource current = (SecurityGroupRulesResource) resource;
 
-        if (!current.isKeepDefaultEgressRules() && isKeepDefaultEgressRules()) {
+        if (!current.getKeepDefaultEgressRules() && getKeepDefaultEgressRules()) {
             throw new GyroException("Default rule removed. Cannot be undone.");
         }
 
-        if (current.isKeepDefaultEgressRules() && !isKeepDefaultEgressRules()) {
+        if (current.getKeepDefaultEgressRules() && !getKeepDefaultEgressRules()) {
             deleteDefaultEgressRule(createClient(Ec2Client.class));
         }
     }
