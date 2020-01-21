@@ -30,8 +30,12 @@ import gyro.core.resource.Resource;
 
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.Reservation;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
+import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeInstanceHealthResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Instance;
@@ -44,7 +48,9 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.Tag;
 import software.amazon.awssdk.services.elasticloadbalancing.model.TagKeyOnly;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +98,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     private String dnsName;
     private HealthCheckResource healthCheck;
-    private Set<InstanceResource> instances;
+    private Set<LoadBalancerInstance> instances;
     private Set<ListenerResource> listener;
     private String name;
     private String scheme;
@@ -129,7 +135,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
      * The instances to associate with this load balancer.
      */
     @Updatable
-    public Set<InstanceResource> getInstances() {
+    public Set<LoadBalancerInstance> getInstances() {
         if (instances == null) {
             instances = new LinkedHashSet<>();
         }
@@ -137,7 +143,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         return instances;
     }
 
-    public void setInstances(Set<InstanceResource> instances) {
+    public void setInstances(Set<LoadBalancerInstance> instances) {
         this.instances = instances;
     }
 
@@ -421,8 +427,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         setScheme(description.scheme());
         setHostedZoneId(description.canonicalHostedZoneNameID());
 
-        getInstances().clear();
-        description.instances().forEach(i -> getInstances().add(findById(InstanceResource.class, i.instanceId())));
+        setInstances(liveInstances());
 
         getSecurityGroups().clear();
         description.securityGroups().forEach(r -> getSecurityGroups().add(findById(SecurityGroupResource.class, r)));
@@ -479,12 +484,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     private Set<Instance> toInstances() {
-        Set<Instance> instance = new LinkedHashSet<>();
-        for (InstanceResource instanceResource : getInstances()) {
-            instance.add(Instance.builder().instanceId(instanceResource.getId()).build());
+        Set<Instance> instances = new LinkedHashSet<>();
+        for (LoadBalancerInstance instance : getInstances()) {
+            instances.add(Instance.builder().instanceId(instance.getInstance().getGyroInstanceId()).build());
         }
 
-        return instance;
+        return instances;
     }
 
     private List<Listener> toListeners() {
@@ -501,6 +506,43 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         return listeners;
+    }
+
+    public Set<LoadBalancerInstance> liveInstances() {
+        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+        DescribeInstanceHealthResponse response = client.describeInstanceHealth(r -> r.loadBalancerName(getName()));
+        Map<String, InstanceState> instanceStates = new HashMap<>();
+        for (InstanceState instanceState : response.instanceStates()) {
+            instanceStates.put(instanceState.instanceId(), instanceState);
+        }
+
+        List<String> instanceIds = new ArrayList<>(instanceStates.keySet());
+        if (!instanceIds.isEmpty()) {
+            Ec2Client ec2Client = createClient(Ec2Client.class);
+            DescribeInstancesResponse instancesResponse = ec2Client.describeInstances(r -> r.instanceIds(instanceIds));
+
+            Set<LoadBalancerInstance> instances = new HashSet<>();
+            for (Reservation reservation : instancesResponse.reservations()) {
+                for (software.amazon.awssdk.services.ec2.model.Instance ec2Instance : reservation.instances()) {
+                    LoadBalancerInstance instance = new LoadBalancerInstance();
+                    instance.setInstance(getInstanceResource(ec2Instance));
+                    instance.setState(instanceStates.get(ec2Instance.instanceId()).state());
+
+                    instances.add(instance);
+                }
+            }
+
+            return instances;
+        }
+
+        return Collections.emptySet();
+    }
+
+    private InstanceResource getInstanceResource(software.amazon.awssdk.services.ec2.model.Instance instance) {
+        InstanceResource instanceResource = newSubresource(InstanceResource.class);
+        instanceResource.copyFrom(instance);
+        return instanceResource;
     }
 
 }
