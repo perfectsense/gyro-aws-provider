@@ -341,6 +341,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      *
      * @subresource gyro.aws.cloudfront.CloudFrontOrigin
      */
+    @Updatable
     public Set<CloudFrontOrigin> getOrigin() {
         if (origin == null) {
             origin = new HashSet<>();
