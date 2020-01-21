@@ -22,6 +22,14 @@ aws::security-group security-group
     name: "instance-example"
     vpc: $(aws::vpc vpc)
     description: "instance example"
+
+    tags: {
+        Name: "instance example"
+    }
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group)
     keep-default-egress-rules: true
 
     ingress
@@ -31,10 +39,6 @@ aws::security-group security-group
         from-port: 22
         to-port: 22
     end
-
-    tags: {
-        Name: "instance example"
-    }
 end
 
 workflow 'replace-gateway'
@@ -62,8 +66,8 @@ aws::instance instance-example
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"
-    subnet-id: $(aws::subnet subnet).id
-    security-group-ids: $(aws::security-group security-group).*.id
+    subnet: $(aws::subnet subnet)
+    security-groups: $(aws::security-group security-group)
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true

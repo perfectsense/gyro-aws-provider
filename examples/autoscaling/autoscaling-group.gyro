@@ -35,33 +35,14 @@ aws::security-group security-group-auto-scaling-group-example-1
     name: "security-group-auto-scaling-group-example-1"
     vpc: $(aws::vpc vpc-auto-scaling-group-example)
     description: "security group instance example 1"
-    keep-default-egress-rules: true
-
-    ingress
-        description: "allow inbound http traffic, ipv4 only"
-        cidr-block: "0.0.0.0/0"
-        protocol: "TCP"
-        from-port: 22
-        to-port: 22
-    end
-
-    egress
-        description: "allow outbound http traffic, ipv6 only"
-        ipv6-cidr-block: "::/0"
-        protocol: "TCP"
-        from-port: 22
-        to-port: 22
-    end
 
     tags: {
         Name: "security-group-auto-scaling-group-example-1"
     }
 end
 
-aws::security-group security-group-auto-scaling-group-example-2
-    name: "security-group-auto-scaling-group-example-2"
-    vpc: $(aws::vpc vpc-auto-scaling-group-example)
-    description: "security group instance example 2"
+aws::security-group-rules security-group-auto-scaling-group-example-1-rules
+    security-group: $(aws::security-group security-group-auto-scaling-group-example-1)
     keep-default-egress-rules: true
 
     ingress
@@ -79,10 +60,37 @@ aws::security-group security-group-auto-scaling-group-example-2
         from-port: 22
         to-port: 22
     end
+end
+
+aws::security-group security-group-auto-scaling-group-example-2
+    name: "security-group-auto-scaling-group-example-2"
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
+    description: "security group instance example 2"
 
     tags: {
         Name: "security-group-auto-scaling-group-example-2"
     }
+end
+
+aws::security-group-rules security-group-auto-scaling-group-example-2-rules
+    security-group: $(aws::security-group security-group-auto-scaling-group-example-2)
+    keep-default-egress-rules: true
+
+    ingress
+        description: "allow inbound http traffic, ipv4 only"
+        cidr-block: "0.0.0.0/0"
+        protocol: "TCP"
+        from-port: 22
+        to-port: 22
+    end
+
+    egress
+        description: "allow outbound http traffic, ipv6 only"
+        ipv6-cidr-block: "::/0"
+        protocol: "TCP"
+        from-port: 22
+        to-port: 22
+    end
 end
 
 aws::launch-template launch-template-auto-scaling-group-example
