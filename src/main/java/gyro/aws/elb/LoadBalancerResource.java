@@ -533,8 +533,6 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
                 }
             }
 
-            System.out.println(instances);
-
             return instances;
         }
 
