@@ -133,6 +133,10 @@ aws::security-group security-group
     name: "nlb example - allow web traffic"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']

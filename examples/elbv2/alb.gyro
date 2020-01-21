@@ -52,6 +52,10 @@ aws::security-group security-group
     name: "alb example - allow web traffic"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']
@@ -69,6 +73,10 @@ aws::security-group other-security-group
     name: "alb example - other - allow web traffic"
     vpc: $(aws::vpc vpc)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules other-security-group-rules
+    security-group: $(aws::security-group other-security-group)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']

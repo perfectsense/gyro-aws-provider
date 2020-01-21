@@ -20,6 +20,8 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -137,8 +139,14 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
             sb.append(getCidrBlock());
         } else if (!ObjectUtils.isBlank(getIpv6CidrBlock())) {
             sb.append(getIpv6CidrBlock());
-        } else if (getSecurityGroup() != null && !ObjectUtils.isBlank(getSecurityGroup().getId())){
-            sb.append(getSecurityGroup().getId());
+        } else if (getSecurityGroup() != null) {
+            if (getSecurityGroup().getId() == null) {
+                String name = DiffableInternals.getName(getSecurityGroup());
+
+                sb.append(name);
+            } else {
+                sb.append(getSecurityGroup().getId());
+            }
         }
 
         return sb.toString();
@@ -166,9 +174,12 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     protected abstract void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception;
 
     public String getGroupId() {
-        SecurityGroupResource parent = (SecurityGroupResource) parent();
-        if (parent != null) {
-            return parent.getId();
+        Diffable parent = parent();
+
+        if (parent instanceof SecurityGroupResource) {
+            return ((SecurityGroupResource) parent).getId();
+        } else if (parent instanceof SecurityGroupRulesResource) {
+            return ((SecurityGroupRulesResource) parent).getSecurityGroup().getId();
         }
 
         return null;

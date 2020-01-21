@@ -139,6 +139,10 @@ aws::security-group security-group-example-for-endpoint-1
     name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-1"
     vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-example-for-endpoint-1-rules
+    security-group: $(aws::security-group security-group-example-for-endpoint-1)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']
@@ -164,6 +168,10 @@ aws::security-group security-group-example-for-endpoint-2
     name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-2"
     vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-example-for-endpoint-2-rules
+    security-group: $(aws::security-group security-group-example-for-endpoint-2)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']
@@ -189,6 +197,10 @@ aws::security-group security-group-example-for-endpoint-3
     name: "$(project) $(environment) - Allow web traffic only example-for-endpoint-3"
     vpc: $(aws::vpc vpc-example-for-endpoint)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-example-for-endpoint-3-rules
+    security-group: $(aws::security-group security-group-example-for-endpoint-3)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https']

@@ -11,6 +11,10 @@ aws::security-group security-group-example
     name: "$(project) $(environment) - Allow web traffic only"
     vpc: $(aws::vpc vpc-security-group-example)
     description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-example-rules
+    security-group: $(aws::security-group security-group-example)
     keep-default-egress-rules: true
 
     @for port, type -in [80, 'http', 443, 'https', 999, 'foo']
@@ -36,6 +40,10 @@ aws::security-group security-group
     name: "security-group-reference-example"
     vpc: $(aws::vpc vpc-security-group-example)
     description: "Allow sg reference"
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group)
     ingress
         description: "allow inbound from another sg"
         security-group: $(aws::security-group security-group-example)
@@ -68,6 +76,10 @@ aws::security-group security-group-peer
     name: "security-group-peer"
     vpc: $(aws::vpc vpc-peer)
     description: "Allow ipv6 outbound"
+end
+
+aws::security-group-rules security-group-peer-rules
+    security-group: $(aws::security-group security-group-peer)
     egress
         description: "allow outbound http traffic, ipv6 only"
         ipv6-cidr-block: "::/0"
