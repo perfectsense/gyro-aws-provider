@@ -8,7 +8,6 @@ aws::transit-gateway transit-gateway
    enable-auto-accept-shared-attach: true
 
    tags: {
-       Name: "Name tag",
-       anotherTag: "tag"
+       Name: "Aws EC2 Transit Gateway Resource Example"
    }
 end

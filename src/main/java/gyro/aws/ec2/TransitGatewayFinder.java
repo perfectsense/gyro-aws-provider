@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
  *    transit-gateway: $(external-query aws::transit-gateway { tag: { Name: "example-transit-gateway" }})
  */
 
-// TODO: Can't find resources that have . fields.
 @Type("transit-gateway")
 public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, TransitGateway, TransitGatewayResource> {
 
