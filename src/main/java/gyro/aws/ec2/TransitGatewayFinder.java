@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query Transit Gateways.
+ * Query transit gateways.
  *
  * Example
  * -------
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  *
  *    transit-gateway: $(external-query aws::transit-gateway { tag: { Name: "example-transit-gateway" }})
  */
-
 @Type("transit-gateway")
 public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, TransitGateway, TransitGatewayResource> {
 
@@ -47,7 +46,7 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
     }
 
     /**
-     * The state of the attachment (available | deleted | deleting | failed | modifying | pendingAcceptance | pending | rollingBack | rejected | rejecting).
+     * The state of the attachment. Valid values are ``available``, ``deleted``, ``deleting``, ``failed``, ``modifying``, ``pendingAcceptance``, ``pending``, ``rollingBack``, ``rejected`` or ``rejecting``.
      */
     public String getState() {
         return state;
@@ -105,7 +104,7 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
     }
 
     /**
-     * Indicates whether there is automatic acceptance of attachment requests (enable | disable).
+     * Whether automatic acceptance of attachment requests is enabled. Valid values are ``enable`` or ``disable``.
      */
     @Filter("options.auto-accept-shared-attachments ")
     public String getAutoAcceptSharedAttachments() {
@@ -117,7 +116,7 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
     }
 
     /**
-     * Indicates whether resource attachments are automatically associated with the default association route table (enable | disable).
+     * Whether resource attachments are automatically associated with the default association route table. Valid values are ``enable`` or ``disable``.
      */
     @Filter("options.default-route-table-association")
     public String getDefaultRouteTableAssociation() {
@@ -129,7 +128,7 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
     }
 
     /**
-     * Indicates whether resource attachments automatically propagate routes to the default propagation route table (enable | disable).
+     * Whether resource attachments automatically propagate routes to the default propagation route table. Valid values are ``enable`` or ``disable``.
      */
     @Filter("options.default-route-table-propagation")
     public String getDefaultRouteTablePropagation() {
@@ -141,7 +140,7 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
     }
 
     /**
-     * Indicates whether DNS support is enabled (enable | disable).
+     * Whether DNS support is enabled. Valid values are ``enable`` or ``disable``.
      */
     @Filter("options.dns-support")
     public String getDnsSupport() {
@@ -153,7 +152,7 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
     }
 
     /**
-     * Indicates whether Equal Cost Multipath Protocol support is enabled ( enable | disable).
+     * Whether Equal Cost Multipath Protocol support is enabled. Valid values are ``enable`` or ``disable``.
      */
     @Filter("options.vpn-ecmp-support")
     public String getVpnEcmpSupport() {

@@ -28,7 +28,7 @@ import software.amazon.awssdk.services.ec2.model.*;
  *
  * .. code-block:: gyro
  *
- *     aws::transit-gateway example-transit-gateway
+ *     aws::transit-gateway transit-gateway-example
  *         amazonSideAsn: "64513"
  *         enable-dns-support: true
  *         description "new example transit gateway"
@@ -54,8 +54,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
 
     /**
-     * A private Autonomous System Number (ASN) for the Amazon side of a BGP session.
-     * The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
+     * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. The range is ``64512`` to ``65534`` for 16-bit ASNs and ``4200000000`` to ``4294967294`` for 32-bit ASNs. Defaults to ``64512``.
      */
     public Long getAmazonSideAsn() {
         return amazonSideAsn;
@@ -66,7 +65,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     /**
-     * Enable the VPC to resolve public IPv4 DNS host names to private IPv4 addresses when queried from instances in another VPC attached to the transit gateway.
+     * Enable the VPC to resolve public IPv4 DNS host names to private IPv4 addresses when queried from instances in another VPC attached to the transit gateway. Defaults to ``true``.
      */
     public Boolean getEnableDnsSupport() {
         if (enableDnsSupport == null) {
@@ -81,7 +80,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     /**
-     * Enable Equal Cost Multipath (ECMP) routing support between VPN connections.
+     * Enable Equal Cost Multipath (ECMP) routing support between VPN connections. Defaults to ``true``.
      */
     public Boolean getEnableVpnEcmpSupport() {
         if (enableVpnEcmpSupport == null) {
@@ -96,7 +95,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     /**
-     * Enable to automatically associate transit gateway attachments with the default route table for the transit gateway.
+     * Enable to automatically associate transit gateway attachments with the default route table for the transit gateway. Defaults to ``true``.
      */
     public Boolean getEnableDefaultRouteTableAssoc() {
         if (enableDefaultRouteTableAssoc == null) {
@@ -111,7 +110,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     /**
-     * Enable to automatically propagate transit gateway attachments to the default route table for the transit gateway.
+     * Enable to automatically propagate transit gateway attachments to the default route table for the transit gateway. Defaults to ``true``.
      */
     public Boolean getEnableDefaultRouteTableProp() {
         if (enableDefaultRouteTableProp == null) {
@@ -126,7 +125,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     /**
-     * Enable to automatically accept cross-account attachments.
+     * Enable to automatically accept cross-account attachments. Defaults to ``false``.
      */
     public Boolean getEnableAutoAcceptSharedAttach() {
         if (enableAutoAcceptSharedAttach == null) {
@@ -209,11 +208,6 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
     public void setPropagationDefaultRouteTableId(String propagationDefaultRouteTableId) {
         this.propagationDefaultRouteTableId = propagationDefaultRouteTableId;
-    }
-
-    private boolean checkState(TransitGatewayState state, Ec2Client client) {
-        TransitGateway gateway = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways().get(0);
-        return gateway.state().equals(state);
     }
 
     @Override
@@ -312,5 +306,10 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
         setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
         refreshTags();
+    }
+
+    private boolean checkState(TransitGatewayState state, Ec2Client client) {
+        TransitGateway gateway = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways().get(0);
+        return gateway.state().equals(state);
     }
 }
