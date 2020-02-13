@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -271,10 +270,6 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(false)
                 .until(() -> checkState(TransitGatewayState.AVAILABLE, client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for transit gateway - " + getId());
-        }
     }
 
     @Override
@@ -291,10 +286,6 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(false)
                 .until(() -> checkState(TransitGatewayState.DELETED, client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'deleted' state for transit gateway - " + getId());
-        }
     }
 
     @Override
