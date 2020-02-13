@@ -17,6 +17,7 @@
 package gyro.aws.ec2;
 
 import gyro.core.Type;
+import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.PlacementGroup;
 
@@ -37,19 +38,20 @@ import java.util.stream.Collectors;
 @Type("placement-group")
 public class PlacementGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, PlacementGroup, PlacementGroupResource> {
 
-    private String groupName;
+    private String name;
     private String state;
     private String strategy;
 
     /**
      * The name of the Placement Group.
      */
-    public String getGroupName() {
-        return groupName;
+    @Filter("group-name")
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
