@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.ec2;
 
 import gyro.core.Type;
@@ -9,16 +25,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Query Placement Groups.
+ * Query placement groups.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    pg: $(external-query aws::placement-group {group-name: "abc", state: "available", strategy: "spread" })
+ *    pg: $(external-query aws::placement-group {name: "placement-group-example", state: "available", strategy: "spread" })
  */
-
 @Type("placement-group")
 public class PlacementGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, PlacementGroup, PlacementGroupResource> {
 
@@ -27,7 +42,7 @@ public class PlacementGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Placem
     private String strategy;
 
     /**
-     * The name identifying the Placement Group.
+     * The name of the Placement Group.
      */
     public String getGroupName() {
         return groupName;
@@ -38,7 +53,7 @@ public class PlacementGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Placem
     }
 
     /**
-     * The current state of the Placement Group (pending | available | deleting | deleted).
+     * The state of the Placement Group. Valid values are ``pending``, ``available``, ``deleting`` or ``deleted``.
      */
     public String getState() {
         return state;
@@ -49,7 +64,7 @@ public class PlacementGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Placem
     }
 
     /**
-     * One of three approaches towards managing the placement of instances on the underlying hardware (cluster | spread | partition).
+     * Approaches towards managing the placement of instances on the underlying hardware. Valid values are ``cluster``, ``spread`` or ``partition``.
      */
     public String getStrategy() {
         return strategy;

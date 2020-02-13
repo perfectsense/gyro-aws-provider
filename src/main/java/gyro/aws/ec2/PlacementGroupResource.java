@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.ec2;
 
 import com.psddev.dari.util.ObjectUtils;
@@ -30,17 +46,18 @@ import java.util.Set;
  *         partition-count: 3
  *     end
  */
-
 @Type("placement-group")
 public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> implements Copyable<PlacementGroup> {
 
     private String groupName;
     private PlacementStrategy placementStrategy = PlacementStrategy.CLUSTER;
     private Integer partitionCount;
+
+    // Read-only
     private String id;
 
     /**
-     * A name to identify the Placement Group. (Required)
+     * The name of the Placement Group. (Required)
      */
     public String getGroupName() {
         return groupName;
@@ -51,8 +68,8 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     /**
-     * One of three approaches towards managing the placement of instances on the underlying hardware (cluster | spread | partition).
-     * Defaults to the "cluster" strategy.
+     * Approaches towards managing the placement of instances on the underlying hardware. Valid values are ``cluster``, ``spread`` or ``partition``.
+     * Defaults to the``cluster`` strategy. (Required)
      */
     public PlacementStrategy getPlacementStrategy() {
         return placementStrategy;
@@ -63,8 +80,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     /**
-     * The number of partitions comprising the Placement Group.
-     * Ranges from 1 to 7. This value must be excluded unless using the "partition" strategy.
+     * The number of partitions comprising the Placement Group. Valid values are within 1 to 7. Only required when strategy is set to ``partition``.
      */
     public Integer getPartitionCount() {
         return partitionCount;
