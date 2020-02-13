@@ -173,11 +173,11 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
         List<ValidationError> errors = new ArrayList<>();
 
         if ((getPlacementStrategy() == PlacementStrategy.PARTITION) && (getPartitionCount() == null)) {
-            ValidationError error = new ValidationError(this, "partitionCount", "Partition count is required when strategy is set to ``partition``");
+            ValidationError error = new ValidationError(this, "partition-count", "partition-count is required when strategy is set to 'partition'");
             errors.add(error);
 
         } else if ((getPlacementStrategy() != PlacementStrategy.PARTITION) && (getPartitionCount() != null)) {
-            ValidationError error = new ValidationError(this, "partitionCount", "Partition count must be excluded when strategy is not set to ``partition``");
+            ValidationError error = new ValidationError(this, "partition-count", "partition-count must not be set when strategy is not set to 'partition'");
             errors.add(error);
         }
 
