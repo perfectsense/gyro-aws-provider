@@ -193,7 +193,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
             }
 
         } catch (Ec2Exception ex) {
-            if (!ex.getLocalizedMessage().contains("unknown")) {
+            if (ex.awsErrorDetails() == null || !ex.awsErrorDetails().errorCode().equals("InvalidPlacementGroup.Unknown")) {
                 throw ex;
             }
         }
