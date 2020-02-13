@@ -16,13 +16,10 @@
 
 package gyro.aws.ec2;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -32,7 +29,8 @@ import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
-import gyro.core.validation.ValidationError;
+import gyro.core.validation.Range;
+import gyro.core.validation.Ranges;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
 
@@ -72,6 +70,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     /**
      * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. The range is ``64512`` to ``65534`` for 16-bit ASNs and ``4200000000`` to ``4294967294`` for 32-bit ASNs. Defaults to ``64512``.
      */
+    @Ranges(value={@Range(min=64512, max=65534), @Range(min=4200000000L, max=4294967294L)})
     public Long getAmazonSideAsn() {
         return amazonSideAsn;
     }
@@ -170,6 +169,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
      * The ID of the transit gateway.
      */
     @Id
+    @Output
     public String getId() {
         return id;
     }
@@ -295,16 +295,6 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         if (!waitResult) {
             throw new GyroException("Unable to reach 'deleted' state for transit gateway - " + getId());
         }
-    }
-
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
-        Long asn = getAmazonSideAsn();
-        if (asn != null && ((asn < 64512L || asn > 4294967294L) || (asn < 4200000000L && asn > 65534L)) ) {
-            errors.add(new ValidationError(this, "Amazon side ASN", "The private ASN should be within the 64512-65534 or 4200000000-4294967294 range."));
-        }
-        return errors;
     }
 
     @Override
