@@ -231,6 +231,23 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     @Override
+    public void copyFrom(TransitGateway model) {
+        setId(model.transitGatewayId());
+        setOwnerId(model.ownerId());
+        setArn(model.transitGatewayArn());
+        setAmazonSideAsn(model.options().amazonSideAsn());
+        setDescription(model.description());
+        setEnableAutoAcceptSharedAttach(model.options().autoAcceptSharedAttachments().equals(AutoAcceptSharedAttachmentsValue.ENABLE));
+        setEnableDefaultRouteTableAssoc(model.options().defaultRouteTableAssociation().equals(DefaultRouteTableAssociationValue.ENABLE));
+        setEnableDefaultRouteTableProp(model.options().defaultRouteTablePropagation().equals(DefaultRouteTablePropagationValue.ENABLE));
+        setEnableDnsSupport(model.options().dnsSupport().equals(DnsSupportValue.ENABLE));
+        setEnableVpnEcmpSupport(model.options().vpnEcmpSupport().equals(VpnEcmpSupportValue.ENABLE));
+        setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
+        setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
+        refreshTags();
+    }
+
+    @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
         DescribeTransitGatewaysResponse response = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId())));
@@ -282,23 +299,6 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(false)
                 .until(() -> checkState(TransitGatewayState.DELETED, client));
-    }
-
-    @Override
-    public void copyFrom(TransitGateway model) {
-        setId(model.transitGatewayId());
-        setOwnerId(model.ownerId());
-        setArn(model.transitGatewayArn());
-        setAmazonSideAsn(model.options().amazonSideAsn());
-        setDescription(model.description());
-        setEnableAutoAcceptSharedAttach(model.options().autoAcceptSharedAttachments().equals(AutoAcceptSharedAttachmentsValue.ENABLE));
-        setEnableDefaultRouteTableAssoc(model.options().defaultRouteTableAssociation().equals(DefaultRouteTableAssociationValue.ENABLE));
-        setEnableDefaultRouteTableProp(model.options().defaultRouteTablePropagation().equals(DefaultRouteTablePropagationValue.ENABLE));
-        setEnableDnsSupport(model.options().dnsSupport().equals(DnsSupportValue.ENABLE));
-        setEnableVpnEcmpSupport(model.options().vpnEcmpSupport().equals(VpnEcmpSupportValue.ENABLE));
-        setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
-        setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
-        refreshTags();
     }
 
     private boolean checkState(TransitGatewayState state, Ec2Client client) {
