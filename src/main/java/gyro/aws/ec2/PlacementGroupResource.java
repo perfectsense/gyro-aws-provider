@@ -23,7 +23,9 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
@@ -71,6 +73,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
      * Approaches towards managing the placement of instances on the underlying hardware. Valid values are ``cluster``, ``spread`` or ``partition``.
      * Defaults to the``cluster`` strategy. (Required)
      */
+    @Required
     public PlacementStrategy getPlacementStrategy() {
         return placementStrategy;
     }
@@ -94,6 +97,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
      * The ID of the Placement Group.
      */
     @Id
+    @Output
     public String getId() {
         return id;
     }
