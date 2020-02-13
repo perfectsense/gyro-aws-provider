@@ -260,11 +260,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .build()
         );
 
-        setId(response.transitGateway().transitGatewayId());
-        setArn(response.transitGateway().transitGatewayArn());
-        setOwnerId(response.transitGateway().ownerId());
-        setAssociationDefaultRouteTableId(response.transitGateway().options().associationDefaultRouteTableId());
-        setPropagationDefaultRouteTableId(response.transitGateway().options().propagationDefaultRouteTableId());
+        copyFrom(response.transitGateway());
 
         boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
