@@ -67,7 +67,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
 
     /**
-     * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. The range is ``64512`` to ``65534`` for 16-bit ASNs and ``4200000000`` to ``4294967294`` for 32-bit ASNs. Defaults to ``64512``.
+     * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. Valid values belong in between ``64512`` to ``65534`` for a 16-bit ASN or between ``4200000000`` to ``4294967294`` for a 32-bit ASN. Defaults to ``64512``.
      */
     @Ranges(value={@Range(min=64512, max=65534), @Range(min=4200000000L, max=4294967294L)})
     public Long getAmazonSideAsn() {
