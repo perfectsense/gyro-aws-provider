@@ -25,6 +25,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -43,7 +44,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     aws::placement-group example-placement-group
- *         group-name: "TestGroup"
+ *         name: "TestGroup"
  *         placement-strategy: "partition"
  *         partition-count: 3
  *     end
@@ -51,8 +52,8 @@ import java.util.Set;
 @Type("placement-group")
 public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> implements Copyable<PlacementGroup> {
 
-    private String groupName;
-    private PlacementStrategy placementStrategy = PlacementStrategy.CLUSTER;
+    private String name;
+    private PlacementStrategy placementStrategy;
     private Integer partitionCount;
 
     // Read-only
@@ -61,12 +62,13 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     /**
      * The name of the Placement Group. (Required)
      */
-    public String getGroupName() {
-        return groupName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -85,6 +87,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     /**
      * The number of partitions comprising the Placement Group. Valid values are within 1 to 7. Only required when strategy is set to ``partition``.
      */
+    @Range(min= 1, max= 7)
     public Integer getPartitionCount() {
         return partitionCount;
     }
@@ -112,24 +115,41 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     @Override
+    public void copyFrom(PlacementGroup model) {
+        setId(model.groupId());
+        setName(model.groupName());
+        setPlacementStrategy(model.strategy());
+        setPartitionCount(model.partitionCount());
+        refreshTags();
+    }
+
+    @Override
+    public boolean doRefresh() {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        if (ObjectUtils.isBlank(getName())) {
+            throw new GyroException("group name is missing, unable to load placement group.");
+        }
+
+        PlacementGroup group = getPlacementGroup(client);
+
+        if (group == null) {
+            return false;
+        }
+
+        copyFrom(group);
+        return true;
+    }
+
+    @Override
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
-        CreatePlacementGroupRequest createRequest = CreatePlacementGroupRequest.builder().groupName(getGroupName()).strategy(getPlacementStrategy()).partitionCount(getPartitionCount()).build();
-        CreatePlacementGroupResponse createResponse = client.createPlacementGroup(createRequest);
 
-        DescribePlacementGroupsRequest describeRequest = DescribePlacementGroupsRequest.builder().groupNames(getGroupName()).build();
-        PlacementGroup group = null;
-        try {
-            DescribePlacementGroupsResponse describeResponse = client.describePlacementGroups(describeRequest);
-            if (!describeResponse.placementGroups().isEmpty()) {
-                group = describeResponse.placementGroups().get(0);
-            }
+        client.createPlacementGroup(r -> r.groupName(getName())
+                .strategy(getPlacementStrategy())
+                .partitionCount(getPartitionCount()));
 
-        } catch (Ec2Exception ex) {
-            if (!ex.getLocalizedMessage().contains("unknown")) {
-                throw ex;
-            }
-        }
+        PlacementGroup group = getPlacementGroup(client);
 
         if (group != null) {
             setId(group.groupId());
@@ -143,18 +163,33 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     @Override
-    public boolean doRefresh() {
+    public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
-        if (ObjectUtils.isBlank(getGroupName())) {
-            throw new GyroException("group name is missing, unable to load placement group.");
+        client.deletePlacementGroup(r -> r.groupName(getName()));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if ((getPlacementStrategy() == PlacementStrategy.PARTITION) && (getPartitionCount() == null)) {
+            ValidationError error = new ValidationError(this, "partitionCount", "Partition count is required when strategy is set to ``partition``");
+            errors.add(error);
+
+        } else if ((getPlacementStrategy() != PlacementStrategy.PARTITION) && (getPartitionCount() != null)) {
+            ValidationError error = new ValidationError(this, "partitionCount", "Partition count must be excluded when strategy is not set to ``partition``");
+            errors.add(error);
         }
 
-        DescribePlacementGroupsRequest request = DescribePlacementGroupsRequest.builder().groupNames(getGroupName()).build();
+        return errors;
+    }
+
+    private PlacementGroup getPlacementGroup(Ec2Client client) {
         PlacementGroup group = null;
         try {
-            DescribePlacementGroupsResponse response = client.describePlacementGroups(request);
-            if (!response.placementGroups().isEmpty()) {
-                group = response.placementGroups().get(0);
+            DescribePlacementGroupsResponse describeResponse = client.describePlacementGroups(r -> r.groupNames(getName()));
+            if (!describeResponse.placementGroups().isEmpty()) {
+                group = describeResponse.placementGroups().get(0);
             }
 
         } catch (Ec2Exception ex) {
@@ -163,46 +198,6 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
             }
         }
 
-        if (group == null) {
-            return false;
-        }
-
-        copyFrom(group);
-        return true;
-    }
-
-    @Override
-    public void copyFrom(PlacementGroup model) {
-        setId(model.groupId());
-        setGroupName(model.groupName());
-        setPlacementStrategy(model.strategy());
-        setPartitionCount(model.partitionCount());
-        refreshTags();
-    }
-
-    @Override
-    public void delete(GyroUI ui, State state) throws Exception {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        DeletePlacementGroupRequest request = DeletePlacementGroupRequest.builder().groupName(getGroupName()).build();
-
-        client.deletePlacementGroup(request);
-    }
-
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
-
-        if (getPlacementStrategy() == PlacementStrategy.PARTITION) {
-            if (getPartitionCount() == null || getPartitionCount() < 1 || getPartitionCount() > 7) {
-                ValidationError error = new ValidationError(this, "partitionCount", "Partition count must range from 1 to 7.");
-                errors.add(error);
-            }
-        } else if (getPartitionCount() != null) {
-            ValidationError error = new ValidationError(this, "partitionCount", "Partition count must be excluded unless placement strategy is 'partition'.");
-            errors.add(error);
-        }
-
-        return errors;
+        return group;
     }
 }
