@@ -128,6 +128,10 @@ public class SecurityGroupRulesResource extends AwsResource {
         Ec2Client client = createClient(Ec2Client.class);
 
         SecurityGroup group = getSecurityGroup(client);
+        if (group == null) {
+            return false;
+        }
+
         copyFrom(group);
 
         return true;
