@@ -17,6 +17,7 @@
 package gyro.aws.ec2;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -288,6 +289,10 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     private TransitGateway getTransitGateway(Ec2Client client) {
-        return client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways().get(0);
+        List<TransitGateway> transitGateways = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways();
+        if (transitGateways.isEmpty()) {
+            return null;
+        }
+        return transitGateways.get(0);
     }
 }
