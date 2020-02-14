@@ -230,11 +230,11 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
-        DescribeTransitGatewaysResponse response = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId())));
-        if (response.transitGateways().isEmpty()) {
+        TransitGateway gateway = getTransitGateway(client);
+        if (gateway == null) {
             return false;
         }
-        copyFrom(response.transitGateways().get(0));
+        copyFrom(gateway);
         return true;
     }
 
@@ -262,11 +262,14 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(1, TimeUnit.MINUTES)
                 .prompt(false)
-                .until(() -> checkState(TransitGatewayState.AVAILABLE, client));
+                .until(() -> {
+                    TransitGateway gateway = getTransitGateway(client);
+                    return gateway != null && gateway.state().equals(TransitGatewayState.AVAILABLE);
+                });
     }
 
     @Override
-    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set changedProperties) {
+    protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 
@@ -278,11 +281,13 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(1, TimeUnit.MINUTES)
                 .prompt(false)
-                .until(() -> checkState(TransitGatewayState.DELETED, client));
+                .until(() -> {
+                    TransitGateway gateway = getTransitGateway(client);
+                    return gateway == null || gateway.state().equals(TransitGatewayState.DELETED);
+                });
     }
 
-    private boolean checkState(TransitGatewayState state, Ec2Client client) {
-        TransitGateway gateway = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways().get(0);
-        return gateway.state().equals(state);
+    private TransitGateway getTransitGateway(Ec2Client client) {
+        return client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways().get(0);
     }
 }
