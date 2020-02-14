@@ -259,8 +259,8 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
         copyFrom(response.transitGateway());
 
-        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
+        Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(1, TimeUnit.MINUTES)
                 .prompt(false)
                 .until(() -> checkState(TransitGatewayState.AVAILABLE, client));
     }
@@ -271,12 +271,12 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     @Override
-    public void delete(GyroUI ui, State state) throws Exception {
+    public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
         client.deleteTransitGateway(DeleteTransitGatewayRequest.builder().transitGatewayId(getId()).build());
 
-        boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
+        Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(1, TimeUnit.MINUTES)
                 .prompt(false)
                 .until(() -> checkState(TransitGatewayState.DELETED, client));
     }
