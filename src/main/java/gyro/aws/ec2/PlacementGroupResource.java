@@ -128,7 +128,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
         Ec2Client client = createClient(Ec2Client.class);
 
         if (ObjectUtils.isBlank(getName())) {
-            throw new GyroException("group name is missing, unable to load placement group.");
+            throw new GyroException("name is missing, unable to load placement group.");
         }
 
         PlacementGroup group = getPlacementGroup(client);
