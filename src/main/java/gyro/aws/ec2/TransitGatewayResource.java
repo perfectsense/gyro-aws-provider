@@ -236,6 +236,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
             return false;
         }
         copyFrom(gateway);
+
         return true;
     }
 
@@ -289,10 +290,22 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     }
 
     private TransitGateway getTransitGateway(Ec2Client client) {
-        List<TransitGateway> transitGateways = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId()))).transitGateways();
-        if (transitGateways.isEmpty()) {
-            return null;
+        TransitGateway gateway = null;
+
+        try {
+            DescribeTransitGatewaysResponse response = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId())));
+
+            List<TransitGateway> transitGateways = response.transitGateways();
+            if (!transitGateways.isEmpty() && !transitGateways.get(0).state().equals(TransitGatewayState.DELETED) && !transitGateways.get(0).state().equals(TransitGatewayState.DELETING)) {
+                gateway = transitGateways.get(0);
+            }
+
+        } catch (Ec2Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("InvalidTransitGatewayID.NotFound")) {
+                throw ex;
+            }
         }
-        return transitGateways.get(0);
+
+        return gateway;
     }
 }
