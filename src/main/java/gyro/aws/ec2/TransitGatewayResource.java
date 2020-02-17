@@ -247,6 +247,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .build()
         );
 
+        // Refreshing the tags before the resource is created (available) would reset the tags to an empty Map since the tags are added after the resource is created (available).
         copyFrom(response.transitGateway(), false);
 
         Wait.atMost(3, TimeUnit.MINUTES)
@@ -272,8 +273,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .checkEvery(1, TimeUnit.MINUTES)
                 .prompt(false)
                 .until(() -> {
-                    TransitGateway gateway = getTransitGateway(client);
-                    return gateway == null;
+                    return getTransitGateway(client) == null;
                 });
     }
 
