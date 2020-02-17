@@ -232,7 +232,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
         TransitGateway gateway = getTransitGateway(client);
-        if (gateway == null) {
+        if (gateway == null || gateway.state().equals(TransitGatewayState.DELETING)) {
             return false;
         }
         copyFrom(gateway);
@@ -285,7 +285,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .prompt(false)
                 .until(() -> {
                     TransitGateway gateway = getTransitGateway(client);
-                    return gateway == null || gateway.state().equals(TransitGatewayState.DELETED);
+                    return gateway == null;
                 });
     }
 
@@ -296,7 +296,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
             DescribeTransitGatewaysResponse response = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId())));
 
             List<TransitGateway> transitGateways = response.transitGateways();
-            if (!transitGateways.isEmpty() && !transitGateways.get(0).state().equals(TransitGatewayState.DELETED) && !transitGateways.get(0).state().equals(TransitGatewayState.DELETING)) {
+            if (!transitGateways.isEmpty() && !transitGateways.get(0).state().equals(TransitGatewayState.DELETED)) {
                 gateway = transitGateways.get(0);
             }
 
