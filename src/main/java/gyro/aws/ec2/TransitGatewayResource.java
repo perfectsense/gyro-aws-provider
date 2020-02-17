@@ -213,8 +213,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
     @Override
     public void copyFrom(TransitGateway model) {
-        copyFieldsFromModel(model);
-        refreshTags();
+        copyFrom(model, true);
     }
 
     @Override
@@ -248,7 +247,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .build()
         );
 
-        copyFieldsFromModel(response.transitGateway());
+        copyFrom(response.transitGateway(), false);
 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(1, TimeUnit.MINUTES)
@@ -298,7 +297,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         return gateway;
     }
 
-    private void copyFieldsFromModel(TransitGateway model) {
+    private void copyFrom(TransitGateway model, boolean refreshTags) {
         setId(model.transitGatewayId());
         setOwnerId(model.ownerId());
         setArn(model.transitGatewayArn());
@@ -311,5 +310,8 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         setEnableVpnEcmpSupport(model.options().vpnEcmpSupport());
         setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
         setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
+        if (refreshTags) {
+            refreshTags();
+        }
     }
 }
