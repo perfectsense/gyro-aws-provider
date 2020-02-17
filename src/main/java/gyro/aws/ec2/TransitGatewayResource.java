@@ -213,18 +213,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
     @Override
     public void copyFrom(TransitGateway model) {
-        setId(model.transitGatewayId());
-        setOwnerId(model.ownerId());
-        setArn(model.transitGatewayArn());
-        setAmazonSideAsn(model.options().amazonSideAsn());
-        setDescription(model.description());
-        setEnableAutoAcceptSharedAttach(model.options().autoAcceptSharedAttachments());
-        setEnableDefaultRouteTableAssoc(model.options().defaultRouteTableAssociation());
-        setEnableDefaultRouteTableProp(model.options().defaultRouteTablePropagation());
-        setEnableDnsSupport(model.options().dnsSupport());
-        setEnableVpnEcmpSupport(model.options().vpnEcmpSupport());
-        setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
-        setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
+        copyFieldsFromModel(model);
         refreshTags();
     }
 
@@ -259,7 +248,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .build()
         );
 
-        copyFrom(response.transitGateway());
+        copyFieldsFromModel(response.transitGateway());
 
         Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(1, TimeUnit.MINUTES)
@@ -307,5 +296,20 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         }
 
         return gateway;
+    }
+
+    private void copyFieldsFromModel(TransitGateway model) {
+        setId(model.transitGatewayId());
+        setOwnerId(model.ownerId());
+        setArn(model.transitGatewayArn());
+        setAmazonSideAsn(model.options().amazonSideAsn());
+        setDescription(model.description());
+        setEnableAutoAcceptSharedAttach(model.options().autoAcceptSharedAttachments());
+        setEnableDefaultRouteTableAssoc(model.options().defaultRouteTableAssociation());
+        setEnableDefaultRouteTableProp(model.options().defaultRouteTablePropagation());
+        setEnableDnsSupport(model.options().dnsSupport());
+        setEnableVpnEcmpSupport(model.options().vpnEcmpSupport());
+        setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
+        setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
     }
 }
