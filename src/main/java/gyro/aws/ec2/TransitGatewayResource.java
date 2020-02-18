@@ -42,20 +42,28 @@ import software.amazon.awssdk.services.ec2.model.*;
  * .. code-block:: gyro
  *
  *     aws::transit-gateway transit-gateway-example
- *         amazonSideAsn: "64513"
- *         enable-dns-support: true
- *         description "new example transit gateway"
+ *        description: "example transit gateway"
+ *        amazon-side-asn: 64512
+ *        dns-support: enable
+ *        vpn-ecmp-support: enable
+ *        default-route-table-association: disable
+ *        default-route-table-propagation: enable
+ *        auto-accept-shared-attachments: disable
+ *
+ *        tags: {
+ *            Name: "Aws EC2 Transit Gateway Resource Example"
+ *        }
  *     end
  */
 @Type("transit-gateway")
 public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> implements Copyable<TransitGateway> {
 
     private Long amazonSideAsn;
-    private DnsSupportValue enableDnsSupport;
-    private VpnEcmpSupportValue enableVpnEcmpSupport;
-    private DefaultRouteTableAssociationValue enableDefaultRouteTableAssoc;
-    private DefaultRouteTablePropagationValue enableDefaultRouteTableProp;
-    private AutoAcceptSharedAttachmentsValue enableAutoAcceptSharedAttach;
+    private DnsSupportValue dnsSupport;
+    private VpnEcmpSupportValue vpnEcmpSupport;
+    private DefaultRouteTableAssociationValue defaultRouteTableAssociation;
+    private DefaultRouteTablePropagationValue defaultRouteTablePropagation;
+    private AutoAcceptSharedAttachmentsValue autoAcceptSharedAttachments;
     private String description;
 
     // Read only
@@ -82,56 +90,56 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     /**
      * Enable the VPC to resolve public IPv4 DNS host names to private IPv4 addresses when queried from instances in another VPC attached to the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
-    public DnsSupportValue getEnableDnsSupport() {
-        return enableDnsSupport;
+    public DnsSupportValue getDnsSupport() {
+        return dnsSupport;
     }
 
-    public void setEnableDnsSupport(DnsSupportValue enableDnsSupport) {
-        this.enableDnsSupport = enableDnsSupport;
+    public void setDnsSupport(DnsSupportValue dnsSupport) {
+        this.dnsSupport = dnsSupport;
     }
 
     /**
      * Enable Equal Cost Multipath (ECMP) routing support between VPN connections. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
-    public VpnEcmpSupportValue getEnableVpnEcmpSupport() {
-        return enableVpnEcmpSupport;
+    public VpnEcmpSupportValue getVpnEcmpSupport() {
+        return vpnEcmpSupport;
     }
 
-    public void setEnableVpnEcmpSupport(VpnEcmpSupportValue enableVpnEcmpSupport) {
-        this.enableVpnEcmpSupport = enableVpnEcmpSupport;
+    public void setVpnEcmpSupport(VpnEcmpSupportValue vpnEcmpSupport) {
+        this.vpnEcmpSupport = vpnEcmpSupport;
     }
 
     /**
      * Enable to automatically associate transit gateway attachments with the default route table for the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
-    public DefaultRouteTableAssociationValue getEnableDefaultRouteTableAssoc() {
-        return enableDefaultRouteTableAssoc;
+    public DefaultRouteTableAssociationValue getDefaultRouteTableAssociation() {
+        return defaultRouteTableAssociation;
     }
 
-    public void setEnableDefaultRouteTableAssoc(DefaultRouteTableAssociationValue enableDefaultRouteTableAssoc) {
-        this.enableDefaultRouteTableAssoc = enableDefaultRouteTableAssoc;
+    public void setDefaultRouteTableAssociation(DefaultRouteTableAssociationValue defaultRouteTableAssociation) {
+        this.defaultRouteTableAssociation = defaultRouteTableAssociation;
     }
 
     /**
      * Enable to automatically propagate transit gateway attachments to the default route table for the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
-    public DefaultRouteTablePropagationValue getEnableDefaultRouteTableProp() {
-        return enableDefaultRouteTableProp;
+    public DefaultRouteTablePropagationValue getDefaultRouteTablePropagation() {
+        return defaultRouteTablePropagation;
     }
 
-    public void setEnableDefaultRouteTableProp(DefaultRouteTablePropagationValue enableDefaultRouteTableProp) {
-        this.enableDefaultRouteTableProp = enableDefaultRouteTableProp;
+    public void setDefaultRouteTablePropagation(DefaultRouteTablePropagationValue defaultRouteTablePropagation) {
+        this.defaultRouteTablePropagation = defaultRouteTablePropagation;
     }
 
     /**
      * Enable to automatically accept cross-account attachments. Valid values ``enable`` or ``disable``. Defaults to ``disable``.
      */
-    public AutoAcceptSharedAttachmentsValue getEnableAutoAcceptSharedAttach() {
-        return enableAutoAcceptSharedAttach;
+    public AutoAcceptSharedAttachmentsValue getAutoAcceptSharedAttachments() {
+        return autoAcceptSharedAttachments;
     }
 
-    public void setEnableAutoAcceptSharedAttach(AutoAcceptSharedAttachmentsValue enableAutoAcceptSharedAttach) {
-        this.enableAutoAcceptSharedAttach = enableAutoAcceptSharedAttach;
+    public void setAutoAcceptSharedAttachments(AutoAcceptSharedAttachmentsValue autoAcceptSharedAttachments) {
+        this.autoAcceptSharedAttachments = autoAcceptSharedAttachments;
     }
 
     /**
@@ -234,11 +242,11 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
         TransitGatewayRequestOptions options = TransitGatewayRequestOptions.builder()
                 .amazonSideAsn(getAmazonSideAsn())
-                .autoAcceptSharedAttachments(getEnableAutoAcceptSharedAttach())
-                .defaultRouteTableAssociation(getEnableDefaultRouteTableAssoc())
-                .defaultRouteTablePropagation(getEnableDefaultRouteTableProp())
-                .dnsSupport(getEnableDnsSupport())
-                .vpnEcmpSupport(getEnableVpnEcmpSupport())
+                .autoAcceptSharedAttachments(getAutoAcceptSharedAttachments())
+                .defaultRouteTableAssociation(getDefaultRouteTableAssociation())
+                .defaultRouteTablePropagation(getDefaultRouteTablePropagation())
+                .dnsSupport(getDnsSupport())
+                .vpnEcmpSupport(getVpnEcmpSupport())
                 .build();
 
         CreateTransitGatewayResponse response = client.createTransitGateway(CreateTransitGatewayRequest.builder()
@@ -303,11 +311,11 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         setArn(model.transitGatewayArn());
         setAmazonSideAsn(model.options().amazonSideAsn());
         setDescription(model.description());
-        setEnableAutoAcceptSharedAttach(model.options().autoAcceptSharedAttachments());
-        setEnableDefaultRouteTableAssoc(model.options().defaultRouteTableAssociation());
-        setEnableDefaultRouteTableProp(model.options().defaultRouteTablePropagation());
-        setEnableDnsSupport(model.options().dnsSupport());
-        setEnableVpnEcmpSupport(model.options().vpnEcmpSupport());
+        setAutoAcceptSharedAttachments(model.options().autoAcceptSharedAttachments());
+        setDefaultRouteTableAssociation(model.options().defaultRouteTableAssociation());
+        setDefaultRouteTablePropagation(model.options().defaultRouteTablePropagation());
+        setDnsSupport(model.options().dnsSupport());
+        setVpnEcmpSupport(model.options().vpnEcmpSupport());
         setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
         setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
         if (refreshTags) {
