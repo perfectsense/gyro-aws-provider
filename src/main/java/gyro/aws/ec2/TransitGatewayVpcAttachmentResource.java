@@ -175,13 +175,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
 
         copyFrom(response.transitGatewayVpcAttachment(), false);
 
-        Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> {
-                    TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
-                    return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                });
+        waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
     }
 
     @Override
@@ -190,13 +184,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         if (changedProperties.contains("dns-support")) {
             client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .options(s -> s.dnsSupport(getDnsSupport())));
-            Wait.atMost(30, TimeUnit.SECONDS)
-                    .checkEvery(5, TimeUnit.SECONDS)
-                    .prompt(false)
-                    .until(() -> {
-                        TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
-                        return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                    });
+            waitForAvailability(2, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, client);
         }
 
         if (changedProperties.contains("subnets")) {
@@ -211,37 +199,19 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                         .addSubnetIds(subnetsToAdd).removeSubnetIds(subnetsToRemove));
 
-                Wait.atMost(2, TimeUnit.MINUTES)
-                        .checkEvery(30, TimeUnit.SECONDS)
-                        .prompt(false)
-                        .until(() -> {
-                            TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
-                            return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                        });
+                waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
 
             } else if (!subnetsToAdd.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                         .addSubnetIds(subnetsToAdd));
 
-                Wait.atMost(2, TimeUnit.MINUTES)
-                        .checkEvery(30, TimeUnit.SECONDS)
-                        .prompt(false)
-                        .until(() -> {
-                            TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
-                            return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                        });
+                waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
 
             } else if (!subnetsToRemove.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                         .removeSubnetIds(subnetsToRemove));
 
-                Wait.atMost(2, TimeUnit.MINUTES)
-                        .checkEvery(30, TimeUnit.SECONDS)
-                        .prompt(false)
-                        .until(() -> {
-                            TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
-                            return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                        });
+                waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
             }
         }
     }
@@ -289,5 +259,15 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         if (refreshTags) {
             refreshTags();
         }
+    }
+
+    private void waitForAvailability(Integer duration, TimeUnit durationUnit, Integer interval, TimeUnit intervalUnit, Ec2Client client) {
+        Wait.atMost(duration, durationUnit)
+                .checkEvery(interval, intervalUnit)
+                .prompt(false)
+                .until(() -> {
+                    TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
+                    return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
+                });
     }
 }
