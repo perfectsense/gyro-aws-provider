@@ -285,6 +285,12 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 });
     }
 
+    public void acceptTransitGatewayPeeringAttachment(String attachmentId) {
+        Ec2Client client = createClient(Ec2Client.class);
+
+        client.acceptTransitGatewayPeeringAttachment(r -> r.transitGatewayAttachmentId(attachmentId));
+    }
+
     private TransitGateway getTransitGateway(Ec2Client client) {
         TransitGateway gateway = null;
 

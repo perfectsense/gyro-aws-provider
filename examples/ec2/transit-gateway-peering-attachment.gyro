@@ -1,0 +1,37 @@
+aws::transit-gateway example-transit-gateway
+   description: "example transit gateway for peering attachment"
+   amazon-side-asn: 64512
+   dns-support: enable
+   vpn-ecmp-support: enable
+   default-route-table-association: disable
+   default-route-table-propagation: enable
+   auto-accept-shared-attachments: disable
+
+   tags: {
+       Name: "transit-gateway-vpc-attachment-example"
+   }
+end
+
+aws::transit-gateway example-peer-transit-gateway
+   description: "example transit gateway for peering attachment"
+   amazon-side-asn: 64512
+   dns-support: enable
+   vpn-ecmp-support: enable
+   default-route-table-association: disable
+   default-route-table-propagation: enable
+   auto-accept-shared-attachments: disable
+   tags: {
+       Name: "transit-gateway-vpc-attachment-example"
+   }
+   @uses-credentials: "temp-2"
+end
+
+aws::transit-gateway-peering-attachment transit-gateway-peering-attachment-example
+    transit-gateway: $(aws::transit-gateway example-transit-gateway)
+    peer-transit-gateway: $(aws::transit-gateway example-peer-transit-gateway)
+    peer-region: "us-east-1"
+
+    tags: {
+        "example-tag": "example-tag-value"
+    }
+end

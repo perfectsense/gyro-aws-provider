@@ -170,8 +170,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
                 .subnetIds(getSubnets().stream().map(s -> s.getId()).collect(Collectors.toList()))
                 .transitGatewayId(getTransitGateway().getId())
                 .vpcId(getVpc().getId())
-                .options(s -> s.dnsSupport(getDnsSupport()).ipv6Support(getIpv6Support()))
-                .build());
+                .options(s -> s.dnsSupport(getDnsSupport()).ipv6Support(getIpv6Support())));
 
         copyFrom(response.transitGatewayVpcAttachment(), false);
 
@@ -224,9 +223,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         Wait.atMost(2, TimeUnit.MINUTES)
                 .checkEvery(30, TimeUnit.SECONDS)
                 .prompt(false)
-                .until(() -> {
-                    return getTransitGatewayVpcAttachment(client) == null;
-                });
+                .until(() -> getTransitGatewayVpcAttachment(client) == null);
     }
 
     private TransitGatewayVpcAttachment getTransitGatewayVpcAttachment(Ec2Client client) {
