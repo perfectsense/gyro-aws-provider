@@ -64,6 +64,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     private DefaultRouteTableAssociationValue defaultRouteTableAssociation;
     private DefaultRouteTablePropagationValue defaultRouteTablePropagation;
     private AutoAcceptSharedAttachmentsValue autoAcceptSharedAttachments;
+    private MulticastSupportValue multicastSupport;
     private String description;
 
     // Read only
@@ -140,6 +141,17 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
     public void setAutoAcceptSharedAttachments(AutoAcceptSharedAttachmentsValue autoAcceptSharedAttachments) {
         this.autoAcceptSharedAttachments = autoAcceptSharedAttachments;
+    }
+
+    /**
+     * Enable to support Multicast communication protocol. Valid values ``enable`` or ``disable``. Defaults to ``disable``.
+     */
+    public MulticastSupportValue getMulticastSupport() {
+        return multicastSupport;
+    }
+
+    public void setMulticastSupport(MulticastSupportValue multicastSupport) {
+        this.multicastSupport = multicastSupport;
     }
 
     /**
@@ -247,6 +259,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
                 .defaultRouteTablePropagation(getDefaultRouteTablePropagation())
                 .dnsSupport(getDnsSupport())
                 .vpnEcmpSupport(getVpnEcmpSupport())
+                .multicastSupport(getMulticastSupport())
                 .build();
 
         CreateTransitGatewayResponse response = client.createTransitGateway(CreateTransitGatewayRequest.builder()
@@ -320,6 +333,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         setAutoAcceptSharedAttachments(model.options().autoAcceptSharedAttachments());
         setDefaultRouteTableAssociation(model.options().defaultRouteTableAssociation());
         setDefaultRouteTablePropagation(model.options().defaultRouteTablePropagation());
+        setMulticastSupport(model.options().multicastSupport());
         setDnsSupport(model.options().dnsSupport());
         setVpnEcmpSupport(model.options().vpnEcmpSupport());
         setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
