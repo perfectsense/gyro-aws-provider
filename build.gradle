@@ -17,6 +17,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 def releaseVersion = '0.99.1'
@@ -54,6 +55,22 @@ repositories {
 configurations {
     gyroDoclet
 }
+
+shadowJar {
+    classifier = ''
+    include '*.jar'
+    include 'com/fasterxml/**'
+    include 'com/google/**'
+    include 'org/json/**'
+    include 'gyro/aws/**'
+
+    // Relocating common dependencies
+    relocate 'com.fasterxml', 'gyro.aws.fasterxml'
+    relocate 'com.google', 'gyro.aws.google'
+    relocate 'org.json', 'gyro.aws.json'
+}
+
+build.dependsOn shadowJar
 
 dependencies {
     api 'gyro:gyro-core:0.99.1-SNAPSHOT'
