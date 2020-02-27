@@ -16,6 +16,11 @@
 
 package gyro.aws.ec2;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -26,13 +31,19 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
-
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayRouteTableResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayRouteTablesResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRoute;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTable;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTableAssociation;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTablePropagation;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTableState;
 
 @Type("transit-gateway-route-table")
-public class TransitGatewayRouteTableResource extends Ec2TaggableResource<TransitGatewayRouteTable> implements Copyable<TransitGatewayRouteTable> {
+public class TransitGatewayRouteTableResource extends Ec2TaggableResource<TransitGatewayRouteTable>
+    implements Copyable<TransitGatewayRouteTable> {
 
     private TransitGatewayResource transitGateway;
     private List<TransitGatewayRouteTableAssociationResource> association;
@@ -114,10 +125,12 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getAssociation() != null) {
-            List<TransitGatewayRouteTableAssociation> associations = client.getTransitGatewayRouteTableAssociations(r -> r.transitGatewayRouteTableId(getId())).associations();
+            List<TransitGatewayRouteTableAssociation> associations = client.getTransitGatewayRouteTableAssociations(r -> r
+                .transitGatewayRouteTableId(getId())).associations();
             getAssociation().clear();
             for (TransitGatewayRouteTableAssociation a : associations) {
-                TransitGatewayRouteTableAssociationResource associationResource = newSubresource(TransitGatewayRouteTableAssociationResource.class);
+                TransitGatewayRouteTableAssociationResource associationResource = newSubresource(
+                    TransitGatewayRouteTableAssociationResource.class);
                 associationResource.copyFrom(a);
 
                 getAssociation().add(associationResource);
@@ -125,10 +138,12 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
         }
 
         if (getPropagation() != null) {
-            List<TransitGatewayRouteTablePropagation> propagations = client.getTransitGatewayRouteTablePropagations(r -> r.transitGatewayRouteTableId(getId())).transitGatewayRouteTablePropagations();
+            List<TransitGatewayRouteTablePropagation> propagations = client.getTransitGatewayRouteTablePropagations(r -> r
+                .transitGatewayRouteTableId(getId())).transitGatewayRouteTablePropagations();
             getPropagation().clear();
             for (TransitGatewayRouteTablePropagation p : propagations) {
-                TransitGatewayRouteTablePropagationResource propagationResource = newSubresource(TransitGatewayRouteTablePropagationResource.class);
+                TransitGatewayRouteTablePropagationResource propagationResource = newSubresource(
+                    TransitGatewayRouteTablePropagationResource.class);
                 propagationResource.copyFrom(p);
 
                 getPropagation().add(propagationResource);
@@ -136,7 +151,8 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
         }
 
         if (getRoute() != null) {
-            List<TransitGatewayRoute> routes = client.searchTransitGatewayRoutes(r -> r.transitGatewayRouteTableId(getId()).filters(Collections.singleton(Filter.builder().name("type").values("static").build()))).routes();
+            List<TransitGatewayRoute> routes = client.searchTransitGatewayRoutes(r -> r.transitGatewayRouteTableId(getId())
+                .filters(Collections.singleton(Filter.builder().name("type").values("static").build()))).routes();
             getRoute().clear();
             for (TransitGatewayRoute r : routes) {
                 TransitGatewayRouteResource routeResource = newSubresource(TransitGatewayRouteResource.class);
@@ -168,17 +184,18 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateTransitGatewayRouteTableResponse response = client.createTransitGatewayRouteTable(r -> r.transitGatewayId(getTransitGateway().getId()));
+        CreateTransitGatewayRouteTableResponse response = client.createTransitGatewayRouteTable(r -> r.transitGatewayId(
+            getTransitGateway().getId()));
 
         setId(response.transitGatewayRouteTable().transitGatewayRouteTableId());
 
         Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> {
-                    TransitGatewayRouteTable routeTable = getTransitGatewayRouteTable(client);
-                    return routeTable != null && routeTable.state().equals(TransitGatewayRouteTableState.AVAILABLE);
-                });
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> {
+                TransitGatewayRouteTable routeTable = getTransitGatewayRouteTable(client);
+                return routeTable != null && routeTable.state().equals(TransitGatewayRouteTableState.AVAILABLE);
+            });
     }
 
     @Override
@@ -192,19 +209,22 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
         client.deleteTransitGatewayRouteTable(r -> r.transitGatewayRouteTableId(getId()));
 
         Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> getTransitGateway() == null);
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> getTransitGateway() == null);
     }
 
     private TransitGatewayRouteTable getTransitGatewayRouteTable(Ec2Client client) {
         TransitGatewayRouteTable routeTable = null;
 
         try {
-            DescribeTransitGatewayRouteTablesResponse response = client.describeTransitGatewayRouteTables(r -> r.transitGatewayRouteTableIds(Collections.singleton(getId())));
+            DescribeTransitGatewayRouteTablesResponse response = client.describeTransitGatewayRouteTables(r -> r.transitGatewayRouteTableIds(
+                Collections.singleton(getId())));
 
             List<TransitGatewayRouteTable> transitGatewayRouteTables = response.transitGatewayRouteTables();
-            if (!transitGatewayRouteTables.isEmpty() && !transitGatewayRouteTables.get(0).state().equals(TransitGatewayRouteTableState.DELETED)) {
+            if (!transitGatewayRouteTables.isEmpty() && !transitGatewayRouteTables.get(0)
+                .state()
+                .equals(TransitGatewayRouteTableState.DELETED)) {
                 routeTable = transitGatewayRouteTables.get(0);
             }
 

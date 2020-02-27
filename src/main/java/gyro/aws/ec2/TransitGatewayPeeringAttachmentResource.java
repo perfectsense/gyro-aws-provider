@@ -16,6 +16,10 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -27,11 +31,12 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
-
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayPeeringAttachmentRequest;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayPeeringAttachmentResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayPeeringAttachmentsResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentState;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayPeeringAttachment;
 
 /**
  * Creates a transit gateway peering attachment.
@@ -52,7 +57,8 @@ import java.util.concurrent.TimeUnit;
  *      }
  */
 @Type("transit-gateway-peering-attachment")
-public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource<TransitGatewayPeeringAttachment> implements Copyable<TransitGatewayPeeringAttachment> {
+public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource<TransitGatewayPeeringAttachment>
+    implements Copyable<TransitGatewayPeeringAttachment> {
 
     private String peerRegion;
     private TransitGatewayResource peerTransitGateway;
@@ -143,10 +149,12 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getPeerTransitGateway().getArn() == null) {
-            throw new GyroException("Due to account restrictions, please enter an external query for your peer transit gateway");
+            throw new GyroException(
+                "Due to account restrictions, please enter an external query for your peer transit gateway");
         }
 
-        CreateTransitGatewayPeeringAttachmentResponse response = client.createTransitGatewayPeeringAttachment(CreateTransitGatewayPeeringAttachmentRequest.builder()
+        CreateTransitGatewayPeeringAttachmentResponse response = client.createTransitGatewayPeeringAttachment(
+            CreateTransitGatewayPeeringAttachmentRequest.builder()
                 .transitGatewayId(getTransitGateway().getId())
                 .peerTransitGatewayId(getPeerTransitGateway().getId())
                 .peerAccountId(getPeerTransitGateway().getOwnerId())
@@ -156,22 +164,23 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
         setId(peeringAttachment.transitGatewayAttachmentId());
 
         Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(1, TimeUnit.MINUTES)
-                .prompt(false)
-                .until(() -> {
-                    TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
-                    return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.PENDING_ACCEPTANCE);
-                });
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
+            .until(() -> {
+                TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
+                return attachment != null && attachment.state()
+                    .equals(TransitGatewayAttachmentState.PENDING_ACCEPTANCE);
+            });
 
         getPeerTransitGateway().acceptTransitGatewayPeeringAttachment(getId());
 
         Wait.atMost(10, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.MINUTES)
-                .prompt(false)
-                .until(() -> {
-                    TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
-                    return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                });
+            .checkEvery(2, TimeUnit.MINUTES)
+            .prompt(false)
+            .until(() -> {
+                TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
+                return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
+            });
     }
 
     @Override
@@ -185,19 +194,22 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
         client.deleteTransitGatewayPeeringAttachment(r -> r.transitGatewayAttachmentId(getId()));
 
         Wait.atMost(5, TimeUnit.MINUTES)
-                .checkEvery(1, TimeUnit.MINUTES)
-                .prompt(false)
-                .until(() -> getTransitGatewayPeeringAttachment(client) == null);
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
+            .until(() -> getTransitGatewayPeeringAttachment(client) == null);
     }
 
     private TransitGatewayPeeringAttachment getTransitGatewayPeeringAttachment(Ec2Client client) {
         TransitGatewayPeeringAttachment attachment = null;
 
         try {
-            DescribeTransitGatewayPeeringAttachmentsResponse response = client.describeTransitGatewayPeeringAttachments(r -> r.transitGatewayAttachmentIds(getId()));
+            DescribeTransitGatewayPeeringAttachmentsResponse response = client.describeTransitGatewayPeeringAttachments(
+                r -> r.transitGatewayAttachmentIds(getId()));
 
             List<TransitGatewayPeeringAttachment> transitGatewayPeeringAttachments = response.transitGatewayPeeringAttachments();
-            if (!transitGatewayPeeringAttachments.isEmpty() && !transitGatewayPeeringAttachments.get(0).state().equals(TransitGatewayAttachmentState.DELETED)) {
+            if (!transitGatewayPeeringAttachments.isEmpty() && !transitGatewayPeeringAttachments.get(0)
+                .state()
+                .equals(TransitGatewayAttachmentState.DELETED)) {
                 attachment = transitGatewayPeeringAttachments.get(0);
             }
 

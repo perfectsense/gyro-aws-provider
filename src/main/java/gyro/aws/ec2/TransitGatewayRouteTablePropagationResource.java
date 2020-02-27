@@ -16,6 +16,8 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -24,8 +26,6 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTablePropagation;
-
-import java.util.Set;
 
 /**
  * Propagate an attachment to a transit gateway route table.
@@ -39,7 +39,8 @@ import java.util.Set;
  *          vpc-attachment: $(aws::transit-gateway-vpc-attachment vpc-attachment-example)
  *      end
  */
-public class TransitGatewayRouteTablePropagationResource extends AwsResource implements Copyable<TransitGatewayRouteTablePropagation> {
+public class TransitGatewayRouteTablePropagationResource extends AwsResource
+    implements Copyable<TransitGatewayRouteTablePropagation> {
 
     private TransitGatewayVpcAttachmentResource vpcAttachment;
 
@@ -75,7 +76,8 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource imp
     public void create(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.enableTransitGatewayRouteTablePropagation(r -> r.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
+        client.enableTransitGatewayRouteTablePropagation(r -> r.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
+            .getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
     }
 
     @Override
@@ -87,6 +89,7 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource imp
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
-        client.disableTransitGatewayRouteTablePropagation(r -> r.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
+        client.disableTransitGatewayRouteTablePropagation(r -> r.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
+            .getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
     }
 }

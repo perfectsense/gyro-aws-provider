@@ -16,6 +16,10 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -26,11 +30,15 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
-
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayMulticastDomainResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayMulticastDomainsResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentState;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomain;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomainAssociation;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomainState;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastGroup;
 
 /**
  * Creates a transit gateway multicast domain.
@@ -55,7 +63,8 @@ import java.util.concurrent.TimeUnit;
  *     end
  */
 @Type("transit-gateway-multicast-domain")
-public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<TransitGatewayMulticastDomain> implements Copyable<TransitGatewayMulticastDomain> {
+public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<TransitGatewayMulticastDomain>
+    implements Copyable<TransitGatewayMulticastDomain> {
 
     private TransitGatewayResource transitGateway;
     private List<TransitGatewayMulticastDomainAssociationResource> association;
@@ -137,10 +146,12 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getAssociation() != null) {
-            List<TransitGatewayMulticastDomainAssociation> associations = client.getTransitGatewayMulticastDomainAssociations(r -> r.transitGatewayMulticastDomainId(getId())).multicastDomainAssociations();
+            List<TransitGatewayMulticastDomainAssociation> associations = client.getTransitGatewayMulticastDomainAssociations(
+                r -> r.transitGatewayMulticastDomainId(getId())).multicastDomainAssociations();
             getAssociation().clear();
             for (TransitGatewayMulticastDomainAssociation a : associations) {
-                TransitGatewayMulticastDomainAssociationResource associationResource = newSubresource(TransitGatewayMulticastDomainAssociationResource.class);
+                TransitGatewayMulticastDomainAssociationResource associationResource = newSubresource(
+                    TransitGatewayMulticastDomainAssociationResource.class);
                 associationResource.copyFrom(a);
 
                 getAssociation().add(associationResource);
@@ -148,10 +159,12 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
         }
 
         if (getGroupMember() != null) {
-            List<TransitGatewayMulticastGroup> groupMembers = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(getId()).filters(Filter.builder().name("is-group-member").values("true").build())).multicastGroups();
+            List<TransitGatewayMulticastGroup> groupMembers = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(
+                getId()).filters(Filter.builder().name("is-group-member").values("true").build())).multicastGroups();
             getGroupMember().clear();
             for (TransitGatewayMulticastGroup g : groupMembers) {
-                TransitGatewayMulticastDomainGroupMemberResource groupMemberResource = newSubresource(TransitGatewayMulticastDomainGroupMemberResource.class);
+                TransitGatewayMulticastDomainGroupMemberResource groupMemberResource = newSubresource(
+                    TransitGatewayMulticastDomainGroupMemberResource.class);
                 groupMemberResource.copyFrom(g);
 
                 getGroupMember().add(groupMemberResource);
@@ -159,10 +172,12 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
         }
 
         if (getGroupSource() != null) {
-            List<TransitGatewayMulticastGroup> groupSources = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(getId()).filters(Filter.builder().name("is-group-source").values("true").build())).multicastGroups();
+            List<TransitGatewayMulticastGroup> groupSources = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(
+                getId()).filters(Filter.builder().name("is-group-source").values("true").build())).multicastGroups();
             getGroupSource().clear();
             for (TransitGatewayMulticastGroup g : groupSources) {
-                TransitGatewayMulticastDomainGroupSourceResource groupSourceResource = newSubresource(TransitGatewayMulticastDomainGroupSourceResource.class);
+                TransitGatewayMulticastDomainGroupSourceResource groupSourceResource = newSubresource(
+                    TransitGatewayMulticastDomainGroupSourceResource.class);
                 groupSourceResource.copyFrom(g);
 
                 getGroupSource().add(groupSourceResource);
@@ -191,16 +206,17 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateTransitGatewayMulticastDomainResponse response = client.createTransitGatewayMulticastDomain(r -> r.transitGatewayId(getTransitGateway().getId()));
+        CreateTransitGatewayMulticastDomainResponse response = client.createTransitGatewayMulticastDomain(r -> r.transitGatewayId(
+            getTransitGateway().getId()));
         setId(response.transitGatewayMulticastDomain().transitGatewayMulticastDomainId());
 
         Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> {
-                    TransitGatewayMulticastDomain domain = getTransitGatewayMulticastDomain(client);
-                    return domain != null && domain.state().equals(TransitGatewayMulticastDomainState.AVAILABLE);
-                });
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> {
+                TransitGatewayMulticastDomain domain = getTransitGatewayMulticastDomain(client);
+                return domain != null && domain.state().equals(TransitGatewayMulticastDomainState.AVAILABLE);
+            });
     }
 
     @Override
@@ -215,19 +231,22 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
         client.deleteTransitGatewayMulticastDomain(r -> r.transitGatewayMulticastDomainId(getId()));
 
         Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> getTransitGatewayMulticastDomain(client) == null);
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> getTransitGatewayMulticastDomain(client) == null);
     }
 
     private TransitGatewayMulticastDomain getTransitGatewayMulticastDomain(Ec2Client client) {
         TransitGatewayMulticastDomain domain = null;
 
         try {
-            DescribeTransitGatewayMulticastDomainsResponse response = client.describeTransitGatewayMulticastDomains(r -> r.transitGatewayMulticastDomainIds(getId()));
+            DescribeTransitGatewayMulticastDomainsResponse response = client.describeTransitGatewayMulticastDomains(r -> r
+                .transitGatewayMulticastDomainIds(getId()));
 
             List<TransitGatewayMulticastDomain> transitGatewayMulticastDomains = response.transitGatewayMulticastDomains();
-            if (!transitGatewayMulticastDomains.isEmpty() && !transitGatewayMulticastDomains.get(0).state().equals(TransitGatewayAttachmentState.DELETED)) {
+            if (!transitGatewayMulticastDomains.isEmpty() && !transitGatewayMulticastDomains.get(0)
+                .state()
+                .equals(TransitGatewayAttachmentState.DELETED)) {
                 domain = transitGatewayMulticastDomains.get(0);
             }
 

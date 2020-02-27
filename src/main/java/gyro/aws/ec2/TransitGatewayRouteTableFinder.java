@@ -16,13 +16,13 @@
 
 package gyro.aws.ec2;
 
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTable;
 
 /**
  * Query transit gateway route table.
@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
  *    transit-gateway-route-table: $(external-query aws::transit-gateway-route-table { state: "available" })
  */
 @Type("transit-gateway-route-table")
-public class TransitGatewayRouteTableFinder extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayRouteTable, TransitGatewayRouteTableResource> {
+public class TransitGatewayRouteTableFinder
+    extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayRouteTable, TransitGatewayRouteTableResource> {
 
     private String transitGatewayRouteTableId;
     private String transitGatewayId;
@@ -100,11 +101,17 @@ public class TransitGatewayRouteTableFinder extends Ec2TaggableAwsFinder<Ec2Clie
 
     @Override
     protected List<TransitGatewayRouteTable> findAllAws(Ec2Client client) {
-        return client.describeTransitGatewayRouteTablesPaginator().transitGatewayRouteTables().stream().collect(Collectors.toList());
+        return client.describeTransitGatewayRouteTablesPaginator()
+            .transitGatewayRouteTables()
+            .stream()
+            .collect(Collectors.toList());
     }
 
     @Override
     protected List<TransitGatewayRouteTable> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeTransitGatewayRouteTablesPaginator(r -> r.filters(createFilters(filters))).transitGatewayRouteTables().stream().collect(Collectors.toList());
+        return client.describeTransitGatewayRouteTablesPaginator(r -> r.filters(createFilters(filters)))
+            .transitGatewayRouteTables()
+            .stream()
+            .collect(Collectors.toList());
     }
 }

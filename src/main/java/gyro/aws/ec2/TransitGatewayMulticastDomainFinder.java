@@ -16,14 +16,13 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Map;
+
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayMulticastDomainsRequest;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomain;
-
-import java.util.List;
-import java.util.Map;
-
 
 /**
  * Query transit gateway multicast domains.
@@ -36,7 +35,8 @@ import java.util.Map;
  *    transit-gateway-multicast-domain: $(external-query aws::transit-gateway-multicast-domain { tag: { Name: "example-transit-gateway-multicast-domain" }})
  */
 @Type("transit-gateway-multicast-domain")
-public class TransitGatewayMulticastDomainFinder extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayMulticastDomain, TransitGatewayMulticastDomainResource> {
+public class TransitGatewayMulticastDomainFinder
+    extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayMulticastDomain, TransitGatewayMulticastDomainResource> {
 
     private String state;
     private String transitGatewayId;
@@ -77,11 +77,13 @@ public class TransitGatewayMulticastDomainFinder extends Ec2TaggableAwsFinder<Ec
 
     @Override
     protected List<TransitGatewayMulticastDomain> findAllAws(Ec2Client client) {
-        return client.describeTransitGatewayMulticastDomains(DescribeTransitGatewayMulticastDomainsRequest.builder().build()).transitGatewayMulticastDomains();
+        return client.describeTransitGatewayMulticastDomains(DescribeTransitGatewayMulticastDomainsRequest.builder()
+            .build()).transitGatewayMulticastDomains();
     }
 
     @Override
     protected List<TransitGatewayMulticastDomain> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeTransitGatewayMulticastDomains(r -> r.filters(createFilters(filters))).transitGatewayMulticastDomains();
+        return client.describeTransitGatewayMulticastDomains(r -> r.filters(createFilters(filters)))
+            .transitGatewayMulticastDomains();
     }
 }

@@ -16,6 +16,10 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -26,11 +30,10 @@ import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayRouteRequest;
+import software.amazon.awssdk.services.ec2.model.ReplaceTransitGatewayRouteRequest;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRoute;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteAttachment;
 
 /**
  * Add a route to a transit gateway route table.
@@ -68,7 +71,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * Enable blackhole to drop all the traffic that matches this route.
      */
     @Updatable
-    @ConflictsWith({"peering-attachment", "vpc-attachment"})
+    @ConflictsWith({ "peering-attachment", "vpc-attachment" })
     public Boolean getBlackhole() {
         return blackhole;
     }
@@ -81,7 +84,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * The Peering attachment for the route.
      */
     @Updatable
-    @ConflictsWith({"vpc-attachment", "blackhole"})
+    @ConflictsWith({ "vpc-attachment", "blackhole" })
     public TransitGatewayPeeringAttachmentResource getPeeringAttachment() {
         return peeringAttachment;
     }
@@ -94,7 +97,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * The Vpc attachment for the route.
      */
     @Updatable
-    @ConflictsWith({"peering-attachment", "blackhole"})
+    @ConflictsWith({ "peering-attachment", "blackhole" })
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
         return vpcAttachment;
     }
@@ -110,9 +113,13 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
         if (model.hasTransitGatewayAttachments()) {
             TransitGatewayRouteAttachment attachment = model.transitGatewayAttachments().get(0);
             if (attachment.resourceTypeAsString().equals("peering")) {
-                setPeeringAttachment(findById(TransitGatewayPeeringAttachmentResource.class, attachment.transitGatewayAttachmentId()));
+                setPeeringAttachment(findById(
+                    TransitGatewayPeeringAttachmentResource.class,
+                    attachment.transitGatewayAttachmentId()));
             } else if (attachment.resourceTypeAsString().equals("vpc")) {
-                setVpcAttachment(findById(TransitGatewayVpcAttachmentResource.class, attachment.transitGatewayAttachmentId()));
+                setVpcAttachment(findById(
+                    TransitGatewayVpcAttachmentResource.class,
+                    attachment.transitGatewayAttachmentId()));
             }
         }
     }
@@ -131,7 +138,9 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     public void create(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateTransitGatewayRouteRequest.Builder builder = CreateTransitGatewayRouteRequest.builder().destinationCidrBlock(getDestinationCidrBlock()).transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId());
+        CreateTransitGatewayRouteRequest.Builder builder = CreateTransitGatewayRouteRequest.builder()
+            .destinationCidrBlock(getDestinationCidrBlock())
+            .transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId());
 
         if (getBlackhole() != null && getBlackhole().equals(Boolean.TRUE)) {
             builder.blackhole(getBlackhole());
@@ -152,7 +161,9 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
 
         TransitGatewayRouteResource currentRoute = (TransitGatewayRouteResource) current;
 
-        ReplaceTransitGatewayRouteRequest.Builder builder = ReplaceTransitGatewayRouteRequest.builder().destinationCidrBlock(getDestinationCidrBlock()).transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId());
+        ReplaceTransitGatewayRouteRequest.Builder builder = ReplaceTransitGatewayRouteRequest.builder()
+            .destinationCidrBlock(getDestinationCidrBlock())
+            .transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId());
 
         if (getBlackhole() != null && getBlackhole().equals(Boolean.TRUE)) {
             builder.blackhole(getBlackhole());
@@ -170,15 +181,20 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
-        client.deleteTransitGatewayRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock()).transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId()));
+        client.deleteTransitGatewayRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
+            .transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId()));
     }
 
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<ValidationError>();
 
-        if (!configuredFields.contains("peering-attachment") && !configuredFields.contains("vpc-attachment") && !configuredFields.contains("blackhole")) {
-            errors.add(new ValidationError(this, null, "exactly one of 'peering-attachment-resource' or 'vpc-attachment-resource' or 'blackhole' is required"));
+        if (!configuredFields.contains("peering-attachment") && !configuredFields.contains("vpc-attachment")
+            && !configuredFields.contains("blackhole")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "exactly one of 'peering-attachment-resource' or 'vpc-attachment-resource' or 'blackhole' is required"));
         }
 
         return errors;

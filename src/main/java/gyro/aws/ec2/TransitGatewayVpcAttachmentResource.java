@@ -16,6 +16,12 @@
 
 package gyro.aws.ec2;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -27,13 +33,13 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayVpcAttachmentResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayVpcAttachmentsResponse;
+import software.amazon.awssdk.services.ec2.model.DnsSupportValue;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.Ipv6SupportValue;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentState;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayVpcAttachment;
 
 /**
  * Creates a transit gateway vpc attachment.
@@ -57,7 +63,8 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("transit-gateway-vpc-attachment")
-public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<TransitGatewayVpcAttachment> implements Copyable<TransitGatewayVpcAttachment> {
+public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<TransitGatewayVpcAttachment>
+    implements Copyable<TransitGatewayVpcAttachment> {
 
     private List<SubnetResource> subnets;
     private TransitGatewayResource transitGateway;
@@ -148,7 +155,9 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     @Override
-    public void copyFrom(TransitGatewayVpcAttachment model) {copyFrom(model, true); }
+    public void copyFrom(TransitGatewayVpcAttachment model) {
+        copyFrom(model, true);
+    }
 
     @Override
     protected boolean doRefresh() {
@@ -167,10 +176,10 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateTransitGatewayVpcAttachmentResponse response = client.createTransitGatewayVpcAttachment(r -> r
-                .subnetIds(getSubnets().stream().map(s -> s.getId()).collect(Collectors.toList()))
-                .transitGatewayId(getTransitGateway().getId())
-                .vpcId(getVpc().getId())
-                .options(s -> s.dnsSupport(getDnsSupport()).ipv6Support(getIpv6Support())));
+            .subnetIds(getSubnets().stream().map(s -> s.getId()).collect(Collectors.toList()))
+            .transitGatewayId(getTransitGateway().getId())
+            .vpcId(getVpc().getId())
+            .options(s -> s.dnsSupport(getDnsSupport()).ipv6Support(getIpv6Support())));
 
         copyFrom(response.transitGatewayVpcAttachment(), false);
 
@@ -182,13 +191,18 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         Ec2Client client = createClient(Ec2Client.class);
         if (changedProperties.contains("dns-support")) {
             client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
-                    .options(s -> s.dnsSupport(getDnsSupport())));
+                .options(s -> s.dnsSupport(getDnsSupport())));
             waitForAvailability(2, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, client);
         }
 
         if (changedProperties.contains("subnets")) {
-            List<String> previousAttachmentSubnetIds = ((TransitGatewayVpcAttachmentResource) config).getSubnets().stream().map(s -> s.getId()).collect(Collectors.toList());
-            List<String> currentAttachmentSubnetIds = getSubnets().stream().map(s -> s.getId()).collect(Collectors.toList());
+            List<String> previousAttachmentSubnetIds = ((TransitGatewayVpcAttachmentResource) config).getSubnets()
+                .stream()
+                .map(s -> s.getId())
+                .collect(Collectors.toList());
+            List<String> currentAttachmentSubnetIds = getSubnets().stream()
+                .map(s -> s.getId())
+                .collect(Collectors.toList());
             Set<String> subnetsToAdd = new HashSet<String>(currentAttachmentSubnetIds);
             subnetsToAdd.removeAll(previousAttachmentSubnetIds);
             Set<String> subnetsToRemove = new HashSet<String>(previousAttachmentSubnetIds);
@@ -196,19 +210,19 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
 
             if (!subnetsToAdd.isEmpty() && !subnetsToRemove.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
-                        .addSubnetIds(subnetsToAdd).removeSubnetIds(subnetsToRemove));
+                    .addSubnetIds(subnetsToAdd).removeSubnetIds(subnetsToRemove));
 
                 waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
 
             } else if (!subnetsToAdd.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
-                        .addSubnetIds(subnetsToAdd));
+                    .addSubnetIds(subnetsToAdd));
 
                 waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
 
             } else if (!subnetsToRemove.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
-                        .removeSubnetIds(subnetsToRemove));
+                    .removeSubnetIds(subnetsToRemove));
 
                 waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
             }
@@ -221,19 +235,22 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         client.deleteTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId()));
 
         Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> getTransitGatewayVpcAttachment(client) == null);
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> getTransitGatewayVpcAttachment(client) == null);
     }
 
     private TransitGatewayVpcAttachment getTransitGatewayVpcAttachment(Ec2Client client) {
         TransitGatewayVpcAttachment attachment = null;
 
         try {
-            DescribeTransitGatewayVpcAttachmentsResponse response = client.describeTransitGatewayVpcAttachments(r -> r.transitGatewayAttachmentIds(getId()));
+            DescribeTransitGatewayVpcAttachmentsResponse response = client.describeTransitGatewayVpcAttachments(r -> r.transitGatewayAttachmentIds(
+                getId()));
 
             List<TransitGatewayVpcAttachment> transitGatewayVpcAttachments = response.transitGatewayVpcAttachments();
-            if (!transitGatewayVpcAttachments.isEmpty() && !transitGatewayVpcAttachments.get(0).state().equals(TransitGatewayAttachmentState.DELETED)) {
+            if (!transitGatewayVpcAttachments.isEmpty() && !transitGatewayVpcAttachments.get(0)
+                .state()
+                .equals(TransitGatewayAttachmentState.DELETED)) {
                 attachment = transitGatewayVpcAttachments.get(0);
             }
 
@@ -258,13 +275,18 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         }
     }
 
-    private void waitForAvailability(Integer duration, TimeUnit durationUnit, Integer interval, TimeUnit intervalUnit, Ec2Client client) {
+    private void waitForAvailability(
+        Integer duration,
+        TimeUnit durationUnit,
+        Integer interval,
+        TimeUnit intervalUnit,
+        Ec2Client client) {
         Wait.atMost(duration, durationUnit)
-                .checkEvery(interval, intervalUnit)
-                .prompt(false)
-                .until(() -> {
-                    TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
-                    return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
-                });
+            .checkEvery(interval, intervalUnit)
+            .prompt(false)
+            .until(() -> {
+                TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
+                return attachment != null && attachment.state().equals(TransitGatewayAttachmentState.AVAILABLE);
+            });
     }
 }

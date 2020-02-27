@@ -16,6 +16,8 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -23,13 +25,7 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastGroup;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Creates a transit gateway multicast domain group member.
@@ -44,7 +40,8 @@ import java.util.Set;
  *           network-interface: $(aws::network-interface example-network-interface)
  *        end
  */
-public class TransitGatewayMulticastDomainGroupMemberResource extends AwsResource implements Copyable<TransitGatewayMulticastGroup> {
+public class TransitGatewayMulticastDomainGroupMemberResource extends AwsResource
+    implements Copyable<TransitGatewayMulticastGroup> {
 
     private String groupIpAddress;
     private NetworkInterfaceResource networkInterface;
@@ -94,9 +91,9 @@ public class TransitGatewayMulticastDomainGroupMemberResource extends AwsResourc
         Ec2Client client = createClient(Ec2Client.class);
 
         client.registerTransitGatewayMulticastGroupMembers(r -> r
-                .groupIpAddress(getGroupIpAddress())
-                .networkInterfaceIds(getNetworkInterface().getId())
-                .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
+            .groupIpAddress(getGroupIpAddress())
+            .networkInterfaceIds(getNetworkInterface().getId())
+            .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
     }
 
     @Override
@@ -109,8 +106,8 @@ public class TransitGatewayMulticastDomainGroupMemberResource extends AwsResourc
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deregisterTransitGatewayMulticastGroupMembers(r -> r
-                .groupIpAddress(getGroupIpAddress())
-                .networkInterfaceIds(getNetworkInterface().getId())
-                .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
+            .groupIpAddress(getGroupIpAddress())
+            .networkInterfaceIds(getNetworkInterface().getId())
+            .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
     }
 }

@@ -16,6 +16,8 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -24,8 +26,6 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomainAssociation;
-
-import java.util.Set;
 
 /**
  * Creates a transit gateway multicast domain association.
@@ -39,7 +39,8 @@ import java.util.Set;
  *           subnet: $(aws::subnet example-subnet-1)
  *        end
  */
-public class TransitGatewayMulticastDomainAssociationResource extends AwsResource implements Copyable<TransitGatewayMulticastDomainAssociation> {
+public class TransitGatewayMulticastDomainAssociationResource extends AwsResource
+    implements Copyable<TransitGatewayMulticastDomainAssociation> {
 
     private TransitGatewayVpcAttachmentResource vpcAttachment;
     private SubnetResource subnet;
@@ -89,8 +90,8 @@ public class TransitGatewayMulticastDomainAssociationResource extends AwsResourc
         Ec2Client client = createClient(Ec2Client.class);
 
         client.associateTransitGatewayMulticastDomain(r -> r.transitGatewayAttachmentId(getVpcAttachment().getId())
-                .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId())
-                .subnetIds(getSubnet().getId()));
+            .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId())
+            .subnetIds(getSubnet().getId()));
     }
 
     @Override
@@ -103,7 +104,7 @@ public class TransitGatewayMulticastDomainAssociationResource extends AwsResourc
         Ec2Client client = createClient(Ec2Client.class);
 
         client.disassociateTransitGatewayMulticastDomain(r -> r.transitGatewayAttachmentId(getVpcAttachment().getId())
-                .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId())
-                .subnetIds(getSubnet().getId()));
+            .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId())
+            .subnetIds(getSubnet().getId()));
     }
 }

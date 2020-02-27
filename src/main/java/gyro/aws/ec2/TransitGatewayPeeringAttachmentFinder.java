@@ -16,13 +16,13 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Map;
+
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayPeeringAttachmentsRequest;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayPeeringAttachment;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Query transit gateway peering attachment.
@@ -35,7 +35,8 @@ import java.util.Map;
  *    transit-gateway-peering-attachment: $(external-query aws::transit-gateway-peering-attachment { tag: { Name: "example-transit-gateway-peering-attachment" }})
  */
 @Type("transit-gateway-peering-attachment")
-public class TransitGatewayPeeringAttachmentFinder extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayPeeringAttachment, TransitGatewayPeeringAttachmentResource>  {
+public class TransitGatewayPeeringAttachmentFinder
+    extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayPeeringAttachment, TransitGatewayPeeringAttachmentResource> {
 
     private String transitGatewayAttachmentId;
 
@@ -52,11 +53,13 @@ public class TransitGatewayPeeringAttachmentFinder extends Ec2TaggableAwsFinder<
 
     @Override
     protected List<TransitGatewayPeeringAttachment> findAllAws(Ec2Client client) {
-        return client.describeTransitGatewayPeeringAttachments(DescribeTransitGatewayPeeringAttachmentsRequest.builder().build()).transitGatewayPeeringAttachments();
+        return client.describeTransitGatewayPeeringAttachments(DescribeTransitGatewayPeeringAttachmentsRequest.builder()
+            .build()).transitGatewayPeeringAttachments();
     }
 
     @Override
     protected List<TransitGatewayPeeringAttachment> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeTransitGatewayPeeringAttachments(r -> r.filters(createFilters(filters))).transitGatewayPeeringAttachments();
+        return client.describeTransitGatewayPeeringAttachments(r -> r.filters(createFilters(filters)))
+            .transitGatewayPeeringAttachments();
     }
 }

@@ -16,14 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.TransitGateway;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Query transit gateways.
@@ -186,6 +186,9 @@ public class TransitGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Transi
 
     @Override
     protected List<TransitGateway> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeTransitGatewaysPaginator(r -> r.filters(createFilters(filters))).transitGateways().stream().collect(Collectors.toList());
+        return client.describeTransitGatewaysPaginator(r -> r.filters(createFilters(filters)))
+            .transitGateways()
+            .stream()
+            .collect(Collectors.toList());
     }
 }

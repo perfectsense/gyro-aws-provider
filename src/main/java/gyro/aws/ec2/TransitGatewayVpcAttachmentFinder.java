@@ -16,13 +16,13 @@
 
 package gyro.aws.ec2;
 
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.TransitGatewayVpcAttachment;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayVpcAttachment;
 
 /**
  * Query transit gateway attachment.
@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
  *    transit-gateway-vpc-attachment: $(external-query aws::transit-gateway-vpc-attachment { tag: { Name: "example-transit-gateway-vpc-attachment" }})
  */
 @Type("transit-gateway-vpc-attachment")
-public class TransitGatewayVpcAttachmentFinder extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayVpcAttachment, TransitGatewayVpcAttachmentResource>  {
+public class TransitGatewayVpcAttachmentFinder
+    extends Ec2TaggableAwsFinder<Ec2Client, TransitGatewayVpcAttachment, TransitGatewayVpcAttachmentResource> {
 
     private String state;
     private String transitGatewayId;
@@ -88,11 +89,17 @@ public class TransitGatewayVpcAttachmentFinder extends Ec2TaggableAwsFinder<Ec2C
 
     @Override
     protected List<TransitGatewayVpcAttachment> findAllAws(Ec2Client client) {
-        return client.describeTransitGatewayVpcAttachmentsPaginator().transitGatewayVpcAttachments().stream().collect(Collectors.toList());
+        return client.describeTransitGatewayVpcAttachmentsPaginator()
+            .transitGatewayVpcAttachments()
+            .stream()
+            .collect(Collectors.toList());
     }
 
     @Override
     protected List<TransitGatewayVpcAttachment> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeTransitGatewayVpcAttachmentsPaginator(r -> r.filters(createFilters(filters))).transitGatewayVpcAttachments().stream().collect(Collectors.toList());
+        return client.describeTransitGatewayVpcAttachmentsPaginator(r -> r.filters(createFilters(filters)))
+            .transitGatewayVpcAttachments()
+            .stream()
+            .collect(Collectors.toList());
     }
 }

@@ -16,17 +16,16 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
-import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastGroup;
-
-import java.util.Set;
 
 /**
  * Creates a transit gateway multicast domain group source.
@@ -41,7 +40,8 @@ import java.util.Set;
  *           network-interface: $(aws::network-interface example-network-interface)
  *        end
  */
-public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResource implements Copyable<TransitGatewayMulticastGroup> {
+public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResource
+    implements Copyable<TransitGatewayMulticastGroup> {
 
     private String groupIpAddress;
     private NetworkInterfaceResource networkInterface;
@@ -91,9 +91,9 @@ public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResourc
         Ec2Client client = createClient(Ec2Client.class);
 
         client.registerTransitGatewayMulticastGroupSources(r -> r
-                .groupIpAddress(getGroupIpAddress())
-                .networkInterfaceIds(getNetworkInterface().getId())
-                .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
+            .groupIpAddress(getGroupIpAddress())
+            .networkInterfaceIds(getNetworkInterface().getId())
+            .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
     }
 
     @Override
@@ -106,8 +106,8 @@ public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResourc
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deregisterTransitGatewayMulticastGroupSources(r -> r
-                .groupIpAddress(getGroupIpAddress())
-                .networkInterfaceIds(getNetworkInterface().getId())
-                .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
+            .groupIpAddress(getGroupIpAddress())
+            .networkInterfaceIds(getNetworkInterface().getId())
+            .transitGatewayMulticastDomainId(((TransitGatewayMulticastDomainResource) parent()).getId()));
     }
 }

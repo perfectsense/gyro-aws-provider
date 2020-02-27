@@ -31,7 +31,20 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
+import software.amazon.awssdk.services.ec2.model.AutoAcceptSharedAttachmentsValue;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayRequest;
+import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayResponse;
+import software.amazon.awssdk.services.ec2.model.DefaultRouteTableAssociationValue;
+import software.amazon.awssdk.services.ec2.model.DefaultRouteTablePropagationValue;
+import software.amazon.awssdk.services.ec2.model.DeleteTransitGatewayRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewaysResponse;
+import software.amazon.awssdk.services.ec2.model.DnsSupportValue;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.MulticastSupportValue;
+import software.amazon.awssdk.services.ec2.model.TransitGateway;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayRequestOptions;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayState;
+import software.amazon.awssdk.services.ec2.model.VpnEcmpSupportValue;
 
 /**
  * Creates a transit gateway.
@@ -74,12 +87,11 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     private String associationDefaultRouteTableId;
     private String propagationDefaultRouteTableId;
 
-
     /**
      * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. Valid values belong in between ``64512`` to ``65534`` for a 16-bit ASN or between ``4200000000`` to ``4294967294`` for a 32-bit ASN. Defaults to ``64512``.
      */
-    @Range(min=64512, max=65534)
-    @Range(min=4200000000L, max=4294967294L)
+    @Range(min = 64512, max = 65534)
+    @Range(min = 4200000000L, max = 4294967294L)
     public Long getAmazonSideAsn() {
         return amazonSideAsn;
     }
@@ -253,31 +265,31 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         Ec2Client client = createClient(Ec2Client.class);
 
         TransitGatewayRequestOptions options = TransitGatewayRequestOptions.builder()
-                .amazonSideAsn(getAmazonSideAsn())
-                .autoAcceptSharedAttachments(getAutoAcceptSharedAttachments())
-                .defaultRouteTableAssociation(getDefaultRouteTableAssociation())
-                .defaultRouteTablePropagation(getDefaultRouteTablePropagation())
-                .dnsSupport(getDnsSupport())
-                .vpnEcmpSupport(getVpnEcmpSupport())
-                .multicastSupport(getMulticastSupport())
-                .build();
+            .amazonSideAsn(getAmazonSideAsn())
+            .autoAcceptSharedAttachments(getAutoAcceptSharedAttachments())
+            .defaultRouteTableAssociation(getDefaultRouteTableAssociation())
+            .defaultRouteTablePropagation(getDefaultRouteTablePropagation())
+            .dnsSupport(getDnsSupport())
+            .vpnEcmpSupport(getVpnEcmpSupport())
+            .multicastSupport(getMulticastSupport())
+            .build();
 
         CreateTransitGatewayResponse response = client.createTransitGateway(CreateTransitGatewayRequest.builder()
-                .description(getDescription())
-                .options(options)
-                .build()
+            .description(getDescription())
+            .options(options)
+            .build()
         );
 
         // Refreshing the tags before the resource is created (available) would reset the tags to an empty Map since the tags are added after the resource is created (available).
         copyFrom(response.transitGateway(), false);
 
         Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(1, TimeUnit.MINUTES)
-                .prompt(false)
-                .until(() -> {
-                    TransitGateway gateway = getTransitGateway(client);
-                    return gateway != null && gateway.state().equals(TransitGatewayState.AVAILABLE);
-                });
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
+            .until(() -> {
+                TransitGateway gateway = getTransitGateway(client);
+                return gateway != null && gateway.state().equals(TransitGatewayState.AVAILABLE);
+            });
     }
 
     @Override
@@ -291,11 +303,11 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         client.deleteTransitGateway(DeleteTransitGatewayRequest.builder().transitGatewayId(getId()).build());
 
         Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(1, TimeUnit.MINUTES)
-                .prompt(false)
-                .until(() -> {
-                    return getTransitGateway(client) == null;
-                });
+            .checkEvery(1, TimeUnit.MINUTES)
+            .prompt(false)
+            .until(() -> {
+                return getTransitGateway(client) == null;
+            });
     }
 
     public void acceptTransitGatewayPeeringAttachment(String attachmentId) {
@@ -308,7 +320,8 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         TransitGateway gateway = null;
 
         try {
-            DescribeTransitGatewaysResponse response = client.describeTransitGateways(r -> r.transitGatewayIds(Collections.singleton(getId())));
+            DescribeTransitGatewaysResponse response = client.describeTransitGateways(r -> r.transitGatewayIds(
+                Collections.singleton(getId())));
 
             List<TransitGateway> transitGateways = response.transitGateways();
             if (!transitGateways.isEmpty() && !transitGateways.get(0).state().equals(TransitGatewayState.DELETED)) {
