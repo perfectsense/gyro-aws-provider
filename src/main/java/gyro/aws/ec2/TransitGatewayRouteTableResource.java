@@ -68,6 +68,8 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
 
     /**
      * The attachments to associate with the route table.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayRouteTableAssociationResource
      */
     public List<TransitGatewayRouteTableAssociationResource> getAssociation() {
         return association;
@@ -79,6 +81,8 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
 
     /**
      * The attachments to propagate with the route table.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayRouteTablePropagationResource
      */
     public List<TransitGatewayRouteTablePropagationResource> getPropagation() {
         return propagation;
@@ -90,6 +94,8 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
 
     /**
      * The static routes or blackholes for the route table.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayRouteResource
      */
     public List<TransitGatewayRouteResource> getRoute() {
         return route;

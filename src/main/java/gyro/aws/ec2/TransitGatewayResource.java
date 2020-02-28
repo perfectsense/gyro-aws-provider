@@ -88,6 +88,8 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
     /**
      * Options for the transit gateway.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayOptions
      */
     public TransitGatewayResourceOptions getTransitGatewayOptions() {
         return transitGatewayOptions;

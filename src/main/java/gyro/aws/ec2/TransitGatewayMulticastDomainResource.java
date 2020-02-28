@@ -89,6 +89,8 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
     /**
      * The attachments and subnets to associate with the multicast domain.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainAssociationResource
      */
     public List<TransitGatewayMulticastDomainAssociationResource> getAssociation() {
         return association;
@@ -100,6 +102,8 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
     /**
      * The network interfaces that receive the multicast traffic.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainGroupMemberResource
      */
     public List<TransitGatewayMulticastDomainGroupMemberResource> getGroupMember() {
         return groupMember;
@@ -111,6 +115,8 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
     /**
      * The network interfaces that send the multicast traffic.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainGroupSourceResource
      */
     public List<TransitGatewayMulticastDomainGroupSourceResource> getGroupSource() {
         return groupSource;
