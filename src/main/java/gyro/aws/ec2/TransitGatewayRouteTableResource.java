@@ -221,7 +221,7 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
-            .until(() -> getTransitGateway() == null);
+            .until(() -> getTransitGatewayRouteTable(client) == null);
     }
 
     private TransitGatewayRouteTable getTransitGatewayRouteTable(Ec2Client client) {

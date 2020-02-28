@@ -101,7 +101,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
     @Override
     public boolean refresh() {
-        return true;
+        return false;
     }
 
     @Override

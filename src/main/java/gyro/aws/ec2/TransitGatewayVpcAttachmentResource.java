@@ -270,6 +270,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         setTransitGateway(findById(TransitGatewayResource.class, model.transitGatewayId()));
         setDnsSupport(model.options().dnsSupport());
         setIpv6Support(model.options().ipv6Support());
+
         if (refreshTags) {
             refreshTags();
         }

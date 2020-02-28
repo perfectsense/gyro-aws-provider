@@ -217,9 +217,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
             .prompt(false)
-            .until(() -> {
-                return getTransitGateway(client) == null;
-            });
+            .until(() -> getTransitGateway(client) == null);
     }
 
     public void acceptTransitGatewayPeeringAttachment(String attachmentId) {
@@ -259,6 +257,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
         setDescription(model.description());
         setAssociationDefaultRouteTableId(model.options().associationDefaultRouteTableId());
         setPropagationDefaultRouteTableId(model.options().propagationDefaultRouteTableId());
+
         if (refreshTags) {
             refreshTags();
         }
