@@ -16,6 +16,7 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +94,9 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
      * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainAssociationResource
      */
     public List<TransitGatewayMulticastDomainAssociationResource> getAssociation() {
+        if (association == null) {
+            association = new ArrayList<TransitGatewayMulticastDomainAssociationResource>();
+        }
         return association;
     }
 
@@ -106,6 +110,9 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
      * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainGroupMemberResource
      */
     public List<TransitGatewayMulticastDomainGroupMemberResource> getGroupMember() {
+        if (groupMember == null) {
+            groupMember = new ArrayList<TransitGatewayMulticastDomainGroupMemberResource>();
+        }
         return groupMember;
     }
 
@@ -119,6 +126,9 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
      * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainGroupSourceResource
      */
     public List<TransitGatewayMulticastDomainGroupSourceResource> getGroupSource() {
+        if (groupSource == null) {
+            groupSource = new ArrayList<TransitGatewayMulticastDomainGroupSourceResource>();
+        }
         return groupSource;
     }
 
@@ -151,43 +161,37 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getAssociation() != null) {
-            List<TransitGatewayMulticastDomainAssociation> associations = client.getTransitGatewayMulticastDomainAssociations(
-                r -> r.transitGatewayMulticastDomainId(getId())).multicastDomainAssociations();
-            getAssociation().clear();
-            for (TransitGatewayMulticastDomainAssociation a : associations) {
-                TransitGatewayMulticastDomainAssociationResource associationResource = newSubresource(
-                    TransitGatewayMulticastDomainAssociationResource.class);
-                associationResource.copyFrom(a);
+        List<TransitGatewayMulticastDomainAssociation> associations = client.getTransitGatewayMulticastDomainAssociations(
+            r -> r.transitGatewayMulticastDomainId(getId())).multicastDomainAssociations();
+        getAssociation().clear();
+        for (TransitGatewayMulticastDomainAssociation a : associations) {
+            TransitGatewayMulticastDomainAssociationResource associationResource = newSubresource(
+                TransitGatewayMulticastDomainAssociationResource.class);
+            associationResource.copyFrom(a);
 
-                getAssociation().add(associationResource);
-            }
+            getAssociation().add(associationResource);
         }
 
-        if (getGroupMember() != null) {
-            List<TransitGatewayMulticastGroup> groupMembers = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(
-                getId()).filters(Filter.builder().name("is-group-member").values("true").build())).multicastGroups();
-            getGroupMember().clear();
-            for (TransitGatewayMulticastGroup g : groupMembers) {
-                TransitGatewayMulticastDomainGroupMemberResource groupMemberResource = newSubresource(
-                    TransitGatewayMulticastDomainGroupMemberResource.class);
-                groupMemberResource.copyFrom(g);
+        List<TransitGatewayMulticastGroup> groupMembers = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(
+            getId()).filters(Filter.builder().name("is-group-member").values("true").build())).multicastGroups();
+        getGroupMember().clear();
+        for (TransitGatewayMulticastGroup g : groupMembers) {
+            TransitGatewayMulticastDomainGroupMemberResource groupMemberResource = newSubresource(
+                TransitGatewayMulticastDomainGroupMemberResource.class);
+            groupMemberResource.copyFrom(g);
 
-                getGroupMember().add(groupMemberResource);
-            }
+            getGroupMember().add(groupMemberResource);
         }
 
-        if (getGroupSource() != null) {
-            List<TransitGatewayMulticastGroup> groupSources = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(
-                getId()).filters(Filter.builder().name("is-group-source").values("true").build())).multicastGroups();
-            getGroupSource().clear();
-            for (TransitGatewayMulticastGroup g : groupSources) {
-                TransitGatewayMulticastDomainGroupSourceResource groupSourceResource = newSubresource(
-                    TransitGatewayMulticastDomainGroupSourceResource.class);
-                groupSourceResource.copyFrom(g);
+        List<TransitGatewayMulticastGroup> groupSources = client.searchTransitGatewayMulticastGroups(r -> r.transitGatewayMulticastDomainId(
+            getId()).filters(Filter.builder().name("is-group-source").values("true").build())).multicastGroups();
+        getGroupSource().clear();
+        for (TransitGatewayMulticastGroup g : groupSources) {
+            TransitGatewayMulticastDomainGroupSourceResource groupSourceResource = newSubresource(
+                TransitGatewayMulticastDomainGroupSourceResource.class);
+            groupSourceResource.copyFrom(g);
 
-                getGroupSource().add(groupSourceResource);
-            }
+            getGroupSource().add(groupSourceResource);
         }
 
         refreshTags();

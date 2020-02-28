@@ -16,6 +16,7 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -72,6 +73,9 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
      * @subresource gyro.aws.ec2.TransitGatewayRouteTableAssociationResource
      */
     public List<TransitGatewayRouteTableAssociationResource> getAssociation() {
+        if (association == null) {
+            association = new ArrayList<TransitGatewayRouteTableAssociationResource>();
+        }
         return association;
     }
 
@@ -85,6 +89,9 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
      * @subresource gyro.aws.ec2.TransitGatewayRouteTablePropagationResource
      */
     public List<TransitGatewayRouteTablePropagationResource> getPropagation() {
+        if (propagation == null) {
+            propagation = new ArrayList<TransitGatewayRouteTablePropagationResource>();
+        }
         return propagation;
     }
 
@@ -98,6 +105,9 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
      * @subresource gyro.aws.ec2.TransitGatewayRouteResource
      */
     public List<TransitGatewayRouteResource> getRoute() {
+        if (route == null) {
+            route = new ArrayList<TransitGatewayRouteResource>();
+        }
         return route;
     }
 
@@ -130,42 +140,36 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getAssociation() != null) {
-            List<TransitGatewayRouteTableAssociation> associations = client.getTransitGatewayRouteTableAssociations(r -> r
-                .transitGatewayRouteTableId(getId())).associations();
-            getAssociation().clear();
-            for (TransitGatewayRouteTableAssociation a : associations) {
-                TransitGatewayRouteTableAssociationResource associationResource = newSubresource(
-                    TransitGatewayRouteTableAssociationResource.class);
-                associationResource.copyFrom(a);
+        List<TransitGatewayRouteTableAssociation> associations = client.getTransitGatewayRouteTableAssociations(r -> r
+            .transitGatewayRouteTableId(getId())).associations();
+        getAssociation().clear();
+        for (TransitGatewayRouteTableAssociation a : associations) {
+            TransitGatewayRouteTableAssociationResource associationResource = newSubresource(
+                TransitGatewayRouteTableAssociationResource.class);
+            associationResource.copyFrom(a);
 
-                getAssociation().add(associationResource);
-            }
+            getAssociation().add(associationResource);
         }
 
-        if (getPropagation() != null) {
-            List<TransitGatewayRouteTablePropagation> propagations = client.getTransitGatewayRouteTablePropagations(r -> r
-                .transitGatewayRouteTableId(getId())).transitGatewayRouteTablePropagations();
-            getPropagation().clear();
-            for (TransitGatewayRouteTablePropagation p : propagations) {
-                TransitGatewayRouteTablePropagationResource propagationResource = newSubresource(
-                    TransitGatewayRouteTablePropagationResource.class);
-                propagationResource.copyFrom(p);
+        List<TransitGatewayRouteTablePropagation> propagations = client.getTransitGatewayRouteTablePropagations(r -> r
+            .transitGatewayRouteTableId(getId())).transitGatewayRouteTablePropagations();
+        getPropagation().clear();
+        for (TransitGatewayRouteTablePropagation p : propagations) {
+            TransitGatewayRouteTablePropagationResource propagationResource = newSubresource(
+                TransitGatewayRouteTablePropagationResource.class);
+            propagationResource.copyFrom(p);
 
-                getPropagation().add(propagationResource);
-            }
+            getPropagation().add(propagationResource);
         }
 
-        if (getRoute() != null) {
-            List<TransitGatewayRoute> routes = client.searchTransitGatewayRoutes(r -> r.transitGatewayRouteTableId(getId())
-                .filters(Collections.singleton(Filter.builder().name("type").values("static").build()))).routes();
-            getRoute().clear();
-            for (TransitGatewayRoute r : routes) {
-                TransitGatewayRouteResource routeResource = newSubresource(TransitGatewayRouteResource.class);
-                routeResource.copyFrom(r);
+        List<TransitGatewayRoute> routes = client.searchTransitGatewayRoutes(r -> r.transitGatewayRouteTableId(getId())
+            .filters(Collections.singleton(Filter.builder().name("type").values("static").build()))).routes();
+        getRoute().clear();
+        for (TransitGatewayRoute r : routes) {
+            TransitGatewayRouteResource routeResource = newSubresource(TransitGatewayRouteResource.class);
+            routeResource.copyFrom(r);
 
-                getRoute().add(routeResource);
-            }
+            getRoute().add(routeResource);
         }
 
         refreshTags();
