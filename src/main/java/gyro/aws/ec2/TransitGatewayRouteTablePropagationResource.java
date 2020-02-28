@@ -63,8 +63,7 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
 
     @Override
     public String primaryKey() {
-        String primaryKey = getVpcAttachment().getId();
-        return primaryKey;
+        return getVpcAttachment().getId();
     }
 
     @Override

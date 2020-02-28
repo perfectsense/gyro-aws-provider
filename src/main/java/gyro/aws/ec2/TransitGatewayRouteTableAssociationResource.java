@@ -90,13 +90,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
     @Override
     public String primaryKey() {
-        String primaryKey = "";
-        if (getPeeringAttachment() != null) {
-            primaryKey += getPeeringAttachment().getId();
-        } else if (getVpcAttachment() != null) {
-            primaryKey += getVpcAttachment().getId();
-        }
-        return primaryKey;
+        return getAttachmentId();
     }
 
     @Override
