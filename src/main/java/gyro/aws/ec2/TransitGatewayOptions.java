@@ -24,11 +24,11 @@ import software.amazon.awssdk.services.ec2.model.DefaultRouteTableAssociationVal
 import software.amazon.awssdk.services.ec2.model.DefaultRouteTablePropagationValue;
 import software.amazon.awssdk.services.ec2.model.DnsSupportValue;
 import software.amazon.awssdk.services.ec2.model.MulticastSupportValue;
-import software.amazon.awssdk.services.ec2.model.TransitGatewayOptions;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRequestOptions;
 import software.amazon.awssdk.services.ec2.model.VpnEcmpSupportValue;
 
-public class TransitGatewayResourceOptions extends Diffable implements Copyable<TransitGatewayOptions> {
+public class TransitGatewayOptions
+    extends Diffable implements Copyable<software.amazon.awssdk.services.ec2.model.TransitGatewayOptions> {
 
     private Long amazonSideAsn;
     private DnsSupportValue dnsSupport;
@@ -118,7 +118,7 @@ public class TransitGatewayResourceOptions extends Diffable implements Copyable<
     }
 
     @Override
-    public void copyFrom(TransitGatewayOptions model) {
+    public void copyFrom(software.amazon.awssdk.services.ec2.model.TransitGatewayOptions model) {
         setAmazonSideAsn(model.amazonSideAsn());
         setAutoAcceptSharedAttachments(model.autoAcceptSharedAttachments());
         setDefaultRouteTableAssociation(model.defaultRouteTableAssociation());
@@ -130,7 +130,7 @@ public class TransitGatewayResourceOptions extends Diffable implements Copyable<
 
     @Override
     public String primaryKey() {
-        return getAmazonSideAsn().toString();
+        return "";
     }
 
     TransitGatewayRequestOptions transitGatewayRequestOptions() {
