@@ -18,14 +18,16 @@ aws::subnet example-subnet-1
 end
 
 aws::transit-gateway example-transit-gateway
-   description: "example transit gateway for vpc attachment"
-   amazon-side-asn: 64512
-   dns-support: enable
-   vpn-ecmp-support: enable
-   default-route-table-association: disable
-   default-route-table-propagation: enable
-   auto-accept-shared-attachments: disable
-   multicast-support: enable
+    description: "example transit gateway for vpc attachment"
+    transit-gateway-options
+        amazon-side-asn: 64512
+        dns-support: enable
+        vpn-ecmp-support: enable
+        default-route-table-association: disable
+        default-route-table-propagation: enable
+        auto-accept-shared-attachments: disable
+        multicast-support: enable
+    end
 
    tags: {
        Name: "transit-gateway-vpc-attachment-example"

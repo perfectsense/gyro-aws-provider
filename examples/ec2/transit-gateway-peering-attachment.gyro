@@ -1,11 +1,14 @@
 aws::transit-gateway example-transit-gateway
-   description: "example transit gateway for peering attachment"
-   amazon-side-asn: 64512
-   dns-support: enable
-   vpn-ecmp-support: enable
-   default-route-table-association: disable
-   default-route-table-propagation: enable
-   auto-accept-shared-attachments: disable
+    description: "example transit gateway for peering attachment"
+    transit-gateway-options
+        amazon-side-asn: 64512
+        dns-support: enable
+        vpn-ecmp-support: enable
+        default-route-table-association: disable
+        default-route-table-propagation: enable
+        auto-accept-shared-attachments: disable
+        multicast-support: enable
+    end
 
    tags: {
        Name: "transit-gateway-vpc-attachment-example"
@@ -13,13 +16,16 @@ aws::transit-gateway example-transit-gateway
 end
 
 aws::transit-gateway example-peer-transit-gateway
-   description: "example transit gateway for peering attachment"
-   amazon-side-asn: 64512
-   dns-support: enable
-   vpn-ecmp-support: enable
-   default-route-table-association: disable
-   default-route-table-propagation: enable
-   auto-accept-shared-attachments: disable
+    description: "example transit gateway for peering attachment"
+    transit-gateway-options
+        amazon-side-asn: 64512
+        dns-support: enable
+        vpn-ecmp-support: enable
+        default-route-table-association: disable
+        default-route-table-propagation: enable
+        auto-accept-shared-attachments: disable
+        multicast-support: enable
+    end
    tags: {
        Name: "transit-gateway-vpc-attachment-example"
    }
