@@ -66,7 +66,7 @@ import software.amazon.awssdk.services.ec2.model.TransitGatewayState;
 public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> implements Copyable<TransitGateway> {
 
     private String description;
-    private TransitGatewayResourceOptions transitGatewayOptions;
+    private TransitGatewayOptions transitGatewayOptions;
 
     // Read only
     private String id;
@@ -91,11 +91,11 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
      *
      * @subresource gyro.aws.ec2.TransitGatewayOptions
      */
-    public TransitGatewayResourceOptions getTransitGatewayOptions() {
+    public TransitGatewayOptions getTransitGatewayOptions() {
         return transitGatewayOptions;
     }
 
-    public void setTransitGatewayOptions(TransitGatewayResourceOptions transitGatewayOptions) {
+    public void setTransitGatewayOptions(TransitGatewayOptions transitGatewayOptions) {
         this.transitGatewayOptions = transitGatewayOptions;
     }
 
@@ -252,7 +252,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     private void copyFrom(TransitGateway model, boolean refreshTags) {
         setId(model.transitGatewayId());
         setOwnerId(model.ownerId());
-        TransitGatewayResourceOptions options = newSubresource(TransitGatewayResourceOptions.class);
+        TransitGatewayOptions options = newSubresource(TransitGatewayOptions.class);
         options.copyFrom(model.options());
         setTransitGatewayOptions(options);
         setArn(model.transitGatewayArn());
