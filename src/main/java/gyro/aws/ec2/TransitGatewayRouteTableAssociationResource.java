@@ -17,7 +17,6 @@
 package gyro.aws.ec2;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +30,6 @@ import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayAssociationState;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTableAssociation;
 
@@ -102,21 +100,15 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     public void create(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getPeeringAttachment() != null) {
-            client.associateTransitGatewayRouteTable(s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
-                .getId()).transitGatewayAttachmentId(getPeeringAttachment().getId()));
-        } else {
-            client.associateTransitGatewayRouteTable(s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
-                .getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
-        }
+        client.associateTransitGatewayRouteTable(s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
+            .getId())
+            .transitGatewayAttachmentId(getAttachmentId()));
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {
-                List<TransitGatewayRouteTableAssociation> associations = client.getTransitGatewayRouteTableAssociations(
-                    s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId())
-                        .filters(Collections.singleton(buildSearchFilter()))).associations();
+                List<TransitGatewayRouteTableAssociation> associations = getTransitGatewayRouteTableAssociations(client);
                 return !associations.isEmpty() && associations.get(0)
                     .state()
                     .equals(TransitGatewayAssociationState.ASSOCIATED);
@@ -132,21 +124,15 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getPeeringAttachment() != null) {
-            client.disassociateTransitGatewayRouteTable(s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
-                .getId()).transitGatewayAttachmentId(getPeeringAttachment().getId()));
-        } else if (getVpcAttachment() != null) {
-            client.disassociateTransitGatewayRouteTable(s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
-                .getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
-        }
+        client.disassociateTransitGatewayRouteTable(s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
+            .getId())
+            .transitGatewayAttachmentId(getAttachmentId()));
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {
-                List<TransitGatewayRouteTableAssociation> associations = client.getTransitGatewayRouteTableAssociations(
-                    s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId())
-                        .filters(Collections.singleton(buildSearchFilter()))).associations();
+                List<TransitGatewayRouteTableAssociation> associations = getTransitGatewayRouteTableAssociations(client);
                 return associations.isEmpty() || associations.get(0)
                     .state()
                     .equals(TransitGatewayAssociationState.DISASSOCIATED);
@@ -161,19 +147,20 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
             errors.add(new ValidationError(
                 this,
                 null,
-                "exactly one of params 'peering-attachment' or 'vpc-attachment' is required"));
+                "Exactly one of params 'peering-attachment' or 'vpc-attachment' is required"));
         }
 
         return errors;
     }
 
-    public Filter buildSearchFilter() {
-        Filter.Builder filterBuilder = Filter.builder().name("transit-gateway-attachment-id");
-        if (getPeeringAttachment() != null) {
-            filterBuilder.values(getPeeringAttachment().getId());
-        } else {
-            filterBuilder.values(getVpcAttachment().getId());
-        }
-        return filterBuilder.build();
+    private String getAttachmentId() {
+        return getPeeringAttachment() != null ? getPeeringAttachment().getId() : getVpcAttachment().getId();
+    }
+
+    private List<TransitGatewayRouteTableAssociation> getTransitGatewayRouteTableAssociations(Ec2Client client) {
+        return client.getTransitGatewayRouteTableAssociations(
+            s -> s.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId())
+                .filters(r -> r.name("transit-gateway-attachment-id").values(getAttachmentId())))
+            .associations();
     }
 }
