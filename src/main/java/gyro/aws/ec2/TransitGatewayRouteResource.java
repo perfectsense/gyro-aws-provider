@@ -71,7 +71,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * Enable blackhole to drop all the traffic that matches this route.
      */
     @Updatable
-    @ConflictsWith({ "peering-attachment", "vpc-attachment" })
     public Boolean getBlackhole() {
         return blackhole;
     }
@@ -84,7 +83,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * The Peering attachment for the route.
      */
     @Updatable
-    @ConflictsWith({ "vpc-attachment", "blackhole" })
+    @ConflictsWith("vpc-attachment")
     public TransitGatewayPeeringAttachmentResource getPeeringAttachment() {
         return peeringAttachment;
     }
@@ -97,7 +96,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * The Vpc attachment for the route.
      */
     @Updatable
-    @ConflictsWith({ "peering-attachment", "blackhole" })
+    @ConflictsWith("peering-attachment")
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
         return vpcAttachment;
     }
@@ -145,11 +144,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
         if (getBlackhole() != null && getBlackhole().equals(Boolean.TRUE)) {
             builder.blackhole(getBlackhole());
         } else {
-            if (getPeeringAttachment() != null) {
-                builder.transitGatewayAttachmentId(getPeeringAttachment().getId());
-            } else if (getVpcAttachment() != null) {
-                builder.transitGatewayAttachmentId(getVpcAttachment().getId());
-            }
+            builder.transitGatewayAttachmentId(getAttachmentId());
         }
 
         client.createTransitGatewayRoute(builder.build());
@@ -168,11 +163,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
         if (getBlackhole() != null && getBlackhole().equals(Boolean.TRUE)) {
             builder.blackhole(getBlackhole());
         } else {
-            if (getPeeringAttachment() != null) {
-                builder.transitGatewayAttachmentId(getPeeringAttachment().getId());
-            } else if (getVpcAttachment() != null) {
-                builder.transitGatewayAttachmentId(getVpcAttachment().getId());
-            }
+            builder.transitGatewayAttachmentId(getAttachmentId());
         }
 
         client.replaceTransitGatewayRoute(builder.build());
@@ -189,14 +180,29 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<ValidationError>();
 
-        if (!configuredFields.contains("peering-attachment") && !configuredFields.contains("vpc-attachment")
-            && !configuredFields.contains("blackhole")) {
+        if (!configuredFields.contains("peering-attachment") && !configuredFields.contains("vpc-attachment")) {
+            if (!configuredFields.contains("blackhole")) {
+                errors.add(new ValidationError(
+                    this,
+                    null,
+                    "At least one of 'peering-attachment' or 'vpc-attachment' or 'blackhole' is required"));
+            } else if (getBlackhole().equals(Boolean.FALSE)) {
+                errors.add(new ValidationError(
+                    this,
+                    null,
+                    "At least one of 'peering-attachment' or 'vpc-attachment' is required if 'blackhole' is set to 'false'"));
+            }
+        } else if (configuredFields.contains("blackhole") && getBlackhole().equals(Boolean.TRUE)) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "exactly one of 'peering-attachment-resource' or 'vpc-attachment-resource' or 'blackhole' is required"));
+                "Cannot provide 'peering-attachment' or 'vpc-attachment' if 'blackhole' is set to 'true'"));
         }
 
         return errors;
+    }
+
+    public String getAttachmentId() {
+        return getPeeringAttachment() != null ? getPeeringAttachment().getId() : getVpcAttachment().getId();
     }
 }
