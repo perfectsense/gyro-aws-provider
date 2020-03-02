@@ -35,10 +35,10 @@ import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastGroup;
  *
  * .. code-block:: gyro
  *
- *        group-member
- *           group-ip-address: "224.0.0.0"
- *           network-interface: $(aws::network-interface example-network-interface)
- *        end
+ *      group-member
+ *         group-ip-address: "224.0.0.0"
+ *         network-interface: $(aws::network-interface example-network-interface)
+ *      end
  */
 public class TransitGatewayMulticastDomainGroupMemberResource extends AwsResource
     implements Copyable<TransitGatewayMulticastGroup> {

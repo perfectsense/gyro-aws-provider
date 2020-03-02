@@ -34,10 +34,11 @@ import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomainAs
  * -------
  *
  * .. code-block:: gyro
- *        association
- *           vpc-attachment: $(aws::transit-gateway-vpc-attachment transit-gateway-vpc-attachment-example)
- *           subnet: $(aws::subnet example-subnet-1)
- *        end
+ *
+ *      association
+ *         vpc-attachment: $(aws::transit-gateway-vpc-attachment transit-gateway-vpc-attachment-example)
+ *         subnet: $(aws::subnet example-subnet-1)
+ *      end
  */
 public class TransitGatewayMulticastDomainAssociationResource extends AwsResource
     implements Copyable<TransitGatewayMulticastDomainAssociation> {
@@ -58,7 +59,7 @@ public class TransitGatewayMulticastDomainAssociationResource extends AwsResourc
     }
 
     /**
-     * The list of subnets that need to be included in the domain. (Required)
+     * The subnet that needs to be included in the domain. (Required)
      */
     @Required
     public SubnetResource getSubnet() {
