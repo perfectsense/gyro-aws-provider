@@ -42,6 +42,27 @@ import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTableAssocia
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTablePropagation;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTableState;
 
+/**
+ * Creates a transit gateway route table.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::transit-gateway-route-table transit-gateway-route-table-example
+ *        transit-gateway: $(aws::transit-gateway example-transit-gateway)
+ *
+ *        association
+ *            peering-attachment: $(aws::transit-gateway-peering-attachment transit-gateway-peering-attachment-example)
+ *        end
+ *
+ *        route
+ *            destination-cidr-block: "10.0.0.0/24"
+ *            peering-attachment: $(aws::transit-gateway-peering-attachment transit-gateway-peering-attachment-example)
+ *        end
+ *    end
+ */
 @Type("transit-gateway-route-table")
 public class TransitGatewayRouteTableResource extends Ec2TaggableResource<TransitGatewayRouteTable>
     implements Copyable<TransitGatewayRouteTable> {
