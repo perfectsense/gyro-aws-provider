@@ -65,9 +65,9 @@ shadowJar {
     include 'gyro/aws/**'
 
     // Relocating common dependencies
-    relocate 'com.fasterxml', 'gyro.aws.fasterxml'
-    relocate 'com.google', 'gyro.aws.google'
-    relocate 'org.json', 'gyro.aws.json'
+    relocate 'com.fasterxml', 'shaded.gyro.aws.fasterxml'
+    relocate 'com.google', 'shaded.gyro.aws.google'
+    relocate 'org.json', 'shaded.gyro.aws.json'
 }
 
 build.dependsOn shadowJar
