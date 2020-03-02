@@ -78,7 +78,7 @@ public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResourc
 
     @Override
     public String primaryKey() {
-        return "Source with address: " + getGroupIpAddress();
+        return String.format("with address: %s", getGroupIpAddress());
     }
 
     @Override

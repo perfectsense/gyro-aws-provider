@@ -77,7 +77,7 @@ public class TransitGatewayMulticastDomainAssociationResource extends AwsResourc
 
     @Override
     public String primaryKey() {
-        return String.format("%s in %s", subnet.getId(), vpcAttachment.getId());
+        return String.format("subnet %s in vpc attachment %s", getSubnet().getId(), getVpcAttachment().getId());
     }
 
     @Override
