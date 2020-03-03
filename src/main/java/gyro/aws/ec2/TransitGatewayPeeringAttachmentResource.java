@@ -16,6 +16,7 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -135,10 +136,12 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
+
         TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
         if (attachment == null || attachment.state().equals(TransitGatewayAttachmentState.DELETING)) {
             return false;
         }
+
         copyFrom(attachment);
 
         return true;
@@ -160,7 +163,9 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
                 .peerAccountId(getPeerTransitGateway().getOwnerId())
                 .peerRegion(getPeerRegion())
                 .build());
+
         TransitGatewayPeeringAttachment peeringAttachment = response.transitGatewayPeeringAttachment();
+
         setId(peeringAttachment.transitGatewayAttachmentId());
 
         Wait.atMost(3, TimeUnit.MINUTES)
@@ -191,6 +196,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
+
         client.deleteTransitGatewayPeeringAttachment(r -> r.transitGatewayAttachmentId(getId()));
 
         Wait.atMost(5, TimeUnit.MINUTES)

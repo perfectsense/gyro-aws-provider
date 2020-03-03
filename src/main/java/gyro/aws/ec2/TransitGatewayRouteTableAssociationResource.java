@@ -52,20 +52,20 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     private TransitGatewayVpcAttachmentResource vpcAttachment;
 
     /**
-     * The Vpc attachment to associate with the route table.
+     * The Peering attachment to associate with the route table.
      */
     @ConflictsWith("vpc-attachment")
     public TransitGatewayPeeringAttachmentResource getPeeringAttachment() {
         return peeringAttachment;
     }
 
-    /**
-     * The Peering attachment to associate with the route table.
-     */
     public void setPeeringAttachment(TransitGatewayPeeringAttachmentResource peeringAttachment) {
         this.peeringAttachment = peeringAttachment;
     }
 
+    /**
+     * The Vpc attachment to associate with the route table.
+     */
     @ConflictsWith("peering-attachment")
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
         return vpcAttachment;
@@ -141,7 +141,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<ValidationError>();
+        List<ValidationError> errors = new ArrayList<>();
 
         if (!configuredFields.contains("peering-attachment") && !configuredFields.contains("vpc-attachment")) {
             errors.add(new ValidationError(

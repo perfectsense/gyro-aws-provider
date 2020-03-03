@@ -172,13 +172,14 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
+
         client.deleteTransitGatewayRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
             .transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent()).getId()));
     }
 
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<ValidationError>();
+        List<ValidationError> errors = new ArrayList<>();
 
         if (!configuredFields.contains("peering-attachment") && !configuredFields.contains("vpc-attachment")) {
             if (!configuredFields.contains("blackhole")) {

@@ -95,8 +95,9 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
      */
     public List<TransitGatewayRouteTableAssociationResource> getAssociation() {
         if (association == null) {
-            association = new ArrayList<TransitGatewayRouteTableAssociationResource>();
+            association = new ArrayList<>();
         }
+
         return association;
     }
 
@@ -111,8 +112,9 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
      */
     public List<TransitGatewayRouteTablePropagationResource> getPropagation() {
         if (propagation == null) {
-            propagation = new ArrayList<TransitGatewayRouteTablePropagationResource>();
+            propagation = new ArrayList<>();
         }
+
         return propagation;
     }
 
@@ -127,8 +129,9 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
      */
     public List<TransitGatewayRouteResource> getRoute() {
         if (route == null) {
-            route = new ArrayList<TransitGatewayRouteResource>();
+            route = new ArrayList<>();
         }
+
         return route;
     }
 

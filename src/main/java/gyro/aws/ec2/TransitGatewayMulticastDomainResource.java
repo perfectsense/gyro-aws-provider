@@ -35,7 +35,6 @@ import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayMulticastDo
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayMulticastDomainsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
-import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentState;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomain;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomainAssociation;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayMulticastDomainState;
@@ -95,8 +94,9 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
      */
     public List<TransitGatewayMulticastDomainAssociationResource> getAssociation() {
         if (association == null) {
-            association = new ArrayList<TransitGatewayMulticastDomainAssociationResource>();
+            association = new ArrayList<>();
         }
+
         return association;
     }
 
@@ -111,8 +111,9 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
      */
     public List<TransitGatewayMulticastDomainGroupMemberResource> getGroupMember() {
         if (groupMember == null) {
-            groupMember = new ArrayList<TransitGatewayMulticastDomainGroupMemberResource>();
+            groupMember = new ArrayList<>();
         }
+
         return groupMember;
     }
 
@@ -127,8 +128,9 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
      */
     public List<TransitGatewayMulticastDomainGroupSourceResource> getGroupSource() {
         if (groupSource == null) {
-            groupSource = new ArrayList<TransitGatewayMulticastDomainGroupSourceResource>();
+            groupSource = new ArrayList<>();
         }
+
         return groupSource;
     }
 
@@ -218,6 +220,7 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
         CreateTransitGatewayMulticastDomainResponse response = client.createTransitGatewayMulticastDomain(r -> r.transitGatewayId(
             getTransitGateway().getId()));
+
         setId(response.transitGatewayMulticastDomain().transitGatewayMulticastDomainId());
 
         Wait.atMost(2, TimeUnit.MINUTES)
@@ -256,7 +259,7 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
             List<TransitGatewayMulticastDomain> transitGatewayMulticastDomains = response.transitGatewayMulticastDomains();
             if (!transitGatewayMulticastDomains.isEmpty() && !transitGatewayMulticastDomains.get(0)
                 .state()
-                .equals(TransitGatewayAttachmentState.DELETED)) {
+                .equals(TransitGatewayMulticastDomainState.DELETED)) {
                 domain = transitGatewayMulticastDomains.get(0);
             }
 
