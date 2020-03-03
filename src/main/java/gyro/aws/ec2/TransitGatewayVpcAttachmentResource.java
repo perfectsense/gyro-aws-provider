@@ -86,6 +86,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         if (subnets == null) {
             subnets = new ArrayList<>();
         }
+
         return subnets;
     }
 
@@ -166,11 +167,13 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
+
         TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
 
         if (attachment == null || attachment.state().equals(TransitGatewayAttachmentState.DELETING)) {
             return false;
         }
+
         copyFrom(attachment);
 
         return true;
@@ -194,6 +197,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
+
         if (changedProperties.contains("dns-support")) {
             client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                 .options(s -> s.dnsSupport(getDnsSupport())));
@@ -237,6 +241,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
+
         client.deleteTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId()));
 
         Wait.atMost(2, TimeUnit.MINUTES)

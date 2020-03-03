@@ -173,10 +173,13 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     @Override
     protected boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
+
         TransitGateway gateway = getTransitGateway(client);
+
         if (gateway == null || gateway.state().equals(TransitGatewayState.DELETING)) {
             return false;
         }
+
         copyFrom(gateway);
 
         return true;

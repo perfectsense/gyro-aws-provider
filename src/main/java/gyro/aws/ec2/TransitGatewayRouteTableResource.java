@@ -240,6 +240,7 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Ec2Client client = createClient(Ec2Client.class);
+
         client.deleteTransitGatewayRouteTable(r -> r.transitGatewayRouteTableId(getId()));
 
         Wait.atMost(2, TimeUnit.MINUTES)

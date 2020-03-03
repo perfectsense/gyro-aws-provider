@@ -139,6 +139,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
         Ec2Client client = createClient(Ec2Client.class);
 
         TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
+
         if (attachment == null || attachment.state().equals(TransitGatewayAttachmentState.DELETING)) {
             return false;
         }
