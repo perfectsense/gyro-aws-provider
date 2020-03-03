@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -31,6 +31,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayPeeringAttachmentRequest;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayPeeringAttachmentResponse;
@@ -50,7 +51,7 @@ import software.amazon.awssdk.services.ec2.model.TransitGatewayPeeringAttachment
  *      aws::transit-gateway-peering-attachment transit-gateway-peering-attachment-example
  *          transit-gateway: $(aws::transit-gateway example-transit-gateway)
  *          peer-transit-gateway: $(aws::transit-gateway example-peer-transit-gateway)
- *          peer-region: "us-east-1"
+ *          peer-region: "us-east-2"
  *      end
  *
  *      tags: {
@@ -151,11 +152,6 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (getPeerTransitGateway().getArn() == null) {
-            throw new GyroException(
-                "Due to account restrictions, please enter an external query for your peer transit gateway");
-        }
-
         CreateTransitGatewayPeeringAttachmentResponse response = client.createTransitGatewayPeeringAttachment(
             CreateTransitGatewayPeeringAttachmentRequest.builder()
                 .transitGatewayId(getTransitGateway().getId())
@@ -203,6 +199,22 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
             .checkEvery(1, TimeUnit.MINUTES)
             .prompt(false)
             .until(() -> getTransitGatewayPeeringAttachment(client) == null);
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getPeerTransitGateway() != null && !ObjectUtils.isBlank(getPeerTransitGateway().getId())
+            && ObjectUtils.isBlank(getPeerTransitGateway().getOwnerId())) {
+            errors.add(
+                new ValidationError(
+                    this,
+                    "peer-transit-gateway",
+                    "Associated 'peer-transit-gateway' only has the 'id' field configured. Please use an external query or gyro reference to associate the 'peer-transit-gateway'."));
+        }
+
+        return errors;
     }
 
     private TransitGatewayPeeringAttachment getTransitGatewayPeeringAttachment(Ec2Client client) {

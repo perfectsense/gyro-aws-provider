@@ -11,7 +11,7 @@ aws::transit-gateway example-transit-gateway
     end
 
    tags: {
-       Name: "transit-gateway-vpc-attachment-example"
+       Name: "transit-gateway-attachment-example"
    }
 end
 
@@ -24,18 +24,19 @@ aws::transit-gateway example-peer-transit-gateway
         default-route-table-association: disable
         default-route-table-propagation: enable
         auto-accept-shared-attachments: disable
-        multicast-support: enable
     end
-   tags: {
-       Name: "transit-gateway-vpc-attachment-example"
-   }
-   @uses-credentials: "temp-2"
+
+    tags: {
+        Name: "transit-gateway-attachment-example"
+    }
+
+    @uses-credentials: "sandbox-ohio"
 end
 
 aws::transit-gateway-peering-attachment transit-gateway-peering-attachment-example
     transit-gateway: $(aws::transit-gateway example-transit-gateway)
     peer-transit-gateway: $(aws::transit-gateway example-peer-transit-gateway)
-    peer-region: "us-east-1"
+    peer-region: "us-east-2"
 
     tags: {
         "example-tag": "example-tag-value"
