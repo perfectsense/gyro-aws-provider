@@ -265,7 +265,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
             }
 
         } catch (Ec2Exception ex) {
-            if (!ex.awsErrorDetails().errorCode().equals("InvalidTransitGatewayVpcAttachmentId.NotFound")) {
+            if (!ex.awsErrorDetails().errorCode().equals("InvalidTransitGatewayAttachmentID.NotFound")) {
                 throw ex;
             }
         }

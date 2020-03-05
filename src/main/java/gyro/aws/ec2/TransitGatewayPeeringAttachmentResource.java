@@ -233,7 +233,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
             }
 
         } catch (Ec2Exception ex) {
-            if (!ex.awsErrorDetails().errorCode().equals("InvalidTransitGatewayPeeringAttachmentId.NotFound")) {
+            if (!ex.awsErrorDetails().errorCode().equals("InvalidTransitGatewayAttachmentID.NotFound")) {
                 throw ex;
             }
         }

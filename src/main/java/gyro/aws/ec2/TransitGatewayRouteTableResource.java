@@ -264,7 +264,7 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
             }
 
         } catch (Ec2Exception ex) {
-            if (!ex.awsErrorDetails().errorCode().equals("InvalidTransitGatewayRouteTableID.NotFound")) {
+            if (!ex.awsErrorDetails().errorCode().equals("InvalidRouteTableID.NotFound")) {
                 throw ex;
             }
         }
