@@ -184,14 +184,14 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateTransitGatewayVpcAttachmentResponse response = client.createTransitGatewayVpcAttachment(r -> r
-            .subnetIds(getSubnets().stream().map(s -> s.getId()).collect(Collectors.toList()))
+            .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
             .transitGatewayId(getTransitGateway().getId())
             .vpcId(getVpc().getId())
             .options(s -> s.dnsSupport(getDnsSupport()).ipv6Support(getIpv6Support())));
 
         copyFrom(response.transitGatewayVpcAttachment(), false);
 
-        waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
+        waitForAvailability(TimeUnit.MINUTES, client);
     }
 
     @Override
@@ -201,39 +201,39 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         if (changedProperties.contains("dns-support")) {
             client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                 .options(s -> s.dnsSupport(getDnsSupport())));
-            waitForAvailability(2, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, client);
+            waitForAvailability(TimeUnit.SECONDS, client);
         }
 
         if (changedProperties.contains("subnets")) {
             List<String> previousAttachmentSubnetIds = ((TransitGatewayVpcAttachmentResource) config).getSubnets()
                 .stream()
-                .map(s -> s.getId())
+                .map(SubnetResource::getId)
                 .collect(Collectors.toList());
             List<String> currentAttachmentSubnetIds = getSubnets().stream()
-                .map(s -> s.getId())
+                .map(SubnetResource::getId)
                 .collect(Collectors.toList());
-            Set<String> subnetsToAdd = new HashSet<String>(currentAttachmentSubnetIds);
+            Set<String> subnetsToAdd = new HashSet<>(currentAttachmentSubnetIds);
             subnetsToAdd.removeAll(previousAttachmentSubnetIds);
-            Set<String> subnetsToRemove = new HashSet<String>(previousAttachmentSubnetIds);
+            Set<String> subnetsToRemove = new HashSet<>(previousAttachmentSubnetIds);
             subnetsToRemove.removeAll(currentAttachmentSubnetIds);
 
             if (!subnetsToAdd.isEmpty() && !subnetsToRemove.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .addSubnetIds(subnetsToAdd).removeSubnetIds(subnetsToRemove));
 
-                waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
+                waitForAvailability(TimeUnit.MINUTES, client);
 
             } else if (!subnetsToAdd.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .addSubnetIds(subnetsToAdd));
 
-                waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
+                waitForAvailability(TimeUnit.MINUTES, client);
 
             } else if (!subnetsToRemove.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .removeSubnetIds(subnetsToRemove));
 
-                waitForAvailability(2, TimeUnit.MINUTES, 30, TimeUnit.SECONDS, client);
+                waitForAvailability(TimeUnit.MINUTES, client);
             }
         }
     }
@@ -287,13 +287,10 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     private void waitForAvailability(
-        Integer duration,
         TimeUnit durationUnit,
-        Integer interval,
-        TimeUnit intervalUnit,
         Ec2Client client) {
-        Wait.atMost(duration, durationUnit)
-            .checkEvery(interval, intervalUnit)
+        Wait.atMost(2, durationUnit)
+            .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {
                 TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);
