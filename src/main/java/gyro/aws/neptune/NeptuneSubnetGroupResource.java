@@ -26,6 +26,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.neptune.NeptuneClient;
 import software.amazon.awssdk.services.neptune.model.*;
 
@@ -65,6 +66,7 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
      * The description for the Neptune subnet group. (Required)
      */
     @Updatable
+    @Required
     public String getDescription() {
         return description;
     }
@@ -77,6 +79,7 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
      * The name for the Neptune subnet group. (Required)
      */
     @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -89,6 +92,7 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
      * The list of subnets for the Neptune subnet group. (Required)
      */
     @Updatable
+    @Required
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
             return new HashSet<>();
@@ -96,7 +100,6 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
         return subnets;
     }
 
-    @Updatable
     public void setSubnets(Set<SubnetResource> subnets) {
         this.subnets = subnets;
     }
