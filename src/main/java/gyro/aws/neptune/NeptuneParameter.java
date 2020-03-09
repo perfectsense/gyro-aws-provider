@@ -40,7 +40,6 @@ public class NeptuneParameter extends Diffable implements Copyable<Parameter> {
      * The name of the Neptune parameter. (Required)
      */
     @Required
-    @Output
     public String getName() {
         return name;
     }
@@ -101,7 +100,6 @@ public class NeptuneParameter extends Diffable implements Copyable<Parameter> {
     /**
      * Indicates when to apply parameter updates.
      */
-    @Output
     public String getApplyMethod() {
         return applyMethod;
     }
