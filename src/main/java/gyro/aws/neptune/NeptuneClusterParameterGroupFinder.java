@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    neptune-cluster-parameter-group: $(external-query aws::neptune-cluster-parameter-group {name: "neptune-cluster-parameter-group-example"})
+ *     neptune-cluster-parameter-group: $(external-query aws::neptune-cluster-parameter-group {name: "neptune-cluster-parameter-group-example"})
  */
 @Type("neptune-cluster-parameter-group")
 public class NeptuneClusterParameterGroupFinder extends AwsFinder<NeptuneClient, DBClusterParameterGroup, NeptuneClusterParameterGroupResource> {
