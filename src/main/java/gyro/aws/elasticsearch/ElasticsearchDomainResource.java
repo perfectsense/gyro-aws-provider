@@ -58,47 +58,60 @@ import software.amazon.awssdk.utils.IoUtils;
  *      aws::elasticsearch-domain elasticsearch-domain-example
  *          domain-name: "testdomain"
  *          elastic-search-version: "7.1"
+ *
  *          ebs-options
  *              enable-ebs: true
  *              volume-type: standard
  *              volume-count: 10
  *          end
+ *
  *          node-to-node-encryption-options
  *              enable-node-to-node-encryption: true
  *          end
+ *
  *          encryption-at-rest-options
  *              enable-encryption-at-rest: true
  *          end
+ *
  *          cluster-configuration
  *              enable-zone-awareness: true
  *              instance-count: 4
+ *
  *              zone-awareness-configuration
  *                  availability-zone-count: 2
  *              end
  *          end
+ *
  *          domain-endpoint-options
  *              enforce-https: true
  *          end
+ *
  *          advanced-security-options
  *              enable-advanced-security-options: true
  *              enable-internal-user-database: true
+ *
  *              master-user-options
  *                  master-username: "masteruser"
  *                  master-password: "MasterUser1!"
  *              end
  *          end
+ *
  *          access-policies: "access-policy.json"
+ *
  *          advanced-options: {
  *              "indices.query.bool.max_clause_count": "1026"
  *          }
+ *
  *          tags: {
  *              "description": "Test Domain"
  *          }
+ *
  *          vpc-options
  *              subnets: [
  *                  $(aws::subnet example-subnet-1),
  *                  $(aws::subnet example-subnet-3)
  *              ]
+ *
  *              security-groups: [
  *                  $(aws::security-group example-security-group)
  *              ]
