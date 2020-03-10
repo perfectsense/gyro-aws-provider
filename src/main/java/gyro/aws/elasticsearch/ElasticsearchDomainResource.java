@@ -518,7 +518,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
             }
 
         } catch (ElasticsearchException ex) {
-            if (!ex.awsErrorDetails().errorCode().equals("InvalidElasticsearchDomainId.NotFound")) {
+            if (!ex.awsErrorDetails().errorCode().equals("ResourceNotFoundException")) {
                 throw ex;
             }
         }
