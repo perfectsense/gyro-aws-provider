@@ -1,0 +1,5 @@
+aws::placement-group example-placement-group
+    name: "TestGroup"
+    placement-strategy: "partition"
+    partition-count: 3
+ end
