@@ -305,7 +305,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         if (getEnableAuditLog() != null) {
             parameters.add(getEnableAuditLog().toParameter());
         } else {
-            defaultParameters = getDefaultParameters();
+            defaultParameters = getDefaultClusterParameters(client, getFamily());
             for (NeptuneParameter p : defaultParameters) {
                 if (p.getName().equals("neptune_enable_audit_log")) {
                     parameters.add(p.toParameter());
@@ -317,7 +317,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             parameters.add(getEnforceSsl().toParameter());
         } else {
             if (defaultParameters == null) {
-                defaultParameters = getDefaultParameters();
+                defaultParameters = getDefaultClusterParameters(client, getFamily());
             }
             for (NeptuneParameter p : defaultParameters) {
                 if (p.getName().equals("neptune_enforce_ssl")) {
@@ -330,7 +330,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             parameters.add(getLabMode().toParameter());
         } else {
             if (defaultParameters == null) {
-                defaultParameters = getDefaultParameters();
+                defaultParameters = getDefaultClusterParameters(client, getFamily());
             }
             for (NeptuneParameter p : defaultParameters) {
                 if (p.getName().equals("neptune_lab_mode")) {
@@ -343,7 +343,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             parameters.add(getQueryTimeout().toParameter());
         } else {
             if (defaultParameters == null) {
-                defaultParameters = getDefaultParameters();
+                defaultParameters = getDefaultClusterParameters(client, getFamily());
             }
             for (NeptuneParameter p : defaultParameters) {
                 if (p.getName().equals("neptune_query_timeout")) {
@@ -356,13 +356,11 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         client.modifyDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()).parameters(parameters));
     }
 
-    private List<NeptuneParameter> getDefaultParameters() {
-        NeptuneClient client = createClient(NeptuneClient.class);
-
+    static List<NeptuneParameter> getDefaultClusterParameters(NeptuneClient client, String engineFamily) {
         List<NeptuneParameter> defaultParameters = new ArrayList<>();
 
         DescribeEngineDefaultClusterParametersResponse response = client.describeEngineDefaultClusterParameters(
-                r -> r.dbParameterGroupFamily(getFamily())
+            r -> r.dbParameterGroupFamily(engineFamily)
         );
 
         if (response.engineDefaults().hasParameters()) {
@@ -373,6 +371,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
                 defaultParameters.add(param);
             });
         }
+        NeptuneParameter defaultQueryTimeout = NeptuneParameterGroupResource.getDefaultParameter(client, engineFamily);
+        defaultParameters.add(defaultQueryTimeout);
 
         return defaultParameters;
     }
