@@ -23,7 +23,6 @@ import java.util.Set;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.AdvancedSecurityOptions;
@@ -52,7 +51,6 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
      * Enable the Internal User Database.
      */
     @Updatable
-    @DependsOn("enable-advanced-security-options")
     public Boolean getEnableInternalUserDatabase() {
         return enableInternalUserDatabase;
     }
@@ -67,7 +65,6 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
      * @subresource gyro.aws.elasticsearch.ElasticsearchMasterUserOptions
      */
     @Updatable
-    @DependsOn("enable-advanced-security-options")
     public ElasticsearchMasterUserOptions getMasterUserOptions() {
         return masterUserOptions;
     }
@@ -108,17 +105,17 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (configuredFields.contains("enable-advanced-security-options") && getEnableAdvancedSecurityOptions().equals(
-            Boolean.FALSE) && (configuredFields.contains("enable-internal-user-database") || configuredFields.contains(
-            "master-user-options"))) {
+        if (getEnableAdvancedSecurityOptions().equals(Boolean.FALSE) && (
+            configuredFields.contains("enable-internal-user-database") || configuredFields.contains(
+                "master-user-options"))) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "The 'enable-internal-user-database' or 'master-user-options' can only be set if 'enable-advanced-security-options' is set to 'true'."));
         }
 
-        if (configuredFields.contains("enable-advanced-security-options") && getEnableAdvancedSecurityOptions().equals(
-            Boolean.TRUE) && !configuredFields.contains("master-user-options")) {
+        if (getEnableAdvancedSecurityOptions().equals(Boolean.TRUE)
+            && !configuredFields.contains("master-user-options")) {
             errors.add(new ValidationError(
                 this,
                 "master-user-options",

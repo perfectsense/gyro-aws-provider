@@ -23,7 +23,6 @@ import java.util.Set;
 import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.resource.Diffable;
-import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.EncryptionAtRestOptions;
@@ -48,7 +47,6 @@ public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Co
     /**
      * The KMS key resource for encryption options.
      */
-    @DependsOn("enable-encryption-at-rest")
     public KmsKeyResource getKmsKeyResource() {
         return kmsKeyResource;
     }
@@ -83,8 +81,7 @@ public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Co
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (configuredFields.contains("enable-encryption-at-rest") && getEnableEncryptionAtRest().equals(Boolean.FALSE)
-            && configuredFields.contains("kms-key-resource")) {
+        if (getEnableEncryptionAtRest().equals(Boolean.FALSE) && configuredFields.contains("kms-key-resource")) {
             errors.add(new ValidationError(
                 this,
                 null,
