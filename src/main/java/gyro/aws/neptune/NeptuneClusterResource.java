@@ -399,18 +399,14 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     protected boolean doRefresh() {
         NeptuneClient client = createClient(NeptuneClient.class);
 
-        try {
-            DescribeDbClustersResponse response = client.describeDBClusters(
-                r -> r.dbClusterIdentifier(getDbClusterIdentifier())
-            );
+        DBCluster cluster = getDbCluster(client);
 
-            copyFrom(response.dbClusters().get(0));
-
-        } catch (DbClusterNotFoundException ex) {
-            return false;
+        if (cluster != null) {
+            copyFrom(cluster);
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -456,12 +452,10 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     protected void doUpdate(Resource current, Set<String> changedProperties) {
         NeptuneClient client = createClient(NeptuneClient.class);
 
-        DescribeDbClustersResponse describeResponse = client.describeDBClusters(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
-        );
+        DBCluster cluster = getDbCluster(client);
 
-        List<String> currentExports = describeResponse.hasDbClusters()
-            ? describeResponse.dbClusters().get(0).enabledCloudwatchLogsExports() : new ArrayList<>();
+        List<String> currentExports = cluster != null
+            ? cluster.enabledCloudwatchLogsExports() : new ArrayList<>();
 
         List<String> disableLogs = currentExports.stream()
             .filter(s -> !getEnableCloudwatchLogsExports().contains(s))
@@ -504,25 +498,39 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
             .until(() -> isDeleted(client));
     }
 
-    private boolean isAvailable(NeptuneClient client) {
-        DescribeDbClustersResponse response = client.describeDBClusters(
-            r -> r.dbClusterIdentifier(getDbClusterIdentifier())
-        );
+    private DBCluster getDbCluster(NeptuneClient client) {
+        DBCluster cluster = null;
 
-        return response.dbClusters().get(0).status().equals("available");
-    }
-
-    private boolean isDeleted(NeptuneClient client) {
         try {
-            client.describeDBClusters(
+            DescribeDbClustersResponse response = client.describeDBClusters(
                 r -> r.dbClusterIdentifier(getDbClusterIdentifier())
             );
 
+            if (response.hasDbClusters()) {
+                cluster = response.dbClusters().get(0);
+            }
+
         } catch (DbClusterNotFoundException ex) {
-            return true;
+            // cluster not found - ignore exception and return null
         }
 
-        return false;
+        return cluster;
+    }
+
+    private boolean isAvailable(NeptuneClient client) {
+        DBCluster cluster = getDbCluster(client);
+
+        if (cluster == null) {
+            return false;
+        }
+
+        return cluster.status().equals("available");
+    }
+
+    private boolean isDeleted(NeptuneClient client) {
+        DBCluster cluster = getDbCluster(client);
+
+        return cluster == null;
     }
 
 }
