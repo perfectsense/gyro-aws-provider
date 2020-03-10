@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticsearch.model.SnapshotOptions;
 
 public class ElasticsearchSnapshotOptions extends Diffable implements Copyable<SnapshotOptions> {
@@ -27,8 +28,9 @@ public class ElasticsearchSnapshotOptions extends Diffable implements Copyable<S
     private Integer automatedSnapshotStartHour;
 
     /**
-     * The hour, in UTC format, when the service takes a daily automated snapshot of the specified Elasticsearch domain. Defaults to ``0``.
+     * The hour, in UTC format, when the service takes a daily automated snapshot of the specified Elasticsearch domain. Defaults to ``0``. Valid values between ``0`` and ``23``. (Required)
      */
+    @Required
     @Updatable
     @Range(min = 0, max = 23)
     public Integer getAutomatedSnapshotStartHour() {

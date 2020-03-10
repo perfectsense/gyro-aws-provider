@@ -16,10 +16,17 @@
 
 package gyro.aws.elasticsearch;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.DependsOn;
 import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.EBSOptions;
 import software.amazon.awssdk.services.elasticsearch.model.VolumeType;
 
@@ -31,9 +38,10 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     private Integer iops;
 
     /**
-     * Enable the EBS volume, a block level storage device.
+     * Enable the EBS volume, a block level storage device. (Required)
      */
     @Updatable
+    @Required
     public Boolean getEnableEbs() {
         return enableEbs;
     }
@@ -46,6 +54,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
      * The volume type for the EBS-based storage.
      */
     @Updatable
+    @DependsOn("enable-ebs")
     public VolumeType getVolumeType() {
         return volumeType;
     }
@@ -58,6 +67,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
      * The size of the EBS volume. Valid values belong between ``10`` to ``1024``.
      */
     @Updatable
+    @DependsOn("enable-ebs")
     @Range(min = 10, max = 1024)
     public Integer getVolumeCount() {
         return volumeCount;
@@ -71,6 +81,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
      * The baseline I/O performance for the EBS volume. Only used by Provisioned IOPS volumes. Valid values between ``1000`` to ``16000``.
      */
     @Updatable
+    @DependsOn("enable-ebs")
     @Range(min = 1000, max = 16000)
     public Integer getIops() {
         return iops;
@@ -96,10 +107,34 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     EBSOptions toEBSOptions() {
         EBSOptions.Builder builder = EBSOptions.builder().ebsEnabled(getEnableEbs());
 
-        if (getEnableEbs().equals(Boolean.TRUE)) {
-            builder = builder.volumeSize(getVolumeCount()).volumeType(getVolumeType()).iops(getIops());
+        if (getVolumeType() != null) {
+            builder = builder.volumeType(getVolumeType());
+        }
+
+        if (getVolumeCount() != null) {
+            builder = builder.volumeSize(getVolumeCount());
+        }
+
+        if (getIops() != null) {
+            builder = builder.iops(getIops());
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("enable-ebs") && getEnableEbs().equals(Boolean.FALSE) && (
+            configuredFields.contains("volume-type") || configuredFields.contains("volume-count")
+                || configuredFields.contains("iops"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'volume-count' and 'volume-type' and 'iops' can only be set if 'enable-ebs' is set to 'true'."));
+        }
+
+        return errors;
     }
 }

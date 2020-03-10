@@ -18,6 +18,7 @@ package gyro.aws.elasticsearch;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticsearch.model.NodeToNodeEncryptionOptions;
 
 public class ElasticsearchNodeToNodeEncryptionOptions extends Diffable
@@ -26,8 +27,9 @@ public class ElasticsearchNodeToNodeEncryptionOptions extends Diffable
     private Boolean enableNodeToNodeEncryption;
 
     /**
-     * Enable node to node encryption to prevent potential interception of traffic between Elasticsearch nodes. Defaults to ``false``.
+     * Enable node to node encryption to prevent potential interception of traffic between Elasticsearch nodes. Defaults to ``false``. (Required)
      */
+    @Required
     public Boolean getEnableNodeToNodeEncryption() {
         return enableNodeToNodeEncryption;
     }

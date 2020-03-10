@@ -19,6 +19,7 @@ package gyro.aws.elasticsearch;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ConflictsWith;
 import software.amazon.awssdk.services.elasticsearch.model.MasterUserOptions;
 
 public class ElasticsearchMasterUserOptions extends Diffable implements Copyable<MasterUserOptions> {
@@ -31,6 +32,7 @@ public class ElasticsearchMasterUserOptions extends Diffable implements Copyable
      * The master username stored in the domain's internal database.
      */
     @Updatable
+    @ConflictsWith("master-user-arn")
     public String getMasterUsername() {
         return masterUsername;
     }
@@ -43,6 +45,7 @@ public class ElasticsearchMasterUserOptions extends Diffable implements Copyable
      * The master password stored in the domain's internal database.
      */
     @Updatable
+    @ConflictsWith("master-user-arn")
     public String getMasterPassword() {
         return masterPassword;
     }
@@ -55,6 +58,7 @@ public class ElasticsearchMasterUserOptions extends Diffable implements Copyable
      * The master user's Amazon Resource Number.
      */
     @Updatable
+    @ConflictsWith({ "master-username", "master-password" })
     public String getMasterUserArn() {
         return masterUserArn;
     }

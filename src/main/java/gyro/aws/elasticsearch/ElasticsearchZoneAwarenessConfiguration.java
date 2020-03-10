@@ -19,6 +19,7 @@ package gyro.aws.elasticsearch;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticsearch.model.ZoneAwarenessConfig;
 
 public class ElasticsearchZoneAwarenessConfiguration extends Diffable implements Copyable<ZoneAwarenessConfig> {
@@ -26,8 +27,9 @@ public class ElasticsearchZoneAwarenessConfiguration extends Diffable implements
     private Integer availabilityZoneCount;
 
     /**
-     * The number of availability zones for a domain when zone awareness is enabled. Defaults to ``1``.
+     * The number of availability zones for a domain when zone awareness is enabled. Defaults to ``1``. (Required)
      */
+    @Required
     @Updatable
     public Integer getAvailabilityZoneCount() {
         return availabilityZoneCount;

@@ -16,10 +16,16 @@
 
 package gyro.aws.elasticsearch;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.DependsOn;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.EncryptionAtRestOptions;
 
 public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Copyable<EncryptionAtRestOptions> {
@@ -28,8 +34,9 @@ public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Co
     private KmsKeyResource kmsKeyResource;
 
     /**
-     * Enable encryption at rest to prevent unauthorized to the data. Defaults to ``false``.
+     * Enable encryption at rest to prevent unauthorized to the data. Defaults to ``false``. (Required)
      */
+    @Required
     public Boolean getEnableEncryptionAtRest() {
         return enableEncryptionAtRest;
     }
@@ -70,5 +77,20 @@ public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Co
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("enable-encryption-at-rest") && getEnableEncryptionAtRest().equals(Boolean.FALSE)
+            && configuredFields.contains("kms-key-resource")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'kms-key-resource' can only be set if 'enable-encryption-at-rest' is set to 'true'."));
+        }
+
+        return errors;
     }
 }

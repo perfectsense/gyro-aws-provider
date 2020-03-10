@@ -142,7 +142,6 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     /**
      * The version of ElasticSearch. Defaults to ``1.5``.
      */
-    @Regex("\\d\\.\\d")
     public String getElasticSearchVersion() {
         return elasticSearchVersion;
     }
@@ -155,7 +154,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
      * The name of the Elasticsearch Domain. (Required)
      */
     @Required
-    @Regex("^[a-z]([a-z]|[0-9]|-){2,27}")
+    @Regex("^[a-z]([a-z]|[0-9]|-){2,27}$")
     public String getDomainName() {
         return domainName;
     }

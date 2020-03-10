@@ -16,12 +16,17 @@
 
 package gyro.aws.elasticsearch;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Min;
 import gyro.core.validation.Range;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.ESPartitionInstanceType;
 import software.amazon.awssdk.services.elasticsearch.model.ESWarmPartitionInstanceType;
 import software.amazon.awssdk.services.elasticsearch.model.ElasticsearchClusterConfig;
@@ -147,6 +152,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
      */
     @Min(3)
     @Updatable
+    @DependsOn("enable-warm")
     public Integer getWarmCount() {
         return warmCount;
     }
@@ -159,6 +165,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
      * The instance type for the cluster's warm nodes. Defaults to ``ultrawarm1.medium.elasticsearch``.
      */
     @Updatable
+    @DependsOn("enable-warm")
     public ESWarmPartitionInstanceType getWarmType() {
         return warmType;
     }
@@ -201,10 +208,42 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
             .warmType(getWarmType())
             .warmCount(getWarmCount());
 
-        if (getEnableZoneAwareness() != null && getEnableZoneAwareness().equals(Boolean.TRUE)) {
+        if (getEnableZoneAwareness() != null) {
             builder = builder.zoneAwarenessConfig(getZoneAwarenessConfiguration().toZoneAwarenessConfig());
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("enable-zone-awareness") && getEnableZoneAwareness().equals(Boolean.FALSE)
+            && configuredFields.contains("zone-awareness-configuration")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'zone-awareness-configuration' can only be set if 'enable-zone-awareness' is set to 'true'."));
+        }
+
+        if (configuredFields.contains("dedicated-master-enabled") && getDedicatedMasterEnabled().equals(Boolean.FALSE)
+            && (configuredFields.contains("dedicated-master-type")
+            || configuredFields.contains("dedicated-master-count"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'dedicated-master-count' and 'dedicated-master-type' can only be set if 'dedicated-master-enabled' is set to 'true'."));
+        }
+
+        if (configuredFields.contains("enable-warm") && getEnableWarm().equals(Boolean.FALSE) && (
+            configuredFields.contains("warm-type") || configuredFields.contains("warm-count"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'warm-count' and 'warm-type' can only be set if 'enable-warm' is set to 'true'."));
+        }
+
+        return errors;
     }
 }

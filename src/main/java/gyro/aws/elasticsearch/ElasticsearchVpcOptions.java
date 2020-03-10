@@ -25,6 +25,7 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticsearch.model.VPCDerivedInfo;
 import software.amazon.awssdk.services.elasticsearch.model.VPCOptions;
 
@@ -34,8 +35,9 @@ public class ElasticsearchVpcOptions extends Diffable implements Copyable<VPCDer
     private Set<SecurityGroupResource> securityGroups;
 
     /**
-     * The list of subnets in the same region for the VPC endpoint. One subnet per availability zone.
+     * The list of subnets in the same region for the VPC endpoint. One subnet per availability zone. (Required)
      */
+    @Required
     @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
@@ -50,8 +52,9 @@ public class ElasticsearchVpcOptions extends Diffable implements Copyable<VPCDer
     }
 
     /**
-     * The list if security groups for the VPC endpoint that need to access the domain.
+     * The list if security groups for the VPC endpoint that need to access the domain. (Required)
      */
+    @Required
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {

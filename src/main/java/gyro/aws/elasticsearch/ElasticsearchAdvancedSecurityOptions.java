@@ -16,9 +16,16 @@
 
 package gyro.aws.elasticsearch;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.DependsOn;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.AdvancedSecurityOptions;
 import software.amazon.awssdk.services.elasticsearch.model.AdvancedSecurityOptionsInput;
 
@@ -29,9 +36,10 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
     private ElasticsearchMasterUserOptions masterUserOptions;
 
     /**
-     * Enable advanced security.
+     * Enable advanced security. (Required)
      */
     @Updatable
+    @Required
     public Boolean getEnableAdvancedSecurityOptions() {
         return enableAdvancedSecurityOptions;
     }
@@ -44,6 +52,7 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
      * Enable the Internal User Database.
      */
     @Updatable
+    @DependsOn("enable-advanced-security-options")
     public Boolean getEnableInternalUserDatabase() {
         return enableInternalUserDatabase;
     }
@@ -58,6 +67,7 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
      * @subresource gyro.aws.elasticsearch.ElasticsearchMasterUserOptions
      */
     @Updatable
+    @DependsOn("enable-advanced-security-options")
     public ElasticsearchMasterUserOptions getMasterUserOptions() {
         return masterUserOptions;
     }
@@ -80,10 +90,41 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
     }
 
     AdvancedSecurityOptionsInput toAdvancedSecurityOptionsInput() {
-        return AdvancedSecurityOptionsInput.builder()
-            .enabled(getEnableAdvancedSecurityOptions())
-            .internalUserDatabaseEnabled(getEnableInternalUserDatabase())
-            .masterUserOptions(getMasterUserOptions().toMasterUserOptions())
-            .build();
+        AdvancedSecurityOptionsInput.Builder builder = AdvancedSecurityOptionsInput.builder()
+            .enabled(getEnableAdvancedSecurityOptions());
+
+        if (getEnableInternalUserDatabase() != null) {
+            builder.internalUserDatabaseEnabled(getEnableInternalUserDatabase());
+        }
+
+        if (getMasterUserOptions() != null) {
+            builder.masterUserOptions(getMasterUserOptions().toMasterUserOptions());
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("enable-advanced-security-options") && getEnableAdvancedSecurityOptions().equals(
+            Boolean.FALSE) && (configuredFields.contains("enable-internal-user-database") || configuredFields.contains(
+            "master-user-options"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'enable-internal-user-database' or 'master-user-options' can only be set if 'enable-advanced-security-options' is set to 'true'."));
+        }
+
+        if (configuredFields.contains("enable-advanced-security-options") && getEnableAdvancedSecurityOptions().equals(
+            Boolean.TRUE) && !configuredFields.contains("master-user-options")) {
+            errors.add(new ValidationError(
+                this,
+                "master-user-options",
+                "The 'master-user-options' is required if 'enable-advanced-security-options' is set to 'true'."));
+        }
+
+        return errors;
     }
 }
