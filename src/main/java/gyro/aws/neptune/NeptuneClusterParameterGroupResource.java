@@ -205,7 +205,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     @Override
     protected boolean doRefresh() {
-        DBClusterParameterGroup group = getdbClusterParameterGroup();
+        DBClusterParameterGroup group = getDbClusterParameterGroup();
         if (group == null) {
             return false;
         }
@@ -218,9 +218,9 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     protected void doCreate(GyroUI ui, State state) {
         NeptuneClient client = createClient(NeptuneClient.class);
         CreateDbClusterParameterGroupResponse createResponse = client.createDBClusterParameterGroup(
-                r -> r.dbClusterParameterGroupName(getName())
-                        .dbParameterGroupFamily(getFamily())
-                        .description(getDescription())
+            r -> r.dbClusterParameterGroupName(getName())
+                .dbParameterGroupFamily(getFamily())
+                .description(getDescription())
         );
 
         setArn(createResponse.dbClusterParameterGroup().dbClusterParameterGroupArn());
@@ -238,7 +238,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         client.deleteDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()));
     }
 
-    private DBClusterParameterGroup getdbClusterParameterGroup() {
+    private DBClusterParameterGroup getDbClusterParameterGroup() {
         if (ObjectUtils.isBlank(getName())) {
             throw new GyroException("name is missing, unable to load cluster parameter group.");
         }
@@ -248,7 +248,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
         try {
             DescribeDbClusterParameterGroupsResponse parameterGroupsResponse = client.describeDBClusterParameterGroups(
-                    r -> r.dbClusterParameterGroupName(getName())
+                r -> r.dbClusterParameterGroupName(getName())
             );
 
             if (parameterGroupsResponse.hasDbClusterParameterGroups()) {
@@ -265,7 +265,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         NeptuneClient client = createClient(NeptuneClient.class);
 
         DescribeDbClusterParametersResponse parametersResponse = client.describeDBClusterParameters(
-                r -> r.dbClusterParameterGroupName(getName())
+            r -> r.dbClusterParameterGroupName(getName())
         );
 
         setEnableAuditLog(null);
@@ -277,7 +277,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             parametersResponse.parameters().stream().forEach(p -> {
                 NeptuneParameter param = new NeptuneParameter();
                 param.copyFrom(p);
-                switch(param.getName()) {
+                switch (param.getName()) {
                     case "neptune_enable_audit_log":
                         setEnableAuditLog(param);
                         break;
@@ -289,6 +289,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
                         break;
                     case "neptune_query_timeout":
                         setQueryTimeout(param);
+                        break;
+                    default:
                         break;
                 }
             });

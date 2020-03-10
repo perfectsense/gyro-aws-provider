@@ -55,7 +55,10 @@ public class NeptuneClusterParameterGroupFinder extends AwsFinder<NeptuneClient,
 
     @Override
     protected List<DBClusterParameterGroup> findAllAws(NeptuneClient client) {
-        return client.describeDBClusterParameterGroups().dbClusterParameterGroups().stream().filter(p -> p.dbParameterGroupFamily().contains("neptune")).collect(Collectors.toList());
+        return client.describeDBClusterParameterGroups()
+            .dbClusterParameterGroups().stream()
+            .filter(p -> p.dbParameterGroupFamily().contains("neptune"))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -66,8 +69,10 @@ public class NeptuneClusterParameterGroupFinder extends AwsFinder<NeptuneClient,
 
         try {
             return client.describeDBClusterParameterGroups(r -> r.dbClusterParameterGroupName(filters.get("name")))
-                    .dbClusterParameterGroups().stream().filter(p -> p.dbParameterGroupFamily().contains("neptune"))
-                    .collect(Collectors.toList());
+                .dbClusterParameterGroups().stream()
+                .filter(p -> p.dbParameterGroupFamily().contains("neptune"))
+                .collect(Collectors.toList());
+
         } catch (DbClusterParameterGroupNotFoundException ex) {
             return Collections.emptyList();
         }
