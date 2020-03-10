@@ -82,10 +82,7 @@ public class NeptuneClusterFinder extends AwsFinder<NeptuneClient, DBCluster, Ne
         }
 
         try {
-            return client.describeDBClusters(r -> r.filters(filters.entrySet()
-                .stream()
-                .map(e -> Filter.builder().name(e.getKey()).values(e.getValue()).build())
-                .collect(Collectors.toList()))).dbClusters().stream().collect(Collectors.toList());
+            return client.describeDBClusters(r -> r.filters(createNeptuneFilters(filters))).dbClusters().stream().collect(Collectors.toList());
 
         } catch (DbClusterNotFoundException ex) {
             return Collections.emptyList();
