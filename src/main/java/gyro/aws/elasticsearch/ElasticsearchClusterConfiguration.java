@@ -79,7 +79,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * Number of nodes in the specified domain cluster. Defaults to ``1``.
+     * Number of nodes in the specified domain cluster. Defaults to ``1``. Valid values between ``0`` to ``40``.
      */
     @Updatable
     @Range(min = 0, max = 40)
@@ -117,7 +117,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * Number of dedicated master nodes for the cluster. Defaults to ``3``.
+     * Number of dedicated master nodes for the cluster. Defaults to ``3``. Valid values between ``2`` to ``5``
      */
     @Updatable
     @DependsOn("dedicated-master-enabled")
@@ -143,7 +143,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * Number of warm nodes in the cluster. Defaults to 3.
+     * Number of warm nodes in the cluster. Defaults to ``3``. Minimum ``3`` nodes.
      */
     @Min(3)
     @Updatable

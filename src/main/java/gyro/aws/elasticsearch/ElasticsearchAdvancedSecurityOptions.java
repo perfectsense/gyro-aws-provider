@@ -70,6 +70,8 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
     public void copyFrom(AdvancedSecurityOptions model) {
         setEnableAdvancedSecurityOptions(model.enabled());
         setEnableInternalUserDatabase(model.internalUserDatabaseEnabled());
+
+        // Not resetting the masterUserOptions since the api doesn't return the credentials for the master user.
     }
 
     @Override

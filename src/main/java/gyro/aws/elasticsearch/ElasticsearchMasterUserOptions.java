@@ -28,7 +28,7 @@ public class ElasticsearchMasterUserOptions extends Diffable implements Copyable
     private String masterUserArn;
 
     /**
-     * The master user's username stored in the Domain's Internal Database.
+     * The master username stored in the domain's internal database.
      */
     @Updatable
     public String getMasterUsername() {
@@ -40,7 +40,7 @@ public class ElasticsearchMasterUserOptions extends Diffable implements Copyable
     }
 
     /**
-     * The master user's password stored in the Domain's Internal Database.
+     * The master password stored in the domain's internal database.
      */
     @Updatable
     public String getMasterPassword() {
