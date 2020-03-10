@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  *     backup-retention-period: 7
  *     deletion-protection: false
  *     enable-iam-database-authentication: true
- *     port: 8102
+ *     port: 8182
  *     preferred-backup-window: "07:39-08:09"
  *     preferred-maintenance-window: "sun:05:12-sun:05:42"
  *     storage-encrypted: true
@@ -116,7 +116,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The version number of the database engine to use. Valid values are ``1.0.2.1``, ``1.0.2.0``, and ``1.0.1.0``.
+     * The version number of the database engine to use. Valid values are ``1.0.2.1``, ``1.0.2.0`` or ``1.0.1.0``.
      * The default version number is ``1.0.2.1``.
      */
     @ValidStrings({ "1.0.2.1", "1.0.2.0", "1.0.1.0" })
@@ -196,7 +196,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The number of days to retain backups. Must be a value from ``1`` to ``35``.
+     * The number of days to retain backups. Valid values are from ``1`` to ``35``.
      */
     @Range(min = 1, max = 35)
     @Updatable
@@ -220,7 +220,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * Enable deletion protection on the Neptune cluster. The default is false.
+     * Enable deletion protection on the Neptune cluster. Defaults to ``false``.
      */
     @Updatable
     public Boolean getDeletionProtection() {
@@ -232,7 +232,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * Enable mapping IAM accounts to database accounts. The default is false.
+     * Enable mapping IAM accounts to database accounts. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableIamDatabaseAuthentication() {
@@ -282,7 +282,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
     /**
      * The preferred system maintenance window. Must be provided in UTC using the format ``ddd:hh24:mi-ddd:hh24:mi``` (i.e. ``Mon:01:00-Mon:02:00``).
-     * The window must be at least 30 minutes long. Valid days are ``Mon``, ``Tue``, ``Wed``, ``Thu``, ``Fri``, ``Sat``, and ``Sun``.
+     * The window must be at least 30 minutes long.
      */
     @Updatable
     public String getPreferredMaintenanceWindow() {
@@ -294,7 +294,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * Enable Neptune cluster encryption. The default is false.
+     * Enable Neptune cluster encryption. Defaults to ``false``.
      */
     public Boolean getStorageEncrypted() {
         return storageEncrypted;

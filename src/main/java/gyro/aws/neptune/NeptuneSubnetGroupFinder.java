@@ -40,11 +40,11 @@ import java.util.stream.Collectors;
 @Type("neptune-subnet-group")
 public class NeptuneSubnetGroupFinder extends AwsFinder<NeptuneClient, DBSubnetGroup, NeptuneSubnetGroupResource> {
 
+    private String name;
+
     /**
      * The name of the subnet group.
      */
-    private String name;
-
     public String getName() {
         return name;
     }

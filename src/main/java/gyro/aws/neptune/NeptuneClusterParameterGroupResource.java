@@ -42,30 +42,30 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *    aws::neptune-cluster-parameter-group neptune-cluster-parameter-group
- *        name: "neptune-cluster-parameter-group-example"
- *        description: "neptune cluter parameter group example description"
- *        family: "neptune1"
- *        tags: {
- *            Name: "neptune-cluster-parameter-group-example-tag"
- *        }
+ *     aws::neptune-cluster-parameter-group neptune-cluster-parameter-group
+ *         name: "neptune-cluster-parameter-group-example"
+ *         description: "neptune cluter parameter group example description"
+ *         family: "neptune1"
+ *         tags: {
+ *             Name: "neptune-cluster-parameter-group-example-tag"
+ *         }
  *
- *        enable-audit-log
- *            value: "0"
- *        end
+ *         enable-audit-log
+ *             value: "0"
+ *         end
  *
- *        enforce-ssl
- *            value: "1"
- *        end
+ *         enforce-ssl
+ *             value: "1"
+ *         end
  *
- *        lab-mode
- *            value: "Streams=enabled, ReadWriteConflictDetection=disabled"
- *        end
+ *         lab-mode
+ *             value: "Streams=enabled, ReadWriteConflictDetection=disabled"
+ *         end
  *
- *        query-timeout
- *            value: "120000"
- *        end
- *    end
+ *         query-timeout
+ *             value: "120000"
+ *         end
+ *     end
  */
 @Type("neptune-cluster-parameter-group")
 public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResource implements Copyable<DBClusterParameterGroup> {
@@ -118,8 +118,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * Enable audit logs. Valid values are 0 and 1.
-     * Value defaults to 0.
+     * Enable audit logs. Valid values are ``0`` or ``1``.
+     * Defaults to 0.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -137,8 +137,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * Accept SSL/TLS connections only. Valid values are 0 and 1.
-     * Value defaults to 1.
+     * Accept SSL/TLS connections only. Valid values are ``0`` or ``1``.
+     * Defaults to 1.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -176,8 +176,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * Graph query timeout (ms). Valid values range from 10 to 2147483647.
-     * Value defaults to 120000.
+     * Graph query timeout (ms). Valid values range from ``10`` to ``2147483647``.
+     * Defaults to ``120000``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
