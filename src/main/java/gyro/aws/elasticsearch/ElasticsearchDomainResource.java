@@ -310,6 +310,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     /**
      * The list of tags.
      */
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -423,7 +424,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
             getAdvancedSecurityOptions().setMasterUserOptions(masterUserOptions);
         }
 
-        addAllTags(client);
+        addTags(client);
 
         waitForAvailability(client);
     }
@@ -476,7 +477,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
                     .tagKeys(new ArrayList<String>(currentResource.getTags().keySet())));
             }
 
-            addAllTags(client);
+            addTags(client);
         }
 
         waitForAvailability(client);
@@ -596,7 +597,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
         }
     }
 
-    private void addAllTags(ElasticsearchClient client) {
+    private void addTags(ElasticsearchClient client) {
         if (!getTags().isEmpty()) {
             client.addTags(r -> r.arn(getArn())
                 .tagList(getTags().entrySet()
