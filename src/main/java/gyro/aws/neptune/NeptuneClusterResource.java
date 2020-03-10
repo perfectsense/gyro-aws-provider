@@ -19,7 +19,6 @@ package gyro.aws.neptune;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -28,6 +27,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.neptune.NeptuneClient;
@@ -38,6 +38,7 @@ import software.amazon.awssdk.services.neptune.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.neptune.model.DescribeDbClustersResponse;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -197,6 +198,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     /**
      * The number of days to retain backups. Must be a value from ``1`` to ``35``.
      */
+    @Range(min = 1, max = 35)
     @Updatable
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
@@ -388,7 +390,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
         setReplicationSourceIdentifier(model.replicationSourceIdentifier());
         setEnableCloudwatchLogsExports(model.hasEnabledCloudwatchLogsExports()
             ? model.enabledCloudwatchLogsExports()
-            : new ArrayList<>());
+            : Collections.emptyList());
         setAssociatedRoles(model.associatedRoles().stream().map(DBClusterRole::toString).collect(Collectors.toList()));
         setArn(model.dbClusterArn());
     }
@@ -444,15 +446,10 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
         setArn(response.dbCluster().dbClusterArn());
 
-        boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
+        Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException(
-                "Unable to reach 'available' state for Neptune db cluster - " + getDbClusterIdentifier());
-        }
     }
 
     @Override
