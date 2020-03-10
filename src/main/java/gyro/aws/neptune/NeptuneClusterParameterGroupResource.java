@@ -127,6 +127,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     public NeptuneParameter getEnableAuditLog() {
         if (enableAuditLog != null) {
             enableAuditLog.setName("neptune_enable_audit_log");
+            enableAuditLog.setApplyMethod("pending-reboot");
         }
         return enableAuditLog;
     }
@@ -145,6 +146,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     public NeptuneParameter getEnforceSsl() {
         if (enforceSsl != null) {
             enforceSsl.setName("neptune_enforce_ssl");
+            enforceSsl.setApplyMethod("pending-reboot");
         }
         return enforceSsl;
     }
@@ -164,6 +166,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     public NeptuneParameter getLabMode() {
         if (labMode != null) {
             labMode.setName("neptune_lab_mode");
+            labMode.setApplyMethod("pending-reboot");
         }
         return labMode;
     }
@@ -182,6 +185,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     public NeptuneParameter getQueryTimeout() {
         if (queryTimeout != null) {
             queryTimeout.setName("neptune_query_timeout");
+            queryTimeout.setApplyMethod("pending-reboot");
         }
         return queryTimeout;
     }
@@ -299,9 +303,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         List<NeptuneParameter> defaultParameters = null;
 
         if (getEnableAuditLog() != null) {
-            enableAuditLog.setName("neptune_enable_audit_log");
-            enableAuditLog.setApplyMethod("pending-reboot");
-            parameters.add(enableAuditLog.toParameter());
+            parameters.add(getEnableAuditLog().toParameter());
         } else {
             defaultParameters = getDefaultParameters();
             for (NeptuneParameter p : defaultParameters) {
@@ -312,9 +314,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             }
         }
         if (getEnforceSsl() != null) {
-            enforceSsl.setName("neptune_enforce_ssl");
-            enforceSsl.setApplyMethod("pending-reboot");
-            parameters.add(enforceSsl.toParameter());
+            parameters.add(getEnforceSsl().toParameter());
         } else {
             if (defaultParameters == null) {
                 defaultParameters = getDefaultParameters();
@@ -327,9 +327,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             }
         }
         if (getLabMode() != null) {
-            labMode.setName("neptune_lab_mode");
-            labMode.setApplyMethod("pending-reboot");
-            parameters.add(labMode.toParameter());
+            parameters.add(getLabMode().toParameter());
         } else {
             if (defaultParameters == null) {
                 defaultParameters = getDefaultParameters();
@@ -342,9 +340,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             }
         }
         if (getQueryTimeout() != null) {
-            queryTimeout.setName("neptune_query_timeout");
-            queryTimeout.setApplyMethod("pending-reboot");
-            parameters.add(queryTimeout.toParameter());
+            parameters.add(getQueryTimeout().toParameter());
         } else {
             if (defaultParameters == null) {
                 defaultParameters = getDefaultParameters();
