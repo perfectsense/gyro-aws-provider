@@ -131,6 +131,14 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
                 "The 'volume-count', 'volume-type' and 'iops' can only be set if 'enable-ebs' is set to 'true'."));
         }
 
+        if (getEnableEbs().equals(Boolean.TRUE) && !(configuredFields.contains("volmue-type")
+            && configuredFields.contains("volume-count"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The 'volume-count' and 'volume-type' are required if 'enable-ebs' is set to 'true'."));
+        }
+
         return errors;
     }
 }
