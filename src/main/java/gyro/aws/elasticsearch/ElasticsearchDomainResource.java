@@ -151,7 +151,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * The name of the Elasticsearch Domain. (Required)
+     * The name of the Elasticsearch Domain. The name can be a combination of lowercase letters, numbers, or hyphens (``-``) and it must start with a lowercase letter. It can be between ``3`` to ``28`` characters in length. (Required)
      */
     @Required
     @Regex("^[a-z]([a-z]|[0-9]|-){2,27}$")
@@ -164,7 +164,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Options for the Elastic Block Storage.
+     * Configure the Elastic Block Storage options.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchEbsOptions
      */
@@ -178,7 +178,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * The configuration option for the Elasticsearch Domain cluster.
+     * Configure the Elasticsearch Domain cluster.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchClusterConfiguration
      */
@@ -192,7 +192,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Options to set the automated snapshot time.
+     * Configure the automated snapshot time.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchSnapshotOptions
      */
@@ -206,7 +206,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Json formatted IAM access policies.
+     * The Json formatted IAM access policies. It can either be a JSON formatted string or the file path to a ``.json`` file.
      */
     @Updatable
     public String getAccessPolicies() {
@@ -227,7 +227,10 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Options to allow references to indices in an HTTP request body.
+     * Configure advanced options for the cluster to allow references to indices in an HTTP request body. The valid options are
+     * ``rest.action.multi.allow_explicit_index``: ``true`` | ``false``
+     * ``indices.fielddata.cache.size``: A number between ``1`` and ``100``
+     * ``indices.query.bool.max_clause``: A number between ``1`` and ``2147483647``.
      */
     @Updatable
     public Map<String, String> getAdvancedOptions() {
@@ -239,7 +242,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Option to enable node to node encryption for the Elasticsearch domain.
+     * Configure the node to node encryption options.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchNodeToNodeEncryptionOptions
      */
@@ -252,7 +255,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Options to specify configuration for the Elasticsearch domain endpoint.
+     * Configure the Elasticsearch domain endpoint.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchDomainEndpointOptions
      */
@@ -266,7 +269,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Options to enable encryption at rest and specify the KMS encryption key.
+     * Configure the encryption at rest options.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchEncryptionAtRestOptions
      */
@@ -279,7 +282,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Options to specify the subnets and security groups for VPC endpoint.
+     * Configure the VPC options.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchVpcOptions
      */
@@ -293,7 +296,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Specify the advanced security options.
+     * Configure the advanced security options.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchAdvancedSecurityOptions
      */

@@ -28,7 +28,7 @@ public class ElasticsearchSnapshotOptions extends Diffable implements Copyable<S
     private Integer automatedSnapshotStartHour;
 
     /**
-     * The hour, in UTC format, when the service takes a daily automated snapshot of the specified Elasticsearch domain. Defaults to ``0``. Valid values between ``0`` and ``23``. (Required)
+     * The hour, in UTC format, when the service takes a daily automated snapshot of the specified Elasticsearch domain. Valid values between ``0`` and ``23``. (Required)
      */
     @Required
     @Updatable

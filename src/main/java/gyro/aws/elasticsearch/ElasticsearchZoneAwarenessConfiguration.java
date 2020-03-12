@@ -27,7 +27,7 @@ public class ElasticsearchZoneAwarenessConfiguration extends Diffable implements
     private Integer availabilityZoneCount;
 
     /**
-     * The number of availability zones for a domain when zone awareness is enabled. Defaults to ``1``. (Required)
+     * The number of availability zones for a domain when zone awareness is enabled. (Required)
      */
     @Required
     @Updatable

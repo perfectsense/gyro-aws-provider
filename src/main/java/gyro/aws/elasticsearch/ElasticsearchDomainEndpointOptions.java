@@ -29,7 +29,7 @@ public class ElasticsearchDomainEndpointOptions extends Diffable implements Copy
     private TLSSecurityPolicy tlsSecurityPolicy;
 
     /**
-     * Only enable HTTPS endpoint for the Elasticsearch cluster. Defaults to ``false``. (Required)
+     * Enforce HTTPS endpoints for the Elasticsearch cluster. (Required)
      */
     @Updatable
     @Required
@@ -42,7 +42,7 @@ public class ElasticsearchDomainEndpointOptions extends Diffable implements Copy
     }
 
     /**
-     * The TLS security policy that needs to be applied to the HTTPS endpoint of Elasticsearch domain.
+     * The TLS security policy that needs to be applied to the HTTPS endpoints of the Elasticsearch domain.
      */
     @Updatable
     public TLSSecurityPolicy getTlsSecurityPolicy() {
