@@ -101,21 +101,10 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     }
 
     EBSOptions toEBSOptions() {
-        EBSOptions.Builder builder = EBSOptions.builder().ebsEnabled(getEnableEbs());
-
-        if (getVolumeType() != null) {
-            builder = builder.volumeType(getVolumeType());
-        }
-
-        if (getVolumeCount() != null) {
-            builder = builder.volumeSize(getVolumeCount());
-        }
-
-        if (getIops() != null) {
-            builder = builder.iops(getIops());
-        }
-
-        return builder.build();
+        return EBSOptions.builder().ebsEnabled(getEnableEbs())
+            .volumeType(getVolumeType())
+            .volumeSize(getVolumeCount())
+            .iops(getIops()).build();
     }
 
     @Override

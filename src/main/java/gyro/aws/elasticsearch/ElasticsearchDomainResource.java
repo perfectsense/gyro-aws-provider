@@ -384,9 +384,11 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
             .domainName(getDomainName())
             .elasticsearchVersion(getElasticSearchVersion())
             .accessPolicies(getAccessPolicies())
-            .nodeToNodeEncryptionOptions(getNodeToNodeEncryptionOptions().toNodeEncryptionOptions())
             .advancedOptions(getAdvancedOptions());
 
+        if (getNodeToNodeEncryptionOptions() != null) {
+            builder = builder.nodeToNodeEncryptionOptions(getNodeToNodeEncryptionOptions().toNodeEncryptionOptions());
+        }
         if (getEbsOptions() != null) {
             builder = builder.ebsOptions(getEbsOptions().toEBSOptions());
         }
@@ -418,7 +420,11 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
         CreateElasticsearchDomainResponse response = client.createElasticsearchDomain(builder.build());
 
         // Storing and resetting the latest MasterUserOptions here since the api doesn't return the master username and password.
-        ElasticsearchMasterUserOptions masterUserOptions = getAdvancedSecurityOptions().getMasterUserOptions();
+        ElasticsearchMasterUserOptions masterUserOptions = null;
+
+        if (getAdvancedSecurityOptions() != null) {
+            masterUserOptions = getAdvancedSecurityOptions().getMasterUserOptions();
+        }
 
         copyFrom(response.domainStatus(), false);
 

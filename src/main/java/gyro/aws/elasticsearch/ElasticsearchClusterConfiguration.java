@@ -183,10 +183,12 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
         setWarmCount(model.warmCount());
         setWarmType(model.warmType());
         setEnableZoneAwareness(model.zoneAwarenessEnabled());
-        ElasticsearchZoneAwarenessConfiguration configuration = newSubresource(
-            ElasticsearchZoneAwarenessConfiguration.class);
-        configuration.copyFrom(model.zoneAwarenessConfig());
-        setZoneAwarenessConfiguration(configuration);
+        if (model.zoneAwarenessConfig() != null) {
+            ElasticsearchZoneAwarenessConfiguration configuration = newSubresource(
+                ElasticsearchZoneAwarenessConfiguration.class);
+            configuration.copyFrom(model.zoneAwarenessConfig());
+            setZoneAwarenessConfiguration(configuration);
+        }
         setInstanceCount(model.instanceCount());
         setInstanceType(model.instanceType());
     }
