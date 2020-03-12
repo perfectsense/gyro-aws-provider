@@ -440,7 +440,6 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         ElasticsearchClient client = createClient(ElasticsearchClient.class);
-        ElasticsearchDomainResource currentResource = (ElasticsearchDomainResource) current;
 
         UpdateElasticsearchDomainConfigRequest.Builder builder = UpdateElasticsearchDomainConfigRequest.builder()
             .domainName(getDomainName());
@@ -478,6 +477,8 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
         }
 
         client.updateElasticsearchDomainConfig(builder.build());
+
+        ElasticsearchDomainResource currentResource = (ElasticsearchDomainResource) current;
 
         if (changedFieldNames.contains("tags")) {
             if (!currentResource.getTags().isEmpty()) {
