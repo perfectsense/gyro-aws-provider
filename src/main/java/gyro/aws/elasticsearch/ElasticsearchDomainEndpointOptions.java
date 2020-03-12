@@ -19,7 +19,6 @@ package gyro.aws.elasticsearch;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticsearch.model.DomainEndpointOptions;
 import software.amazon.awssdk.services.elasticsearch.model.TLSSecurityPolicy;
 
@@ -32,7 +31,6 @@ public class ElasticsearchDomainEndpointOptions extends Diffable implements Copy
      * Enforce HTTPS endpoints for the Elasticsearch cluster. (Required)
      */
     @Updatable
-    @Required
     public Boolean getEnforceHttps() {
         return enforceHttps;
     }
