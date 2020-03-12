@@ -60,7 +60,7 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
     }
 
     /**
-     * Configure the master user if advanced security is enabled.
+     * The master user options configuration. Can only set if ``enable-advanced-security-options`` is set to ``true``.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchMasterUserOptions
      */

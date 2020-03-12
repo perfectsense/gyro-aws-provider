@@ -50,7 +50,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     }
 
     /**
-     * The volume type for the EBS-based storage.
+     * The volume type for the EBS-based storage. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
     public VolumeType getVolumeType() {
@@ -62,7 +62,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     }
 
     /**
-     * The size of the EBS volume. Valid values belong between ``10`` to ``1024``.
+     * The size of the EBS volume. Valid values belong between ``10`` to ``1024``. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
     @Range(min = 10, max = 1024)
@@ -75,7 +75,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     }
 
     /**
-     * The baseline I/O performance for the EBS volume. Only used by Provisioned IOPS volumes. Valid values between ``1000`` to ``16000``.
+     * The baseline I/O performance for the EBS volume. Only used by Provisioned IOPS volumes. Valid values between ``1000`` to ``16000``. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
     @Range(min = 1000, max = 16000)

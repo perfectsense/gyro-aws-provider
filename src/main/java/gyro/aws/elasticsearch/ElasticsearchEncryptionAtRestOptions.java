@@ -45,7 +45,7 @@ public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Co
     }
 
     /**
-     * The KMS key resource for encryption options.
+     * The KMS key resource for encryption options. Can only be set if ``enable-encryption-at-rest`` is set to ``true``.
      */
     public KmsKeyResource getKmsKeyResource() {
         return kmsKeyResource;

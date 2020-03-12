@@ -164,7 +164,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the Elastic Block Storage options.
+     * The Elastic Block Storage options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchEbsOptions
      */
@@ -178,7 +178,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the Elasticsearch Domain cluster.
+     * The Elasticsearch Domain cluster configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchClusterConfiguration
      */
@@ -192,7 +192,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the automated snapshot time.
+     * The automated snapshot time configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchSnapshotOptions
      */
@@ -242,7 +242,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the node to node encryption options.
+     * The node to node encryption options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchNodeToNodeEncryptionOptions
      */
@@ -255,7 +255,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the Elasticsearch domain endpoint.
+     * The Elasticsearch domain endpoint options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchDomainEndpointOptions
      */
@@ -269,7 +269,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the encryption at rest options.
+     * The encryption at rest options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchEncryptionAtRestOptions
      */
@@ -282,7 +282,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the VPC options.
+     * The VPC options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchVpcOptions
      */
@@ -296,7 +296,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * Configure the advanced security options.
+     * The advanced security options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchAdvancedSecurityOptions
      */
