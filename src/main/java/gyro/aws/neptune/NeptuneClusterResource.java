@@ -93,6 +93,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private Boolean deletionProtection;
     private Boolean enableIamDatabaseAuthentication;
     private String masterUsername;
+    private String masterUserPassword;
     private Integer port;
     private String preferredBackupWindow;
     private String preferredMaintenanceWindow;
@@ -246,13 +247,21 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     /**
      * The name of the master user for the Neptune cluster.
      */
-    @Output
     public String getMasterUsername() {
         return masterUsername;
     }
 
     public void setMasterUsername(String masterUsername) {
         this.masterUsername = masterUsername;
+    }
+
+    @Updatable
+    public String getMasterUserPassword() {
+        return masterUserPassword;
+    }
+
+    public void setMasterUserPassword(String masterUserPassword) {
+        this.masterUserPassword = masterUserPassword;
     }
 
     /**
@@ -431,6 +440,8 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
                 .databaseName(getDatabaseName())
                 .deletionProtection(getDeletionProtection())
                 .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
+                .masterUsername(getMasterUsername())
+                .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
@@ -472,6 +483,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
                 .deletionProtection(getDeletionProtection())
                 .backupRetentionPeriod(getBackupRetentionPeriod())
                 .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
+                .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
