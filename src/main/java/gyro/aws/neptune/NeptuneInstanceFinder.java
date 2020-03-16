@@ -29,6 +29,16 @@ import software.amazon.awssdk.services.neptune.model.DBInstance;
 import software.amazon.awssdk.services.neptune.model.DbInstanceNotFoundException;
 import software.amazon.awssdk.services.neptune.model.Filter;
 
+/**
+ * Query neptune instance.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    cluster: $(external-query aws::neptune-instance {db-cluster-id: 'neptune-parent-cluster-example'})
+ */
 @Type("neptune-instance")
 public class NeptuneInstanceFinder extends AwsFinder<NeptuneClient, DBInstance, NeptuneInstanceResource> {
 
