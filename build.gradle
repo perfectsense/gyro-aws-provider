@@ -17,6 +17,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 def releaseVersion = '0.99.1'
@@ -55,12 +56,28 @@ configurations {
     gyroDoclet
 }
 
+shadowJar {
+    classifier = ''
+    include '*.jar'
+    include 'com/fasterxml/**'
+    include 'com/google/**'
+    include 'org/json/**'
+    include 'gyro/aws/**'
+
+    // Relocating common dependencies
+    relocate 'com.fasterxml', 'shaded.gyro.aws.fasterxml'
+    relocate 'com.google', 'shaded.gyro.aws.google'
+    relocate 'org.json', 'shaded.gyro.aws.json'
+}
+
+build.dependsOn shadowJar
+
 dependencies {
     api 'gyro:gyro-core:0.99.1-SNAPSHOT'
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.10.61')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.10.77')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:cloudfront'
@@ -71,6 +88,7 @@ dependencies {
     implementation 'software.amazon.awssdk:ec2'
     implementation 'software.amazon.awssdk:elasticloadbalancing'
     implementation 'software.amazon.awssdk:elasticloadbalancingv2'
+    implementation 'software.amazon.awssdk:elasticsearch'
     implementation 'software.amazon.awssdk:iam'
     implementation 'software.amazon.awssdk:kms'
     implementation 'software.amazon.awssdk:lambda'
