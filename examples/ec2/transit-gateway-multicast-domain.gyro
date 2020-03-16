@@ -1,0 +1,66 @@
+aws::vpc vpc-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "transit-gateway-vpc-attachment-example"
+    }
+end
+
+aws::subnet example-subnet-1
+    vpc: $(aws::vpc vpc-example)
+    availability-zone: us-east-1a
+    cidr-block: "10.0.0.0/24"
+
+    tags: {
+        Name: "transit-gateway-vpc-attachment-example-1"
+    }
+end
+
+aws::transit-gateway example-transit-gateway
+    description: "example transit gateway for vpc attachment"
+    transit-gateway-options
+        amazon-side-asn: 64512
+        dns-support: enable
+        vpn-ecmp-support: enable
+        default-route-table-association: disable
+        default-route-table-propagation: enable
+        auto-accept-shared-attachments: disable
+        multicast-support: enable
+    end
+
+   tags: {
+       Name: "transit-gateway-vpc-attachment-example"
+   }
+end
+
+aws::transit-gateway-vpc-attachment transit-gateway-vpc-attachment-example
+    subnets: [
+        $(aws::subnet example-subnet-1)
+    ]
+    transit-gateway: $(aws::transit-gateway example-transit-gateway)
+    vpc: $(aws::vpc vpc-example)
+
+    tags: {
+        example-tag: "Transit-gateway-vpc-attachment-example"
+    }
+end
+
+aws::network-interface example-network-interface
+     description: "example-network-interface"
+     subnet: $(aws::subnet example-subnet-1)
+end
+
+aws::transit-gateway-multicast-domain transit-gateway-multicast-domain-example
+    transit-gateway: $(aws::transit-gateway example-transit-gateway)
+
+    association
+        vpc-attachment: $(aws::transit-gateway-vpc-attachment transit-gateway-vpc-attachment-example)
+        subnet: $(aws::subnet example-subnet-1)
+    end
+
+    group-member
+        group-ip-address: "224.0.0.0"
+        network-interface: $(aws::network-interface example-network-interface)
+    end
+end

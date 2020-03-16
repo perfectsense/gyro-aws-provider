@@ -1,0 +1,15 @@
+aws::transit-gateway transit-gateway-example
+   description: "example transit gateway"
+   transit-gateway-options
+       amazon-side-asn: 64512
+       dns-support: enable
+       vpn-ecmp-support: enable
+       default-route-table-association: disable
+       default-route-table-propagation: enable
+       auto-accept-shared-attachments: disable
+   end
+
+   tags: {
+       Name: "Transit Gateway Resource Example"
+   }
+end
