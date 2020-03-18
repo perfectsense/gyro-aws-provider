@@ -9,6 +9,16 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 
+/**
+ * Query security group rules.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    security-group-rules: $(external-query aws::security-group-rules { group-name: ''})
+ */
 @Type("security-group-rules")
 public class SecurityGroupRulesFinder extends AwsFinder<Ec2Client, SecurityGroup, SecurityGroupRulesResource> {
 
@@ -16,7 +26,7 @@ public class SecurityGroupRulesFinder extends AwsFinder<Ec2Client, SecurityGroup
     private String groupName;
 
     /**
-     * The ID of the security group.
+     * The ID of the security group where the security group rules reside.
      */
     public String getGroupId() {
         return groupId;
@@ -27,7 +37,7 @@ public class SecurityGroupRulesFinder extends AwsFinder<Ec2Client, SecurityGroup
     }
 
     /**
-     * The name of the security group.
+     * The name of the security group where the security group rules reside.
      */
     public String getGroupName() {
         return groupName;
