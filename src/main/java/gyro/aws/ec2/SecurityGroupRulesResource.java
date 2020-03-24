@@ -6,9 +6,11 @@ import java.util.Set;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -52,7 +54,7 @@ import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
  *     end
  */
 @Type("security-group-rules")
-public class SecurityGroupRulesResource extends AwsResource {
+public class SecurityGroupRulesResource extends AwsResource implements Copyable<SecurityGroup> {
 
     private SecurityGroupResource securityGroup;
     private List<SecurityGroupIngressRuleResource> ingress;
@@ -62,6 +64,7 @@ public class SecurityGroupRulesResource extends AwsResource {
     /**
      * The security group to apply rules to.
      */
+    @Id
     @Required
     public SecurityGroupResource getSecurityGroup() {
         return securityGroup;
@@ -137,7 +140,9 @@ public class SecurityGroupRulesResource extends AwsResource {
         return true;
     }
 
+    @Override
     public void copyFrom(SecurityGroup group) {
+        setSecurityGroup(findById(SecurityGroupResource.class, group.groupId()));
         getEgress().clear();
         for (IpPermission permission : group.ipPermissionsEgress()) {
             for (IpRange ipRange : permission.ipRanges()) {
