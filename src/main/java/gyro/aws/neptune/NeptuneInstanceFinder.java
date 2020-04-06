@@ -37,7 +37,7 @@ import software.amazon.awssdk.services.neptune.model.Filter;
  *
  * .. code-block:: gyro
  *
- *    cluster: $(external-query aws::neptune-instance {db-cluster-id: 'neptune-parent-cluster-example'})
+ *    instance: $(external-query aws::neptune-instance {db-cluster-id: 'neptune-parent-cluster-example'})
  */
 @Type("neptune-instance")
 public class NeptuneInstanceFinder extends AwsFinder<NeptuneClient, DBInstance, NeptuneInstanceResource> {

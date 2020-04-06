@@ -16,13 +16,10 @@
 
 package gyro.aws.neptune;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
-import gyro.aws.ec2.SecurityGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -30,6 +27,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.neptune.NeptuneClient;
@@ -63,15 +61,16 @@ import software.amazon.awssdk.services.neptune.model.ModifyDbInstanceRequest;
 @Type("neptune-instance")
 public class NeptuneInstanceResource extends NeptuneTaggableResource implements Copyable<DBInstance> {
 
-    public String engine;
-    public String dbInstanceClass;
-    public String dbInstanceIdentifier;
-    public NeptuneClusterResource dbCluster;
-    public String masterUsername;
-    public String masterUserPassword;
-    private Set<SecurityGroupResource> vpcSecurityGroups;
-    private NeptuneSubnetGroupResource dbSubnetGroup;
+    private String engine;
+    private String dbInstanceClass;
+    private String dbInstanceIdentifier;
+    private NeptuneClusterResource dbCluster;
     private NeptuneParameterGroupResource dbParameterGroup;
+    private String availabilityZone;
+    private Boolean autoMinorVersionUpgrade;
+    private Boolean copyTagsToSnapshot;
+    private String licenseModel;
+    private Integer promotionTier;
 
     /**
      * The name of the database engine. The only valid value is ``neptune`` (Required).
@@ -125,58 +124,6 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
     }
 
     /**
-     * The name for the master user.
-     */
-    public String getMasterUsername() {
-        return masterUsername;
-    }
-
-    public void setMasterUsername(String masterUsername) {
-        this.masterUsername = masterUsername;
-    }
-
-    /**
-     * The password for the master user.
-     */
-    @Updatable
-    public String getMasterUserPassword() {
-        return masterUserPassword;
-    }
-
-    public void setMasterUserPassword(String masterUserPassword) {
-        this.masterUserPassword = masterUserPassword;
-    }
-
-    /**
-     * A list of EC2 VPC security groups to associate with this Neptune instance.
-     */
-    @Updatable
-    public Set<SecurityGroupResource> getVpcSecurityGroups() {
-        if (vpcSecurityGroups == null) {
-            vpcSecurityGroups = new HashSet<>();
-        }
-
-        return vpcSecurityGroups;
-    }
-
-    public void setVpcSecurityGroups(Set<SecurityGroupResource> vpcSecurityGroups) {
-        this.vpcSecurityGroups = vpcSecurityGroups;
-    }
-
-    /**
-     * A Neptune subnet group to associate with this Neptune instance.
-     * If there is no Neptune subnet group, then it is a non-VPC Neptune instance.
-     */
-    @Updatable
-    public NeptuneSubnetGroupResource getDbSubnetGroup() {
-        return dbSubnetGroup;
-    }
-
-    public void setDbSubnetGroup(NeptuneSubnetGroupResource dbSubnetGroup) {
-        this.dbSubnetGroup = dbSubnetGroup;
-    }
-
-    /**
      * The Neptune parameter group to associate with this Neptune instance.
      * If this argument is omitted, the default parameter group for the specified engine is used.
      */
@@ -189,26 +136,68 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.dbParameterGroup = dbParameterGroup;
     }
 
+    public String getAvailabilityZone() {
+        return availabilityZone;
+    }
+
+    public void setAvailabilityZone(String availabilityZone) {
+        this.availabilityZone = availabilityZone;
+    }
+
+    @Updatable
+    public Boolean getAutoMinorVersionUpgrade() {
+        return autoMinorVersionUpgrade;
+    }
+
+    public void setAutoMinorVersionUpgrade(Boolean autoMinorVersionUpgrade) {
+        this.autoMinorVersionUpgrade = autoMinorVersionUpgrade;
+    }
+
+    @Updatable
+    public Boolean getCopyTagsToSnapshot() {
+        return copyTagsToSnapshot;
+    }
+
+    public void setCopyTagsToSnapshot(Boolean copyTagsToSnapshot) {
+        this.copyTagsToSnapshot = copyTagsToSnapshot;
+    }
+
+    @Updatable
+    @ValidStrings("amazon-license")
+    public String getLicenseModel() {
+        return licenseModel;
+    }
+
+    public void setLicenseModel(String licenseModel) {
+        this.licenseModel = licenseModel;
+    }
+
+    @Updatable
+    @Range(min = 0, max = 15)
+    public Integer getPromotionTier() {
+        return promotionTier;
+    }
+
+    public void setPromotionTier(Integer promotionTier) {
+        this.promotionTier = promotionTier;
+    }
+
     @Override
     public void copyFrom(DBInstance model) {
         setEngine(model.engine());
         setDbInstanceClass(model.dbInstanceClass());
         setDbInstanceIdentifier(model.dbInstanceIdentifier());
         setDbCluster(findById(NeptuneClusterResource.class, model.dbClusterIdentifier()));
-        setMasterUsername(model.masterUsername());
-        setVpcSecurityGroups(
-            model.vpcSecurityGroups().stream()
-                .map(o -> findById(SecurityGroupResource.class, o.vpcSecurityGroupId()))
-                .collect(Collectors.toSet())
-        );
-        setDbSubnetGroup(
-            findById(NeptuneSubnetGroupResource.class, model.dbSubnetGroup().dbSubnetGroupName())
-        );
         setDbParameterGroup(
             model.hasDbParameterGroups()
                 ? findById(NeptuneParameterGroupResource.class, model.dbParameterGroups().get(0).dbParameterGroupName())
                 : null
         );
+        setAvailabilityZone(model.availabilityZone());
+        setAutoMinorVersionUpgrade(model.autoMinorVersionUpgrade());
+        setLicenseModel(model.licenseModel());
+        setCopyTagsToSnapshot(model.copyTagsToSnapshot());
+        setPromotionTier(model.promotionTier());
         setArn(model.dbInstanceArn());
     }
 
@@ -235,20 +224,11 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
             .dbInstanceClass(getDbInstanceClass())
             .dbInstanceIdentifier(getDbInstanceIdentifier())
             .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getDbClusterIdentifier() : null)
-            .masterUsername(getMasterUsername())
-            .masterUserPassword(getMasterUserPassword());
-
-        if (!getVpcSecurityGroups().isEmpty()) {
-            builder = builder.vpcSecurityGroupIds(
-                getVpcSecurityGroups().stream()
-                    .map(SecurityGroupResource::getId)
-                    .collect(Collectors.toList())
-            );
-        }
-
-        if (getDbSubnetGroup() != null) {
-            builder = builder.dbSubnetGroupName(getDbSubnetGroup().getName());
-        }
+            .availabilityZone(getAvailabilityZone())
+            .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+            .copyTagsToSnapshot(getCopyTagsToSnapshot())
+            .licenseModel(getLicenseModel())
+            .promotionTier(getPromotionTier());
 
         if (getDbParameterGroup() != null) {
             builder = builder.dbParameterGroupName(getDbParameterGroup().getName());
@@ -271,19 +251,11 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         ModifyDbInstanceRequest.Builder builder = ModifyDbInstanceRequest.builder()
             .dbInstanceIdentifier(getDbInstanceIdentifier())
             .dbInstanceClass(getDbInstanceClass())
-            .masterUserPassword(getMasterUserPassword())
+            .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+            .licenseModel(getLicenseModel())
+            .copyTagsToSnapshot(getCopyTagsToSnapshot())
+            .promotionTier(getPromotionTier())
             .applyImmediately(true);
-
-        if (changedProperties.contains("vpc-security-groups")) {
-            builder = builder.vpcSecurityGroupIds(
-                getVpcSecurityGroups().stream()
-                    .map(SecurityGroupResource::getId)
-                    .collect(Collectors.toList()));
-        }
-
-        if (changedProperties.contains("db-subnet-group") && getDbSubnetGroup() != null) {
-            builder = builder.dbSubnetGroupName(getDbSubnetGroup().getName());
-        }
 
         if (changedProperties.contains("db-parameter-group") && getDbParameterGroup() != null) {
             builder = builder.dbParameterGroupName(getDbParameterGroup().getName());
