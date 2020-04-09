@@ -71,6 +71,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
     private Boolean copyTagsToSnapshot;
     private String licenseModel;
     private Integer promotionTier;
+    private Boolean applyImmediately;
 
     /**
      * The name of the database engine. The only valid value is ``neptune`` (Required).
@@ -182,6 +183,15 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.promotionTier = promotionTier;
     }
 
+    @Updatable
+    public Boolean getApplyImmediately() {
+        return applyImmediately;
+    }
+
+    public void setApplyImmediately(Boolean applyImmediately) {
+        this.applyImmediately = applyImmediately;
+    }
+
     @Override
     public void copyFrom(DBInstance model) {
         setEngine(model.engine());
@@ -255,7 +265,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
             .licenseModel(getLicenseModel())
             .copyTagsToSnapshot(getCopyTagsToSnapshot())
             .promotionTier(getPromotionTier())
-            .applyImmediately(true);
+            .applyImmediately(getApplyImmediately());
 
         if (changedProperties.contains("db-parameter-group") && getDbParameterGroup() != null) {
             builder = builder.dbParameterGroupName(getDbParameterGroup().getName());
@@ -273,9 +283,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
     public void delete(GyroUI ui, State state) throws Exception {
         NeptuneClient client = createClient(NeptuneClient.class);
 
-        client.deleteDBInstance(
-            r -> r.dbInstanceIdentifier(getDbInstanceIdentifier()).skipFinalSnapshot(true)
-        );
+        client.deleteDBInstance(r -> r.dbInstanceIdentifier(getDbInstanceIdentifier()));
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
