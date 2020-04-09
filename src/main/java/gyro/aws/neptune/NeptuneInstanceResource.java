@@ -52,6 +52,10 @@ import software.amazon.awssdk.services.neptune.model.ModifyDbInstanceRequest;
  *     db-instance-identifier: "neptune-instance-example"
  *     db-cluster: $(aws::neptune-cluster neptune-cluster-example)
  *     db-parameter-group: $(aws::neptune-parameter-group neptune-parameter-group)
+ *     availability-zone: "us-east-2a"
+ *     auto-minor-version-upgrade: true
+ *     apply-immediately: true
+ *     promotion-tier: 1
  *
  *     tags: {
  *             Name: "neptune instance example"
@@ -137,6 +141,9 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.dbParameterGroup = dbParameterGroup;
     }
 
+    /**
+     * The availability zone in which the Neptune instance is created.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -145,6 +152,10 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * Indicates that minor engine upgrades are applied automatically to the Neptune instance during the maintenance window.
+     * Defaults to ``true``.
+     */
     @Updatable
     public Boolean getAutoMinorVersionUpgrade() {
         return autoMinorVersionUpgrade;
@@ -154,6 +165,10 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.autoMinorVersionUpgrade = autoMinorVersionUpgrade;
     }
 
+    /**
+     * If this value is ``true``, all tags from the Neptune instance will be copied to snapshots of the Neptune instance.
+     * Defaults to ``false``.
+     */
     @Updatable
     public Boolean getCopyTagsToSnapshot() {
         return copyTagsToSnapshot;
@@ -163,6 +178,10 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.copyTagsToSnapshot = copyTagsToSnapshot;
     }
 
+    /**
+     * License model information for this Neptune instance.
+     * The only valid value is ``amazon-license``.
+     */
     @Updatable
     @ValidStrings("amazon-license")
     public String getLicenseModel() {
@@ -173,6 +192,10 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.licenseModel = licenseModel;
     }
 
+    /**
+     * Specifies the order in which a read replica is promoted to the primary instance after a failure of the existing primary instance.
+     * Valid values range from 0 to 15. Defaults to 1.
+     */
     @Updatable
     @Range(min = 0, max = 15)
     public Integer getPromotionTier() {
@@ -183,6 +206,10 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
         this.promotionTier = promotionTier;
     }
 
+    /**
+     * Specifies whether the modifications in update requests are asynchronously applied as soon as possible.
+     * If this field is set to ``false``, changes to the Neptune instance are applied during the next preferred maintenance window.
+     */
     @Updatable
     public Boolean getApplyImmediately() {
         return applyImmediately;

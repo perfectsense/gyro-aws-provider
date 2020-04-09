@@ -76,6 +76,9 @@ import java.util.stream.Collectors;
  *     storage-encrypted: true
  *     kms-key: $(aws::kms-key kms-key-neptune-example)
  *     enable-cloudwatch-logs-exports: ["audit"]
+ *     skip-final-snapshot: false
+ *     final-db-snapshot-identifier: "neptune-cluster-example-final-snapshot-test"
+ *     apply-immediately: true
  *
  *     tags: {
  *         Name: "neptune cluster example tag"
