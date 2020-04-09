@@ -534,7 +534,13 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
                 .applyImmediately(getApplyImmediately())
         );
 
-        Wait.atMost(1, TimeUnit.MINUTES)
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // ignore exception
+        }
+
+        Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(true)
             .until(() -> isAvailable(client));
