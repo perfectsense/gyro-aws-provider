@@ -241,6 +241,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     /**
      * The name of the master user for the Neptune cluster.
      */
+    @Output
     public String getMasterUsername() {
         return masterUsername;
     }
