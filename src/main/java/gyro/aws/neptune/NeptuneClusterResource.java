@@ -28,13 +28,16 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
+import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.neptune.NeptuneClient;
 import software.amazon.awssdk.services.neptune.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.neptune.model.DBCluster;
+import software.amazon.awssdk.services.neptune.model.DBClusterMember;
 import software.amazon.awssdk.services.neptune.model.DBClusterRole;
 import software.amazon.awssdk.services.neptune.model.DbClusterNotFoundException;
+import software.amazon.awssdk.services.neptune.model.DeleteDbClusterRequest;
 import software.amazon.awssdk.services.neptune.model.DescribeDbClustersResponse;
 
 import java.util.ArrayList;
@@ -89,11 +92,9 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private NeptuneClusterParameterGroupResource dbClusterParameterGroup;
     private List<String> availabilityZones;
     private Integer backupRetentionPeriod;
-    private String databaseName;
     private Boolean deletionProtection;
     private Boolean enableIamDatabaseAuthentication;
     private String masterUsername;
-    private String masterUserPassword;
     private Integer port;
     private String preferredBackupWindow;
     private String preferredMaintenanceWindow;
@@ -102,6 +103,10 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private List<String> enableCloudwatchLogsExports;
     private String replicationSourceIdentifier;
     private List<String> associatedRoles;
+    private List<String> dbClusterMembers;
+    private Boolean skipFinalSnapshot;
+    private String finalDbSnapshotIdentifier;
+    private Boolean applyImmediately;
 
     /**
      * The name of the database engine. The only valid value is ``neptune`` (Required).
@@ -210,17 +215,6 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The database name when creating the Neptune cluster. If omitted, no database will be created.
-     */
-    public String getDatabaseName() {
-        return databaseName;
-    }
-
-    public void setDatabaseName(String databaseName) {
-        this.databaseName = databaseName;
-    }
-
-    /**
      * Enable deletion protection on the Neptune cluster. Defaults to ``false``.
      */
     @Updatable
@@ -253,15 +247,6 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
     public void setMasterUsername(String masterUsername) {
         this.masterUsername = masterUsername;
-    }
-
-    @Updatable
-    public String getMasterUserPassword() {
-        return masterUserPassword;
-    }
-
-    public void setMasterUserPassword(String masterUserPassword) {
-        this.masterUserPassword = masterUserPassword;
     }
 
     /**
@@ -368,6 +353,62 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
         this.associatedRoles = associatedRoles;
     }
 
+    /**
+     * The list of instances that make up the Neptune cluster.
+     */
+    @Output
+    public List<String> getDbClusterMembers() {
+        return dbClusterMembers;
+    }
+
+    public void setDbClusterMembers(List<String> dbClusterMembers) {
+        this.dbClusterMembers = dbClusterMembers;
+    }
+
+    /**
+     * Determines whether a final DB cluster snapshot is created before the Neptune cluster is deleted. If ``true`` is specified, no DB cluster snapshot is created. If ``false`` is specified, a DB cluster snapshot is created before the Neptune cluster is deleted.
+     * The default value is ``true``. The ``final-db-snapshot-identifier`` field should be specified if and only if this value is set to ``false``.
+     */
+    @Updatable
+    public Boolean getSkipFinalSnapshot() {
+        if (skipFinalSnapshot == null) {
+            skipFinalSnapshot = true;
+        }
+
+        return skipFinalSnapshot;
+    }
+
+    public void setSkipFinalSnapshot(Boolean skipFinalSnapshot) {
+        this.skipFinalSnapshot = skipFinalSnapshot;
+    }
+
+    /**
+     * Specifies whether the modifications in update requests are asynchronously applied as soon as possible.
+     * If this field is set to ``false``, changes to the Neptune cluster are applied during the next preferred-maintenance-window.
+     */
+    @Updatable
+    public Boolean getApplyImmediately() {
+        return applyImmediately;
+    }
+
+    public void setApplyImmediately(Boolean applyImmediately) {
+        this.applyImmediately = applyImmediately;
+    }
+
+    /**
+     * The DB cluster snapshot identifier of the new DB cluster snapshot created when the Neptune cluster is deleted.
+     * This field should be specified if and only if ``skip-final-snapshot`` is set to ``false``.
+     */
+    @Updatable
+    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "1-255 letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
+    public String getFinalDbSnapshotIdentifier() {
+        return finalDbSnapshotIdentifier;
+    }
+
+    public void setFinalDbSnapshotIdentifier(String finalDbSnapshotIdentifier) {
+        this.finalDbSnapshotIdentifier = finalDbSnapshotIdentifier;
+    }
+
     @Override
     public void copyFrom(DBCluster model) {
         setEngine(model.engine());
@@ -386,7 +427,6 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
         );
         setAvailabilityZones(model.availabilityZones());
         setBackupRetentionPeriod(model.backupRetentionPeriod());
-        setDatabaseName(model.databaseName());
         setDeletionProtection(model.deletionProtection());
         setEnableIamDatabaseAuthentication(model.iamDatabaseAuthenticationEnabled());
         setMasterUsername(model.masterUsername());
@@ -401,6 +441,9 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
             ? model.enabledCloudwatchLogsExports()
             : Collections.emptyList());
         setAssociatedRoles(model.associatedRoles().stream().map(DBClusterRole::toString).collect(Collectors.toList()));
+        setDbClusterMembers(model.dbClusterMembers().stream()
+            .map(DBClusterMember::dbInstanceIdentifier)
+            .collect(Collectors.toList()));
         setArn(model.dbClusterArn());
     }
 
@@ -437,11 +480,9 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
                 )
                 .availabilityZones(getAvailabilityZones())
                 .backupRetentionPeriod(getBackupRetentionPeriod())
-                .databaseName(getDatabaseName())
                 .deletionProtection(getDeletionProtection())
                 .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
                 .masterUsername(getMasterUsername())
-                .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
@@ -483,13 +524,12 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
                 .deletionProtection(getDeletionProtection())
                 .backupRetentionPeriod(getBackupRetentionPeriod())
                 .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
-                .masterUserPassword(getMasterUserPassword())
                 .port(getPort())
                 .preferredBackupWindow(getPreferredBackupWindow())
                 .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
                 .cloudwatchLogsExportConfiguration(o -> o.enableLogTypes(getEnableCloudwatchLogsExports())
                     .disableLogTypes(disableLogs))
-                .applyImmediately(true)
+                .applyImmediately(getApplyImmediately())
         );
 
         Wait.atMost(1, TimeUnit.MINUTES)
@@ -502,7 +542,15 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     public void delete(GyroUI ui, State state) throws Exception {
         NeptuneClient client = createClient(NeptuneClient.class);
 
-        client.deleteDBCluster(r -> r.dbClusterIdentifier(getDbClusterIdentifier()).skipFinalSnapshot(true));
+        DeleteDbClusterRequest.Builder request = DeleteDbClusterRequest.builder()
+            .dbClusterIdentifier(getDbClusterIdentifier())
+            .skipFinalSnapshot(getSkipFinalSnapshot());
+
+        if (!getSkipFinalSnapshot()) {
+            request.finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier());
+        }
+
+        client.deleteDBCluster(request.build());
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(15, TimeUnit.SECONDS)
