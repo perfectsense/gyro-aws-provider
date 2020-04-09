@@ -18,6 +18,7 @@ package gyro.aws.neptune;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,13 +38,14 @@ import software.amazon.awssdk.services.neptune.model.Filter;
  *
  * .. code-block:: gyro
  *
- *    instance: $(external-query aws::neptune-instance {db-cluster-id: 'neptune-parent-cluster-example'})
+ *    instance: $(external-query aws::neptune-instance { db-instance-identifier: 'neptune-instance-example' })
  */
 @Type("neptune-instance")
 public class NeptuneInstanceFinder extends AwsFinder<NeptuneClient, DBInstance, NeptuneInstanceResource> {
 
     private String dbClusterId;
     private String engine;
+    private String dbInstanceIdentifier;
 
     /**
      * The identifier or arn of the cluster to which the instance belongs.
@@ -67,6 +69,17 @@ public class NeptuneInstanceFinder extends AwsFinder<NeptuneClient, DBInstance, 
         this.engine = engine;
     }
 
+    /**
+     * The unique name of the Neptune instance.
+     */
+    public String getDbInstanceIdentifier() {
+        return dbInstanceIdentifier;
+    }
+
+    public void setDbInstanceIdentifier(String dbInstanceIdentifier) {
+        this.dbInstanceIdentifier = dbInstanceIdentifier;
+    }
+
     @Override
     protected List<DBInstance> findAllAws(NeptuneClient client) {
         List<Filter> filters = new ArrayList<>();
@@ -81,8 +94,16 @@ public class NeptuneInstanceFinder extends AwsFinder<NeptuneClient, DBInstance, 
             filters.put("engine", "neptune");
         }
 
+        Map<String, String> recognizedFilters = new HashMap<>(filters);
+        if (filters.containsKey("db-instance-identifier")) {
+            recognizedFilters.remove("db-instance-identifier");
+        }
+
         try {
-            return client.describeDBInstances(r -> r.filters(createNeptuneFilters(filters))).dbInstances().stream().collect(Collectors.toList());
+            return client.describeDBInstances(r -> r.filters(createNeptuneFilters(recognizedFilters))).dbInstances()
+                .stream()
+                .filter(o -> !filters.containsKey("db-instance-identifier") || o.dbInstanceIdentifier().equals(filters.get("db-instance-identifier")))
+                .collect(Collectors.toList());
 
         } catch (DbInstanceNotFoundException ex) {
             return Collections.emptyList();
