@@ -31,6 +31,7 @@ import gyro.core.validation.Range;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.neptune.NeptuneClient;
 import software.amazon.awssdk.services.neptune.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.neptune.model.DBCluster;
@@ -594,4 +595,26 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
         return cluster == null;
     }
 
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("final-db-snapshot-identifier")) {
+            if (getSkipFinalSnapshot()) {
+                errors.add(new ValidationError(
+                    this,
+                    "final-db-snapshot-identifier",
+                    "If skip-final-snapshot is set to true, then final-db-snapshot-identifier must not be specified."));
+            }
+        } else {
+            if (!getSkipFinalSnapshot()) {
+                errors.add(new ValidationError(
+                    this,
+                    "final-db-snapshot-identifier",
+                    "If skip-final-snapshot is set to false, then final-db-snapshot-identifier must be specified."));
+            }
+        }
+
+        return errors;
+    }
 }
