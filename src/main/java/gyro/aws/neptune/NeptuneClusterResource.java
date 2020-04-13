@@ -139,7 +139,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The unique name of the Neptune Cluster. (Required)
+     * The unique name of the Neptune cluster. (Required)
      */
     @Id
     @Required
