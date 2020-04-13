@@ -591,11 +591,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private boolean isAvailable(NeptuneClient client) {
         DBCluster cluster = getDbCluster(client);
 
-        if (cluster == null) {
-            return false;
-        }
-
-        return cluster.status().equals("available");
+        return cluster != null && cluster.status().equals("available");
     }
 
     private boolean isDeleted(NeptuneClient client) {

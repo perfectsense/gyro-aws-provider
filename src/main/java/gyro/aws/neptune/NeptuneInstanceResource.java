@@ -340,11 +340,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
     private boolean isAvailable(NeptuneClient client) {
         DBInstance instance = getDbInstance(client);
 
-        if (instance == null) {
-            return false;
-        }
-
-        return instance.dbInstanceStatus().equals("available");
+        return instance != null && instance.dbInstanceStatus().equals("available");
     }
 
     private boolean isDeleted(NeptuneClient client) {
