@@ -31,7 +31,9 @@ import software.amazon.awssdk.services.neptune.NeptuneClient;
 import software.amazon.awssdk.services.neptune.model.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -302,79 +304,85 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         NeptuneClient client = createClient(NeptuneClient.class);
 
         List<Parameter> parameters = new ArrayList<>();
-        List<NeptuneParameter> defaultParameters = null;
+        Map<String, Parameter> defaultParameters = getDefaultClusterParameters(client, getFamily());
 
-        if (getEnableAuditLog() != null) {
-            parameters.add(getEnableAuditLog().toParameter());
-        } else {
-            defaultParameters = getDefaultClusterParameters(client, getFamily());
-            for (NeptuneParameter p : defaultParameters) {
-                if (p.getName().equals("neptune_enable_audit_log")) {
-                    parameters.add(p.toParameter());
-                    break;
-                }
-            }
-        }
-        if (getEnforceSsl() != null) {
-            parameters.add(getEnforceSsl().toParameter());
-        } else {
-            if (defaultParameters == null) {
-                defaultParameters = getDefaultClusterParameters(client, getFamily());
-            }
-            for (NeptuneParameter p : defaultParameters) {
-                if (p.getName().equals("neptune_enforce_ssl")) {
-                    parameters.add(p.toParameter());
-                    break;
-                }
-            }
-        }
-        if (getLabMode() != null) {
-            parameters.add(getLabMode().toParameter());
-        } else {
-            if (defaultParameters == null) {
-                defaultParameters = getDefaultClusterParameters(client, getFamily());
-            }
-            for (NeptuneParameter p : defaultParameters) {
-                if (p.getName().equals("neptune_lab_mode")) {
-                    parameters.add(p.toParameter());
-                    break;
-                }
-            }
-        }
-        if (getQueryTimeout() != null) {
-            parameters.add(getQueryTimeout().toParameter());
-        } else {
-            if (defaultParameters == null) {
-                defaultParameters = getDefaultClusterParameters(client, getFamily());
-            }
-            for (NeptuneParameter p : defaultParameters) {
-                if (p.getName().equals("neptune_query_timeout")) {
-                    parameters.add(p.toParameter());
-                    break;
-                }
-            }
-        }
+        NeptuneParameter auditLog = getEnableAuditLog();
+        NeptuneParameter ssl = getEnforceSsl();
+        NeptuneParameter lab = getLabMode();
+        NeptuneParameter timeout = getQueryTimeout();
+
+        parameters.add(auditLog != null
+            ? auditLog.toParameter()
+            : defaultParameters.get("neptune_enable_audit_log")
+        );
+        parameters.add(ssl != null
+            ? ssl.toParameter()
+            : defaultParameters.get("neptune_enforce_ssl")
+        );
+        parameters.add(lab != null
+            ? lab.toParameter()
+            : defaultParameters.get("neptune_lab_mode")
+        );
+        parameters.add(timeout != null
+            ? timeout.toParameter()
+            : defaultParameters.get("neptune_query_timeout")
+        );
 
         client.modifyDBClusterParameterGroup(r -> r.dbClusterParameterGroupName(getName()).parameters(parameters));
     }
 
-    static List<NeptuneParameter> getDefaultClusterParameters(NeptuneClient client, String engineFamily) {
-        List<NeptuneParameter> defaultParameters = new ArrayList<>();
+    private Map<String, Parameter> getDefaultClusterParameters(NeptuneClient client, String engineFamily) {
+        Map<String, Parameter> defaultParameters = new HashMap<>();
 
-        DescribeEngineDefaultClusterParametersResponse response = client.describeEngineDefaultClusterParameters(
+        DescribeEngineDefaultClusterParametersResponse clusterParametersResponse = client.describeEngineDefaultClusterParameters(
             r -> r.dbParameterGroupFamily(engineFamily)
         );
 
-        if (response.engineDefaults().hasParameters()) {
-            response.engineDefaults().parameters().stream().forEach(p -> {
-                NeptuneParameter param = new NeptuneParameter();
-                param.copyFrom(p);
-                param.setApplyMethod("pending-reboot");
-                defaultParameters.add(param);
+        if (clusterParametersResponse.engineDefaults().hasParameters()) {
+            clusterParametersResponse.engineDefaults().parameters().stream().forEach(p -> {
+                defaultParameters.put(
+                    p.parameterName(),
+                    Parameter.builder()
+                        .parameterName(p.parameterName())
+                        .parameterValue(p.parameterValue())
+                        .allowedValues(p.allowedValues())
+                        .applyType(p.applyType())
+                        .dataType(p.dataType())
+                        .description(p.description())
+                        .isModifiable(p.isModifiable())
+                        .minimumEngineVersion(p.minimumEngineVersion())
+                        .source(p.source()).applyMethod("pending-reboot")
+                        .build()
+                );
             });
         }
-        NeptuneParameter defaultQueryTimeout = NeptuneParameterGroupResource.getDefaultParameter(client, engineFamily);
-        defaultParameters.add(defaultQueryTimeout);
+
+        Parameter defaultQueryTimeout = null;
+
+        DescribeEngineDefaultParametersResponse parametersResponse = client.describeEngineDefaultParameters(
+            r -> r.dbParameterGroupFamily(engineFamily)
+        );
+
+        if (parametersResponse.engineDefaults().hasParameters()) {
+            Parameter defaultParameter = parametersResponse.engineDefaults().parameters().get(0);
+
+            defaultQueryTimeout = Parameter.builder()
+                .parameterName(defaultParameter.parameterName())
+                .parameterValue(defaultParameter.parameterValue())
+                .allowedValues(defaultParameter.allowedValues())
+                .applyType(defaultParameter.applyType())
+                .dataType(defaultParameter.dataType())
+                .description(defaultParameter.description())
+                .isModifiable(defaultParameter.isModifiable())
+                .minimumEngineVersion(defaultParameter.minimumEngineVersion())
+                .source(defaultParameter.source())
+                .applyMethod("pending-reboot")
+                .build();
+        }
+
+        if (defaultQueryTimeout != null) {
+            defaultParameters.put(defaultQueryTimeout.parameterName(), defaultQueryTimeout);
+        }
 
         return defaultParameters;
     }

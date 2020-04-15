@@ -220,25 +220,35 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
 
         Parameter parameter = getQueryTimeout() != null
             ? getQueryTimeout().toParameter()
-            : getDefaultParameter(client, getFamily()).toParameter();
+            : getDefaultParameter(client, getFamily());
 
         client.modifyDBParameterGroup(r -> r.dbParameterGroupName(getName()).parameters(parameter));
     }
 
-    static NeptuneParameter getDefaultParameter(NeptuneClient client, String engineFamily) {
+    private Parameter getDefaultParameter(NeptuneClient client, String engineFamily) {
         DescribeEngineDefaultParametersResponse response = client.describeEngineDefaultParameters(
             r -> r.dbParameterGroupFamily(engineFamily)
         );
 
-        NeptuneParameter copiedParam = null;
+        Parameter defaultQueryTimeout = null;
 
         if (response.engineDefaults().hasParameters()) {
             Parameter defaultParameter = response.engineDefaults().parameters().get(0);
-            copiedParam = new NeptuneParameter();
-            copiedParam.copyFrom(defaultParameter);
-            copiedParam.setApplyMethod("pending-reboot");
+
+            defaultQueryTimeout = Parameter.builder()
+                .parameterName(defaultParameter.parameterName())
+                .parameterValue(defaultParameter.parameterValue())
+                .allowedValues(defaultParameter.allowedValues())
+                .applyType(defaultParameter.applyType())
+                .dataType(defaultParameter.dataType())
+                .description(defaultParameter.description())
+                .isModifiable(defaultParameter.isModifiable())
+                .minimumEngineVersion(defaultParameter.minimumEngineVersion())
+                .source(defaultParameter.source())
+                .applyMethod("pending-reboot")
+                .build();
         }
 
-        return copiedParam;
+        return defaultQueryTimeout;
     }
 }
