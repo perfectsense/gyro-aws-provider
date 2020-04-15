@@ -158,6 +158,7 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
         );
 
         setArn(response.dbParameterGroup().dbParameterGroupArn());
+        state.save();
         saveParameters();
     }
 

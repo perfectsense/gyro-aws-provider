@@ -226,6 +226,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
         );
 
         setArn(createResponse.dbClusterParameterGroup().dbClusterParameterGroupArn());
+        state.save();
         saveParameters();
     }
 
