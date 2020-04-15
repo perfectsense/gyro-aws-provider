@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
  *         $(aws::security-group security-group),
  *         $(aws::security-group security-group-2)
  *     ]
+ *
  *     db-subnet-group: $(aws::neptune-subnet-group neptune-subnet-group)
  *     db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group)
  *     backup-retention-period: 7
@@ -113,7 +114,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private Boolean applyImmediately;
 
     /**
-     * The name of the database engine. The only valid value is ``neptune`` (Required).
+     * The name of the database engine. The only valid value is ``neptune``. (Required)
      */
     @ValidStrings("neptune")
     @Required
@@ -127,7 +128,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
     /**
      * The version number of the database engine to use. Valid values are ``1.0.2.1``, ``1.0.2.0`` or ``1.0.1.0``.
-     * The default version number is ``1.0.2.1``.
+     * Defaults to ``1.0.2.1``.
      */
     @ValidStrings({ "1.0.2.1", "1.0.2.0", "1.0.1.0" })
     public String getEngineVersion() {
@@ -152,7 +153,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * A list of Amazon VPC security groups to associate with.
+     * A list of security groups to associate the cluster with.
      */
     @Updatable
     public Set<SecurityGroupResource> getVpcSecurityGroups() {
@@ -168,7 +169,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * A DB subnet group to use for this Neptune cluster.
+     * A DB subnet group to use for this Neptune cluster. If omitted, the ``default`` group is used.
      */
     public NeptuneSubnetGroupResource getDbSubnetGroup() {
         return dbSubnetGroup;
@@ -179,7 +180,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The Neptune cluster parameter group to associate with. If omitted, ``default.neptune1`` is used.
+     * The Neptune cluster parameter group to associate with. If omitted, the ``default.neptune1`` group is used.
      */
     @Updatable
     public NeptuneClusterParameterGroupResource getDbClusterParameterGroup() {
@@ -326,7 +327,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The list of log types to export to CloudWatch Logs. Currently, the only valid log type for Neptune is ``audit``.
+     * The list of log types to export to CloudWatch Logs. Currently, the only supported value is ``audit``.
      */
     @ValidStrings("audit")
     @Updatable
@@ -371,8 +372,8 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * Determines whether a final DB cluster snapshot is created before the Neptune cluster is deleted. If ``true`` is specified, no DB cluster snapshot is created. If ``false`` is specified, a DB cluster snapshot is created before the Neptune cluster is deleted.
-     * The default value is ``true``. The ``final-db-snapshot-identifier`` field should be specified if and only if this value is set to ``false``.
+     * Determines whether a final DB cluster snapshot is created before the Neptune cluster is deleted.
+     * Defaults to ``true`` where no snapshot is created. If set to ``false``, a snapshot is created before the cluster is deleted.
      */
     @Updatable
     public Boolean getSkipFinalSnapshot() {
@@ -389,7 +390,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
     /**
      * Specifies whether the modifications in update requests are asynchronously applied as soon as possible.
-     * If this field is set to ``false``, changes to the Neptune cluster are applied during the next preferred-maintenance-window.
+     * When set to ``false``, changes to the Neptune cluster are applied during the next preferred-maintenance-window.
      */
     @Updatable
     public Boolean getApplyImmediately() {
@@ -402,7 +403,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
     /**
      * The DB cluster snapshot identifier of the new DB cluster snapshot created when the Neptune cluster is deleted.
-     * This field should be specified if and only if ``skip-final-snapshot`` is set to ``false``.
+     * Can only be set if ``skip-final-snapshot`` is set to ``false``.
      */
     @Updatable
     @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "1-255 letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")

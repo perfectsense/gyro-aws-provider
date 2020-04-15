@@ -81,8 +81,8 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
     }
 
     /**
-     * The name of the parameter group family. (Required)
-     * The only supported family for Neptune is ``neptune1``
+     * The name of the parameter group family.
+     * The only supported family for Neptune is ``neptune1``. (Required)
      */
     @ValidStrings("neptune1")
     @Required
@@ -108,8 +108,8 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
     }
 
     /**
-     * Graph query timeout (ms). Valid values range from ``10`` to ``2147483647``.
-     * Defaults to ``120000``.
+     * Graph query timeout (ms).
+     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_query_timeout``. The ``value`` field must be an integer from ``10`` to ``2147483647``, and defaults to ``120000``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */

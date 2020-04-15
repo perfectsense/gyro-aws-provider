@@ -93,8 +93,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * The name of the cluster parameter group family. (Required)
-     * The only supported family for Neptune is ``neptune1``
+     * The name of the cluster parameter group family.
+     * The only supported family for Neptune is ``neptune1``. (Required)
      */
     @ValidStrings("neptune1")
     @Required
@@ -120,8 +120,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * Enable audit logs. Valid values are ``0`` or ``1``.
-     * Defaults to 0.
+     * Enable audit logs.
+     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_enable_audit_log``. The ``value`` field must be set to ``0`` or ``1``, and defaults to ``0``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -131,6 +131,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             enableAuditLog.setName("neptune_enable_audit_log");
             enableAuditLog.setApplyMethod("pending-reboot");
         }
+
         return enableAuditLog;
     }
 
@@ -139,8 +140,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * Accept SSL/TLS connections only. Valid values are ``0`` or ``1``.
-     * Defaults to 1.
+     * Accept SSL/TLS connections only.
+     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_enforce_ssl``. The ``value`` field must be set to ``0`` or ``1``, and defaults to ``1``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -150,6 +151,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             enforceSsl.setName("neptune_enforce_ssl");
             enforceSsl.setApplyMethod("pending-reboot");
         }
+
         return enforceSsl;
     }
 
@@ -159,7 +161,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * Toggle Neptune engine experimental features.
-     * Value is a comma-separated list including ``(feature name)=enabled`` or ``(feature name)=disabled``.
+     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_lab_mode``. The ``value`` field must contain a comma-separated list of ``(feature name)=enabled`` or ``(feature name)=disabled``.
      * Valid feature names include ``ObjectIndex``, ``Streams``, and ``ReadWriteConflictDetection``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
@@ -170,6 +172,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             labMode.setName("neptune_lab_mode");
             labMode.setApplyMethod("pending-reboot");
         }
+
         return labMode;
     }
 
@@ -178,8 +181,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * Graph query timeout (ms). Valid values range from ``10`` to ``2147483647``.
-     * Defaults to ``120000``.
+     * Graph query timeout (ms).
+     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_query_timeout``. The ``value`` field must be an integer from ``10`` to ``2147483647``, and defaults to ``120000``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -189,6 +192,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
             queryTimeout.setName("neptune_query_timeout");
             queryTimeout.setApplyMethod("pending-reboot");
         }
+
         return queryTimeout;
     }
 
