@@ -46,19 +46,19 @@ import software.amazon.awssdk.services.neptune.model.Parameter;
  *
  * .. code-block:: gyro
  *
- *     aws::neptune-parameter-group neptune-parameter-group
- *         name: "neptune-parameter-group-example"
- *         description: "neptune parameter group example description"
- *         family: "neptune1"
+ * aws::neptune-parameter-group neptune-parameter-group-example
+ *     name: "neptune-parameter-group-example"
+ *     description: "neptune parameter group example description"
+ *     family: "neptune1"
  *
- *         query-timeout
- *             value: "120000"
- *         end
- *
- *         tags: {
- *             Name: "neptune-parameter-group-example-tag"
- *         }
+ *     query-timeout
+ *         value: "120000"
  *     end
+ *
+ *     tags: {
+ *         Name: "neptune-parameter-group-example"
+ *     }
+ * end
  */
 @Type("neptune-parameter-group")
 public class NeptuneParameterGroupResource extends NeptuneTaggableResource implements Copyable<DBParameterGroup> {
@@ -109,7 +109,7 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
 
     /**
      * Graph query timeout (ms).
-     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_query_timeout``. The ``value`` field must be an integer from ``10`` to ``2147483647``, and defaults to ``120000``.
+     * The ``value`` field of this ``NeptuneParameter`` must be an integer from ``10`` to ``2147483647``, and defaults to ``120000``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */

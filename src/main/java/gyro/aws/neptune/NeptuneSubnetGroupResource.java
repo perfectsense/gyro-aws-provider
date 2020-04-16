@@ -42,18 +42,19 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    aws::neptune-subnet-group neptune-subnet-group
- *        name: "neptune-subnet-group-example"
- *        description: "neptune subnet group example description"
- *        subnets: [
- *            $(aws::subnet subnet-us-east-2a),
- *            $(aws::subnet subnet-us-east-2b)
- *        ]
+ * aws::neptune-subnet-group neptune-subnet-group-example
+ *     name: "neptune-subnet-group-example"
+ *     description: "neptune subnet group example description"
  *
- *        tags: {
- *            Name: "neptune-subnet-group-example"
- *        }
- *    end
+ *     subnets: [
+ *         $(aws::subnet subnet-neptune-subnet-group-example-2a),
+ *         $(aws::subnet subnet-neptune-subnet-group-example-2b)
+ *     ]
+ *
+ *     tags: {
+ *         Name: "neptune-subnet-group-example"
+ *     }
+ * end
  */
 @Type("neptune-subnet-group")
 public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implements Copyable<DBSubnetGroup> {

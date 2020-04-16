@@ -44,30 +44,31 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aws::neptune-cluster-parameter-group neptune-cluster-parameter-group
- *         name: "neptune-cluster-parameter-group-example"
- *         description: "neptune cluter parameter group example description"
- *         family: "neptune1"
- *         tags: {
- *             Name: "neptune-cluster-parameter-group-example-tag"
- *         }
+ * aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-example
+ *     name: "neptune-cluster-parameter-group-example"
+ *     description: "neptune cluster parameter group example description"
+ *     family: "neptune1"
  *
- *         enable-audit-log
- *             value: "0"
- *         end
- *
- *         enforce-ssl
- *             value: "1"
- *         end
- *
- *         lab-mode
- *             value: "Streams=enabled, ReadWriteConflictDetection=disabled"
- *         end
- *
- *         query-timeout
- *             value: "120000"
- *         end
+ *     enable-audit-log
+ *         value: "0"
  *     end
+ *
+ *     enforce-ssl
+ *         value: "1"
+ *     end
+ *
+ *     lab-mode
+ *         value: "ObjectIndex=enabled, Streams=disabled"
+ *     end
+ *
+ *     query-timeout
+ *         value: "120000"
+ *     end
+ *
+ *     tags: {
+ *         Name: "neptune-cluster-parameter-group-example"
+ *     }
+ * end
  */
 @Type("neptune-cluster-parameter-group")
 public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResource implements Copyable<DBClusterParameterGroup> {
@@ -121,7 +122,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * Enable audit logs.
-     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_enable_audit_log``. The ``value`` field must be set to ``0`` or ``1``, and defaults to ``0``.
+     * The ``value`` field of this ``NeptuneParameter`` must be set to ``0`` or ``1``, and defaults to ``0``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -141,7 +142,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * Accept SSL/TLS connections only.
-     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_enforce_ssl``. The ``value`` field must be set to ``0`` or ``1``, and defaults to ``1``.
+     * The ``value`` field of this ``NeptuneParameter`` must be set to ``0`` or ``1``, and defaults to ``1``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -161,8 +162,8 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * Toggle Neptune engine experimental features.
-     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_lab_mode``. The ``value`` field must contain a comma-separated list of ``(feature name)=enabled`` or ``(feature name)=disabled``.
-     * Valid feature names include ``ObjectIndex``, ``Streams``, and ``ReadWriteConflictDetection``.
+     * The ``value`` field of this ``NeptuneParameter`` must contain a comma-separated list of ``(feature name)=enabled`` or ``(feature name)=disabled``.
+     * Valid feature names are ``ObjectIndex``, ``Streams``, and ``ReadWriteConflictDetection``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */
@@ -182,7 +183,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * Graph query timeout (ms).
-     * The ``name`` field of this ``NeptuneParameter`` must be set to ``neptune_query_timeout``. The ``value`` field must be an integer from ``10`` to ``2147483647``, and defaults to ``120000``.
+     * The ``value`` field of this ``NeptuneParameter`` must be an integer from ``10`` to ``2147483647``, and defaults to ``120000``.
      *
      * @subresource gyro.aws.neptune.NeptuneParameter
      */

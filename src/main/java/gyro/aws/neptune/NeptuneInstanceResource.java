@@ -51,15 +51,18 @@ import software.amazon.awssdk.services.neptune.model.ModifyDbInstanceRequest;
  *     db-instance-class: "db.r4.large"
  *     db-instance-identifier: "neptune-instance-example"
  *     db-cluster: $(aws::neptune-cluster neptune-cluster-example)
- *     db-parameter-group: $(aws::neptune-parameter-group neptune-parameter-group)
+ *
+ *     db-parameter-group: $(aws::neptune-parameter-group neptune-parameter-group-cluster-example)
  *     availability-zone: "us-east-2a"
  *     auto-minor-version-upgrade: true
- *     apply-immediately: true
+ *     copy-tags-to-snapshot: true
+ *     license-model: "amazon-license"
  *     promotion-tier: 1
+ *     apply-immediately: true
  *
  *     tags: {
- *             Name: "neptune instance example"
- *         }
+ *         Name: "neptune instance example"
+ *     }
  * end
  */
 @Type("neptune-instance")

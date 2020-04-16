@@ -61,28 +61,27 @@ import java.util.stream.Collectors;
  *     engine: "neptune"
  *     engine-version: "1.0.2.1"
  *     db-cluster-identifier: "neptune-cluster-example"
- *     vpc-security-groups: [
- *         $(aws::security-group security-group),
- *         $(aws::security-group security-group-2)
- *     ]
  *
- *     db-subnet-group: $(aws::neptune-subnet-group neptune-subnet-group)
- *     db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group)
+ *     vpc-security-groups: [$(aws::security-group security-group-neptune-cluster-example)]
+ *     db-subnet-group: $(aws::neptune-subnet-group neptune-subnet-group-cluster-example)
+ *     db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example)
+ *     kms-key: $(aws::kms-key kms-key-neptune-cluster-example)
+ *
+ *     availability-zones: ["us-east-2a", "us-east-2b"]
  *     backup-retention-period: 7
  *     deletion-protection: false
- *     enable-iam-database-authentication: true
  *     port: 8182
  *     preferred-backup-window: "07:39-08:09"
  *     preferred-maintenance-window: "sun:05:12-sun:05:42"
  *     storage-encrypted: true
- *     kms-key: $(aws::kms-key kms-key-neptune-example)
  *     enable-cloudwatch-logs-exports: ["audit"]
+ *     enable-iam-database-authentication: false
  *     skip-final-snapshot: false
  *     final-db-snapshot-identifier: "neptune-cluster-example-final-snapshot-test"
  *     apply-immediately: true
  *
  *     tags: {
- *         Name: "neptune cluster example tag"
+ *         Name: "neptune cluster example"
  *     }
  * end
  */
