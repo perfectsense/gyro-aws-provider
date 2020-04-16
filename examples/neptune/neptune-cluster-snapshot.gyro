@@ -1,0 +1,8 @@
+aws::neptune-cluster-snapshot neptune-cluster-snapshot-example
+    db-cluster-snapshot-identifier: "neptune-cluster-snapshot-example"
+    db-cluster: $(external-query aws::neptune-cluster { db-cluster-id: 'neptune-cluster-example' })
+
+    tags: {
+        Name: "neptune cluster snapshot example"
+    }
+end

@@ -1,0 +1,30 @@
+aws::vpc vpc-neptune-subnet-group-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+end
+
+aws::subnet subnet-neptune-subnet-group-example-2a
+    vpc: $(aws::vpc vpc-neptune-subnet-group-example)
+    availability-zone: us-east-2a
+    cidr-block: "10.0.0.0/24"
+end
+
+aws::subnet subnet-neptune-subnet-group-example-2b
+    vpc: $(aws::vpc vpc-neptune-subnet-group-example)
+    availability-zone: us-east-2b
+    cidr-block: "10.0.1.0/24"
+end
+
+aws::neptune-subnet-group neptune-subnet-group-example
+    name: "neptune-subnet-group-example"
+    description: "neptune subnet group example description"
+
+    subnets: [
+        $(aws::subnet subnet-neptune-subnet-group-example-2a),
+        $(aws::subnet subnet-neptune-subnet-group-example-2b)
+    ]
+
+    tags: {
+        Name: "neptune-subnet-group-example"
+    }
+end

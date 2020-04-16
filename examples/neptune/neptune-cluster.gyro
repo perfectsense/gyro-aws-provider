@@ -1,0 +1,116 @@
+aws::vpc vpc-neptune-cluster-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+end
+
+aws::security-group security-group-neptune-cluster-example
+    name: "security-group-neptune-cluster-example"
+    vpc: $(aws::vpc vpc-neptune-cluster-example)
+    description: "security group neptune cluster example description"
+end
+
+aws::subnet subnet-neptune-cluster-example-2a
+    vpc: $(aws::vpc vpc-neptune-cluster-example)
+    availability-zone: us-east-2a
+    cidr-block: "10.0.0.0/24"
+end
+
+aws::subnet subnet-neptune-cluster-example-2b
+    vpc: $(aws::vpc vpc-neptune-cluster-example)
+    availability-zone: us-east-2b
+    cidr-block: "10.0.1.0/24"
+end
+
+aws::neptune-subnet-group neptune-subnet-group-cluster-example
+    name: "neptune-subnet-group-cluster-example"
+    description: "neptune subnet group cluster example description"
+
+    subnets: [
+        $(aws::subnet subnet-neptune-cluster-example-2a),
+        $(aws::subnet subnet-neptune-cluster-example-2b)
+    ]
+end
+
+aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example
+    name: "neptune-cluster-parameter-group-cluster-example"
+    description: "neptune cluster parameter group cluster example description"
+    family: "neptune1"
+
+    enable-audit-log
+        value: "0"
+    end
+
+    enforce-ssl
+        value: "1"
+    end
+
+    lab-mode
+        value: "ObjectIndex=enabled, Streams=disabled"
+    end
+
+    query-timeout
+        value: "120000"
+    end
+end
+
+aws::neptune-parameter-group neptune-parameter-group-cluster-example
+    name: "neptune-parameter-group-cluster-example"
+    description: "neptune parameter group cluster example description"
+    family: "neptune1"
+
+    query-timeout
+        value: "120000"
+    end
+end
+
+aws::kms-key kms-key-neptune-cluster-example
+    aliases: ["alias/neptune1", "alias/neptune2"]
+    description: "kms key neptune cluster example description"
+end
+
+aws::neptune-cluster neptune-cluster-example
+    engine: "neptune"
+    engine-version: "1.0.2.1"
+    db-cluster-identifier: "neptune-cluster-example"
+
+    vpc-security-groups: [$(aws::security-group security-group-neptune-cluster-example)]
+    db-subnet-group: $(aws::neptune-subnet-group neptune-subnet-group-cluster-example)
+    db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example)
+    kms-key: $(aws::kms-key kms-key-neptune-cluster-example)
+
+    availability-zones: ["us-east-2a", "us-east-2b"]
+    backup-retention-period: 7
+    deletion-protection: false
+    port: 8182
+    preferred-backup-window: "07:39-08:09"
+    preferred-maintenance-window: "sun:05:12-sun:05:42"
+    storage-encrypted: true
+    enable-cloudwatch-logs-exports: ["audit"]
+    enable-iam-database-authentication: false
+    skip-final-snapshot: false
+    final-db-snapshot-identifier: "neptune-cluster-example-final-snapshot-test"
+    apply-immediately: true
+
+    tags: {
+        Name: "neptune cluster example"
+    }
+end
+
+aws::neptune-instance neptune-instance-example
+    engine: "neptune"
+    db-instance-class: "db.r4.large"
+    db-instance-identifier: "neptune-instance-example"
+    db-cluster: $(aws::neptune-cluster neptune-cluster-example)
+
+    db-parameter-group: $(aws::neptune-parameter-group neptune-parameter-group-cluster-example)
+    availability-zone: "us-east-2a"
+    auto-minor-version-upgrade: true
+    copy-tags-to-snapshot: true
+    license-model: "amazon-license"
+    promotion-tier: 1
+    apply-immediately: true
+
+    tags: {
+        Name: "neptune instance example"
+    }
+end
