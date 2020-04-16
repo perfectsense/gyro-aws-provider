@@ -1,0 +1,25 @@
+aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-example
+    name: "neptune-cluster-parameter-group-example"
+    description: "neptune cluster parameter group example description"
+    family: "neptune1"
+
+    enable-audit-log
+        value: "0"
+    end
+
+    enforce-ssl
+        value: "1"
+    end
+
+    lab-mode
+        value: "ObjectIndex=enabled, Streams=disabled"
+    end
+
+    query-timeout
+        value: "120000"
+    end
+
+    tags: {
+        Name: "neptune-cluster-parameter-group-example"
+    }
+end
