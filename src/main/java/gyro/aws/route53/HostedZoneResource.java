@@ -34,6 +34,7 @@ import software.amazon.awssdk.services.route53.model.CreateHostedZoneResponse;
 import software.amazon.awssdk.services.route53.model.GetHostedZoneResponse;
 import software.amazon.awssdk.services.route53.model.HostedZone;
 import software.amazon.awssdk.services.route53.model.HostedZoneNotFoundException;
+import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
 import software.amazon.awssdk.services.route53.model.PublicZoneVpcAssociationException;
 import software.amazon.awssdk.services.route53.model.VPC;
 
@@ -289,7 +290,6 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
                 client.disassociateVPCFromHostedZone(r -> r.hostedZoneId(getId()).vpc(vpc));
             }
 
-
             try {
                 Set<String> currentVpcIds = currentHostedZone.getVpcs().stream().map(VpcResource::getId).collect(Collectors.toSet());
                 List<VPC> addVpcs = getVpcs().stream().filter(o -> !currentVpcIds.contains(o.getId())).map(this::getVpc).collect(Collectors.toList());
@@ -327,7 +327,7 @@ public class HostedZoneResource extends AwsResource implements Copyable<HostedZo
                 hostedZoneResponse = null;
             }
 
-        } catch (HostedZoneNotFoundException ignore) {
+        } catch (HostedZoneNotFoundException | NoSuchHostedZoneException ignore) {
             // ignore
         }
 
