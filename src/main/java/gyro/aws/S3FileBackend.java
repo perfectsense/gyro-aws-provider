@@ -58,7 +58,7 @@ public class S3FileBackend extends FileBackend {
 
     @Override
     public Stream<String> list() throws Exception {
-        if (GyroCore.STATE_BACKEND.equals(getName())) {
+        if (this.equals(GyroCore.getStateBackend(getName()))) {
             List<S3Object> objects = new ArrayList<>();
             S3Client client = client();
             ListObjectsV2Response response = client.listObjectsV2(r -> r.bucket(getBucket()).prefix(prefixed("")));
