@@ -67,7 +67,6 @@ import java.util.stream.Collectors;
  *     db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example)
  *     kms-key: $(aws::kms-key kms-key-neptune-cluster-example)
  *
- *     availability-zones: ["us-east-2a", "us-east-2b"]
  *     backup-retention-period: 7
  *     deletion-protection: false
  *     port: 8182
@@ -193,6 +192,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     /**
      * A list of availability zones in which instances in the Neptune cluster can be created.
      */
+    @Output
     public List<String> getAvailabilityZones() {
         if (availabilityZones == null) {
             availabilityZones = new ArrayList<>();
@@ -483,7 +483,6 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
                 .dbClusterParameterGroupName(
                     getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null
                 )
-                .availabilityZones(getAvailabilityZones())
                 .backupRetentionPeriod(getBackupRetentionPeriod())
                 .deletionProtection(getDeletionProtection())
                 .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())

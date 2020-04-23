@@ -78,7 +78,6 @@ aws::neptune-cluster neptune-cluster-example
     db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example)
     kms-key: $(aws::kms-key kms-key-neptune-cluster-example)
 
-    availability-zones: ["us-east-2a", "us-east-2b"]
     backup-retention-period: 7
     deletion-protection: false
     port: 8182
