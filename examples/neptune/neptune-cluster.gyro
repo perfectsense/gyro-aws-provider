@@ -93,6 +93,7 @@ aws::neptune-cluster neptune-cluster-example
     tags: {
         Name: "neptune cluster example"
     }
+
 end
 
 aws::neptune-instance neptune-instance-example
@@ -112,4 +113,5 @@ aws::neptune-instance neptune-instance-example
     tags: {
         Name: "neptune instance example"
     }
+
 end

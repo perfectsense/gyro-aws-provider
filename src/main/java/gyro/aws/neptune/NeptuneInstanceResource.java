@@ -63,6 +63,7 @@ import software.amazon.awssdk.services.neptune.model.ModifyDbInstanceRequest;
  *     tags: {
  *         Name: "neptune instance example"
  *     }
+ *
  * end
  */
 @Type("neptune-instance")

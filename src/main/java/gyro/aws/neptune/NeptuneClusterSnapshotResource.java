@@ -51,6 +51,7 @@ import software.amazon.awssdk.services.neptune.model.DescribeDbClusterSnapshotsR
  *     tags: {
  *         Name: "neptune cluster snapshot example"
  *     }
+ *
  * end
  */
 @Type("neptune-cluster-snapshot")

@@ -68,6 +68,7 @@ import java.util.Set;
  *     tags: {
  *         Name: "neptune-cluster-parameter-group-example"
  *     }
+ *
  * end
  */
 @Type("neptune-cluster-parameter-group")

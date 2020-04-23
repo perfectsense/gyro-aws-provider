@@ -58,6 +58,7 @@ import software.amazon.awssdk.services.neptune.model.Parameter;
  *     tags: {
  *         Name: "neptune-parameter-group-example"
  *     }
+ *
  * end
  */
 @Type("neptune-parameter-group")

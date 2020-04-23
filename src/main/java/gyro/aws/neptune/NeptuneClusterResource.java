@@ -82,6 +82,7 @@ import java.util.stream.Collectors;
  *     tags: {
  *         Name: "neptune cluster example"
  *     }
+ *
  * end
  */
 @Type("neptune-cluster")

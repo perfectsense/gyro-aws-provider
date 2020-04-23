@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
  *     tags: {
  *         Name: "neptune-subnet-group-example"
  *     }
+ *
  * end
  */
 @Type("neptune-subnet-group")
