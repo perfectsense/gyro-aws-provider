@@ -16,19 +16,23 @@
 
 package gyro.aws;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
 import gyro.core.FileBackend;
+import gyro.core.GyroCore;
 import gyro.core.Type;
 import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.stream.Stream;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Type("s3")
 public class S3FileBackend extends FileBackend {
@@ -54,7 +58,32 @@ public class S3FileBackend extends FileBackend {
 
     @Override
     public Stream<String> list() throws Exception {
-        return null;
+        if (this.equals(GyroCore.getStateBackend(getName()))) {
+            List<S3Object> objects = new ArrayList<>();
+            S3Client client = client();
+            ListObjectsV2Response response = client.listObjectsV2(r -> r.bucket(getBucket()).prefix(prefixed("")));
+
+            // Currently we will paginate up to 10,000 objects
+            for (int i = 0; i < 10; i++) {
+                objects.addAll(response.contents());
+
+                if (response.isTruncated()) {
+                    String token = response.nextContinuationToken();
+                    response = client.listObjectsV2(r -> r.bucket(getBucket())
+                        .prefix(prefixed(""))
+                        .continuationToken(token));
+                } else {
+                    break;
+                }
+            }
+
+            return objects.stream()
+                .map(S3Object::key)
+                .filter(f -> f.endsWith(".gyro"))
+                .map(this::removePrefix);
+        }
+
+        return Stream.empty();
     }
 
     @Override
@@ -97,6 +126,14 @@ public class S3FileBackend extends FileBackend {
 
     private String prefixed(String file) {
         return getPrefix() != null ? getPrefix() + '/' + file : file;
+    }
+
+    private String removePrefix(String file) {
+        if (getPrefix() != null && file.startsWith(getPrefix() + "/")) {
+            return file.substring(getPrefix().length() + 1);
+        }
+
+        return file;
     }
 
 }
