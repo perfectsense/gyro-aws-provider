@@ -1,5 +1,48 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-har-eks-example"
+    }
+end
+
+@for zone, cidr -in ['us-east-1a', '10.0.0.0/24', 'us-east-1b', '10.0.1.0/24']
+    aws::subnet "subnet-example-har-$(zone)"
+        vpc: $(aws::vpc vpc)
+        availability-zone: $(zone)
+        cidr-block: $(cidr)
+
+        tags: {
+            Name: "subnet-har-eks-example $(zone) $(cidr)"
+        }
+    end
+@end
+
+aws::security-group security-group-example-har
+    name: "example-sg-har-eks"
+    vpc: $(aws::vpc vpc)
+    description: "example-sg-har-eks"
+end
+
+aws::security-group security-group-example-har-source
+    name: "example-sg-har-eks-source"
+    vpc: $(aws::vpc vpc)
+    description: "example-sg-har-eks-source"
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group-example-har-source)
+    keep-default-egress-rules: true
+
+    ingress
+        description: "ex-har-eks-sgr"
+        security-group: $(aws::security-group security-group-example-har-source)
+        protocol: "-1"
+    end
+end
+
 aws::eks-cluster ex
-    name: "example-eks-gyro"
+    name: "example-eks-gyro-har"
     role: "arn:aws:iam::242040583208:role/EXAMPLE_EKS_ROLE"
     version: 1.15
 
@@ -8,13 +51,12 @@ aws::eks-cluster ex
         enable-endpoint-public-access: true
 
         subnets: [
-            "subnet-0f336bfb86b548e92",
-            "subnet-0252d8fc08645f82a"
+            $(aws::subnet "subnet-example-har-us-east-1a"),
+            $(aws::subnet "subnet-example-har-us-east-1b")
         ]
 
         security-groups: [
-            "sg-0c8ff0c51b6d4ba83",
-            "sg-0656687e06841996e"
+            $(aws::security-group security-group-example-har)
         ]
 
         public-access-cidrs: [
@@ -53,8 +95,8 @@ aws::eks-fargate-profile eks-fargate-example
     end
 
     subnets: [
-        "subnet-0f336bfb86b548e92",
-        "subnet-0252d8fc08645f82a"
+        $(aws::subnet "subnet-example-har-us-east-1a"),
+        $(aws::subnet "subnet-example-har-us-east-1b")
     ]
 
     tags: {
@@ -68,9 +110,17 @@ aws::eks-nodegroup eks-nodegroup-example
     node-role: "arn:aws:iam::242040583208:role/EKS_NODE_HAR"
 
     subnets: [
-        "subnet-0f336bfb86b548e92",
-        "subnet-0252d8fc08645f82a"
+        $(aws::subnet "subnet-example-har-us-east-1a"),
+        $(aws::subnet "subnet-example-har-us-east-1b")
     ]
+
+    remote-access
+        ec2-ssh-key: "key-pair-example"
+
+        source-security-groups: [
+            $(aws::security-group security-group-example-har-source)
+        ]
+    end
 
     scaling-config
         desired-size: 2

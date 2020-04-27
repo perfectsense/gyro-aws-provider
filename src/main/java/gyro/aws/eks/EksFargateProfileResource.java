@@ -47,6 +47,37 @@ import software.amazon.awssdk.services.eks.model.FargateProfileStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 
+/**
+ * Creates an eks fargate profile.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::eks-fargate-profile eks-fargate-example
+ *         name: "fargate-profile-example"
+ *         cluster: $(aws::eks-cluster ex)
+ *         pod-execution-role: "arn:aws:iam::242040583208:role/EKS_FARGATE_HAR"
+ *
+ *         selector
+ *             namespace: "example-namespace"
+ *
+ *             labels: {
+ *                 "example-label-key": "example-label-value"
+ *             }
+ *         end
+ *
+ *         subnets: [
+ *             $(aws::subnet "subnet-example-har-us-east-1a"),
+ *             $(aws::subnet "subnet-example-har-us-east-1b")
+ *         ]
+ *
+ *         tags: {
+ *             "example-tag-key": "example-tag-value"
+ *         }
+ *     end
+ */
 @Type("eks-fargate-profile")
 public class EksFargateProfileResource extends AwsResource implements Copyable<FargateProfile> {
 

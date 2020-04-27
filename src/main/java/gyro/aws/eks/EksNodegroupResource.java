@@ -51,6 +51,29 @@ import software.amazon.awssdk.services.eks.model.UpdateLabelsPayload;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupConfigRequest;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupVersionRequest;
 
+/**
+ * Creates an eks nodegroup.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::eks-nodegroup eks-nodegroup-example
+ *         name: "example-eks-nodegroup"
+ *         cluster: $(aws::eks-cluster ex)
+ *         node-role: "arn:aws:iam::242040583208:role/EKS_NODE_HAR"
+ *
+ *         subnets: [
+ *             $(aws::subnet "subnet-example-har-us-east-1a"),
+ *             $(aws::subnet "subnet-example-har-us-east-1b")
+ *         ]
+ *
+ *         labels: {
+ *             "example-label-key": "example-label-value"
+ *         }
+ *     end
+ */
 @Type("eks-nodegroup")
 public class EksNodegroupResource extends AwsResource implements Copyable<Nodegroup> {
 

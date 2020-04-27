@@ -49,6 +49,54 @@ import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterConfigRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterVersionRequest;
 
+/**
+ * Creates an eks cluster.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::eks-cluster ex
+ *         name: "example-eks-gyro-har"
+ *         role: "arn:aws:iam::242040583208:role/EXAMPLE_EKS_ROLE"
+ *         version: 1.15
+ *
+ *         vpc-config
+ *             enable-endpoint-private-access: true
+ *             enable-endpoint-public-access: true
+ *
+ *             subnets: [
+ *                 $(aws::subnet "subnet-example-har-us-east-1a"),
+ *                 $(aws::subnet "subnet-example-har-us-east-1b")
+ *             ]
+ *
+ *             security-groups: [
+ *                 $(aws::security-group security-group-example-har)
+ *             ]
+ *
+ *             public-access-cidrs: [
+ *                 "0.0.0.0/0"
+ *             ]
+ *         end
+ *
+ *         logging
+ *             enabled-log-types
+ *                 log-types: [audit, api]
+ *             end
+ *         end
+ *
+ *         encryption-config
+ *             provider
+ *                 key: $(external-query aws::kms-key { key-id: "c5245825-8526-4032-a67c-21656f220312"})
+ *             end
+ *         end
+ *
+ *         tags: {
+ *             "example-tag-key": "example-tag-value"
+ *         }
+ *     end
+ */
 @Type("eks-cluster")
 public class EksClusterResource extends AwsResource implements Copyable<Cluster> {
 
