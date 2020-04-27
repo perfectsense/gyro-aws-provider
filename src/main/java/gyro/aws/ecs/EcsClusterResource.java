@@ -112,7 +112,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
-            .until(() -> isAvailable(client));
+            .until(() -> isActive(client));
     }
 
     @Override
@@ -132,7 +132,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
-            .until(() -> isAvailable(client));
+            .until(() -> isActive(client));
     }
 
     @Override
@@ -167,10 +167,10 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         return ecsCluster;
     }
 
-    private boolean isAvailable(EcsClient client) {
+    private boolean isActive(EcsClient client) {
         Cluster ecsCluster = getCluster(client);
 
-        return (ecsCluster != null && ecsCluster.status().equals("available"));
+        return (ecsCluster != null && ecsCluster.status().equals("ACTIVE"));
     }
 
     private boolean isDeleted(EcsClient client) {
