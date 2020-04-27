@@ -64,6 +64,10 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
      * The CIDR blocks that are allowed access to your cluster's public Kubernetes API server endpoint. Defaults to ``0.0.0.0/0``.
      */
     public List<String> getPublicAccessCidrs() {
+        if (publicAccessCidrs == null) {
+            publicAccessCidrs = new ArrayList<>();
+        }
+
         return publicAccessCidrs;
     }
 
@@ -75,6 +79,10 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
      * The security groups to use to allow communication between your worker nodes and the Kubernetes control plane.
      */
     public List<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
+        }
+
         return securityGroups;
     }
 
@@ -99,10 +107,12 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
         setEnableEndpointPrivateAccess(model.endpointPrivateAccess());
         setEnableEndpointPublicAccess(model.endpointPublicAccess());
         setPublicAccessCidrs(model.publicAccessCidrs());
+
         setSecurityGroups(model.securityGroupIds()
             .stream()
             .map(s -> findById(SecurityGroupResource.class, s))
             .collect(Collectors.toList()));
+
         setSubnets(model.subnetIds()
             .stream()
             .map(s -> findById(SubnetResource.class, s))
@@ -115,15 +125,19 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
     }
 
     VpcConfigRequest toVpcConfigRequest() {
-        return VpcConfigRequest.builder()
+        VpcConfigRequest.Builder builder = VpcConfigRequest.builder()
             .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
             .endpointPrivateAccess(getEnableEndpointPrivateAccess())
             .endpointPublicAccess(getEnableEndpointPublicAccess())
-            .securityGroupIds(getSecurityGroups().stream()
+            .publicAccessCidrs(getPublicAccessCidrs());
+
+        if (getSecurityGroups() != null) {
+            builder = builder.securityGroupIds(getSecurityGroups().stream()
                 .map(SecurityGroupResource::getId)
-                .collect(Collectors.toList()))
-            .publicAccessCidrs(getPublicAccessCidrs())
-            .build();
+                .collect(Collectors.toList()));
+        }
+
+        return builder.build();
     }
 
     @Override

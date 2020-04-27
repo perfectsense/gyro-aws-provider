@@ -125,7 +125,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The IAM role that provides permissions for the EKS.
+     * The IAM role that provides permissions for the EKS. (Required)
      */
     @Required
     public RoleResource getRole() {

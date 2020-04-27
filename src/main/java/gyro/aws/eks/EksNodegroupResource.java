@@ -170,7 +170,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The subnets to use for the Auto Scaling group that is created for your node group.
+     * The subnets to use for the Auto Scaling group that is created for your node group. (Required)
      */
     @Required
     public List<SubnetResource> getSubnets() {
