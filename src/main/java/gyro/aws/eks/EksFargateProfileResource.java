@@ -58,7 +58,7 @@ import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
  *     aws::eks-fargate-profile eks-fargate-example
  *         name: "fargate-profile-example"
  *         cluster: $(aws::eks-cluster ex)
- *         pod-execution-role: "arn:aws:iam::242040583208:role/EKS_FARGATE_HAR"
+ *         pod-execution-role: "arn:aws:iam::242040583208:role/EKS_FARGATE_POD_EXECUTION_ROLE"
  *
  *         selector
  *             namespace: "example-namespace"
@@ -69,8 +69,8 @@ import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
  *         end
  *
  *         subnets: [
- *             $(aws::subnet "subnet-example-har-us-east-1a"),
- *             $(aws::subnet "subnet-example-har-us-east-1b")
+ *             $(aws::subnet "subnet-example-us-east-1a"),
+ *             $(aws::subnet "subnet-example-us-east-1b")
  *         ]
  *
  *         tags: {

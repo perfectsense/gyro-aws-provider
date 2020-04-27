@@ -28,6 +28,16 @@ import software.amazon.awssdk.services.eks.model.DescribeNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.ListNodegroupsRequest;
 import software.amazon.awssdk.services.eks.model.Nodegroup;
 
+/**
+ * Query eks nodegroup.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    nodegroup: $(external-query aws::eks-nodegroup { name: 'example-nodegroup' })
+ */
 @Type("eks-nodegroup")
 public class EksNodegroupFinder extends AwsFinder<EksClient, Nodegroup, EksNodegroupResource> {
 

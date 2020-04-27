@@ -26,6 +26,16 @@ import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.Cluster;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
 
+/**
+ * Query eks cluster.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    cluster: $(external-query aws::eks-cluster { name: 'example-eks-cluster' })
+ */
 @Type("eks-cluster")
 public class EksClusterFinder extends AwsFinder<EksClient, Cluster, EksClusterResource> {
 

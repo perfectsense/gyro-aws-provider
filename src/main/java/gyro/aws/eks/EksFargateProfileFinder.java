@@ -28,6 +28,16 @@ import software.amazon.awssdk.services.eks.model.DescribeFargateProfileRequest;
 import software.amazon.awssdk.services.eks.model.FargateProfile;
 import software.amazon.awssdk.services.eks.model.ListFargateProfilesRequest;
 
+/**
+ * Query eks fargate profile.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    profile: $(external-query aws::eks-fargate-profile { name: 'example-eks-fargate-profile' })
+ */
 @Type("eks-fargate-profile")
 public class EksFargateProfileFinder extends AwsFinder<EksClient, FargateProfile, EksFargateProfileResource> {
 

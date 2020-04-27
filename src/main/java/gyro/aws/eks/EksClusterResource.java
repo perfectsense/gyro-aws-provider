@@ -58,7 +58,7 @@ import software.amazon.awssdk.services.eks.model.UpdateClusterVersionRequest;
  * .. code-block:: gyro
  *
  *     aws::eks-cluster ex
- *         name: "example-eks-gyro-har"
+ *         name: "example-eks-gyro"
  *         role: "arn:aws:iam::242040583208:role/EXAMPLE_EKS_ROLE"
  *         version: 1.15
  *
@@ -67,12 +67,12 @@ import software.amazon.awssdk.services.eks.model.UpdateClusterVersionRequest;
  *             enable-endpoint-public-access: true
  *
  *             subnets: [
- *                 $(aws::subnet "subnet-example-har-us-east-1a"),
- *                 $(aws::subnet "subnet-example-har-us-east-1b")
+ *                 $(aws::subnet "subnet-example-us-east-1a"),
+ *                 $(aws::subnet "subnet-example-us-east-1b")
  *             ]
  *
  *             security-groups: [
- *                 $(aws::security-group security-group-example-har)
+ *                 $(aws::security-group security-group-example)
  *             ]
  *
  *             public-access-cidrs: [

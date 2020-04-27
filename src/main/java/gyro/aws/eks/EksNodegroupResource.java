@@ -62,11 +62,11 @@ import software.amazon.awssdk.services.eks.model.UpdateNodegroupVersionRequest;
  *     aws::eks-nodegroup eks-nodegroup-example
  *         name: "example-eks-nodegroup"
  *         cluster: $(aws::eks-cluster ex)
- *         node-role: "arn:aws:iam::242040583208:role/EKS_NODE_HAR"
+ *         node-role: "arn:aws:iam::242040583208:role/EKS_NODEGROUP_ROLE"
  *
  *         subnets: [
- *             $(aws::subnet "subnet-example-har-us-east-1a"),
- *             $(aws::subnet "subnet-example-har-us-east-1b")
+ *             $(aws::subnet "subnet-example-us-east-1a"),
+ *             $(aws::subnet "subnet-example-us-east-1b")
  *         ]
  *
  *         labels: {

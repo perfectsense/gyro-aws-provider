@@ -2,47 +2,47 @@ aws::vpc vpc
     cidr-block: "10.0.0.0/16"
 
     tags: {
-        Name: "vpc-har-eks-example"
+        Name: "vpc-eks-example"
     }
 end
 
 @for zone, cidr -in ['us-east-1a', '10.0.0.0/24', 'us-east-1b', '10.0.1.0/24']
-    aws::subnet "subnet-example-har-$(zone)"
+    aws::subnet "subnet-example-$(zone)"
         vpc: $(aws::vpc vpc)
         availability-zone: $(zone)
         cidr-block: $(cidr)
 
         tags: {
-            Name: "subnet-har-eks-example $(zone) $(cidr)"
+            Name: "subnet-eks-example $(zone) $(cidr)"
         }
     end
 @end
 
-aws::security-group security-group-example-har
-    name: "example-sg-har-eks"
+aws::security-group security-group-example
+    name: "example-sg-eks"
     vpc: $(aws::vpc vpc)
-    description: "example-sg-har-eks"
+    description: "example-sg-eks"
 end
 
-aws::security-group security-group-example-har-source
-    name: "example-sg-har-eks-source"
+aws::security-group security-group-example-source
+    name: "example-sg-eks-source"
     vpc: $(aws::vpc vpc)
-    description: "example-sg-har-eks-source"
+    description: "example-sg-eks-source"
 end
 
 aws::security-group-rules security-group-rules
-    security-group: $(aws::security-group security-group-example-har-source)
+    security-group: $(aws::security-group security-group-example-source)
     keep-default-egress-rules: true
 
     ingress
-        description: "ex-har-eks-sgr"
-        security-group: $(aws::security-group security-group-example-har-source)
+        description: "ex-eks-sgr"
+        security-group: $(aws::security-group security-group-example-source)
         protocol: "-1"
     end
 end
 
 aws::eks-cluster ex
-    name: "example-eks-gyro-har"
+    name: "example-eks-gyro"
     role: "arn:aws:iam::242040583208:role/EXAMPLE_EKS_ROLE"
     version: 1.15
 
@@ -51,12 +51,12 @@ aws::eks-cluster ex
         enable-endpoint-public-access: true
 
         subnets: [
-            $(aws::subnet "subnet-example-har-us-east-1a"),
-            $(aws::subnet "subnet-example-har-us-east-1b")
+            $(aws::subnet "subnet-example-us-east-1a"),
+            $(aws::subnet "subnet-example-us-east-1b")
         ]
 
         security-groups: [
-            $(aws::security-group security-group-example-har)
+            $(aws::security-group security-group-example)
         ]
 
         public-access-cidrs: [
@@ -84,7 +84,7 @@ end
 aws::eks-fargate-profile eks-fargate-example
     name: "fargate-profile-example"
     cluster: $(aws::eks-cluster ex)
-    pod-execution-role: "arn:aws:iam::242040583208:role/EKS_FARGATE_HAR"
+    pod-execution-role: "arn:aws:iam::242040583208:role/EKS_FARGATE_POD_EXECUTION_ROLE"
 
     selector
         namespace: "example-namespace"
@@ -95,8 +95,8 @@ aws::eks-fargate-profile eks-fargate-example
     end
 
     subnets: [
-        $(aws::subnet "subnet-example-har-us-east-1a"),
-        $(aws::subnet "subnet-example-har-us-east-1b")
+        $(aws::subnet "subnet-example-us-east-1a"),
+        $(aws::subnet "subnet-example-us-east-1b")
     ]
 
     tags: {
@@ -107,18 +107,18 @@ end
 aws::eks-nodegroup eks-nodegroup-example
     name: "example-eks-nodegroup"
     cluster: $(aws::eks-cluster ex)
-    node-role: "arn:aws:iam::242040583208:role/EKS_NODE_HAR"
+    node-role: "arn:aws:iam::242040583208:role/EKS_NODEGROUP_ROLE"
 
     subnets: [
-        $(aws::subnet "subnet-example-har-us-east-1a"),
-        $(aws::subnet "subnet-example-har-us-east-1b")
+        $(aws::subnet "subnet-example-us-east-1a"),
+        $(aws::subnet "subnet-example-us-east-1b")
     ]
 
     remote-access
         ec2-ssh-key: "key-pair-example"
 
         source-security-groups: [
-            $(aws::security-group security-group-example-har-source)
+            $(aws::security-group security-group-example-source)
         ]
     end
 
