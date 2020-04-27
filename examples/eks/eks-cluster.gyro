@@ -1,11 +1,11 @@
 aws::eks-cluster ex
-    name: "example-eks-gyro-3"
+    name: "example-eks-gyro"
     role: "arn:aws:iam::242040583208:role/EXAMPLE_EKS_ROLE"
     version: 1.15
 
     vpc-config
         enable-endpoint-private-access: true
-        enable-endpoint-private-access: true
+        enable-endpoint-public-access: true
 
         subnets: [
             "subnet-0f336bfb86b548e92",
@@ -23,9 +23,8 @@ aws::eks-cluster ex
     end
 
     logging
-        log-setup
-            enabled: true
-            log-types: audit
+        enabled-log-types
+            log-types: [audit, api]
         end
     end
 
@@ -60,5 +59,26 @@ aws::eks-fargate-profile eks-fargate-example
 
     tags: {
         "example-tag-key": "example-tag-value"
+    }
+end
+
+aws::eks-nodegroup eks-nodegroup-example
+    name: "example-eks-nodegroup"
+    cluster: $(aws::eks-cluster ex)
+    node-role: "arn:aws:iam::242040583208:role/EKS_NODE_HAR"
+
+    subnets: [
+        "subnet-0f336bfb86b548e92",
+        "subnet-0252d8fc08645f82a"
+    ]
+
+    scaling-config
+        desired-size: 2
+        max-size: 2
+        min-size: 2
+    end
+
+    labels: {
+        "example-label-key": "example-label-value"
     }
 end

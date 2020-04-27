@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.eks;
 
 import java.util.ArrayList;
@@ -5,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
@@ -12,16 +29,21 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.Cluster;
+import software.amazon.awssdk.services.eks.model.ClusterStatus;
 import software.amazon.awssdk.services.eks.model.CreateClusterRequest;
 import software.amazon.awssdk.services.eks.model.CreateClusterResponse;
 import software.amazon.awssdk.services.eks.model.DeleteClusterRequest;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
+import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterConfigRequest;
@@ -41,7 +63,11 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     // Read-only
     private String arn;
 
+    /**
+     * The name of the EKS cluster. (Required)
+     */
     @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -50,6 +76,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.name = name;
     }
 
+    /**
+     * The IAM role that provides permissions for the EKS.
+     */
+    @Required
     public RoleResource getRole() {
         return role;
     }
@@ -58,6 +88,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.role = role;
     }
 
+    /**
+     * The desired Kubernetes version for your cluster. Defaults to ``1.15``
+     */
+    @Updatable
     public String getVersion() {
         return version;
     }
@@ -66,6 +100,11 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.version = version;
     }
 
+    /**
+     * The VPC configuration used by the cluster. (Required)
+     */
+    @Updatable
+    @Required
     public EksVpcConfig getVpcConfig() {
         return vpcConfig;
     }
@@ -74,6 +113,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.vpcConfig = vpcConfig;
     }
 
+    /**
+     * The logging configuration used by the cluster.
+     */
+    @Updatable
     public EksLogging getLogging() {
         return logging;
     }
@@ -82,6 +125,9 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.logging = logging;
     }
 
+    /**
+     * The encryption configuration used by the cluster.
+     */
     public List<EksEncryptionConfig> getEncryptionConfig() {
         if (encryptionConfig == null) {
             encryptionConfig = new ArrayList<>();
@@ -94,6 +140,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.encryptionConfig = encryptionConfig;
     }
 
+    /**
+     * The tags to attach to the cluster.
+     */
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -106,6 +156,9 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.tags = tags;
     }
 
+    /**
+     * The Amazon Resource Number (ARN) of the cluster.
+     */
     @Output
     public String getArn() {
         return arn;
@@ -151,7 +204,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     public void create(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        CreateClusterResponse cluster = client.createCluster(CreateClusterRequest.builder()
+        CreateClusterResponse response = client.createCluster(CreateClusterRequest.builder()
             .name(getName())
             .roleArn(getRole().getArn())
             .resourcesVpcConfig(getVpcConfig().toVpcConfigRequest())
@@ -163,7 +216,15 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
             .tags(getTags())
             .build());
 
-        copyFrom(cluster.cluster());
+        copyFrom(response.cluster());
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(4, TimeUnit.MINUTES)
+            .until(() -> {
+                Cluster cluster = getCluster(client);
+                return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
+            });
     }
 
     @Override
@@ -216,9 +277,25 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         EksClient client = createClient(EksClient.class);
 
         client.deleteCluster(DeleteClusterRequest.builder().name(getName()).build());
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(4, TimeUnit.MINUTES)
+            .until(() -> getCluster(client) == null);
     }
 
     private Cluster getCluster(EksClient client) {
-        return client.describeCluster(DescribeClusterRequest.builder().name(getName()).build()).cluster();
+        Cluster cluster = null;
+
+        try {
+            cluster = client.describeCluster(DescribeClusterRequest.builder().name(getName()).build()).cluster();
+
+        } catch (EksException ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("ResourceNotFoundException")) {
+                throw ex;
+            }
+        }
+
+        return cluster;
     }
 }

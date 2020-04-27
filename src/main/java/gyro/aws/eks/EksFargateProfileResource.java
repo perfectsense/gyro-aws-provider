@@ -1,9 +1,26 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.eks;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
@@ -12,9 +29,11 @@ import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eks.EksClient;
@@ -22,7 +41,9 @@ import software.amazon.awssdk.services.eks.model.CreateFargateProfileRequest;
 import software.amazon.awssdk.services.eks.model.CreateFargateProfileResponse;
 import software.amazon.awssdk.services.eks.model.DeleteFargateProfileRequest;
 import software.amazon.awssdk.services.eks.model.DescribeFargateProfileRequest;
+import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.FargateProfile;
+import software.amazon.awssdk.services.eks.model.FargateProfileStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 
@@ -39,6 +60,10 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     // Read-only
     private String arn;
 
+    /**
+     * The name of the fargate profile. (Required)
+     */
+    @Required
     public String getName() {
         return name;
     }
@@ -47,6 +72,10 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         this.name = name;
     }
 
+    /**
+     * The cluster for which to manage the fargate profile. (Required)
+     */
+    @Required
     public EksClusterResource getCluster() {
         return cluster;
     }
@@ -55,6 +84,10 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         this.cluster = cluster;
     }
 
+    /**
+     * The pod execution role to use for pods in the fargate profile. (Required)
+     */
+    @Required
     public RoleResource getPodExecutionRole() {
         return podExecutionRole;
     }
@@ -63,6 +96,9 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         this.podExecutionRole = podExecutionRole;
     }
 
+    /**
+     * The selectors to match for pods to use the fargate profile. (Required)
+     */
     @Required
     public List<EksFargateProfileSelector> getSelector() {
         if (selector == null) {
@@ -76,6 +112,10 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         this.selector = selector;
     }
 
+    /**
+     * The subnets where the pods should be launched. (Required)
+     */
+    @Required
     public List<SubnetResource> getSubnets() {
         if (subnets == null) {
             subnets = new ArrayList<>();
@@ -88,6 +128,10 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         this.subnets = subnets;
     }
 
+    /**
+     * The tags to attach to the fargate profile.
+     */
+    @Updatable
     public Map<String, String> getTags() {
         return tags;
     }
@@ -96,6 +140,9 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         this.tags = tags;
     }
 
+    /**
+     * The Amazon Resource Number (ARN) of the fargate profile.
+     */
     @Output
     @Id
     public String getArn() {
@@ -113,12 +160,12 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         setCluster(findById(EksClusterResource.class, model.clusterName()));
         setPodExecutionRole(findById(RoleResource.class, model.podExecutionRoleArn()));
         setTags(model.tags());
+        setSubnets(model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toList()));
         setSelector(model.selectors().stream().map(s -> {
             EksFargateProfileSelector fargateProfileSelector = newSubresource(EksFargateProfileSelector.class);
             fargateProfileSelector.copyFrom(s);
             return fargateProfileSelector;
         }).collect(Collectors.toList()));
-        setSubnets(model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toList()));
     }
 
     @Override
@@ -140,7 +187,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     public void create(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        CreateFargateProfileResponse profile = client.createFargateProfile(CreateFargateProfileRequest.builder()
+        CreateFargateProfileResponse response = client.createFargateProfile(CreateFargateProfileRequest.builder()
             .clusterName(getCluster().getName())
             .fargateProfileName(getName())
             .podExecutionRoleArn(getPodExecutionRole().getArn())
@@ -151,7 +198,15 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
             .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
             .build());
 
-        copyFrom(profile.fargateProfile());
+        copyFrom(response.fargateProfile());
+
+        Wait.atMost(15, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(5, TimeUnit.MINUTES)
+            .until(() -> {
+                FargateProfile fargateProfile = getFargateProfile(client);
+                return fargateProfile != null && fargateProfile.status().equals(FargateProfileStatus.ACTIVE);
+            });
     }
 
     @Override
@@ -192,12 +247,28 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
             .clusterName(getCluster().getName())
             .fargateProfileName(getName())
             .build());
+
+        Wait.atMost(15, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(5, TimeUnit.MINUTES)
+            .until(() -> getFargateProfile(client) == null);
     }
 
     private FargateProfile getFargateProfile(EksClient client) {
-        return client.describeFargateProfile(DescribeFargateProfileRequest.builder()
-            .clusterName(getCluster().getName())
-            .fargateProfileName(getName())
-            .build()).fargateProfile();
+        FargateProfile profile = null;
+
+        try {
+            profile = client.describeFargateProfile(DescribeFargateProfileRequest.builder()
+                .clusterName(getCluster().getName())
+                .fargateProfileName(getName())
+                .build()).fargateProfile();
+
+        } catch (EksException ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("ResourceNotFoundException")) {
+                throw ex;
+            }
+        }
+
+        return profile;
     }
 }
