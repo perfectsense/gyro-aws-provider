@@ -47,7 +47,7 @@ public class DynamoDbLockBackend extends LockBackend {
     }
 
     public String getLockKey() {
-        return lockKey != null ? lockKey : "GyroLockKey";
+        return lockKey != null ? lockKey : "default";
     }
 
     public void setLockKey(String lockKey) {
