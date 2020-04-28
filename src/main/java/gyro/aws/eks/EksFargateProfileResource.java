@@ -17,6 +17,7 @@
 package gyro.aws.eks;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +86,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     private EksClusterResource cluster;
     private RoleResource podExecutionRole;
     private List<EksFargateProfileSelector> selector;
-    private List<SubnetResource> subnets;
+    private Set<SubnetResource> subnets;
     private Map<String, String> tags;
 
     // Read-only
@@ -147,15 +148,15 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
      * The subnets where the pods should be launched. (Required)
      */
     @Required
-    public List<SubnetResource> getSubnets() {
+    public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
-            subnets = new ArrayList<>();
+            subnets = new HashSet<>();
         }
 
         return subnets;
     }
 
-    public void setSubnets(List<SubnetResource> subnets) {
+    public void setSubnets(Set<SubnetResource> subnets) {
         this.subnets = subnets;
     }
 
@@ -191,7 +192,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         setCluster(findById(EksClusterResource.class, model.clusterName()));
         setPodExecutionRole(findById(RoleResource.class, model.podExecutionRoleArn()));
         setTags(model.tags());
-        setSubnets(model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toList()));
+        setSubnets(model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toSet()));
         setSelector(model.selectors().stream().map(s -> {
             EksFargateProfileSelector fargateProfileSelector = newSubresource(EksFargateProfileSelector.class);
             fargateProfileSelector.copyFrom(s);

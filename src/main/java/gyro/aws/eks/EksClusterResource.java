@@ -44,6 +44,9 @@ import software.amazon.awssdk.services.eks.model.CreateClusterResponse;
 import software.amazon.awssdk.services.eks.model.DeleteClusterRequest;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
+import software.amazon.awssdk.services.eks.model.LogSetup;
+import software.amazon.awssdk.services.eks.model.LogType;
+import software.amazon.awssdk.services.eks.model.Logging;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterConfigRequest;
@@ -252,27 +255,27 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     public void create(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        CreateClusterResponse response = client.createCluster(CreateClusterRequest.builder()
-            .name(getName())
-            .roleArn(getRole().getArn())
-            .resourcesVpcConfig(getVpcConfig().toVpcConfigRequest())
-            .version(getVersion())
-            .logging(getLogging().toLogging())
-            .encryptionConfig(getEncryptionConfig().stream()
-                .map(EksEncryptionConfig::toEncryptionConfig)
-                .collect(Collectors.toList()))
-            .tags(getTags())
-            .build());
+        CreateClusterRequest.Builder builder = CreateClusterRequest.builder()
+                .name(getName())
+                .roleArn(getRole().getArn())
+                .resourcesVpcConfig(getVpcConfig().toVpcConfigRequest())
+                .version(getVersion());
+
+        if (getLogging() != null) {
+            builder = builder.logging(getLogging().toLogging());
+        }
+
+        if (!getEncryptionConfig().isEmpty()) {
+            builder = builder.encryptionConfig(getEncryptionConfig().stream()
+                    .map(EksEncryptionConfig::toEncryptionConfig)
+                    .collect(Collectors.toList()));
+        }
+
+        CreateClusterResponse response = client.createCluster(builder.tags(getTags()).build());
 
         copyFrom(response.cluster());
 
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .prompt(false)
-            .checkEvery(4, TimeUnit.MINUTES)
-            .until(() -> {
-                Cluster cluster = getCluster(client);
-                return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
-            });
+        wairForActiveStatus(client);
     }
 
     @Override
@@ -282,9 +285,11 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (changedFieldNames.contains("version")) {
             client.updateClusterVersion(UpdateClusterVersionRequest.builder()
-                .name(getName())
-                .version(getVersion())
-                .build());
+                    .name(getName())
+                    .version(getVersion())
+                    .build());
+
+            wairForActiveStatus(client);
         }
 
         if (changedFieldNames.contains("tags")) {
@@ -305,18 +310,38 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
             if (!tagsToRemove.isEmpty()) {
                 client.untagResource(UntagResourceRequest.builder()
-                    .resourceArn(getArn())
-                    .tagKeys(tagsToRemove.keySet())
-                    .build());
+                        .resourceArn(getArn())
+                        .tagKeys(tagsToRemove.keySet())
+                        .build());
             }
         }
 
-        if (changedFieldNames.contains("logging") || changedFieldNames.contains("vpc-config")) {
+        if (changedFieldNames.contains("vpc-config")) {
             client.updateClusterConfig(UpdateClusterConfigRequest.builder()
-                .name(getName())
-                .logging(getLogging().toLogging())
-                .resourcesVpcConfig(getVpcConfig().toVpcConfigRequest())
-                .build());
+                    .name(getName())
+                    .resourcesVpcConfig(getVpcConfig().updatedConfig())
+                    .build());
+
+            wairForActiveStatus(client);
+        }
+
+        if (changedFieldNames.contains("logging")) {
+            if (getLogging() != null) {
+                client.updateClusterConfig(UpdateClusterConfigRequest.builder()
+                        .name(getName())
+                        .logging(getLogging().toLogging())
+                        .build());
+
+            } else {
+                client.updateClusterConfig(UpdateClusterConfigRequest.builder()
+                        .name(getName())
+                        .logging(Logging.builder().clusterLogging(
+                                LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
+                                .build())
+                        .build());
+            }
+
+            wairForActiveStatus(client);
         }
     }
 
@@ -345,5 +370,15 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         }
 
         return cluster;
+    }
+
+    private void wairForActiveStatus(EksClient client) {
+        Wait.atMost(20, TimeUnit.MINUTES)
+                .checkEvery(2, TimeUnit.MINUTES)
+                .prompt(false)
+                .until(() -> {
+                    Cluster cluster = getCluster(client);
+                    return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
+                });
     }
 }

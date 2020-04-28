@@ -25,6 +25,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.eks.model.VpcConfigRequest;
@@ -41,6 +42,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
     /**
      * Allow private access to your cluster's Kubernetes API server endpoint. Defaults to ``true``.
      */
+    @Updatable
     public Boolean getEnableEndpointPrivateAccess() {
         return enableEndpointPrivateAccess;
     }
@@ -52,6 +54,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
     /**
      * Allow public access to your cluster's Kubernetes API server endpoint. Defaults to ``false``.
      */
+    @Updatable
     public Boolean getEnableEndpointPublicAccess() {
         return enableEndpointPublicAccess;
     }
@@ -63,6 +66,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
     /**
      * The CIDR blocks that are allowed access to your cluster's public Kubernetes API server endpoint. Defaults to ``0.0.0.0/0``.
      */
+    @Updatable
     public List<String> getPublicAccessCidrs() {
         if (publicAccessCidrs == null) {
             publicAccessCidrs = new ArrayList<>();
@@ -124,34 +128,49 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
         return null;
     }
 
-    VpcConfigRequest toVpcConfigRequest() {
-        VpcConfigRequest.Builder builder = VpcConfigRequest.builder()
-            .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-            .endpointPrivateAccess(getEnableEndpointPrivateAccess())
-            .endpointPublicAccess(getEnableEndpointPublicAccess())
-            .publicAccessCidrs(getPublicAccessCidrs());
-
-        if (getSecurityGroups() != null) {
-            builder = builder.securityGroupIds(getSecurityGroups().stream()
-                .map(SecurityGroupResource::getId)
-                .collect(Collectors.toList()));
-        }
-
-        return builder.build();
-    }
-
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
         if ((getEnableEndpointPrivateAccess() == null || getEnableEndpointPrivateAccess().equals(Boolean.FALSE)) && (
-            getEnableEndpointPublicAccess() != null && getEnableEndpointPublicAccess().equals(Boolean.FALSE))) {
+                getEnableEndpointPublicAccess() != null && getEnableEndpointPublicAccess().equals(Boolean.FALSE))) {
             errors.add(new ValidationError(
-                this,
-                null,
-                "Both 'enable-endpoint-private-access' and 'enable-endpoint-public-access' cannot be set to 'false'"));
+                    this,
+                    null,
+                    "Both 'enable-endpoint-private-access' and 'enable-endpoint-public-access' cannot be set to 'false'"));
         }
 
         return errors;
+    }
+
+    VpcConfigRequest toVpcConfigRequest() {
+        VpcConfigRequest.Builder builder = VpcConfigRequest.builder()
+                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
+                .endpointPrivateAccess(getEnableEndpointPrivateAccess())
+                .endpointPublicAccess(getEnableEndpointPublicAccess());
+
+        if (!getPublicAccessCidrs().isEmpty()) {
+            builder = builder.publicAccessCidrs(getPublicAccessCidrs());
+        }
+
+        if (!getSecurityGroups().isEmpty()) {
+            builder = builder.securityGroupIds(getSecurityGroups().stream()
+                    .map(SecurityGroupResource::getId)
+                    .collect(Collectors.toList()));
+        }
+
+        return builder.build();
+    }
+
+    VpcConfigRequest updatedConfig() {
+        VpcConfigRequest.Builder builder = VpcConfigRequest.builder()
+                .endpointPrivateAccess(getEnableEndpointPrivateAccess())
+                .endpointPublicAccess(getEnableEndpointPublicAccess());
+
+        if (!getPublicAccessCidrs().isEmpty()) {
+            builder = builder.publicAccessCidrs(getPublicAccessCidrs());
+        }
+
+        return builder.build();
     }
 }

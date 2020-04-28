@@ -31,6 +31,7 @@ import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -266,6 +267,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
      * The Amazon Resource Number (ARN) of the nodegroup.
      */
     @Output
+    @Id
     public String getArn() {
         return arn;
     }
@@ -360,47 +362,61 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        if (changedFieldNames.contains("version") || changedFieldNames.contains("release-version")) {
+        if (changedFieldNames.contains("release-version")) {
             client.updateNodegroupVersion(UpdateNodegroupVersionRequest.builder()
-                .clusterName(getCluster().getName())
-                .nodegroupName(getName())
-                .releaseVersion(getReleaseVersion())
-                .version(getVersion())
-                .build());
+                    .clusterName(getCluster().getName())
+                    .nodegroupName(getName())
+                    .releaseVersion(getReleaseVersion())
+                    .build());
         }
 
-        if (changedFieldNames.contains("scaling-config") || changedFieldNames.contains("labels")) {
+        if (changedFieldNames.contains("version")) {
+            client.updateNodegroupVersion(UpdateNodegroupVersionRequest.builder()
+                    .clusterName(getCluster().getName())
+                    .nodegroupName(getName())
+                    .version(getVersion())
+                    .build());
+        }
+
+        if (changedFieldNames.contains("labels")) {
             Nodegroup nodegroup = getNodegroup(client);
             Map<String, String> currentLabels = nodegroup.labels();
             Map<String, String> labelsToAdd = getLabels().entrySet()
-                .stream()
-                .filter(e -> !currentLabels.containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .stream()
+                    .filter(e -> !currentLabels.containsKey(e.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             Map<String, String> labelsToRemove = currentLabels.entrySet()
-                .stream()
-                .filter(e -> !getLabels().containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .stream()
+                    .filter(e -> !getLabels().containsKey(e.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                .clusterName(getCluster().getName())
-                .labels(UpdateLabelsPayload.builder()
-                    .addOrUpdateLabels(labelsToAdd)
-                    .removeLabels(labelsToRemove.keySet())
-                    .build())
-                .nodegroupName(getName())
-                .scalingConfig(getScalingConfig().toNodegroupScalingConfig())
-                .build());
+                    .clusterName(getCluster().getName())
+                    .labels(UpdateLabelsPayload.builder()
+                            .addOrUpdateLabels(labelsToAdd)
+                            .removeLabels(labelsToRemove.keySet())
+                            .build())
+                    .nodegroupName(getName())
+                    .build());
+        }
+
+        if (changedFieldNames.contains("scaling-config")) {
+            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                    .clusterName(getCluster().getName())
+                    .nodegroupName(getName())
+                    .scalingConfig(getScalingConfig() == null ? null : getScalingConfig().toNodegroupScalingConfig())
+                    .build());
         }
 
         if (changedFieldNames.contains("tags")) {
             Nodegroup nodegroup = getNodegroup(client);
             Map<String, String> currentTags = nodegroup.tags();
             Map<String, String> tagsToAdd = getTags().entrySet()
-                .stream()
-                .filter(e -> !currentTags.containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .stream()
+                    .filter(e -> !currentTags.containsKey(e.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             Map<String, String> tagsToRemove = currentTags.entrySet()
-                .stream()
+                    .stream()
                 .filter(e -> !getTags().containsKey(e.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

@@ -13,7 +13,8 @@ end
         cidr-block: $(cidr)
 
         tags: {
-            Name: "subnet-eks-example $(zone) $(cidr)"
+            Name: "subnet-eks-example $(zone) $(cidr)",
+            "kubernetes.io/cluster/example-eks-gyro": 'shared'
         }
     end
 @end

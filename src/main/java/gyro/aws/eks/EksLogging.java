@@ -22,7 +22,10 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import software.amazon.awssdk.services.eks.model.LogSetup;
+import software.amazon.awssdk.services.eks.model.LogType;
 import software.amazon.awssdk.services.eks.model.Logging;
 
 public class EksLogging extends Diffable implements Copyable<Logging> {
@@ -33,6 +36,7 @@ public class EksLogging extends Diffable implements Copyable<Logging> {
      * The cluster control plane logging configuration for your cluster. (Required)
      */
     @Required
+    @Updatable
     public List<EksLogSetup> getEnabledLogTypes() {
         if (enabledLogTypes == null) {
             enabledLogTypes = new ArrayList<>();
@@ -63,8 +67,14 @@ public class EksLogging extends Diffable implements Copyable<Logging> {
     }
 
     Logging toLogging() {
+        List<LogSetup> logSetups = getEnabledLogTypes().stream().map(EksLogSetup::toLogSeup).collect(Collectors.toList());
+        List<LogType> enabledLogTypes = new ArrayList<>();
+        getEnabledLogTypes().forEach(e -> enabledLogTypes.addAll((e.getLogTypes().stream().map(LogType::fromValue).collect(Collectors.toList()))));
+        List<LogType> logTypesToDisable = LogType.knownValues().stream().filter(e -> !enabledLogTypes.contains(e)).collect(Collectors.toList());
+        logSetups.add(LogSetup.builder().types(logTypesToDisable).enabled(Boolean.FALSE).build());
+
         return Logging.builder()
-            .clusterLogging(getEnabledLogTypes().stream().map(EksLogSetup::toLogSeup).collect(Collectors.toList()))
-            .build();
+                .clusterLogging(logSetups)
+                .build();
     }
 }
