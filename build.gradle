@@ -73,7 +73,7 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:0.99.1-SNAPSHOT'
+    api 'gyro:gyro-core:0.99.2-SNAPSHOT'
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
