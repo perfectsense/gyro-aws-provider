@@ -16,19 +16,25 @@
 
 package gyro.aws.elb;
 
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.diff.Create;
 import gyro.core.diff.Delete;
 import gyro.core.resource.DiffableInternals;
-import gyro.core.resource.Updatable;
-
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
+import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerPoliciesResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
-
-import java.util.Set;
+import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescription;
+import software.amazon.awssdk.services.elasticloadbalancing.model.PolicyAttribute;
+import software.amazon.awssdk.services.elasticloadbalancing.model.PolicyDescription;
 
 /**
  *
@@ -44,13 +50,14 @@ import java.util.Set;
  *        protocol: "HTTPS"
  *     end
  */
-public class ListenerResource extends AwsResource {
+public class ListenerResource extends AwsResource implements Copyable<ListenerDescription> {
 
     private Integer instancePort;
     private String instanceProtocol;
     private Integer loadBalancerPort;
     private String protocol;
     private String sslCertificateId;
+    private LoadBalancerPolicy policy;
 
     /**
      * The port on which the instance is listening.
@@ -79,7 +86,6 @@ public class ListenerResource extends AwsResource {
     /**
      * The port on which the load balancer is listening.
      */
-    @Updatable
     public Integer getLoadBalancerPort() {
         return loadBalancerPort;
     }
@@ -112,19 +118,45 @@ public class ListenerResource extends AwsResource {
         this.sslCertificateId = sslCertificateId;
     }
 
-    public String getLoadBalancer() {
-        LoadBalancerResource parent = (LoadBalancerResource) parent();
+    /**
+     * The policy configuration for the listener.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerPolicy
+     */
+    @Updatable
+    public LoadBalancerPolicy getPolicy() {
+        return policy;
+    }
 
-        if (parent != null) {
-            return parent.getName();
-        }
-
-        return null;
+    public void setPolicy(LoadBalancerPolicy policy) {
+        this.policy = policy;
     }
 
     @Override
     public String primaryKey() {
         return String.format("%d", getLoadBalancerPort());
+    }
+
+    @Override
+    public void copyFrom(ListenerDescription listenerDescription) {
+        setInstancePort(listenerDescription.listener().instancePort());
+        setInstanceProtocol(listenerDescription.listener().instanceProtocol());
+        setLoadBalancerPort(listenerDescription.listener().loadBalancerPort());
+        setProtocol(listenerDescription.listener().protocol());
+        setSslCertificateId(listenerDescription.listener().sslCertificateId());
+
+        ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+        DescribeLoadBalancerPoliciesResponse response = client.describeLoadBalancerPolicies(
+            r -> r.loadBalancerName(getLoadBalancer()).policyNames(listenerDescription.policyNames()));
+
+        setPolicy(null);
+        if (!response.policyDescriptions().isEmpty()) {
+            PolicyDescription policyDescription = response.policyDescriptions().get(0);
+            LoadBalancerPolicy policy = newSubresource(LoadBalancerPolicy.class);
+            policy.copyFrom(policyDescription);
+            setPolicy(policy);
+        }
     }
 
     @Override
@@ -142,12 +174,31 @@ public class ListenerResource extends AwsResource {
         client.createLoadBalancerListeners(r -> r.listeners(toListener())
             .loadBalancerName(getLoadBalancer()));
 
+        if (getPolicy() != null) {
+            state.save();
+
+            savePolicy(client);
+        }
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        delete(ui, state);
-        create(ui, state);
+        if (changedFieldNames.stream().anyMatch(o -> !o.equals("policy") && !o.equals("ssl-certificate-id"))) {
+            delete(ui, state);
+            create(ui, state);
+        } else {
+            ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
+
+            if (changedFieldNames.contains("ssl-certificate-id")) {
+                client.setLoadBalancerListenerSSLCertificate(r -> r.loadBalancerName(getLoadBalancer())
+                    .loadBalancerPort(getLoadBalancerPort())
+                    .sslCertificateId(getSslCertificateId()));
+            }
+
+            if (changedFieldNames.contains("policy")) {
+                savePolicy(client);
+            }
+        }
     }
 
     @Override
@@ -155,10 +206,21 @@ public class ListenerResource extends AwsResource {
         if (DiffableInternals.getChange(parent()) instanceof Delete) {
             return;
         }
+
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
         client.deleteLoadBalancerListeners(r -> r.loadBalancerName(getLoadBalancer())
-                                                .loadBalancerPorts(getLoadBalancerPort()));
+            .loadBalancerPorts(getLoadBalancerPort()));
+    }
+
+    public String getLoadBalancer() {
+        LoadBalancerResource parent = (LoadBalancerResource) parent();
+
+        if (parent != null) {
+            return parent.getName();
+        }
+
+        return null;
     }
 
     private Listener toListener() {
@@ -173,4 +235,25 @@ public class ListenerResource extends AwsResource {
         return newListener;
     }
 
+    void savePolicy(ElasticLoadBalancingClient client) {
+        String policyName = primaryKey() + UUID.randomUUID().toString();
+        client.createLoadBalancerPolicy(r -> r.loadBalancerName(getLoadBalancer())
+            .policyName(policyName)
+            .policyTypeName(getPolicy().getType())
+            .policyAttributes(getPolicy().getEnabledAttributes().stream()
+                .map(o -> PolicyAttribute.builder()
+                    .attributeName(o)
+                    .attributeValue("true")
+                    .build())
+                .collect(Collectors.toList())));
+
+        assignPolicy(client, policyName);
+    }
+
+    void assignPolicy(ElasticLoadBalancingClient client, String policyName) {
+        client.setLoadBalancerPoliciesOfListener(r -> r.loadBalancerName(getLoadBalancer())
+            .loadBalancerPort(getLoadBalancerPort())
+            .policyNames(policyName));
+        //.policyNames(policyName != null ? policyName : "ELBSecurityPolicy-2016-08"));
+    }
 }
