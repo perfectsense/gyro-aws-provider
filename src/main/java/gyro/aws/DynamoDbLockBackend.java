@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroException;
 import gyro.core.LockBackend;
 import gyro.core.Type;
@@ -37,6 +38,7 @@ public class DynamoDbLockBackend extends LockBackend {
 
     private String tableName;
     private String lockKey;
+    private String credentials;
 
     public String getTableName() {
         return tableName;
@@ -52,6 +54,18 @@ public class DynamoDbLockBackend extends LockBackend {
 
     public void setLockKey(String lockKey) {
         this.lockKey = lockKey;
+    }
+
+    public void setCredentials(String credentials) {
+        this.credentials = credentials;
+    }
+
+    public String getCredentials() {
+        if (ObjectUtils.isBlank(credentials)) {
+            setCredentials("default");
+        }
+
+        return credentials;
     }
 
     @Override
@@ -168,6 +182,6 @@ public class DynamoDbLockBackend extends LockBackend {
     private AwsCredentials credentials() {
         return (AwsCredentials) getRootScope().getSettings(CredentialsSettings.class)
             .getCredentialsByName()
-            .get("aws::default");
+            .get("aws::" + getCredentials());
     }
 }
