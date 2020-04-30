@@ -218,12 +218,12 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
             }
         }
 
-        if (configuredFields.contains("managedTerminationProtection")) {
+        if (configuredFields.contains("managed-termination-protection")) {
             if (getManagedTerminationProtection()) {
                 if (!getAutoScalingGroup().getNewInstancesProtectedFromScaleIn()) {
                     errors.add(new ValidationError(
                         this,
-                        "managedTerminationProtection",
+                        "managed-termination-protection",
                         "To enable managed termination protection, the auto scaling group must have instance protection from scale-in actions enabled."
                     ));
                 }
@@ -231,7 +231,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
                 if (!getManagedScaling()) {
                     errors.add(new ValidationError(
                         this,
-                        "managedTerminationProtection",
+                        "managed-termination-protection",
                         "To enable managed termination protection, managed scaling must also be enabled."
                     ));
                 }

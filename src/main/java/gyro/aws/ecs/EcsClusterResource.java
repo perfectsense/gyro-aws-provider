@@ -269,7 +269,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (configuredFields.contains("defaultCapacityProviderStrategy")) {
+        if (configuredFields.contains("default-capacity-provider-strategy")) {
             Set<String> providerNames = getCapacityProviders().stream()
                 .map(EcsCapacityProviderResource::getName)
                 .collect(Collectors.toSet());
@@ -281,7 +281,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                 if (!providerNames.contains(item.primaryKey())) {
                     errors.add(new ValidationError(
                         this,
-                        "defaultCapacityProviderStrategy",
+                        "default-capacity-provider-strategy",
                         "Capacity providers must be associated with the cluster in order to be added to the default capacity provider strategy.")
                     );
                 }
@@ -292,7 +292,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                     } else {
                         errors.add(new ValidationError(
                             this,
-                            "defaultCapacityProviderStrategy",
+                            "default-capacity-provider-strategy",
                             "The default capacity provider strategy cannot have more than one item with a defined/nonzero base."
                         ));
                     }
@@ -306,7 +306,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
             if (!nonzeroWeight) {
                 errors.add(new ValidationError(
                     this,
-                    "defaultCapacityProviderStrategy",
+                    "default-capacity-provider-strategy",
                     "The default capacity provider strategy must contain at least one item with a weight greater than 0."
                 ));
             }
