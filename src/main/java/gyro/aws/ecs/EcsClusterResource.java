@@ -1,7 +1,9 @@
 package gyro.aws.ecs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -14,6 +16,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -23,7 +26,9 @@ import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
+import software.amazon.awssdk.services.ecs.model.ClusterSetting;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
+import software.amazon.awssdk.services.ecs.model.Tag;
 
 @Type("ecs-cluster")
 public class EcsClusterResource extends AwsResource implements Copyable<Cluster> {
@@ -31,6 +36,9 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     private String clusterName;
     private List<EcsCapacityProviderResource> capacityProviders;
     private List<EcsCapacityProviderStrategyItem> defaultCapacityProviderStrategy;
+    private Map<String, String> settings;
+    private Map<String, String> tags;
+    private String arn;
 
     @Required
     @Id
@@ -64,6 +72,41 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         this.defaultCapacityProviderStrategy = defaultCapacityProviderStrategy;
     }
 
+    @Updatable
+    public Map<String, String> getSettings() {
+        if (settings == null) {
+            settings = new HashMap<>();
+        }
+
+        return settings;
+    }
+
+    public void setSettings(Map<String, String> settings) {
+        this.settings = settings;
+    }
+
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(Cluster model) {
         setClusterName(model.clusterName());
@@ -79,6 +122,15 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                 return newItem;
             }).collect(Collectors.toList())
         );
+        setSettings(
+            model.settings().stream()
+                .collect(Collectors.toMap(ClusterSetting::nameAsString, ClusterSetting::value))
+        );
+        setTags(
+            model.tags().stream()
+                .collect(Collectors.toMap(Tag::key, Tag::value))
+        );
+        setArn(model.clusterArn());
     }
 
     @Override
@@ -107,6 +159,12 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                 .defaultCapacityProviderStrategy(getDefaultCapacityProviderStrategy().stream()
                     .map(EcsCapacityProviderStrategyItem::copyTo)
                     .collect(Collectors.toList()))
+                .settings(getSettings().entrySet().stream()
+                    .map(o -> ClusterSetting.builder().name(o.getKey()).value(o.getValue()).build())
+                    .collect(Collectors.toList()))
+                .tags(getTags().entrySet().stream()
+                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                    .collect(Collectors.toList()))
         );
 
         Wait.atMost(10, TimeUnit.MINUTES)
@@ -127,6 +185,27 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                 .defaultCapacityProviderStrategy(getDefaultCapacityProviderStrategy().stream()
                     .map(EcsCapacityProviderStrategyItem::copyTo)
                     .collect(Collectors.toList()))
+        );
+
+        client.updateClusterSettings(
+            r -> r.cluster(getClusterName()).settings(getSettings().entrySet().stream()
+                .map(o -> ClusterSetting.builder().name(o.getKey()).value(o.getValue()).build())
+                .collect(Collectors.toList()))
+        );
+
+        EcsClusterResource currentResource = (EcsClusterResource) current;
+        List<String> removeKeys = currentResource.getTags().keySet().stream()
+            .filter(k -> !getTags().containsKey(k))
+            .collect(Collectors.toList());
+
+        if (!removeKeys.isEmpty()) {
+            client.untagResource(r -> r.resourceArn(getArn()).tagKeys());
+        }
+
+        client.tagResource(
+            r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
+                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                .collect(Collectors.toList()))
         );
 
         Wait.atMost(10, TimeUnit.MINUTES)
@@ -155,7 +234,9 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         Cluster ecsCluster = null;
 
         try {
-            DescribeClustersResponse response = client.describeClusters(r -> r.clusters(getClusterName()));
+            DescribeClustersResponse response = client.describeClusters(
+                r -> r.clusters(getClusterName()).includeWithStrings("ATTACHMENTS", "SETTINGS")
+            );
 
             if (response.hasClusters()) {
                 ecsCluster = response.clusters().get(0);
