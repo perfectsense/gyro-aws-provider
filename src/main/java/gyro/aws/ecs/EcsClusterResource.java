@@ -70,6 +70,10 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
      */
     @Updatable
     public List<EcsCapacityProviderStrategyItem> getDefaultCapacityProviderStrategy() {
+        if (defaultCapacityProviderStrategy == null) {
+            defaultCapacityProviderStrategy = new ArrayList<>();
+        }
+
         return defaultCapacityProviderStrategy;
     }
 
@@ -122,7 +126,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         );
         setDefaultCapacityProviderStrategy(
             model.defaultCapacityProviderStrategy().stream().map(o -> {
-                EcsCapacityProviderStrategyItem newItem = new EcsCapacityProviderStrategyItem();
+                EcsCapacityProviderStrategyItem newItem = newSubresource(EcsCapacityProviderStrategyItem.class);
                 newItem.copyFrom(o);
                 return newItem;
             }).collect(Collectors.toList())
