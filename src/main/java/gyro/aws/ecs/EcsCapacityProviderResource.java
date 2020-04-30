@@ -14,6 +14,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Regex;
@@ -35,6 +36,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     private Integer maximumScalingStepSize;
     private Integer targetCapacity;
     private Boolean managedTerminationProtection;
+    private String arn;
 
     @Required
     @Id
@@ -96,6 +98,15 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.managedTerminationProtection = managedTerminationProtection;
     }
 
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(CapacityProvider model) {
         AutoScalingGroupProvider asgProvider = model.autoScalingGroupProvider();
@@ -112,6 +123,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         setMaximumScalingStepSize(asgProvider.managedScaling().maximumScalingStepSize());
         setTargetCapacity(asgProvider.managedScaling().targetCapacity());
         setManagedTerminationProtection(asgProvider.managedTerminationProtectionAsString().equals("ENABLED"));
+        setArn(model.capacityProviderArn());
     }
 
     @Override
