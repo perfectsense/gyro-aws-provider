@@ -2,6 +2,7 @@ package gyro.aws.ecs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,7 @@ import software.amazon.awssdk.services.ecs.model.Tag;
 public class EcsClusterResource extends AwsResource implements Copyable<Cluster> {
 
     private String clusterName;
-    private List<EcsCapacityProviderResource> capacityProviders;
+    private Set<EcsCapacityProviderResource> capacityProviders;
     private List<EcsCapacityProviderStrategyItem> defaultCapacityProviderStrategy;
     private Map<String, String> settings;
     private Map<String, String> tags;
@@ -52,11 +53,15 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     @Updatable
-    public List<EcsCapacityProviderResource> getCapacityProviders() {
+    public Set<EcsCapacityProviderResource> getCapacityProviders() {
+        if (capacityProviders == null) {
+            capacityProviders = new HashSet<>();
+        }
+
         return capacityProviders;
     }
 
-    public void setCapacityProviders(List<EcsCapacityProviderResource> capacityProviders) {
+    public void setCapacityProviders(Set<EcsCapacityProviderResource> capacityProviders) {
         this.capacityProviders = capacityProviders;
     }
 
@@ -113,7 +118,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         setCapacityProviders(
             model.capacityProviders().stream()
                 .map(name -> findById(EcsCapacityProviderResource.class, name))
-                .collect(Collectors.toList())
+                .collect(Collectors.toSet())
         );
         setDefaultCapacityProviderStrategy(
             model.defaultCapacityProviderStrategy().stream().map(o -> {
