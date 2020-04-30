@@ -216,7 +216,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
-            .until(() -> isActive(client));
+            .until(() -> isUpdated(client));
     }
 
     @Override
@@ -257,6 +257,23 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         Cluster ecsCluster = getCluster(client);
 
         return (ecsCluster != null && ecsCluster.status().equals("ACTIVE"));
+    }
+
+    private boolean isUpdated(EcsClient client) {
+        Cluster ecsCluster = getCluster(client);
+
+        if (ecsCluster == null) {
+            System.out.println("\nCluster not found");
+            return true;
+        }
+
+        if (ecsCluster.attachmentsStatus().equals("UPDATE_FAILED")) {
+            System.out.println("\nThe capacity provider updates failed.");
+        }
+
+        return (
+            ecsCluster.status().equals("ACTIVE") && !ecsCluster.attachmentsStatus().equals("UPDATE_IN_PROGRESS")
+        );
     }
 
     private boolean isDeleted(EcsClient client) {
