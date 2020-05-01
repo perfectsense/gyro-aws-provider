@@ -1,9 +1,12 @@
 package gyro.aws.ecs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
@@ -16,6 +19,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
@@ -25,6 +29,7 @@ import software.amazon.awssdk.services.ecs.model.AutoScalingGroupProvider;
 import software.amazon.awssdk.services.ecs.model.CapacityProvider;
 import software.amazon.awssdk.services.ecs.model.DescribeCapacityProvidersResponse;
 import software.amazon.awssdk.services.ecs.model.EcsException;
+import software.amazon.awssdk.services.ecs.model.Tag;
 
 @Type("ecs-capacity-provider")
 public class EcsCapacityProviderResource extends AwsResource implements Copyable<CapacityProvider> {
@@ -36,6 +41,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     private Integer maximumScalingStepSize;
     private Integer targetCapacity;
     private Boolean managedTerminationProtection;
+    private Map<String, String> tags;
     private String arn;
 
     @Required
@@ -98,6 +104,19 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.managedTerminationProtection = managedTerminationProtection;
     }
 
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
     @Output
     public String getArn() {
         return arn;
@@ -123,6 +142,10 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         setMaximumScalingStepSize(asgProvider.managedScaling().maximumScalingStepSize());
         setTargetCapacity(asgProvider.managedScaling().targetCapacity());
         setManagedTerminationProtection(asgProvider.managedTerminationProtectionAsString().equals("ENABLED"));
+        setTags(
+            model.tags().stream()
+                .collect(Collectors.toMap(Tag::key, Tag::value))
+        );
         setArn(model.capacityProviderArn());
     }
 
@@ -165,9 +188,28 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     }
 
     @Override
-    public void update(
-        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        EcsClient client = createClient(EcsClient.class);
 
+        EcsCapacityProviderResource currentResource = (EcsCapacityProviderResource) current;
+        Set<String> currentKeys = currentResource.getTags().keySet();
+
+        if (!currentKeys.isEmpty()) {
+            client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
+        }
+
+        if (!getTags().isEmpty()) {
+            client.tagResource(
+                r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
+                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                    .collect(Collectors.toList()))
+            );
+        }
+
+        Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isActive(client));
     }
 
     @Override
@@ -184,7 +226,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
 
         try {
             DescribeCapacityProvidersResponse response = client.describeCapacityProviders(
-                r -> r.capacityProviders(getName())
+                r -> r.capacityProviders(getName()).includeWithStrings("TAGS")
             );
 
             if (response.hasCapacityProviders()) {
