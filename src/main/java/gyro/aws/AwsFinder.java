@@ -88,6 +88,12 @@ public abstract class AwsFinder<C extends SdkClient, M, R extends AwsResource> e
             .collect(Collectors.toList());
     }
 
+    public List<software.amazon.awssdk.services.neptune.model.Filter> createNeptuneFilters(Map<String, String> query) {
+        return query.entrySet().stream()
+            .map(e -> software.amazon.awssdk.services.neptune.model.Filter.builder().name(e.getKey()).values(e.getValue()).build())
+            .collect(Collectors.toList());
+    }
+
     @SuppressWarnings("unchecked")
     private Map<String, String> convertFilters(Map<String, Object> query) {
         Map<String, String> filters = new HashMap<>();

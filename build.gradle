@@ -73,7 +73,7 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:0.99.2-SNAPSHOT'
+    api 'gyro:gyro-core:0.99.3-SNAPSHOT'
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
@@ -103,6 +103,7 @@ dependencies {
     implementation 'software.amazon.awssdk:docdb'
     implementation 'software.amazon.awssdk:acm'
     implementation 'software.amazon.awssdk:acmpca'
+    implementation 'software.amazon.awssdk:neptune'
     implementation 'org.json:json:20180813'
 
     gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
