@@ -196,11 +196,13 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                     .collect(Collectors.toList()))
         );
 
-        client.updateClusterSettings(
-            r -> r.cluster(getClusterName()).settings(getSettings().entrySet().stream()
-                .map(o -> ClusterSetting.builder().name(o.getKey()).value(o.getValue()).build())
-                .collect(Collectors.toList()))
-        );
+        if (!getSettings().isEmpty()) {
+            client.updateClusterSettings(
+                r -> r.cluster(getClusterName()).settings(getSettings().entrySet().stream()
+                    .map(o -> ClusterSetting.builder().name(o.getKey()).value(o.getValue()).build())
+                    .collect(Collectors.toList()))
+            );
+        }
 
         EcsClusterResource currentResource = (EcsClusterResource) current;
         List<String> removeKeys = currentResource.getTags().keySet().stream()
@@ -211,11 +213,13 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
             client.untagResource(r -> r.resourceArn(getArn()).tagKeys());
         }
 
-        client.tagResource(
-            r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
-                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
-                .collect(Collectors.toList()))
-        );
+        if (!getTags().isEmpty()) {
+            client.tagResource(
+                r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
+                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                    .collect(Collectors.toList()))
+            );
+        }
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
