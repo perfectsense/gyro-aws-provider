@@ -205,12 +205,10 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         }
 
         EcsClusterResource currentResource = (EcsClusterResource) current;
-        List<String> removeKeys = currentResource.getTags().keySet().stream()
-            .filter(k -> !getTags().containsKey(k))
-            .collect(Collectors.toList());
+        Set<String> currentKeys = currentResource.getTags().keySet();
 
-        if (!removeKeys.isEmpty()) {
-            client.untagResource(r -> r.resourceArn(getArn()).tagKeys());
+        if (!currentKeys.isEmpty()) {
+            client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
         }
 
         if (!getTags().isEmpty()) {
@@ -248,7 +246,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
         try {
             DescribeClustersResponse response = client.describeClusters(
-                r -> r.clusters(getClusterName()).includeWithStrings("ATTACHMENTS", "SETTINGS")
+                r -> r.clusters(getClusterName()).includeWithStrings("ATTACHMENTS", "SETTINGS", "TAGS")
             );
 
             if (response.hasClusters()) {
