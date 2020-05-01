@@ -70,7 +70,7 @@ public class EksNodegroupRemoteAccessConfig extends Diffable implements Copyable
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     RemoteAccessConfig toRemoteAccessConfig() {

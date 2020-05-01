@@ -125,7 +125,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     @Override
@@ -137,7 +137,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
             errors.add(new ValidationError(
                     this,
                     null,
-                    "Both 'enable-endpoint-private-access' and 'enable-endpoint-public-access' cannot be set to 'false'"));
+                    "One of 'enable-endpoint-private-access' or 'enable-endpoint-public-access' needs to be set to 'true'"));
         }
 
         return errors;

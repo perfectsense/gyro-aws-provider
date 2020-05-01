@@ -76,7 +76,7 @@ public class EksNodegroupScalingConfig extends Diffable implements Copyable<Node
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     NodegroupScalingConfig toNodegroupScalingConfig() {

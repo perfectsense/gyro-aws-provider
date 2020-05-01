@@ -63,7 +63,7 @@ public class EksLogging extends Diffable implements Copyable<Logging> {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     Logging toLogging() {
