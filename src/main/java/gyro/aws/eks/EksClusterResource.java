@@ -275,7 +275,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         copyFrom(response.cluster());
 
-        wairForActiveStatus(client);
+        waitForActiveStatus(client);
     }
 
     @Override
@@ -289,31 +289,20 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                     .version(getVersion())
                     .build());
 
-            wairForActiveStatus(client);
+            waitForActiveStatus(client);
         }
 
         if (changedFieldNames.contains("tags")) {
-            Cluster fargateProfile = getCluster(client);
-            Map<String, String> currentTags = fargateProfile.tags();
-            Map<String, String> tagsToAdd = getTags().entrySet()
-                .stream()
-                .filter(e -> !currentTags.containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            Map<String, String> tagsToRemove = currentTags.entrySet()
-                .stream()
-                .filter(e -> !getTags().containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            EksClusterResource currentResource = (EksClusterResource) current;
 
-            if (!tagsToAdd.isEmpty()) {
-                client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(tagsToAdd).build());
-            }
-
-            if (!tagsToRemove.isEmpty()) {
+            if (!currentResource.getTags().isEmpty()) {
                 client.untagResource(UntagResourceRequest.builder()
                         .resourceArn(getArn())
-                        .tagKeys(tagsToRemove.keySet())
+                        .tagKeys(currentResource.getTags().keySet())
                         .build());
             }
+
+            client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
         }
 
         if (changedFieldNames.contains("vpc-config")) {
@@ -322,7 +311,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                     .resourcesVpcConfig(getVpcConfig().updatedConfig())
                     .build());
 
-            wairForActiveStatus(client);
+            waitForActiveStatus(client);
         }
 
         if (changedFieldNames.contains("logging")) {
@@ -341,7 +330,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                         .build());
             }
 
-            wairForActiveStatus(client);
+            waitForActiveStatus(client);
         }
     }
 
@@ -372,7 +361,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         return cluster;
     }
 
-    private void wairForActiveStatus(EksClient client) {
+    private void waitForActiveStatus(EksClient client) {
         Wait.atMost(20, TimeUnit.MINUTES)
                 .checkEvery(2, TimeUnit.MINUTES)
                 .prompt(false)

@@ -45,6 +45,7 @@ import software.amazon.awssdk.services.eks.model.DeleteNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.DescribeNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.Nodegroup;
+import software.amazon.awssdk.services.eks.model.NodegroupResources;
 import software.amazon.awssdk.services.eks.model.NodegroupStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
@@ -237,7 +238,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The root device disk size for the node group instances. Defaults to ``20`` GiB.
+     * The root device disk size in GiB for the node group instances. Defaults to ``20``.
      */
     public Integer getDiskSize() {
         return diskSize;
@@ -348,19 +349,14 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         copyFrom(response.nodegroup());
 
-        Wait.atMost(15, TimeUnit.MINUTES)
-            .prompt(false)
-            .checkEvery(5, TimeUnit.MINUTES)
-            .until(() -> {
-                Nodegroup nodegroup = getNodegroup(client);
-                return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
-            });
+        waitForActiveState(client);
     }
 
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         EksClient client = createClient(EksClient.class);
+        EksNodegroupResource currentResource = (EksNodegroupResource) current;
 
         if (changedFieldNames.contains("release-version")) {
             client.updateNodegroupVersion(UpdateNodegroupVersionRequest.builder()
@@ -379,25 +375,25 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         }
 
         if (changedFieldNames.contains("labels")) {
-            Nodegroup nodegroup = getNodegroup(client);
-            Map<String, String> currentLabels = nodegroup.labels();
-            Map<String, String> labelsToAdd = getLabels().entrySet()
-                    .stream()
-                    .filter(e -> !currentLabels.containsKey(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            Map<String, String> labelsToRemove = currentLabels.entrySet()
-                    .stream()
-                    .filter(e -> !getLabels().containsKey(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            if (!currentResource.getLabels().isEmpty()) {
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .labels(UpdateLabelsPayload.builder()
+                                .removeLabels(currentResource.getLabels().keySet())
+                                .build())
+                        .nodegroupName(getName())
+                        .build());
+            }
 
             client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
                     .clusterName(getCluster().getName())
                     .labels(UpdateLabelsPayload.builder()
-                            .addOrUpdateLabels(labelsToAdd)
-                            .removeLabels(labelsToRemove.keySet())
+                            .addOrUpdateLabels(currentResource.getLabels())
                             .build())
                     .nodegroupName(getName())
                     .build());
+
+            waitForActiveState(client);
         }
 
         if (changedFieldNames.contains("scaling-config")) {
@@ -409,27 +405,14 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         }
 
         if (changedFieldNames.contains("tags")) {
-            Nodegroup nodegroup = getNodegroup(client);
-            Map<String, String> currentTags = nodegroup.tags();
-            Map<String, String> tagsToAdd = getTags().entrySet()
-                    .stream()
-                    .filter(e -> !currentTags.containsKey(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            Map<String, String> tagsToRemove = currentTags.entrySet()
-                    .stream()
-                .filter(e -> !getTags().containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-            if (!tagsToAdd.isEmpty()) {
-                client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(tagsToAdd).build());
-            }
-
-            if (!tagsToRemove.isEmpty()) {
+            if (!currentResource.getTags().isEmpty()) {
                 client.untagResource(UntagResourceRequest.builder()
-                    .resourceArn(getArn())
-                    .tagKeys(tagsToRemove.keySet())
-                    .build());
+                        .resourceArn(getArn())
+                        .tagKeys(currentResource.getTags().keySet())
+                        .build());
             }
+
+            client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
         }
     }
 
@@ -464,5 +447,15 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         }
 
         return nodegroup;
+    }
+
+    private void waitForActiveState(EksClient client) {
+        Wait.atMost(15, TimeUnit.MINUTES)
+                .prompt(false)
+                .checkEvery(5, TimeUnit.MINUTES)
+                .until(() -> {
+                    Nodegroup nodegroup = getNodegroup(client);
+                    return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
+                });
     }
 }

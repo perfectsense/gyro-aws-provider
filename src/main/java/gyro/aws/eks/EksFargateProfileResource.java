@@ -247,27 +247,16 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         EksClient client = createClient(EksClient.class);
 
         if (changedFieldNames.contains("tags")) {
-            FargateProfile fargateProfile = getFargateProfile(client);
-            Map<String, String> currentTags = fargateProfile.tags();
-            Map<String, String> tagsToAdd = getTags().entrySet()
-                .stream()
-                .filter(e -> !currentTags.containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            Map<String, String> tagsToRemove = currentTags.entrySet()
-                .stream()
-                .filter(e -> !getTags().containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            EksFargateProfileResource currentResource = (EksFargateProfileResource) current;
 
-            if (!tagsToAdd.isEmpty()) {
-                client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(tagsToAdd).build());
-            }
-
-            if (!tagsToRemove.isEmpty()) {
+            if (!currentResource.getTags().isEmpty()) {
                 client.untagResource(UntagResourceRequest.builder()
-                    .resourceArn(getArn())
-                    .tagKeys(tagsToRemove.keySet())
-                    .build());
+                        .resourceArn(getArn())
+                        .tagKeys(currentResource.getTags().keySet())
+                        .build());
             }
+
+            client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
         }
     }
 
