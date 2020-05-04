@@ -90,7 +90,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
      */
     @Required
     @Id
-    @Regex(value = "[-_a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
+    @Regex(value = "[-_a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, underscores, and hyphens.")
     public String getName() {
         return name;
     }
