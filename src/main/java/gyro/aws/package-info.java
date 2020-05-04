@@ -82,7 +82,7 @@
  * +++++++++++++
  *
  * This provider uses DynamoDb for state locking. In order to use DynamoDb for locking, you must create a table
- * with a **primary key titled** ``LockKey``. Then define the lock backend in ``.gyro/init.gyro`` with its
+ * with a **primary key** titled ``LockKey``. Then define the lock backend in ``.gyro/init.gyro`` with its
  * ``table-name`` in your Gyro project:
  *
  * .. code:: shell
