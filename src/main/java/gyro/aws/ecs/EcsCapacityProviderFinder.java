@@ -26,6 +26,10 @@ public class EcsCapacityProviderFinder extends AwsFinder<EcsClient, CapacityProv
 
     private String name;
 
+    /**
+     * The name of the capacity provider. Up to 255 characters are allowed, including letters, numbers, underscores, and hyphens.
+     * The name cannot be prefixed with ``aws``, ``ecs``, or ``fargate``, regardless of character case.
+     */
     public String getName() {
         return name;
     }

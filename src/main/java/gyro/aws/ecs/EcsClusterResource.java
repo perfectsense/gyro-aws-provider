@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.ecs;
 
 import java.util.ArrayList;
@@ -21,6 +37,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
@@ -31,6 +48,15 @@ import software.amazon.awssdk.services.ecs.model.ClusterSetting;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
 import software.amazon.awssdk.services.ecs.model.Tag;
 
+/**
+ * Create an ECS cluster.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ */
 @Type("ecs-cluster")
 public class EcsClusterResource extends AwsResource implements Copyable<Cluster> {
 
@@ -41,6 +67,10 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     private Map<String, String> tags;
     private String arn;
 
+    /**
+     * The name identifying the cluster. (Required)
+     * Must consist of 1 to 255 letters, numbers, and hyphens, and begin with a letter.
+     */
     @Required
     @Id
     @Regex(value = "^[a-zA-Z]([-a-zA-Z0-9]{0,254})?", message = "1 to 255 letters, numbers, and hyphens. Must begin with a letter.")
@@ -52,6 +82,9 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         this.clusterName = clusterName;
     }
 
+    /**
+     * The capacity providers associated with the cluster.
+     */
     @Updatable
     public Set<EcsCapacityProviderResource> getCapacityProviders() {
         if (capacityProviders == null) {
@@ -66,6 +99,9 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
+     * The default capacity provider strategy for the cluster.
+     * When services or tasks are run in the cluster with no launch type or capacity provider strategy specified, the default capacity provider strategy is used.
+     *
      * @subresource gyro.aws.ecs.EcsCapacityProviderStrategyItem
      */
     @Updatable
@@ -81,6 +117,10 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         this.defaultCapacityProviderStrategy = defaultCapacityProviderStrategy;
     }
 
+    /**
+     * The settings for the cluster. This parameter indicates whether CloudWatch Container Insights is enabled or disabled for a cluster.
+     * The only valid key is ``containerInsights``, and the valid values are ``enabled`` or ``disabled``.
+     */
     @Updatable
     public Map<String, String> getSettings() {
         if (settings == null) {
@@ -94,7 +134,13 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         this.settings = settings;
     }
 
+    /**
+     * The metadata applied to the cluster. Each tag consists of a key and an optional value.
+     * Up to 50 tags per resource are allowed. The maximum character length is 128 for keys and 256 for values.
+     * Tags may not be prefixed with ``aws:``, regardless of character case.
+     */
     @Updatable
+    @CollectionMax(50)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -107,6 +153,9 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
         this.tags = tags;
     }
 
+    /**
+     * The Amazon Resource Name (ARN) that identifies the cluster.
+     */
     @Output
     public String getArn() {
         return arn;
@@ -332,6 +381,20 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                     "default-capacity-provider-strategy",
                     "The default capacity provider strategy must contain at least one item with a weight greater than 0."
                 ));
+            }
+        }
+
+        if (configuredFields.contains("settings")) {
+            for (Map.Entry<String, String> setting : getSettings().entrySet()) {
+                if (!setting.getKey().equals("containerInsights") || !(setting.getValue().equals("enabled") || setting.getValue().equals("disabled"))) {
+                    errors.add(new ValidationError(
+                        this,
+                        "settings",
+                        "For cluster settings, the only valid key is 'containerInsights', and the only valid values are 'enabled' or 'disabled'."
+                    ));
+
+                    break;
+                }
             }
         }
 

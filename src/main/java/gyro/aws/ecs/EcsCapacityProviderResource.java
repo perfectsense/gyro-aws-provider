@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.ecs;
 
 import java.util.ArrayList;
@@ -21,6 +37,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
@@ -31,6 +48,29 @@ import software.amazon.awssdk.services.ecs.model.DescribeCapacityProvidersRespon
 import software.amazon.awssdk.services.ecs.model.EcsException;
 import software.amazon.awssdk.services.ecs.model.Tag;
 
+/**
+ * Create an ECS capacity provider.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::ecs-capacity-provider ecs-capacity-provider-example
+ *     name: "capacity-provider-example"
+ *     auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-capacity-provider-example)
+ *     managed-scaling: true
+ *     minimum-scaling-step-size: 1
+ *     maximum-scaling-step-size: 50
+ *     target-capacity: 75
+ *     managed-termination-protection: true
+ *
+ *     tags: {
+ *         'Name': 'capacity-provider-example'
+ *     }
+ *
+ * end
+ */
 @Type("ecs-capacity-provider")
 public class EcsCapacityProviderResource extends AwsResource implements Copyable<CapacityProvider> {
 
@@ -44,9 +84,13 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     private Map<String, String> tags;
     private String arn;
 
+    /**
+     * The name of the capacity provider. Up to 255 characters are allowed, including letters, numbers, underscores, and hyphens.
+     * The name cannot be prefixed with ``aws``, ``ecs``, or ``fargate``, regardless of character case.
+     */
     @Required
     @Id
-    @Regex(value = "^[a-zA-Z]([-a-zA-Z0-9]{0,254})?", message = "1 to 255 letters, numbers, and hyphens. Must begin with a letter.")
+    @Regex(value = "[-_a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
     public String getName() {
         return name;
     }
@@ -55,6 +99,9 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.name = name;
     }
 
+    /**
+     * The Auto Scaling group for the capacity provider. (Required)
+     */
     @Required
     public AutoScalingGroupResource getAutoScalingGroup() {
         return autoScalingGroup;
@@ -64,6 +111,9 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.autoScalingGroup = autoScalingGroup;
     }
 
+    /**
+     * Enables managed scaling for the capacity provider.
+     */
     public Boolean getManagedScaling() {
         return managedScaling;
     }
@@ -72,6 +122,9 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.managedScaling = managedScaling;
     }
 
+    /**
+     * The minimum number of container instances that Amazon ECS will scale in or scale out at one time.
+     */
     public Integer getMinimumScalingStepSize() {
         return minimumScalingStepSize;
     }
@@ -80,6 +133,9 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.minimumScalingStepSize = minimumScalingStepSize;
     }
 
+    /**
+     * The maximum number of container instances that Amazon ECS will scale in or scale out at one time.
+     */
     public Integer getMaximumScalingStepSize() {
         return maximumScalingStepSize;
     }
@@ -88,6 +144,11 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.maximumScalingStepSize = maximumScalingStepSize;
     }
 
+    /**
+     * The target capacity percentage value for the capacity provider.
+     * Valid values are greater than 0 and less than or equal to 100. A value of 100 will result in the EC2 instances in the Auto Scaling group being completely utilized.
+     */
+    @Range(min = 1, max = 100)
     public Integer getTargetCapacity() {
         return targetCapacity;
     }
@@ -96,6 +157,10 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.targetCapacity = targetCapacity;
     }
 
+    /**
+     * Enables managed termination protection for the Auto Scaling group capacity provider.
+     * Managed termination protection will not work unless managed scaling is also enabled. The Auto Scaling group and each instance in the Auto Scaling group must have instance protection from scale-in actions enabled as well.
+     */
     public Boolean getManagedTerminationProtection() {
         return managedTerminationProtection;
     }
@@ -104,6 +169,11 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.managedTerminationProtection = managedTerminationProtection;
     }
 
+    /**
+     * The metadata applied to the cluster. Each tag consists of a key and an optional value.
+     * Up to 50 tags per resource are allowed. The maximum character length is 128 for keys and 256 for values.
+     * Tags may not be prefixed with ``aws:``, regardless of character case.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -117,6 +187,9 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
         this.tags = tags;
     }
 
+    /**
+     * The Amazon Resource Name (ARN) that identifies the capacity provider.
+     */
     @Output
     public String getArn() {
         return arn;
@@ -274,7 +347,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
                     errors.add(new ValidationError(
                         this,
                         "managed-termination-protection",
-                        "To enable managed termination protection, managed scaling must also be enabled."
+                        "To enable managed termination protection, managed scaling must be enabled."
                     ));
                 }
             }
