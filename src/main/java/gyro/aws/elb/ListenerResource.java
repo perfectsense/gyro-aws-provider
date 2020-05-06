@@ -16,10 +16,12 @@
 
 package gyro.aws.elb;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -35,6 +37,7 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
 import software.amazon.awssdk.services.elasticloadbalancing.model.ListenerDescription;
 import software.amazon.awssdk.services.elasticloadbalancing.model.PolicyAttribute;
 import software.amazon.awssdk.services.elasticloadbalancing.model.PolicyDescription;
+import software.amazon.awssdk.services.elasticloadbalancing.model.PolicyNotFoundException;
 
 /**
  *
@@ -236,24 +239,73 @@ public class ListenerResource extends AwsResource implements Copyable<ListenerDe
     }
 
     void savePolicy(ElasticLoadBalancingClient client) {
-        String policyName = primaryKey() + UUID.randomUUID().toString();
-        client.createLoadBalancerPolicy(r -> r.loadBalancerName(getLoadBalancer())
-            .policyName(policyName)
-            .policyTypeName(getPolicy().getType())
-            .policyAttributes(getPolicy().getEnabledAttributes().stream()
+        List<PolicyAttribute> policyAttributes;
+        String policyType;
+        String policyName;
+
+        if (!ObjectUtils.isBlank(getPolicy().getPredefinedPolicy())) {
+            policyName = String.format(
+                "gyro-elb-%s-listener-%s-policy-%s",
+                getLoadBalancer(),
+                getLoadBalancerPort(),
+                getPolicy().getPredefinedPolicy());
+
+            DescribeLoadBalancerPoliciesResponse res = client.describeLoadBalancerPolicies(
+                r -> r.policyNames(getPolicy().getPredefinedPolicy()));
+
+            policyType = res.policyDescriptions().get(0).policyTypeName();
+            policyAttributes = res.policyDescriptions()
+                .get(0)
+                .policyAttributeDescriptions()
+                .stream()
+                .map(o -> PolicyAttribute.builder()
+                    .attributeName(o.attributeName())
+                    .attributeValue(o.attributeValue())
+                    .build())
+                .collect(
+                    Collectors.toList());
+        } else {
+            policyName = String.format(
+                "gyro-elb-%s-listener-%s-policy-%s",
+                getLoadBalancer(),
+                getLoadBalancerPort(),
+                UUID.randomUUID().toString());
+            policyType = getPolicy().getType();
+            policyAttributes = getPolicy().getEnabledAttributes().stream()
                 .map(o -> PolicyAttribute.builder()
                     .attributeName(o)
                     .attributeValue("true")
                     .build())
-                .collect(Collectors.toList())));
+                .collect(Collectors.toList());
+        }
+
+        if (!policyExists(client, policyName)) {
+            client.createLoadBalancerPolicy(r -> r.loadBalancerName(getLoadBalancer())
+                .policyName(policyName)
+                .policyTypeName(policyType)
+                .policyAttributes(policyAttributes));
+        }
 
         assignPolicy(client, policyName);
     }
 
-    void assignPolicy(ElasticLoadBalancingClient client, String policyName) {
+    private void assignPolicy(ElasticLoadBalancingClient client, String policyName) {
         client.setLoadBalancerPoliciesOfListener(r -> r.loadBalancerName(getLoadBalancer())
             .loadBalancerPort(getLoadBalancerPort())
             .policyNames(policyName));
-        //.policyNames(policyName != null ? policyName : "ELBSecurityPolicy-2016-08"));
+    }
+
+    private boolean policyExists(ElasticLoadBalancingClient client, String policyName) {
+        boolean policyExists = false;
+        try {
+            DescribeLoadBalancerPoliciesResponse response = client.describeLoadBalancerPolicies(
+                r -> r.loadBalancerName(getLoadBalancer()).policyNames(policyName));
+
+            policyExists = !response.policyDescriptions().isEmpty();
+        } catch (PolicyNotFoundException ignore) {
+
+        }
+
+        return policyExists;
     }
 }
