@@ -1,0 +1,8 @@
+aws::trail example-trail
+    name: "example-trail"
+    bucket: "example-bucket"
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
