@@ -377,7 +377,7 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
         }
 
         if (changedFieldNames.contains("bucket-key-prefix")) {
-            builder = builder.s3KeyPrefix(getBucketKeyPrefix());
+            builder = builder.s3KeyPrefix(getBucketKeyPrefix() != null ? getBucketKeyPrefix() : "");
         }
 
         if (changedFieldNames.contains("sns-topic-name")) {
@@ -405,11 +405,11 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
         }
 
         if (changedFieldNames.contains("logs-role")) {
-            builder = builder.cloudWatchLogsRoleArn(getLogsRole().getArn());
+            builder = builder.cloudWatchLogsRoleArn(getLogsRole() != null ? getLogsRole().getArn() : null);
         }
 
         if (changedFieldNames.contains("key")) {
-            builder = builder.kmsKeyId(getKey().getArn());
+            builder = builder.kmsKeyId(getKey() != null ? getKey().getArn() : null);
         }
 
         client.updateTrail(builder.build());

@@ -18,7 +18,6 @@ package gyro.aws.cloudtrail;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudtrail.model.InsightSelector;
 import software.amazon.awssdk.services.cloudtrail.model.InsightType;
@@ -30,7 +29,6 @@ public class CloudTrailInsightSelector extends Diffable implements Copyable<Insi
     /**
      * The type of insights to log on a trail. (Required)
      */
-    @Updatable
     @Required
     public InsightType getInsightType() {
         return insightType;
