@@ -351,13 +351,16 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
                 .isOrganizationTrail(getIsOrganizationTrail()));
 
         setArn(trail.trailARN());
+        state.save();
 
         if (!getEventSelector().isEmpty()) {
             manageEventSelectors(client);
+            state.save();
         }
 
         if (!getInsightSelector().isEmpty()) {
             manageInsightSelectors(client);
+            state.save();
         }
 
         if (!getTags().isEmpty()) {
