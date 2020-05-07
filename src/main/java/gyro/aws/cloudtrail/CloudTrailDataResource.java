@@ -20,7 +20,6 @@ import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudtrail.model.DataResource;
@@ -33,7 +32,6 @@ public class CloudTrailDataResource extends Diffable implements Copyable<DataRes
     /**
      * The resource type in which the data events should be logged. Valid values are ``AWS::S3::Object`` or ``AWS::Lambda::Function``. (Required)
      */
-    @Updatable
     @Required
     @ValidStrings({"AWS::S3::Object", "AWS::Lambda::Function"})
     public String getType() {
@@ -47,7 +45,6 @@ public class CloudTrailDataResource extends Diffable implements Copyable<DataRes
     /**
      * The list of Amazon Resource Names (ARNs) of the resources in which the data events should be logged. (Required)
      */
-    @Updatable
     @Required
     public List<String> getValues() {
         return values;

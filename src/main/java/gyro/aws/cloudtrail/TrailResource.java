@@ -39,6 +39,7 @@ import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudtrail.CloudTrailClient;
 import software.amazon.awssdk.services.cloudtrail.model.CreateTrailResponse;
+import software.amazon.awssdk.services.cloudtrail.model.EventSelector;
 import software.amazon.awssdk.services.cloudtrail.model.InsightNotEnabledException;
 import software.amazon.awssdk.services.cloudtrail.model.ResourceTag;
 import software.amazon.awssdk.services.cloudtrail.model.Tag;
@@ -76,7 +77,7 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
     private RoleResource logsRole;
     private KmsKeyResource key;
     private Boolean isOrganizationTrail;
-    private List<CloudTrailEventSelector> eventSelector;
+    private CloudTrailEventSelector eventSelector;
     private List<CloudTrailInsightSelector> insightSelector;
     private Map<String, String> tags;
 
@@ -237,15 +238,11 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
      * The list of management and data event settings for the trail.
      */
     @Updatable
-    public List<CloudTrailEventSelector> getEventSelector() {
-        if (eventSelector == null) {
-            eventSelector = new ArrayList<>();
-        }
-
+    public CloudTrailEventSelector getEventSelector() {
         return eventSelector;
     }
 
-    public void setEventSelector(List<CloudTrailEventSelector> eventSelector) {
+    public void setEventSelector(CloudTrailEventSelector eventSelector) {
         this.eventSelector = eventSelector;
     }
 
@@ -295,13 +292,13 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
         setIsOrganizationTrail(model.isOrganizationTrail());
         setArn(model.trailARN());
 
-        setEventSelector(client.getEventSelectors(r -> r.trailName(getName())).eventSelectors().stream()
-                .filter(r -> !r.dataResources().isEmpty())
-                .map(r -> {
-                    CloudTrailEventSelector cloudTrailEventSelector = newSubresource(CloudTrailEventSelector.class);
-                    cloudTrailEventSelector.copyFrom(r);
-                    return cloudTrailEventSelector;
-                }).collect(Collectors.toList()));
+        List<EventSelector> eventSelectors = client.getEventSelectors(r -> r.trailName(getName())).eventSelectors().stream()
+                .filter(r -> !r.dataResources().isEmpty()).collect(Collectors.toList());
+        if (!eventSelectors.isEmpty()) {
+            CloudTrailEventSelector cloudTrailEventSelector = newSubresource(CloudTrailEventSelector.class);
+            cloudTrailEventSelector.copyFrom(eventSelectors.get(0));
+            setEventSelector(cloudTrailEventSelector);
+        }
 
         try {
             setInsightSelector(client.getInsightSelectors(r -> r.trailName(getName())).insightSelectors().stream().map(r -> {
@@ -315,7 +312,7 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
 
         ResourceTag resourceTag = client.listTags(r -> r.resourceIdList(getArn())).resourceTagList().get(0);
         if (resourceTag.hasTagsList()) {
-            resourceTag.tagsList().stream().map(t -> getTags().put(t.key(), t.value()));
+            resourceTag.tagsList().forEach(t -> getTags().put(t.key(), t.value()));
         }
     }
 
@@ -353,7 +350,7 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
         setArn(trail.trailARN());
         state.save();
 
-        if (!getEventSelector().isEmpty()) {
+        if (getEventSelector() != null) {
             manageEventSelectors(client);
             state.save();
         }
@@ -459,10 +456,6 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
     }
 
     private void manageEventSelectors(CloudTrailClient client) {
-        client.putEventSelectors(r -> r.trailName(getName())
-                .eventSelectors(getEventSelector()
-                        .stream()
-                        .map(CloudTrailEventSelector::toEventSelector)
-                        .collect(Collectors.toList())));
+        client.putEventSelectors(r -> r.trailName(getName()).eventSelectors(getEventSelector().toEventSelector()));
     }
 }
