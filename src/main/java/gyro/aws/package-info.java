@@ -78,6 +78,54 @@
  *         {@literal @}uses-credentials: 'us-east-2'
  *     end
  *
+ * State Locking
+ * +++++++++++++
+ *
+ * This provider uses DynamoDb for state locking. In order to use DynamoDb for locking, you must create a table
+ * with a **primary key** titled ``LockKey``. Then define the lock backend in ``.gyro/init.gyro`` with its
+ * ``table-name`` in your Gyro project:
+ *
+ * .. code:: shell
+ *
+ *     {@literal @}lock-backend 'aws::dynamo-db'
+ *         table-name: 'gyro-lock-table'
+ *     {@literal @}end
+ *
+ * If you want to use this same DynamoDb table for multiple Gyro projects, specify the optional ``lock-key`` field.
+ * This field must have a unique value per project as it is the ID that is used to ensure only one lock per project
+ * exists at a time.
+ *
+ * .. code:: shell
+ *
+ *     {@literal @}lock-backend 'aws::dynamo-db'
+ *         table-name: 'gyro-lock-table'
+ *         lock-key: 'GyroProject1Key'
+ *     {@literal @}end
+ *
+ * You may also specify a ``credentials`` field if you would like to use named credentials other than the ``default``
+ * credentials:
+ *
+ * .. code:: shell
+ *
+ *     {@literal @}lock-backend 'aws::dynamo-db'
+ *         table-name: 'gyro-lock-table'
+ *         credentials: 'us-east-2'
+ *     {@literal @}end
+ *
+ * Remote State Storage
+ * ++++++++++++++++++++
+ *
+ * This provider uses S3 for remote state storage. In order to use S3 for remote state storage, either use an existing
+ * bucket or create a new one. Next, add the state backend to your ``.gyro/init.gyro`` with its ``table-name``, and
+ * optional prefix (we recommend using ``.gyro/state`` as your prefix):
+ *
+ * .. code:: shell
+ *
+ *     {@literal @}state-backend 'aws::s3'
+ *         bucket: 'gyro-state-bucket'
+ *         prefix: '.gyro/state'
+ *     {@literal @}end
+ *
  */
 @DocNamespace("aws")
 @Namespace("aws")
