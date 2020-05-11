@@ -36,6 +36,7 @@ import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketEncryptionResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
@@ -250,6 +251,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String domainName;
     private S3LoggingEnabled logging;
     private S3ReplicationConfiguration replicationConfiguration;
+    private S3ServerSideEncryptionConfiguration encryptionConfiguration;
 
     @Id
     public String getName() {
@@ -406,6 +408,20 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.replicationConfiguration = replicationConfiguration;
     }
 
+    /**
+     * Configure the server side encryption for the bucket.
+     *
+     * @subresource gyro.aws.s3.S3ServerSideEncryptionConfiguration
+     */
+    @Updatable
+    public S3ServerSideEncryptionConfiguration getEncryptionConfiguration() {
+        return encryptionConfiguration;
+    }
+
+    public void setEncryptionConfiguration(S3ServerSideEncryptionConfiguration encryptionConfiguration) {
+        this.encryptionConfiguration = encryptionConfiguration;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -418,6 +434,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadLifecycleRules(client);
         loadBucketLogging(client);
         loadReplicationConfiguration(client);
+        loadBucketEncryptionConfiguration(client);
     }
 
     @Override
@@ -476,6 +493,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (getLogging() != null) {
             saveBucketLogging(client);
         }
+
+        if (getEncryptionConfiguration() != null) {
+            saveBucketEncryptionConfiguration(client);
+        }
     }
 
     @Override
@@ -500,6 +521,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         if (changedFieldNames.contains("logging")) {
             saveBucketLogging(client);
+        }
+
+        if (changedFieldNames.contains("encryption-configuration")) {
+            saveBucketEncryptionConfiguration(client);
         }
 
         saveReplicationConfiguration(client);
@@ -770,6 +795,33 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                     r -> r.bucket(getName())
                             .replicationConfiguration(getReplicationConfiguration().toReplicationConfiguration())
             );
+        }
+    }
+
+    private void loadBucketEncryptionConfiguration(S3Client client) {
+        try {
+            GetBucketEncryptionResponse bucketEncryption = client.getBucketEncryption(r -> r.bucket(getName()));
+
+            S3ServerSideEncryptionConfiguration encryptionConfig = newSubresource(S3ServerSideEncryptionConfiguration.class);
+            encryptionConfig.copyFrom(bucketEncryption.serverSideEncryptionConfiguration());
+            setEncryptionConfiguration(encryptionConfig);
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("ServerSideEncryptionConfigurationNotFoundError")) {
+                throw ex;
+            } else {
+                setReplicationConfiguration(null);
+            }
+        }
+    }
+
+    private void saveBucketEncryptionConfiguration(S3Client client) {
+        if (getEncryptionConfiguration() == null) {
+            client.deleteBucketEncryption(r -> r.bucket(getName()));
+
+        } else {
+            client.putBucketEncryption(e -> e.bucket(getName()).serverSideEncryptionConfiguration(
+                    getEncryptionConfiguration().toServerSideEncryptionConfiguration()));
         }
     }
 
