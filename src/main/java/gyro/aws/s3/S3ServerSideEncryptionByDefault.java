@@ -50,6 +50,12 @@ public class S3ServerSideEncryptionByDefault extends Diffable implements Copyabl
     }
 
     ServerSideEncryptionByDefault toServerSideEncryptionByDefault() {
-        return ServerSideEncryptionByDefault.builder().sseAlgorithm(getEncryptionType()).kmsMasterKeyID(getKey().getArn()).build();
+        ServerSideEncryptionByDefault.Builder builder = ServerSideEncryptionByDefault.builder().sseAlgorithm(getEncryptionType());
+
+        if (getKey() != null) {
+            builder = builder.kmsMasterKeyID(getKey().getArn());
+        }
+
+        return builder.build();
     }
 }
