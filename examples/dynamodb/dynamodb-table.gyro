@@ -1,0 +1,54 @@
+aws::dynamodb-table dynamodb-table-example
+    name: "dynamodb-table-example"
+    hash-key: "HashKeyName"
+    range-key: "RangeKeyName"
+    billing-mode: "PROVISIONED"
+    read-capacity: 5
+    write-capacity: 5
+    stream-enabled: true
+    stream-view-type: "KEYS_ONLY"
+
+    attribute
+        name: "HashKeyName"
+        type: "S"
+    end
+
+    attribute
+        name: "RangeKeyName"
+        type: "S"
+    end
+
+    attribute
+        name: "GlobalRangeKeyName"
+        type: "S"
+    end
+
+    attribute
+        name: "LocalRangeKeyName"
+        type: "S"
+    end
+
+    global-secondary-index
+        name: "global-secondary-index"
+        hash-key: "RangeKeyName"
+        range-key: "GlobalRangeKeyName"
+        write-capacity: 20
+        read-capacity: 20
+        projection-type: "INCLUDE"
+        non-key-attributes: ["HashKeyName"]
+    end
+
+    local-secondary-index
+        name: "local-secondary-index"
+        range-key: "LocalRangeKeyName"
+        projection-type: "ALL"
+    end
+
+    server-side-encryption
+        enabled: true
+    end
+
+    tags: {
+        Name: "dynamodb-table-example"
+    }
+end
