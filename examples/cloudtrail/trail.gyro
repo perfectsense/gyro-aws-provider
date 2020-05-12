@@ -1,6 +1,24 @@
 aws::trail example-trail
     name: "example-trail"
-    bucket: "example-bucket"
+    bucket: $(external-query aws::s3-bucket { name: "example-gyro-trail-bucket" })
+
+    event-selector
+        read-write-type: "All"
+        include-management-events: true
+        data-resource
+            type: 'AWS::S3::Object'
+            values: ['arn:aws:s3:::example-gyro-trail-bucket/']
+        end
+        data-resource
+            type: 'AWS::Lambda::Function'
+            values: ['arn:aws:lambda']
+        end
+        management-event-sources-to-exclude: ["kms.amazonaws.com"]
+    end
+
+    insight-selector
+        insight-type: "ApiCallRateInsight"
+    end
 
     tags: {
         "example-key": "example-value"
