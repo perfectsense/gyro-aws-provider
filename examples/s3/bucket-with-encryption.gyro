@@ -1,0 +1,17 @@
+aws::s3-bucket bucket-example-with-encryption
+    name: "example-bucket-with-encryption-config"
+    enable-object-lock: true
+
+    tags: {
+        Name: "bucket-example"
+    }
+
+    encryption-configuration
+        encryption-rule
+            default-encryption
+                key: $(external-query aws::kms-key { key-id: 'fce44a2a-01cb-4f42-9f25-99e517a60d7a'})
+                encryption-type: "aws:kms"
+            end
+        end
+    end
+end
