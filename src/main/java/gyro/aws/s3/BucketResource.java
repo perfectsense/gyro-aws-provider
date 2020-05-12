@@ -236,6 +236,28 @@ import java.util.stream.Collectors;
  *         enable-accelerate-config: true
  *         enable-versioning: true
  *     end
+ *
+ * Example with encryption configuration
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example-with-encryption
+ *         name: "example-bucket-with-encryption-config"
+ *         enable-object-lock: true
+ *
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
+ *
+ *         encryption-configuration
+ *             encryption-rule
+ *                 default-encryption
+ *                     key: $(external-query aws::kms-key { key-id: 'fce44a2a-01cb-4f42-9f25-99e517a60d7a'})
+ *                     encryption-type: "aws:kms"
+ *                 end
+ *             end
+ *         end
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
