@@ -28,10 +28,6 @@ import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 @Type("dynamo-db")
 public class DynamoDbLockBackend extends LockBackend {
@@ -76,14 +72,10 @@ public class DynamoDbLockBackend extends LockBackend {
         item.put("LockKey", AttributeValue.builder().s(getLockKey()).build());
         item.put("GyroId", AttributeValue.builder().s(lockId).build());
 
-        PutItemRequest putItemRequest = PutItemRequest.builder()
-            .tableName(getTableName())
-            .item(item)
-            .conditionExpression("attribute_not_exists(LockKey)")
-            .build();
-
         try {
-            client.putItem(putItemRequest);
+            client.putItem(r -> r.tableName(getTableName())
+                .item(item)
+                .conditionExpression("attribute_not_exists(LockKey)"));
         } catch (ConditionalCheckFailedException ex) {
             throw new GyroException(String.format("State is currently locked!%s", getCurrentLockIdString()));
         }
@@ -99,15 +91,11 @@ public class DynamoDbLockBackend extends LockBackend {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":id", AttributeValue.builder().s(lockId).build());
 
-        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder()
-            .tableName(getTableName())
-            .key(item)
-            .conditionExpression("GyroId = :id")
-            .expressionAttributeValues(expressionAttributeValues)
-            .build();
-
         try {
-            client.deleteItem(deleteItemRequest);
+            client.deleteItem(r -> r.tableName(getTableName())
+                .key(item)
+                .conditionExpression("GyroId = :id")
+                .expressionAttributeValues(expressionAttributeValues));
 
         } catch (ConditionalCheckFailedException ex) {
             throw new GyroException(String.format(
@@ -126,16 +114,12 @@ public class DynamoDbLockBackend extends LockBackend {
         expressionAttributeValues.put(":id", AttributeValue.builder().s(lockId).build());
         expressionAttributeValues.put(":info", AttributeValue.builder().s(info).build());
 
-        UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
-            .tableName(getTableName())
-            .key(item)
-            .conditionExpression("GyroId = :id")
-            .updateExpression("SET GyroLockInfo = :info")
-            .expressionAttributeValues(expressionAttributeValues)
-            .build();
-
         try {
-            client.updateItem(updateItemRequest);
+            client.updateItem(r -> r.tableName(getTableName())
+                .key(item)
+                .conditionExpression("GyroId = :id")
+                .updateExpression("SET GyroLockInfo = :info")
+                .expressionAttributeValues(expressionAttributeValues));
 
         } catch (ConditionalCheckFailedException ex) {
             throw new GyroException(String.format(
@@ -167,12 +151,7 @@ public class DynamoDbLockBackend extends LockBackend {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("LockKey", AttributeValue.builder().s(getLockKey()).build());
 
-        GetItemRequest getItemRequest = GetItemRequest.builder()
-            .tableName(getTableName())
-            .key(item)
-            .build();
-
-        return Optional.ofNullable(client.getItem(getItemRequest).item());
+        return Optional.ofNullable(client.getItem(r -> r.tableName(getTableName()).key(item)).item());
     }
 
     private DynamoDbClient client() {
