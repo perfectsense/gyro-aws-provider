@@ -289,10 +289,14 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
     }
 
     /**
-     * Enable the recording of AWS API calls and log file delivery for a trail.
+     * Enable the recording of AWS API calls and log file delivery for a trail. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableLogging() {
+        if (enableLogging == null) {
+            enableLogging = Boolean.FALSE;
+        }
+
         return enableLogging;
     }
 
@@ -469,9 +473,7 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
             state.save();
         }
 
-        if (getEnableLogging() != null) {
-            manageLogging(client);
-        }
+        manageLogging(client);
 
         if (!getTags().isEmpty()) {
             client.addTags(r -> r.resourceId(getArn()).tagsList(getTags().entrySet().stream().map(e -> Tag.builder().key(e.getKey())
