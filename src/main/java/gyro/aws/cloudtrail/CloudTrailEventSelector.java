@@ -38,6 +38,7 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
      * The Amazon S3 buckets or AWS Lambda functions that you specify in your event selectors for your trail to log data events. (Required)
      */
     @Required
+    @Updatable
     public List<CloudTrailDataResource> getDataResource() {
         if (dataResource == null) {
             dataResource = new ArrayList<>();
@@ -53,6 +54,7 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
     /**
      * The list of service event sources from which management events should not be logged.
      */
+    @Updatable
     public List<String> getManagementEventSourcesToExclude() {
         if (managementEventSourcesToExclude == null) {
             managementEventSourcesToExclude = new ArrayList<>();
@@ -103,7 +105,7 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
 
     @Override
     public String primaryKey() {
-        return String.format("Data Resource: %s, Excluded Sources: %s", getDataResource().toString(), getManagementEventSourcesToExclude().toString());
+        return "";
     }
 
     EventSelector toEventSelector() {
