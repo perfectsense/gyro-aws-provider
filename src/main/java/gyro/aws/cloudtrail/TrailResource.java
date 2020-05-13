@@ -17,6 +17,7 @@
 package gyro.aws.cloudtrail;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudtrail.CloudTrailClient;
 import software.amazon.awssdk.services.cloudtrail.model.CreateTrailResponse;
 import software.amazon.awssdk.services.cloudtrail.model.EventSelector;
+import software.amazon.awssdk.services.cloudtrail.model.GetTrailStatusResponse;
 import software.amazon.awssdk.services.cloudtrail.model.InsightNotEnabledException;
 import software.amazon.awssdk.services.cloudtrail.model.ResourceTag;
 import software.amazon.awssdk.services.cloudtrail.model.Tag;
@@ -98,9 +100,15 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
     private CloudTrailEventSelector eventSelector;
     private List<CloudTrailInsightSelector> insightSelector;
     private Map<String, String> tags;
+    private Boolean enableLogging;
 
     // Read-only
     private String arn;
+    private Date latestCloudWatchLogsDeliveryTime;
+    private Date latestS3DeliveryTime;
+    private Date latestDigestDeliveryTime;
+    private Date startLoggingTime;
+    private Date stopLoggingTime;
 
     /**
      * The name of the trail. (Required)
@@ -281,6 +289,18 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
     }
 
     /**
+     * Enable the recording of AWS API calls and log file delivery for a trail.
+     */
+    @Updatable
+    public Boolean getEnableLogging() {
+        return enableLogging;
+    }
+
+    public void setEnableLogging(Boolean enableLogging) {
+        this.enableLogging = enableLogging;
+    }
+
+    /**
      * The Amazon Resource Number of the trail.
      */
     @Id
@@ -291,6 +311,66 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
 
     public void setArn(String arn) {
         this.arn = arn;
+    }
+
+    /**
+     * The most recent date and time when CloudTrail delivered logs to CloudWatch Logs.
+     */
+    @Output
+    public Date getLatestCloudWatchLogsDeliveryTime() {
+        return latestCloudWatchLogsDeliveryTime;
+    }
+
+    public void setLatestCloudWatchLogsDeliveryTime(Date latestCloudWatchLogsDeliveryTime) {
+        this.latestCloudWatchLogsDeliveryTime = latestCloudWatchLogsDeliveryTime;
+    }
+
+    /**
+     * The most recent date and time when CloudTrail delivered logs to the S3 bucket.
+     */
+    @Output
+    public Date getLatestS3DeliveryTime() {
+        return latestS3DeliveryTime;
+    }
+
+    public void setLatestS3DeliveryTime(Date latestS3DeliveryTime) {
+        this.latestS3DeliveryTime = latestS3DeliveryTime;
+    }
+
+    /**
+     * The most recent date and time when CloudTrail delivered a digest file to the S3 bucket.
+     */
+    @Output
+    public Date getLatestDigestDeliveryTime() {
+        return latestDigestDeliveryTime;
+    }
+
+    public void setLatestDigestDeliveryTime(Date latestDigestDeliveryTime) {
+        this.latestDigestDeliveryTime = latestDigestDeliveryTime;
+    }
+
+    /**
+     * The most recent date and time when CloudTrail started recording API calls for an AWS account.
+     */
+    @Output
+    public Date getStartLoggingTime() {
+        return startLoggingTime;
+    }
+
+    public void setStartLoggingTime(Date startLoggingTime) {
+        this.startLoggingTime = startLoggingTime;
+    }
+
+    /**
+     * The most recent date and time when CloudTrail stopped recording API calls for an AWS account.
+     */
+    @Output
+    public Date getStopLoggingTime() {
+        return stopLoggingTime;
+    }
+
+    public void setStopLoggingTime(Date stopLoggingTime) {
+        this.stopLoggingTime = stopLoggingTime;
     }
 
     @Override
@@ -309,6 +389,17 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
         setKey(findById(KmsKeyResource.class, model.kmsKeyId()));
         setIsOrganizationTrail(model.isOrganizationTrail());
         setArn(model.trailARN());
+
+        GetTrailStatusResponse trailStatus = client.getTrailStatus(r -> r.name(getName()));
+        setEnableLogging(trailStatus.isLogging());
+        setLatestCloudWatchLogsDeliveryTime(trailStatus.latestCloudWatchLogsDeliveryTime() != null ?
+                Date.from(trailStatus.latestCloudWatchLogsDeliveryTime()) : null);
+        setLatestS3DeliveryTime(trailStatus.latestDeliveryTime() != null ?
+                Date.from(trailStatus.latestDeliveryTime()) : null);
+        setLatestDigestDeliveryTime(trailStatus.latestDigestDeliveryTime() != null ?
+                Date.from(trailStatus.latestDigestDeliveryTime()) : null);
+        setStartLoggingTime(trailStatus.startLoggingTime() != null ? Date.from(trailStatus.startLoggingTime()) : null);
+        setStopLoggingTime(trailStatus.stopLoggingTime() != null ? Date.from(trailStatus.stopLoggingTime()) : null);
 
         List<EventSelector> eventSelectors = client.getEventSelectors(r -> r.trailName(getName())).eventSelectors().stream()
                 .filter(r -> !r.dataResources().isEmpty()).collect(Collectors.toList());
@@ -378,6 +469,10 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
             state.save();
         }
 
+        if (getEnableLogging().equals(Boolean.TRUE)) {
+            manageLogging(client);
+        }
+
         if (!getTags().isEmpty()) {
             client.addTags(r -> r.resourceId(getArn()).tagsList(getTags().entrySet().stream().map(e -> Tag.builder().key(e.getKey())
                     .value(e.getValue()).build()).collect(Collectors.toList())));
@@ -440,6 +535,10 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
             manageEventSelectors(client);
         }
 
+        if (changedFieldNames.contains("enable-logging")) {
+            manageLogging(client);
+        }
+
         if (changedFieldNames.contains("tags")) {
             TrailResource currentResource = (TrailResource) current;
 
@@ -475,5 +574,14 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
 
     private void manageEventSelectors(CloudTrailClient client) {
         client.putEventSelectors(r -> r.trailName(getName()).eventSelectors(getEventSelector().toEventSelector()));
+    }
+
+    private void manageLogging(CloudTrailClient client) {
+        if (getEnableLogging().equals(Boolean.TRUE)) {
+            client.startLogging(r -> r.name(getName()));
+
+        } else {
+            client.stopLogging(r -> r.name(getName()));
+        }
     }
 }
