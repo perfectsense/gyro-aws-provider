@@ -472,8 +472,9 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
             manageInsightSelectors(client);
             state.save();
         }
-
-        manageLogging(client);
+        if (getEnableLogging()) {
+            manageLogging(client);
+        }
 
         if (!getTags().isEmpty()) {
             client.addTags(r -> r.resourceId(getArn()).tagsList(getTags().entrySet().stream().map(e -> Tag.builder().key(e.getKey())
@@ -579,7 +580,7 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
     }
 
     private void manageLogging(CloudTrailClient client) {
-        if (getEnableLogging().equals(Boolean.TRUE)) {
+        if (getEnableLogging()) {
             client.startLogging(r -> r.name(getName()));
 
         } else {
