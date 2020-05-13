@@ -1,5 +1,5 @@
-aws::trail example-trail
-    name: "example-trail"
+aws::cloudtrail example-cloudtrail
+    name: "example-cloudtrail"
     bucket: $(external-query aws::s3-bucket { name: "example-gyro-trail-bucket" })
 
     event-selector

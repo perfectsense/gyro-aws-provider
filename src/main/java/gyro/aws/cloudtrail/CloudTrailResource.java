@@ -56,8 +56,8 @@ import software.amazon.awssdk.services.cloudtrail.model.UpdateTrailRequest;
  *
  * .. code-block:: gyro
  *
- *     aws::trail example-trail
- *         name: "example-trail"
+ *     aws::cloudtrail example-cloudtrail
+ *         name: "example-cloudtrail"
  *         bucket: $(external-query aws::s3-bucket { name: "example-gyro-trail-bucket" })
  *
  *         event-selector
@@ -83,8 +83,8 @@ import software.amazon.awssdk.services.cloudtrail.model.UpdateTrailRequest;
  *         }
  *     end
  */
-@Type("trail")
-public class TrailResource extends AwsResource implements Copyable<Trail> {
+@Type("cloudtrail")
+public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
 
     private String name;
     private BucketResource bucket;
@@ -469,7 +469,7 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
             state.save();
         }
 
-        if (getEnableLogging().equals(Boolean.TRUE)) {
+        if (getEnableLogging() != null) {
             manageLogging(client);
         }
 
@@ -540,7 +540,7 @@ public class TrailResource extends AwsResource implements Copyable<Trail> {
         }
 
         if (changedFieldNames.contains("tags")) {
-            TrailResource currentResource = (TrailResource) current;
+            CloudTrailResource currentResource = (CloudTrailResource) current;
 
             if (!currentResource.getTags().isEmpty()) {
                 client.removeTags(r -> r.resourceId(getArn())

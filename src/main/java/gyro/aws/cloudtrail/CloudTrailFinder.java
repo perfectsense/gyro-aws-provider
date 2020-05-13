@@ -36,10 +36,10 @@ import software.amazon.awssdk.services.cloudtrail.model.TrailInfo;
  *
  * .. code-block:: gyro
  *
- *    trail: $(external-query aws::trail { name: "example-trail" })
+ *    cloudtrail: $(external-query aws::cloudtrail { name: "example-cloudtrail" })
  */
-@Type("trail")
-public class TrailFinder extends AwsFinder<CloudTrailClient, Trail, TrailResource> {
+@Type("cloudtrail")
+public class CloudTrailFinder extends AwsFinder<CloudTrailClient, Trail, CloudTrailResource> {
 
     /**
      * The name of the trail.
