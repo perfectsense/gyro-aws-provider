@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.aws.autoscaling.AutoScalingGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -37,12 +36,10 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.Range;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.EcsClient;
-import software.amazon.awssdk.services.ecs.model.AutoScalingGroupProvider;
 import software.amazon.awssdk.services.ecs.model.CapacityProvider;
 import software.amazon.awssdk.services.ecs.model.DescribeCapacityProvidersResponse;
 import software.amazon.awssdk.services.ecs.model.EcsException;
@@ -56,17 +53,24 @@ import software.amazon.awssdk.services.ecs.model.Tag;
  *
  * .. code-block:: gyro
  *
- * aws::ecs-capacity-provider ecs-capacity-provider-example
- *     name: "capacity-provider-example"
- *     auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-capacity-provider-example)
- *     managed-scaling: true
- *     minimum-scaling-step-size: 1
- *     maximum-scaling-step-size: 50
- *     target-capacity: 75
- *     managed-termination-protection: true
+ * aws::ecs-capacity-provider capacity-provider-ecs-example
+ *     name: "capacity-provider-ecs-example"
+ *
+ *     auto-scaling-group-provider
+ *         auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-ecs-capacity-provider-example)
+ *
+ *         managed-scaling
+ *             status: enabled
+ *             minimum-scaling-step-size: 1
+ *             maximum-scaling-step-size: 50
+ *             target-capacity: 75
+ *         end
+ *
+ *         managed-termination-protection: "ENABLED"
+ *     end
  *
  *     tags: {
- *         'Name': 'capacity-provider-example'
+ *         'Name': 'capacity-provider-ecs-example'
  *     }
  *
  * end
@@ -75,12 +79,7 @@ import software.amazon.awssdk.services.ecs.model.Tag;
 public class EcsCapacityProviderResource extends AwsResource implements Copyable<CapacityProvider> {
 
     private String name;
-    private AutoScalingGroupResource autoScalingGroup;
-    private Boolean managedScaling;
-    private Integer minimumScalingStepSize;
-    private Integer maximumScalingStepSize;
-    private Integer targetCapacity;
-    private Boolean managedTerminationProtection;
+    private EcsAutoScalingGroupProvider autoScalingGroupProvider;
     private Map<String, String> tags;
     private String arn;
 
@@ -100,77 +99,21 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Auto Scaling group for the capacity provider. (Required)
+     * The details of the Auto Scaling group for the capacity provider. (Required)
+     *
+     * @subresource gyro.aws.ecs.EcsAutoScalingGroupProvider
      */
     @Required
-    public AutoScalingGroupResource getAutoScalingGroup() {
-        return autoScalingGroup;
+    public EcsAutoScalingGroupProvider getAutoScalingGroupProvider() {
+        return autoScalingGroupProvider;
     }
 
-    public void setAutoScalingGroup(AutoScalingGroupResource autoScalingGroup) {
-        this.autoScalingGroup = autoScalingGroup;
-    }
-
-    /**
-     * Enables managed scaling for the capacity provider.
-     */
-    public Boolean getManagedScaling() {
-        return managedScaling;
-    }
-
-    public void setManagedScaling(Boolean managedScaling) {
-        this.managedScaling = managedScaling;
+    public void setAutoScalingGroupProvider(EcsAutoScalingGroupProvider autoScalingGroupProvider) {
+        this.autoScalingGroupProvider = autoScalingGroupProvider;
     }
 
     /**
-     * The minimum number of container instances that Amazon ECS will scale in or scale out at one time.
-     */
-    public Integer getMinimumScalingStepSize() {
-        return minimumScalingStepSize;
-    }
-
-    public void setMinimumScalingStepSize(Integer minimumScalingStepSize) {
-        this.minimumScalingStepSize = minimumScalingStepSize;
-    }
-
-    /**
-     * The maximum number of container instances that Amazon ECS will scale in or scale out at one time.
-     */
-    public Integer getMaximumScalingStepSize() {
-        return maximumScalingStepSize;
-    }
-
-    public void setMaximumScalingStepSize(Integer maximumScalingStepSize) {
-        this.maximumScalingStepSize = maximumScalingStepSize;
-    }
-
-    /**
-     * The target capacity percentage value for the capacity provider.
-     * Valid values are greater than 0 and less than or equal to 100. A value of 100 will result in the EC2 instances in the Auto Scaling group being completely utilized.
-     */
-    @Range(min = 1, max = 100)
-    public Integer getTargetCapacity() {
-        return targetCapacity;
-    }
-
-    public void setTargetCapacity(Integer targetCapacity) {
-        this.targetCapacity = targetCapacity;
-    }
-
-    /**
-     * Enables managed termination protection for the Auto Scaling group capacity provider.
-     * Managed termination protection will not work unless managed scaling is also enabled. The Auto Scaling group and each instance in the Auto Scaling group must have instance protection from scale-in actions enabled as well.
-     */
-    public Boolean getManagedTerminationProtection() {
-        return managedTerminationProtection;
-    }
-
-    public void setManagedTerminationProtection(Boolean managedTerminationProtection) {
-        this.managedTerminationProtection = managedTerminationProtection;
-    }
-
-    /**
-     * The metadata applied to the cluster. Each tag consists of a key and an optional value.
+     * The metadata applied to the capacity provider. Each tag consists of a key and an optional value.
      * Up to 50 tags per resource are allowed. The maximum character length is 128 for keys and 256 for values.
      * Tags may not be prefixed with ``aws:``, regardless of character case.
      */
@@ -201,20 +144,12 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
 
     @Override
     public void copyFrom(CapacityProvider model) {
-        AutoScalingGroupProvider asgProvider = model.autoScalingGroupProvider();
-
-        // extract the AutoScalingGroup's name from its ARN
-        String asgArnNamePrefix = "autoScalingGroupName/";
-        int asgNameIndex = asgProvider.autoScalingGroupArn().indexOf(asgArnNamePrefix) + asgArnNamePrefix.length();
-        String asgName = asgProvider.autoScalingGroupArn().substring(asgNameIndex);
-
         setName(model.name());
-        setAutoScalingGroup(findById(AutoScalingGroupResource.class, asgName));
-        setManagedScaling(asgProvider.managedScaling().statusAsString().equals("ENABLED"));
-        setMinimumScalingStepSize(asgProvider.managedScaling().minimumScalingStepSize());
-        setMaximumScalingStepSize(asgProvider.managedScaling().maximumScalingStepSize());
-        setTargetCapacity(asgProvider.managedScaling().targetCapacity());
-        setManagedTerminationProtection(asgProvider.managedTerminationProtectionAsString().equals("ENABLED"));
+
+        EcsAutoScalingGroupProvider asgProvider = newSubresource(EcsAutoScalingGroupProvider.class);
+        asgProvider.copyFrom(model.autoScalingGroupProvider());
+        setAutoScalingGroupProvider(asgProvider);
+
         setTags(
             model.tags().stream()
                 .collect(Collectors.toMap(Tag::key, Tag::value))
@@ -242,16 +177,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
 
         client.createCapacityProvider(
             r -> r.name(getName())
-                .autoScalingGroupProvider(
-                o -> o.autoScalingGroupArn(getAutoScalingGroup().getArn())
-                    .managedScaling(
-                        m -> m.status(getManagedScaling() ? "ENABLED" : "DISABLED")
-                            .minimumScalingStepSize(getMinimumScalingStepSize())
-                            .maximumScalingStepSize(getMaximumScalingStepSize())
-                            .targetCapacity(getTargetCapacity())
-                    )
-                    .managedTerminationProtection(getManagedTerminationProtection() ? "ENABLED" : "DISABLED")
-            )
+                .autoScalingGroupProvider(getAutoScalingGroupProvider().copyTo())
         );
 
         Wait.atMost(10, TimeUnit.MINUTES)
@@ -330,26 +256,6 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
                     "name",
                     "The capacity provider name cannot be prefixed with 'aws', 'ecs', or 'fargate'."
                 ));
-            }
-        }
-
-        if (configuredFields.contains("managed-termination-protection")) {
-            if (getManagedTerminationProtection()) {
-                if (!getAutoScalingGroup().getNewInstancesProtectedFromScaleIn()) {
-                    errors.add(new ValidationError(
-                        this,
-                        "managed-termination-protection",
-                        "To enable managed termination protection, the auto scaling group must have instance protection from scale-in actions enabled."
-                    ));
-                }
-
-                if (!getManagedScaling()) {
-                    errors.add(new ValidationError(
-                        this,
-                        "managed-termination-protection",
-                        "To enable managed termination protection, managed scaling must be enabled."
-                    ));
-                }
             }
         }
 
