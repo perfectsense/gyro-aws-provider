@@ -37,7 +37,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
@@ -69,7 +68,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The name identifying the cluster. (Required)
-     * Must consist of 1 to 255 letters, numbers, and hyphens, and begin with a letter.
+     * Valid values consist of 1 to 255 letters, numbers, and hyphens, and begin with a letter.
      */
     @Required
     @Id
@@ -140,7 +139,6 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
      * Tags may not be prefixed with ``aws:``, regardless of character case.
      */
     @Updatable
-    @CollectionMax(50)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
