@@ -23,7 +23,6 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -258,6 +257,26 @@ import java.util.stream.Collectors;
  *             end
  *         end
  *     end
+ *
+ * Example with control access policy
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket example-bucket-with-full-control-log-delivery-group
+ *         name: "example-bucket-with-full-control-log-delivery-group"
+ *         enable-object-lock: true
+ *
+ *         access-control-policy
+ *             grant
+ *                 permission: "FULL_CONTROL"
+ *
+ *                 grantee
+ *                     uri: "http://acs.amazonaws.com/groups/s3/LogDelivery"
+ *                     type: "Group"
+ *                 end
+ *             end
+ *         end
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
@@ -274,6 +293,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private S3LoggingEnabled logging;
     private S3ReplicationConfiguration replicationConfiguration;
     private S3ServerSideEncryptionConfiguration encryptionConfiguration;
+    private S3AccessControlPolicy accessControlPolicy;
 
     @Id
     public String getName() {
@@ -444,6 +464,20 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.encryptionConfiguration = encryptionConfiguration;
     }
 
+    /**
+     * Configure the access control policy of the bucket.
+     *
+     * @subresource gyro.aws.s3.S3AccessControlPolicy
+     */
+    @Updatable
+    public S3AccessControlPolicy getAccessControlPolicy() {
+        return accessControlPolicy;
+    }
+
+    public void setAccessControlPolicy(S3AccessControlPolicy accessControlPolicy) {
+        this.accessControlPolicy = accessControlPolicy;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -457,6 +491,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadBucketLogging(client);
         loadReplicationConfiguration(client);
         loadBucketEncryptionConfiguration(client);
+        loadAccessControlPolicy(client);
     }
 
     @Override
@@ -519,6 +554,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (getEncryptionConfiguration() != null) {
             saveBucketEncryptionConfiguration(client);
         }
+
+        if (getAccessControlPolicy() != null) {
+            saveAccessControlPolicy(client);
+        }
     }
 
     @Override
@@ -547,6 +586,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         if (changedFieldNames.contains("encryption-configuration")) {
             saveBucketEncryptionConfiguration(client);
+        }
+
+        if (changedFieldNames.contains("access-control-policy")) {
+            saveAccessControlPolicy(client);
         }
 
         saveReplicationConfiguration(client);
@@ -844,6 +887,23 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         } else {
             client.putBucketEncryption(e -> e.bucket(getName()).serverSideEncryptionConfiguration(
                     getEncryptionConfiguration().toServerSideEncryptionConfiguration()));
+        }
+    }
+
+    private void loadAccessControlPolicy(S3Client client) {
+        S3AccessControlPolicy policy = newSubresource(S3AccessControlPolicy.class);
+        policy.copyFrom(client.getBucketAcl(a -> a.bucket(getName())));
+        setAccessControlPolicy(policy);
+    }
+
+    private void saveAccessControlPolicy(S3Client client) {
+        if (getAccessControlPolicy() == null) {
+            client.putBucketAcl(p -> p.bucket(getName())
+                    .accessControlPolicy(newSubresource(S3AccessControlPolicy.class).toAccessControlPolicy(client)));
+
+        } else {
+            client.putBucketAcl(p -> p.bucket(getName())
+                    .accessControlPolicy(getAccessControlPolicy().toAccessControlPolicy(client)));
         }
     }
 

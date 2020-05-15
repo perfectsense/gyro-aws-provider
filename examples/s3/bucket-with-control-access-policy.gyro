@@ -1,0 +1,25 @@
+aws::s3-bucket example-bucket-with-full-control-log-delivery-group
+    name: "example-bucket-with-full-control-log-delivery-group"
+    enable-object-lock: true
+
+    access-control-policy
+        grant
+            permission: "FULL_CONTROL"
+
+            grantee
+                uri: "http://acs.amazonaws.com/groups/s3/LogDelivery"
+                type: "Group"
+            end
+        end
+    end
+end
+
+aws::s3-bucket example-bucket-logging
+    name: "example-bucket-logging"
+    enable-versioning: true
+
+    logging
+        bucket: $(aws::s3-bucket example-bucket-with-full-control-log-delivery-group)
+        prefix: "s3/example-prefix"
+    end
+end
