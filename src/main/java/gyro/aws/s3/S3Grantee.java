@@ -107,27 +107,7 @@ public class S3Grantee extends Diffable implements Copyable<Grantee> {
 
     @Override
     public String primaryKey() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(getType());
-
-        if (getDisplayName() != null) {
-            sb.append(" ").append(getDisplayName());
-        }
-
-        if (getEmail() != null) {
-            sb.append(" ").append(getEmail());
-        }
-
-        if (getId() != null) {
-            sb.append(" ").append(getId());
-        }
-
-        if (getUri() != null) {
-            sb.append(" ").append(getUri());
-        }
-
-        return sb.toString();
+        return "";
     }
 
     Grantee toGrantee() {
@@ -150,5 +130,29 @@ public class S3Grantee extends Diffable implements Copyable<Grantee> {
         }
 
         return errors;
+    }
+
+    public String uniqueKey() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getType());
+
+        if (getDisplayName() != null) {
+            sb.append(" ").append(getDisplayName());
+        }
+
+        if (getEmail() != null) {
+            sb.append(" ").append(getEmail());
+        }
+
+        if (getId() != null) {
+            sb.append(" ").append(getId());
+        }
+
+        if (getUri() != null) {
+            sb.append(" ").append(getUri());
+        }
+
+        return sb.toString();
     }
 }

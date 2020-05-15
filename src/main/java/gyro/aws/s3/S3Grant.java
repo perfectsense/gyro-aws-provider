@@ -63,7 +63,7 @@ public class S3Grant extends Diffable implements Copyable<Grant> {
 
     @Override
     public String primaryKey() {
-        return String.format("Grantee: %s Permission: %s", getGrantee().toString(), getPermission().toString());
+        return String.format("Grantee: %s Permission: %s", getGrantee().uniqueKey(), getPermission().toString());
     }
 
     Grant toGrant() {
