@@ -126,7 +126,7 @@ public class S3Grantee extends Diffable implements Copyable<Grantee> {
 
         if (!configuredFields.contains("id") && !configuredFields.contains("display-name")
                 && !configuredFields.contains("uri") && !configuredFields.contains("email")) {
-            errors.add(new ValidationError(this, null, "At least one of 'display-name', 'id', 'email' or 'uri' is required"));
+            errors.add(new ValidationError(this, null, "One of 'display-name', 'id', 'email' or 'uri' is required"));
         }
 
         return errors;
