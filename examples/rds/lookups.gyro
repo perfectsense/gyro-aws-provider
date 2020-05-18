@@ -4,7 +4,7 @@ clusters: $(external-query aws::db-cluster { db-cluster-id: 'aurora-mysql-cluste
 
 cluster-parameter-groups: $(external-query aws::db-cluster-parameter-group { name: 'cluster-parameter-group-example' })
 
-cluster-snapshots: $(external-query aws::db-cluster-snapshot { name: 'db-cluster-snapshot-example' })
+cluster-snapshots: $(external-query aws::db-cluster-snapshot { identifier: 'db-cluster-snapshot-example' })
 
 subscriptions: $(external-query aws::db-event-subscription { name: 'db-event-subscription-example' })
 
@@ -16,6 +16,6 @@ option-groups: $(external-query aws::db-option-group { name: 'option-group-examp
 
 db-parameter-groups: $(external-query aws::db-parameter-group { name: 'db-parameter-group-example' })
 
-db-snapshots: $(external-query aws::db-snapshot { name: 'db-snapshot-example' })
+db-snapshots: $(external-query aws::db-snapshot { identifier: 'db-snapshot-example' })
 
-db-subnet-group: $(external-query aws::db-subnet-group { name: 'db-subnet-group-db-cluster-example' })
+db-subnet-group: $(external-query aws::db-subnet-group { group-name: 'db-subnet-group-db-cluster-example' })

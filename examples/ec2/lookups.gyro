@@ -1,7 +1,7 @@
 # External query
 subnet-ids: $(external-query aws::subnet { vpc-id: 'vpc-09b9493a3d5db31b6'})
 vpc-ids: $(external-query aws::vpc { vpc-id: 'vpc-09b9493a3d5db31b6'})
-capacity-reservations: $(external-query aws::ec2-capacity-reservation { capacity-reservation-id: 'cr-071f2771deb1ea5d4' })
+capacity-reservations: $(external-query aws::ec2-capacity-reservation { })
 connection-notification: $(external-query aws::vpc-connection-notification { connection-notification-arn: '' })
 customer-gateway: $(external-query aws::customer-gateway { state: 'available' })
 dhcp-options: $(external-query aws::dhcp-options { dhcp-options-id: '' })
@@ -20,7 +20,7 @@ network-acl: $(external-query aws::network-acl { network-acl-id: '' })
 network-interface: $(external-query aws::network-interface { description: '' })
 peering-connection: $(external-query aws::vpc-peering-connection { vpc-peering-connection-id: '' })
 route-table: $(external-query aws::route-table { route-table-id: '' })
-security-group: $(external-query aws::security-group { name: '' })
+security-group: $(external-query aws::security-group { group-name: '' })
 vpn-gateway: $(external-query aws::vpn-gateway { vpn-gateway-id: '' })
 
 aws::vpc foobar-dev
