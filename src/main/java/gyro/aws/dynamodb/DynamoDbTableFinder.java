@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.docdb.DocDbFinder;
+import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.dynamodb.model.TableDescription;
  *    dynamodb-table: $(external-query aws::dynamodb-table { name: "dynamo-db-example"})
  */
 @Type("dynamodb-table")
-public class DynamoDbTableFinder extends DocDbFinder<DynamoDbClient, TableDescription, DynamoDbTableResource> {
+public class DynamoDbTableFinder extends AwsFinder<DynamoDbClient, TableDescription, DynamoDbTableResource> {
 
     private String name;
 
