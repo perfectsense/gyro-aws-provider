@@ -1,5 +1,0 @@
-health-check: $(external-query aws::route53-health-check { })
-hosted-zone: $(external-query aws::route53-hosted-zone { })
-traffic-policy: $(external-query aws::route53-traffic-policy { })
-traffic-policy-instance: $(external-query aws::route53-traffic-policy-instance { })
-record-set: $(external-query aws::route53-record-set { hosted-zone-id: 'Z02039552QJUEATW9W5AS' })
