@@ -199,7 +199,13 @@ public class ListenerResource extends AwsResource implements Copyable<ListenerDe
             }
 
             if (changedFieldNames.contains("policy")) {
-                savePolicy(client);
+                if (getPolicy() != null) {
+                    savePolicy(client);
+                } else {
+                    // Set the default policy
+
+                    assignPolicy(client, "ELBSecurityPolicy-2016-08");
+                }
             }
         }
     }
