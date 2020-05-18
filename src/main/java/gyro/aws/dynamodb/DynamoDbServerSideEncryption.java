@@ -16,15 +16,11 @@
 
 package gyro.aws.dynamodb;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.dynamodb.model.SSEDescription;
 import software.amazon.awssdk.services.dynamodb.model.SSESpecification;
 import software.amazon.awssdk.services.dynamodb.model.SSEStatus;
@@ -39,6 +35,7 @@ public class DynamoDbServerSideEncryption extends Diffable implements Copyable<S
      * Whether or not to enable server-side encryption using an AWS managed KMS customer master key. (Required)
      */
     @Required
+    @Updatable
     public Boolean getEnabled() {
         if (enabled == null) {
             enabled = false;
@@ -54,6 +51,7 @@ public class DynamoDbServerSideEncryption extends Diffable implements Copyable<S
     /**
      * The AWS managed KMS customer master key to encrypt the DynamoDb table. Only provide this if the key is different from the default DynamoDB customer master key ``alias/aws/dynamodb``.
      */
+    @Updatable
     public KmsKeyResource getKmsKey() {
         return kmsKey;
     }
@@ -64,6 +62,12 @@ public class DynamoDbServerSideEncryption extends Diffable implements Copyable<S
 
     @Override
     public void copyFrom(SSEDescription model) {
+        if (model == null) {
+            setEnabled(false);
+            setKmsKey(null);
+            return;
+        }
+
         setEnabled(SSEStatus.ENABLED.equals(model.status()));
         setKmsKey(findById(KmsKeyResource.class, model.kmsMasterKeyArn()));
     }
@@ -73,25 +77,15 @@ public class DynamoDbServerSideEncryption extends Diffable implements Copyable<S
         return "";
     }
 
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
+    SSESpecification toSSESpecification() {
+        SSESpecification.Builder builder = SSESpecification.builder()
+            .enabled(getEnabled());
 
-        if (!getEnabled()) {
-            errors.add(new ValidationError(
-                this,
-                "enabled",
-                "Do not set 'enabled' to 'false' as this is the default value!"));
+        if (getKmsKey() != null && getEnabled()) {
+            builder.kmsMasterKeyId(getKmsKey().getArn());
+            builder.sseType(getKmsKey() != null ? SSEType.KMS : null);
         }
 
-        return errors;
-    }
-
-    SSESpecification toSSESpecification() {
-        return SSESpecification.builder()
-            .enabled(getEnabled())
-            .kmsMasterKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
-            .sseType(getKmsKey() != null ? SSEType.KMS : null)
-            .build();
+        return builder.build();
     }
 }

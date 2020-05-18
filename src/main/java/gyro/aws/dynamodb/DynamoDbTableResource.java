@@ -421,12 +421,9 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
             }).collect(Collectors.toSet()));
         }
 
-        setServerSideEncryption(null);
-        if (model.sseDescription() != null) {
-            DynamoDbServerSideEncryption serverSideEncryption = newSubresource(DynamoDbServerSideEncryption.class);
-            serverSideEncryption.copyFrom(model.sseDescription());
-            setServerSideEncryption(serverSideEncryption);
-        }
+        DynamoDbServerSideEncryption serverSideEncryption = newSubresource(DynamoDbServerSideEncryption.class);
+        serverSideEncryption.copyFrom(model.sseDescription());
+        setServerSideEncryption(serverSideEncryption);
 
         setStreamEnabled(null);
         setStreamViewType(null);
