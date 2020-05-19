@@ -35,7 +35,7 @@ ISSUES FIXED:
 * [232](https://github.com/perfectsense/gyro-aws-provider/issues/232): Implement state file locking using Dynamodb.
 * [245](https://github.com/perfectsense/gyro-aws-provider/issues/245): Add documentation for state locking and remote storage.
 
-## 0.99.1 (October 7th, 2019)
+## 0.99.0 (October 7th, 2019)
 
 ISSUES FIXED:
 
