@@ -485,10 +485,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.policy = policy;
     }
 
-    * Configure the access control policy of the bucket.
-    *
-    * @subresource gyro.aws.s3.S3AccessControlPolicy
-    */
+    /**
+     * Configure the access control policy of the bucket.
+     *
+     * @subresource gyro.aws.s3.S3AccessControlPolicy
+     */
     @Updatable
     public S3AccessControlPolicy getAccessControlPolicy() {
         return accessControlPolicy;
