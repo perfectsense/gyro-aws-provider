@@ -167,13 +167,13 @@ import java.util.stream.Collectors;
  *         enable-versioning: true
  *
  *         replication-configuration
- *             role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+ *             role: $(external-query aws::iam-role { name: 's3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br'})
  *             rule
  *                 id: "example_with_encryption"
  *                 destination
  *                     bucket: "beam-sandbox-ops-us-east-1a"
  *                     encryption-configuration
- *                         kms-key: "arn:aws:kms:us-east-1:242040583208:key/c5245825-8526-4032-a67c-21656f220312"
+ *                         kms-key: $(external-query aws::kms-key { key-id: '<key-id>'})
  *                     end
  *                 end
  *
@@ -261,7 +261,7 @@ import java.util.stream.Collectors;
  *         encryption-configuration
  *             encryption-rule
  *                 default-encryption
- *                     key: $(external-query aws::kms-key { key-id: 'fce44a2a-01cb-4f42-9f25-99e517a60d7a'})
+ *                     key: $(external-query aws::kms-key { key-id: '<key-id>'})
  *                     encryption-type: "aws:kms"
  *                 end
  *             end
