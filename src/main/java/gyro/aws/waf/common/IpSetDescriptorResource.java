@@ -127,9 +127,15 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
             isValid = false;
             String ip = cidr.split("/")[0];
             String range = cidr.split("/")[1];
+            int rangeInt = 0;
+            try {
+                rangeInt = Integer.parseInt(range);
+            } catch (NumberFormatException e) {
+                // fails anyway
+            }
 
             if (getType().equals("IPV4")) {
-                isValid = (range.equals("8") || range.equals("16") || range.equals("24") || range.equals("32"));
+                isValid = (range.equals("8") || (16 <= rangeInt && rangeInt <= 32));
             } else if (getType().equals("IPV6")) {
                 isValid = (range.equals("24") || range.equals("32")
                     || range.equals("48") || range.equals("56") || range.equals("64") || range.equals("128"));
