@@ -83,7 +83,7 @@ public class EcsResourceRequirement extends Diffable {
             errors.add(new ValidationError(
                 this,
                 "value",
-                "The value for the GPU resource type must be a positive integer"
+                "The 'value' for the 'gpu' 'resource-type' must be a positive integer"
             ));
         }
 

@@ -24,12 +24,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Max;
 import gyro.core.validation.Min;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
+import software.amazon.awssdk.services.ecs.model.Compatibility;
 import software.amazon.awssdk.services.ecs.model.ContainerDefinition;
 import software.amazon.awssdk.services.ecs.model.KeyValuePair;
+import software.amazon.awssdk.services.ecs.model.NetworkMode;
 import software.amazon.awssdk.services.ecs.model.ResourceType;
 import software.amazon.awssdk.services.ecs.model.TransportProtocol;
 
@@ -459,52 +462,107 @@ public class EcsContainerDefinition extends Diffable {
             .build();
     }
 
+    EcsTaskDefinitionResource getParentTaskDefinition() {
+        return (EcsTaskDefinitionResource) parent();
+    }
+
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
+        EcsTaskDefinitionResource taskDefinition = getParentTaskDefinition();
 
-        if (configuredFields.contains("resource-requirements")) {
-            int gpuCount = 0;
-            int iaCount = 0;
+        if (taskDefinition.getMemory() == null && !configuredFields.contains("memory") && !configuredFields.contains("memory-reservation")) {
+            errors.add(new ValidationError(
+                this,
+                "memory",
+                "A task-level 'memory' value or a container-level 'memory' or 'memory-reservation' value must be specified."
+            ));
 
-            for (EcsResourceRequirement resourceRequirement : getResourceRequirements()) {
-                if (resourceRequirement.getType() == ResourceType.INFERENCE_ACCELERATOR) {
-                    iaCount++;
-                }
-                if (resourceRequirement.getType() == ResourceType.GPU) {
-                    gpuCount++;
-                }
-                if (gpuCount > 1 || iaCount > 1) {
-                    errors.add(new ValidationError(
-                        this,
-                        "resource-requirements",
-                        "A container definition may not contain multiple resource requirements of the same type."
-                    ));
-                    break;
-                }
+        } else {
+            if (taskDefinition.getMemory() != null && configuredFields.contains("memory") && getMemory() > taskDefinition.getMemory()) {
+                errors.add(new ValidationError(
+                    this,
+                    "memory",
+                    "Each container-level 'memory' value must not exceed the task-level 'memory' value."
+                ));
+            }
+
+            if (configuredFields.contains("memory") && configuredFields.contains("memory-reservation") && getMemory() <= getMemoryReservation()) {
+                errors.add(new ValidationError(
+                    this,
+                    "memory-reservation",
+                    "If both a container-level 'memory' and 'memory-reservation' value are specified, 'memory' must be greater than 'memory-reservation'."
+                ));
             }
         }
 
-        if (configuredFields.contains("port-mappings")) {
-            Map<Integer, TransportProtocol> containerPortProtocols = new HashMap<>();
-
-            for (EcsPortMapping portMapping : getPortMappings()) {
-                TransportProtocol protocol = containerPortProtocols.get(portMapping.getContainerPort());
-
-                if (protocol == null) {
-                    containerPortProtocols.put(portMapping.getContainerPort(), portMapping.getProtocol());
-
-                } else {
-                    if (protocol != portMapping.getProtocol()) {
-                        errors.add(new ValidationError(
-                            this,
-                            "port-mappings",
-                            "Exposing the same container port for multiple protocols is forbidden."
-                        ));
-                        break;
-                    }
-                }
+        if (configuredFields.contains("resource-requirement")) {
+            if (taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
+                errors.add(new ValidationError(
+                    this,
+                    "resource-requirement",
+                    "'resource-requirement' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+                ));
             }
+
+            List<ResourceType> resourceTypes = getResourceRequirement().stream()
+                .map(EcsResourceRequirement::getType)
+                .collect(Collectors.toList());
+
+            if (resourceTypes.size() > 2
+                || resourceTypes.stream().filter(o -> o == ResourceType.GPU).count() > 1
+                || resourceTypes.stream().filter(o -> o == ResourceType.INFERENCE_ACCELERATOR).count() > 1) {
+
+                errors.add(new ValidationError(
+                    this,
+                    "resource-requirement",
+                    "A container definition may not contain more than one 'resource-requirement' of the same 'type'."
+                ));
+            }
+        }
+
+        if (configuredFields.contains("links") && taskDefinition.getNetworkMode() != NetworkMode.BRIDGE) {
+            errors.add(new ValidationError(
+                this,
+                "links",
+                "'links' may only be specified when the task definition's 'network-mode' parameter is set to 'bridge'."
+            ));
+        }
+
+        if (configuredFields.contains("hostname") && taskDefinition.getNetworkMode() == NetworkMode.AWSVPC) {
+            errors.add(new ValidationError(
+                this,
+                "hostname",
+                "'hostname' may not be specified when the task definition's 'network-mode' parameter is set to 'awsvpc'."
+            ));
+        }
+
+        if (configuredFields.contains("port-mapping")) {
+            List<Integer> tcpPorts = getPortMapping().stream()
+                .filter(o -> o.getProtocol() == TransportProtocol.TCP)
+                .map(EcsPortMapping::getContainerPort)
+                .collect(Collectors.toList());
+
+            boolean duplicatePort = getPortMapping().stream()
+                .filter(o -> o.getProtocol() == TransportProtocol.UDP)
+                .map(EcsPortMapping::getContainerPort)
+                .anyMatch(tcpPorts::contains);
+
+            if (duplicatePort) {
+                errors.add(new ValidationError(
+                    this,
+                    "port-mapping",
+                    "'port-mapping' may not be configured to expose the same 'container-port' for more than one 'protocol'."
+                ));
+            }
+        }
+
+        if (configuredFields.contains("extra-host") && taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
+            errors.add(new ValidationError(
+                this,
+                "extra-host",
+                "'extra-host' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+            ));
         }
 
         return errors;

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -344,19 +345,11 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         );
 
         if (getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
-            if (!configuredFields.contains("cpu")) {
-                errors.add(new ValidationError(
-                    this,
-                    "cpu",
-                    "A cpu value must be specified when using the Fargate launch type."
-                ));
-            }
-
             if (getNetworkMode() != NetworkMode.AWSVPC) {
                 errors.add(new ValidationError(
                     this,
                     "network-mode",
-                    "The 'awsvpc' network-mode is required when using the Fargate launch type."
+                    "The 'network-mode' must be set to 'awsvpc' when 'requires-compatibilities' contains 'FARGATE'."
                 ));
             }
 
@@ -367,7 +360,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When using the Fargate launch type, the valid memory values for 256 cpu units are: 512 (0.5 GB), 1024 (1 GB), 2048 (2 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 256 'cpu' units are: 512 (0.5 GB), 1024 (1 GB), 2048 (2 GB)."
                             ));
                         }
                         break;
@@ -377,7 +370,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When using the Fargate launch type, the valid memory values for 512 cpu units are: 1024 (1 GB), 2048 (2 GB), 3072 (3 GB), 4096 (4 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 512 'cpu' units are: 1024 (1 GB), 2048 (2 GB), 3072 (3 GB), 4096 (4 GB)."
                             ));
                         }
                         break;
@@ -387,7 +380,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When using the Fargate launch type, the valid memory values for 1024 cpu units are: 2048 (2 GB), 3072 (3 GB), 4096 (4 GB), 5120 (5 GB), 6144 (6 GB), 7168 (7 GB), 8192 (8 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 1024 'cpu' units are: 2048 (2 GB), 3072 (3 GB), 4096 (4 GB), 5120 (5 GB), 6144 (6 GB), 7168 (7 GB), 8192 (8 GB)."
                             ));
                         }
                         break;
@@ -397,7 +390,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When using the Fargate launch type, the valid memory values for 2048 cpu units are: between 4096 (4 GB) and 16384 (16 GB) in increments of 1024 (1 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 2048 'cpu' units are: between 4096 (4 GB) and 16384 (16 GB) in increments of 1024 (1 GB)."
                             ));
                         }
                         break;
@@ -407,7 +400,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When using the Fargate launch type, the valid memory values for 4096 cpu units are: between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 4096 'cpu' units are: between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB)."
                             ));
                         }
                         break;
@@ -416,7 +409,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                         errors.add(new ValidationError(
                             this,
                             "cpu",
-                            "When using the Fargate launch type, the valid cpu values are: 256 (.25 vCPU), 512 (.5 vCPU), 1024 (1 vCPU), 2048 (2 vCPU), 4096 (4 vCPU)."
+                            "When 'requires-compatibilities' contains 'FARGATE', the valid 'cpu' values are: 256 (.25 vCPU), 512 (.5 vCPU), 1024 (1 vCPU), 2048 (2 vCPU), 4096 (4 vCPU)."
                         ));
                 }
 
@@ -425,7 +418,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                     errors.add(new ValidationError(
                         this,
                         "cpu",
-                        "A task-level cpu value must be specified when using the Fargate launch type."
+                        "A task-level 'cpu' value must be specified when 'requires-compatibilities' contains 'FARGATE'."
                     ));
 
                 }
@@ -434,163 +427,71 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                     errors.add(new ValidationError(
                         this,
                         "memory",
-                        "A task-level memory value must be specified when using the Fargate launch type."
+                        "A task-level 'memory' value must be specified when 'requires-compatibilities' contains 'FARGATE'."
                     ));
                 }
             }
 
-            if (configuredFields.contains("volumes")) {
-                for (EcsVolume volume : getVolumes()) {
-                    if (!getRequiresCompatibilities().contains(Compatibility.EC2.toString()) && volume.getDockerVolumeConfiguration() != null) {
-                        errors.add(new ValidationError(
-                            this,
-                            "volumes",
-                            "A Docker volume configuration may only be specified when using the EC2 launch type."
-                        ));
-                        break;
-                    }
-
-                    if (volume.getHostSourcePath() != null) {
-                        errors.add(new ValidationError(
-                            this,
-                            "volumes",
-                            "A host source path may not be specified for volumes when using the Fargate launch type."
-                        ));
-                        break;
-                    }
-                }
-            }
-
-            if (configuredFields.contains("inference-accelerators")) {
+            if (configuredFields.contains("inference-accelerator")) {
                 errors.add(new ValidationError(
                     this,
-                    "inference-accelerators",
-                    "When using the Fargate launch type, inference accelerators may not be specified."
+                    "inference-accelerator",
+                    "'inference-accelerator' may not be specified when 'requires-compatibilities' contains 'FARGATE'."
                 ));
             }
         }
 
-        int totalGPU = 0;
-        int totalCPU = 0;
-        int totalMemoryReservation = 0;
-        boolean essentialContainer = false;
-        for (EcsContainerDefinition container : getContainerDefinitions()) {
-            if (!configuredFields.contains("memory") && container.getMemory() == null && container.getMemoryReservation() == null) {
+        if (configuredFields.contains("memory")) {
+            int totalMemoryReservation = getContainerDefinition().stream()
+                .map(EcsContainerDefinition::getMemoryReservation)
+                .mapToInt(i -> i != null ? i : 0)
+                .sum();
+
+            if (totalMemoryReservation > getMemory()) {
                 errors.add(new ValidationError(
                     this,
                     "memory",
-                    "A task-level memory value or a container-level memory value must be specified when using the EC2 launch type."
+                    "The total of all container-level 'memory-reservation' values must not exceed the task-level 'memory' value."
                 ));
-                break;
-
-            } else if (configuredFields.contains("memory")) {
-                if (container.getMemoryReservation() != null) {
-                    totalMemoryReservation += container.getMemoryReservation();
-
-                    if (totalMemoryReservation > getMemory()) {
-                        errors.add(new ValidationError(
-                            this,
-                            "container-definitions",
-                            "The total of all container-level memory-reservation values within a task definition must not exceed the task-level memory value."
-                        ));
-                        break;
-                    }
-                }
-
-                if (container.getMemory() != null && container.getMemory() > getMemory()) {
-                    errors.add(new ValidationError(
-                        this,
-                        "container-definitions",
-                        "Each container-level memory value must not exceed the task-level memory value."
-                    ));
-                    break;
-                }
-            }
-
-            if (container.getMemoryReservation() != null && container.getMemory() != null && container.getMemory() <= container.getMemoryReservation()) {
-                errors.add(new ValidationError(
-                    this,
-                    "container-definitions",
-                    "If both a container-level memory and memory-reservation value are specified, memory must be greater than memory-reservation."
-                ));
-                break;
-            }
-
-            if (configuredFields.contains("cpu") && container.getCpu() != null) {
-                totalCPU += container.getCpu();
-
-                if (totalCPU > getCpu()) {
-                    errors.add(new ValidationError(
-                        this,
-                        "container-definitions",
-                        "The total of all container-level CPU values within a task definition must not exceed the task-level CPU value."
-                    ));
-                    break;
-                }
-            }
-
-            if (!ObjectUtils.isBlank(container.getResourceRequirements())) {
-                if (getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
-                    errors.add(new ValidationError(
-                        this,
-                        "container-definitions",
-                        "Resource requirements may not be configured when using the Fargate launch type."
-                    ));
-                    break;
-                }
-
-                Optional<EcsResourceRequirement> gpuRequirement = container.getResourceRequirements().stream()
-                    .filter(o -> o.getType() == ResourceType.GPU)
-                    .findFirst();
-
-                if (gpuRequirement.isPresent()) {
-                    totalGPU += Integer.valueOf(gpuRequirement.get().getValue());
-                }
-
-                if (totalGPU > 16) {
-                    errors.add(new ValidationError(
-                        this,
-                        "container-definitions",
-                        "The total of all GPU resource requirements' values across a task definition may not exceed 16."
-                    ));
-                    break;
-                }
-            }
-
-            if (configuredFields.contains("network-mode")) {
-                if (getNetworkMode() != NetworkMode.BRIDGE && !ObjectUtils.isBlank(container.getLinks())) {
-                    errors.add(new ValidationError(
-                        this,
-                        "network-mode",
-                        "The 'bridge' network-mode is required to configure the links parameter for a container definition."
-                    ));
-                    break;
-                }
-
-                if (getNetworkMode() == NetworkMode.AWSVPC && !ObjectUtils.isBlank(container.getPortMappings())) {
-                    for (EcsPortMapping portMapping : container.getPortMappings()) {
-                        if (!ObjectUtils.isBlank(portMapping.getHostPort()) && !portMapping.getHostPort().equals(portMapping.getContainerPort())) {
-                            errors.add(new ValidationError(
-                                this,
-                                "container-definitions",
-                                "When using the 'awsvpc' network-mode, only the container port should be specified. The host port can be left blank or must be the same value as the container port."
-                            ));
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (container.getEssential() == null || container.getEssential()) {
-                essentialContainer = true;
             }
         }
 
-        if (!essentialContainer) {
+        if (configuredFields.contains("cpu")) {
+            int totalCpu = getContainerDefinition().stream()
+                .map(EcsContainerDefinition::getCpu)
+                .mapToInt(i -> i != null ? i : 0)
+                .sum();
+
+            if (totalCpu > getCpu()) {
+                errors.add(new ValidationError(
+                    this,
+                    "cpu",
+                    "The total of all container-level 'cpu' values must not exceed the task-level 'cpu' value."
+                ));
+            }
+        }
+
+        int totalGpu = getContainerDefinition().stream()
+            .map(c -> c.getResourceRequirement().stream()
+                .filter(r -> r.getType() == ResourceType.GPU)
+                .map(r -> Integer.valueOf(r.getValue()))
+                .findFirst())
+            .mapToInt(o -> o.orElse(0))
+            .sum();
+
+        if (totalGpu > 16) {
             errors.add(new ValidationError(
                 this,
-                "container-definitions",
-                "A task definition must have at least one essential container."
+                "container-definition",
+                "The total value of every 'resource-requirement' with 'type' set to 'GPU' across every 'container-definition' must not exceed 16."
+            ));
+        }
+
+        if (getContainerDefinition().stream().noneMatch(EcsContainerDefinition::getEssential)) {
+            errors.add(new ValidationError(
+                this,
+                "container-definition",
+                "There must be at least one 'container-definition' with 'essential' set to 'true'."
             ));
         }
 

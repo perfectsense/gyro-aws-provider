@@ -24,6 +24,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
+import software.amazon.awssdk.services.ecs.model.Compatibility;
 import software.amazon.awssdk.services.ecs.model.Volume;
 
 public class EcsVolume extends Diffable {
@@ -108,11 +109,29 @@ public class EcsVolume extends Diffable {
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
+        EcsTaskDefinitionResource taskDefinition = (EcsTaskDefinitionResource) parent();
+
+        if (taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
+            if (configuredFields.contains("host-source-path")) {
+                errors.add(new ValidationError(
+                    this,
+                    "host-source-path",
+                    "A 'host-source-path' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+                ));
+            } else if (configuredFields.contains("docker-volume-configuration") && !taskDefinition.getRequiresCompatibilities().contains(Compatibility.EC2.toString())) {
+                errors.add(new ValidationError(
+                    this,
+                    "docker-volume-configuration",
+                    "A 'docker-volume-configuration' may only be specified when the task definition's 'requires-compatibilities' parameter contains 'EC2'."
+                ));
+            }
+        }
+
         if (configuredFields.contains("host-source-path") && configuredFields.contains("docker-volume-configuration")) {
             errors.add(new ValidationError(
                 this,
                 "host-source-path",
-                "Only one of host-source-path, docker-volume-configuration, or efs-volume-configuration may be specified."
+                "Only one of 'host-source-path' or 'docker-volume-configuration' may be specified."
             ));
         }
 
