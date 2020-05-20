@@ -16,6 +16,8 @@
 
 package gyro.aws.s3;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -38,6 +40,7 @@ import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketEncryptionResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketPolicyResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
@@ -50,7 +53,10 @@ import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.GetBucketLoggingResponse;
 import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
 import software.amazon.awssdk.services.s3.model.GetBucketReplicationResponse;
+import software.amazon.awssdk.utils.IoUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +81,7 @@ import java.util.stream.Collectors;
  *         }
  *         enable-accelerate-config: true
  *         enable-versioning: true
+ *         policy: "policy.json"
  *     end
  *
  * Example with cors rule
@@ -293,6 +300,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private S3LoggingEnabled logging;
     private S3ReplicationConfiguration replicationConfiguration;
     private S3ServerSideEncryptionConfiguration encryptionConfiguration;
+    private String policy;
     private S3AccessControlPolicy accessControlPolicy;
 
     @Id
@@ -465,6 +473,19 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
+     * The bucket policy as a JSON document.
+     */
+    @Updatable
+    public String getPolicy() {
+        policy = getProcessedPolicy(policy);
+        return policy;
+    }
+
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
+
+    /**
      * Configure the access control policy of the bucket.
      *
      * @subresource gyro.aws.s3.S3AccessControlPolicy
@@ -491,6 +512,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadBucketLogging(client);
         loadReplicationConfiguration(client);
         loadBucketEncryptionConfiguration(client);
+        loadPolicy(client);
         loadAccessControlPolicy(client);
     }
 
@@ -555,6 +577,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveBucketEncryptionConfiguration(client);
         }
 
+        if (getPolicy() != null) {
+            savePolicy(client);
+        }
+
         if (getAccessControlPolicy() != null) {
             saveAccessControlPolicy(client);
         }
@@ -586,6 +612,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         if (changedFieldNames.contains("encryption-configuration")) {
             saveBucketEncryptionConfiguration(client);
+        }
+
+        if (changedFieldNames.contains("policy")) {
+            savePolicy(client);
         }
 
         if (changedFieldNames.contains("access-control-policy")) {
@@ -890,6 +920,29 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
+    private void loadPolicy(S3Client client) {
+        try {
+            GetBucketPolicyResponse bucketPolicy = client.getBucketPolicy(r -> r.bucket(getName()));
+            setPolicy(bucketPolicy.policy());
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("NoSuchBucketPolicy")) {
+                throw ex;
+            } else {
+                setPolicy(null);
+            }
+        }
+    }
+
+    private void savePolicy(S3Client client) {
+        if (getPolicy() != null) {
+            client.putBucketPolicy(r -> r.bucket(getName()).policy(getPolicy()));
+
+        } else {
+            client.deleteBucketPolicy(r -> r.bucket(getName()));
+        }
+    }
+
     private void loadAccessControlPolicy(S3Client client) {
         S3AccessControlPolicy policy = newSubresource(S3AccessControlPolicy.class);
         policy.copyFrom(client.getBucketAcl(a -> a.bucket(getName())));
@@ -924,6 +977,27 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             } else {
                 throw exx;
             }
+        }
+    }
+
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
         }
     }
 }

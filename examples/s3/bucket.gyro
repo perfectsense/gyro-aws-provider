@@ -7,4 +7,5 @@ aws::s3-bucket bucket-example
     }
     enable-accelerate-config: true
     enable-versioning: true
+    policy: "policy.json"
 end
