@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.ecs;
 
 import java.util.ArrayList;
@@ -17,6 +33,10 @@ public class EcsPortMapping extends Diffable {
     private Integer hostPort;
     private TransportProtocol protocol;
 
+    /**
+     * The port number on the container that is bound to the user-specified or automatically assigned host port. (Required)
+     * Exposing the same container port for multiple protocols is forbidden.
+     */
     @Required
     public Integer getContainerPort() {
         return containerPort;
@@ -26,6 +46,11 @@ public class EcsPortMapping extends Diffable {
         this.containerPort = containerPort;
     }
 
+    /**
+     * The port number on the container instance to reserve for your container.
+     * If you are using containers in a task with the ``awsvpc`` or ``host`` network-mode, the host port can either be left blank or set to the same value as the container port.
+     * If you are using containers in a task with the ``bridge`` network-mode, you can specify a non-reserved host port for your container port mapping, or you can omit the host port (or set it to 0) while specifying a container port and your container automatically receives a port in the ephemeral port range for your container instance operating system and Docker version.
+     */
     public Integer getHostPort() {
         return hostPort;
     }
@@ -34,6 +59,10 @@ public class EcsPortMapping extends Diffable {
         this.hostPort = hostPort;
     }
 
+    /**
+     * The protocol used for the port mapping.
+     * Valid values are ``tcp`` and ``udp``. Defaults to ``tcp``.
+     */
     public TransportProtocol getProtocol() {
         return protocol;
     }
