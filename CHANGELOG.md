@@ -9,3 +9,4 @@ ISSUES FIXED:
 * [182](https://github.com/perfectsense/gyro-aws-provider/issues/182): cloudwatch/EventRuleResource, ec2/NetworkInterfaceResource and ec2/RouteTableResource don't generate example docs.
 * [187](https://github.com/perfectsense/gyro-aws-provider/issues/187): Add copyright license to java and gradle files.
 * [193](https://github.com/perfectsense/gyro-aws-provider/issues/193): Allow updates to CloudFront Origin
+* [254](https://github.com/perfectsense/gyro-aws-provider/issues/254): Allow /16 through /32 IPv4 CIDR ranges for Classic WAF
