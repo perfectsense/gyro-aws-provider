@@ -66,13 +66,13 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
 
     private String family;
     private Set<String> requiresCompatibilities;
-    private List<EcsContainerDefinition> containerDefinitions;
-    private List<EcsVolume> volumes;
+    private List<EcsContainerDefinition> containerDefinition;
+    private List<EcsVolume> volume;
     private NetworkMode networkMode;
     private Integer cpu;
     private Integer memory;
     private RoleResource executionRole;
-    private List<EcsInferenceAccelerator> inferenceAccelerators;
+    private List<EcsInferenceAccelerator> inferenceAccelerator;
     private Integer revision;
     private String arn;
 
@@ -104,32 +104,32 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * @subresource gyro.aws.ecs.EcsContainerDefinition
      */
     @Required
-    public List<EcsContainerDefinition> getContainerDefinitions() {
-        if (containerDefinitions == null) {
-            containerDefinitions = new ArrayList<>();
+    public List<EcsContainerDefinition> getContainerDefinition() {
+        if (containerDefinition == null) {
+            containerDefinition = new ArrayList<>();
         }
 
-        return containerDefinitions;
+        return containerDefinition;
     }
 
-    public void setContainerDefinitions(List<EcsContainerDefinition> containerDefinitions) {
-        this.containerDefinitions = containerDefinitions;
+    public void setContainerDefinition(List<EcsContainerDefinition> containerDefinition) {
+        this.containerDefinition = containerDefinition;
     }
 
     /**
      *
      * @subresource gyro.aws.ecs.EcsVolume
      */
-    public List<EcsVolume> getVolumes() {
-        if (volumes == null) {
-            volumes = new ArrayList<>();
+    public List<EcsVolume> getVolume() {
+        if (volume == null) {
+            volume = new ArrayList<>();
         }
 
-        return volumes;
+        return volume;
     }
 
-    public void setVolumes(List<EcsVolume> volumes) {
-        this.volumes = volumes;
+    public void setVolume(List<EcsVolume> volume) {
+        this.volume = volume;
     }
 
     public NetworkMode getNetworkMode() {
@@ -170,16 +170,16 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * @subresource gyro.aws.ecs.EcsInferenceAccelerator
      */
     @CollectionMax(1)
-    public List<EcsInferenceAccelerator> getInferenceAccelerators() {
-        if (inferenceAccelerators == null) {
-            inferenceAccelerators = new ArrayList<>();
+    public List<EcsInferenceAccelerator> getInferenceAccelerator() {
+        if (inferenceAccelerator == null) {
+            inferenceAccelerator = new ArrayList<>();
         }
 
-        return inferenceAccelerators;
+        return inferenceAccelerator;
     }
 
-    public void setInferenceAccelerators(List<EcsInferenceAccelerator> inferenceAccelerators) {
-        this.inferenceAccelerators = inferenceAccelerators;
+    public void setInferenceAccelerator(List<EcsInferenceAccelerator> inferenceAccelerator) {
+        this.inferenceAccelerator = inferenceAccelerator;
     }
 
     @Output
@@ -205,18 +205,18 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     public void copyFrom(TaskDefinition model) {
         setFamily(model.family());
         setRequiresCompatibilities(new HashSet<>(model.requiresCompatibilitiesAsStrings()));
-        setContainerDefinitions(
+        setContainerDefinition(
             model.containerDefinitions().stream().map(o -> {
                 EcsContainerDefinition containerDefinition = newSubresource(EcsContainerDefinition.class);
                 containerDefinition.copyFrom(o);
                 return containerDefinition;
             }).collect(Collectors.toList())
         );
-        setVolumes(
+        setVolume(
             model.volumes().stream().map(o -> {
-                EcsVolume volume = newSubresource(EcsVolume.class);
-                volume.copyFrom(o);
-                return volume;
+                EcsVolume ecsVolume = newSubresource(EcsVolume.class);
+                ecsVolume.copyFrom(o);
+                return ecsVolume;
             }).collect(Collectors.toList())
         );
         setNetworkMode(model.networkMode());
@@ -225,7 +225,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         setExecutionRole(!ObjectUtils.isBlank(model.executionRoleArn())
             ? findById(RoleResource.class, model.executionRoleArn())
             : null);
-        setInferenceAccelerators(
+        setInferenceAccelerator(
             model.inferenceAccelerators().stream().map(o -> {
                 EcsInferenceAccelerator inferenceAccelerator = newSubresource(EcsInferenceAccelerator.class);
                 inferenceAccelerator.copyFrom(o);
@@ -257,17 +257,17 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         RegisterTaskDefinitionResponse response = client.registerTaskDefinition(
             r -> r.family(getFamily())
                 .requiresCompatibilitiesWithStrings(getRequiresCompatibilities())
-                .containerDefinitions(getContainerDefinitions().stream()
+                .containerDefinitions(getContainerDefinition().stream()
                     .map(EcsContainerDefinition::copyTo)
                     .collect(Collectors.toList()))
-                .volumes(getVolumes().stream()
+                .volumes(getVolume().stream()
                     .map(EcsVolume::copyTo)
                     .collect(Collectors.toList()))
                 .networkMode(getNetworkMode())
                 .cpu(getCpu() != null ? getCpu().toString() : null)
                 .memory(getMemory() != null ? getMemory().toString() : null)
                 .executionRoleArn(getExecutionRole() != null ? getExecutionRole().getArn() : null)
-                .inferenceAccelerators(getInferenceAccelerators().stream()
+                .inferenceAccelerators(getInferenceAccelerator().stream()
                     .map(EcsInferenceAccelerator::copyTo)
                     .collect(Collectors.toList()))
         );

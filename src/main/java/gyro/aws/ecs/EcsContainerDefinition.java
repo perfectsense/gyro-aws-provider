@@ -41,14 +41,14 @@ public class EcsContainerDefinition extends Diffable {
     private Integer memory;
     private Integer memoryReservation;
     private List<String> links;
-    private List<EcsPortMapping> portMappings;
+    private List<EcsPortMapping> portMapping;
     private Boolean essential;
     private List<String> entryPoint;
     private List<String> command;
     private Map<String, String> environment;
-    private List<EcsMountPoint> mountPoints;
-    private List<EcsVolumeFrom> volumesFrom;
-    private List<EcsResourceRequirement> resourceRequirements;
+    private List<EcsMountPoint> mountPoint;
+    private List<EcsVolumeFrom> volumeFrom;
+    private EcsLinuxParameters linuxParameters;
 
     /**
      * The name of the container. (Required)
@@ -115,16 +115,16 @@ public class EcsContainerDefinition extends Diffable {
      *
      * @subresource gyro.aws.ecs.EcsPortMapping
      */
-    public List<EcsPortMapping> getPortMappings() {
-        if (portMappings == null) {
-            portMappings = new ArrayList<>();
+    public List<EcsPortMapping> getPortMapping() {
+        if (portMapping == null) {
+            portMapping = new ArrayList<>();
         }
 
-        return portMappings;
+        return portMapping;
     }
 
-    public void setPortMappings(List<EcsPortMapping> portMappings) {
-        this.portMappings = portMappings;
+    public void setPortMapping(List<EcsPortMapping> portMapping) {
+        this.portMapping = portMapping;
     }
 
     public Boolean getEssential() {
@@ -191,32 +191,32 @@ public class EcsContainerDefinition extends Diffable {
      *
      * @subresource gyro.aws.ecs.EcsVolumeFrom
      */
-    public List<EcsVolumeFrom> getVolumesFrom() {
-        if (volumesFrom == null) {
-            volumesFrom = new ArrayList<>();
+    public List<EcsVolumeFrom> getVolumeFrom() {
+        if (volumeFrom == null) {
+            volumeFrom = new ArrayList<>();
         }
 
-        return volumesFrom;
+        return volumeFrom;
     }
 
-    public void setVolumesFrom(List<EcsVolumeFrom> volumesFrom) {
-        this.volumesFrom = volumesFrom;
+    public void setVolumeFrom(List<EcsVolumeFrom> volumeFrom) {
+        this.volumeFrom = volumeFrom;
     }
 
     /**
      *
      * @subresource gyro.aws.ecs.EcsResourceRequirement
      */
-    public List<EcsResourceRequirement> getResourceRequirements() {
-        if (resourceRequirements == null) {
-            resourceRequirements = new ArrayList<>();
+    public List<EcsResourceRequirement> getResourceRequirement() {
+        if (resourceRequirement == null) {
+            resourceRequirement = new ArrayList<>();
         }
 
-        return resourceRequirements;
+        return resourceRequirement;
     }
 
-    public void setResourceRequirements(List<EcsResourceRequirement> resourceRequirements) {
-        this.resourceRequirements = resourceRequirements;
+    public void setResourceRequirement(List<EcsResourceRequirement> resourceRequirement) {
+        this.resourceRequirement = resourceRequirement;
     }
 
     @Override
@@ -231,11 +231,11 @@ public class EcsContainerDefinition extends Diffable {
         setMemory(model.memory());
         setMemoryReservation(model.memoryReservation());
         setLinks(model.links());
-        setPortMappings(
+        setPortMapping(
             model.portMappings().stream().map(o -> {
-                EcsPortMapping portMapping = newSubresource(EcsPortMapping.class);
-                portMapping.copyFrom(o);
-                return portMapping;
+                EcsPortMapping mapping = newSubresource(EcsPortMapping.class);
+                mapping.copyFrom(o);
+                return mapping;
             }).collect(Collectors.toList())
         );
         setEssential(model.essential());
@@ -244,25 +244,25 @@ public class EcsContainerDefinition extends Diffable {
         setEnvironment(
             model.environment().stream().collect(Collectors.toMap(KeyValuePair::name, KeyValuePair::value))
         );
-        setMountPoints(
+        setMountPoint(
             model.mountPoints().stream().map(o -> {
                 EcsMountPoint mountPoint = newSubresource(EcsMountPoint.class);
                 mountPoint.copyFrom(o);
                 return mountPoint;
             }).collect(Collectors.toList())
         );
-        setVolumesFrom(
+        setVolumeFrom(
             model.volumesFrom().stream().map(o -> {
                 EcsVolumeFrom volumeFrom = newSubresource(EcsVolumeFrom.class);
                 volumeFrom.copyFrom(o);
                 return volumeFrom;
             }).collect(Collectors.toList())
         );
-        setResourceRequirements(
+
             model.resourceRequirements().stream().map(o -> {
-                EcsResourceRequirement resourceRequirement = newSubresource(EcsResourceRequirement.class);
-                resourceRequirement.copyFrom(o);
-                return resourceRequirement;
+                EcsResourceRequirement requirement = newSubresource(EcsResourceRequirement.class);
+                requirement.copyFrom(o);
+                return requirement;
             }).collect(Collectors.toList())
         );
     }
@@ -275,7 +275,7 @@ public class EcsContainerDefinition extends Diffable {
             .memory(getMemory())
             .memoryReservation(getMemoryReservation())
             .links(getLinks())
-            .portMappings(getPortMappings().stream()
+            .portMappings(getPortMapping().stream()
                 .map(EcsPortMapping::copyTo)
                 .collect(Collectors.toList()))
             .essential(getEssential())
@@ -284,13 +284,14 @@ public class EcsContainerDefinition extends Diffable {
             .environment(getEnvironment().entrySet().stream()
                 .map(o -> KeyValuePair.builder().name(o.getKey()).value(o.getValue()).build())
                 .collect(Collectors.toList()))
-            .mountPoints(getMountPoints().stream()
+            .mountPoints(getMountPoint().stream()
                 .map(EcsMountPoint::copyTo)
                 .collect(Collectors.toList()))
-            .volumesFrom(getVolumesFrom().stream()
+            .volumesFrom(getVolumeFrom().stream()
                 .map(EcsVolumeFrom::copyTo)
                 .collect(Collectors.toList()))
-            .resourceRequirements(getResourceRequirements().stream()
+            .linuxParameters(getLinuxParameters() != null ? getLinuxParameters().copyTo() : null)
+            .resourceRequirements(getResourceRequirement().stream()
                 .map(EcsResourceRequirement::copyTo)
                 .collect(Collectors.toList()))
             .build();
