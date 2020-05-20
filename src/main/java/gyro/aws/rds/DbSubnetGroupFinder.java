@@ -35,22 +35,22 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-subnet-group: $(external-query aws::db-subnet-group { name: 'db-subnet-group-db-cluster-example'})
+ *    db-subnet-group: $(external-query aws::db-subnet-group { group-name: 'db-subnet-group-db-cluster-example'})
  */
 @Type("db-subnet-group")
 public class DbSubnetGroupFinder extends AwsFinder<RdsClient, DBSubnetGroup, DbSubnetGroupResource> {
 
-    private String name;
+    private String groupName;
 
     /**
      * The name of the subnet group.
      */
-    public String getName() {
-        return name;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     @Override
