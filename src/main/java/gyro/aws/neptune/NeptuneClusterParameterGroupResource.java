@@ -44,32 +44,31 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- * aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-example
- *     name: "neptune-cluster-parameter-group-example"
- *     description: "neptune cluster parameter group example description"
- *     family: "neptune1"
+ *   aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-example
+ *       name: "neptune-cluster-parameter-group-example"
+ *       description: "neptune cluster parameter group example description"
+ *       family: "neptune1"
  *
- *     enable-audit-log
- *         value: "0"
- *     end
+ *       enable-audit-log
+ *           value: "0"
+ *       end
  *
- *     enforce-ssl
- *         value: "1"
- *     end
+ *       enforce-ssl
+ *           value: "1"
+ *       end
  *
- *     lab-mode
- *         value: "ObjectIndex=enabled, Streams=disabled"
- *     end
+ *       lab-mode
+ *           value: "ObjectIndex=enabled, Streams=disabled"
+ *       end
  *
- *     query-timeout
- *         value: "120000"
- *     end
+ *       query-timeout
+ *           value: "120000"
+ *       end
  *
- *     tags: {
- *         Name: "neptune-cluster-parameter-group-example"
- *     }
- *
- * end
+ *       tags: {
+ *           Name: "neptune-cluster-parameter-group-example"
+ *       }
+ *   end
  */
 @Type("neptune-cluster-parameter-group")
 public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResource implements Copyable<DBClusterParameterGroup> {

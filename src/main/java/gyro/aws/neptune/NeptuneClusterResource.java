@@ -57,33 +57,33 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- * aws::neptune-cluster neptune-cluster-example
- *     engine: "neptune"
- *     engine-version: "1.0.2.1"
- *     db-cluster-identifier: "neptune-cluster-example"
+ *    aws::neptune-cluster neptune-cluster-example
+ *        engine: "neptune"
+ *        engine-version: "1.0.2.1"
+ *        db-cluster-identifier: "neptune-cluster-example"
  *
- *     vpc-security-groups: [$(aws::security-group security-group-neptune-cluster-example)]
- *     db-subnet-group: $(aws::neptune-subnet-group neptune-subnet-group-cluster-example)
- *     db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example)
- *     kms-key: $(aws::kms-key kms-key-neptune-cluster-example)
+ *        vpc-security-groups: [$(aws::security-group security-group-neptune-cluster-example)]
+ *        db-subnet-group: $(aws::neptune-subnet-group neptune-subnet-group-cluster-example)
+ *        db-cluster-parameter-group: $(aws::neptune-cluster-parameter-group neptune-cluster-parameter-group-cluster-example)
+ *        kms-key: $(aws::kms-key kms-key-neptune-cluster-example)
  *
- *     backup-retention-period: 7
- *     deletion-protection: false
- *     port: 8182
- *     preferred-backup-window: "07:39-08:09"
- *     preferred-maintenance-window: "sun:05:12-sun:05:42"
- *     storage-encrypted: true
- *     enable-cloudwatch-logs-exports: ["audit"]
- *     enable-iam-database-authentication: false
- *     skip-final-snapshot: false
- *     final-db-snapshot-identifier: "neptune-cluster-example-final-snapshot-test"
- *     apply-immediately: true
+ *        backup-retention-period: 7
+ *        deletion-protection: false
+ *        port: 8182
+ *        preferred-backup-window: "07:39-08:09"
+ *        preferred-maintenance-window: "sun:05:12-sun:05:42"
+ *        storage-encrypted: true
+ *        enable-cloudwatch-logs-exports: ["audit"]
+ *        enable-iam-database-authentication: false
+ *        skip-final-snapshot: false
+ *        final-db-snapshot-identifier: "neptune-cluster-example-final-snapshot-test"
+ *        apply-immediately: true
  *
- *     tags: {
- *         Name: "neptune cluster example"
- *     }
+ *        tags: {
+ *            Name: "neptune cluster example"
+ *        }
  *
- * end
+ *    end
  */
 @Type("neptune-cluster")
 public class NeptuneClusterResource extends NeptuneTaggableResource implements Copyable<DBCluster> {

@@ -44,15 +44,15 @@ import software.amazon.awssdk.services.neptune.model.DescribeDbClusterSnapshotsR
  *
  * .. code-block:: gyro
  *
- * aws::neptune-cluster-snapshot neptune-cluster-snapshot-example
- *     db-cluster-snapshot-identifier: "neptune-cluster-snapshot-example"
- *     db-cluster: $(aws::neptune-cluster neptune-cluster-example)
+ *   aws::neptune-cluster-snapshot neptune-cluster-snapshot-example
+ *       db-cluster-snapshot-identifier: "neptune-cluster-snapshot-example"
+ *       db-cluster: $(aws::neptune-cluster neptune-cluster-example)
  *
- *     tags: {
- *         Name: "neptune cluster snapshot example"
- *     }
+ *       tags: {
+ *           Name: "neptune cluster snapshot example"
+ *       }
  *
- * end
+ *   end
  */
 @Type("neptune-cluster-snapshot")
 public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource implements Copyable<DBClusterSnapshot> {
