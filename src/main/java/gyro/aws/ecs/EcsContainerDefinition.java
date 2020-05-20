@@ -49,6 +49,14 @@ public class EcsContainerDefinition extends Diffable {
     private List<EcsMountPoint> mountPoint;
     private List<EcsVolumeFrom> volumeFrom;
     private EcsLinuxParameters linuxParameters;
+    private List<EcsContainerDependency> dependsOn;
+    private Integer startTimeout;
+    private Integer stopTimeout;
+    private String hostname;
+    private List<EcsHostEntry> extraHost;
+    private List<EcsUlimit> ulimit;
+    private EcsLogConfiguration logConfiguration;
+    private List<EcsResourceRequirement> resourceRequirement;
 
     /**
      * The name of the container. (Required)
@@ -128,6 +136,10 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     public Boolean getEssential() {
+        if (essential == null) {
+            essential = true;
+        }
+
         return essential;
     }
 
@@ -175,16 +187,16 @@ public class EcsContainerDefinition extends Diffable {
      *
      * @subresource gyro.aws.ecs.EcsMountPoint
      */
-    public List<EcsMountPoint> getMountPoints() {
-        if (mountPoints == null) {
-            mountPoints = new ArrayList<>();
+    public List<EcsMountPoint> getMountPoint() {
+        if (mountPoint == null) {
+            mountPoint = new ArrayList<>();
         }
 
-        return mountPoints;
+        return mountPoint;
     }
 
-    public void setMountPoints(List<EcsMountPoint> mountPoints) {
-        this.mountPoints = mountPoints;
+    public void setMountPoint(List<EcsMountPoint> mountPoint) {
+        this.mountPoint = mountPoint;
     }
 
     /**
@@ -201,6 +213,103 @@ public class EcsContainerDefinition extends Diffable {
 
     public void setVolumeFrom(List<EcsVolumeFrom> volumeFrom) {
         this.volumeFrom = volumeFrom;
+    }
+
+    /**
+     *
+     * @subresource gyro.aws.ecs.EcsLinuxParameters
+     */
+    public EcsLinuxParameters getLinuxParameters() {
+        return linuxParameters;
+    }
+
+    public void setLinuxParameters(EcsLinuxParameters linuxParameters) {
+        this.linuxParameters = linuxParameters;
+    }
+
+    /**
+     *
+     * @subresource gyro.aws.ecs.EcsContainerDependency
+     */
+    public List<EcsContainerDependency> getDependsOn() {
+        if (dependsOn == null) {
+            dependsOn = new ArrayList<>();
+        }
+
+        return dependsOn;
+    }
+
+    public void setDependsOn(List<EcsContainerDependency> dependsOn) {
+        this.dependsOn = dependsOn;
+    }
+
+    public Integer getStartTimeout() {
+        return startTimeout;
+    }
+
+    public void setStartTimeout(Integer startTimeout) {
+        this.startTimeout = startTimeout;
+    }
+
+    @Max(120)
+    public Integer getStopTimeout() {
+        return stopTimeout;
+    }
+
+    public void setStopTimeout(Integer stopTimeout) {
+        this.stopTimeout = stopTimeout;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    /**
+     *
+     * @subresource gyro.aws.ecs.EcsHostEntry
+     */
+    public List<EcsHostEntry> getExtraHost() {
+        if (extraHost == null) {
+            extraHost = new ArrayList<>();
+        }
+
+        return extraHost;
+    }
+
+    public void setExtraHost(List<EcsHostEntry> extraHost) {
+        this.extraHost = extraHost;
+    }
+
+    /**
+     *
+     * @subresource gyro.aws.ecs.EcsUlimit
+     */
+    public List<EcsUlimit> getUlimit() {
+        if (ulimit == null) {
+            ulimit = new ArrayList<>();
+        }
+
+        return ulimit;
+    }
+
+    public void setUlimit(List<EcsUlimit> ulimit) {
+        this.ulimit = ulimit;
+    }
+
+    /**
+     *
+     * @subresource gyro.aws.ecs.EcsLogConfiguration
+     */
+    public EcsLogConfiguration getLogConfiguration() {
+        return logConfiguration;
+    }
+
+    public void setLogConfiguration(EcsLogConfiguration logConfiguration) {
+        this.logConfiguration = logConfiguration;
     }
 
     /**
@@ -259,6 +368,46 @@ public class EcsContainerDefinition extends Diffable {
             }).collect(Collectors.toList())
         );
 
+        EcsLinuxParameters parameters = null;
+        if (model.linuxParameters() != null) {
+            parameters = newSubresource(EcsLinuxParameters.class);
+            parameters.copyFrom(model.linuxParameters());
+        }
+        setLinuxParameters(parameters);
+
+        setDependsOn(
+            model.dependsOn().stream().map(o -> {
+                EcsContainerDependency dependency = newSubresource(EcsContainerDependency.class);
+                dependency.copyFrom(o);
+                return dependency;
+            }).collect(Collectors.toList())
+        );
+        setStartTimeout(model.startTimeout());
+        setStopTimeout(model.stopTimeout());
+        setHostname(model.hostname());
+        setExtraHost(
+            model.extraHosts().stream().map(o -> {
+                EcsHostEntry hostEntry = newSubresource(EcsHostEntry.class);
+                hostEntry.copyFrom(o);
+                return hostEntry;
+            }).collect(Collectors.toList())
+        );
+        setUlimit(
+            model.ulimits().stream().map(o -> {
+                EcsUlimit limit = newSubresource(EcsUlimit.class);
+                limit.copyFrom(o);
+                return limit;
+            }).collect(Collectors.toList())
+        );
+
+        EcsLogConfiguration logConfig = null;
+        if (model.logConfiguration() != null) {
+            logConfig = newSubresource(EcsLogConfiguration.class);
+            logConfig.copyFrom(model.logConfiguration());
+        }
+        setLogConfiguration(logConfig);
+
+        setResourceRequirement(
             model.resourceRequirements().stream().map(o -> {
                 EcsResourceRequirement requirement = newSubresource(EcsResourceRequirement.class);
                 requirement.copyFrom(o);
@@ -291,6 +440,19 @@ public class EcsContainerDefinition extends Diffable {
                 .map(EcsVolumeFrom::copyTo)
                 .collect(Collectors.toList()))
             .linuxParameters(getLinuxParameters() != null ? getLinuxParameters().copyTo() : null)
+            .dependsOn(getDependsOn().stream()
+                .map(EcsContainerDependency::copyTo)
+                .collect(Collectors.toList()))
+            .startTimeout(getStartTimeout())
+            .stopTimeout(getStopTimeout())
+            .hostname(getHostname())
+            .extraHosts(getExtraHost().stream()
+                .map(EcsHostEntry::copyTo)
+                .collect(Collectors.toList()))
+            .ulimits(getUlimit().stream()
+                .map(EcsUlimit::copyTo)
+                .collect(Collectors.toList()))
+            .logConfiguration(getLogConfiguration() != null ? getLogConfiguration().copyTo() : null)
             .resourceRequirements(getResourceRequirement().stream()
                 .map(EcsResourceRequirement::copyTo)
                 .collect(Collectors.toList()))
