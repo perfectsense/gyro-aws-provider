@@ -30,6 +30,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -153,6 +154,7 @@ import java.util.stream.Collectors;
  *
  * Example with replication configuration
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
@@ -225,6 +227,7 @@ import java.util.stream.Collectors;
  *
  * Example with logging enabled
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
@@ -267,6 +270,7 @@ import java.util.stream.Collectors;
  *
  * Example with control access policy
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket example-bucket-with-full-control-log-delivery-group
@@ -303,6 +307,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String policy;
     private S3AccessControlPolicy accessControlPolicy;
 
+    /**
+     * The name of the bucket. (Required)
+     */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -327,6 +335,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.enableObjectLock = enableObjectLock;
     }
 
+    /**
+     * Tags for the bucket.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
