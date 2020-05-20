@@ -46,25 +46,25 @@ import software.amazon.awssdk.services.neptune.model.ModifyDbInstanceRequest;
  *
  * .. code-block:: gyro
  *
- * aws::neptune-instance neptune-instance-example
- *     engine: "neptune"
- *     db-instance-class: "db.r4.large"
- *     db-instance-identifier: "neptune-instance-example"
- *     db-cluster: $(aws::neptune-cluster neptune-cluster-example)
+ *   aws::neptune-instance neptune-instance-example
+ *       engine: "neptune"
+ *       db-instance-class: "db.r4.large"
+ *       db-instance-identifier: "neptune-instance-example"
+ *       db-cluster: $(aws::neptune-cluster neptune-cluster-example)
  *
- *     db-parameter-group: $(aws::neptune-parameter-group neptune-parameter-group-cluster-example)
- *     availability-zone: "us-east-2a"
- *     auto-minor-version-upgrade: true
- *     copy-tags-to-snapshot: true
- *     license-model: "amazon-license"
- *     promotion-tier: 1
- *     apply-immediately: true
+ *       db-parameter-group: $(aws::neptune-parameter-group neptune-parameter-group-cluster-example)
+ *       availability-zone: "us-east-2a"
+ *       auto-minor-version-upgrade: true
+ *       copy-tags-to-snapshot: true
+ *       license-model: "amazon-license"
+ *       promotion-tier: 1
+ *       apply-immediately: true
  *
- *     tags: {
- *         Name: "neptune instance example"
- *     }
+ *       tags: {
+ *           Name: "neptune instance example"
+ *       }
  *
- * end
+ *   end
  */
 @Type("neptune-instance")
 public class NeptuneInstanceResource extends NeptuneTaggableResource implements Copyable<DBInstance> {

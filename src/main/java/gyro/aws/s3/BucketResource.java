@@ -30,6 +30,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -153,6 +154,7 @@ import java.util.stream.Collectors;
  *
  * Example with replication configuration
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
@@ -165,13 +167,13 @@ import java.util.stream.Collectors;
  *         enable-versioning: true
  *
  *         replication-configuration
- *             role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+ *             role: $(external-query aws::iam-role { name: 's3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br'})
  *             rule
  *                 id: "example_with_encryption"
  *                 destination
  *                     bucket: "beam-sandbox-ops-us-east-1a"
  *                     encryption-configuration
- *                         kms-key: "arn:aws:kms:us-east-1:242040583208:key/c5245825-8526-4032-a67c-21656f220312"
+ *                         kms-key: $(external-query aws::kms-key { key-id: '<key-id>'})
  *                     end
  *                 end
  *
@@ -225,6 +227,7 @@ import java.util.stream.Collectors;
  *
  * Example with logging enabled
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
@@ -258,7 +261,7 @@ import java.util.stream.Collectors;
  *         encryption-configuration
  *             encryption-rule
  *                 default-encryption
- *                     key: $(external-query aws::kms-key { key-id: 'fce44a2a-01cb-4f42-9f25-99e517a60d7a'})
+ *                     key: $(external-query aws::kms-key { key-id: '<key-id>'})
  *                     encryption-type: "aws:kms"
  *                 end
  *             end
@@ -267,6 +270,7 @@ import java.util.stream.Collectors;
  *
  * Example with control access policy
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket example-bucket-with-full-control-log-delivery-group
@@ -303,6 +307,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String policy;
     private S3AccessControlPolicy accessControlPolicy;
 
+    /**
+     * The name of the bucket. (Required)
+     */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -327,6 +335,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.enableObjectLock = enableObjectLock;
     }
 
+    /**
+     * Tags for the bucket.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
