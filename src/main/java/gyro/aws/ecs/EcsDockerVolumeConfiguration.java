@@ -134,7 +134,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
             errors.add(new ValidationError(
                 this,
                 "autoprovision",
-                "Autoprovision may only be configured when using a shared scope."
+                "'autoprovision' may only be configured when using the 'scope' is set to 'shared'."
             ));
         }
 
