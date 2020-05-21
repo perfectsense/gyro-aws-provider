@@ -56,10 +56,24 @@ public class EcsContainerDefinition extends Diffable {
     private Integer startTimeout;
     private Integer stopTimeout;
     private String hostname;
+    private String user;
+    private String workingDirectory;
+    private Boolean disableNetworking;
+    private Boolean privileged;
+    private Boolean readonlyRootFilesystem;
+    private List<String> dnsServers;
+    private List<String> dnsSearchDomains;
     private List<EcsHostEntry> extraHost;
+    private List<String> dockerSecurityOptions;
+    private Boolean interactive;
+    private Boolean pseudoTerminal;
+    private Map<String, String> dockerLabels;
     private List<EcsUlimit> ulimit;
     private EcsLogConfiguration logConfiguration;
+    private EcsHealthCheck healthCheck;
+    private List<EcsSystemControl> systemControl;
     private List<EcsResourceRequirement> resourceRequirement;
+    private EcsFirelensConfiguration firelensConfiguration;
 
     /**
      * The name of the container. (Required)
@@ -271,6 +285,62 @@ public class EcsContainerDefinition extends Diffable {
         this.hostname = hostname;
     }
 
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getWorkingDirectory() {
+        return workingDirectory;
+    }
+
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
+    }
+
+    public Boolean getDisableNetworking() {
+        return disableNetworking;
+    }
+
+    public void setDisableNetworking(Boolean disableNetworking) {
+        this.disableNetworking = disableNetworking;
+    }
+
+    public Boolean getPrivileged() {
+        return privileged;
+    }
+
+    public void setPrivileged(Boolean privileged) {
+        this.privileged = privileged;
+    }
+
+    public Boolean getReadonlyRootFilesystem() {
+        return readonlyRootFilesystem;
+    }
+
+    public void setReadonlyRootFilesystem(Boolean readonlyRootFilesystem) {
+        this.readonlyRootFilesystem = readonlyRootFilesystem;
+    }
+
+    public List<String> getDnsServers() {
+        return dnsServers;
+    }
+
+    public void setDnsServers(List<String> dnsServers) {
+        this.dnsServers = dnsServers;
+    }
+
+    public List<String> getDnsSearchDomains() {
+        return dnsSearchDomains;
+    }
+
+    public void setDnsSearchDomains(List<String> dnsSearchDomains) {
+        this.dnsSearchDomains = dnsSearchDomains;
+    }
+
     /**
      *
      * @subresource gyro.aws.ecs.EcsHostEntry
@@ -285,6 +355,46 @@ public class EcsContainerDefinition extends Diffable {
 
     public void setExtraHost(List<EcsHostEntry> extraHost) {
         this.extraHost = extraHost;
+    }
+
+    public List<String> getDockerSecurityOptions() {
+        if (dockerSecurityOptions == null) {
+            dockerSecurityOptions = new ArrayList<>();
+        }
+
+        return dockerSecurityOptions;
+    }
+
+    public void setDockerSecurityOptions(List<String> dockerSecurityOptions) {
+        this.dockerSecurityOptions = dockerSecurityOptions;
+    }
+
+    public Boolean getInteractive() {
+        return interactive;
+    }
+
+    public void setInteractive(Boolean interactive) {
+        this.interactive = interactive;
+    }
+
+    public Boolean getPseudoTerminal() {
+        return pseudoTerminal;
+    }
+
+    public void setPseudoTerminal(Boolean pseudoTerminal) {
+        this.pseudoTerminal = pseudoTerminal;
+    }
+
+    public Map<String, String> getDockerLabels() {
+        if (dockerLabels == null) {
+            dockerLabels = new HashMap<>();
+        }
+
+        return dockerLabels;
+    }
+
+    public void setDockerLabels(Map<String, String> dockerLabels) {
+        this.dockerLabels = dockerLabels;
     }
 
     /**
@@ -317,6 +427,30 @@ public class EcsContainerDefinition extends Diffable {
 
     /**
      *
+     * @subresource gyro.aws.ecs.EcsHealthCheck
+     */
+    public EcsHealthCheck getHealthCheck() {
+        return healthCheck;
+    }
+
+    public void setHealthCheck(EcsHealthCheck healthCheck) {
+        this.healthCheck = healthCheck;
+    }
+
+    public List<EcsSystemControl> getSystemControl() {
+        if (systemControl == null) {
+            systemControl = new ArrayList<>();
+        }
+
+        return systemControl;
+    }
+
+    public void setSystemControl(List<EcsSystemControl> systemControl) {
+        this.systemControl = systemControl;
+    }
+
+    /**
+     *
      * @subresource gyro.aws.ecs.EcsResourceRequirement
      */
     public List<EcsResourceRequirement> getResourceRequirement() {
@@ -329,6 +463,18 @@ public class EcsContainerDefinition extends Diffable {
 
     public void setResourceRequirement(List<EcsResourceRequirement> resourceRequirement) {
         this.resourceRequirement = resourceRequirement;
+    }
+
+    /**
+     *
+     * @subresource gyro.aws.ecs.EcsFirelensConfiguration
+     */
+    public EcsFirelensConfiguration getFirelensConfiguration() {
+        return firelensConfiguration;
+    }
+
+    public void setFirelensConfiguration(EcsFirelensConfiguration firelensConfiguration) {
+        this.firelensConfiguration = firelensConfiguration;
     }
 
     @Override
@@ -356,6 +502,9 @@ public class EcsContainerDefinition extends Diffable {
         setEnvironment(
             model.environment().stream().collect(Collectors.toMap(KeyValuePair::name, KeyValuePair::value))
         );
+
+        // missing field: model.environmentFiles()
+
         setMountPoint(
             model.mountPoints().stream().map(o -> {
                 EcsMountPoint mountPoint = newSubresource(EcsMountPoint.class);
@@ -388,6 +537,13 @@ public class EcsContainerDefinition extends Diffable {
         setStartTimeout(model.startTimeout());
         setStopTimeout(model.stopTimeout());
         setHostname(model.hostname());
+        setUser(model.user());
+        setWorkingDirectory(model.workingDirectory());
+        setDisableNetworking(model.disableNetworking());
+        setPrivileged(model.privileged());
+        setReadonlyRootFilesystem(model.readonlyRootFilesystem());
+        setDnsServers(model.dnsServers());
+        setDnsSearchDomains(model.dnsSearchDomains());
         setExtraHost(
             model.extraHosts().stream().map(o -> {
                 EcsHostEntry hostEntry = newSubresource(EcsHostEntry.class);
@@ -395,6 +551,10 @@ public class EcsContainerDefinition extends Diffable {
                 return hostEntry;
             }).collect(Collectors.toList())
         );
+        setDockerSecurityOptions(model.dockerSecurityOptions());
+        setInteractive(model.interactive());
+        setPseudoTerminal(model.pseudoTerminal());
+        setDockerLabels(model.dockerLabels());
         setUlimit(
             model.ulimits().stream().map(o -> {
                 EcsUlimit limit = newSubresource(EcsUlimit.class);
@@ -410,6 +570,20 @@ public class EcsContainerDefinition extends Diffable {
         }
         setLogConfiguration(logConfig);
 
+        EcsHealthCheck check = null;
+        if (model.healthCheck() != null) {
+            check = newSubresource(EcsHealthCheck.class);
+            check.copyFrom(model.healthCheck());
+        }
+        setHealthCheck(check);
+
+        setSystemControl(
+            model.systemControls().stream().map(o -> {
+                EcsSystemControl control = newSubresource(EcsSystemControl.class);
+                control.copyFrom(o);
+                return control;
+            }).collect(Collectors.toList())
+        );
         setResourceRequirement(
             model.resourceRequirements().stream().map(o -> {
                 EcsResourceRequirement requirement = newSubresource(EcsResourceRequirement.class);
@@ -417,6 +591,13 @@ public class EcsContainerDefinition extends Diffable {
                 return requirement;
             }).collect(Collectors.toList())
         );
+
+        EcsFirelensConfiguration configuration = null;
+        if (model.firelensConfiguration() != null) {
+            configuration = newSubresource(EcsFirelensConfiguration.class);
+            configuration.copyFrom(model.firelensConfiguration());
+        }
+        setFirelensConfiguration(configuration);
     }
 
     public ContainerDefinition copyTo() {
@@ -449,16 +630,32 @@ public class EcsContainerDefinition extends Diffable {
             .startTimeout(getStartTimeout())
             .stopTimeout(getStopTimeout())
             .hostname(getHostname())
+            .user(getUser())
+            .workingDirectory(getWorkingDirectory())
+            .disableNetworking(getDisableNetworking())
+            .privileged(getPrivileged())
+            .readonlyRootFilesystem(getReadonlyRootFilesystem())
+            .dnsServers(getDnsServers())
+            .dnsSearchDomains(getDnsSearchDomains())
             .extraHosts(getExtraHost().stream()
                 .map(EcsHostEntry::copyTo)
                 .collect(Collectors.toList()))
+            .dockerSecurityOptions(getDockerSecurityOptions())
+            .interactive(getInteractive())
+            .pseudoTerminal(getPseudoTerminal())
+            .dockerLabels(getDockerLabels())
             .ulimits(getUlimit().stream()
                 .map(EcsUlimit::copyTo)
                 .collect(Collectors.toList()))
             .logConfiguration(getLogConfiguration() != null ? getLogConfiguration().copyTo() : null)
+            .healthCheck(getHealthCheck() != null ? getHealthCheck().copyTo() : null)
+            .systemControls(getSystemControl().stream()
+                .map(EcsSystemControl::copyTo)
+                .collect(Collectors.toList()))
             .resourceRequirements(getResourceRequirement().stream()
                 .map(EcsResourceRequirement::copyTo)
                 .collect(Collectors.toList()))
+            .firelensConfiguration(getFirelensConfiguration() != null ? getFirelensConfiguration().copyTo() : null)
             .build();
     }
 
@@ -529,12 +726,22 @@ public class EcsContainerDefinition extends Diffable {
             ));
         }
 
-        if (configuredFields.contains("hostname") && taskDefinition.getNetworkMode() == NetworkMode.AWSVPC) {
-            errors.add(new ValidationError(
-                this,
-                "hostname",
-                "'hostname' may not be specified when the task definition's 'network-mode' parameter is set to 'awsvpc'."
-            ));
+        if (taskDefinition.getNetworkMode() == NetworkMode.AWSVPC) {
+            if (configuredFields.contains("hostname")) {
+                errors.add(new ValidationError(
+                    this,
+                    "hostname",
+                    "'hostname' may not be specified when the task definition's 'network-mode' parameter is set to 'awsvpc'."
+                ));
+            }
+
+            if (configuredFields.contains("extra-host")) {
+                errors.add(new ValidationError(
+                    this,
+                    "extra-host",
+                    "'extra-host' may not be specified when the task definition's 'network-mode' parameter is set to 'awsvpc'."
+                ));
+            }
         }
 
         if (configuredFields.contains("port-mapping")) {
@@ -557,12 +764,22 @@ public class EcsContainerDefinition extends Diffable {
             }
         }
 
-        if (configuredFields.contains("extra-host") && taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
-            errors.add(new ValidationError(
-                this,
-                "extra-host",
-                "'extra-host' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
-            ));
+        if (taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
+            if (configuredFields.contains("privileged")) {
+                errors.add(new ValidationError(
+                    this,
+                    "privileged",
+                    "'privileged' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+                ));
+            }
+
+            if (configuredFields.contains("docker-security-options")) {
+                errors.add(new ValidationError(
+                    this,
+                    "docker-security-options",
+                    "'docker-security-options' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+                ));
+            }
         }
 
         return errors;
