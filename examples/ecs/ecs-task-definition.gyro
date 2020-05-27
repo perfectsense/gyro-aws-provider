@@ -1,0 +1,336 @@
+ecs-task-role: $(external-query aws::iam-role { name: 'ecsTaskRole' }).0
+ecs-task-execution-role: $(external-query aws::iam-role { name: 'ecsTaskExecutionRole' }).0
+
+
+aws::ecs-task-definition ecs-task-definition-ec2-example
+    family: "ecs-task-definition-ec2-example"
+    requires-compatibilities: ["EC2"]
+    network-mode: "bridge"
+    task-role: $ecs-task-role
+    execution-role: $ecs-task-execution-role
+    cpu: 512
+    memory: 2048
+
+    container-definition
+        name: "ecs-container-definition-example"
+        image: "ecs-container-definition-example"
+        cpu: 256
+        memory: 2048
+        memory-reservation: 1024
+        links: ["ecs-container-definition-example-2"]
+
+        port-mapping
+            container-port: 80
+            host-port: 210
+            protocol: tcp
+        end
+
+        entry-point: ["executable", "param1", "param2"]
+        command: ["cparam1","cparam2"]
+
+        environment: {
+            VAR: "value"
+        }
+
+        mount-point
+            source-volume: "ecs-volume-example"
+            container-path: "/example-host-volume-path"
+            read-only: false
+        end
+
+        volume-from
+            source-container: "ecs-container-definition-example-2"
+            read-only: false
+        end
+
+        linux-parameters
+            init-process-enabled: true
+            shared-memory-size: 128
+
+            capabilities
+                add: ["AUDIT_CONTROL", "SYS_ADMIN", "SYS_TTY_CONFIG"]
+                drop: ["BLOCK_SUSPEND", "SETPCAP", "WAKE_ALARM"]
+            end
+
+            device
+                host-path: "/example-device-host-path"
+                container-path: "/example-device-container-path"
+                permissions: ["read", "write"]
+            end
+
+            tmpfs
+                container-path: "/example-tmpfs-path"
+                size: 64
+                mount-options: ["exec", "async", "remount"]
+            end
+
+            max-swap: 128
+            swappiness: 60
+        end
+
+        extra-host
+            hostname: "example-extra-hostname"
+            ip-address: "40.40.40.40"
+        end
+
+        ulimit
+            name: "core"
+            soft-limit: 256
+            hard-limit: 512
+        end
+
+        log-configuration
+            log-driver: "syslog"
+            options: {
+                example-option: "example-value"
+            }
+        end
+
+        health-check
+            command: [ "CMD-SHELL", "curl -f http://localhost/ || exit 1" ]
+            interval: 30
+            timeout: 5
+            retries: 3
+            start-period: 20
+        end
+
+        system-control
+            namespace: "net.ipv4.ip_forward"
+            value: "1"
+        end
+
+        resource-requirement
+            type: "GPU"
+            value: "4"
+        end
+
+        resource-requirement
+            type: "InferenceAccelerator"
+            value: "ecs-inference-accelerator-example"
+        end
+
+        firelens-configuration
+            type: "fluentd"
+            options: {
+                enable-ecs-log-metadata: "true"
+            }
+        end
+
+        essential: true
+        start-timeout: 180
+        stop-timeout: 30
+        hostname: "example-hostname"
+        user: "0:example-group"
+        working-directory: "/example-working-directory"
+        disable-networking: false
+        privileged: true
+        readonly-root-filesystem: false
+        dns-servers: ["8.8.8.8"]
+        interactive: true
+        pseudo-terminal: true
+
+        docker-labels: {
+            example-label: "example-value"
+        }
+    end
+
+    container-definition
+        name: "ecs-container-definition-example-2"
+        image: "ecs-container-definition-example-2"
+        cpu: 256
+        memory: 2048
+        memory-reservation: 1024
+        essential: false
+
+        depends-on
+            container-name: "ecs-container-definition-example"
+            condition: "HEALTHY"
+        end
+
+        log-configuration
+            log-driver: "awsfirelens"
+            options: {
+                example-option: "example-value"
+            }
+        end
+    end
+
+    volume
+        name: "ecs-volume-example"
+
+        docker-volume-configuration
+            scope: "shared"
+            autoprovision: true
+            driver: "local"
+            driver-opts: {
+                example-option: "example-value"
+            }
+            labels: {
+                example-label: "example-value"
+            }
+        end
+    end
+
+    inference-accelerator
+        device-name: "ecs-inference-accelerator-example"
+        device-type: "eia1.medium"
+    end
+
+    placement-constraint
+        type: "memberOf"
+        expression: "runningTasksCount == 1"
+    end
+
+    pid-mode: "host"
+    ipc-mode: "host"
+
+    tags: {
+        Name: "ecs-task-definition-ec2-example"
+    }
+
+end
+
+aws::ecs-task-definition ecs-task-definition-fargate-example
+    family: "ecs-task-definition-fargate-example"
+    requires-compatibilities: ["FARGATE"]
+    network-mode: "awsvpc"
+    task-role: $ecs-task-role
+    execution-role: $ecs-task-execution-role
+    cpu: 512
+    memory: 2048
+
+    container-definition
+        name: "ecs-container-definition-example"
+        image: "ecs-container-definition-example"
+        cpu: 256
+        memory: 2048
+        memory-reservation: 1024
+
+        port-mapping
+            container-port: 80
+            protocol: tcp
+        end
+
+        entry-point: ["executable", "param1", "param2"]
+        command: ["cparam1","cparam2"]
+
+        environment: {
+            VAR: "value"
+        }
+
+        mount-point
+            source-volume: "ecs-volume-example"
+            container-path: "/example-host-volume-path"
+            read-only: false
+        end
+
+        volume-from
+            source-container: "ecs-container-definition-example-2"
+            read-only: false
+        end
+
+        linux-parameters
+            init-process-enabled: true
+            capabilities
+                drop: ["BLOCK_SUSPEND", "SETPCAP", "WAKE_ALARM"]
+            end
+        end
+
+        ulimit
+            name: "core"
+            soft-limit: 256
+            hard-limit: 512
+        end
+
+        log-configuration
+            log-driver: "awslogs"
+            options: {
+                awslogs-group: "example-group",
+                awslogs-region: "example-region",
+                awslogs-stream-prefix: "example-stream-prefix"
+            }
+        end
+
+        health-check
+            command: [ "CMD-SHELL", "curl -f http://localhost/ || exit 1" ]
+            interval: 30
+            timeout: 5
+            retries: 3
+            start-period: 20
+        end
+
+        firelens-configuration
+            type: "fluentd"
+            options: {
+                enable-ecs-log-metadata: "true"
+            }
+        end
+
+        essential: true
+        start-timeout: 180
+        stop-timeout: 30
+        user: "0:example-group"
+        working-directory: "/example-working-directory"
+        disable-networking: false
+        readonly-root-filesystem: false
+        interactive: true
+        pseudo-terminal: true
+
+        docker-labels: {
+            example-label: "example-value"
+        }
+    end
+
+    container-definition
+        name: "ecs-container-definition-example-2"
+        image: "ecs-container-definition-example-2"
+        cpu: 256
+        memory: 2048
+        memory-reservation: 1024
+        essential: false
+
+        depends-on
+            container-name: "ecs-container-definition-example"
+            condition: "HEALTHY"
+        end
+
+        log-configuration
+            log-driver: "awsfirelens"
+            options: {
+                example-option: "example-value"
+            }
+        end
+    end
+
+    volume
+        name: "ecs-volume-example"
+
+        docker-volume-configuration
+            scope: "shared"
+            autoprovision: true
+            driver: "local"
+            driver-opts: {
+                example-option: "example-value"
+            }
+            labels: {
+                example-label: "example-value"
+            }
+        end
+    end
+
+    proxy-configuration
+        type: "APPMESH"
+        container-name: "ecs-container-definition-example"
+        properties: {
+            IgnoredUID: "0",
+            AppPorts: "48, 80",
+            ProxyIngressPort: "12",
+            ProxyEgressPort: "16"
+        }
+    end
+
+    tags: {
+        Name: "ecs-task-definition-fargate-example"
+    }
+
+end
