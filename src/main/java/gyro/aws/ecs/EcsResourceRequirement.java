@@ -60,7 +60,7 @@ public class EcsResourceRequirement extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return getType().toString();
     }
 
     public void copyFrom(ResourceRequirement model) {
