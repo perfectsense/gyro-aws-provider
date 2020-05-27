@@ -693,31 +693,6 @@ public class EcsContainerDefinition extends Diffable {
             }
         }
 
-        if (configuredFields.contains("resource-requirement")) {
-            if (taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
-                errors.add(new ValidationError(
-                    this,
-                    "resource-requirement",
-                    "'resource-requirement' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
-                ));
-            }
-
-            List<ResourceType> resourceTypes = getResourceRequirement().stream()
-                .map(EcsResourceRequirement::getType)
-                .collect(Collectors.toList());
-
-            if (resourceTypes.size() > 2
-                || resourceTypes.stream().filter(o -> o == ResourceType.GPU).count() > 1
-                || resourceTypes.stream().filter(o -> o == ResourceType.INFERENCE_ACCELERATOR).count() > 1) {
-
-                errors.add(new ValidationError(
-                    this,
-                    "resource-requirement",
-                    "A container definition may not contain more than one 'resource-requirement' of the same 'type'."
-                ));
-            }
-        }
-
         if (configuredFields.contains("links") && taskDefinition.getNetworkMode() != NetworkMode.BRIDGE) {
             errors.add(new ValidationError(
                 this,
@@ -742,9 +717,25 @@ public class EcsContainerDefinition extends Diffable {
                     "'extra-host' may not be specified when the task definition's 'network-mode' parameter is set to 'awsvpc'."
                 ));
             }
+
+            if (configuredFields.contains("dns-servers")) {
+                errors.add(new ValidationError(
+                    this,
+                    "dns-servers",
+                    "'dns-servers' may not be specified when the task definition's 'network-mode' parameter is set to 'awsvpc'."
+                ));
+            }
         }
 
         if (configuredFields.contains("port-mapping")) {
+            if (taskDefinition.getNetworkMode() == NetworkMode.NONE) {
+                errors.add(new ValidationError(
+                    this,
+                    "port-mapping",
+                    "'port-mapping' may not be specified when the task definition's 'network-mode' parameter is set to 'none'."
+                ));
+            }
+
             List<Integer> tcpPorts = getPortMapping().stream()
                 .filter(o -> o.getProtocol() == TransportProtocol.TCP)
                 .map(EcsPortMapping::getContainerPort)
@@ -765,6 +756,14 @@ public class EcsContainerDefinition extends Diffable {
         }
 
         if (taskDefinition.getRequiresCompatibilities().contains(Compatibility.FARGATE.toString())) {
+            if (configuredFields.contains("resource-requirement")) {
+                errors.add(new ValidationError(
+                    this,
+                    "resource-requirement",
+                    "'resource-requirement' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+                ));
+            }
+
             if (configuredFields.contains("privileged")) {
                 errors.add(new ValidationError(
                     this,
@@ -778,6 +777,14 @@ public class EcsContainerDefinition extends Diffable {
                     this,
                     "docker-security-options",
                     "'docker-security-options' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
+                ));
+            }
+
+            if (configuredFields.contains("system-control")) {
+                errors.add(new ValidationError(
+                    this,
+                    "system-control",
+                    "'system-control' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
                 ));
             }
         }
