@@ -49,7 +49,7 @@ public class EcsVolume extends Diffable {
 
     /**
      * The path on the host container instance that is presented to the container.
-     * When using the Fargate launch type, this parameter is not supported.
+     * When the task definition's 'requires-compatibilities' parameter contains 'FARGATE', this parameter is not supported.
      */
     public String getHostSourcePath() {
         return hostSourcePath;
@@ -61,7 +61,6 @@ public class EcsVolume extends Diffable {
 
     /**
      * This parameter is specified when using Docker volumes.
-     * Docker volumes are only supported when using the EC2 launch type.
      *
      * @subresource gyro.aws.ecs.EcsDockerVolumeConfiguration
      */
@@ -117,12 +116,6 @@ public class EcsVolume extends Diffable {
                     this,
                     "host-source-path",
                     "A 'host-source-path' may not be specified when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'."
-                ));
-            } else if (configuredFields.contains("docker-volume-configuration") && !taskDefinition.getRequiresCompatibilities().contains(Compatibility.EC2.toString())) {
-                errors.add(new ValidationError(
-                    this,
-                    "docker-volume-configuration",
-                    "A 'docker-volume-configuration' may only be specified when the task definition's 'requires-compatibilities' parameter contains 'EC2'."
                 ));
             }
         }
