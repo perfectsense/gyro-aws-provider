@@ -18,8 +18,10 @@ package gyro.aws.ecs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Range;
@@ -46,13 +49,17 @@ import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.Compatibility;
 import software.amazon.awssdk.services.ecs.model.DescribeTaskDefinitionResponse;
 import software.amazon.awssdk.services.ecs.model.EcsException;
+import software.amazon.awssdk.services.ecs.model.IpcMode;
 import software.amazon.awssdk.services.ecs.model.NetworkMode;
+import software.amazon.awssdk.services.ecs.model.PidMode;
 import software.amazon.awssdk.services.ecs.model.RegisterTaskDefinitionResponse;
 import software.amazon.awssdk.services.ecs.model.ResourceType;
+import software.amazon.awssdk.services.ecs.model.Tag;
 import software.amazon.awssdk.services.ecs.model.TaskDefinition;
+import software.amazon.awssdk.services.ecs.model.TaskDefinitionField;
 
 /**
- * Create an ECS task definition.
+ * Create an ecs task definition.
  *
  * Example
  * -------
@@ -64,17 +71,26 @@ import software.amazon.awssdk.services.ecs.model.TaskDefinition;
 public class EcsTaskDefinitionResource extends AwsResource implements Copyable<TaskDefinition> {
 
     private String family;
+    private RoleResource taskRole;
+    private RoleResource executionRole;
     private Set<String> requiresCompatibilities;
     private List<EcsContainerDefinition> containerDefinition;
     private List<EcsVolume> volume;
+    private List<EcsTaskDefinitionPlacementConstraint> placementConstraint;
     private NetworkMode networkMode;
     private Integer cpu;
     private Integer memory;
-    private RoleResource executionRole;
+    private PidMode pidMode;
+    private IpcMode ipcMode;
+    private EcsProxyConfiguration proxyConfiguration;
     private List<EcsInferenceAccelerator> inferenceAccelerator;
+    private Map<String, String> tags;
     private Integer revision;
     private String arn;
 
+    /**
+     * Used as a name for the task definition. Allows configuration of multiple revisions of the same task definition. (Required)
+     */
     @Required
     @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
     public String getFamily() {
@@ -85,6 +101,32 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.family = family;
     }
 
+    /**
+     * The IAM role that containers in this task can assume. All containers in this task are granted the permissions that are specified in this role.
+     */
+    public RoleResource getTaskRole() {
+        return taskRole;
+    }
+
+    public void setTaskRole(RoleResource taskRole) {
+        this.taskRole = taskRole;
+    }
+
+    /**
+     * The task execution role that the Amazon ECS container agent and the Docker daemon can assume.
+     */
+    public RoleResource getExecutionRole() {
+        return executionRole;
+    }
+
+    public void setExecutionRole(RoleResource executionRole) {
+        this.executionRole = executionRole;
+    }
+
+    /**
+     * The launch type required by the task.
+     * Valid values are ``EC2`` and ``FARGATE``. Defaults to ``EC2``.
+     */
     @ValidStrings({"EC2", "FARGATE"})
     public Set<String> getRequiresCompatibilities() {
         if (requiresCompatibilities == null) {
@@ -99,6 +141,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     }
 
     /**
+     * A list of container definitions in that describes the different containers that make up the task. (Required)
      *
      * @subresource gyro.aws.ecs.EcsContainerDefinition
      */
@@ -116,6 +159,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     }
 
     /**
+     * A list of volume definitions that containers in the task may use.
      *
      * @subresource gyro.aws.ecs.EcsVolume
      */
@@ -131,6 +175,31 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.volume = volume;
     }
 
+    /**
+     * An array of placement constraint objects to use for the task.
+     * You can specify a maximum of 10 constraints per task (this limit includes constraints in the task definition and those specified at runtime).
+     *
+     * @subresource gyro.aws.ecs.EcsTaskDefinitionPlacementConstraint
+     */
+    @CollectionMax(10)
+    public List<EcsTaskDefinitionPlacementConstraint> getPlacementConstraint() {
+        if (placementConstraint == null) {
+            placementConstraint = new ArrayList<>();
+        }
+
+        return placementConstraint;
+    }
+
+    public void setPlacementConstraint(List<EcsTaskDefinitionPlacementConstraint> placementConstraint) {
+        this.placementConstraint = placementConstraint;
+    }
+
+    /**
+     * The Docker networking mode to use for the containers in the task.
+     * The ``host`` and ``awsvpc`` modes offer the highest networking performance for containers because they use the EC2 network stack instead of the virtualized network stack provided by the ``bridge`` mode.
+     * If ``requires-compatibilities`` contains ``FARGATE``, the ``awsvpc`` mode is required.
+     * Valid values are ``none``, ``bridge``, ``awsvpc``, and ``host``. Defaults to ``bridge``.
+     */
     public NetworkMode getNetworkMode() {
         return networkMode;
     }
@@ -139,6 +208,11 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.networkMode = networkMode;
     }
 
+    /**
+     * The number of CPU units used by the task.
+     * Valid values range from ``128`` (0.125 vCPUs) to ``10240`` (10 vCPUs).
+     * If ``requires-compatibilities`` contains ``FARGATE``, this field is required and the valid values are ``256``, ``512``, ``1024``, ``2048``, and ``4096``.
+     */
     @Range(min = 128, max = 10240)
     public Integer getCpu() {
         return cpu;
@@ -148,6 +222,16 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.cpu = cpu;
     }
 
+    /**
+     * The amount of memory (in MiB) used by the task.
+     *
+     * If ``requires-compatibilities`` contains ``FARGATE``, this field is required and the valid values are determined by the ``cpu`` parameter as follows:
+     *      - if ``cpu`` = 256: ``512``, ``1024``, ``2048``
+     *      - if ``cpu`` = 512: ``1024``, ``2048``, ``3072``, ``4096``
+     *      - if ``cpu`` = 1024: ``2048``, ``3072``, ``4096``, ``5120``, ``6144``, ``7168``, ``8192``
+     *      - if ``cpu`` = 2048: Between ``4096`` and ``16384`` in increments of 1024
+     *      - if ``cpu`` = 4096: Between ``8192`` and ``30720`` in increments of 1024
+     */
     public Integer getMemory() {
         return memory;
     }
@@ -156,15 +240,52 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.memory = memory;
     }
 
-    public RoleResource getExecutionRole() {
-        return executionRole;
+    /**
+     * The process namespace to use for the containers in the task.
+     * If ``host`` is specified, then all containers within the tasks that specified the ``host`` ``pid-mode`` on the same container instance share the same process namespace with the host Amazon EC2 instance.
+     * If ``task`` is specified, all containers within the specified task share the same process namespace.
+     * If ``requires-compatibilities`` contains ``FARGATE``, this parameter is not supported.
+     * Valid values are ``host`` and ``task``. If no value is specified, the default is a private namespace.
+     */
+    public PidMode getPidMode() {
+        return pidMode;
     }
 
-    public void setExecutionRole(RoleResource executionRole) {
-        this.executionRole = executionRole;
+    public void setPidMode(PidMode pidMode) {
+        this.pidMode = pidMode;
     }
 
     /**
+     * The IPC resource namespace to use for the containers in the task.
+     * If ``host`` is specified, then all containers within the tasks that specified the host ``ipc-mode`` on the same container instance share the same IPC resources with the host Amazon EC2 instance.
+     * If ``task`` is specified, all containers within the specified task share the same IPC resources.
+     * If ``none`` is specified, then IPC resources within the containers of a task are private and not shared with other containers in a task or on the container instance.
+     * If ``requires-compatibilities`` contains ``FARGATE``, this parameter is not supported.
+     * Valid values are ``host``, ``task``, and ``none``. If no value is specified, then the IPC resource namespace sharing depends on the Docker daemon setting on the container instance.
+     */
+    public IpcMode getIpcMode() {
+        return ipcMode;
+    }
+
+    public void setIpcMode(IpcMode ipcMode) {
+        this.ipcMode = ipcMode;
+    }
+
+    /**
+     * The ``proxy-configuration`` for the task definition.
+     *
+     * @subresource gyro.aws.ecs.EcsProxyConfiguration
+     */
+    public EcsProxyConfiguration getProxyConfiguration() {
+        return proxyConfiguration;
+    }
+
+    public void setProxyConfiguration(EcsProxyConfiguration proxyConfiguration) {
+        this.proxyConfiguration = proxyConfiguration;
+    }
+
+    /**
+     * The Elastic Inference accelerators to use for the containers in the task.
      *
      * @subresource gyro.aws.ecs.EcsInferenceAccelerator
      */
@@ -181,6 +302,28 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.inferenceAccelerator = inferenceAccelerator;
     }
 
+    /**
+     * The metadata applied to the task definition. Each tag consists of a key and an optional value.
+     * Up to 50 tags per resource are allowed. The maximum character length is 128 for keys and 256 for values.
+     * Tags may not be prefixed with ``aws:``, regardless of character case.
+     */
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
+    /**
+     * A version number of a task definition in a ``family``.
+     * When you register a task definition for the first time, the ``revision`` is 1. Each time that you register a new revision of a task definition in the same ``family``, the ``revision`` value always increases by one, even if you have deregistered previous revisions in this ``family``.
+     */
     @Output
     public Integer getRevision() {
         return revision;
@@ -190,6 +333,9 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
         this.revision = revision;
     }
 
+    /**
+     * The full Amazon Resource Name (ARN) of the task definition.
+     */
     @Output
     @Id
     public String getArn() {
@@ -218,12 +364,32 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                 return ecsVolume;
             }).collect(Collectors.toList())
         );
+        setPlacementConstraint(
+            model.placementConstraints().stream().map(o -> {
+                EcsTaskDefinitionPlacementConstraint constraint = newSubresource(EcsTaskDefinitionPlacementConstraint.class);
+                constraint.copyFrom(o);
+                return constraint;
+            }).collect(Collectors.toList())
+        );
         setNetworkMode(model.networkMode());
-        setCpu(ObjectUtils.isBlank(model.cpu()) ? null : Integer.decode(model.cpu()));
-        setMemory(ObjectUtils.isBlank(model.memory()) ? null : Integer.decode(model.memory()));
-        setExecutionRole(!ObjectUtils.isBlank(model.executionRoleArn())
+        setCpu(model.cpu() != null ? Integer.decode(model.cpu()) : null);
+        setMemory(model.memory() != null ? Integer.decode(model.memory()) : null);
+        setPidMode(model.pidMode());
+        setIpcMode(model.ipcMode());
+        setTaskRole(model.taskRoleArn() != null
+            ? findById(RoleResource.class, model.taskRoleArn())
+            : null);
+        setExecutionRole(model.executionRoleArn() != null
             ? findById(RoleResource.class, model.executionRoleArn())
             : null);
+
+        EcsProxyConfiguration proxyConfig = null;
+        if (model.proxyConfiguration() != null) {
+            proxyConfig = newSubresource(EcsProxyConfiguration.class);
+            proxyConfig.copyFrom(model.proxyConfiguration());
+        }
+        setProxyConfiguration(proxyConfig);
+
         setInferenceAccelerator(
             model.inferenceAccelerators().stream().map(o -> {
                 EcsInferenceAccelerator inferenceAccelerator = newSubresource(EcsInferenceAccelerator.class);
@@ -239,7 +405,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     public boolean refresh() {
         EcsClient client = createClient(EcsClient.class);
 
-        TaskDefinition definition = getTaskDefinition(client);
+        TaskDefinition definition = getTaskDefinition(client, true);
 
         if (definition == null) {
             return false;
@@ -262,12 +428,22 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                 .volumes(getVolume().stream()
                     .map(EcsVolume::copyTo)
                     .collect(Collectors.toList()))
+                .placementConstraints(getPlacementConstraint().stream()
+                    .map(EcsTaskDefinitionPlacementConstraint::copyTo)
+                    .collect(Collectors.toList()))
                 .networkMode(getNetworkMode())
                 .cpu(getCpu() != null ? getCpu().toString() : null)
                 .memory(getMemory() != null ? getMemory().toString() : null)
+                .pidMode(getPidMode())
+                .ipcMode(getIpcMode())
+                .taskRoleArn(getTaskRole() != null ? getTaskRole().getArn() : null)
                 .executionRoleArn(getExecutionRole() != null ? getExecutionRole().getArn() : null)
+                .proxyConfiguration(getProxyConfiguration() != null ? getProxyConfiguration().copyTo() : null)
                 .inferenceAccelerators(getInferenceAccelerator().stream()
                     .map(EcsInferenceAccelerator::copyTo)
+                    .collect(Collectors.toList()))
+                .tags(getTags().entrySet().stream()
+                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
                     .collect(Collectors.toList()))
         );
 
@@ -282,9 +458,28 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     }
 
     @Override
-    public void update(
-        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        EcsClient client = createClient(EcsClient.class);
 
+        EcsTaskDefinitionResource currentResource = (EcsTaskDefinitionResource) current;
+        Set<String> currentKeys = currentResource.getTags().keySet();
+
+        if (!currentKeys.isEmpty()) {
+            client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
+        }
+
+        if (!getTags().isEmpty()) {
+            client.tagResource(
+                r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
+                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                    .collect(Collectors.toList()))
+            );
+        }
+
+        Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isActive(client));
     }
 
     @Override
@@ -299,7 +494,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
             .until(() -> !isActive(client));
     }
 
-    private TaskDefinition getTaskDefinition(EcsClient client) {
+    private TaskDefinition getTaskDefinition(EcsClient client, boolean loadTags) {
         if (ObjectUtils.isBlank(getArn())) {
             throw new GyroException("ARN is missing, unable to load task definition.");
         }
@@ -308,12 +503,21 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
 
         try {
             DescribeTaskDefinitionResponse response = client.describeTaskDefinition(
-                r -> r.taskDefinition(getArn()).includeWithStrings("TAGS")
+                r -> r.taskDefinition(getArn())
+                    .include(TaskDefinitionField.TAGS)
             );
 
             if (response.taskDefinition() != null) {
                 definition = response.taskDefinition();
+
+                if (loadTags) {
+                    setTags(
+                        response.tags().stream()
+                            .collect(Collectors.toMap(Tag::key, Tag::value))
+                    );
+                }
             }
+
         } catch (EcsException ex) {
             // ignore
             System.out.println(ex.awsErrorDetails());
@@ -323,7 +527,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     }
 
     private boolean isActive(EcsClient client) {
-        TaskDefinition definition = getTaskDefinition(client);
+        TaskDefinition definition = getTaskDefinition(client, false);
 
         return definition != null && definition.statusAsString().equals("ACTIVE");
     }
@@ -348,6 +552,30 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                     this,
                     "network-mode",
                     "The 'network-mode' must be set to 'awsvpc' when 'requires-compatibilities' contains 'FARGATE'."
+                ));
+            }
+
+            if (configuredFields.contains("pid-mode")) {
+                errors.add(new ValidationError(
+                    this,
+                    "pid-mode",
+                    "'pid-mode' is not supported when 'requires-compatibilities' contains 'FARGATE'."
+                ));
+            }
+
+            if (configuredFields.contains("ipc-mode")) {
+                errors.add(new ValidationError(
+                    this,
+                    "ipc-mode",
+                    "'ipc-mode' is not supported when 'requires-compatibilities' contains 'FARGATE'."
+                ));
+            }
+
+            if (configuredFields.contains("placement-constraint")) {
+                errors.add(new ValidationError(
+                    this,
+                    "placement-constraint",
+                    "'placement-constraint' is not supported when 'requires-compatibilities' contains 'FARGATE'."
                 ));
             }
 
