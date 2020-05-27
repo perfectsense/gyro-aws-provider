@@ -54,7 +54,7 @@ public class EcsLinuxParameters extends Diffable {
 
     /**
      * Any host devices to expose to the container.
-     * Not supported under task definitions using the Fargate launch type.
+     * Not supported under task definitions whose ``requires-compatibilities`` parameter contains ``FARGATE``.
      *
      * @subresource gyro.aws.ecs.EcsDevice
      */
@@ -83,7 +83,7 @@ public class EcsLinuxParameters extends Diffable {
 
     /**
      * The value for the size (in MiB) of the /dev/shm volume.
-     * Not supported under task definitions using the Fargate launch type.
+     * Not supported under task definitions whose ``requires-compatibilities`` parameter contains ``FARGATE``.
      */
     public Integer getSharedMemorySize() {
         return sharedMemorySize;
@@ -95,7 +95,7 @@ public class EcsLinuxParameters extends Diffable {
 
     /**
      * The container path, mount options, and size (in MiB) of the tmpfs mount.
-     * Not supported under task definitions using the Fargate launch type.
+     * Not supported under task definitions whose ``requires-compatibilities`` parameter contains ``FARGATE``.
      *
      * @subresource gyro.aws.ecs.EcsTmpfs
      */
@@ -115,7 +115,7 @@ public class EcsLinuxParameters extends Diffable {
      * The total amount of swap memory (in MiB) a container can use.
      * If a value of 0 is specified, the container will not use swap.
      * Valid values are 0 or any positive integer.
-     * Not supported under task definitions using the Fargate launch type.
+     * Not supported under task definitions whose ``requires-compatibilities`` parameter contains ``FARGATE``.
      */
     @Min(0)
     public Integer getMaxSwap() {
