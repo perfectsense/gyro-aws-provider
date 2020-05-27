@@ -25,6 +25,7 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.Cluster;
+import software.amazon.awssdk.services.ecs.model.ClusterField;
 import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
 import software.amazon.awssdk.services.ecs.model.ListClustersResponse;
 
@@ -38,7 +39,6 @@ import software.amazon.awssdk.services.ecs.model.ListClustersResponse;
  *
  *    ecs-cluster: $(external-query aws::ecs-cluster { name: 'ecs-cluster-example' })
  */
-
 @Type("ecs-cluster")
 public class EcsClusterFinder extends AwsFinder<EcsClient, Cluster, EcsClusterResource> {
 
@@ -80,7 +80,7 @@ public class EcsClusterFinder extends AwsFinder<EcsClient, Cluster, EcsClusterRe
         try {
             return client.describeClusters(
                 r -> r.clusters(filters.get("name"))
-                    .includeWithStrings("TAGS", "SETTINGS")
+                    .include(ClusterField.TAGS, ClusterField.SETTINGS)
             ).clusters().stream().collect(Collectors.toList());
 
         } catch (ClusterNotFoundException ex) {

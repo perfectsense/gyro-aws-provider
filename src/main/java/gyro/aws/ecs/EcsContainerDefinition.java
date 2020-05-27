@@ -33,7 +33,6 @@ import software.amazon.awssdk.services.ecs.model.Compatibility;
 import software.amazon.awssdk.services.ecs.model.ContainerDefinition;
 import software.amazon.awssdk.services.ecs.model.KeyValuePair;
 import software.amazon.awssdk.services.ecs.model.NetworkMode;
-import software.amazon.awssdk.services.ecs.model.ResourceType;
 import software.amazon.awssdk.services.ecs.model.TransportProtocol;
 
 public class EcsContainerDefinition extends Diffable {
@@ -500,7 +499,8 @@ public class EcsContainerDefinition extends Diffable {
         setEntryPoint(model.entryPoint());
         setCommand(model.command());
         setEnvironment(
-            model.environment().stream().collect(Collectors.toMap(KeyValuePair::name, KeyValuePair::value))
+            model.environment().stream()
+                .collect(Collectors.toMap(KeyValuePair::name, KeyValuePair::value))
         );
 
         // missing field: model.environmentFiles()

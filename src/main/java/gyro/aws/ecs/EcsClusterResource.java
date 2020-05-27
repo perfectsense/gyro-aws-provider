@@ -42,6 +42,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.Cluster;
+import software.amazon.awssdk.services.ecs.model.ClusterField;
 import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
 import software.amazon.awssdk.services.ecs.model.ClusterSetting;
 import software.amazon.awssdk.services.ecs.model.DescribeClustersResponse;
@@ -293,7 +294,8 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
         try {
             DescribeClustersResponse response = client.describeClusters(
-                r -> r.clusters(getClusterName()).includeWithStrings("ATTACHMENTS", "SETTINGS", "TAGS")
+                r -> r.clusters(getClusterName())
+                    .include(ClusterField.ATTACHMENTS, ClusterField.SETTINGS, ClusterField.TAGS)
             );
 
             if (response.hasClusters()) {
