@@ -59,7 +59,7 @@ import software.amazon.awssdk.services.ecs.model.TaskDefinition;
 import software.amazon.awssdk.services.ecs.model.TaskDefinitionField;
 
 /**
- * Create an ecs task definition.
+ * Create an ECS task definition.
  *
  * Example
  * -------

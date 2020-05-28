@@ -31,7 +31,7 @@ import software.amazon.awssdk.services.ecs.model.ListTaskDefinitionsResponse;
 import software.amazon.awssdk.services.ecs.model.TaskDefinition;
 
 /**
- * Query ecs task definition.
+ * Query ECS task definition.
  *
  * Example
  * -------

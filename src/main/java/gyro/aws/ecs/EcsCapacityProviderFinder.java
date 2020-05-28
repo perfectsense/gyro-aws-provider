@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.ecs.model.CapacityProvider;
 import software.amazon.awssdk.services.ecs.model.EcsException;
 
 /**
- * Query ecs capacity provider.
+ * Query ECS capacity provider.
  *
  * Example
  * -------

@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
 import software.amazon.awssdk.services.ecs.model.ListClustersResponse;
 
 /**
- * Query ecs cluster.
+ * Query ECS cluster.
  *
  * Example
  * -------
