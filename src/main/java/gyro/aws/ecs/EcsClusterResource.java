@@ -56,6 +56,39 @@ import software.amazon.awssdk.services.ecs.model.Tag;
  *
  * .. code-block:: gyro
  *
+ *     aws::ecs-cluster ecs-cluster-example
+ *         cluster-name: "example-ecs-cluster"
+ *         capacity-providers: [
+ *             $(aws::ecs-capacity-provider ecs-capacity-provider-example),
+ *             $(aws::ecs-capacity-provider ecs-capacity-provider-example-2),
+ *             $(aws::ecs-capacity-provider ecs-capacity-provider-example-3)
+ *         ]
+ *
+ *         default-capacity-provider-strategy
+ *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-example)
+ *             base: 2
+ *             weight: 3
+ *         end
+ *
+ *         default-capacity-provider-strategy
+ *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-example-2)
+ *             weight: 2
+ *         end
+ *
+ *         default-capacity-provider-strategy
+ *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-example-3)
+ *             weight: 1
+ *         end
+ *
+ *         settings: {
+ *             'containerInsights': 'disabled'
+ *         }
+ *
+ *         tags: {
+ *             'Name': 'example-ecs-cluster'
+ *         }
+ *
+ *     end
  */
 @Type("ecs-cluster")
 public class EcsClusterResource extends AwsResource implements Copyable<Cluster> {

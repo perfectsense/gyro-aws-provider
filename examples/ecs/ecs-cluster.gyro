@@ -1,0 +1,37 @@
+provider: $(external-query aws::ecs-capacity-provider { name: 'aws::ecs-capacity-provider ecs-capacity-provider-example' }).0
+provider2: $(external-query aws::ecs-capacity-provider { name: 'aws::ecs-capacity-provider ecs-capacity-provider-example-2' }).0
+provider3: $(external-query aws::ecs-capacity-provider { name: 'aws::ecs-capacity-provider ecs-capacity-provider-example-3' }).0
+
+aws::ecs-cluster ecs-cluster-example
+    cluster-name: "example-ecs-cluster"
+    capacity-providers: [
+        $provider,
+        $provider2,
+        $provider3
+    ]
+
+    default-capacity-provider-strategy
+        capacity-provider: $provider
+        base: 2
+        weight: 3
+    end
+
+    default-capacity-provider-strategy
+        capacity-provider: $provider2
+        weight: 2
+    end
+
+    default-capacity-provider-strategy
+        capacity-provider: $provider3
+        weight: 1
+    end
+
+    settings: {
+        'containerInsights': 'disabled'
+    }
+
+    tags: {
+        'Name': 'example-ecs-cluster'
+    }
+
+end

@@ -53,27 +53,27 @@ import software.amazon.awssdk.services.ecs.model.Tag;
  *
  * .. code-block:: gyro
  *
- * aws::ecs-capacity-provider capacity-provider-ecs-example
- *     name: "capacity-provider-ecs-example"
+ *     aws::ecs-capacity-provider capacity-provider-ecs-example
+ *         name: "capacity-provider-ecs-example"
  *
- *     auto-scaling-group-provider
- *         auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-ecs-capacity-provider-example)
+ *         auto-scaling-group-provider
+ *             auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-ecs-capacity-provider-example)
  *
- *         managed-scaling
- *             status: enabled
- *             minimum-scaling-step-size: 1
- *             maximum-scaling-step-size: 50
- *             target-capacity: 75
+ *             managed-scaling
+ *                 status: enabled
+ *                 minimum-scaling-step-size: 1
+ *                 maximum-scaling-step-size: 50
+ *                 target-capacity: 75
+ *             end
+ *
+ *             managed-termination-protection: "ENABLED"
  *         end
  *
- *         managed-termination-protection: "ENABLED"
+ *         tags: {
+ *             'Name': 'capacity-provider-ecs-example'
+ *         }
+ *
  *     end
- *
- *     tags: {
- *         'Name': 'capacity-provider-ecs-example'
- *     }
- *
- * end
  */
 @Type("ecs-capacity-provider")
 public class EcsCapacityProviderResource extends AwsResource implements Copyable<CapacityProvider> {
