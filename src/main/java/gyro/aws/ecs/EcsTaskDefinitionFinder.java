@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
+import gyro.core.validation.DependsOn;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.EcsException;
 import software.amazon.awssdk.services.ecs.model.ListTaskDefinitionsResponse;
@@ -38,23 +39,51 @@ import software.amazon.awssdk.services.ecs.model.TaskDefinition;
  *
  * .. code-block:: gyro
  *
- *    ecs-task-definition: $(external-query aws::ecs-task-definition { name: 'ecs-task-definition-example' })
+ *    ecs-task-definition: $(external-query aws::ecs-task-definition { family: 'ecs-task-definition-example', revision: 1 })
  */
 @Type("ecs-task-definition")
 public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition, EcsTaskDefinitionResource> {
 
-    /**
-     * An identifier for the task definition to find.
-     * Specify the ``family`` to find the latest active revision, specify '``family``:``revision``' for a specific revision in the family, or provide the full ARN of the task definition to find.
-     */
-    private String name;
+    private String family;
+    private Integer revision;
+    private String arn;
 
-    public String getName() {
-        return name;
+    /**
+     * The name shared among all revisions of a task definition.
+     * If this is the only specified parameter, the query returns all task definition revisions that belong to the family.
+     */
+    public String getFamily() {
+        return family;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFamily(String family) {
+        this.family = family;
+    }
+
+    /**
+     * A version number of a task definition in a ``family``.
+     * This parameter may only be specified if ``family`` is also specified.
+     * If both parameters are set, the query returns the corresponding task definition revision from the family.
+     */
+    @DependsOn("family")
+    public Integer getRevision() {
+        return revision;
+    }
+
+    public void setRevision(Integer revision) {
+        this.revision = revision;
+    }
+
+    /**
+     * The full Amazon Resource Name (ARN) of the task definition.
+     * If this parameter is specified, the query will return the corresponding task definition.
+     */
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
     }
 
     @Override
@@ -63,8 +92,7 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
 
         if (listTaskDefinitionsResponse.hasTaskDefinitionArns()) {
             return listTaskDefinitionsResponse.taskDefinitionArns().stream()
-                .map(o -> client.describeTaskDefinition(r -> r.taskDefinition(o))
-                        .taskDefinition())
+                .map(o -> getTaskDefinitionByIdentifier(client, o))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -76,19 +104,36 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
 
     @Override
     protected List<TaskDefinition> findAws(EcsClient client, Map<String, String> filters) {
-        if (!filters.containsKey("name")) {
-            throw new IllegalArgumentException("'name' is required.");
-        }
-
         List<TaskDefinition> taskDefinitions = new ArrayList<>();
 
         try {
-            TaskDefinition definition = client.describeTaskDefinition(
-                r -> r.taskDefinition(filters.get("name"))
-            ).taskDefinition();
+            if (filters.containsKey("arn")) {
+                TaskDefinition definitionFromArn = getTaskDefinitionByIdentifier(client, filters.get("arn"));
 
-            if (definition != null) {
-                taskDefinitions.add(definition);
+                if (definitionFromArn != null) {
+                    taskDefinitions.add(definitionFromArn);
+                }
+
+            } else if (filters.containsKey("family")) {
+                if (filters.containsKey("revision")) {
+                    TaskDefinition definitionFromRevision = getTaskDefinitionByIdentifier(
+                        client, filters.get("family") + ":" + filters.get("revision")
+                    );
+
+                    if (definitionFromRevision != null) {
+                        taskDefinitions.add(definitionFromRevision);
+                    }
+
+                } else {
+                    taskDefinitions = client.listTaskDefinitions(r -> r.familyPrefix(filters.get("family")))
+                        .taskDefinitionArns().stream()
+                        .map(o -> getTaskDefinitionByIdentifier(client, o))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                }
+
+            } else {
+                throw new IllegalArgumentException("One of the parameters 'arn' or 'family' is required.");
             }
 
         } catch (EcsException ex) {
@@ -96,5 +141,9 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
         }
 
         return taskDefinitions;
+    }
+
+    private TaskDefinition getTaskDefinitionByIdentifier(EcsClient client, String identifier) {
+        return client.describeTaskDefinition(r -> r.taskDefinition(identifier)).taskDefinition();
     }
 }
