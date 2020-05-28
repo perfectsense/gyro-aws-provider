@@ -276,7 +276,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     private String arn;
 
     /**
-     * Used as a name for the task definition. Allows configuration of multiple revisions of the same task definition. (Required)
+     * The name shared among all revisions of a task definition. (Required)
      */
     @Required
     @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
