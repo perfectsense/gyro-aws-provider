@@ -57,26 +57,20 @@ import software.amazon.awssdk.services.ecs.model.Tag;
  * .. code-block:: gyro
  *
  *     aws::ecs-cluster ecs-cluster-example
- *         cluster-name: "example-ecs-cluster"
+ *         cluster-name: "ecs-cluster-example"
  *         capacity-providers: [
- *             $(aws::ecs-capacity-provider ecs-capacity-provider-example),
- *             $(aws::ecs-capacity-provider ecs-capacity-provider-example-2),
- *             $(aws::ecs-capacity-provider ecs-capacity-provider-example-3)
+ *             $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example),
+ *             $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2)
  *         ]
  *
  *         default-capacity-provider-strategy
- *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-example)
+ *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example)
  *             base: 2
- *             weight: 3
- *         end
- *
- *         default-capacity-provider-strategy
- *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-example-2)
  *             weight: 2
  *         end
  *
  *         default-capacity-provider-strategy
- *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-example-3)
+ *             capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2)
  *             weight: 1
  *         end
  *
@@ -85,7 +79,7 @@ import software.amazon.awssdk.services.ecs.model.Tag;
  *         }
  *
  *         tags: {
- *             'Name': 'example-ecs-cluster'
+ *             'Name': 'ecs-cluster-example'
  *         }
  *
  *     end

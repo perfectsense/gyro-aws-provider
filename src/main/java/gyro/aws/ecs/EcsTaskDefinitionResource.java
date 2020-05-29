@@ -70,8 +70,8 @@ import software.amazon.awssdk.services.ecs.model.TaskDefinitionField;
  *         family: "ecs-task-definition-ec2-example"
  *         requires-compatibilities: ["EC2"]
  *         network-mode: "bridge"
- *         task-role: $(external-query aws::iam-role { name: 'ecsTaskRole' }).0
- *         execution-role: $(external-query aws::iam-role { name: 'ecsTaskExecutionRole' }).0
+ *         task-role: $(aws::iam-role ecs-task-role-example)
+ *         execution-role: $(aws::iam-role ecs-task-execution-role-example)
  *         cpu: 512
  *         memory: 2048
  *

@@ -72,7 +72,7 @@ aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2
 end
 
 aws::ecs-cluster ecs-cluster-example
-    cluster-name: "ecs-cluster"
+    cluster-name: "ecs-cluster-example"
     capacity-providers: [
         $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example),
         $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2)
@@ -94,7 +94,7 @@ aws::ecs-cluster ecs-cluster-example
     }
 
     tags: {
-        'Name': 'ecs cluster example'
+        'Name': 'ecs-cluster-example'
     }
 
 end
