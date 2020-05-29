@@ -1,7 +1,6 @@
 ecs-task-role: $(external-query aws::iam-role { name: 'ecsTaskRole' }).0
 ecs-task-execution-role: $(external-query aws::iam-role { name: 'ecsTaskExecutionRole' }).0
 
-
 aws::ecs-task-definition ecs-task-definition-ec2-example
     family: "ecs-task-definition-ec2-example"
     requires-compatibilities: ["EC2"]
