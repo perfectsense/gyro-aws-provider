@@ -220,7 +220,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
 
     private CapacityProvider getCapacityProvider(EcsClient client) {
         if (ObjectUtils.isBlank(getName())) {
-            throw new GyroException("name is missing, unable to load capacity provider.");
+            throw new GyroException("'name' is missing, unable to load capacity provider.");
         }
 
         CapacityProvider provider = null;
@@ -235,7 +235,6 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
             }
         } catch (EcsException ex) {
             // ignore
-            System.out.println(ex.awsErrorDetails());
         }
 
         return provider;
@@ -256,7 +255,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
                 errors.add(new ValidationError(
                     this,
                     "name",
-                    "The capacity provider name cannot be prefixed with 'aws', 'ecs', or 'fargate'."
+                    "The capacity provider 'name' cannot be prefixed with 'aws', 'ecs', or 'fargate'."
                 ));
             }
         }

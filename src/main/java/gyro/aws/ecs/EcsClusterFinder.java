@@ -44,7 +44,6 @@ public class EcsClusterFinder extends AwsFinder<EcsClient, Cluster, EcsClusterRe
 
     /**
      * The name identifying the cluster.
-     * Must consist of 1 to 255 letters, numbers, and hyphens, and begin with a letter.
      */
     private String name;
 

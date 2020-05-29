@@ -685,7 +685,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
 
     private TaskDefinition getTaskDefinition(EcsClient client, boolean loadTags) {
         if (ObjectUtils.isBlank(getArn())) {
-            throw new GyroException("ARN is missing, unable to load task definition.");
+            throw new GyroException("'arn' is missing, unable to load task definition.");
         }
 
         TaskDefinition definition = null;

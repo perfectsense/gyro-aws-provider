@@ -324,7 +324,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
     private Cluster getCluster(EcsClient client) {
         if (ObjectUtils.isBlank(getClusterName())) {
-            throw new GyroException("name is missing, unable to load cluster.");
+            throw new GyroException("'name' is missing, unable to load cluster.");
         }
 
         Cluster ecsCluster = null;
@@ -354,15 +354,6 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     private boolean isUpdated(EcsClient client) {
         Cluster ecsCluster = getCluster(client);
 
-        if (ecsCluster == null) {
-            System.out.println("\nCluster not found");
-            return true;
-        }
-
-        if (ecsCluster.attachmentsStatus().equals("UPDATE_FAILED")) {
-            System.out.println("\nThe capacity provider updates failed.");
-        }
-
         return (
             ecsCluster.status().equals("ACTIVE") && !ecsCluster.attachmentsStatus().equals("UPDATE_IN_PROGRESS")
         );
@@ -391,7 +382,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                     errors.add(new ValidationError(
                         this,
                         "default-capacity-provider-strategy",
-                        "Capacity providers must be associated with the cluster in order to be added to the default capacity provider strategy.")
+                        "Capacity providers must be specified in the 'capacity-providers' parameter in order to be added to the 'default-capacity-provider-strategy'.")
                     );
                 }
 
@@ -402,7 +393,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                         errors.add(new ValidationError(
                             this,
                             "default-capacity-provider-strategy",
-                            "The default capacity provider strategy cannot have more than one item with a defined/nonzero base."
+                            "The 'default-capacity-provider-strategy' cannot have more than one item with a defined/nonzero 'base'."
                         ));
                     }
                 }
@@ -416,7 +407,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                 errors.add(new ValidationError(
                     this,
                     "default-capacity-provider-strategy",
-                    "The default capacity provider strategy must contain at least one item with a weight greater than 0."
+                    "The 'default-capacity-provider-strategy' must contain at least one item with a 'weight' greater than 0."
                 ));
             }
         }
@@ -427,7 +418,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                     errors.add(new ValidationError(
                         this,
                         "settings",
-                        "For cluster settings, the only valid key is 'containerInsights', and the only valid values are 'enabled' or 'disabled'."
+                        "For cluster 'settings', the only valid key is 'containerInsights', and the only valid values are 'enabled' or 'disabled'."
                     ));
 
                     break;
