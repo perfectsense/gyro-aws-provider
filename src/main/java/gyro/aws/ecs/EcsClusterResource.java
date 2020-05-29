@@ -267,17 +267,19 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         EcsClient client = createClient(EcsClient.class);
 
-        client.putClusterCapacityProviders(
-            r -> r.cluster(getClusterName())
-                .capacityProviders(getCapacityProviders().stream()
-                    .map(EcsCapacityProviderResource::getName)
-                    .collect(Collectors.toList()))
-                .defaultCapacityProviderStrategy(getDefaultCapacityProviderStrategy().stream()
-                    .map(EcsCapacityProviderStrategyItem::copyTo)
-                    .collect(Collectors.toList()))
-        );
+        if (changedFieldNames.contains("capacity-providers") || changedFieldNames.contains("default-capacity-provider-strategy")) {
+            client.putClusterCapacityProviders(
+                r -> r.cluster(getClusterName())
+                    .capacityProviders(getCapacityProviders().stream()
+                        .map(EcsCapacityProviderResource::getName)
+                        .collect(Collectors.toList()))
+                    .defaultCapacityProviderStrategy(getDefaultCapacityProviderStrategy().stream()
+                        .map(EcsCapacityProviderStrategyItem::copyTo)
+                        .collect(Collectors.toList()))
+            );
+        }
 
-        if (!getSettings().isEmpty()) {
+        if (changedFieldNames.contains("settings")) {
             client.updateClusterSettings(
                 r -> r.cluster(getClusterName()).settings(getSettings().entrySet().stream()
                     .map(o -> ClusterSetting.builder().name(o.getKey()).value(o.getValue()).build())
@@ -285,19 +287,21 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
             );
         }
 
-        EcsClusterResource currentResource = (EcsClusterResource) current;
-        Set<String> currentKeys = currentResource.getTags().keySet();
+        if (changedFieldNames.contains("tags")) {
+            EcsClusterResource currentResource = (EcsClusterResource) current;
+            Set<String> currentKeys = currentResource.getTags().keySet();
 
-        if (!currentKeys.isEmpty()) {
-            client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
-        }
+            if (!currentKeys.isEmpty()) {
+                client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
+            }
 
-        if (!getTags().isEmpty()) {
-            client.tagResource(
-                r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
-                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
-                    .collect(Collectors.toList()))
-            );
+            if (!getTags().isEmpty()) {
+                client.tagResource(
+                    r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
+                        .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                        .collect(Collectors.toList()))
+                );
+            }
         }
 
         Wait.atMost(10, TimeUnit.MINUTES)

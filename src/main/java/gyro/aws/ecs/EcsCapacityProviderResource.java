@@ -190,19 +190,21 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         EcsClient client = createClient(EcsClient.class);
 
-        EcsCapacityProviderResource currentResource = (EcsCapacityProviderResource) current;
-        Set<String> currentKeys = currentResource.getTags().keySet();
+        if (changedFieldNames.contains("tags")) {
+            EcsCapacityProviderResource currentResource = (EcsCapacityProviderResource) current;
+            Set<String> currentKeys = currentResource.getTags().keySet();
 
-        if (!currentKeys.isEmpty()) {
-            client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
-        }
+            if (!currentKeys.isEmpty()) {
+                client.untagResource(r -> r.resourceArn(getArn()).tagKeys(currentKeys));
+            }
 
-        if (!getTags().isEmpty()) {
-            client.tagResource(
-                r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
-                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
-                    .collect(Collectors.toList()))
-            );
+            if (!getTags().isEmpty()) {
+                client.tagResource(
+                    r -> r.resourceArn(getArn()).tags(getTags().entrySet().stream()
+                        .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                        .collect(Collectors.toList()))
+                );
+            }
         }
 
         Wait.atMost(10, TimeUnit.MINUTES)
