@@ -43,6 +43,7 @@ public class EcsCapacityProviderStrategyItem extends Diffable {
     /**
      * Designates how many tasks, at a minimum, to run on the specified capacity provider.
      * Only one capacity provider in a capacity provider strategy can have a base defined at a nonzero value.
+     * Defaults to ``0``.
      */
     @Updatable
     public Integer getBase() {
@@ -60,6 +61,7 @@ public class EcsCapacityProviderStrategyItem extends Diffable {
     /**
      * Designates the relative percentage of the total number of tasks launched that should use the specified capacity provider.
      * At least one capacity provider in a capacity provider strategy must have weight greater than 0.
+     * Defaults to ``1``.
      */
     @Updatable
     public Integer getWeight() {

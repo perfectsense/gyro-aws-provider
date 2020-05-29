@@ -41,8 +41,8 @@ public class EcsManagedScaling extends Diffable {
     }
 
     /**
-     * The target capacity value for the capacity provider. A value of 100 will result in the Amazon EC2 instances in your Auto Scaling group being completely utilized.
-     * Valid values are integers greater than 0 and less than or equal to 100.
+     * The target capacity value for the capacity provider. A value of ``100`` will result in the Amazon EC2 instances in your Auto Scaling group being completely utilized.
+     * Valid values are integers greater than ``0`` and less than or equal to ``100``.
      */
     @Range(min = 1, max = 100)
     public Integer getTargetCapacity() {
@@ -55,7 +55,7 @@ public class EcsManagedScaling extends Diffable {
 
     /**
      * The minimum number of container instances that Amazon ECS will scale in or scale out at one time.
-     * Defaults to 1.
+     * Defaults to ``1``.
      */
     public Integer getMinimumScalingStepSize() {
         return minimumScalingStepSize;
@@ -67,7 +67,7 @@ public class EcsManagedScaling extends Diffable {
 
     /**
      * The maximum number of container instances that Amazon ECS will scale in or scale out at one time.
-     * Defaults to 10000.
+     * Defaults to ``10000``.
      */
     public Integer getMaximumScalingStepSize() {
         return maximumScalingStepSize;

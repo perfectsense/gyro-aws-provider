@@ -50,7 +50,6 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
 
     /**
      * The name shared among all revisions of a task definition.
-     * If this is the only specified parameter, the query returns all task definition revisions that belong to the family.
      */
     public String getFamily() {
         return family;
@@ -62,10 +61,7 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
 
     /**
      * A version number of a task definition in a ``family``.
-     * This parameter may only be specified if ``family`` is also specified.
-     * If both parameters are set, the query returns the corresponding task definition revision from the family.
      */
-    @DependsOn("family")
     public Integer getRevision() {
         return revision;
     }
@@ -76,7 +72,6 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
 
     /**
      * The full Amazon Resource Name (ARN) of the task definition.
-     * If this parameter is specified, the query will return the corresponding task definition.
      */
     public String getArn() {
         return arn;

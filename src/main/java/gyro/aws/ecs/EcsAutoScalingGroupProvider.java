@@ -48,6 +48,7 @@ public class EcsAutoScalingGroupProvider extends Diffable {
 
     /**
      * The managed scaling settings for the Auto Scaling group capacity provider.
+     *
      * @subresource gyro.aws.ecs.EcsManagedScaling
      */
     public EcsManagedScaling getManagedScaling() {
