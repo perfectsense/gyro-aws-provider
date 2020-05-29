@@ -53,7 +53,7 @@ public class EcsTaskDefinitionPlacementConstraint extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(TaskDefinitionPlacementConstraint model) {

@@ -106,7 +106,7 @@ public class EcsHealthCheck extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(HealthCheck model) {

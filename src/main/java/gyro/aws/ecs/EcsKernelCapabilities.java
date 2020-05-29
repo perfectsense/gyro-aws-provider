@@ -57,7 +57,7 @@ public class EcsKernelCapabilities extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(KernelCapabilities model) {

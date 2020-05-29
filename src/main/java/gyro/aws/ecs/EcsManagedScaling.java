@@ -79,7 +79,7 @@ public class EcsManagedScaling extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(ManagedScaling model) {

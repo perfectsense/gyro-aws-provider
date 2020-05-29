@@ -53,7 +53,7 @@ public class EcsContainerDependency extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(ContainerDependency model) {

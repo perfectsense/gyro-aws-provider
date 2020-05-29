@@ -52,7 +52,7 @@ public class EcsInferenceAccelerator extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(InferenceAccelerator model) {

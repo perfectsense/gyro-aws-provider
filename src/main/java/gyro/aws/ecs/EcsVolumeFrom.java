@@ -51,7 +51,7 @@ public class EcsVolumeFrom extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(VolumeFrom model) {

@@ -67,7 +67,7 @@ public class EcsLogConfiguration extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(LogConfiguration model) {

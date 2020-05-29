@@ -73,7 +73,7 @@ public class EcsAutoScalingGroupProvider extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(AutoScalingGroupProvider model) {

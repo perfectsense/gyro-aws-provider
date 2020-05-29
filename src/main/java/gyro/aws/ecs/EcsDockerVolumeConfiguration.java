@@ -106,7 +106,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(DockerVolumeConfiguration model) {

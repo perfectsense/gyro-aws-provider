@@ -73,7 +73,7 @@ public class EcsPortMapping extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(PortMapping model) {

@@ -52,7 +52,7 @@ public class EcsTmpfs extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(Tmpfs model) {

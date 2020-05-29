@@ -60,7 +60,7 @@ public class EcsFirelensConfiguration extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(FirelensConfiguration model) {

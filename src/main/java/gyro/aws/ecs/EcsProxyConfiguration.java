@@ -76,7 +76,7 @@ public class EcsProxyConfiguration extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public void copyFrom(ProxyConfiguration model) {
