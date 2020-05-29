@@ -108,7 +108,7 @@ public class EcsAutoScalingGroupProvider extends Diffable {
                     errors.add(new ValidationError(
                         this,
                         "managed-termination-protection",
-                        "To enable managed termination protection, the auto scaling group must have instance protection from scale-in actions enabled."
+                        "'managed-termination-protection' can be set to 'ENABLED' only when the 'auto-scaling-group' has 'new-instances-protected-from-scale-in' set to 'true'."
                     ));
                 }
 
@@ -116,7 +116,7 @@ public class EcsAutoScalingGroupProvider extends Diffable {
                     errors.add(new ValidationError(
                         this,
                         "managed-termination-protection",
-                        "To enable managed termination protection, the managed scaling status must also be enabled."
+                        "'managed-termination-protection' can be set to 'ENABLED' only when 'managed-scaling' has its 'status' set to 'ENABLED'."
                     ));
                 }
             }

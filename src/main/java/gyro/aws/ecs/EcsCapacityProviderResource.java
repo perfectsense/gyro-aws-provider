@@ -255,7 +255,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
                 errors.add(new ValidationError(
                     this,
                     "name",
-                    "The capacity provider 'name' cannot be prefixed with 'aws', 'ecs', or 'fargate'."
+                    "'name' cannot be prefixed with 'aws', 'ecs', or 'fargate'."
                 ));
             }
         }
