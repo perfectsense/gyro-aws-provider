@@ -20,7 +20,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-def releaseVersion = '0.99.1'
+def releaseVersion = '0.99.2'
 def releaseBuild = false;
 
 if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
@@ -73,19 +73,21 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:0.99.1-SNAPSHOT'
+    api 'gyro:gyro-core:0.99.3-SNAPSHOT'
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.10.77')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.13.1')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:cloudfront'
+    implementation 'software.amazon.awssdk:cloudtrail'
     implementation 'software.amazon.awssdk:cloudwatch'
     implementation 'software.amazon.awssdk:cloudwatchevents'
     implementation 'software.amazon.awssdk:cognitoidentityprovider'
     implementation 'software.amazon.awssdk:dlm'
     implementation 'software.amazon.awssdk:ec2'
+    implementation 'software.amazon.awssdk:eks'
     implementation 'software.amazon.awssdk:elasticloadbalancing'
     implementation 'software.amazon.awssdk:elasticloadbalancingv2'
     implementation 'software.amazon.awssdk:elasticsearch'
@@ -104,6 +106,8 @@ dependencies {
     implementation 'software.amazon.awssdk:acm'
     implementation 'software.amazon.awssdk:acmpca'
     implementation 'software.amazon.awssdk:ecs'
+    implementation 'software.amazon.awssdk:dynamodb'
+    implementation 'software.amazon.awssdk:neptune'
     implementation 'org.json:json:20180813'
 
     gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"

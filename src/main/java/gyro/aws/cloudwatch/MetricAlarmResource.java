@@ -20,6 +20,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -386,6 +387,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     /**
      * The arn for the Metric Alarm.
      */
+    @Id
     @Output
     public String getArn() {
         return arn;

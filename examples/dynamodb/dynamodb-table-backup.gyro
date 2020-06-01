@@ -1,0 +1,4 @@
+aws::dynamodb-table-backup dynamodb-table-backup-example
+    table-name: "dynamodb-table-example"
+    backup-name: "dynamodb-table-backup-example"
+end

@@ -16,6 +16,8 @@
 
 package gyro.aws.s3;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -23,12 +25,12 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -36,8 +38,10 @@ import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketEncryptionResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketPolicyResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
@@ -50,7 +54,10 @@ import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.GetBucketLoggingResponse;
 import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
 import software.amazon.awssdk.services.s3.model.GetBucketReplicationResponse;
+import software.amazon.awssdk.utils.IoUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +82,7 @@ import java.util.stream.Collectors;
  *         }
  *         enable-accelerate-config: true
  *         enable-versioning: true
+ *         policy: "policy.json"
  *     end
  *
  * Example with cors rule
@@ -146,6 +154,7 @@ import java.util.stream.Collectors;
  *
  * Example with replication configuration
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
@@ -158,13 +167,13 @@ import java.util.stream.Collectors;
  *         enable-versioning: true
  *
  *         replication-configuration
- *             role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+ *             role: $(external-query aws::iam-role { name: 's3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br'})
  *             rule
  *                 id: "example_with_encryption"
  *                 destination
  *                     bucket: "beam-sandbox-ops-us-east-1a"
  *                     encryption-configuration
- *                         kms-key: "arn:aws:kms:us-east-1:242040583208:key/c5245825-8526-4032-a67c-21656f220312"
+ *                         kms-key: $(external-query aws::kms-key { key-id: '<key-id>'})
  *                     end
  *                 end
  *
@@ -218,6 +227,7 @@ import java.util.stream.Collectors;
  *
  * Example with logging enabled
  * -------
+ *
  * .. code-block:: gyro
  *
  *     aws::s3-bucket bucket-example
@@ -235,6 +245,49 @@ import java.util.stream.Collectors;
  *         enable-accelerate-config: true
  *         enable-versioning: true
  *     end
+ *
+ * Example with encryption configuration
+ * -------
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example-with-encryption
+ *         name: "example-bucket-with-encryption-config"
+ *         enable-object-lock: true
+ *
+ *         tags: {
+ *             Name: "bucket-example"
+ *         }
+ *
+ *         encryption-configuration
+ *             encryption-rule
+ *                 default-encryption
+ *                     key: $(external-query aws::kms-key { key-id: '<key-id>'})
+ *                     encryption-type: "aws:kms"
+ *                 end
+ *             end
+ *         end
+ *     end
+ *
+ * Example with control access policy
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket example-bucket-with-full-control-log-delivery-group
+ *         name: "example-bucket-with-full-control-log-delivery-group"
+ *         enable-object-lock: true
+ *
+ *         access-control-policy
+ *             grant
+ *                 permission: "FULL_CONTROL"
+ *
+ *                 grantee
+ *                     uri: "http://acs.amazonaws.com/groups/s3/LogDelivery"
+ *                     type: "Group"
+ *                 end
+ *             end
+ *         end
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
@@ -250,7 +303,14 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String domainName;
     private S3LoggingEnabled logging;
     private S3ReplicationConfiguration replicationConfiguration;
+    private S3ServerSideEncryptionConfiguration encryptionConfiguration;
+    private String policy;
+    private S3AccessControlPolicy accessControlPolicy;
 
+    /**
+     * The name of the bucket. (Required)
+     */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -275,6 +335,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.enableObjectLock = enableObjectLock;
     }
 
+    /**
+     * Tags for the bucket.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -406,6 +469,47 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.replicationConfiguration = replicationConfiguration;
     }
 
+    /**
+     * Configure the server side encryption for the bucket.
+     *
+     * @subresource gyro.aws.s3.S3ServerSideEncryptionConfiguration
+     */
+    @Updatable
+    public S3ServerSideEncryptionConfiguration getEncryptionConfiguration() {
+        return encryptionConfiguration;
+    }
+
+    public void setEncryptionConfiguration(S3ServerSideEncryptionConfiguration encryptionConfiguration) {
+        this.encryptionConfiguration = encryptionConfiguration;
+    }
+
+    /**
+     * The bucket policy as a JSON document.
+     */
+    @Updatable
+    public String getPolicy() {
+        policy = getProcessedPolicy(policy);
+        return policy;
+    }
+
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
+
+    /**
+     * Configure the access control policy of the bucket.
+     *
+     * @subresource gyro.aws.s3.S3AccessControlPolicy
+     */
+    @Updatable
+    public S3AccessControlPolicy getAccessControlPolicy() {
+        return accessControlPolicy;
+    }
+
+    public void setAccessControlPolicy(S3AccessControlPolicy accessControlPolicy) {
+        this.accessControlPolicy = accessControlPolicy;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -418,6 +522,9 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadLifecycleRules(client);
         loadBucketLogging(client);
         loadReplicationConfiguration(client);
+        loadBucketEncryptionConfiguration(client);
+        loadPolicy(client);
+        loadAccessControlPolicy(client);
     }
 
     @Override
@@ -476,6 +583,18 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (getLogging() != null) {
             saveBucketLogging(client);
         }
+
+        if (getEncryptionConfiguration() != null) {
+            saveBucketEncryptionConfiguration(client);
+        }
+
+        if (getPolicy() != null) {
+            savePolicy(client);
+        }
+
+        if (getAccessControlPolicy() != null) {
+            saveAccessControlPolicy(client);
+        }
     }
 
     @Override
@@ -500,6 +619,18 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         if (changedFieldNames.contains("logging")) {
             saveBucketLogging(client);
+        }
+
+        if (changedFieldNames.contains("encryption-configuration")) {
+            saveBucketEncryptionConfiguration(client);
+        }
+
+        if (changedFieldNames.contains("policy")) {
+            savePolicy(client);
+        }
+
+        if (changedFieldNames.contains("access-control-policy")) {
+            saveAccessControlPolicy(client);
         }
 
         saveReplicationConfiguration(client);
@@ -773,6 +904,73 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
+    private void loadBucketEncryptionConfiguration(S3Client client) {
+        try {
+            GetBucketEncryptionResponse bucketEncryption = client.getBucketEncryption(r -> r.bucket(getName()));
+
+            S3ServerSideEncryptionConfiguration encryptionConfig = newSubresource(S3ServerSideEncryptionConfiguration.class);
+            encryptionConfig.copyFrom(bucketEncryption.serverSideEncryptionConfiguration());
+            setEncryptionConfiguration(encryptionConfig);
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("ServerSideEncryptionConfigurationNotFoundError")) {
+                throw ex;
+            } else {
+                setReplicationConfiguration(null);
+            }
+        }
+    }
+
+    private void saveBucketEncryptionConfiguration(S3Client client) {
+        if (getEncryptionConfiguration() == null) {
+            client.deleteBucketEncryption(r -> r.bucket(getName()));
+
+        } else {
+            client.putBucketEncryption(e -> e.bucket(getName()).serverSideEncryptionConfiguration(
+                    getEncryptionConfiguration().toServerSideEncryptionConfiguration()));
+        }
+    }
+
+    private void loadPolicy(S3Client client) {
+        try {
+            GetBucketPolicyResponse bucketPolicy = client.getBucketPolicy(r -> r.bucket(getName()));
+            setPolicy(bucketPolicy.policy());
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("NoSuchBucketPolicy")) {
+                throw ex;
+            } else {
+                setPolicy(null);
+            }
+        }
+    }
+
+    private void savePolicy(S3Client client) {
+        if (getPolicy() != null) {
+            client.putBucketPolicy(r -> r.bucket(getName()).policy(getPolicy()));
+
+        } else {
+            client.deleteBucketPolicy(r -> r.bucket(getName()));
+        }
+    }
+
+    private void loadAccessControlPolicy(S3Client client) {
+        S3AccessControlPolicy policy = newSubresource(S3AccessControlPolicy.class);
+        policy.copyFrom(client.getBucketAcl(a -> a.bucket(getName())));
+        setAccessControlPolicy(policy);
+    }
+
+    private void saveAccessControlPolicy(S3Client client) {
+        if (getAccessControlPolicy() == null) {
+            client.putBucketAcl(p -> p.bucket(getName())
+                    .accessControlPolicy(newSubresource(S3AccessControlPolicy.class).toAccessControlPolicy(client)));
+
+        } else {
+            client.putBucketAcl(p -> p.bucket(getName())
+                    .accessControlPolicy(getAccessControlPolicy().toAccessControlPolicy(client)));
+        }
+    }
+
     public String getDomainName() {
         S3Client client = createClient(S3Client.class);
         return String.format("%s.s3.%s.amazonaws.com", getName(), getBucketRegion(client));
@@ -790,6 +988,27 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             } else {
                 throw exx;
             }
+        }
+    }
+
+    private String getProcessedPolicy(String policy) {
+        if (policy == null) {
+            return null;
+        } else if (policy.endsWith(".json")) {
+            try (InputStream input = openInput(policy)) {
+                policy = IoUtils.toUtf8String(input);
+
+            } catch (IOException ex) {
+                throw new GyroException(String.format("File at path '%s' not found.", policy));
+            }
+        }
+
+        ObjectMapper obj = new ObjectMapper();
+        try {
+            JsonNode jsonNode = obj.readTree(policy);
+            return jsonNode.toString();
+        } catch (IOException ex) {
+            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
         }
     }
 }
