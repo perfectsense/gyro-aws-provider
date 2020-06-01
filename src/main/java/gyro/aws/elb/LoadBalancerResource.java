@@ -16,6 +16,14 @@
 
 package gyro.aws.elb;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
@@ -27,7 +35,6 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
@@ -42,14 +49,6 @@ import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerDe
 import software.amazon.awssdk.services.elasticloadbalancing.model.LoadBalancerNotFoundException;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Tag;
 import software.amazon.awssdk.services.elasticloadbalancing.model.TagKeyOnly;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create a Load Balancer.
@@ -259,7 +258,8 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         Map<String, Integer> healthMap = new HashMap<>();
 
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
-        List<InstanceState> instanceStates = client.describeInstanceHealth(r -> r.loadBalancerName(getName())).instanceStates();
+        List<InstanceState> instanceStates = client.describeInstanceHealth(r -> r.loadBalancerName(getName()))
+            .instanceStates();
         for (InstanceState is : instanceStates) {
             int count = healthMap.getOrDefault(is.state(), 0);
             healthMap.put(is.state(), count + 1);
@@ -294,13 +294,21 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.listeners(toListeners())
-                .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
-                .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-                .loadBalancerName(getName())
-                .scheme(getScheme())
+            .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+            .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
+            .loadBalancerName(getName())
+            .scheme(getScheme())
         );
 
         setDnsName(response.dnsName());
+
+        if (getListener().stream().anyMatch(o -> o.getPolicy() != null)) {
+            for (ListenerResource listener : getListener().stream().filter(o -> o.getPolicy() != null).collect(
+                Collectors.toList())) {
+                state.save();
+                listener.savePolicy(client);
+            }
+        }
 
         if (!getInstances().isEmpty()) {
             client.registerInstancesWithLoadBalancer(r -> r.instances(toInstances())
@@ -308,8 +316,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         }
 
         // modify connection timeout with enabled set to true, then set to what is actually configured.
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true))
+            .loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false))
+            .loadBalancerName(getName()));
 
         if (!getTags().isEmpty()) {
             client.addTags(r -> r.loadBalancerNames(getName())
@@ -350,7 +360,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         //-- Subnets
 
         List<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
-        List<String> currentSubnetIds = currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
+        List<String> currentSubnetIds = currentResource.getSubnets()
+            .stream()
+            .map(SubnetResource::getId)
+            .collect(Collectors.toList());
 
         List<String> subnetAdditions = new ArrayList<>(pendingSubnetIds);
         subnetAdditions.removeAll(currentSubnetIds);
@@ -379,14 +392,16 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         if (!sgAdditions.isEmpty()) {
             client.applySecurityGroupsToLoadBalancer(r -> r.securityGroups(sgAdditions)
-                    .loadBalancerName(getName()));
+                .loadBalancerName(getName()));
         }
 
         //-- Attributes
 
         // modify connection timeout with enabled set to true, then set to what is actually configured.
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true)).loadBalancerName(getName()));
-        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false)).loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(true))
+            .loadBalancerName(getName()));
+        client.modifyLoadBalancerAttributes(r -> r.loadBalancerAttributes(getAttribute().toLoadBalancerAttributes(false))
+            .loadBalancerName(getName()));
 
         //-- tags
         if (changedFieldNames.contains("tags")) {
@@ -440,19 +455,16 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         getListener().clear();
         for (ListenerDescription listenerDescription : description.listenerDescriptions()) {
-            Listener listener = listenerDescription.listener();
             ListenerResource listenerResource = newSubresource(ListenerResource.class);
-            listenerResource.setInstancePort(listener.instancePort());
-            listenerResource.setInstanceProtocol(listener.instanceProtocol());
-            listenerResource.setLoadBalancerPort(listener.loadBalancerPort());
-            listenerResource.setProtocol(listener.protocol());
-            listenerResource.setSslCertificateId(listener.sslCertificateId());
+            listenerResource.copyFrom(listenerDescription);
             getListener().add(listenerResource);
+            listenerResource.parent();
         }
 
         ElasticLoadBalancingClient client = createClient(ElasticLoadBalancingClient.class);
 
-        DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(getName()));
+        DescribeLoadBalancerAttributesResponse response = client.describeLoadBalancerAttributes(r -> r.loadBalancerName(
+            getName()));
         LoadBalancerAttributes loadBalancerAttributes = newSubresource(LoadBalancerAttributes.class);
         loadBalancerAttributes.copyFrom(response.loadBalancerAttributes());
         setAttribute(loadBalancerAttributes);
@@ -460,7 +472,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         getTags().clear();
         client.describeTags(r -> r.loadBalancerNames(getName()))
             .tagDescriptions().forEach(d -> d.tags()
-                .forEach(t -> getTags().put(t.key(), t.value())));
+            .forEach(t -> getTags().put(t.key(), t.value())));
     }
 
     private LoadBalancerDescription getLoadBalancer(ElasticLoadBalancingClient client) {
@@ -491,12 +503,12 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
         List<Listener> listeners = new ArrayList<>();
         for (ListenerResource resource : getListener()) {
             Listener newListener = Listener.builder()
-                    .instancePort(resource.getInstancePort())
-                    .instanceProtocol(resource.getInstanceProtocol())
-                    .loadBalancerPort(resource.getLoadBalancerPort())
-                    .protocol(resource.getProtocol())
-                    .sslCertificateId(resource.getSslCertificateId())
-                    .build();
+                .instancePort(resource.getInstancePort())
+                .instanceProtocol(resource.getInstanceProtocol())
+                .loadBalancerPort(resource.getLoadBalancerPort())
+                .protocol(resource.getProtocol())
+                .sslCertificateId(resource.getSslCertificateId())
+                .build();
             listeners.add(newListener);
         }
 

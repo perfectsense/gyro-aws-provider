@@ -1,0 +1,20 @@
+aws::vpc vpc-example-flow-log
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-example-flow-log"
+    }
+end
+
+aws::flow-log example-flow-log
+    log-destination: "arn:aws:s3:::example-bucket-flow-logs/"
+    destination-type: "s3"
+    log-format: '${version} ${account-id} ${interface-id} ${srcaddr} ${dstaddr} ${srcport} ${dstport} ${protocol} ${packets} ${bytes} ${start} ${end} ${action} ${log-status}'
+    max-aggregation-interval: 60
+    vpc: $(aws::vpc vpc-example-flow-log)
+    traffic-type: "all"
+
+    tags: {
+        "example-tag": "example-value"
+    }
+end

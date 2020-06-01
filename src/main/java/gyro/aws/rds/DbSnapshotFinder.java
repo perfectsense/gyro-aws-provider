@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    db-snapshots: $(external-query aws::db-snapshot { name: 'db-snapshot-example'})
+ *    db-snapshots: $(external-query aws::db-snapshot { identifier: 'db-snapshot-example'})
  */
 @Type("db-snapshot")
 public class DbSnapshotFinder extends AwsFinder<RdsClient, DBSnapshot, DbSnapshotResource> {

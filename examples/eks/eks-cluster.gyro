@@ -1,0 +1,135 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-eks-example"
+    }
+end
+
+@for zone, cidr -in ['us-east-1a', '10.0.0.0/24', 'us-east-1b', '10.0.1.0/24']
+    aws::subnet "subnet-example-$(zone)"
+        vpc: $(aws::vpc vpc)
+        availability-zone: $(zone)
+        cidr-block: $(cidr)
+
+        tags: {
+            Name: "subnet-eks-example $(zone) $(cidr)",
+            "kubernetes.io/cluster/example-eks-gyro": 'shared'
+        }
+    end
+@end
+
+aws::security-group security-group-example
+    name: "example-sg-eks"
+    vpc: $(aws::vpc vpc)
+    description: "example-sg-eks"
+end
+
+aws::security-group security-group-example-source
+    name: "example-sg-eks-source"
+    vpc: $(aws::vpc vpc)
+    description: "example-sg-eks-source"
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group-example-source)
+    keep-default-egress-rules: true
+
+    ingress
+        description: "ex-eks-sgr"
+        security-group: $(aws::security-group security-group-example-source)
+        protocol: "-1"
+    end
+end
+
+aws::eks-cluster ex
+    name: "example-eks-gyro"
+    role: "arn:aws:iam::242040583208:role/EXAMPLE_EKS_ROLE"
+    version: 1.15
+
+    vpc-config
+        enable-endpoint-private-access: true
+        enable-endpoint-public-access: true
+
+        subnets: [
+            $(aws::subnet "subnet-example-us-east-1a"),
+            $(aws::subnet "subnet-example-us-east-1b")
+        ]
+
+        security-groups: [
+            $(aws::security-group security-group-example)
+        ]
+
+        public-access-cidrs: [
+            "0.0.0.0/0"
+        ]
+    end
+
+    logging
+        enabled-log-types
+            log-types: [audit, api]
+        end
+    end
+
+    encryption-config
+        provider
+            key: $(external-query aws::kms-key { key-id: "c5245825-8526-4032-a67c-21656f220312"})
+        end
+    end
+
+    tags: {
+        "example-tag-key": "example-tag-value"
+    }
+end
+
+aws::eks-fargate-profile eks-fargate-example
+    name: "fargate-profile-example"
+    cluster: $(aws::eks-cluster ex)
+    pod-execution-role: "arn:aws:iam::242040583208:role/EKS_FARGATE_POD_EXECUTION_ROLE"
+
+    selector
+        namespace: "example-namespace"
+
+        labels: {
+            "example-label-key": "example-label-value"
+        }
+    end
+
+    subnets: [
+        $(aws::subnet "subnet-example-us-east-1a"),
+        $(aws::subnet "subnet-example-us-east-1b")
+    ]
+
+    tags: {
+        "example-tag-key": "example-tag-value"
+    }
+end
+
+aws::eks-nodegroup eks-nodegroup-example
+    name: "example-eks-nodegroup"
+    cluster: $(aws::eks-cluster ex)
+    node-role: "arn:aws:iam::242040583208:role/EKS_NODEGROUP_ROLE"
+
+    subnets: [
+        $(aws::subnet "subnet-example-us-east-1a"),
+        $(aws::subnet "subnet-example-us-east-1b")
+    ]
+
+    remote-access
+        ec2-ssh-key: "key-pair-example"
+
+        source-security-groups: [
+            $(aws::security-group security-group-example-source)
+        ]
+    end
+
+    scaling-config
+        desired-size: 2
+        max-size: 2
+        min-size: 2
+    end
+
+    labels: {
+        "example-label-key": "example-label-value"
+    }
+end

@@ -1,4 +1,41 @@
-## 0.99.1
+## 0.99.2 (Unreleased)
+
+## 0.99.1 (May 20th, 2020)
+
+ENHANCEMENTS:
+
+* [171](https://github.com/perfectsense/gyro-aws-provider/issues/171): Add support for Neptune.
+* [172](https://github.com/perfectsense/gyro-aws-provider/issues/172): Add support for DynamoDb Table.
+* [203](https://github.com/perfectsense/gyro-aws-provider/issues/203): Add support for EC2 Placement Group.
+* [204](https://github.com/perfectsense/gyro-aws-provider/issues/204): Add support for EC2 Transit Gateway.
+* [208](https://github.com/perfectsense/gyro-aws-provider/issues/208): Add support for Elastisearch Domain.
+* [213](https://github.com/perfectsense/gyro-aws-provider/issues/213): Add support for EKS.
+* [226](https://github.com/perfectsense/gyro-aws-provider/issues/226): Add option to add SSL Cipher policy on ELB.
+* [228](https://github.com/perfectsense/gyro-aws-provider/issues/228): Add support for EC2 VPC Flow Log.
+* [229](https://github.com/perfectsense/gyro-aws-provider/issues/229): Add option to add bucket level encryption to S3 Buckets.
+* [237](https://github.com/perfectsense/gyro-aws-provider/issues/237): Add support for Cloudtrail.
+* [241](https://github.com/perfectsense/gyro-aws-provider/issues/241): Add support to add Bucket policy for S3.
+
+ISSUES FIXED:
+
+* [191](https://github.com/perfectsense/gyro-aws-provider/issues/191): Allow inline policies for IAM Roles.
+* [195](https://github.com/perfectsense/gyro-aws-provider/issues/195): Fix needing multiple gyro up for S3 bucket with replication configuration.
+ * [196](https://github.com/perfectsense/gyro-aws-provider/issues/196): Fix auto reordering of records in Route53 record sets.
+ * [200](https://github.com/perfectsense/gyro-aws-provider/issues/200): Allow EC2 Security groups to set rules referencing itself.
+ * [210](https://github.com/perfectsense/gyro-aws-provider/issues/210): Fix NPE when refreshing EC2 Security groups.
+ * [211](https://github.com/perfectsense/gyro-aws-provider/issues/211): Fix NPE when refreshing Route53 Hosted zone.
+ * [212](https://github.com/perfectsense/gyro-aws-provider/issues/212): Allow finding external EC2 Security group rules.
+ * [231](https://github.com/perfectsense/gyro-aws-provider/issues/231): Fix exception when enabling S3 Access logging.
+ * [245](https://github.com/perfectsense/gyro-aws-provider/issues/245): Add missing package-info files.
+
+ MISC:
+
+* [214](https://github.com/perfectsense/gyro-aws-provider/issues/214): Shade external dependencies to avoid version mismatch.
+* [223](https://github.com/perfectsense/gyro-aws-provider/issues/223): Allow listing of files for S3 Filebackend.
+* [232](https://github.com/perfectsense/gyro-aws-provider/issues/232): Implement state file locking using Dynamodb.
+* [245](https://github.com/perfectsense/gyro-aws-provider/issues/245): Add documentation for state locking and remote storage.
+
+## 0.99.0 (October 7th, 2019)
 
 ISSUES FIXED:
 
@@ -9,3 +46,4 @@ ISSUES FIXED:
 * [182](https://github.com/perfectsense/gyro-aws-provider/issues/182): cloudwatch/EventRuleResource, ec2/NetworkInterfaceResource and ec2/RouteTableResource don't generate example docs.
 * [187](https://github.com/perfectsense/gyro-aws-provider/issues/187): Add copyright license to java and gradle files.
 * [193](https://github.com/perfectsense/gyro-aws-provider/issues/193): Allow updates to CloudFront Origin
+* [254](https://github.com/perfectsense/gyro-aws-provider/issues/254): Allow /16 through /32 IPv4 CIDR ranges for Classic WAF
