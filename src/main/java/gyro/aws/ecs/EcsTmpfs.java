@@ -71,7 +71,7 @@ public class EcsTmpfs extends Diffable {
 
     @Override
     public String primaryKey() {
-        return "";
+        return getContainerPath();
     }
 
     public void copyFrom(Tmpfs model) {

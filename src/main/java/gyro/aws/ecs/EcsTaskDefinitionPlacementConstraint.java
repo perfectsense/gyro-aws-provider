@@ -53,6 +53,7 @@ public class EcsTaskDefinitionPlacementConstraint extends Diffable {
 
     @Override
     public String primaryKey() {
+        // Duplicate entries supported by the API, but not Gyro
         return "";
     }
 
