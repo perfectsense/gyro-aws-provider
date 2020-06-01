@@ -26,7 +26,7 @@ public class EcsVolumeFrom extends Diffable {
     private Boolean readOnly;
 
     /**
-     * The name of another container within the same task definition from which to mount volumes. (Required)
+     * The ``name`` of another container within the same task definition from which to mount volumes. (Required)
      */
     @Required
     public String getSourceContainer() {
@@ -38,7 +38,7 @@ public class EcsVolumeFrom extends Diffable {
     }
 
     /**
-     * If enabled, the container has read-only access to the volume. Otherwise, the container can write to the volume.
+     * If ``true``, the container has read-only access to the volume. Otherwise, the container can write to the volume.
      * Defaults to ``false``.
      */
     public Boolean getReadOnly() {

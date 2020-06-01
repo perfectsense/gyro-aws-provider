@@ -376,8 +376,8 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                     errors.add(new ValidationError(
                         this,
                         "default-capacity-provider-strategy",
-                        "Capacity providers must be specified in the 'capacity-providers' parameter in order to be added to the 'default-capacity-provider-strategy'.")
-                    );
+                        "Capacity providers must be specified in the 'capacity-providers' parameter in order to be added to the 'default-capacity-provider-strategy'."
+                    ));
                 }
 
                 if (item.getBase() != 0) {
@@ -401,7 +401,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
                 errors.add(new ValidationError(
                     this,
                     "default-capacity-provider-strategy",
-                    "The 'default-capacity-provider-strategy' must contain at least one item with a 'weight' greater than 0."
+                    "The 'default-capacity-provider-strategy' must contain at least one item with a 'weight' greater than '0'."
                 ));
             }
         }

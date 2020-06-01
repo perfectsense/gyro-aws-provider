@@ -34,8 +34,7 @@ public class EcsPortMapping extends Diffable {
     private TransportProtocol protocol;
 
     /**
-     * The port number on the container that is bound to the user-specified or automatically assigned host port. (Required)
-     * Exposing the same container port for multiple protocols is forbidden.
+     * The port number on the container that is bound to the user-specified or automatically assigned ``host-port``. (Required)
      */
     @Required
     public Integer getContainerPort() {
@@ -48,8 +47,8 @@ public class EcsPortMapping extends Diffable {
 
     /**
      * The port number on the container instance to reserve for your container.
-     * If you are using containers in a task with the ``awsvpc`` or ``host`` network-mode, the host port can either be left blank or set to the same value as the container port.
-     * If you are using containers in a task with the ``bridge`` network-mode, you can specify a non-reserved host port for your container port mapping, or you can omit the host port (or set it to 0) while specifying a container port and your container automatically receives a port in the ephemeral port range for your container instance operating system and Docker version.
+     * If you are using containers in a task with the ``awsvpc`` or ``host`` ``network-mode``, the ``host-port`` can either be left blank or set to the same value as the ``container-port``.
+     * If you are using containers in a task with the ``bridge`` ``network-mode``, you can specify a non-reserved ``host-port`` for your container port mapping, or you can omit the ``host-port`` (or set it to ``0``) while specifying a ``container-port`` and your container automatically receives a port in the ephemeral port range for your container instance operating system and Docker version.
      */
     public Integer getHostPort() {
         return hostPort;

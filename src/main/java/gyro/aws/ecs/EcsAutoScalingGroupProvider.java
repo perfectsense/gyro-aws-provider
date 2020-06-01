@@ -61,7 +61,7 @@ public class EcsAutoScalingGroupProvider extends Diffable {
 
     /**
      * The managed termination protection setting to use for the Auto Scaling group capacity provider.
-     * When using managed termination protection, managed scaling must also be enabled, and the Auto Scaling group must have instance protection from scale-in actions enabled.
+     * To use ``managed-termination-protection``, ``managed-scaling`` must have its ``status`` set to ``ENABLED``, and the ``auto-scaling-group`` must have ``new-instances-protected-from-scale-in`` set to ``true``.
      * Valid values are ``ENABLED`` and ``DISABLED``.
      */
     public ManagedTerminationProtection getManagedTerminationProtection() {

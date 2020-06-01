@@ -38,7 +38,7 @@ public class EcsLogConfiguration extends Diffable {
     /**
      * The log driver to use for the container. (Required)
      * Valid values are ``json-file``, ``syslog``, ``journald``, ``gelf``, ``fluentd``, ``awslogs``, ``splunk``, ``awsfirelens``, ``logentries``, and ``sumologic``.
-     * When using the Fargate launch type, the only supported log drivers are ``awslogs``, ``splunk``, and ``awsfirelens``.
+     * When the task definition's ``requires-compatibilities`` parameter contains ``FARGATE``, the only supported log drivers are ``awslogs``, ``splunk``, and ``awsfirelens``.
      */
     @Required
     @ValidStrings({"json-file", "syslog", "journald", "gelf", "fluentd", "awslogs", "splunk", "awsfirelens", "logentries", "sumologic"})

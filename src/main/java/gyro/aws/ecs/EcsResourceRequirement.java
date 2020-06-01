@@ -45,9 +45,9 @@ public class EcsResourceRequirement extends Diffable {
     }
 
     /**
-     * The value for the specified resource type. (Required)
-     * If the ``GPU`` type is used, the value is the number of physical GPUs the Amazon ECS container agent will reserve for the container. The total of all GPU resource requirements' values across a task definition may not exceed 16.
-     * If the ``InferenceAccelerator`` type is used, the value should match the device name for an inference accelerator specified in a task definition.
+     * The value for the specified resource ``type``. (Required)
+     * If the ``GPU`` ``type`` is used, the ``value`` is the number of physical GPUs the Amazon ECS container agent will reserve for the container. The total of all GPU resource requirements' values across a task definition may not exceed ``16``.
+     * If the ``InferenceAccelerator`` ``type`` is used, the ``value`` should match the ``device-name`` for an ``inference-accelerator`` specified in a task definition.
      */
     @Required
     public String getValue() {

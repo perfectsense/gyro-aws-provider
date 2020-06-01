@@ -28,7 +28,7 @@ public class EcsMountPoint extends Diffable {
 
     /**
      * The name of the volume to mount. (Required)
-     * Must be the name of a task definition volume.
+     * Must be the ``name`` of a task definition volume.
      */
     @Required
     public String getSourceVolume() {

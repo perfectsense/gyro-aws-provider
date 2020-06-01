@@ -27,7 +27,7 @@ public class EcsContainerDependency extends Diffable {
     private ContainerCondition condition;
 
     /**
-     * The name of a container. (Required)
+     * The ``name`` of a container. (Required)
      */
     @Required
     public String getContainerName() {

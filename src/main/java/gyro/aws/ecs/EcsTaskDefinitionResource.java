@@ -328,7 +328,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     }
 
     /**
-     * A list of container definitions in that describes the different containers that make up the task. (Required)
+     * A list of container definitions that describes the different containers that make up the task. (Required)
      *
      * @subresource gyro.aws.ecs.EcsContainerDefinition
      */
@@ -364,7 +364,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
 
     /**
      * An array of placement constraint objects to use for the task.
-     * You can specify a maximum of 10 constraints per task (this limit includes constraints in the task definition and those specified at runtime).
+     * A maximum of 10 constraints are allowed per task (this limit includes constraints in the task definition and those specified at runtime).
      *
      * @subresource gyro.aws.ecs.EcsTaskDefinitionPlacementConstraint
      */
@@ -459,7 +459,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     }
 
     /**
-     * The ``proxy-configuration`` for the task definition.
+     * The proxy configuration for the task definition.
      *
      * @subresource gyro.aws.ecs.EcsProxyConfiguration
      */
@@ -509,7 +509,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
 
     /**
      * A version number of a task definition in a ``family``.
-     * When you register a task definition for the first time, the ``revision`` is 1. Each time that you register a new revision of a task definition in the same ``family``, the ``revision`` value always increases by one, even if you have deregistered previous revisions in this ``family``.
+     * When you register a task definition for the first time, the ``revision`` is ``1``. Each time that you register a new revision of a task definition in the same ``family``, the ``revision`` value always increases by one, even if you have deregistered previous revisions in this ``family``.
      */
     @Output
     public Integer getRevision() {
@@ -775,7 +775,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 256 'cpu' units are: 512 (0.5 GB), 1024 (1 GB), 2048 (2 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 256 'cpu' units are: '512' (0.5 GB), '1024' (1 GB), '2048' (2 GB)."
                             ));
                         }
                         break;
@@ -785,7 +785,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 512 'cpu' units are: 1024 (1 GB), 2048 (2 GB), 3072 (3 GB), 4096 (4 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 512 'cpu' units are: '1024' (1 GB), '2048' (2 GB), '3072' (3 GB), '4096' (4 GB)."
                             ));
                         }
                         break;
@@ -795,7 +795,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 1024 'cpu' units are: 2048 (2 GB), 3072 (3 GB), 4096 (4 GB), 5120 (5 GB), 6144 (6 GB), 7168 (7 GB), 8192 (8 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 1024 'cpu' units are: '2048' (2 GB), '3072' (3 GB), '4096' (4 GB), '5120' (5 GB), '6144' (6 GB), '7168' (7 GB), '8192' (8 GB)."
                             ));
                         }
                         break;
@@ -805,7 +805,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 2048 'cpu' units are: between 4096 (4 GB) and 16384 (16 GB) in increments of 1024 (1 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 2048 'cpu' units are: between '4096' (4 GB) and '16384' (16 GB) in increments of 1024 (1 GB)."
                             ));
                         }
                         break;
@@ -815,7 +815,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                             errors.add(new ValidationError(
                                 this,
                                 "memory",
-                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 4096 'cpu' units are: between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB)."
+                                "When 'requires-compatibilities' contains 'FARGATE', the valid 'memory' values for 4096 'cpu' units are: between '8192' (8 GB) and '30720' (30 GB) in increments of 1024 (1 GB)."
                             ));
                         }
                         break;
@@ -824,7 +824,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
                         errors.add(new ValidationError(
                             this,
                             "cpu",
-                            "When 'requires-compatibilities' contains 'FARGATE', the valid 'cpu' values are: 256 (.25 vCPU), 512 (.5 vCPU), 1024 (1 vCPU), 2048 (2 vCPU), 4096 (4 vCPU)."
+                            "When 'requires-compatibilities' contains 'FARGATE', the valid 'cpu' values are: '256' (.25 vCPU), '512' (.5 vCPU), '1024' (1 vCPU), '2048' (2 vCPU), '4096' (4 vCPU)."
                         ));
                 }
 
@@ -898,7 +898,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
             errors.add(new ValidationError(
                 this,
                 "container-definition",
-                "The total value of every 'resource-requirement' with 'type' set to 'GPU' across every 'container-definition' must not exceed 16."
+                "The total 'value' of every 'resource-requirement' with 'type' set to 'GPU' across every 'container-definition' must not exceed 16."
             ));
         }
 

@@ -39,7 +39,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
     /**
      * The scope for the Docker volume that determines its lifecycle. (Required)
      * Valid values are ``task`` and ``shared``.
-     * Docker volumes that are scoped to a task are automatically provisioned when the task starts and destroyed when the task stops. Docker volumes that are scoped as shared persist after the task stops.
+     * Docker volumes that are scoped to a ``task`` are automatically provisioned when the task starts and destroyed when the task stops. Docker volumes that are scoped as ``shared`` persist after the task stops.
      */
     @Required
     public Scope getScope() {
@@ -51,7 +51,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
     }
 
     /**
-     * If this value is true, the Docker volume is created if it does not already exist.
+     * If this value is ``true``, the Docker volume is created if it does not already exist.
      * This field is only used if the scope is ``shared``.
      */
     public Boolean getAutoprovision() {
@@ -63,7 +63,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
     }
 
     /**
-     * The Docker volume driver to use. The driver value must match the driver name provided by Docker. (Required)
+     * The Docker volume driver to use. The ``driver`` value must match the driver name provided by Docker. (Required)
      */
     @Required
     public String getDriver() {

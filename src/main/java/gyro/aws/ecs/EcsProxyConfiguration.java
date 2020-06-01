@@ -37,7 +37,7 @@ public class EcsProxyConfiguration extends Diffable {
     }
 
     /**
-     * The name of the container that will serve as the App Mesh proxy. (Required)
+     * The ``name`` of the container that will serve as the App Mesh proxy. (Required)
      */
     @Required
     public String getContainerName() {

@@ -115,7 +115,7 @@ public class EcsContainerDefinition extends Diffable {
      * The amount (in MiB) of memory to present to the container. If your container attempts to exceed the memory specified here, the container is killed.
      * The total amount of memory reserved for all containers within a task must be lower than the task ``memory`` value, if one is specified.
      * If a task-level ``memory`` value is not specified, you must specify a non-zero integer for one or both of ``memory`` or ``memory-reservation`` in a container definition. If you specify both, ``memory`` must be greater than ``memory-reservation``.
-     * The minimum value is 4.
+     * The minimum value is ``4``.
      */
     @Min(4)
     public Integer getMemory() {
@@ -129,6 +129,7 @@ public class EcsContainerDefinition extends Diffable {
     /**
      * The soft limit (in MiB) of memory to reserve for the container. When system memory is under heavy contention, Docker attempts to keep the container memory to this soft limit. However, the container can consume more memory when it needs to, up to either the hard limit specified with the ``memory`` parameter (if applicable), or all of the available memory on the container instance, whichever comes first.
      * If a task-level ``memory`` value is not specified, you must specify a non-zero integer for one or both of ``memory`` or ``memory-reservation`` in a container definition. If you specify both, ``memory`` must be greater than ``memory-reservation``.
+     * The minimum value is ``4``.
      */
     @Min(4)
     public Integer getMemoryReservation() {
@@ -139,6 +140,10 @@ public class EcsContainerDefinition extends Diffable {
         this.memoryReservation = memoryReservation;
     }
 
+    /**
+     * Allows containers to communicate with each other without the need for any ``port-mapping``.
+     * This parameter is only supported if the ``network-mode`` of a task definition is ``bridge``.
+     */
     public List<String> getLinks() {
         if (links == null) {
             links = new ArrayList<>();
@@ -152,6 +157,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The list of port mappings for the container. Port mappings allow containers to access ports on the host container instance to send or receive traffic.
      *
      * @subresource gyro.aws.ecs.EcsPortMapping
      */
@@ -167,6 +173,10 @@ public class EcsContainerDefinition extends Diffable {
         this.portMapping = portMapping;
     }
 
+    /**
+     * If this parameter is set to ``true``, and the container fails or stops for any reason, all other containers that are part of the task are stopped.
+     * Defaults to ``true``.
+     */
     public Boolean getEssential() {
         if (essential == null) {
             essential = true;
@@ -179,6 +189,9 @@ public class EcsContainerDefinition extends Diffable {
         this.essential = essential;
     }
 
+    /**
+     * The entry point that is passed to the container.
+     */
     public List<String> getEntryPoint() {
         if (entryPoint == null) {
             entryPoint = new ArrayList<>();
@@ -191,6 +204,9 @@ public class EcsContainerDefinition extends Diffable {
         this.entryPoint = entryPoint;
     }
 
+    /**
+     * The command that is passed to the container. If there are multiple arguments, each argument should be a separate string in the list.
+     */
     public List<String> getCommand() {
         if (command == null) {
             command = new ArrayList<>();
@@ -203,6 +219,9 @@ public class EcsContainerDefinition extends Diffable {
         this.command = command;
     }
 
+    /**
+     * The environment variables to pass to a container.
+     */
     public Map<String, String> getEnvironment() {
         if (environment == null) {
             environment = new HashMap<>();
@@ -216,6 +235,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The mount points for data volumes in your container.
      *
      * @subresource gyro.aws.ecs.EcsMountPoint
      */
@@ -232,6 +252,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * Data volumes to mount from another container.
      *
      * @subresource gyro.aws.ecs.EcsVolumeFrom
      */
@@ -248,6 +269,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * Linux-specific modifications that are applied to the container, such as Linux kernel capabilities.
      *
      * @subresource gyro.aws.ecs.EcsLinuxParameters
      */
@@ -260,6 +282,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed.
      *
      * @subresource gyro.aws.ecs.EcsContainerDependency
      */
@@ -275,6 +298,9 @@ public class EcsContainerDefinition extends Diffable {
         this.dependsOn = dependsOn;
     }
 
+    /**
+     * Time duration (in seconds) to wait before giving up on resolving dependencies for a container.
+     */
     public Integer getStartTimeout() {
         return startTimeout;
     }
@@ -283,6 +309,10 @@ public class EcsContainerDefinition extends Diffable {
         this.startTimeout = startTimeout;
     }
 
+    /**
+     * Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own.
+     * The maximum value is ``120``. Defaults to ``30``.
+     */
     @Max(120)
     public Integer getStopTimeout() {
         return stopTimeout;
@@ -292,6 +322,10 @@ public class EcsContainerDefinition extends Diffable {
         this.stopTimeout = stopTimeout;
     }
 
+    /**
+     * The hostname to use for your container.
+     * This parameter is not supported if the task definition's ``network-mode`` is ``awsvpc``.
+     */
     public String getHostname() {
         return hostname;
     }
@@ -300,6 +334,16 @@ public class EcsContainerDefinition extends Diffable {
         this.hostname = hostname;
     }
 
+    /**
+     * The user name to use inside the container.
+     * You can use the following formats. If specifying a UID or GID, you must specify it as a positive integer.
+     *      ``user``
+     *      ``user:group``
+     *      ``uid``
+     *      ``uid:gid``
+     *      ``user:gid``
+     *      ``uid:group``
+     */
     public String getUser() {
         return user;
     }
@@ -308,6 +352,9 @@ public class EcsContainerDefinition extends Diffable {
         this.user = user;
     }
 
+    /**
+     * The working directory in which to run commands inside the container.
+     */
     public String getWorkingDirectory() {
         return workingDirectory;
     }
@@ -316,6 +363,9 @@ public class EcsContainerDefinition extends Diffable {
         this.workingDirectory = workingDirectory;
     }
 
+    /**
+     * If ``true``, networking is disabled within the container.
+     */
     public Boolean getDisableNetworking() {
         return disableNetworking;
     }
@@ -324,6 +374,10 @@ public class EcsContainerDefinition extends Diffable {
         this.disableNetworking = disableNetworking;
     }
 
+    /**
+     * If ``true``, the container is given elevated privileges on the host container instance (similar to the root user).
+     * This parameter is not supported when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'.
+     */
     public Boolean getPrivileged() {
         return privileged;
     }
@@ -332,6 +386,9 @@ public class EcsContainerDefinition extends Diffable {
         this.privileged = privileged;
     }
 
+    /**
+     * If ``true``, the container is given read-only access to its root file system.
+     */
     public Boolean getReadonlyRootFilesystem() {
         return readonlyRootFilesystem;
     }
@@ -340,6 +397,9 @@ public class EcsContainerDefinition extends Diffable {
         this.readonlyRootFilesystem = readonlyRootFilesystem;
     }
 
+    /**
+     * A list of DNS servers that are presented to the container.
+     */
     public List<String> getDnsServers() {
         return dnsServers;
     }
@@ -348,6 +408,9 @@ public class EcsContainerDefinition extends Diffable {
         this.dnsServers = dnsServers;
     }
 
+    /**
+     * A list of DNS search domains that are presented to the container.
+     */
     public List<String> getDnsSearchDomains() {
         return dnsSearchDomains;
     }
@@ -357,6 +420,8 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * A list of hostnames and IP address mappings to append to the /etc/hosts file on the container.
+     * This parameter is not supported if the task definition's ``network-mode`` is ``awsvpc``.
      *
      * @subresource gyro.aws.ecs.EcsHostEntry
      */
@@ -372,6 +437,10 @@ public class EcsContainerDefinition extends Diffable {
         this.extraHost = extraHost;
     }
 
+    /**
+     * A list of strings to provide custom labels for SELinux and AppArmor multi-level security systems.
+     * This parameter is not supported when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'
+     */
     public List<String> getDockerSecurityOptions() {
         if (dockerSecurityOptions == null) {
             dockerSecurityOptions = new ArrayList<>();
@@ -384,6 +453,9 @@ public class EcsContainerDefinition extends Diffable {
         this.dockerSecurityOptions = dockerSecurityOptions;
     }
 
+    /**
+     * If ``true``, this allows you to deploy containerized applications that require stdin or a tty to be allocated.
+     */
     public Boolean getInteractive() {
         return interactive;
     }
@@ -392,6 +464,9 @@ public class EcsContainerDefinition extends Diffable {
         this.interactive = interactive;
     }
 
+    /**
+     * If ``true``, a TTY is allocated.
+     */
     public Boolean getPseudoTerminal() {
         return pseudoTerminal;
     }
@@ -400,6 +475,9 @@ public class EcsContainerDefinition extends Diffable {
         this.pseudoTerminal = pseudoTerminal;
     }
 
+    /**
+     * A key/value map of labels to add to the container.
+     */
     public Map<String, String> getDockerLabels() {
         if (dockerLabels == null) {
             dockerLabels = new HashMap<>();
@@ -413,6 +491,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * A list of ulimits to set in the container.
      *
      * @subresource gyro.aws.ecs.EcsUlimit
      */
@@ -429,6 +508,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The log configuration specification for the container.
      *
      * @subresource gyro.aws.ecs.EcsLogConfiguration
      */
@@ -441,6 +521,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The container health check command and associated configuration parameters for the container.
      *
      * @subresource gyro.aws.ecs.EcsHealthCheck
      */
@@ -452,6 +533,12 @@ public class EcsContainerDefinition extends Diffable {
         this.healthCheck = healthCheck;
     }
 
+    /**
+     * A list of namespaced kernel parameters to set in the container.
+     * This parameter is not supported when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'.
+     *
+     * @subresource gyro.aws.ecs.EcsSystemControl
+     */
     public List<EcsSystemControl> getSystemControl() {
         if (systemControl == null) {
             systemControl = new ArrayList<>();
@@ -465,6 +552,8 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The type and amount of a resource to assign to a container.
+     * This parameter is not supported when the task definition's 'requires-compatibilities' parameter contains 'FARGATE'.
      *
      * @subresource gyro.aws.ecs.EcsResourceRequirement
      */
@@ -481,6 +570,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
+     * The FireLens configuration for the container. This is used to specify and configure a log router for container logs.
      *
      * @subresource gyro.aws.ecs.EcsFirelensConfiguration
      */

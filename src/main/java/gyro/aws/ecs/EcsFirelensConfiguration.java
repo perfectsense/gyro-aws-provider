@@ -44,7 +44,7 @@ public class EcsFirelensConfiguration extends Diffable {
 
     /**
      * The options to use when configuring the log router.
-     * This field is optional and can be used to specify a custom configuration file or to add additional metadata, such as the task, task definition, cluster, and container instance details to the log event.
+     * This field can be used to specify a custom configuration file or to add additional metadata, such as the task, task definition, cluster, and container instance details to the log event.
      */
     public Map<String, String> getOptions() {
         if (options == null) {

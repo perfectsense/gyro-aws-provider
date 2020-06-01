@@ -14,6 +14,9 @@ public class EcsTmpfs extends Diffable {
     private Integer size;
     private List<String> mountOptions;
 
+    /**
+     * The absolute file path where the tmpfs volume is to be mounted. (Required)
+     */
     @Required
     public String getContainerPath() {
         return containerPath;
@@ -23,6 +26,10 @@ public class EcsTmpfs extends Diffable {
         this.containerPath = containerPath;
     }
 
+    /**
+     * The size (in MiB) of the tmpfs volume. (Required)
+     * The minimum value is ``1``.
+     */
     @Required
     @Min(1)
     public Integer getSize() {
@@ -33,6 +40,18 @@ public class EcsTmpfs extends Diffable {
         this.size = size;
     }
 
+    /**
+     * The list of tmpfs volume mount options.
+     * Valid values are:
+     * ``defaults``, ``ro``, ``rw``, ``suid``, ``nosuid``,
+     * ``dev``, ``nodev``, ``exec``, ``noexec``, ``sync``,
+     * ``async``, ``dirsync``, ``remount``, ``mand``, ``nomand``,
+     * ``atime``, ``noatime``, ``diratime``, ``nodiratime``, ``bind``,
+     * ``rbind``, ``unbindable``, ``runbindable``, ``private``, ``rprivate``,
+     * ``shared``, ``rshared``, ``slave``, ``rslave``, ``relatime``,
+     * ``norelatime``, ``strictatime``, ``nostrictatime``, ``mode``, ``uid``,
+     * ``gid``, ``nr_inodes``, ``nr_blocks``, ``mpol``
+     */
     @ValidStrings({"defaults", "ro", "rw",
         "suid", "nosuid", "dev", "nodev", "exec",
         "noexec", "sync", "async", "dirsync", "remount",
