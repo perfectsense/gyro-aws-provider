@@ -46,6 +46,10 @@ aws::autoscaling-group auto-scaling-group-cluster-example-2
     availability-zones: ["us-east-2b"]
 end
 
+# Capacity-provider cannot be deleted
+# If an error occurs that teh following capacity providers exist
+# Remove the capacity provider configs and use external query reference where ever these are used
+
 aws::ecs-capacity-provider ecs-capacity-provider-cluster-example
     name: "capacity-provider-cluster-example"
 
