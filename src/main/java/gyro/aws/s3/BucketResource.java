@@ -916,7 +916,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             if (!ex.awsErrorDetails().errorCode().equals("ServerSideEncryptionConfigurationNotFoundError")) {
                 throw ex;
             } else {
-                setReplicationConfiguration(null);
+                setEncryptionConfiguration(null);
             }
         }
     }
