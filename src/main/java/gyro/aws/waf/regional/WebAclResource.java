@@ -17,6 +17,7 @@
 package gyro.aws.waf.regional;
 
 import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.elbv2.ApplicationLoadBalancerResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -70,6 +71,7 @@ import java.util.stream.Collectors;
 @Type("waf-web-acl-regional")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     private Set<ActivatedRuleResource> rule;
+    private ApplicationLoadBalancerResource loadBalancer;
 
     /**
      * A set of activated rules specifying the connection between waf acl and rule.
@@ -89,6 +91,15 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
         this.rule = rule;
 
         validateActivatedRule();
+    }
+
+    @Updatable
+    public ApplicationLoadBalancerResource getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public void setLoadBalancer(ApplicationLoadBalancerResource loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
     @Override
@@ -127,7 +138,19 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     protected CreateWebAclResponse doCreate(CreateWebAclRequest.Builder builder) {
         WafRegionalClient client = getRegionalClient();
 
-        return client.createWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
+        CreateWebAclResponse response = client.createWebACL(builder.changeToken(client.getChangeToken().changeToken())
+            .build());
+
+        try {
+            if (getLoadBalancer() != null) {
+                client.associateWebACL(r -> r.webACLId(response.webACL().webACLId())
+                    .resourceArn(getLoadBalancer().getArn()));
+            }
+        } catch (Exception ex) {
+            System.out.println("Failed to associate Webacl to ALB");
+        }
+
+        return response;
     }
 
     @Override
@@ -135,6 +158,11 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
         WafRegionalClient client = getRegionalClient();
 
         client.updateWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
+
+        if (getLoadBalancer() != null) {
+            client.associateWebACL(r -> r.webACLId(getWebAclId())
+                .resourceArn(getLoadBalancer().getArn()));
+        }
     }
 
     @Override
