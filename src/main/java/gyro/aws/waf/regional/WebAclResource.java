@@ -16,25 +16,31 @@
 
 package gyro.aws.waf.regional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.elbv2.ApplicationLoadBalancerResource;
+import gyro.aws.elbv2.LoadBalancerResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
 import software.amazon.awssdk.services.waf.model.GetWebAclResponse;
+import software.amazon.awssdk.services.waf.model.ListResourcesForWebAclResponse;
+import software.amazon.awssdk.services.waf.model.ResourceType;
 import software.amazon.awssdk.services.waf.model.UpdateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.WebACL;
 import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
-
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a regional waf acl.
@@ -70,8 +76,9 @@ import java.util.stream.Collectors;
  */
 @Type("waf-web-acl-regional")
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
+
     private Set<ActivatedRuleResource> rule;
-    private ApplicationLoadBalancerResource loadBalancer;
+    private Set<ApplicationLoadBalancerResource> loadBalancer;
 
     /**
      * A set of activated rules specifying the connection between waf acl and rule.
@@ -93,13 +100,29 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
         validateActivatedRule();
     }
 
+    /**
+     * A set of Application Load Balancer that will be associated with the waf acl.
+     */
     @Updatable
-    public ApplicationLoadBalancerResource getLoadBalancer() {
+    public Set<ApplicationLoadBalancerResource> getLoadBalancer() {
+        if (loadBalancer == null) {
+            loadBalancer = new HashSet<>();
+        }
+
         return loadBalancer;
     }
 
-    public void setLoadBalancer(ApplicationLoadBalancerResource loadBalancer) {
+    public void setLoadBalancer(Set<ApplicationLoadBalancerResource> loadBalancer) {
         this.loadBalancer = loadBalancer;
+    }
+
+    @Override
+    public void copyFrom(WebACL webAcl) {
+        super.copyFrom(webAcl);
+
+        // Load associated ALB's
+        getLoadBalancer().clear();
+        getAssociatedAlbArns(getRegionalClient()).forEach(r -> getLoadBalancer().add(findById(ApplicationLoadBalancerResource.class, r)));
     }
 
     @Override
@@ -141,27 +164,67 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
         CreateWebAclResponse response = client.createWebACL(builder.changeToken(client.getChangeToken().changeToken())
             .build());
 
-        try {
-            if (getLoadBalancer() != null) {
-                client.associateWebACL(r -> r.webACLId(response.webACL().webACLId())
-                    .resourceArn(getLoadBalancer().getArn()));
+        if (!getLoadBalancer().isEmpty()) {
+            for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancer()) {
+                try {
+                    client.associateWebACL(r -> r.webACLId(response.webACL().webACLId())
+                        .resourceArn(loadBalancer.getArn()));
+                } catch (Exception ex) {
+                    throw new GyroException(String.format("Failed to associate loadbalancer %s", loadBalancer.getArn()));
+                }
             }
-        } catch (Exception ex) {
-            System.out.println("Failed to associate Webacl to ALB");
         }
 
         return response;
     }
 
     @Override
-    protected void doUpdate(UpdateWebAclRequest.Builder builder) {
+    protected void doUpdate(UpdateWebAclRequest.Builder builder, Resource current, Set<String> changedProperties) {
         WafRegionalClient client = getRegionalClient();
 
         client.updateWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
 
-        if (getLoadBalancer() != null) {
-            client.associateWebACL(r -> r.webACLId(getWebAclId())
-                .resourceArn(getLoadBalancer().getArn()));
+        if (changedProperties.contains("load-balancer")) {
+
+            WebAclResource aclResource = (WebAclResource) current;
+
+            Set<String> currentAlbArns = aclResource.getLoadBalancer()
+                .stream()
+                .map(LoadBalancerResource::getArn)
+                .collect(Collectors.toSet());
+
+            Set<String> pendingAlbArns = getLoadBalancer()
+                .stream()
+                .map(LoadBalancerResource::getArn)
+                .collect(Collectors.toSet());
+
+            List<String> removeAlbArns = currentAlbArns.stream()
+                .filter(o -> !pendingAlbArns.contains(o))
+                .collect(Collectors.toList());
+
+            if (!removeAlbArns.isEmpty()) {
+                for (String arn : removeAlbArns) {
+                    try {
+                        client.disassociateWebACL(r -> r.resourceArn(arn));
+                    } catch (Exception ex) {
+                        // ignore
+                    }
+                }
+            }
+
+            List<String> addAlbArns = pendingAlbArns.stream()
+                .filter(o -> !currentAlbArns.contains(o))
+                .collect(Collectors.toList());
+
+            if (!addAlbArns.isEmpty()) {
+                for (String arn : addAlbArns) {
+                    try {
+                        client.associateWebACL(r -> r.webACLId(getWebAclId()).resourceArn(arn));
+                    } catch (Exception ex) {
+                        throw new GyroException(String.format("Failed to associate loadbalancer %s", arn));
+                    }
+                }
+            }
         }
     }
 
@@ -169,9 +232,36 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     public void delete(GyroUI ui, State state) {
         WafRegionalClient client = getRegionalClient();
 
+        // Remove associated ALb before deleting
+        List<String> associatedAlbArns = getAssociatedAlbArns(client);
+
+        if (!associatedAlbArns.isEmpty()) {
+            for (String arn : associatedAlbArns) {
+                try {
+                    client.disassociateWebACL(r -> r.resourceArn(arn));
+                } catch (Exception ex) {
+                    // ignore
+                }
+            }
+        }
+
         client.deleteWebACL(
             r -> r.changeToken(client.getChangeToken().changeToken())
                 .webACLId(getWebAclId())
         );
+    }
+
+    private List<String> getAssociatedAlbArns(WafRegionalClient client) {
+        List<String> arns = new ArrayList<>();
+
+        ListResourcesForWebAclResponse response = client.listResourcesForWebACL(r -> r
+            .resourceType(ResourceType.APPLICATION_LOAD_BALANCER)
+            .webACLId(getWebAclId()));
+
+        if (response.hasResourceArns()) {
+            arns = response.resourceArns();
+        }
+
+        return arns;
     }
 }
