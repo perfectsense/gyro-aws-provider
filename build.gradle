@@ -77,7 +77,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.13.1')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.13.46')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:cloudfront'
