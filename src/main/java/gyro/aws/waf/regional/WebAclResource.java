@@ -78,7 +78,7 @@ import software.amazon.awssdk.services.waf.regional.WafRegionalClient;
 public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
 
     private Set<ActivatedRuleResource> rule;
-    private Set<ApplicationLoadBalancerResource> loadBalancer;
+    private Set<ApplicationLoadBalancerResource> loadBalancers;
 
     /**
      * A set of activated rules specifying the connection between waf acl and rule.
@@ -104,16 +104,16 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
      * A set of Application Load Balancer that will be associated with the waf acl.
      */
     @Updatable
-    public Set<ApplicationLoadBalancerResource> getLoadBalancer() {
-        if (loadBalancer == null) {
-            loadBalancer = new HashSet<>();
+    public Set<ApplicationLoadBalancerResource> getLoadBalancers() {
+        if (loadBalancers == null) {
+            loadBalancers = new HashSet<>();
         }
 
-        return loadBalancer;
+        return loadBalancers;
     }
 
-    public void setLoadBalancer(Set<ApplicationLoadBalancerResource> loadBalancer) {
-        this.loadBalancer = loadBalancer;
+    public void setLoadBalancers(Set<ApplicationLoadBalancerResource> loadBalancers) {
+        this.loadBalancers = loadBalancers;
     }
 
     @Override
@@ -121,8 +121,8 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
         super.copyFrom(webAcl);
 
         // Load associated ALB's
-        getLoadBalancer().clear();
-        getAssociatedAlbArns(getRegionalClient()).forEach(r -> getLoadBalancer().add(findById(ApplicationLoadBalancerResource.class, r)));
+        getLoadBalancers().clear();
+        getAssociatedAlbArns(getRegionalClient()).forEach(r -> getLoadBalancers().add(findById(ApplicationLoadBalancerResource.class, r)));
     }
 
     @Override
@@ -164,8 +164,8 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
         CreateWebAclResponse response = client.createWebACL(builder.changeToken(client.getChangeToken().changeToken())
             .build());
 
-        if (!getLoadBalancer().isEmpty()) {
-            for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancer()) {
+        if (!getLoadBalancers().isEmpty()) {
+            for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancers()) {
                 try {
                     client.associateWebACL(r -> r.webACLId(response.webACL().webACLId())
                         .resourceArn(loadBalancer.getArn()));
@@ -184,16 +184,16 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
 
         client.updateWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());
 
-        if (changedProperties.contains("load-balancer")) {
+        if (changedProperties.contains("load-balancers")) {
 
             WebAclResource aclResource = (WebAclResource) current;
 
-            Set<String> currentAlbArns = aclResource.getLoadBalancer()
+            Set<String> currentAlbArns = aclResource.getLoadBalancers()
                 .stream()
                 .map(LoadBalancerResource::getArn)
                 .collect(Collectors.toSet());
 
-            Set<String> pendingAlbArns = getLoadBalancer()
+            Set<String> pendingAlbArns = getLoadBalancers()
                 .stream()
                 .map(LoadBalancerResource::getArn)
                 .collect(Collectors.toSet());
