@@ -149,7 +149,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     public boolean refresh() {
         SnsClient client = createClient(SnsClient.class);
 
-        Topic topic = client.listTopicsPaginator().topics().stream().findFirst().filter(o -> o.topicArn().equals(getArn())).orElse(null);
+        Topic topic = client.listTopicsPaginator().topics().stream().filter(o -> o.topicArn().equals(getArn())).findFirst().orElse(null);
 
         if (topic == null) {
             return false;
