@@ -1,8 +1,8 @@
-    aws::sns-topic sns-topic-example
-        name: "sns-topic"
-        display-name: "sns-topic-example-ex"
-        policy: "sns-policy.json"
-    end
+aws::sns-topic sns-topic-example
+    name: "sns-topic"
+    display-name: "sns-topic-example-ex"
+    policy: "sns-policy.json"
+end
 
 aws::sns-subscriber sns-subscriber-example
     protocol: "sqs"
