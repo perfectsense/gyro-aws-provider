@@ -18,6 +18,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id "io.github.manosbatsis.gradle.plugin.reflections" version "1.1"
 }
 
 def releaseVersion = '0.99.2'
@@ -67,11 +68,18 @@ shadowJar {
     include 'com/google/**'
     include 'org/json/**'
     include 'gyro/aws/**'
+    include 'META-INF/reflections/gyro-aws-provider-reflections.xml'
 
     // Relocating common dependencies
     relocate 'com.fasterxml', 'shaded.gyro.aws.fasterxml'
     relocate 'com.google', 'shaded.gyro.aws.google'
     relocate 'org.json', 'shaded.gyro.aws.json'
+
+    dependsOn reflections
+}
+
+reflections {
+    dependsOn classes
 }
 
 build.dependsOn shadowJar
