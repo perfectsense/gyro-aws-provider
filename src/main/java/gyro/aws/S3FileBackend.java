@@ -31,6 +31,7 @@ import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -122,6 +123,17 @@ public class S3FileBackend extends FileBackend {
         S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
 
         return client;
+    }
+
+    @Override
+    public boolean exists(String file) throws Exception {
+        try {
+            client().headObject(r -> r.bucket(bucket).key(prefixed(file)));
+        } catch (NoSuchKeyException ex) {
+            return false;
+        }
+
+        return true;
     }
 
     private String prefixed(String file) {
