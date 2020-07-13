@@ -16,24 +16,37 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.ec2.Ec2AsyncClient;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationSpecification;
@@ -52,15 +65,6 @@ import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates an Instance with the specified AMI, Subnet and Security group.
@@ -763,27 +767,40 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
+        Ec2AsyncClient asyncClient = createClient(Ec2AsyncClient.class);
+
+        Future<DescribeInstanceAttributeResponse> shutdownResponse = asyncClient.describeInstanceAttribute(
             r -> r.instanceId(getId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
         );
-        setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
 
-        attributeResponse = client.describeInstanceAttribute(
+        Future<DescribeInstanceAttributeResponse> terminationResponse = asyncClient.describeInstanceAttribute(
             r -> r.instanceId(getId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
         );
-        setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
-        DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
-            r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
-                .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
-        );
-        setSourceDestCheck(response.sourceDestCheck().value());
-
-        attributeResponse = client.describeInstanceAttribute(
+        Future<DescribeInstanceAttributeResponse> userDataResponse = asyncClient.describeInstanceAttribute(
             r -> r.instanceId(getId()).attribute(InstanceAttributeName.USER_DATA)
         );
-        setUserData(attributeResponse.userData().value() == null
-            ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
+
+        Future<DescribeNetworkInterfaceAttributeResponse> sourceDestCheckResponse =
+            asyncClient.describeNetworkInterfaceAttribute(
+                r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
+                    .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
+            );
+
+        try {
+            setShutdownBehavior(shutdownResponse.get(10L, TimeUnit.SECONDS).instanceInitiatedShutdownBehavior()
+                .value());
+
+            setDisableApiTermination(terminationResponse.get(10L, TimeUnit.SECONDS).disableApiTermination()
+                .equals(AttributeBooleanValue.builder().value(true).build()));
+
+            String userData = userDataResponse.get(10L, TimeUnit.SECONDS).userData().value();
+            setUserData(userData == null ? "" : new String(Base64.decodeBase64(userData)).trim());
+
+            setSourceDestCheck(sourceDestCheckResponse.get(10L, TimeUnit.SECONDS).sourceDestCheck().value());
+        } catch (TimeoutException | InterruptedException | ExecutionException tme) {
+            throw new GyroException("Error reading aws::instance-resource attributes.");
+        }
 
         setStatus("running".equals(instance.state().nameAsString()) ? "running" : "stopped");
 
