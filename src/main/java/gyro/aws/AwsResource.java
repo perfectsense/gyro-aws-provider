@@ -16,6 +16,8 @@
 
 package gyro.aws;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -30,6 +32,8 @@ import java.net.URI;
 public abstract class AwsResource extends Resource {
 
     private transient SdkClient client;
+
+    private static final transient Cache<Class<?>, Method> METHOD_CACHE = CacheBuilder.newBuilder().build();
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass) {
         return createClient(clientClass, null, null);
@@ -55,7 +59,7 @@ public abstract class AwsResource extends Resource {
 
             AwsCredentialsProvider provider = credentials.provider();
 
-            Method method = clientClass.getMethod("builder");
+            Method method = METHOD_CACHE.get(clientClass, () -> clientClass.getMethod("builder"));
             AwsDefaultClientBuilder builder = (AwsDefaultClientBuilder) method.invoke(null);
             builder.credentialsProvider(provider);
             builder.region(Region.of(region != null ? region : credentials.getRegion()));
