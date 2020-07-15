@@ -169,7 +169,7 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         return builder.build();
     }
 
-    static boolean invalidatePriority(Set<RuleResource> rules) {
+    static boolean invalidPriority(Set<RuleResource> rules) {
         List<Integer> priorityList = rules.stream()
             .sorted(Comparator.comparing(RuleResource::getPriority))
             .map(RuleResource::getPriority)

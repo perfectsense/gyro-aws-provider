@@ -381,7 +381,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 "'load-balancers' can only be set when 'scope' is set to 'REGIONAL'"));
         }
 
-        if (RuleResource.invalidatePriority(getRule())) {
+        if (RuleResource.invalidPriority(getRule())) {
             errors.add(new ValidationError(
                 this,
                 "rule",
