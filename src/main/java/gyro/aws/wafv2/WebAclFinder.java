@@ -54,36 +54,46 @@ public class WebAclFinder extends AwsFinder<Wafv2Client, WebACL, WebAclResource>
         String marker = null;
 
         do {
-            response = client.listWebACLs(ListWebAcLsRequest.builder()
-                .scope(Scope.CLOUDFRONT)
-                .nextMarker(marker)
-                .build());
+            try {
+                response = client.listWebACLs(ListWebAcLsRequest.builder()
+                    .scope(Scope.CLOUDFRONT)
+                    .nextMarker(marker)
+                    .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            webACLs.addAll(response.webACLs()
-                .stream()
-                .map(o -> getWebACL(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                webACLs.addAll(response.webACLs()
+                    .stream()
+                    .map(o -> getWebACL(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 
         marker = null;
 
         do {
-            response = client.listWebACLs(ListWebAcLsRequest.builder()
-                .scope(Scope.REGIONAL)
-                .nextMarker(marker)
-                .build());
+            try {
+                response = client.listWebACLs(ListWebAcLsRequest.builder()
+                    .scope(Scope.REGIONAL)
+                    .nextMarker(marker)
+                    .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            webACLs.addAll(response.webACLs()
-                .stream()
-                .map(o -> getWebACL(client, o.id(), o.name(), Scope.REGIONAL.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                webACLs.addAll(response.webACLs()
+                    .stream()
+                    .map(o -> getWebACL(client, o.id(), o.name(), Scope.REGIONAL.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no regional based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 

@@ -97,6 +97,10 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
      * A set of Application Load Balancer that will be associated with the web acl.
      */
     public Set<ApplicationLoadBalancerResource> getLoadBalancers() {
+        if (loadBalancers == null) {
+            loadBalancers = new HashSet<>();
+        }
+
         return loadBalancers;
     }
 
@@ -174,13 +178,18 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         );
 
         // Load logging configuration
-        GetLoggingConfigurationResponse response = client.getLoggingConfiguration(r -> r.resourceArn(getArn()));
-        if (response.loggingConfiguration() != null) {
-            LoggingConfigurationResource loggingConfiguration = newSubresource(LoggingConfigurationResource.class);
-            loggingConfiguration.copyFrom(response.loggingConfiguration());
-            setLoggingConfiguration(loggingConfiguration);
-        } else {
-            setLoggingConfiguration(null);
+        setLoggingConfiguration(null);
+
+        try {
+            GetLoggingConfigurationResponse response = client.getLoggingConfiguration(r -> r.resourceArn(getArn()));
+            if (response.loggingConfiguration() != null) {
+                LoggingConfigurationResource loggingConfiguration = newSubresource(LoggingConfigurationResource.class);
+                loggingConfiguration.copyFrom(response.loggingConfiguration());
+                setLoggingConfiguration(loggingConfiguration);
+            }
+        } catch (WafNonexistentItemException ex) {
+            // Ignore
+            // Occurs if no logging config exists
         }
 
     }
