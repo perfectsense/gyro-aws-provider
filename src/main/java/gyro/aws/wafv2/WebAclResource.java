@@ -17,6 +17,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
@@ -70,6 +71,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     }
 
     @Updatable
+    @CollectionMax(10)
     public Set<RuleResource> getRule() {
         if (rule == null) {
             rule = new HashSet<>();
@@ -377,6 +379,13 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 this,
                 "load-balancers",
                 "'load-balancers' can only be set when 'scope' is set to 'REGIONAL'"));
+        }
+
+        if (RuleResource.invalidatePriority(getRule())) {
+            errors.add(new ValidationError(
+                this,
+                "rule",
+                "'priority' exception. 'priority' value starts from 0 without skipping any number"));
         }
 
         return errors;

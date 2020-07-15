@@ -3,7 +3,9 @@ package gyro.aws.wafv2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +19,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.CreateRuleGroupResponse;
 import software.amazon.awssdk.services.wafv2.model.GetPermissionPolicyResponse;
@@ -61,6 +65,8 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.capacity = capacity;
     }
 
+    @Updatable
+    @CollectionMax(10)
     public Set<RuleResource> getRule() {
         if (rule == null) {
             rule = new HashSet<>();
@@ -241,5 +247,19 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
             .replaceAll("\t", " ")
             .trim()
             .replaceAll(" ", "") : policy;
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (RuleResource.invalidatePriority(getRule())) {
+            errors.add(new ValidationError(
+                this,
+                "rule",
+                "'priority' exception. 'priority' value starts from 0 without skipping any number"));
+        }
+
+        return errors;
     }
 }

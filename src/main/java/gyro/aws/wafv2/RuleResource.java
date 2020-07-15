@@ -1,5 +1,10 @@
 package gyro.aws.wafv2;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.aws.Copyable;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
@@ -162,5 +167,24 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         }
 
         return builder.build();
+    }
+
+    static boolean invalidatePriority(Set<RuleResource> rules) {
+        List<Integer> priorityList = rules.stream()
+            .sorted(Comparator.comparing(RuleResource::getPriority))
+            .map(RuleResource::getPriority)
+            .collect(Collectors.toList());
+
+        boolean invalidPriority = false;
+        int start = 0;
+
+        for (int priority: priorityList) {
+            if (priority != start) {
+                invalidPriority = true;
+            }
+            start++;
+        }
+
+        return invalidPriority;
     }
 }
