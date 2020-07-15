@@ -23,6 +23,7 @@ import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
 import software.amazon.awssdk.services.wafv2.model.CreateWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.DefaultAction;
+import software.amazon.awssdk.services.wafv2.model.GetLoggingConfigurationResponse;
 import software.amazon.awssdk.services.wafv2.model.GetWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.ListResourcesForWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.ResourceType;
@@ -38,6 +39,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     private Set<RuleResource> rule;
     private VisibilityConfigResource visibilityConfig;
     private Set<ApplicationLoadBalancerResource> loadBalancers;
+    private LoggingConfigurationResource loggingConfiguration;
     private String id;
     private String arn;
     private Long capacity;
@@ -100,6 +102,14 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.loadBalancers = loadBalancers;
     }
 
+    public LoggingConfigurationResource getLoggingConfiguration() {
+        return loggingConfiguration;
+    }
+
+    public void setLoggingConfiguration(LoggingConfigurationResource loggingConfiguration) {
+        this.loggingConfiguration = loggingConfiguration;
+    }
+
     @Output
     public String getId() {
         return id;
@@ -160,6 +170,17 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         getAssociatedAlbArns(client).forEach(
             r -> getLoadBalancers().add(findById(ApplicationLoadBalancerResource.class, r))
         );
+
+        // Load logging configuration
+        GetLoggingConfigurationResponse response = client.getLoggingConfiguration(r -> r.resourceArn(getArn()));
+        if (response.loggingConfiguration() != null) {
+            LoggingConfigurationResource loggingConfiguration = newSubresource(LoggingConfigurationResource.class);
+            loggingConfiguration.copyFrom(response.loggingConfiguration());
+            setLoggingConfiguration(loggingConfiguration);
+        } else {
+            setLoggingConfiguration(null);
+        }
+
     }
 
     @Override
@@ -194,16 +215,20 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         setId(response.summary().id());
 
         if (!getLoadBalancers().isEmpty()) {
+            state.save();
+
             for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancers()) {
-                try {
-                    client.associateWebACL(r -> r.webACLArn(getArn())
-                        .resourceArn(loadBalancer.getArn()));
-                } catch (Exception ex) {
-                    throw new GyroException(String.format(
-                        "Failed to associate loadbalancer %s",
-                        loadBalancer.getArn()));
-                }
+                client.associateWebACL(r -> r.webACLArn(getArn())
+                    .resourceArn(loadBalancer.getArn()));
             }
+        }
+
+        if (getLoggingConfiguration() != null) {
+            state.save();
+
+            client.putLoggingConfiguration(
+                r -> r.loggingConfiguration(getLoggingConfiguration().toLoggingConfiguration())
+            );
         }
     }
 
@@ -264,6 +289,16 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                         throw new GyroException(String.format("Failed to associate loadbalancer %s", arn));
                     }
                 }
+            }
+        }
+
+        if (changedFieldNames.contains("logging-configuration")) {
+            if (getLoggingConfiguration() != null) {
+                client.putLoggingConfiguration(
+                    r -> r.loggingConfiguration(getLoggingConfiguration().toLoggingConfiguration())
+                );
+            } else {
+                client.deleteLoggingConfiguration(r -> r.resourceArn(getArn()));
             }
         }
     }
@@ -338,7 +373,10 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         List<ValidationError> errors = new ArrayList<>();
 
         if (!"REGIONAL".equals(getScope()) && !getLoadBalancers().isEmpty()) {
-            errors.add(new ValidationError(this, "load-balancers", "'load-balancers' can only be set when 'scope' is set to 'REGIONAL'"));
+            errors.add(new ValidationError(
+                this,
+                "load-balancers",
+                "'load-balancers' can only be set when 'scope' is set to 'REGIONAL'"));
         }
 
         return errors;
