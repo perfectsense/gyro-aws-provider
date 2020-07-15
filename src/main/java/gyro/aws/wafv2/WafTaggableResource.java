@@ -110,8 +110,11 @@ public abstract class WafTaggableResource extends AwsResource {
 
     @Override
     public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        doUpdate(ui, state, (AwsResource) current, changedFieldNames);
-        createTags();
+        doUpdate(ui, state, current, changedFieldNames);
+
+        if (changedFieldNames.contains("tags")) {
+            createTags();
+        }
     }
 
     private void createTags() {
