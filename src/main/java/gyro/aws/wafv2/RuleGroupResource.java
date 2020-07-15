@@ -1,21 +1,29 @@
 package gyro.aws.wafv2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.CreateRuleGroupResponse;
+import software.amazon.awssdk.services.wafv2.model.GetPermissionPolicyResponse;
 import software.amazon.awssdk.services.wafv2.model.GetRuleGroupResponse;
 import software.amazon.awssdk.services.wafv2.model.RuleGroup;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
+import software.amazon.awssdk.utils.IoUtils;
 
 @Type("waf-rule-group")
 public class RuleGroupResource extends WafTaggableResource implements Copyable<RuleGroup> {
@@ -25,6 +33,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     private Long capacity;
     private Set<RuleResource> rule;
     private VisibilityConfigResource visibilityConfig;
+    private String policy;
     private String arn;
     private String id;
 
@@ -72,6 +81,28 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.visibilityConfig = visibilityConfig;
     }
 
+    /**
+     * The policy document. A policy path or policy string is allowed. (Required)
+     */
+    @Updatable
+    public String getPolicy() {
+        if (this.policy != null && this.policy.contains(".json")) {
+            try (InputStream input = openInput(this.policy)) {
+                this.policy = formatPolicy(IoUtils.toUtf8String(input));
+                return this.policy;
+            } catch (IOException err) {
+                throw new GyroException(MessageFormat
+                    .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), policy));
+            }
+        } else {
+            return this.policy;
+        }
+    }
+
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
+
     @Id
     @Output
     public String getArn() {
@@ -99,7 +130,6 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         setId(ruleGroup.id());
         setArn(ruleGroup.arn());
 
-
         getRule().clear();
         ruleGroup.rules().forEach(o -> {
             RuleResource rule = newSubresource(RuleResource.class);
@@ -110,6 +140,10 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         VisibilityConfigResource visibilityConfig = newSubresource(VisibilityConfigResource.class);
         visibilityConfig.copyFrom(ruleGroup.visibilityConfig());
         setVisibilityConfig(visibilityConfig);
+
+        Wafv2Client client = createClient(Wafv2Client.class);
+        GetPermissionPolicyResponse response = client.getPermissionPolicy(r -> r.resourceArn(getArn()));
+        setPolicy(response.policy());
     }
 
     @Override
@@ -145,6 +179,12 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
 
         setId(response.summary().id());
         setArn(response.summary().arn());
+
+        state.save();
+
+        if (!ObjectUtils.isBlank(getPolicy())) {
+            client.putPermissionPolicy(r -> r.resourceArn(getArn()).policy(getPolicy()));
+        }
     }
 
     @Override
@@ -152,18 +192,28 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         GyroUI ui, State state, Resource config, Set<String> changedProperties) {
         Wafv2Client client = createClient(Wafv2Client.class);
 
-        client.updateRuleGroup(r -> r.id(getId())
-            .name(getName())
-            .scope(getScope())
-            .lockToken(lockToken(client))
-            .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
-            .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));
+        if (changedProperties.contains("rule") || changedProperties.contains("visibility-config")) {
+            client.updateRuleGroup(r -> r.id(getId())
+                .name(getName())
+                .scope(getScope())
+                .lockToken(lockToken(client))
+                .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
+                .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));
+        }
+
+        if (changedProperties.contains("policy")) {
+            if (ObjectUtils.isBlank(getPolicy())) {
+                client.deletePermissionPolicy(r -> r.resourceArn(getArn()));
+            } else {
+                client.putPermissionPolicy(r -> r.resourceArn(getArn()).policy(getPolicy()));
+            }
+        }
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Wafv2Client client = createClient(Wafv2Client.class);
-        
+
         client.deleteRuleGroup(r -> r.id(getId()).name(getName()).scope(getScope()).lockToken(lockToken(client)));
     }
 
@@ -184,5 +234,12 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         }
 
         return token;
+    }
+
+    private String formatPolicy(String policy) {
+        return policy != null ? policy.replaceAll(System.lineSeparator(), " ")
+            .replaceAll("\t", " ")
+            .trim()
+            .replaceAll(" ", "") : policy;
     }
 }
