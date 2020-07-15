@@ -14,6 +14,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.wafv2.model.Tag;
@@ -24,6 +25,7 @@ public abstract class WafTaggableResource extends AwsResource {
     private Map<String, String> tags;
     private boolean tagsLoaded = false;
 
+    @Required
     public String getScope() {
         return scope;
     }

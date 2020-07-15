@@ -1,10 +1,15 @@
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.aws.elbv2.ApplicationLoadBalancerResource;
+import gyro.aws.elbv2.LoadBalancerResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -12,12 +17,15 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
 import software.amazon.awssdk.services.wafv2.model.CreateWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.DefaultAction;
 import software.amazon.awssdk.services.wafv2.model.GetWebAclResponse;
+import software.amazon.awssdk.services.wafv2.model.ListResourcesForWebAclResponse;
+import software.amazon.awssdk.services.wafv2.model.ResourceType;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
@@ -29,6 +37,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     private WafDefaultAction.DefaultAction defaultAction;
     private Set<RuleResource> rule;
     private VisibilityConfigResource visibilityConfig;
+    private Set<ApplicationLoadBalancerResource> loadBalancers;
     private String id;
     private String arn;
     private Long capacity;
@@ -80,6 +89,17 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.visibilityConfig = visibilityConfig;
     }
 
+    /**
+     * A set of Application Load Balancer that will be associated with the web acl.
+     */
+    public Set<ApplicationLoadBalancerResource> getLoadBalancers() {
+        return loadBalancers;
+    }
+
+    public void setLoadBalancers(Set<ApplicationLoadBalancerResource> loadBalancers) {
+        this.loadBalancers = loadBalancers;
+    }
+
     @Output
     public String getId() {
         return id;
@@ -99,6 +119,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.arn = arn;
     }
 
+    @Output
     public Long getCapacity() {
         return capacity;
     }
@@ -132,6 +153,13 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         VisibilityConfigResource visibilityConfig = newSubresource(VisibilityConfigResource.class);
         visibilityConfig.copyFrom(webACL.visibilityConfig());
         setVisibilityConfig(visibilityConfig);
+
+        // Load associated ALB's
+        Wafv2Client client = createClient(Wafv2Client.class);
+        getLoadBalancers().clear();
+        getAssociatedAlbArns(client).forEach(
+            r -> getLoadBalancers().add(findById(ApplicationLoadBalancerResource.class, r))
+        );
     }
 
     @Override
@@ -164,6 +192,19 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
 
         setArn(response.summary().arn());
         setId(response.summary().id());
+
+        if (!getLoadBalancers().isEmpty()) {
+            for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancers()) {
+                try {
+                    client.associateWebACL(r -> r.webACLArn(getArn())
+                        .resourceArn(loadBalancer.getArn()));
+                } catch (Exception ex) {
+                    throw new GyroException(String.format(
+                        "Failed to associate loadbalancer %s",
+                        loadBalancer.getArn()));
+                }
+            }
+        }
     }
 
     @Override
@@ -171,18 +212,78 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Wafv2Client client = createClient(Wafv2Client.class);
 
-        client.updateWebACL(r -> r.id(getId())
-            .name(getName())
-            .scope(getScope())
-            .lockToken(lockToken(client))
-            .defaultAction(toDefaultAction())
-            .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
-            .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));
+        if (changedFieldNames.contains("rule")
+            || changedFieldNames.contains("visibility-config")
+            || changedFieldNames.contains("default-action")) {
+            client.updateWebACL(r -> r.id(getId())
+                .name(getName())
+                .scope(getScope())
+                .lockToken(lockToken(client))
+                .defaultAction(toDefaultAction())
+                .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
+                .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));
+        }
+
+        if (changedFieldNames.contains("load-balancers")) {
+
+            WebAclResource aclResource = (WebAclResource) current;
+
+            Set<String> currentAlbArns = aclResource.getLoadBalancers()
+                .stream()
+                .map(LoadBalancerResource::getArn)
+                .collect(Collectors.toSet());
+
+            Set<String> pendingAlbArns = getLoadBalancers()
+                .stream()
+                .map(LoadBalancerResource::getArn)
+                .collect(Collectors.toSet());
+
+            List<String> removeAlbArns = currentAlbArns.stream()
+                .filter(o -> !pendingAlbArns.contains(o))
+                .collect(Collectors.toList());
+
+            if (!removeAlbArns.isEmpty()) {
+                for (String arn : removeAlbArns) {
+                    try {
+                        client.disassociateWebACL(r -> r.resourceArn(arn));
+                    } catch (Exception ex) {
+                        // ignore
+                    }
+                }
+            }
+
+            List<String> addAlbArns = pendingAlbArns.stream()
+                .filter(o -> !currentAlbArns.contains(o))
+                .collect(Collectors.toList());
+
+            if (!addAlbArns.isEmpty()) {
+                for (String arn : addAlbArns) {
+                    try {
+                        client.associateWebACL(r -> r.webACLArn(getArn()).resourceArn(arn));
+                    } catch (Exception ex) {
+                        throw new GyroException(String.format("Failed to associate loadbalancer %s", arn));
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Wafv2Client client = createClient(Wafv2Client.class);
+
+        // Remove associated ALb before deleting
+        List<String> associatedAlbArns = getAssociatedAlbArns(client);
+
+        if (!associatedAlbArns.isEmpty()) {
+            for (String arn : associatedAlbArns) {
+                try {
+                    client.disassociateWebACL(r -> r.resourceArn(arn));
+                } catch (Exception ex) {
+                    // ignore
+                }
+            }
+        }
 
         client.deleteWebACL(r -> r.id(getId()).name(getName()).scope(getScope()).lockToken(lockToken(client)));
     }
@@ -216,5 +317,30 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         }
 
         return token;
+    }
+
+    private List<String> getAssociatedAlbArns(Wafv2Client client) {
+        List<String> arns = new ArrayList<>();
+
+        ListResourcesForWebAclResponse response = client.listResourcesForWebACL(r -> r
+            .resourceType(ResourceType.APPLICATION_LOAD_BALANCER)
+            .webACLArn(getArn()));
+
+        if (response.hasResourceArns()) {
+            arns = response.resourceArns();
+        }
+
+        return arns;
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (!"REGIONAL".equals(getScope()) && !getLoadBalancers().isEmpty()) {
+            errors.add(new ValidationError(this, "load-balancers", "'load-balancers' can only be set when 'scope' is set to 'REGIONAL'"));
+        }
+
+        return errors;
     }
 }
