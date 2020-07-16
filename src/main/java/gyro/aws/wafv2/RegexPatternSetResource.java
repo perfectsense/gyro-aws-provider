@@ -26,6 +26,8 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.CreateRegexPatternSetResponse;
 import software.amazon.awssdk.services.wafv2.model.GetRegexPatternSetResponse;
@@ -58,6 +60,8 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
         this.description = description;
     }
 
+    @Required
+    @CollectionMax(10)
     public Set<String> getRegularExpressions() {
         return regularExpressions;
     }
