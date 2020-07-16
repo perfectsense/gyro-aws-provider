@@ -276,6 +276,15 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
                 "'priority' exception. 'priority' value starts from 0 without skipping any number"));
         }
 
+        if (getRule().stream()
+            .filter(o -> o.getStatement() != null)
+            .anyMatch(o -> o.getStatement().getRateBasedStatement() != null)) {
+            errors.add(new ValidationError(
+                this,
+                "rule",
+                "rate based rule cannot be configured as part of a rule group."));
+        }
+
         return errors;
     }
 }

@@ -413,6 +413,16 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 "'priority' exception. 'priority' value starts from 0 without skipping any number"));
         }
 
+        if (getRule().stream()
+            .filter(o -> o.getStatement() != null)
+            .filter(o -> o.getStatement().getRateBasedStatement() != null)
+            .count() > 10) {
+            errors.add(new ValidationError(
+                this,
+                "rule",
+                "rate based rule limit reached. Maximum of 10 rate based rule can be configured."));
+        }
+
         return errors;
     }
 }
