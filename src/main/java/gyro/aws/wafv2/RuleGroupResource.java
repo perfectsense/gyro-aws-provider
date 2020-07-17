@@ -36,8 +36,11 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
+import software.amazon.awssdk.services.wafv2.model.CheckCapacityResponse;
+import software.amazon.awssdk.services.wafv2.model.CreateRuleGroupRequest;
 import software.amazon.awssdk.services.wafv2.model.CreateRuleGroupResponse;
 import software.amazon.awssdk.services.wafv2.model.GetPermissionPolicyResponse;
 import software.amazon.awssdk.services.wafv2.model.GetRuleGroupResponse;
@@ -57,6 +60,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     private String arn;
     private String id;
 
+    @Required
     public String getName() {
         return name;
     }
@@ -73,6 +77,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.description = description;
     }
 
+    // Auto calculated if not supplied
     public Long getCapacity() {
         return capacity;
     }
@@ -81,6 +86,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.capacity = capacity;
     }
 
+    @Required
     @Updatable
     @CollectionMax(10)
     public Set<RuleResource> getRule() {
@@ -95,6 +101,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.rule = rule;
     }
 
+    @Required
     public VisibilityConfigResource getVisibilityConfig() {
         return visibilityConfig;
     }
@@ -192,19 +199,30 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     protected void doCreate(GyroUI ui, State state) {
         Wafv2Client client = createClient(Wafv2Client.class);
 
-        CreateRuleGroupResponse response = client.createRuleGroup(r -> r.name(getName())
+        Long capacity = getCapacity();
+
+        if (capacity != null) {
+            CheckCapacityResponse response = client.checkCapacity(r -> r.scope(getScope())
+                .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList())));
+
+            capacity = response.capacity();
+        }
+
+        CreateRuleGroupResponse response = client.createRuleGroup(CreateRuleGroupRequest.builder()
+            .name(getName())
             .scope(getScope())
             .description(getDescription())
-            .capacity(getCapacity())
+            .capacity(capacity)
             .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
-            .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList())));
+            .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
+            .build());
 
         setId(response.summary().id());
         setArn(response.summary().arn());
 
-        state.save();
-
         if (!ObjectUtils.isBlank(getPolicy())) {
+            state.save();
+
             client.putPermissionPolicy(r -> r.resourceArn(getArn()).policy(getPolicy()));
         }
     }

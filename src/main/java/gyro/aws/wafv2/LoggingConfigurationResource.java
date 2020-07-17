@@ -16,11 +16,15 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.LoggingConfiguration;
 
 public class LoggingConfigurationResource extends WafDiffable implements Copyable<LoggingConfiguration> {
@@ -28,6 +32,7 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
     private Set<FieldToMatchResource> redactedField;
     private Set<String> logDestinationConfigs;
 
+    @Updatable
     public Set<FieldToMatchResource> getRedactedField() {
         if (redactedField == null) {
             redactedField = new HashSet<>();
@@ -40,6 +45,7 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
         this.redactedField = redactedField;
     }
 
+    @Updatable
     public Set<String> getLogDestinationConfigs() {
         if (logDestinationConfigs == null) {
             logDestinationConfigs = new HashSet<>();
@@ -85,5 +91,20 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getLogDestinationConfigs() != null && getRedactedField() != null) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Atleast one off 'redacted-field' or 'log-destination-configs' needs to be set."));
+        }
+
+        return errors;
+
     }
 }

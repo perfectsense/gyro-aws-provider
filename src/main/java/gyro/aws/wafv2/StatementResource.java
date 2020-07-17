@@ -16,7 +16,15 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.Statement;
 
 public class StatementResource extends WafDiffable implements Copyable<Statement> {
@@ -35,6 +43,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
     private ManagedRuleGroupStatementResource managedRuleGroupStatement;
     private RuleGroupReferenceStatementResource ruleGroupReferenceStatement;
 
+    @Updatable
     public AndStatementResource getAndStatement() {
         return andStatement;
     }
@@ -43,6 +52,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.andStatement = andStatement;
     }
 
+    @Updatable
     public NotStatementResource getNotStatement() {
         return notStatement;
     }
@@ -51,6 +61,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.notStatement = notStatement;
     }
 
+    @Updatable
     public OrStatementResource getOrStatement() {
         return orStatement;
     }
@@ -59,6 +70,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.orStatement = orStatement;
     }
 
+    @Updatable
     public ByteMatchStatementResource getByteMatchStatement() {
         return byteMatchStatement;
     }
@@ -67,6 +79,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.byteMatchStatement = byteMatchStatement;
     }
 
+    @Updatable
     public GeoMatchStatementResource getGeoMatchStatement() {
         return geoMatchStatement;
     }
@@ -75,6 +88,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.geoMatchStatement = geoMatchStatement;
     }
 
+    @Updatable
     public IpSetReferenceStatementResource getIpSetReferenceStatement() {
         return ipSetReferenceStatement;
     }
@@ -83,6 +97,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.ipSetReferenceStatement = ipSetReferenceStatement;
     }
 
+    @Updatable
     public RegexPatternSetReferenceStatementResource getRegexPatternSetReferenceStatement() {
         return regexPatternSetReferenceStatement;
     }
@@ -91,6 +106,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.regexPatternSetReferenceStatement = regexPatternSetReferenceStatement;
     }
 
+    @Updatable
     public SizeConstraintStatementResource getSizeConstraintStatement() {
         return sizeConstraintStatement;
     }
@@ -99,6 +115,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.sizeConstraintStatement = sizeConstraintStatement;
     }
 
+    @Updatable
     public SqliMatchStatementResource getSqliMatchStatement() {
         return sqliMatchStatement;
     }
@@ -107,6 +124,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.sqliMatchStatement = sqliMatchStatement;
     }
 
+    @Updatable
     public XssMatchStatementResource getXssMatchStatement() {
         return xssMatchStatement;
     }
@@ -115,6 +133,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.xssMatchStatement = xssMatchStatement;
     }
 
+    @Updatable
     public RateBasedStatementResource getRateBasedStatement() {
         return rateBasedStatement;
     }
@@ -123,6 +142,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.rateBasedStatement = rateBasedStatement;
     }
 
+    @Updatable
     public ManagedRuleGroupStatementResource getManagedRuleGroupStatement() {
         return managedRuleGroupStatement;
     }
@@ -131,6 +151,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         this.managedRuleGroupStatement = managedRuleGroupStatement;
     }
 
+    @Updatable
     public RuleGroupReferenceStatementResource getRuleGroupReferenceStatement() {
         return ruleGroupReferenceStatement;
     }
@@ -190,7 +211,6 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
             regexPatternSetReferenceStatement.copyFrom(statement.regexPatternSetReferenceStatement());
             setRegexPatternSetReferenceStatement(regexPatternSetReferenceStatement);
         }
-
 
         setSizeConstraintStatement(null);
         if (statement.sizeConstraintStatement() != null) {
@@ -295,5 +315,39 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (Stream.of(
+            getAndStatement(),
+            getOrStatement(),
+            getNotStatement(),
+            getByteMatchStatement(),
+            getGeoMatchStatement(),
+            getIpSetReferenceStatement(),
+            getRegexPatternSetReferenceStatement(),
+            getSizeConstraintStatement(),
+            getSqliMatchStatement(),
+            getXssMatchStatement(),
+            getRateBasedStatement(),
+            getManagedRuleGroupStatement(),
+            getRuleGroupReferenceStatement())
+            .filter(Objects::nonNull)
+            .count() > 1) {
+
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Only one of [ 'and-statement', 'not-statement', 'or-statement', 'byte-match-statement',"
+                    + "'geo-match-statement', 'ip-set-reference-statement', 'regex-pattern-set-reference-statement',"
+                    + "'size-constraint-statement', 'sqli-match-statement', 'xss-match-statement',"
+                    + "'rate-based-statement', 'managed-rule-group-statement' or 'rule-group-reference-statement' ] "
+                    + "can be configured"));
+        }
+
+        return errors;
     }
 }

@@ -17,12 +17,16 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.IPSetReferenceStatement;
 
 public class IpSetReferenceStatementResource extends WafDiffable implements Copyable<IPSetReferenceStatement> {
 
     private IpSetResource ipSet;
 
+    @Required
+    @Updatable
     public IpSetResource getIpSet() {
         return ipSet;
     }

@@ -17,14 +17,17 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.TextTransformation;
 
 public class TextTransformationResource extends WafDiffable implements Copyable<TextTransformation> {
 
     private Integer priority;
     private String type;
-    private Integer hashCode;
 
+    @Required
+    @Updatable
     public Integer getPriority() {
         return priority;
     }
@@ -33,6 +36,7 @@ public class TextTransformationResource extends WafDiffable implements Copyable<
         this.priority = priority;
     }
 
+    @Required
     public String getType() {
         return type;
     }

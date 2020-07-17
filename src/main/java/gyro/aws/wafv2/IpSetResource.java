@@ -27,6 +27,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.CreateIpSetResponse;
 import software.amazon.awssdk.services.wafv2.model.GetIpSetResponse;
@@ -44,6 +46,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
     private String arn;
     private Integer hashCode;
 
+    @Required
     public String getName() {
         return name;
     }
@@ -52,6 +55,8 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.name = name;
     }
 
+    @Required
+    @ValidStrings({"IPV4", "IPV6"})
     public String getIpAddressVersion() {
         return ipAddressVersion;
     }
@@ -68,6 +73,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.description = description;
     }
 
+    @Required
     @Updatable
     public Set<String> getAddresses() {
         if (addresses == null) {
@@ -100,6 +106,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.arn = arn;
     }
 
+    @Output
     public Integer getHashCode() {
         return hashCode;
     }

@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.ByteMatchStatement;
 
 public class ByteMatchStatementResource extends WafDiffable implements Copyable<ByteMatchStatement> {
@@ -31,6 +35,8 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
     private Set<TextTransformationResource> textTransformation;
     private String searchString;
 
+    @Required
+    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -39,6 +45,7 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
         this.fieldToMatch = fieldToMatch;
     }
 
+    @Updatable
     public String getPositionalConstraint() {
         return positionalConstraint;
     }
@@ -47,6 +54,8 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
         this.positionalConstraint = positionalConstraint;
     }
 
+    @Updatable
+    @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();
@@ -59,6 +68,7 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
         this.textTransformation = textTransformation;
     }
 
+    @Output
     public String getSearchString() {
         return searchString;
     }

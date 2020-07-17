@@ -17,6 +17,10 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Min;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.RateBasedStatement;
 
 public class RateBasedStatementResource extends WafDiffable implements Copyable<RateBasedStatement> {
@@ -25,7 +29,13 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
     private Long limit;
     private StatementResource scopeDownStatement;
 
+    @Updatable
+    @ValidStrings("IP")
     public String getAggregateKeyType() {
+        if (aggregateKeyType == null) {
+            aggregateKeyType = "IP";
+        }
+
         return aggregateKeyType;
     }
 
@@ -33,6 +43,9 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
         this.aggregateKeyType = aggregateKeyType;
     }
 
+    @Required
+    @Updatable
+    @Min(100)
     public Long getLimit() {
         return limit;
     }
@@ -41,6 +54,7 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
         this.limit = limit;
     }
 
+    @Updatable
     public StatementResource getScopeDownStatement() {
         return scopeDownStatement;
     }

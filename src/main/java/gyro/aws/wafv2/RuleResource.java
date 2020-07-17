@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
 import software.amazon.awssdk.services.wafv2.model.CountAction;
@@ -39,6 +41,7 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
     private WafDefaultAction.OverrideAction overrideAction;
     private StatementResource statement;
 
+    @Required
     public String getName() {
         return name;
     }
@@ -47,6 +50,8 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.name = name;
     }
 
+    @Required
+    @Updatable
     public Integer getPriority() {
         return priority;
     }
@@ -55,6 +60,7 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.priority = priority;
     }
 
+    @Required
     public VisibilityConfigResource getVisibilityConfig() {
         return visibilityConfig;
     }
@@ -63,6 +69,7 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.visibilityConfig = visibilityConfig;
     }
 
+    @Updatable
     public WafDefaultAction.RuleAction getAction() {
         return action;
     }
@@ -71,6 +78,7 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.action = action;
     }
 
+    @Updatable
     public WafDefaultAction.OverrideAction getOverrideAction() {
         return overrideAction;
     }
@@ -79,6 +87,7 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.overrideAction = overrideAction;
     }
 
+    @Updatable
     public StatementResource getStatement() {
         return statement;
     }

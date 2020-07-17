@@ -21,6 +21,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.SizeConstraintStatement;
 
 public class SizeConstraintStatementResource extends WafDiffable implements Copyable<SizeConstraintStatement> {
@@ -30,6 +33,8 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
     private Set<TextTransformationResource> textTransformation;
     private Long size;
 
+    @Required
+    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -38,6 +43,8 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
         this.fieldToMatch = fieldToMatch;
     }
 
+    @Required
+    @Updatable
     public String getComparisonOperator() {
         return comparisonOperator;
     }
@@ -46,6 +53,8 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
         this.comparisonOperator = comparisonOperator;
     }
 
+    @Updatable
+    @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();
@@ -58,6 +67,8 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
         this.textTransformation = textTransformation;
     }
 
+    @Required
+    @Updatable
     public Long getSize() {
         return size;
     }

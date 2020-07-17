@@ -34,6 +34,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
@@ -61,6 +62,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     private String arn;
     private Long capacity;
 
+    @Required
     public String getName() {
         return name;
     }
@@ -77,6 +79,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.description = description;
     }
 
+    @Required
     @Updatable
     public WafDefaultAction.DefaultAction getDefaultAction() {
         return defaultAction;
@@ -86,6 +89,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.defaultAction = defaultAction;
     }
 
+    @Required
     @Updatable
     @CollectionMax(10)
     public Set<RuleResource> getRule() {
@@ -100,6 +104,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.rule = rule;
     }
 
+    @Required
     @Updatable
     public VisibilityConfigResource getVisibilityConfig() {
         return visibilityConfig;
@@ -112,6 +117,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     /**
      * A set of Application Load Balancer that will be associated with the web acl.
      */
+    @Updatable
     public Set<ApplicationLoadBalancerResource> getLoadBalancers() {
         if (loadBalancers == null) {
             loadBalancers = new HashSet<>();

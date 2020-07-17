@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.XssMatchStatement;
 
 public class XssMatchStatementResource extends WafDiffable implements Copyable<XssMatchStatement> {
@@ -28,6 +30,7 @@ public class XssMatchStatementResource extends WafDiffable implements Copyable<X
     private FieldToMatchResource fieldToMatch;
     private Set<TextTransformationResource> textTransformation;
 
+    @Required
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -36,6 +39,7 @@ public class XssMatchStatementResource extends WafDiffable implements Copyable<X
         this.fieldToMatch = fieldToMatch;
     }
 
+    @Updatable
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();

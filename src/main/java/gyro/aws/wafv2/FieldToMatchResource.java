@@ -17,6 +17,8 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.AllQueryArguments;
 import software.amazon.awssdk.services.wafv2.model.Body;
 import software.amazon.awssdk.services.wafv2.model.FieldToMatch;
@@ -31,6 +33,8 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
     private FieldMatchType matchType;
     private String name;
 
+    @Required
+    @Updatable
     public FieldMatchType getMatchType() {
         return matchType;
     }
@@ -39,6 +43,8 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
         this.matchType = matchType;
     }
 
+    @Required
+    @Updatable
     public String getName() {
         return name;
     }

@@ -21,6 +21,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.RegexPatternSetReferenceStatement;
 
 public class RegexPatternSetReferenceStatementResource extends WafDiffable
@@ -30,6 +33,8 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
     private RegexPatternSetResource regexPatternSet;
     private Set<TextTransformationResource> textTransformation;
 
+    @Required
+    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -38,6 +43,8 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
         this.fieldToMatch = fieldToMatch;
     }
 
+    @Required
+    @Updatable
     public RegexPatternSetResource getRegexPatternSet() {
         return regexPatternSet;
     }
@@ -46,6 +53,8 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
         this.regexPatternSet = regexPatternSet;
     }
 
+    @Updatable
+    @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();

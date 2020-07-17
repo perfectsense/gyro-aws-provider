@@ -21,6 +21,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.SqliMatchStatement;
 
 public class SqliMatchStatementResource extends WafDiffable implements Copyable<SqliMatchStatement> {
@@ -28,6 +31,8 @@ public class SqliMatchStatementResource extends WafDiffable implements Copyable<
     private FieldToMatchResource fieldToMatch;
     private Set<TextTransformationResource> textTransformation;
 
+    @Required
+    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -36,6 +41,8 @@ public class SqliMatchStatementResource extends WafDiffable implements Copyable<
         this.fieldToMatch = fieldToMatch;
     }
 
+    @Updatable
+    @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();

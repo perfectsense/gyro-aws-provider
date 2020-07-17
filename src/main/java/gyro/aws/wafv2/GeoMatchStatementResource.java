@@ -20,12 +20,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.GeoMatchStatement;
 
 public class GeoMatchStatementResource extends WafDiffable implements Copyable<GeoMatchStatement> {
 
     private Set<String> countryCodes;
 
+    @Required
+    @Updatable
     public Set<String> getCountryCodes() {
         return countryCodes;
     }

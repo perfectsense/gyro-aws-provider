@@ -25,6 +25,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
@@ -44,6 +45,7 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
     private String id;
     private String arn;
 
+    @Required
     public String getName() {
         return name;
     }
@@ -61,6 +63,7 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
     }
 
     @Required
+    @Updatable
     @CollectionMax(10)
     public Set<String> getRegularExpressions() {
         return regularExpressions;

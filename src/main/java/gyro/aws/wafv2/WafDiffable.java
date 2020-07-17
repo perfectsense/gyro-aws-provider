@@ -17,11 +17,13 @@
 package gyro.aws.wafv2;
 
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 
 public abstract class WafDiffable extends Diffable {
 
     private Integer hashCode;
 
+    @Output
     public Integer getHashCode() {
         return hashCode;
     }

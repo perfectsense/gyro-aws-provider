@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.ExcludedRule;
 import software.amazon.awssdk.services.wafv2.model.RuleGroupReferenceStatement;
 
@@ -29,6 +31,8 @@ public class RuleGroupReferenceStatementResource extends WafDiffable implements 
     private RuleGroupResource ruleGroup;
     private Set<String> excludedRules;
 
+    @Required
+    @Updatable
     public RuleGroupResource getRuleGroup() {
         return ruleGroup;
     }
@@ -37,6 +41,7 @@ public class RuleGroupReferenceStatementResource extends WafDiffable implements 
         this.ruleGroup = ruleGroup;
     }
 
+    @Updatable
     public Set<String> getExcludedRules() {
         if (excludedRules == null) {
             excludedRules = new HashSet<>();

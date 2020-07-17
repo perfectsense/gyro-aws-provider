@@ -17,12 +17,16 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.NotStatement;
 
 public class NotStatementResource extends WafDiffable implements Copyable<NotStatement> {
 
     private StatementResource statement;
 
+    @Required
+    @Updatable
     public StatementResource getStatement() {
         return statement;
     }
