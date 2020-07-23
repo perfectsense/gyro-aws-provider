@@ -24,15 +24,21 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
+import software.amazon.awssdk.services.wafv2.model.ComparisonOperator;
 import software.amazon.awssdk.services.wafv2.model.SizeConstraintStatement;
 
 public class SizeConstraintStatementResource extends WafDiffable implements Copyable<SizeConstraintStatement> {
 
     private FieldToMatchResource fieldToMatch;
-    private String comparisonOperator;
+    private ComparisonOperator comparisonOperator;
     private Set<TextTransformationResource> textTransformation;
     private Long size;
 
+    /**
+     * The field setting to match the condition. (Required)
+     *
+     * @subresource gyro.aws.wafv2.FieldToMatchResource
+     */
     @Required
     @Updatable
     public FieldToMatchResource getFieldToMatch() {
@@ -43,16 +49,24 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
         this.fieldToMatch = fieldToMatch;
     }
 
+    /**
+     * The comparison operator for the size specified. Valid values ``EQ``, ``NE``, ``LE``, ``LT``, ``GE`` or ``GT``. (Required)
+     */
     @Required
     @Updatable
-    public String getComparisonOperator() {
+    public ComparisonOperator getComparisonOperator() {
         return comparisonOperator;
     }
 
-    public void setComparisonOperator(String comparisonOperator) {
+    public void setComparisonOperator(ComparisonOperator comparisonOperator) {
         this.comparisonOperator = comparisonOperator;
     }
 
+    /**
+     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configuration is allowed.
+     *
+     * @subresource gyro.aws.wafv2.TextTransformationResource
+     */
     @Updatable
     @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
@@ -67,6 +81,9 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
         this.textTransformation = textTransformation;
     }
 
+    /**
+     * The size in byte for the constraint to work on. (Required)
+     */
     @Required
     @Updatable
     public Long getSize() {
@@ -79,7 +96,7 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
 
     @Override
     public void copyFrom(SizeConstraintStatement sizeConstraintStatement) {
-        setComparisonOperator(sizeConstraintStatement.comparisonOperatorAsString());
+        setComparisonOperator(sizeConstraintStatement.comparisonOperator());
         setSize(sizeConstraintStatement.size());
         setHashCode(sizeConstraintStatement.hashCode());
 

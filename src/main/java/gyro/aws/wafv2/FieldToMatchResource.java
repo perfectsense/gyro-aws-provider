@@ -16,9 +16,14 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AllQueryArguments;
 import software.amazon.awssdk.services.wafv2.model.Body;
 import software.amazon.awssdk.services.wafv2.model.FieldToMatch;
@@ -33,6 +38,9 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
     private FieldMatchType matchType;
     private String name;
 
+    /**
+     * The field match type. Vaid values are ``SINGLE_HEADER``, ``SINGLE_QUERY_ARGUMENT``, ``ALL_QUERY_ARGUMENTS``, ``BODY``, ``QUERY_STRING``, ``METHOD`` or ``URI_PATH``. (Required)
+     */
     @Required
     @Updatable
     public FieldMatchType getMatchType() {
@@ -43,6 +51,9 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
         this.matchType = matchType;
     }
 
+    /**
+     * the name of the field to match. Only required if ``match-type`` set to ``SINGLE_HEADER`` or ``SINGLE_QUERY_ARGUMENT``.
+     */
     @Required
     @Updatable
     public String getName() {
@@ -97,5 +108,26 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getName() != null && getMatchType() != FieldMatchType.SINGLE_QUERY_ARGUMENT
+            && getMatchType() == FieldMatchType.SINGLE_HEADER) {
+            errors.add(new ValidationError(
+                this,
+                "name",
+                "'name' cannot be set if 'match-type' is not set to either 'SINGLE_HEADER' or 'SINGLE_QUERY_ARGUMENT'"));
+        } else if (getName() == null && (getMatchType() == FieldMatchType.SINGLE_QUERY_ARGUMENT
+            || getMatchType() == FieldMatchType.SINGLE_HEADER)) {
+            errors.add(new ValidationError(
+                this,
+                "name",
+                "'name' is required if 'match-type' is set to either 'SINGLE_HEADER' or 'SINGLE_QUERY_ARGUMENT'"));
+        }
+
+        return errors;
     }
 }

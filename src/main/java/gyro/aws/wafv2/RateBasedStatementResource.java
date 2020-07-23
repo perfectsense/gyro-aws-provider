@@ -29,6 +29,9 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
     private Long limit;
     private StatementResource scopeDownStatement;
 
+    /**
+     * The aggregate key type for the rate based statement. Currently only supported value is ``IP``. Defaults to ``IP``.
+     */
     @Updatable
     @ValidStrings("IP")
     public String getAggregateKeyType() {
@@ -43,6 +46,9 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
         this.aggregateKeyType = aggregateKeyType;
     }
 
+    /**
+     * The rate limit for the rate based statement. Minimum value is ``100``. (Required)
+     */
     @Required
     @Updatable
     @Min(100)
@@ -54,6 +60,11 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
         this.limit = limit;
     }
 
+    /**
+     * The statement resource associated with the rate based statement.
+     *
+     * @subresource gyro.aws.wafv2.StatementResource
+     */
     @Updatable
     public StatementResource getScopeDownStatement() {
         return scopeDownStatement;

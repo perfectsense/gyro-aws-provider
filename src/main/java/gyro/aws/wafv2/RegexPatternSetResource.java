@@ -45,6 +45,9 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
     private String id;
     private String arn;
 
+    /**
+     * The name of the regex pattern set. (Required)
+     */
     @Required
     public String getName() {
         return name;
@@ -54,6 +57,9 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
         this.name = name;
     }
 
+    /**
+     * The description of the regex pattern set.
+     */
     public String getDescription() {
         return description;
     }
@@ -62,6 +68,9 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
         this.description = description;
     }
 
+    /**
+     * The set of regular expressions to which the condition is going to be checked. (Required)
+     */
     @Required
     @Updatable
     @CollectionMax(10)
@@ -73,6 +82,9 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
         this.regularExpressions = regularExpressions;
     }
 
+    /**
+     * The id of the regex pattern set.
+     */
     @Output
     public String getId() {
         return id;
@@ -82,6 +94,9 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
         this.id = id;
     }
 
+    /**
+     * The arn of the regex pattern set.
+     */
     @Id
     @Output
     public String getArn() {

@@ -29,6 +29,11 @@ public class AndStatementResource extends WafDiffable implements Copyable<AndSta
 
     private Set<StatementResource> statement;
 
+    /**
+     * The set of statement resource associated with the AND statement. (Required)
+     *
+     * @subresource gyro.aws.wafv2.StatementResource
+     */
     @Required
     @Updatable
     public Set<StatementResource> getStatement() {

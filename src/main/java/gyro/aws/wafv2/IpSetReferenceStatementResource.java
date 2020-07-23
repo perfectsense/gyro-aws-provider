@@ -25,6 +25,9 @@ public class IpSetReferenceStatementResource extends WafDiffable implements Copy
 
     private IpSetResource ipSet;
 
+    /**
+     * The ip set resource to associate with. (Required)
+     */
     @Required
     @Updatable
     public IpSetResource getIpSet() {
@@ -39,6 +42,11 @@ public class IpSetReferenceStatementResource extends WafDiffable implements Copy
     public void copyFrom(IPSetReferenceStatement ipSetReferenceStatement) {
         setIpSet(findById(IpSetResource.class, ipSetReferenceStatement.arn()));
         setHashCode(ipSetReferenceStatement.hashCode());
+    }
+
+    @Override
+    public String primaryKey() {
+        return "";
     }
 
     IPSetReferenceStatement toIpSetReferenceStatement() {

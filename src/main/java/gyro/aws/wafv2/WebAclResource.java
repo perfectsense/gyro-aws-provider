@@ -130,6 +130,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.loadBalancers = loadBalancers;
     }
 
+    @Updatable
     public LoggingConfigurationResource getLoggingConfiguration() {
         return loggingConfiguration;
     }

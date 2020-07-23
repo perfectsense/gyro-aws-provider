@@ -25,6 +25,11 @@ public class NotStatementResource extends WafDiffable implements Copyable<NotSta
 
     private StatementResource statement;
 
+    /**
+     * The statement resource associated with the NOT statement. (Required)
+     *
+     * @subresource gyro.aws.wafv2.StatementResource
+     */
     @Required
     @Updatable
     public StatementResource getStatement() {

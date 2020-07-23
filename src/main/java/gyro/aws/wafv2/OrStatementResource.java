@@ -29,6 +29,11 @@ public class OrStatementResource extends WafDiffable implements Copyable<OrState
 
     private Set<StatementResource> statement;
 
+    /**
+     * The set of statement resource associated with the OR statement. (Required)
+     *
+     * @subresource gyro.aws.wafv2.StatementResource
+     */
     @Required
     @Updatable
     public Set<StatementResource> getStatement() {

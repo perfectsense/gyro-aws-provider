@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.wafv2.model.ByteMatchStatement;
 
 public class ByteMatchStatementResource extends WafDiffable implements Copyable<ByteMatchStatement> {
@@ -35,6 +36,11 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
     private Set<TextTransformationResource> textTransformation;
     private String searchString;
 
+    /**
+     * The field setting to match the condition. (Required)
+     *
+     * @subresource gyro.aws.wafv2.FieldToMatchResource
+     */
     @Required
     @Updatable
     public FieldToMatchResource getFieldToMatch() {
@@ -45,6 +51,9 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
         this.fieldToMatch = fieldToMatch;
     }
 
+    /**
+     * The positional
+     */
     @Updatable
     public String getPositionalConstraint() {
         return positionalConstraint;
@@ -54,6 +63,11 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
         this.positionalConstraint = positionalConstraint;
     }
 
+    /**
+     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configurations is allowed.
+     *
+     * @subresource gyro.aws.wafv2.TextTransformationResource
+     */
     @Updatable
     @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
@@ -68,7 +82,10 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
         this.textTransformation = textTransformation;
     }
 
-    @Output
+    /**
+     * The search string you want aws to search for in the request.
+     */
+    @Updatable
     public String getSearchString() {
         return searchString;
     }
@@ -110,6 +127,10 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
             builder = builder.textTransformations(getTextTransformation().stream()
                 .map(TextTransformationResource::toTextTransformation)
                 .collect(Collectors.toList()));
+        }
+
+        if (!ObjectUtils.isBlank(getSearchString())) {
+            builder = builder.searchString(SdkBytes.fromUtf8String(getSearchString()));
         }
 
         return builder.build();

@@ -32,6 +32,9 @@ public class ManagedRuleGroupStatementResource extends WafDiffable implements Co
     private String name;
     private String vendorName;
 
+    /**
+     * A set of rule names to be excluded that are part of the associated managed rule group.
+     */
     @Updatable
     public Set<String> getExcludedRules() {
         if (excludedRules == null) {
@@ -45,6 +48,9 @@ public class ManagedRuleGroupStatementResource extends WafDiffable implements Co
         this.excludedRules = excludedRules;
     }
 
+    /**
+     * The name of the managed rule group. (Required)
+     */
     @Required
     @Updatable
     public String getName() {
@@ -55,6 +61,9 @@ public class ManagedRuleGroupStatementResource extends WafDiffable implements Co
         this.name = name;
     }
 
+    /**
+     * The vendor name of the managed rule group. (Required)
+     */
     @Required
     @Updatable
     public String getVendorName() {

@@ -31,6 +31,9 @@ public class RuleGroupReferenceStatementResource extends WafDiffable implements 
     private RuleGroupResource ruleGroup;
     private Set<String> excludedRules;
 
+    /**
+     * A rule group resource to reference with. (Required)
+     */
     @Required
     @Updatable
     public RuleGroupResource getRuleGroup() {
@@ -41,6 +44,9 @@ public class RuleGroupReferenceStatementResource extends WafDiffable implements 
         this.ruleGroup = ruleGroup;
     }
 
+    /**
+     * A set of rule names to be excluded that are part of the referenced rule group resource.
+     */
     @Updatable
     public Set<String> getExcludedRules() {
         if (excludedRules == null) {

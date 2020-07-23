@@ -23,6 +23,9 @@ public abstract class WafDiffable extends Diffable {
 
     private Integer hashCode;
 
+    /**
+     *
+     */
     @Output
     public Integer getHashCode() {
         return hashCode;

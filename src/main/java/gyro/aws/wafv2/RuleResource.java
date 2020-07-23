@@ -41,6 +41,9 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
     private WafDefaultAction.OverrideAction overrideAction;
     private StatementResource statement;
 
+    /**
+     * The name of the rule. (Required)
+     */
     @Required
     public String getName() {
         return name;
@@ -50,6 +53,9 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.name = name;
     }
 
+    /**
+     * The priority of the rule. The priority assigned needs to be ordered in increasing order starting from 0. (Required)
+     */
     @Required
     @Updatable
     public Integer getPriority() {
@@ -60,6 +66,9 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.priority = priority;
     }
 
+    /**
+     * The visibility configuration for the rule. (Required)
+     */
     @Required
     public VisibilityConfigResource getVisibilityConfig() {
         return visibilityConfig;
@@ -69,6 +78,9 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.visibilityConfig = visibilityConfig;
     }
 
+    /**
+     * The action to perform if the rule passes. Valid values are ``ALLOW``, ``BLOCK`` or ``COUNT``.
+     */
     @Updatable
     public WafDefaultAction.RuleAction getAction() {
         return action;
@@ -78,6 +90,9 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.action = action;
     }
 
+    /**
+     * The override action to perform if the rule passes. Valid values are ``NONE`` or ``COUNT``.
+     */
     @Updatable
     public WafDefaultAction.OverrideAction getOverrideAction() {
         return overrideAction;
@@ -87,6 +102,11 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         this.overrideAction = overrideAction;
     }
 
+    /**
+     * The statement configuration having the individual conditions.
+     *
+     * @subresourse gyro.aws.wafv2.StatementResource
+     */
     @Updatable
     public StatementResource getStatement() {
         return statement;

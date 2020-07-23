@@ -18,6 +18,7 @@ package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.VisibilityConfig;
 
@@ -27,7 +28,11 @@ public class VisibilityConfigResource extends Diffable implements Copyable<Visib
     private Boolean cloudWatchMetricsEnabled;
     private Boolean sampledRequestsEnabled;
 
+    /**
+     * The name of the cloud watch metric. (Required)
+     */
     @Required
+    @Updatable
     public String getMetricName() {
         return metricName;
     }
@@ -36,6 +41,10 @@ public class VisibilityConfigResource extends Diffable implements Copyable<Visib
         this.metricName = metricName;
     }
 
+    /**
+     * Enable cloud watch metrics when set to ``true``. Defaults to ``false``.
+     */
+    @Updatable
     public Boolean getCloudWatchMetricsEnabled() {
         if (cloudWatchMetricsEnabled == null) {
             cloudWatchMetricsEnabled = false;
@@ -48,6 +57,10 @@ public class VisibilityConfigResource extends Diffable implements Copyable<Visib
         this.cloudWatchMetricsEnabled = cloudWatchMetricsEnabled;
     }
 
+    /**
+     * Enable cloud watch metric sample request when set to ``true``. Defaults to ``false``.
+     */
+    @Updatable
     public Boolean getSampledRequestsEnabled() {
         if (sampledRequestsEnabled == null) {
             sampledRequestsEnabled = false;

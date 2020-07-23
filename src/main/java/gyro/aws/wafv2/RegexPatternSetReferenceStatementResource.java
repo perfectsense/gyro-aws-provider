@@ -33,6 +33,11 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
     private RegexPatternSetResource regexPatternSet;
     private Set<TextTransformationResource> textTransformation;
 
+    /**
+     * The field setting to match the condition. (Required)
+     *
+     * @subresource gyro.aws.wafv2.FieldToMatchResource
+     */
     @Required
     @Updatable
     public FieldToMatchResource getFieldToMatch() {
@@ -43,6 +48,9 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
         this.fieldToMatch = fieldToMatch;
     }
 
+    /**
+     * The regex pattern set to associate with the statement. (Required)
+     */
     @Required
     @Updatable
     public RegexPatternSetResource getRegexPatternSet() {
@@ -53,6 +61,11 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
         this.regexPatternSet = regexPatternSet;
     }
 
+    /**
+     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configurations is allowed.
+     *
+     * @subresource gyro.aws.wafv2.TextTransformationResource
+     */
     @Updatable
     @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {

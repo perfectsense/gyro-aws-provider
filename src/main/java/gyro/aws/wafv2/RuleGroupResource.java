@@ -60,6 +60,9 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     private String arn;
     private String id;
 
+    /**
+     * Name of the rule group. (Required)
+     */
     @Required
     public String getName() {
         return name;
@@ -69,6 +72,9 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.name = name;
     }
 
+    /**
+     * Description of the rule group.
+     */
     public String getDescription() {
         return description;
     }
@@ -77,7 +83,10 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.description = description;
     }
 
-    // Auto calculated if not supplied
+    /**
+     * The total WCU capacity for the rule group.
+     * If not provided will be auto calculated based on the conditions provided by the rule configuration.
+     */
     public Long getCapacity() {
         return capacity;
     }
@@ -86,6 +95,11 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.capacity = capacity;
     }
 
+    /**
+     * A set of rule configurations that contains the conditions. (Required)
+     *
+     * @subresource gyro.aws.wafv2.RuleResource
+     */
     @Required
     @Updatable
     @CollectionMax(10)
@@ -101,6 +115,11 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.rule = rule;
     }
 
+    /**
+     * The visibility configuration for the rule group. (Required)
+     *
+     * @subresource gyro.aws.wafv2.VisibilityConfigResource
+     */
     @Required
     public VisibilityConfigResource getVisibilityConfig() {
         return visibilityConfig;
@@ -132,6 +151,9 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.policy = policy;
     }
 
+    /**
+     * The arn of the rule group.
+     */
     @Id
     @Output
     public String getArn() {
@@ -142,6 +164,9 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         this.arn = arn;
     }
 
+    /**
+     * The id of the rule group.
+     */
     @Output
     public String getId() {
         return id;

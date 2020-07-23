@@ -31,6 +31,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.wafv2.model.Tag;
@@ -41,7 +42,12 @@ public abstract class WafTaggableResource extends AwsResource {
     private Map<String, String> tags;
     private boolean tagsLoaded = false;
 
+    /**
+     * The scope where the resource is going to be created. Valid values are ``GLOBAL`` or ``REGIONAL``.
+     * Resources can only use and associate with other similar scoped resources (Required)
+     */
     @Required
+    @ValidStrings({"GLOBAL", "REGIONAL"})
     public String getScope() {
         return scope;
     }
@@ -50,6 +56,9 @@ public abstract class WafTaggableResource extends AwsResource {
         this.scope = scope;
     }
 
+    /**
+     * The tags associated with the resources.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {

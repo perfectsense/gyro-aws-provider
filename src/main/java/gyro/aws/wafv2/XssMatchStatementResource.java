@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.XssMatchStatement;
 
@@ -30,7 +31,13 @@ public class XssMatchStatementResource extends WafDiffable implements Copyable<X
     private FieldToMatchResource fieldToMatch;
     private Set<TextTransformationResource> textTransformation;
 
+    /**
+     * The field setting to match the condition. (Required)
+     *
+     * @subresource gyro.aws.wafv2.FieldToMatchResource
+     */
     @Required
+    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -39,7 +46,13 @@ public class XssMatchStatementResource extends WafDiffable implements Copyable<X
         this.fieldToMatch = fieldToMatch;
     }
 
+    /**
+     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configurations is allowed.
+     *
+     * @subresource gyro.aws.wafv2.TextTransformationResource
+     */
     @Updatable
+    @CollectionMax(3)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();

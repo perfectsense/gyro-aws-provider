@@ -32,6 +32,11 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
     private Set<FieldToMatchResource> redactedField;
     private Set<String> logDestinationConfigs;
 
+    /**
+     * The set of field match setting to take out of logging.
+     *
+     * @subresource gyro.aws.wafv2.FieldToMatchResource
+     */
     @Updatable
     public Set<FieldToMatchResource> getRedactedField() {
         if (redactedField == null) {
@@ -45,6 +50,9 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
         this.redactedField = redactedField;
     }
 
+    /**
+     * A set of arn of AWS Kinesis Data Firehouse to associate with the web acl.
+     */
     @Updatable
     public Set<String> getLogDestinationConfigs() {
         if (logDestinationConfigs == null) {

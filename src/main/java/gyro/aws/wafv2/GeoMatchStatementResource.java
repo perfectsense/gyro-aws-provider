@@ -28,6 +28,9 @@ public class GeoMatchStatementResource extends WafDiffable implements Copyable<G
 
     private Set<String> countryCodes;
 
+    /**
+     * A set of 2 character country codes based on ISO 3166 on which to filter the request. (Required)
+     */
     @Required
     @Updatable
     public Set<String> getCountryCodes() {
@@ -42,6 +45,11 @@ public class GeoMatchStatementResource extends WafDiffable implements Copyable<G
     public void copyFrom(GeoMatchStatement geoMatchStatement) {
         setCountryCodes(new HashSet<>(geoMatchStatement.countryCodesAsStrings()));
         setHashCode(geoMatchStatement.hashCode());
+    }
+
+    @Override
+    public String primaryKey() {
+        return "";
     }
 
     GeoMatchStatement toGeoMatchStatement() {

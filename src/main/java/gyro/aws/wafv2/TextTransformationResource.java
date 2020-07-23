@@ -20,12 +20,16 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.TextTransformation;
+import software.amazon.awssdk.services.wafv2.model.TextTransformationType;
 
 public class TextTransformationResource extends WafDiffable implements Copyable<TextTransformation> {
 
     private Integer priority;
-    private String type;
+    private TextTransformationType type;
 
+    /**
+     * The priority of the text transformation. (Required)
+     */
     @Required
     @Updatable
     public Integer getPriority() {
@@ -36,19 +40,24 @@ public class TextTransformationResource extends WafDiffable implements Copyable<
         this.priority = priority;
     }
 
+    /**
+     * The type of the text transformation.
+     * Valid values are ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``,
+     * ``CMD_LINE`` or ``URL_DECODE``. (Required)
+     */
     @Required
-    public String getType() {
+    public TextTransformationType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TextTransformationType type) {
         this.type = type;
     }
 
     @Override
     public void copyFrom(TextTransformation textTransformation) {
         setPriority(textTransformation.priority());
-        setType(textTransformation.typeAsString());
+        setType(textTransformation.type());
         setHashCode(textTransformation.hashCode());
     }
 

@@ -44,8 +44,10 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
     private Set<String> addresses;
     private String id;
     private String arn;
-    private Integer hashCode;
 
+    /**
+     * The name of the ip set. (Required)
+     */
     @Required
     public String getName() {
         return name;
@@ -55,6 +57,9 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.name = name;
     }
 
+    /**
+     * The ip address version. Valid values are ``IPV4`` or ``IPV6``. (Required)
+     */
     @Required
     @ValidStrings({"IPV4", "IPV6"})
     public String getIpAddressVersion() {
@@ -65,6 +70,9 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.ipAddressVersion = ipAddressVersion;
     }
 
+    /**
+     * The description of the ip set.
+     */
     public String getDescription() {
         return description;
     }
@@ -73,6 +81,9 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.description = description;
     }
 
+    /**
+     * The set of ip address to filter the requests on. (Required)
+     */
     @Required
     @Updatable
     public Set<String> getAddresses() {
@@ -87,6 +98,9 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.addresses = addresses;
     }
 
+    /**
+     * The id of the ip set.
+     */
     @Output
     public String getId() {
         return id;
@@ -96,6 +110,9 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         this.id = id;
     }
 
+    /**
+     * The arn of the ip set.
+     */
     @Id
     @Output
     public String getArn() {
@@ -104,15 +121,6 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
 
     public void setArn(String arn) {
         this.arn = arn;
-    }
-
-    @Output
-    public Integer getHashCode() {
-        return hashCode;
-    }
-
-    public void setHashCode(Integer hashCode) {
-        this.hashCode = hashCode;
     }
 
     @Override
@@ -125,7 +133,6 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
         setArn(ipSet.arn());
         setAddresses(new HashSet<>(ipSet.addresses()));
         setDescription(ipSet.description());
-        setHashCode(ipSet.hashCode());
         setId(ipSet.id());
         setIpAddressVersion(ipSet.ipAddressVersionAsString());
         setName(ipSet.name());
@@ -158,7 +165,6 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
 
         setArn(ipSet.summary().arn());
         setId(ipSet.summary().id());
-        setHashCode(ipSet.summary().hashCode());
     }
 
     @Override
