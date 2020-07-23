@@ -32,6 +32,16 @@ import software.amazon.awssdk.services.wafv2.model.ListIpSetsResponse;
 import software.amazon.awssdk.services.wafv2.model.Scope;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 
+/**
+ * Query waf v2 ip set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    rule-group: $(external-query aws::wafv2-ip-set)
+ */
 @Type("wafv2-ip-set")
 public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
 
@@ -39,6 +49,9 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
     private String name;
     private String scope;
 
+    /**
+     * The id of the ip set.
+     */
     public String getId() {
         return id;
     }
@@ -47,6 +60,9 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
         this.id = id;
     }
 
+    /**
+     * The name of the ip set.
+     */
     public String getName() {
         return name;
     }
@@ -55,6 +71,9 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
         this.name = name;
     }
 
+    /**
+     * the scope of the ip set.
+     */
     public String getScope() {
         return scope;
     }

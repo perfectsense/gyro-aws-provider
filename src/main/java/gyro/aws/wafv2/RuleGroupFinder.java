@@ -35,6 +35,16 @@ import software.amazon.awssdk.services.wafv2.model.Scope;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
+/**
+ * Query waf v2 rule group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    rule-group: $(external-query aws::wafv2-rule-group)
+ */
 @Type("wafv2-rule-group")
 public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroupResource> {
 
@@ -42,6 +52,9 @@ public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroup
     private String name;
     private String scope;
 
+    /**
+     * The id of the rule group.
+     */
     public String getId() {
         return id;
     }
@@ -50,6 +63,9 @@ public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroup
         this.id = id;
     }
 
+    /**
+     * The name of the rule group.
+     */
     public String getName() {
         return name;
     }
@@ -58,6 +74,9 @@ public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroup
         this.name = name;
     }
 
+    /**
+     * The scope of the rule group.
+     */
     public String getScope() {
         return scope;
     }

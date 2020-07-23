@@ -32,6 +32,16 @@ import software.amazon.awssdk.services.wafv2.model.RegexPatternSet;
 import software.amazon.awssdk.services.wafv2.model.Scope;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 
+/**
+ * Query waf v2 regex pattern set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    rule-group: $(external-query aws::wafv2-regex-pattern-set)
+ */
 @Type("wafv2-regex-pattern-set")
 public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSet, RegexPatternSetResource> {
 
@@ -39,6 +49,9 @@ public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSe
     private String name;
     private String scope;
 
+    /**
+     * The id of the regex pattern set.
+     */
     public String getId() {
         return id;
     }
@@ -47,6 +60,9 @@ public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSe
         this.id = id;
     }
 
+    /**
+     * The name of the regex patten set.
+     */
     public String getName() {
         return name;
     }
@@ -55,6 +71,9 @@ public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSe
         this.name = name;
     }
 
+    /**
+     * The scope of the regex pattern set.
+     */
     public String getScope() {
         return scope;
     }

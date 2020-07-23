@@ -33,6 +33,16 @@ import software.amazon.awssdk.services.wafv2.model.WafInvalidParameterException;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
+/**
+ * Query waf v2 web acl.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    web-acl: $(external-query aws::wafv2-web-acl)
+ */
 @Type("wafv2-web-acl")
 public class WebAclFinder extends AwsFinder<Wafv2Client, WebACL, WebAclResource> {
 
@@ -40,6 +50,9 @@ public class WebAclFinder extends AwsFinder<Wafv2Client, WebACL, WebAclResource>
     private String name;
     private String scope;
 
+    /**
+     *  The id of the web acl.
+     */
     public String getId() {
         return id;
     }
@@ -48,6 +61,9 @@ public class WebAclFinder extends AwsFinder<Wafv2Client, WebACL, WebAclResource>
         this.id = id;
     }
 
+    /**
+     * The name of the web acl.
+     */
     public String getName() {
         return name;
     }
@@ -56,6 +72,9 @@ public class WebAclFinder extends AwsFinder<Wafv2Client, WebACL, WebAclResource>
         this.name = name;
     }
 
+    /**
+     * The scope of the web acl.
+     */
     public String getScope() {
         return scope;
     }
