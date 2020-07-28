@@ -24,7 +24,7 @@ public abstract class WafDiffable extends Diffable {
     private Integer hashCode;
 
     /**
-     *
+     * The hashcode of the waf entity.
      */
     @Output
     public Integer getHashCode() {
@@ -37,6 +37,6 @@ public abstract class WafDiffable extends Diffable {
 
     @Override
     public String primaryKey() {
-        return String.valueOf(getHashCode());
+        return getHashCode() != null ? String.valueOf(getHashCode()) : "";
     }
 }

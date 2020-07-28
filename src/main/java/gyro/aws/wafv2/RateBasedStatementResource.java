@@ -89,10 +89,15 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
     }
 
     RateBasedStatement toRateBasedStatement() {
-        return RateBasedStatement.builder()
+        RateBasedStatement.Builder builder = RateBasedStatement.builder()
             .aggregateKeyType(getAggregateKeyType())
-            .limit(getLimit())
-            .scopeDownStatement(getScopeDownStatement().toStatement())
-            .build();
+            .limit(getLimit());
+
+        if (getScopeDownStatement() != null) {
+           builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
+
+        }
+
+        return builder.build();
     }
 }

@@ -28,11 +28,12 @@ import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.wafv2.model.ByteMatchStatement;
+import software.amazon.awssdk.services.wafv2.model.PositionalConstraint;
 
 public class ByteMatchStatementResource extends WafDiffable implements Copyable<ByteMatchStatement> {
 
     private FieldToMatchResource fieldToMatch;
-    private String positionalConstraint;
+    private PositionalConstraint positionalConstraint;
     private Set<TextTransformationResource> textTransformation;
     private String searchString;
 
@@ -52,14 +53,16 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
     }
 
     /**
-     * The positional
+     * The positional search type for the search string.
+     * Valid values are ``EXACTLY``, ``STARTS_WITH``, ``ENDS_WITH``, ``CONTAINS`` or ``CONTAINS_WORD``.  (Required)
      */
+    @Required
     @Updatable
-    public String getPositionalConstraint() {
+    public PositionalConstraint getPositionalConstraint() {
         return positionalConstraint;
     }
 
-    public void setPositionalConstraint(String positionalConstraint) {
+    public void setPositionalConstraint(PositionalConstraint positionalConstraint) {
         this.positionalConstraint = positionalConstraint;
     }
 
@@ -83,8 +86,9 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
     }
 
     /**
-     * The search string you want aws to search for in the request.
+     * The search string you want aws to search for in the request. (Required)
      */
+    @Required
     @Updatable
     public String getSearchString() {
         return searchString;
@@ -96,7 +100,7 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
 
     @Override
     public void copyFrom(ByteMatchStatement byteMatchStatement) {
-        setPositionalConstraint(byteMatchStatement.positionalConstraintAsString());
+        setPositionalConstraint(byteMatchStatement.positionalConstraint());
         setSearchString(byteMatchStatement.searchString().toString());
         setHashCode(byteMatchStatement.hashCode());
 
@@ -117,20 +121,14 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
     ByteMatchStatement toByteMatchStatement() {
         ByteMatchStatement.Builder builder = ByteMatchStatement
             .builder()
-            .fieldToMatch(getFieldToMatch().toFieldToMatch());
-
-        if (!ObjectUtils.isBlank(getPositionalConstraint())) {
-            builder = builder.positionalConstraint(getPositionalConstraint());
-        }
+            .fieldToMatch(getFieldToMatch().toFieldToMatch())
+            .positionalConstraint(getPositionalConstraint())
+            .searchString(SdkBytes.fromUtf8String(getSearchString()));
 
         if (!getTextTransformation().isEmpty()) {
             builder = builder.textTransformations(getTextTransformation().stream()
                 .map(TextTransformationResource::toTextTransformation)
                 .collect(Collectors.toList()));
-        }
-
-        if (!ObjectUtils.isBlank(getSearchString())) {
-            builder = builder.searchString(SdkBytes.fromUtf8String(getSearchString()));
         }
 
         return builder.build();

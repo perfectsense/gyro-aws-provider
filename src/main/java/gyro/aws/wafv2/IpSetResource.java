@@ -35,6 +35,25 @@ import software.amazon.awssdk.services.wafv2.model.GetIpSetResponse;
 import software.amazon.awssdk.services.wafv2.model.IPSet;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 
+/**
+ * Creates an ip set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::wafv2-ip-set ip-set-example-ipv4
+ *         name: "ip-set-example-ipv4"
+ *         description: "ip-set-example-ipv4-desc"
+ *         scope: "REGIONAL"
+ *         ip-address-version: "IPV4"
+ *         addresses: [
+ *             "10.0.0.0/32",
+ *             "20.0.0.0/32"
+ *         ]
+ *     end
+ */
 @Type("wafv2-ip-set")
 public class IpSetResource extends WafTaggableResource implements Copyable<IPSet> {
 
@@ -73,6 +92,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
     /**
      * The description of the ip set.
      */
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -178,6 +198,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
                 .scope(getScope())
                 .lockToken(lockToken(client))
                 .addresses(getAddresses())
+                .description(getDescription())
         );
     }
 

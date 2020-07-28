@@ -117,6 +117,11 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
     }
 
     @Override
+    public String primaryKey() {
+        return getName();
+    }
+
+    @Override
     public void copyFrom(Rule rule) {
         setAction(evaluateAction(rule.action()));
         setOverrideAction(evaluateAction(rule.overrideAction()));

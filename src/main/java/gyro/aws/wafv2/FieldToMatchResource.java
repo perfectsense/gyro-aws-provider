@@ -54,7 +54,6 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
     /**
      * the name of the field to match. Only required if ``match-type`` set to ``SINGLE_HEADER`` or ``SINGLE_QUERY_ARGUMENT``.
      */
-    @Required
     @Updatable
     public String getName() {
         return name;
@@ -115,7 +114,7 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
         List<ValidationError> errors = new ArrayList<>();
 
         if (getName() != null && getMatchType() != FieldMatchType.SINGLE_QUERY_ARGUMENT
-            && getMatchType() == FieldMatchType.SINGLE_HEADER) {
+            && getMatchType() != FieldMatchType.SINGLE_HEADER) {
             errors.add(new ValidationError(
                 this,
                 "name",

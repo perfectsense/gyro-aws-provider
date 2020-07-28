@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMin;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.OrStatement;
 
@@ -36,6 +37,7 @@ public class OrStatementResource extends WafDiffable implements Copyable<OrState
      */
     @Required
     @Updatable
+    @CollectionMin(2)
     public Set<StatementResource> getStatement() {
         if (statement == null) {
             statement = new HashSet<>();

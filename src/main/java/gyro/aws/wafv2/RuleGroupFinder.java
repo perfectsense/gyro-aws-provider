@@ -32,6 +32,7 @@ import software.amazon.awssdk.services.wafv2.model.ListWebAcLsRequest;
 import software.amazon.awssdk.services.wafv2.model.ListWebAcLsResponse;
 import software.amazon.awssdk.services.wafv2.model.RuleGroup;
 import software.amazon.awssdk.services.wafv2.model.Scope;
+import software.amazon.awssdk.services.wafv2.model.WafInvalidParameterException;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
@@ -92,36 +93,46 @@ public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroup
         String marker = null;
 
         do {
-            response = client.listRuleGroups(ListRuleGroupsRequest.builder()
-                .scope(Scope.CLOUDFRONT)
-                .nextMarker(marker)
-                .build());
+            try {
+                response = client.listRuleGroups(ListRuleGroupsRequest.builder()
+                    .scope(Scope.CLOUDFRONT)
+                    .nextMarker(marker)
+                    .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            ruleGroups.addAll(response.ruleGroups()
-                .stream()
-                .map(o -> getRuleGroup(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                ruleGroups.addAll(response.ruleGroups()
+                    .stream()
+                    .map(o -> getRuleGroup(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+        } catch (WafInvalidParameterException ex) {
+            // Ignore
+            // Occurs if no cloudfront based web acl present
+        }
 
         } while (!ObjectUtils.isBlank(marker));
 
         marker = null;
 
         do {
-            response = client.listRuleGroups(ListRuleGroupsRequest.builder()
+            try {
+                response = client.listRuleGroups(ListRuleGroupsRequest.builder()
                 .scope(Scope.REGIONAL)
                 .nextMarker(marker)
                 .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            ruleGroups.addAll(response.ruleGroups()
-                .stream()
-                .map(o -> getRuleGroup(client, o.id(), o.name(), Scope.REGIONAL.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                ruleGroups.addAll(response.ruleGroups()
+                    .stream()
+                    .map(o -> getRuleGroup(client, o.id(), o.name(), Scope.REGIONAL.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 

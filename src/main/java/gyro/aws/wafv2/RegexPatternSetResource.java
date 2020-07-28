@@ -36,6 +36,23 @@ import software.amazon.awssdk.services.wafv2.model.Regex;
 import software.amazon.awssdk.services.wafv2.model.RegexPatternSet;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 
+/**
+ * Creates a regex pattern set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::wafv2-regex-pattern-set regex-pattern-set-example
+ *         name: "regex-pattern-set-example"
+ *         description: "regex-pattern-set-example-desc"
+ *         scope: "REGIONAL"
+ *         regular-expressions: [
+ *             "regular-expression"
+ *         ]
+ *     end
+ */
 @Type("wafv2-regex-pattern-set")
 public class RegexPatternSetResource extends WafTaggableResource implements Copyable<RegexPatternSet> {
 
@@ -60,6 +77,7 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
     /**
      * The description of the regex pattern set.
      */
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -166,6 +184,7 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
                 .name(getName())
                 .scope(getScope())
                 .lockToken(lockToken(client))
+                .description(getDescription())
                 .regularExpressionList(getRegularExpressions().stream()
                     .map(o -> Regex.builder().regexString(o).build())
                     .collect(Collectors.toList()))

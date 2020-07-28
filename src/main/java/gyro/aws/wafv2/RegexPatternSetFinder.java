@@ -30,6 +30,7 @@ import software.amazon.awssdk.services.wafv2.model.ListRegexPatternSetsRequest;
 import software.amazon.awssdk.services.wafv2.model.ListRegexPatternSetsResponse;
 import software.amazon.awssdk.services.wafv2.model.RegexPatternSet;
 import software.amazon.awssdk.services.wafv2.model.Scope;
+import software.amazon.awssdk.services.wafv2.model.WafInvalidParameterException;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 
 /**
@@ -89,36 +90,47 @@ public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSe
         String marker = null;
 
         do {
-            response = client.listRegexPatternSets(ListRegexPatternSetsRequest.builder()
-                .scope(Scope.CLOUDFRONT)
-                .nextMarker(marker)
-                .build());
+            try {
+                response = client.listRegexPatternSets(ListRegexPatternSetsRequest.builder()
+                    .scope(Scope.CLOUDFRONT)
+                    .nextMarker(marker)
+                    .build());
 
-            marker = response.nextMarker();
 
-            regexPatternSets.addAll(response.regexPatternSets()
-                .stream()
-                .map(o -> getRegexPatternSet(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                marker = response.nextMarker();
+
+                regexPatternSets.addAll(response.regexPatternSets()
+                    .stream()
+                    .map(o -> getRegexPatternSet(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 
         marker = null;
 
         do {
-            response = client.listRegexPatternSets(ListRegexPatternSetsRequest.builder()
+            try {
+                response = client.listRegexPatternSets(ListRegexPatternSetsRequest.builder()
                 .scope(Scope.REGIONAL)
                 .nextMarker(marker)
                 .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            regexPatternSets.addAll(response.regexPatternSets()
-                .stream()
-                .map(o -> getRegexPatternSet(client, o.id(), o.name(), Scope.REGIONAL.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                regexPatternSets.addAll(response.regexPatternSets()
+                    .stream()
+                    .map(o -> getRegexPatternSet(client, o.id(), o.name(), Scope.REGIONAL.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 

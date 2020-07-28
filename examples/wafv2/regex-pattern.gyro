@@ -1,0 +1,8 @@
+aws::wafv2-regex-pattern-set regex-pattern-set-example
+    name: "regex-pattern-set-example"
+    description: "regex-pattern-set-example-desc"
+    scope: "REGIONAL"
+    regular-expressions: [
+        "regular-expression"
+    ]
+end

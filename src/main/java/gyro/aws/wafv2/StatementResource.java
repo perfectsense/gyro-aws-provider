@@ -329,53 +329,29 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
 
         if (getAndStatement() != null) {
             builder = builder.andStatement(getAndStatement().toAndStatement());
-        }
-
-        if (getNotStatement() != null) {
+        } else if (getNotStatement() != null) {
             builder = builder.notStatement(getNotStatement().toNotStatement());
-        }
-
-        if (getOrStatement() != null) {
+        } else if (getOrStatement() != null) {
             builder = builder.orStatement(getOrStatement().toOrStatement());
-        }
-
-        if (getByteMatchStatement() != null) {
+        } else if (getByteMatchStatement() != null) {
             builder = builder.byteMatchStatement(getByteMatchStatement().toByteMatchStatement());
-        }
-
-        if (getGeoMatchStatement() != null) {
+        } else if (getGeoMatchStatement() != null) {
             builder = builder.geoMatchStatement(getGeoMatchStatement().toGeoMatchStatement());
-        }
-
-        if (getIpSetReferenceStatement() != null) {
+        } else if (getIpSetReferenceStatement() != null) {
             builder = builder.ipSetReferenceStatement(getIpSetReferenceStatement().toIpSetReferenceStatement());
-        }
-
-        if (getRegexPatternSetReferenceStatement() != null) {
+        } else if (getRegexPatternSetReferenceStatement() != null) {
             builder = builder.regexPatternSetReferenceStatement(getRegexPatternSetReferenceStatement().toRegexPatternSetReferenceStatement());
-        }
-
-        if (getSizeConstraintStatement() != null) {
+        } else if (getSizeConstraintStatement() != null) {
             builder = builder.sizeConstraintStatement(getSizeConstraintStatement().toSizeConstraintStatement());
-        }
-
-        if (getSqliMatchStatement() != null) {
+        } else if (getSqliMatchStatement() != null) {
             builder = builder.sqliMatchStatement(getSqliMatchStatement().toSqliMatchStatement());
-        }
-
-        if (getXssMatchStatement() != null) {
+        } else if (getXssMatchStatement() != null) {
             builder = builder.xssMatchStatement(getXssMatchStatement().toXssMatchStatement());
-        }
-
-        if (getRateBasedStatement() != null) {
+        } else if (getRateBasedStatement() != null) {
             builder = builder.rateBasedStatement(getRateBasedStatement().toRateBasedStatement());
-        }
-
-        if (getManagedRuleGroupStatement() != null) {
+        } else if (getManagedRuleGroupStatement() != null) {
             builder = builder.managedRuleGroupStatement(getManagedRuleGroupStatement().toManagedRuleGroupStatement());
-        }
-
-        if (getRuleGroupReferenceStatement() != null) {
+        } else if (getRuleGroupReferenceStatement() != null) {
             builder = builder.ruleGroupReferenceStatement(getRuleGroupReferenceStatement().toRuleGroupReferenceStatement());
         }
 
@@ -386,7 +362,7 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (Stream.of(
+        long count = Stream.of(
             getAndStatement(),
             getOrStatement(),
             getNotStatement(),
@@ -401,18 +377,88 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
             getManagedRuleGroupStatement(),
             getRuleGroupReferenceStatement())
             .filter(Objects::nonNull)
-            .count() > 1) {
+            .count();
+
+        if (count != 1) {
 
             errors.add(new ValidationError(
                 this,
                 null,
-                "Only one of [ 'and-statement', 'not-statement', 'or-statement', 'byte-match-statement',"
+                "One and only one of [ 'and-statement', 'not-statement', 'or-statement', 'byte-match-statement',"
                     + "'geo-match-statement', 'ip-set-reference-statement', 'regex-pattern-set-reference-statement',"
                     + "'size-constraint-statement', 'sqli-match-statement', 'xss-match-statement',"
                     + "'rate-based-statement', 'managed-rule-group-statement' or 'rule-group-reference-statement' ] "
-                    + "can be configured"));
+                    + "is required"));
         }
 
         return errors;
+    }
+
+    private String findStatementType() {
+        String type = "";
+
+        if (getAndStatement() != null) {
+            type = "and";
+        } else if (getNotStatement() != null) {
+            type = "not";
+        } else if (getOrStatement() != null) {
+            type = "or";
+        } else if (getByteMatchStatement() != null) {
+            type = "byte match";
+        } else if (getGeoMatchStatement() != null) {
+            type = "geo match";
+        } else if (getIpSetReferenceStatement() != null) {
+            type = "ip set reference";
+        } else if (getRegexPatternSetReferenceStatement() != null) {
+            type = "regex pattern reference";
+        } else if (getSizeConstraintStatement() != null) {
+            type = "size constraint";
+        } else if (getSqliMatchStatement() != null) {
+            type = "sql injection match";
+        } else if (getXssMatchStatement() != null) {
+            type = "xss match";
+        } else if (getRateBasedStatement() != null) {
+            type = "rate based";
+        } else if (getManagedRuleGroupStatement() != null) {
+            type = "managed rule group";
+        } else if (getRuleGroupReferenceStatement() != null) {
+            type = "rule group reference";
+        }
+
+        return type;
+    }
+
+    private String findStatementDetailPrimaryKey() {
+        String key = "";
+
+        if (getAndStatement() != null) {
+            key = getAndStatement().primaryKey();
+        } else if (getNotStatement() != null) {
+            key = getNotStatement().primaryKey();
+        } else if (getOrStatement() != null) {
+            key = getOrStatement().primaryKey();
+        } else if (getByteMatchStatement() != null) {
+            key = getByteMatchStatement().primaryKey();
+        } else if (getGeoMatchStatement() != null) {
+            key = getGeoMatchStatement().primaryKey();
+        } else if (getIpSetReferenceStatement() != null) {
+            key = getIpSetReferenceStatement().primaryKey();
+        } else if (getRegexPatternSetReferenceStatement() != null) {
+            key = getRegexPatternSetReferenceStatement().primaryKey();
+        } else if (getSizeConstraintStatement() != null) {
+            key = getSizeConstraintStatement().primaryKey();
+        } else if (getSqliMatchStatement() != null) {
+            key = getSqliMatchStatement().primaryKey();
+        } else if (getXssMatchStatement() != null) {
+            key = getXssMatchStatement().primaryKey();
+        } else if (getRateBasedStatement() != null) {
+            key = getRateBasedStatement().primaryKey();
+        } else if (getManagedRuleGroupStatement() != null) {
+            key = getManagedRuleGroupStatement().primaryKey();
+        } else if (getRuleGroupReferenceStatement() != null) {
+            key = getRuleGroupReferenceStatement().primaryKey();
+        }
+
+        return key;
     }
 }

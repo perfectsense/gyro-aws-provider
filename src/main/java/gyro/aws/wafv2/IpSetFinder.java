@@ -30,6 +30,7 @@ import software.amazon.awssdk.services.wafv2.model.IPSet;
 import software.amazon.awssdk.services.wafv2.model.ListIpSetsRequest;
 import software.amazon.awssdk.services.wafv2.model.ListIpSetsResponse;
 import software.amazon.awssdk.services.wafv2.model.Scope;
+import software.amazon.awssdk.services.wafv2.model.WafInvalidParameterException;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 
 /**
@@ -72,7 +73,7 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
     }
 
     /**
-     * the scope of the ip set.
+     * The scope of the ip set.
      */
     public String getScope() {
         return scope;
@@ -89,7 +90,8 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
         String marker = null;
 
         do {
-            response = client.listIPSets(ListIpSetsRequest.builder()
+            try {
+                response = client.listIPSets(ListIpSetsRequest.builder()
                 .scope(Scope.CLOUDFRONT)
                 .nextMarker(marker)
                 .build());
@@ -101,24 +103,32 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
                 .map(o -> getIpSet(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
         } while (!ObjectUtils.isBlank(marker));
 
         marker = null;
 
         do {
-            response = client.listIPSets(ListIpSetsRequest.builder()
+            try {
+                response = client.listIPSets(ListIpSetsRequest.builder()
                 .scope(Scope.REGIONAL)
                 .nextMarker(marker)
                 .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            ipSets.addAll(response.ipSets()
-                .stream()
-                .map(o -> getIpSet(client, o.id(), o.name(), Scope.REGIONAL.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                ipSets.addAll(response.ipSets()
+                    .stream()
+                    .map(o -> getIpSet(client, o.id(), o.name(), Scope.REGIONAL.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+        } catch (WafInvalidParameterException ex) {
+            // Ignore
+            // Occurs if no cloudfront based web acl present
+        }
 
         } while (!ObjectUtils.isBlank(marker));
 

@@ -130,7 +130,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     }
 
     /**
-     * The policy document. A policy path or policy string is allowed. (Required)
+     * The policy document. A policy path or policy string is allowed.
      */
     @Updatable
     public String getPolicy() {
@@ -196,8 +196,13 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         setVisibilityConfig(visibilityConfig);
 
         Wafv2Client client = createClient(Wafv2Client.class);
-        GetPermissionPolicyResponse response = client.getPermissionPolicy(r -> r.resourceArn(getArn()));
-        setPolicy(response.policy());
+        try {
+            GetPermissionPolicyResponse response = client.getPermissionPolicy(r -> r.resourceArn(getArn()));
+            setPolicy(response.policy());
+        } catch (WafNonexistentItemException ex) {
+            // ignore
+            // errors if no policy exists
+        }
     }
 
     @Override
@@ -226,7 +231,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
 
         Long capacity = getCapacity();
 
-        if (capacity != null) {
+        if (capacity == null) {
             CheckCapacityResponse response = client.checkCapacity(r -> r.scope(getScope())
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList())));
 
@@ -244,6 +249,8 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
 
         setId(response.summary().id());
         setArn(response.summary().arn());
+
+        copyFrom(getRuleGroupResponse(client).ruleGroup());
 
         if (!ObjectUtils.isBlank(getPolicy())) {
             state.save();
@@ -326,6 +333,15 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
                 this,
                 "rule",
                 "rate based rule cannot be configured as part of a rule group."));
+        }
+
+        if (getRule().stream()
+            .filter(o -> o.getStatement() != null)
+            .anyMatch(o -> o.getStatement().getManagedRuleGroupStatement() != null)) {
+            errors.add(new ValidationError(
+                this,
+                "rule",
+                "managed rule group cannot be configured as part of a rule group."));
         }
 
         return errors;
