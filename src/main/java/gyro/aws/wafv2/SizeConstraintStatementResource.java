@@ -21,13 +21,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.ComparisonOperator;
 import software.amazon.awssdk.services.wafv2.model.SizeConstraintStatement;
 
-public class SizeConstraintStatementResource extends WafDiffable implements Copyable<SizeConstraintStatement> {
+public class SizeConstraintStatementResource extends Diffable implements Copyable<SizeConstraintStatement> {
 
     private FieldToMatchResource fieldToMatch;
     private ComparisonOperator comparisonOperator;
@@ -95,10 +96,18 @@ public class SizeConstraintStatementResource extends WafDiffable implements Copy
     }
 
     @Override
+    public String primaryKey() {
+        return String.format(
+            "field to match - '%s' with size constraint - %s and comparison operator - '%s'",
+            getFieldToMatch() != null ? getFieldToMatch().primaryKey() : "",
+            getSize(),
+            getComparisonOperator());
+    }
+
+    @Override
     public void copyFrom(SizeConstraintStatement sizeConstraintStatement) {
         setComparisonOperator(sizeConstraintStatement.comparisonOperator());
         setSize(sizeConstraintStatement.size());
-        setHashCode(sizeConstraintStatement.hashCode());
 
         getTextTransformation().clear();
         if (sizeConstraintStatement.textTransformations() != null) {

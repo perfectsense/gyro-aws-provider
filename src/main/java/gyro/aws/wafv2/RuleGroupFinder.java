@@ -28,13 +28,10 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.ListRuleGroupsRequest;
 import software.amazon.awssdk.services.wafv2.model.ListRuleGroupsResponse;
-import software.amazon.awssdk.services.wafv2.model.ListWebAcLsRequest;
-import software.amazon.awssdk.services.wafv2.model.ListWebAcLsResponse;
 import software.amazon.awssdk.services.wafv2.model.RuleGroup;
 import software.amazon.awssdk.services.wafv2.model.Scope;
 import software.amazon.awssdk.services.wafv2.model.WafInvalidParameterException;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
-import software.amazon.awssdk.services.wafv2.model.WebACL;
 
 /**
  * Query waf v2 rule group.
@@ -106,10 +103,10 @@ public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroup
                     .map(o -> getRuleGroup(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()));
-        } catch (WafInvalidParameterException ex) {
-            // Ignore
-            // Occurs if no cloudfront based web acl present
-        }
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 
@@ -118,9 +115,9 @@ public class RuleGroupFinder extends AwsFinder<Wafv2Client, RuleGroup, RuleGroup
         do {
             try {
                 response = client.listRuleGroups(ListRuleGroupsRequest.builder()
-                .scope(Scope.REGIONAL)
-                .nextMarker(marker)
-                .build());
+                    .scope(Scope.REGIONAL)
+                    .nextMarker(marker)
+                    .build());
 
                 marker = response.nextMarker();
 

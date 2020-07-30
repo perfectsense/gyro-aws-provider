@@ -21,12 +21,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.XssMatchStatement;
 
-public class XssMatchStatementResource extends WafDiffable implements Copyable<XssMatchStatement> {
+public class XssMatchStatementResource extends Diffable implements Copyable<XssMatchStatement> {
 
     private FieldToMatchResource fieldToMatch;
     private Set<TextTransformationResource> textTransformation;
@@ -66,9 +67,12 @@ public class XssMatchStatementResource extends WafDiffable implements Copyable<X
     }
 
     @Override
-    public void copyFrom(XssMatchStatement xssMatchStatement) {
-        setHashCode(xssMatchStatement.hashCode());
+    public String primaryKey() {
+        return String.format("field to match - '%s'", getFieldToMatch() != null ? getFieldToMatch().primaryKey() : "");
+    }
 
+    @Override
+    public void copyFrom(XssMatchStatement xssMatchStatement) {
         getTextTransformation().clear();
         if (xssMatchStatement.textTransformations() != null) {
             xssMatchStatement.textTransformations().forEach(o -> {

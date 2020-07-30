@@ -20,11 +20,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.GeoMatchStatement;
 
-public class GeoMatchStatementResource extends WafDiffable implements Copyable<GeoMatchStatement> {
+public class GeoMatchStatementResource extends Diffable implements Copyable<GeoMatchStatement> {
 
     private Set<String> countryCodes;
 
@@ -44,7 +45,6 @@ public class GeoMatchStatementResource extends WafDiffable implements Copyable<G
     @Override
     public void copyFrom(GeoMatchStatement geoMatchStatement) {
         setCountryCodes(new HashSet<>(geoMatchStatement.countryCodesAsStrings()));
-        setHashCode(geoMatchStatement.hashCode());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class GeoMatchStatementResource extends WafDiffable implements Copyable<G
     }
 
     GeoMatchStatement toGeoMatchStatement() {
-        return  GeoMatchStatement.builder()
+        return GeoMatchStatement.builder()
             .countryCodesWithStrings(getCountryCodes())
             .build();
     }

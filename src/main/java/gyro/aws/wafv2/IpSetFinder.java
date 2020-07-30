@@ -92,17 +92,17 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
         do {
             try {
                 response = client.listIPSets(ListIpSetsRequest.builder()
-                .scope(Scope.CLOUDFRONT)
-                .nextMarker(marker)
-                .build());
+                    .scope(Scope.CLOUDFRONT)
+                    .nextMarker(marker)
+                    .build());
 
-            marker = response.nextMarker();
+                marker = response.nextMarker();
 
-            ipSets.addAll(response.ipSets()
-                .stream()
-                .map(o -> getIpSet(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                ipSets.addAll(response.ipSets()
+                    .stream()
+                    .map(o -> getIpSet(client, o.id(), o.name(), Scope.CLOUDFRONT.toString()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
             } catch (WafInvalidParameterException ex) {
                 // Ignore
                 // Occurs if no cloudfront based web acl present
@@ -114,9 +114,9 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
         do {
             try {
                 response = client.listIPSets(ListIpSetsRequest.builder()
-                .scope(Scope.REGIONAL)
-                .nextMarker(marker)
-                .build());
+                    .scope(Scope.REGIONAL)
+                    .nextMarker(marker)
+                    .build());
 
                 marker = response.nextMarker();
 
@@ -125,10 +125,10 @@ public class IpSetFinder extends AwsFinder<Wafv2Client, IPSet, IpSetResource> {
                     .map(o -> getIpSet(client, o.id(), o.name(), Scope.REGIONAL.toString()))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()));
-        } catch (WafInvalidParameterException ex) {
-            // Ignore
-            // Occurs if no cloudfront based web acl present
-        }
+            } catch (WafInvalidParameterException ex) {
+                // Ignore
+                // Occurs if no cloudfront based web acl present
+            }
 
         } while (!ObjectUtils.isBlank(marker));
 

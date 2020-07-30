@@ -21,12 +21,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMin;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.OrStatement;
 
-public class OrStatementResource extends WafDiffable implements Copyable<OrStatement> {
+public class OrStatementResource extends Diffable implements Copyable<OrStatement> {
 
     private Set<StatementResource> statement;
 
@@ -51,6 +52,13 @@ public class OrStatementResource extends WafDiffable implements Copyable<OrState
     }
 
     @Override
+    public String primaryKey() {
+        return getStatement().stream().map(StatementResource::primaryKey)
+            .sorted()
+            .collect(Collectors.joining(" or "));
+    }
+
+    @Override
     public void copyFrom(OrStatement orStatement) {
         getStatement().clear();
         orStatement.statements().forEach(o -> {
@@ -58,8 +66,6 @@ public class OrStatementResource extends WafDiffable implements Copyable<OrState
             statement.copyFrom(o);
             getStatement().add(statement);
         });
-
-        setHashCode(orStatement.hashCode());
     }
 
     OrStatement toOrStatement() {

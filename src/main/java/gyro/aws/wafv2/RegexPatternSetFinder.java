@@ -96,7 +96,6 @@ public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSe
                     .nextMarker(marker)
                     .build());
 
-
                 marker = response.nextMarker();
 
                 regexPatternSets.addAll(response.regexPatternSets()
@@ -116,9 +115,9 @@ public class RegexPatternSetFinder extends AwsFinder<Wafv2Client, RegexPatternSe
         do {
             try {
                 response = client.listRegexPatternSets(ListRegexPatternSetsRequest.builder()
-                .scope(Scope.REGIONAL)
-                .nextMarker(marker)
-                .build());
+                    .scope(Scope.REGIONAL)
+                    .nextMarker(marker)
+                    .build());
 
                 marker = response.nextMarker();
 

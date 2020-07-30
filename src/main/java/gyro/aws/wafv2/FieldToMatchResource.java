@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
@@ -33,13 +35,13 @@ import software.amazon.awssdk.services.wafv2.model.SingleHeader;
 import software.amazon.awssdk.services.wafv2.model.SingleQueryArgument;
 import software.amazon.awssdk.services.wafv2.model.UriPath;
 
-public class FieldToMatchResource extends WafDiffable implements Copyable<FieldToMatch> {
+public class FieldToMatchResource extends Diffable implements Copyable<FieldToMatch> {
 
     private FieldMatchType matchType;
     private String name;
 
     /**
-     * The field match type. Vaid values are ``SINGLE_HEADER``, ``SINGLE_QUERY_ARGUMENT``, ``ALL_QUERY_ARGUMENTS``, ``BODY``, ``QUERY_STRING``, ``METHOD`` or ``URI_PATH``. (Required)
+     * The field match type. Valid values are ``SINGLE_HEADER``, ``SINGLE_QUERY_ARGUMENT``, ``ALL_QUERY_ARGUMENTS``, ``BODY``, ``QUERY_STRING``, ``METHOD`` or ``URI_PATH``. (Required)
      */
     @Required
     @Updatable
@@ -64,6 +66,14 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
     }
 
     @Override
+    public String primaryKey() {
+        return String.format(
+            "match type: '%s'%s",
+            getMatchType(),
+            (ObjectUtils.isBlank(getName()) ? "" : String.format(", field: '%s'", getName())));
+    }
+
+    @Override
     public void copyFrom(FieldToMatch fieldToMatch) {
         FieldMatchType matchType = FieldMatchType.BODY;
 
@@ -84,7 +94,6 @@ public class FieldToMatchResource extends WafDiffable implements Copyable<FieldT
         }
 
         setMatchType(matchType);
-        setHashCode(fieldToMatch.hashCode());
     }
 
     FieldToMatch toFieldToMatch() {

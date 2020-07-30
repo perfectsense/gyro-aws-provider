@@ -20,9 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
-import gyro.core.resource.Output;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
@@ -30,7 +29,7 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.wafv2.model.ByteMatchStatement;
 import software.amazon.awssdk.services.wafv2.model.PositionalConstraint;
 
-public class ByteMatchStatementResource extends WafDiffable implements Copyable<ByteMatchStatement> {
+public class ByteMatchStatementResource extends Diffable implements Copyable<ByteMatchStatement> {
 
     private FieldToMatchResource fieldToMatch;
     private PositionalConstraint positionalConstraint;
@@ -99,10 +98,18 @@ public class ByteMatchStatementResource extends WafDiffable implements Copyable<
     }
 
     @Override
+    public String primaryKey() {
+        return String.format(
+            "field to match - '%s' with positional constraint - %s and search string - '%s'",
+            getFieldToMatch() != null ? getFieldToMatch().primaryKey() : "",
+            getPositionalConstraint(),
+            getSearchString());
+    }
+
+    @Override
     public void copyFrom(ByteMatchStatement byteMatchStatement) {
         setPositionalConstraint(byteMatchStatement.positionalConstraint());
-        setSearchString(byteMatchStatement.searchString().toString());
-        setHashCode(byteMatchStatement.hashCode());
+        setSearchString(byteMatchStatement.searchString().asUtf8String());
 
         getTextTransformation().clear();
         if (byteMatchStatement.textTransformations() != null) {

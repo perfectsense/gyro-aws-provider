@@ -21,12 +21,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.ExcludedRule;
 import software.amazon.awssdk.services.wafv2.model.ManagedRuleGroupStatement;
 
-public class ManagedRuleGroupStatementResource extends WafDiffable implements Copyable<ManagedRuleGroupStatement> {
+public class ManagedRuleGroupStatementResource extends Diffable implements Copyable<ManagedRuleGroupStatement> {
 
     private Set<String> excludedRules;
     private String name;
@@ -52,7 +53,6 @@ public class ManagedRuleGroupStatementResource extends WafDiffable implements Co
      * The name of the managed rule group. (Required)
      */
     @Required
-    @Updatable
     public String getName() {
         return name;
     }
@@ -65,13 +65,17 @@ public class ManagedRuleGroupStatementResource extends WafDiffable implements Co
      * The vendor name of the managed rule group. (Required)
      */
     @Required
-    @Updatable
     public String getVendorName() {
         return vendorName;
     }
 
     public void setVendorName(String vendorName) {
         this.vendorName = vendorName;
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("with name - '%s' and vendor - '%s'", getName(), getVendorName());
     }
 
     @Override
@@ -86,7 +90,6 @@ public class ManagedRuleGroupStatementResource extends WafDiffable implements Co
 
         setName(managedRuleGroupStatement.name());
         setVendorName(managedRuleGroupStatement.vendorName());
-        setHashCode(managedRuleGroupStatement.hashCode());
     }
 
     ManagedRuleGroupStatement toManagedRuleGroupStatement() {

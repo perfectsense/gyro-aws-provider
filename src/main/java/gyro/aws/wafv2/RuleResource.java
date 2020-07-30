@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
@@ -32,7 +33,7 @@ import software.amazon.awssdk.services.wafv2.model.OverrideAction;
 import software.amazon.awssdk.services.wafv2.model.Rule;
 import software.amazon.awssdk.services.wafv2.model.RuleAction;
 
-public class RuleResource extends WafDiffable implements Copyable<Rule> {
+public class RuleResource extends Diffable implements Copyable<Rule> {
 
     private String name;
     private Integer priority;
@@ -40,6 +41,25 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
     private WafDefaultAction.RuleAction action;
     private WafDefaultAction.OverrideAction overrideAction;
     private StatementResource statement;
+
+    static boolean invalidPriority(Set<RuleResource> rules) {
+        List<Integer> priorityList = rules.stream()
+            .sorted(Comparator.comparing(RuleResource::getPriority))
+            .map(RuleResource::getPriority)
+            .collect(Collectors.toList());
+
+        boolean invalidPriority = false;
+        int start = 0;
+
+        for (int priority : priorityList) {
+            if (priority != start) {
+                invalidPriority = true;
+            }
+            start++;
+        }
+
+        return invalidPriority;
+    }
 
     /**
      * The name of the rule. (Required)
@@ -127,7 +147,6 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         setOverrideAction(evaluateAction(rule.overrideAction()));
         setName(rule.name());
         setPriority(rule.priority());
-        setHashCode(rule.hashCode());
 
         setStatement(null);
         if (rule.statement() != null) {
@@ -217,24 +236,5 @@ public class RuleResource extends WafDiffable implements Copyable<Rule> {
         }
 
         return builder.build();
-    }
-
-    static boolean invalidPriority(Set<RuleResource> rules) {
-        List<Integer> priorityList = rules.stream()
-            .sorted(Comparator.comparing(RuleResource::getPriority))
-            .map(RuleResource::getPriority)
-            .collect(Collectors.toList());
-
-        boolean invalidPriority = false;
-        int start = 0;
-
-        for (int priority: priorityList) {
-            if (priority != start) {
-                invalidPriority = true;
-            }
-            start++;
-        }
-
-        return invalidPriority;
     }
 }

@@ -250,8 +250,6 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         setId(response.summary().id());
         setArn(response.summary().arn());
 
-        copyFrom(getRuleGroupResponse(client).ruleGroup());
-
         if (!ObjectUtils.isBlank(getPolicy())) {
             state.save();
 

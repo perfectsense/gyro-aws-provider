@@ -17,11 +17,12 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.IPSetReferenceStatement;
 
-public class IpSetReferenceStatementResource extends WafDiffable implements Copyable<IPSetReferenceStatement> {
+public class IpSetReferenceStatementResource extends Diffable implements Copyable<IPSetReferenceStatement> {
 
     private IpSetResource ipSet;
 
@@ -41,7 +42,6 @@ public class IpSetReferenceStatementResource extends WafDiffable implements Copy
     @Override
     public void copyFrom(IPSetReferenceStatement ipSetReferenceStatement) {
         setIpSet(findById(IpSetResource.class, ipSetReferenceStatement.arn()));
-        setHashCode(ipSetReferenceStatement.hashCode());
     }
 
     @Override

@@ -21,12 +21,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.ExcludedRule;
 import software.amazon.awssdk.services.wafv2.model.RuleGroupReferenceStatement;
 
-public class RuleGroupReferenceStatementResource extends WafDiffable implements Copyable<RuleGroupReferenceStatement> {
+public class RuleGroupReferenceStatementResource extends Diffable implements Copyable<RuleGroupReferenceStatement> {
 
     private RuleGroupResource ruleGroup;
     private Set<String> excludedRules;
@@ -61,6 +62,11 @@ public class RuleGroupReferenceStatementResource extends WafDiffable implements 
     }
 
     @Override
+    public String primaryKey() {
+        return String.format("referencing rule - '%s'", getRuleGroup().getArn());
+    }
+
+    @Override
     public void copyFrom(RuleGroupReferenceStatement ruleGroupReferenceStatement) {
         getExcludedRules().clear();
         if (ruleGroupReferenceStatement.excludedRules() != null) {
@@ -71,7 +77,6 @@ public class RuleGroupReferenceStatementResource extends WafDiffable implements 
         }
 
         setRuleGroup(findById(RuleGroupResource.class, ruleGroupReferenceStatement.arn()));
-        setHashCode(ruleGroupReferenceStatement.hashCode());
     }
 
     RuleGroupReferenceStatement toRuleGroupReferenceStatement() {

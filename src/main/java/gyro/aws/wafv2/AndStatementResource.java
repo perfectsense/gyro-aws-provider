@@ -21,11 +21,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.AndStatement;
 
-public class AndStatementResource extends WafDiffable implements Copyable<AndStatement> {
+public class AndStatementResource extends Diffable implements Copyable<AndStatement> {
 
     private Set<StatementResource> statement;
 
@@ -49,16 +50,21 @@ public class AndStatementResource extends WafDiffable implements Copyable<AndSta
     }
 
     @Override
+    public String primaryKey() {
+        return getStatement().stream().map(StatementResource::primaryKey)
+            .sorted()
+            .collect(Collectors.joining(" and "));
+    }
+
+    @Override
     public void copyFrom(AndStatement andStatement) {
         getStatement().clear();
-        
+
         andStatement.statements().forEach(o -> {
             StatementResource statement = newSubresource(StatementResource.class);
             statement.copyFrom(o);
             getStatement().add(statement);
         });
-
-        setHashCode(andStatement.hashCode());
     }
 
     AndStatement toAndStatement() {

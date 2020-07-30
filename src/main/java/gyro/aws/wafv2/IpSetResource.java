@@ -80,7 +80,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
      * The ip address version. Valid values are ``IPV4`` or ``IPV6``. (Required)
      */
     @Required
-    @ValidStrings({"IPV4", "IPV6"})
+    @ValidStrings({ "IPV4", "IPV6" })
     public String getIpAddressVersion() {
         return ipAddressVersion;
     }

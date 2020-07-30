@@ -23,11 +23,12 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.Statement;
 
-public class StatementResource extends WafDiffable implements Copyable<Statement> {
+public class StatementResource extends Diffable implements Copyable<Statement> {
 
     private AndStatementResource andStatement;
     private NotStatementResource notStatement;
@@ -226,6 +227,11 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
     }
 
     @Override
+    public String primaryKey() {
+        return String.format("'%s' containing [%s]", findStatementType(), findStatementDetailPrimaryKey());
+    }
+
+    @Override
     public void copyFrom(Statement statement) {
         setAndStatement(null);
         if (statement.andStatement() != null) {
@@ -320,8 +326,6 @@ public class StatementResource extends WafDiffable implements Copyable<Statement
             ruleGroupReferenceStatement.copyFrom(statement.ruleGroupReferenceStatement());
             setRuleGroupReferenceStatement(ruleGroupReferenceStatement);
         }
-
-        setHashCode(statement.hashCode());
     }
 
     Statement toStatement() {

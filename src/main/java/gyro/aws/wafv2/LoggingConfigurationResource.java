@@ -23,11 +23,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.LoggingConfiguration;
 
-public class LoggingConfigurationResource extends WafDiffable implements Copyable<LoggingConfiguration> {
+public class LoggingConfigurationResource extends Diffable implements Copyable<LoggingConfiguration> {
 
     private Set<FieldToMatchResource> redactedField;
     private Set<String> logDestinationConfigs;
@@ -67,6 +68,11 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
     }
 
     @Override
+    public String primaryKey() {
+        return "";
+    }
+
+    @Override
     public void copyFrom(LoggingConfiguration loggingConfiguration) {
         getRedactedField().clear();
         if (loggingConfiguration.redactedFields() != null) {
@@ -80,7 +86,6 @@ public class LoggingConfigurationResource extends WafDiffable implements Copyabl
         setLogDestinationConfigs(loggingConfiguration.logDestinationConfigs() != null
             ? new HashSet<>(loggingConfiguration.logDestinationConfigs())
             : null);
-        setHashCode(loggingConfiguration.hashCode());
     }
 
     LoggingConfiguration toLoggingConfiguration() {

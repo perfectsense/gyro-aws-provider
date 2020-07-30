@@ -17,11 +17,12 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.NotStatement;
 
-public class NotStatementResource extends WafDiffable implements Copyable<NotStatement> {
+public class NotStatementResource extends Diffable implements Copyable<NotStatement> {
 
     private StatementResource statement;
 
@@ -41,6 +42,11 @@ public class NotStatementResource extends WafDiffable implements Copyable<NotSta
     }
 
     @Override
+    public String primaryKey() {
+        return getStatement().primaryKey();
+    }
+
+    @Override
     public void copyFrom(NotStatement notStatement) {
         setStatement(null);
         if (notStatement.statement() != null) {
@@ -48,8 +54,6 @@ public class NotStatementResource extends WafDiffable implements Copyable<NotSta
             statement.copyFrom(notStatement.statement());
             setStatement(statement);
         }
-
-        setHashCode(notStatement.hashCode());
     }
 
     NotStatement toNotStatement() {

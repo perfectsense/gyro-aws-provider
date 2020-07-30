@@ -47,7 +47,7 @@ public abstract class WafTaggableResource extends AwsResource {
      * Resources can only use and associate with other similar scoped resources (Required)
      */
     @Required
-    @ValidStrings({"GLOBAL", "REGIONAL"})
+    @ValidStrings({ "GLOBAL", "REGIONAL" })
     public String getScope() {
         return scope;
     }
@@ -104,7 +104,7 @@ public abstract class WafTaggableResource extends AwsResource {
 
         if (response.tagInfoForResource() != null && response.tagInfoForResource().tagList() != null) {
             for (Tag tagDescription : response.tagInfoForResource().tagList()) {
-                    tags.put(tagDescription.key(), tagDescription.value());
+                tags.put(tagDescription.key(), tagDescription.value());
             }
         }
 

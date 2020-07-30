@@ -17,13 +17,14 @@
 package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.RateBasedStatement;
 
-public class RateBasedStatementResource extends WafDiffable implements Copyable<RateBasedStatement> {
+public class RateBasedStatementResource extends Diffable implements Copyable<RateBasedStatement> {
 
     private String aggregateKeyType;
     private Long limit;
@@ -75,10 +76,19 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
     }
 
     @Override
+    public String primaryKey() {
+        return String.format(
+            " with limit - %s%s",
+            getLimit(),
+            (getScopeDownStatement() != null ? String.format(
+                " and statement - [%s]",
+                getScopeDownStatement().primaryKey()) : ""));
+    }
+
+    @Override
     public void copyFrom(RateBasedStatement rateBasedStatement) {
         setAggregateKeyType(rateBasedStatement.aggregateKeyTypeAsString());
         setLimit(rateBasedStatement.limit());
-        setHashCode(rateBasedStatement.hashCode());
 
         setScopeDownStatement(null);
         if (rateBasedStatement.scopeDownStatement() != null) {
@@ -94,7 +104,7 @@ public class RateBasedStatementResource extends WafDiffable implements Copyable<
             .limit(getLimit());
 
         if (getScopeDownStatement() != null) {
-           builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
+            builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
 
         }
 

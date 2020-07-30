@@ -21,12 +21,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.RegexPatternSetReferenceStatement;
 
-public class RegexPatternSetReferenceStatementResource extends WafDiffable
+public class RegexPatternSetReferenceStatementResource extends Diffable
     implements Copyable<RegexPatternSetReferenceStatement> {
 
     private FieldToMatchResource fieldToMatch;
@@ -81,8 +82,15 @@ public class RegexPatternSetReferenceStatementResource extends WafDiffable
     }
 
     @Override
+    public String primaryKey() {
+        return String.format(
+            "referencing pattern - '%s' and field to match - '%s'",
+            getRegexPatternSet().getArn(),
+            getFieldToMatch() != null ? getFieldToMatch().primaryKey() : "");
+    }
+
+    @Override
     public void copyFrom(RegexPatternSetReferenceStatement regexPatternSetReferenceStatement) {
-        setHashCode(regexPatternSetReferenceStatement.hashCode());
         setRegexPatternSet(findById(RegexPatternSetResource.class, regexPatternSetReferenceStatement.arn()));
 
         getTextTransformation().clear();
