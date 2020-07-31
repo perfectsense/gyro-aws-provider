@@ -16,15 +16,17 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMin;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.OrStatement;
 
 public class OrStatementResource extends Diffable implements Copyable<OrStatement> {
@@ -71,5 +73,19 @@ public class OrStatementResource extends Diffable implements Copyable<OrStatemen
         return OrStatement.builder()
             .statements(getStatement().stream().map(StatementResource::toStatement).collect(Collectors.toList()))
             .build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getStatement().stream().anyMatch(StatementResource::isRuleRateBased)) {
+            errors.add(new ValidationError(
+                this,
+                "statement",
+                "Rate based rule cannot be set as part of a 'or-statement'"));
+        }
+
+        return errors;
     }
 }

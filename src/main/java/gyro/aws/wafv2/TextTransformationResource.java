@@ -18,7 +18,6 @@ package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.TextTransformation;
 import software.amazon.awssdk.services.wafv2.model.TextTransformationType;

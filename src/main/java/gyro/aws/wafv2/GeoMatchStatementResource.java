@@ -21,7 +21,6 @@ import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.GeoMatchStatement;
 

@@ -16,10 +16,14 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.NotStatement;
 
 public class NotStatementResource extends Diffable implements Copyable<NotStatement> {
@@ -59,5 +63,19 @@ public class NotStatementResource extends Diffable implements Copyable<NotStatem
         return NotStatement.builder()
             .statement(getStatement().toStatement())
             .build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getStatement().isRuleRateBased()) {
+            errors.add(new ValidationError(
+                this,
+                "statement",
+                "Rate based rule cannot be set as part of a 'and-statement'"));
+        }
+
+        return errors;
     }
 }

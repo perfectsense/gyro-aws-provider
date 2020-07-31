@@ -16,6 +16,7 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,9 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
 import software.amazon.awssdk.services.wafv2.model.CountAction;
@@ -102,6 +105,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
      * The action to perform if the rule passes. Valid values are ``ALLOW``, ``BLOCK`` or ``COUNT``.
      */
     @Updatable
+    @ConflictsWith("override-action")
     public WafDefaultAction.RuleAction getAction() {
         return action;
     }
@@ -114,6 +118,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
      * The override action to perform if the rule passes. Valid values are ``NONE`` or ``COUNT``.
      */
     @Updatable
+    @ConflictsWith("action")
     public WafDefaultAction.OverrideAction getOverrideAction() {
         return overrideAction;
     }
@@ -236,5 +241,26 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getStatement() != null) {
+            if (getStatement().isRuleGroupReferenceStatement() && getOverrideAction() == null) {
+                errors.add(new ValidationError(
+                    this,
+                    "statement",
+                    "rule group reference statements requires the 'override-action' to be set for the rule."));
+            } else if (!getStatement().isRuleGroupReferenceStatement() && getAction() == null) {
+                errors.add(new ValidationError(
+                    this,
+                    "statement",
+                    "non rule group reference statements requires the 'action' to be set for the rule."));
+            }
+        }
+
+        return errors;
     }
 }
