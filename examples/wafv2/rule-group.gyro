@@ -1,5 +1,3 @@
-#@print: $(external-query aws::wafv2-rule-group)
-
 aws::wafv2-rule-group rule-group-example
     name: "rule-group-example"
     description: "rule-group-example-desc"
