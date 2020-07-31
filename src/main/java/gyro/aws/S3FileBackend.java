@@ -107,17 +107,17 @@ public class S3FileBackend extends FileBackend {
 
     private void upload(String bucket, String path, RequestBody body) {
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(path)
-                .build();
+            .bucket(bucket)
+            .key(path)
+            .build();
 
         client().putObject(request, body);
     }
 
     private S3Client client() {
         Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-                .getCredentialsByName()
-                .get("aws::default");
+            .getCredentialsByName()
+            .get("aws::default");
 
         S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
 
