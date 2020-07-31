@@ -38,7 +38,6 @@ public class XssMatchStatementResource extends Diffable implements Copyable<XssM
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
     @Required
-    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }

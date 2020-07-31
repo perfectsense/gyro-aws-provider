@@ -38,7 +38,6 @@ public class SqliMatchStatementResource extends Diffable implements Copyable<Sql
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
     @Required
-    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }

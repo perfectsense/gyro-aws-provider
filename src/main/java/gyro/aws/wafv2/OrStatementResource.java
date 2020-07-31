@@ -37,7 +37,6 @@ public class OrStatementResource extends Diffable implements Copyable<OrStatemen
      * @subresource gyro.aws.wafv2.StatementResource
      */
     @Required
-    @Updatable
     @CollectionMin(2)
     public Set<StatementResource> getStatement() {
         if (statement == null) {

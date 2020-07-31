@@ -32,7 +32,6 @@ public class TextTransformationResource extends Diffable implements Copyable<Tex
      * The priority of the text transformation. (Required)
      */
     @Required
-    @Updatable
     public Integer getPriority() {
         return priority;
     }

@@ -40,7 +40,6 @@ public class RegexPatternSetReferenceStatementResource extends Diffable
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
     @Required
-    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -53,7 +52,6 @@ public class RegexPatternSetReferenceStatementResource extends Diffable
      * The regex pattern set to associate with the statement. (Required)
      */
     @Required
-    @Updatable
     public RegexPatternSetResource getRegexPatternSet() {
         return regexPatternSet;
     }

@@ -44,7 +44,6 @@ public class FieldToMatchResource extends Diffable implements Copyable<FieldToMa
      * The field match type. Valid values are ``SINGLE_HEADER``, ``SINGLE_QUERY_ARGUMENT``, ``ALL_QUERY_ARGUMENTS``, ``BODY``, ``QUERY_STRING``, ``METHOD`` or ``URI_PATH``. (Required)
      */
     @Required
-    @Updatable
     public FieldMatchType getMatchType() {
         return matchType;
     }
@@ -56,7 +55,6 @@ public class FieldToMatchResource extends Diffable implements Copyable<FieldToMa
     /**
      * the name of the field to match. Only required if ``match-type`` set to ``SINGLE_HEADER`` or ``SINGLE_QUERY_ARGUMENT``.
      */
-    @Updatable
     public String getName() {
         return name;
     }

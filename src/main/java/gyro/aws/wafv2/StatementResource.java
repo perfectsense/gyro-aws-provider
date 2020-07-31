@@ -49,7 +49,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.AndStatementResource
      */
-    @Updatable
     public AndStatementResource getAndStatement() {
         return andStatement;
     }
@@ -63,7 +62,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.NotStatementResource
      */
-    @Updatable
     public NotStatementResource getNotStatement() {
         return notStatement;
     }
@@ -77,7 +75,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.OrStatementResource
      */
-    @Updatable
     public OrStatementResource getOrStatement() {
         return orStatement;
     }
@@ -91,7 +88,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.ByteMatchStatementResource
      */
-    @Updatable
     public ByteMatchStatementResource getByteMatchStatement() {
         return byteMatchStatement;
     }
@@ -105,7 +101,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.GeoMatchStatementResource
      */
-    @Updatable
     public GeoMatchStatementResource getGeoMatchStatement() {
         return geoMatchStatement;
     }
@@ -119,7 +114,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.IpSetReferenceStatementResource
      */
-    @Updatable
     public IpSetReferenceStatementResource getIpSetReferenceStatement() {
         return ipSetReferenceStatement;
     }
@@ -133,7 +127,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.RegexPatternReferenceStatementResource
      */
-    @Updatable
     public RegexPatternSetReferenceStatementResource getRegexPatternSetReferenceStatement() {
         return regexPatternSetReferenceStatement;
     }
@@ -147,7 +140,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.SizeConstraintStatementResource
      */
-    @Updatable
     public SizeConstraintStatementResource getSizeConstraintStatement() {
         return sizeConstraintStatement;
     }
@@ -161,7 +153,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.SqliStatementResource
      */
-    @Updatable
     public SqliMatchStatementResource getSqliMatchStatement() {
         return sqliMatchStatement;
     }
@@ -175,7 +166,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.XssMatchStatementResource
      */
-    @Updatable
     public XssMatchStatementResource getXssMatchStatement() {
         return xssMatchStatement;
     }
@@ -189,7 +179,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.RateBasedStatementResource
      */
-    @Updatable
     public RateBasedStatementResource getRateBasedStatement() {
         return rateBasedStatement;
     }
@@ -203,7 +192,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.ManagedRuleGroupStatementResource
      */
-    @Updatable
     public ManagedRuleGroupStatementResource getManagedRuleGroupStatement() {
         return managedRuleGroupStatement;
     }
@@ -217,7 +205,6 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
      *
      * @subresource gyro.aws.wafv2.RuleGroupReferenceStatementResource
      */
-    @Updatable
     public RuleGroupReferenceStatementResource getRuleGroupReferenceStatement() {
         return ruleGroupReferenceStatement;
     }

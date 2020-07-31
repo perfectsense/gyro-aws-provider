@@ -42,7 +42,6 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
     @Required
-    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -56,7 +55,6 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
      * Valid values are ``EXACTLY``, ``STARTS_WITH``, ``ENDS_WITH``, ``CONTAINS`` or ``CONTAINS_WORD``.  (Required)
      */
     @Required
-    @Updatable
     public PositionalConstraint getPositionalConstraint() {
         return positionalConstraint;
     }
@@ -88,7 +86,6 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
      * The search string you want aws to search for in the request. (Required)
      */
     @Required
-    @Updatable
     public String getSearchString() {
         return searchString;
     }

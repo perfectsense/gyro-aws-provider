@@ -32,7 +32,6 @@ public class NotStatementResource extends Diffable implements Copyable<NotStatem
      * @subresource gyro.aws.wafv2.StatementResource
      */
     @Required
-    @Updatable
     public StatementResource getStatement() {
         return statement;
     }

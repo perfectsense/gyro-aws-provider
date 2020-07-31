@@ -41,7 +41,6 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
     @Required
-    @Updatable
     public FieldToMatchResource getFieldToMatch() {
         return fieldToMatch;
     }
@@ -54,7 +53,6 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
      * The comparison operator for the size specified. Valid values ``EQ``, ``NE``, ``LE``, ``LT``, ``GE`` or ``GT``. (Required)
      */
     @Required
-    @Updatable
     public ComparisonOperator getComparisonOperator() {
         return comparisonOperator;
     }
@@ -86,7 +84,6 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
      * The size in byte for the constraint to work on. (Required)
      */
     @Required
-    @Updatable
     public Long getSize() {
         return size;
     }

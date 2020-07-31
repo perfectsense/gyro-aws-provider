@@ -36,7 +36,6 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
      * A rule group resource to reference with. (Required)
      */
     @Required
-    @Updatable
     public RuleGroupResource getRuleGroup() {
         return ruleGroup;
     }

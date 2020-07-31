@@ -33,7 +33,6 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     /**
      * The aggregate key type for the rate based statement. Currently only supported value is ``IP``. Defaults to ``IP``.
      */
-    @Updatable
     @ValidStrings("IP")
     public String getAggregateKeyType() {
         if (aggregateKeyType == null) {
@@ -51,7 +50,6 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
      * The rate limit for the rate based statement. Minimum value is ``100``. (Required)
      */
     @Required
-    @Updatable
     @Min(100)
     public Long getLimit() {
         return limit;
@@ -66,7 +64,6 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
      *
      * @subresource gyro.aws.wafv2.StatementResource
      */
-    @Updatable
     public StatementResource getScopeDownStatement() {
         return scopeDownStatement;
     }

@@ -36,7 +36,6 @@ public class AndStatementResource extends Diffable implements Copyable<AndStatem
      * @subresource gyro.aws.wafv2.StatementResource
      */
     @Required
-    @Updatable
     public Set<StatementResource> getStatement() {
         if (statement == null) {
             statement = new HashSet<>();
