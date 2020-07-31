@@ -31,6 +31,7 @@ import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -95,6 +96,7 @@ public class S3FileBackend extends FileBackend {
     @Override
     public OutputStream openOutput(String file) throws Exception {
         return new ByteArrayOutputStream() {
+
             public void close() {
                 upload(getBucket(), prefixed(file), RequestBody.fromBytes(toByteArray()));
             }
@@ -104,6 +106,28 @@ public class S3FileBackend extends FileBackend {
     @Override
     public void delete(String file) throws Exception {
         client().deleteObject(r -> r.bucket(getBucket()).key(prefixed(file)));
+    }
+
+    @Override
+    public boolean exists(String file) throws Exception {
+        try {
+            client().headObject(r -> r.bucket(bucket).key(prefixed(file)));
+        } catch (NoSuchKeyException ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void copy(String source, String destination) throws Exception {
+        String bucket = getBucket();
+        client().copyObject(r -> r
+            .copySource(bucket + "/" + prefixed(source))
+            .destinationBucket(bucket)
+            .destinationKey(prefixed(destination))
+            // Set private permission explicitly
+            .acl(ObjectCannedACL.PRIVATE));
     }
 
     private void upload(String bucket, String path, RequestBody body) {
