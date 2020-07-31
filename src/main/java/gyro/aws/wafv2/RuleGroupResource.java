@@ -48,6 +48,203 @@ import software.amazon.awssdk.services.wafv2.model.RuleGroup;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 import software.amazon.awssdk.utils.IoUtils;
 
+/**
+ * Creates a rule group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::wafv2-rule-group rule-group-example
+ *         name: "rule-group-example"
+ *         description: "rule-group-example-desc"
+ *         scope: "REGIONAL"
+ *
+ *         rule
+ *             name: "rule-group-example-rule-1"
+ *             priority: 0
+ *             action: "BLOCK"
+ *
+ *             visibility-config
+ *                 metric-name: "rule-group-example-rule-1"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 xss-match-statement
+ *                     field-to-match
+ *                         name: "header-field"
+ *                         match-type: "SINGLE_HEADER"
+ *                     end
+ *
+ *                     text-transformation
+ *                         priority: 0
+ *                         type: "NONE"
+ *                     end
+ *                 end
+ *             end
+ *         end
+ *
+ *         rule
+ *             name: "rule-group-example-rule-2"
+ *             priority: 1
+ *             action: "BLOCK"
+ *
+ *             visibility-config
+ *                 metric-name: "rule-group-example-rule-2"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 byte-match-statement
+ *                     field-to-match
+ *                         name: "header-field"
+ *                         match-type: "SINGLE_HEADER"
+ *                     end
+ *
+ *                     positional-constraint: "EXACTLY"
+ *
+ *                     text-transformation
+ *                         priority: 0
+ *                         type: "NONE"
+ *                     end
+ *
+ *                     search-string: "something"
+ *                 end
+ *             end
+ *         end
+ *
+ *         rule
+ *             name: "rule-group-example-rule-3"
+ *             priority: 2
+ *             action: "BLOCK"
+ *
+ *             visibility-config
+ *                 metric-name: "rule-group-example-rule-3"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 size-constraint-statement
+ *                     field-to-match
+ *                         match-type: "BODY"
+ *                     end
+ *
+ *                     comparison-operator: "EQ"
+ *
+ *                     text-transformation
+ *                         priority: 0
+ *                         type: "COMPRESS_WHITE_SPACE"
+ *                     end
+ *
+ *                     text-transformation
+ *                         priority: 1
+ *                         type: "HTML_ENTITY_DECODE"
+ *                     end
+ *
+ *                     size: 3
+ *                 end
+ *             end
+ *         end
+ *
+ *         rule
+ *             name: "rule-group-example-rule-4"
+ *             priority: 3
+ *             action: "BLOCK"
+ *
+ *             visibility-config
+ *                 metric-name: "rule-group-example-rule-4"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 and-statement
+ *                     statement
+ *                         ip-set-reference-statement
+ *                             ip-set: $(aws::wafv2-ip-set ip-set-example-ipv4)
+ *                         end
+ *                     end
+ *
+ *                     statement
+ *                         regex-pattern-set-reference-statement
+ *                             field-to-match
+ *                                 match-type: "BODY"
+ *                             end
+ *
+ *                             text-transformation
+ *                                 priority: 0
+ *                                 type: "COMPRESS_WHITE_SPACE"
+ *                             end
+ *
+ *                             regex-pattern-set: $(aws::wafv2-regex-pattern-set regex-pattern-set-example)
+ *                         end
+ *                     end
+ *
+ *                     statement
+ *                         sqli-match-statement
+ *                             field-to-match
+ *                                 match-type: "BODY"
+ *                             end
+ *
+ *                             text-transformation
+ *                                 priority: 0
+ *                                 type: "COMPRESS_WHITE_SPACE"
+ *                             end
+ *                         end
+ *                     end
+ *                 end
+ *             end
+ *         end
+ *
+ *         rule
+ *             name: "rule-group-example-rule-5"
+ *             priority: 4
+ *             action: "BLOCK"
+ *
+ *             visibility-config
+ *                 metric-name: "rule-group-example-rule-5"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 or-statement
+ *                     statement
+ *                         geo-match-statement
+ *                             country-codes: [
+ *                                 "IN"
+ *                             ]
+ *                         end
+ *                     end
+ *
+ *                     statement
+ *                         sqli-match-statement
+ *                             field-to-match
+ *                                 match-type: "BODY"
+ *                             end
+ *
+ *                             text-transformation
+ *                                 priority: 0
+ *                                 type: "COMPRESS_WHITE_SPACE"
+ *                             end
+ *                         end
+ *                     end
+ *                 end
+ *             end
+ *         end
+ *
+ *         visibility-config
+ *             metric-name: "rule-group-example-metric"
+ *             cloud-watch-metrics-enabled: false
+ *             sampled-requests-enabled: false
+ *         end
+ *     end
+ */
 @Type("wafv2-rule-group")
 public class RuleGroupResource extends WafTaggableResource implements Copyable<RuleGroup> {
 
@@ -75,6 +272,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     /**
      * Description of the rule group.
      */
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -262,10 +460,13 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         GyroUI ui, State state, Resource config, Set<String> changedProperties) {
         Wafv2Client client = createClient(Wafv2Client.class);
 
-        if (changedProperties.contains("rule") || changedProperties.contains("visibility-config")) {
+        if (changedProperties.contains("rule")
+            || changedProperties.contains("description")
+            || changedProperties.contains("visibility-config")) {
             client.updateRuleGroup(r -> r.id(getId())
                 .name(getName())
                 .scope(getScope())
+                .description(getDescription())
                 .lockToken(lockToken(client))
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
                 .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));

@@ -48,6 +48,64 @@ import software.amazon.awssdk.services.wafv2.model.ResourceType;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
+/**
+ * Creates a web acl.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::wafv2-web-acl web-acl-example
+ *         name: "web-acl-example"
+ *         description: "web-acl-example-desc"
+ *         scope: "REGIONAL"
+ *         default-action: "BLOCK"
+ *
+ *         visibility-config
+ *             metric-name: "web-acl-example"
+ *             cloud-watch-metrics-enabled: false
+ *             sampled-requests-enabled: false
+ *         end
+ *
+ *         rule
+ *             name: web-acl-example-rule-1
+ *             priority: 0
+ *             override-action: "COUNT"
+ *
+ *             visibility-config
+ *                 metric-name: "web-acl-example-rule-1"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 rule-group-reference-statement
+ *                     rule-group: $(aws::wafv2-rule-group rule-group-example)
+ *                 end
+ *             end
+ *         end
+ *
+ *         rule
+ *             name: "web-acl-example-rule-2"
+ *             priority: 1
+ *             override-action: "COUNT"
+ *
+ *             visibility-config
+ *                 metric-name: "web-acl-example-rule-2"
+ *                 cloud-watch-metrics-enabled: false
+ *                 sampled-requests-enabled: false
+ *             end
+ *
+ *             statement
+ *                 managed-rule-group-statement
+ *                     name: "AWSManagedRulesAnonymousIpList"
+ *                     vendor-name: "AWS"
+ *                 end
+ *             end
+ *         end
+ *     end
+ */
 @Type("wafv2-web-acl")
 public class WebAclResource extends WafTaggableResource implements Copyable<WebACL> {
 
