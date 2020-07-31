@@ -52,7 +52,7 @@ public class FieldToMatchResource extends Diffable implements Copyable<FieldToMa
     }
 
     /**
-     * the name of the field to match. Only required if ``match-type`` set to ``SINGLE_HEADER`` or ``SINGLE_QUERY_ARGUMENT``.
+     * The name of the field to match. Only required if ``match-type`` set to ``SINGLE_HEADER`` or ``SINGLE_QUERY_ARGUMENT``.
      */
     public String getName() {
         return name;

@@ -120,6 +120,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     private String arn;
     private Long capacity;
 
+    /**
+     * The name of the web acl. (Required)
+     */
     @Required
     public String getName() {
         return name;
@@ -129,6 +132,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.name = name;
     }
 
+    /**
+     * The description of the web acl.
+     */
     @Updatable
     public String getDescription() {
         return description;
@@ -138,6 +144,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.description = description;
     }
 
+    /**
+     * The default action when no rules match. Valid values are ``ALLOW`` or ``BLOCK``. (Required)
+     */
     @Required
     @Updatable
     public WafDefaultAction.DefaultAction getDefaultAction() {
@@ -148,6 +157,11 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.defaultAction = defaultAction;
     }
 
+    /**
+     * A set of rules having the request filters for the web acl. (Required)
+     *
+     * @subresource gyro.aws.wafv2.RuleResource
+     */
     @Required
     @Updatable
     @CollectionMax(10)
@@ -163,6 +177,11 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.rule = rule;
     }
 
+    /**
+     * The visibility config for the web acl. (Required)
+     *
+     * @subresource gyro.aws.wafv2.VisibilityConfigResource
+     */
     @Required
     @Updatable
     public VisibilityConfigResource getVisibilityConfig() {
@@ -189,6 +208,11 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.loadBalancers = loadBalancers;
     }
 
+    /**
+     * The logging configuration for the web acl.
+     *
+     * @subresource gyro.aws.wafv2.LoggingConfigurationResource
+     */
     @Updatable
     public LoggingConfigurationResource getLoggingConfiguration() {
         return loggingConfiguration;
@@ -198,6 +222,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.loggingConfiguration = loggingConfiguration;
     }
 
+    /**
+     * The id of the web acl.
+     */
     @Output
     public String getId() {
         return id;
@@ -207,6 +234,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.id = id;
     }
 
+    /**
+     * The arn of the web acl.
+     */
     @Id
     @Output
     public String getArn() {
@@ -217,6 +247,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.arn = arn;
     }
 
+    /**
+     * The total capacity based on the associated rules of the web acl.
+     */
     @Output
     public Long getCapacity() {
         return capacity;
