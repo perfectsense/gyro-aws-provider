@@ -31,6 +31,7 @@ import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -109,6 +110,8 @@ public class S3FileBackend extends FileBackend {
         PutObjectRequest request = PutObjectRequest.builder()
             .bucket(bucket)
             .key(path)
+            // Set private permission explicitly
+            .acl(ObjectCannedACL.PRIVATE)
             .build();
 
         client().putObject(request, body);
