@@ -134,15 +134,6 @@ public class WebAclFinder extends AwsFinder<Wafv2Client, WebACL, WebAclResource>
         } while (!ObjectUtils.isBlank(marker));
 
         return webACLs;
-        /*GetWebAclResponse response = client.getWebACL(
-            r -> r.id("8487a18b-fd40-40d4-8375-e4e7957fad41")
-                .name("dj-test-waf")
-                .scope(Scope.REGIONAL)
-        );
-
-
-
-        return Collections.singletonList(response.webACL());*/
     }
 
     @Override
