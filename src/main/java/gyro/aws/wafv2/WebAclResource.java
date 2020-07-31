@@ -71,6 +71,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         this.name = name;
     }
 
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -272,10 +273,12 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         Wafv2Client client = createClient(Wafv2Client.class);
 
         if (changedFieldNames.contains("rule")
+            || changedFieldNames.contains("description")
             || changedFieldNames.contains("visibility-config")
             || changedFieldNames.contains("default-action")) {
             client.updateWebACL(r -> r.id(getId())
                 .name(getName())
+                .description(getDescription())
                 .scope(getScope())
                 .lockToken(lockToken(client))
                 .defaultAction(toDefaultAction())
