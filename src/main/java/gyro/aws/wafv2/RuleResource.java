@@ -27,6 +27,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
@@ -105,6 +106,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
      * The action to perform if the rule passes. Valid values are ``ALLOW``, ``BLOCK`` or ``COUNT``.
      */
     @Updatable
+    @ValidStrings({"ALLOW", "BLOCK", "COUNT"})
     @ConflictsWith("override-action")
     public WafDefaultAction.RuleAction getAction() {
         return action;
@@ -118,6 +120,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
      * The override action to perform if the rule passes. Valid values are ``NONE`` or ``COUNT``.
      */
     @Updatable
+    @ValidStrings({"NONE", "COUNT"})
     @ConflictsWith("action")
     public WafDefaultAction.OverrideAction getOverrideAction() {
         return overrideAction;
