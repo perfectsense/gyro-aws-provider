@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
@@ -11,6 +12,7 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -592,6 +594,11 @@ public class EcsServiceResource extends AwsResource
         CreateServiceResponse response = client.createService(builder.build());
 
         copyFrom(response.service());
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isActive(client));
     }
 
     @Override
@@ -646,6 +653,11 @@ public class EcsServiceResource extends AwsResource
         }
 
         client.updateService(builder.build());
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isActive(client));
     }
 
     @Override
@@ -653,6 +665,11 @@ public class EcsServiceResource extends AwsResource
         EcsClient client = createClient(EcsClient.class);
 
         client.deleteService(s -> s.cluster(getCluster().getClusterName()).service(getName()));
+
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isDeleted(client));
     }
 
     private software.amazon.awssdk.services.ecs.model.Service getService(EcsClient client) {
@@ -689,5 +706,17 @@ public class EcsServiceResource extends AwsResource
         }
 
         return errors;
+    }
+
+    private boolean isActive(EcsClient client) {
+        software.amazon.awssdk.services.ecs.model.Service service = getService(client);
+
+        return (service != null && service.status().equals("ACTIVE"));
+    }
+
+    private boolean isDeleted(EcsClient client) {
+        software.amazon.awssdk.services.ecs.model.Service service = getService(client);
+
+        return (service == null || service.status().equals("INACTIVE"));
     }
 }
