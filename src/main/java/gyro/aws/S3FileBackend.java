@@ -19,9 +19,9 @@ package gyro.aws;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Spliterators;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import gyro.core.FileBackend;
 import gyro.core.GyroCore;
@@ -30,7 +30,6 @@ import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -61,25 +60,9 @@ public class S3FileBackend extends FileBackend {
     @Override
     public Stream<String> list() throws Exception {
         if (this.equals(GyroCore.getStateBackend(getName()))) {
-            List<S3Object> objects = new ArrayList<>();
-            S3Client client = client();
-            ListObjectsV2Response response = client.listObjectsV2(r -> r.bucket(getBucket()).prefix(prefixed("")));
-
-            // Currently we will paginate up to 10,000 objects
-            for (int i = 0; i < 10; i++) {
-                objects.addAll(response.contents());
-
-                if (response.isTruncated()) {
-                    String token = response.nextContinuationToken();
-                    response = client.listObjectsV2(r -> r.bucket(getBucket())
-                        .prefix(prefixed(""))
-                        .continuationToken(token));
-                } else {
-                    break;
-                }
-            }
-
-            return objects.stream()
+            return StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(new S3ObjectIterator(getBucket(), prefixed(""), client()), 0),
+                false)
                 .map(S3Object::key)
                 .filter(f -> f.endsWith(".gyro"))
                 .map(this::removePrefix);
