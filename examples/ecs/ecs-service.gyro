@@ -28,8 +28,8 @@ aws::security-group security-group
     description: "example-ecs"
 end
 
-aws::service example-service
-    name: "example-service"
+aws::ecs-service example-ecs-service
+    name: "example-ecs-service"
     task-definition: $(external-query aws::ecs-task-definition { family: 'test-fargate-task-definition', revision: 1 })
     cluster: $(aws::ecs-cluster ecs-cluster-example)
     desired-count: 0
@@ -66,6 +66,6 @@ aws::service example-service
 
     placement-strategy
         type: binpack
-        field: "MEMORY"
+        field: "CPU"
     end
 end

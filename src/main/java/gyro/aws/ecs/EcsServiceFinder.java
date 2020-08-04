@@ -19,9 +19,9 @@ import software.amazon.awssdk.services.ecs.model.Service;
  *
  * .. code-block:: gyro
  *
- *    ecs-service: $(external-query aws::service { cluster : "ecs-cluster-example", name : "example-service"})
+ *    ecs-service: $(external-query aws::ecs-service { cluster : "ecs-cluster-example", name : "example-service"})
  */
-@Type("service")
+@Type("ecs-service")
 public class EcsServiceFinder extends AwsFinder<EcsClient, Service, EcsServiceResource> {
 
     private String name;

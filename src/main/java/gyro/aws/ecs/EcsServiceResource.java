@@ -43,8 +43,8 @@ import software.amazon.awssdk.services.ecs.model.UpdateServiceRequest;
  *
  * .. code-block:: gyro
  *
- *     aws::service example-service
- *         name: "example-service"
+ *     aws::ecs-service example-ecs-service
+ *         name: "example-ecs-service"
  *         task-definition: $(external-query aws::ecs-task-definition { family: 'test-fargate-task-definition', revision: 1 })
  *         cluster: $(aws::ecs-cluster ecs-cluster-example)
  *         desired-count: 1
@@ -85,7 +85,7 @@ import software.amazon.awssdk.services.ecs.model.UpdateServiceRequest;
  *         end
  *     end
  */
-@Type("service")
+@Type("ecs-service")
 public class EcsServiceResource extends AwsResource
     implements Copyable<software.amazon.awssdk.services.ecs.model.Service> {
 
