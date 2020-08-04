@@ -111,6 +111,7 @@ dependencies {
     implementation 'software.amazon.awssdk:acmpca'
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:neptune'
+    implementation 'software.amazon.awssdk:secretsmanager'
     implementation 'org.json:json:20180813'
 
     gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
