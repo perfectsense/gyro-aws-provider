@@ -36,7 +36,7 @@ public class EcsPlacementStrategy extends Diffable implements Copyable<Placement
 
     @Override
     public String primaryKey() {
-        return String.format("Expression: %s, Type: %s", getField(), getType());
+        return String.format("Field: %s, Type: %s", getField(), getType());
     }
 
     @Override
