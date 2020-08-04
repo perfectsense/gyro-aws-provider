@@ -1,11 +1,12 @@
 package gyro.aws.ecs;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ecs.model.DeploymentController;
 import software.amazon.awssdk.services.ecs.model.DeploymentControllerType;
 
-public class EcsDeploymentController extends Diffable {
+public class EcsDeploymentController extends Diffable implements Copyable<DeploymentController> {
 
     private DeploymentControllerType type;
 
@@ -26,6 +27,7 @@ public class EcsDeploymentController extends Diffable {
         return "";
     }
 
+    @Override
     public void copyFrom(DeploymentController model) {
         setType(model.type());
     }

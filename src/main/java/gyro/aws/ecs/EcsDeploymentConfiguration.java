@@ -1,10 +1,11 @@
 package gyro.aws.ecs;
 
+import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.ecs.model.DeploymentConfiguration;
 
-public class EcsDeploymentConfiguration extends Diffable {
+public class EcsDeploymentConfiguration extends Diffable implements Copyable<DeploymentConfiguration> {
 
     public Integer maximumPercent;
     public Integer minimumHealthyPercent;
@@ -38,6 +39,7 @@ public class EcsDeploymentConfiguration extends Diffable {
         return "";
     }
 
+    @Override
     public void copyFrom(DeploymentConfiguration model) {
         setMaximumPercent(model.maximumPercent());
         setMinimumHealthyPercent(model.minimumHealthyPercent());
