@@ -183,8 +183,8 @@ public class SubscriberResource extends AwsResource implements Copyable<Subscrip
 
         Subscription subscription = client.listSubscriptionsPaginator()
             .subscriptions().stream()
-            .findFirst()
             .filter(o -> o.subscriptionArn().equals(getSubscriptionArn()))
+            .findFirst()
             .orElse(null);
 
         if (subscription == null) {
