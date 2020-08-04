@@ -1,5 +1,6 @@
 package gyro.aws.ecs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,10 @@ public class EcsAwsVpcConfiguration extends Diffable implements Copyable<AwsVpcC
     @Required
     @Updatable
     public List<SecurityGroupResource> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
+        }
+
         return securityGroups;
     }
 
@@ -49,6 +54,10 @@ public class EcsAwsVpcConfiguration extends Diffable implements Copyable<AwsVpcC
     @Required
     @Updatable
     public List<SubnetResource> getSubnets() {
+        if (subnets == null) {
+            subnets = new ArrayList<>();
+        }
+
         return subnets;
     }
 
