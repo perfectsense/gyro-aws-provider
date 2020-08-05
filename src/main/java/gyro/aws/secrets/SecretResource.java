@@ -1,6 +1,8 @@
 package gyro.aws.secrets;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import gyro.aws.AwsResource;
@@ -9,21 +11,43 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretResponse;
+import software.amazon.awssdk.services.secretsmanager.model.DeleteSecretRequest;
+import software.amazon.awssdk.services.secretsmanager.model.DeleteSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.DescribeSecretResponse;
-import software.amazon.awssdk.services.secretsmanager.model.SecretListEntry;
-import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretResponse;
+import software.amazon.awssdk.services.secretsmanager.model.RotationRulesType;
+import software.amazon.awssdk.services.secretsmanager.model.Tag;
+import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 
 @Type("secret")
 public class SecretResource extends AwsResource implements Copyable<DescribeSecretResponse> {
 
     private String arn;
+    private String clientRequestToken;
+    private Instant deletedDate;
     private String description;
-    private String name;
+    private Boolean forceDeleteWithoutRecovery;
     private String id;
+    private String kmsKeyId;
+    private Instant lastAccessedDate;
+    private Instant lastChangedDate;
+    private Instant lastRotatedDate;
+    private String name;
+    private String owningService;
+    private Long recoveryWindowInDays;
+    private Boolean rotationEnabled;
+    private String rotationLambdaARN;
+    private RotationRulesType rotationRules;
+    private SdkBytes secretBinary;
+    private String secretString;
+    private List<Tag> tags;
+    private String versionId;
+    private Map<String, List<String>> versionIdsToStages;
 
     @Id
     public String getArn() {
@@ -34,14 +58,24 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.arn = arn;
     }
 
-    public String getName() {
-        return name;
+    @Updatable
+    public String getClientRequestToken() {
+        return clientRequestToken;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setClientRequestToken(String clientRequestToken) {
+        this.clientRequestToken = clientRequestToken;
     }
 
+    public Instant getDeletedDate() {
+        return deletedDate;
+    }
+
+    public void setDeletedDate(Instant deletedDate) {
+        this.deletedDate = deletedDate;
+    }
+
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -50,12 +84,143 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.description = description;
     }
 
+    public Boolean getForceDeleteWithoutRecovery() {
+        return forceDeleteWithoutRecovery;
+    }
+
+    public void setForceDeleteWithoutRecovery(Boolean forceDeleteWithoutRecovery) {
+        this.forceDeleteWithoutRecovery = forceDeleteWithoutRecovery;
+    }
+
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Updatable
+    public String getKmsKeyId() {
+        return kmsKeyId;
+    }
+
+    public void setKmsKeyId(String kmsKeyId) {
+        this.kmsKeyId = kmsKeyId;
+    }
+
+    public Instant getLastAccessedDate() {
+        return lastAccessedDate;
+    }
+
+    public void setLastAccessedDate(Instant lastAccessedDate) {
+        this.lastAccessedDate = lastAccessedDate;
+    }
+
+    public Instant getLastChangedDate() {
+        return lastChangedDate;
+    }
+
+    public void setLastChangedDate(Instant lastChangedDate) {
+        this.lastChangedDate = lastChangedDate;
+    }
+
+    public Instant getLastRotatedDate() {
+        return lastRotatedDate;
+    }
+
+    public void setLastRotatedDate(Instant lastRotatedDate) {
+        this.lastRotatedDate = lastRotatedDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getOwningService() {
+        return owningService;
+    }
+
+    public void setOwningService(String owningService) {
+        this.owningService = owningService;
+    }
+
+    public Long getRecoveryWindowInDays() {
+        return recoveryWindowInDays;
+    }
+
+    public void setRecoveryWindowInDays(Long recoveryWindowInDays) {
+        this.recoveryWindowInDays = recoveryWindowInDays;
+    }
+
+    public Boolean getRotationEnabled() {
+        return rotationEnabled;
+    }
+
+    public void setRotationEnabled(Boolean rotationEnabled) {
+        this.rotationEnabled = rotationEnabled;
+    }
+
+    public String getRotationLambdaARN() {
+        return rotationLambdaARN;
+    }
+
+    public void setRotationLambdaARN(String rotationLambdaARN) {
+        this.rotationLambdaARN = rotationLambdaARN;
+    }
+
+    public RotationRulesType getRotationRules() {
+        return rotationRules;
+    }
+
+    public void setRotationRules(RotationRulesType rotationRules) {
+        this.rotationRules = rotationRules;
+    }
+
+    @Updatable
+    public SdkBytes getSecretBinary() {
+        return secretBinary;
+    }
+
+    public void setSecretBinary(SdkBytes secretBinary) {
+        this.secretBinary = secretBinary;
+    }
+
+    @Updatable
+    public String getSecretString() {
+        return secretString;
+    }
+
+    public void setSecretString(String secretString) {
+        this.secretString = secretString;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public String getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(String versionId) {
+        this.versionId = versionId;
+    }
+
+    public Map<String, List<String>> getVersionIdsToStages() {
+        return versionIdsToStages;
+    }
+
+    public void setVersionIdsToStages(Map<String, List<String>> versionIdsToStages) {
+        this.versionIdsToStages = versionIdsToStages;
     }
 
     @Override
