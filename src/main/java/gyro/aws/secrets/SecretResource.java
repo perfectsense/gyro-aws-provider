@@ -32,7 +32,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private Instant deletedDate;
     private String description;
     private Boolean forceDeleteWithoutRecovery;
-    private String id;
     private String kmsKeyId;
     private Instant lastAccessedDate;
     private Instant lastChangedDate;
@@ -90,14 +89,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
     public void setForceDeleteWithoutRecovery(Boolean forceDeleteWithoutRecovery) {
         this.forceDeleteWithoutRecovery = forceDeleteWithoutRecovery;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     @Updatable
