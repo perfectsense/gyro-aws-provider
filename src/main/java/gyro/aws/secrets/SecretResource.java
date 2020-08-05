@@ -251,13 +251,21 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
         CreateSecretRequest request = CreateSecretRequest.builder()
-            .name(getName())
+            .clientRequestToken(getClientRequestToken())
             .description(getDescription())
+            .kmsKeyId(getKmsKeyId())
+            .name(getName())
+            .secretBinary(getSecretBinary())
+            .secretString(getSecretString())
+            .tags(getTags())
             .build();
 
         CreateSecretResponse response = client.createSecret(request);
 
         setArn(response.arn());
+        setName(response.name());
+        setVersionId(response.versionId());
+
     }
 
     @Override
