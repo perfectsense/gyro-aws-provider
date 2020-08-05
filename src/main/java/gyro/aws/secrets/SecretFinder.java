@@ -20,8 +20,19 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
         for (SecretListEntry entry : client.listSecrets().secretList()) {
             DescribeSecretResponse response = DescribeSecretResponse.builder()
                 .arn(entry.arn())
-                .name(entry.name())
+                .deletedDate(entry.deletedDate())
                 .description(entry.description())
+                .kmsKeyId(entry.kmsKeyId())
+                .lastAccessedDate(entry.lastAccessedDate())
+                .lastChangedDate(entry.lastChangedDate())
+                .lastRotatedDate(entry.lastRotatedDate())
+                .name(entry.name())
+                .owningService(entry.owningService())
+                .rotationEnabled(entry.rotationEnabled())
+                .rotationLambdaARN(entry.rotationLambdaARN())
+                .rotationRules(entry.rotationRules())
+                .tags(entry.tags())
+                .versionIdsToStages(entry.secretVersionsToStages())
                 .build();
 
             responseList.add(response);
