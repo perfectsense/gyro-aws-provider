@@ -1,5 +1,3 @@
-## 0.99.3 (Unreleased)
-
 ## 0.99.2 (August 5th, 2020)
 
 ENHANCEMENTS:
