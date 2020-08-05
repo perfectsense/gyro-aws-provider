@@ -265,12 +265,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        UpdateSecretResponse response = client.updateSecret(r -> r.secretId(getId()));
-
-        if (changedFieldNames.isEmpty() || changedFieldNames.contains("name")) {
-
-        }
-
+        modifySecret(client, changedFieldNames);
     }
 
     @Override
@@ -297,5 +292,52 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setTags(model.tags());
         setVersionIdsToStages(model.versionIdsToStages());
     }
+
+    private void modifySecret(SecretsManagerClient client, Set<String> changedFieldNames) {
+        if (changedFieldNames.isEmpty() || changedFieldNames.contains("clientRequestToken")) {
+            UpdateSecretRequest request = UpdateSecretRequest.builder()
+                .secretId(getArn())
+                .clientRequestToken(getClientRequestToken())
+                .build();
+
+            client.updateSecret(request);
+        }
+
+        if (changedFieldNames.isEmpty() || changedFieldNames.contains("description")) {
+            UpdateSecretRequest request = UpdateSecretRequest.builder()
+                .secretId(getArn())
+                .description(getDescription())
+                .build();
+
+            client.updateSecret(request);
+        }
+
+        if (changedFieldNames.isEmpty() || changedFieldNames.contains("kmsKeyId")) {
+            UpdateSecretRequest request = UpdateSecretRequest.builder()
+                .secretId(getArn())
+                .kmsKeyId(getKmsKeyId())
+                .build();
+
+            client.updateSecret(request);
+
+        }
+
+        if (changedFieldNames.isEmpty() || changedFieldNames.contains("secretBinary")) {
+            UpdateSecretRequest request = UpdateSecretRequest.builder()
+                .secretId(getArn())
+                .secretBinary(getSecretBinary())
+                .build();
+
+            client.updateSecret(request);
+        }
+
+        if (changedFieldNames.isEmpty() || changedFieldNames.contains("secretString")) {
+            UpdateSecretRequest request = UpdateSecretRequest.builder()
+                .secretId(getArn())
+                .secretString(getSecretString())
+                .build();
+
+            client.updateSecret(request);
+        }
     }
 }
