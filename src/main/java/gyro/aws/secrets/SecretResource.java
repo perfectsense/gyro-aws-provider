@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretListEntry;
 import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretResponse;
 
 @Type("secret")
-public class SecretResource extends AwsResource implements Copyable<SecretListEntry> {
+public class SecretResource extends AwsResource implements Copyable<DescribeSecretResponse> {
 
     private String arn;
     private String description;
