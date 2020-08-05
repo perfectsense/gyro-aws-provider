@@ -227,21 +227,13 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     public boolean refresh() {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        DescribeSecretResponse response = client.describeSecret(r -> r.secretId(getId()));
+        DescribeSecretResponse response = client.describeSecret(r -> r.secretId(getArn()));
 
         if (response == null) {
             return false;
         }
 
-        SecretListEntry entry = SecretListEntry.builder()
-            .arn(response.arn())
-            .name(response.name())
-            .description(response.description())
-            .kmsKeyId(response.kmsKeyId())
-            .tags(response.tags())
-            .build();
-
-        copyFrom(entry);
+        copyFrom(response);
 
         return true;
     }
@@ -289,10 +281,21 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     @Override
-    public void copyFrom(SecretListEntry model) {
+    public void copyFrom(DescribeSecretResponse model) {
         setArn(model.arn());
-        setName(model.name());
+        setDeletedDate(model.deletedDate());
         setDescription(model.description());
-        setId(getId());
+        setKmsKeyId(model.kmsKeyId());
+        setLastAccessedDate(model.lastAccessedDate());
+        setLastChangedDate(model.lastChangedDate());
+        setLastRotatedDate(model.lastRotatedDate());
+        setName(model.name());
+        setOwningService(model.owningService());
+        setRotationEnabled(model.rotationEnabled());
+        setRotationLambdaARN(model.rotationLambdaARN());
+        setRotationRules(model.rotationRules());
+        setTags(model.tags());
+        setVersionIdsToStages(model.versionIdsToStages());
+    }
     }
 }
