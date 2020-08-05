@@ -9,7 +9,7 @@ ISSUES FIXED:
 * [265](https://github.com/perfectsense/gyro-aws-provider/issues/265): Allow for Instance type changes of non-autoscale instances.
 * [268](https://github.com/perfectsense/gyro-aws-provider/issues/268): Fix S3 replication config error.
 * [272](https://github.com/perfectsense/gyro-aws-provider/issues/272): Fix SNS Topic refresh error.
-* [273](https://github.com/perfectsense/gyro-aws-provider/issues/273): Fix CloudFront origin regresh error.
+* [273](https://github.com/perfectsense/gyro-aws-provider/issues/273): Fix CloudFront origin refresh error.
 * [296](https://github.com/perfectsense/gyro-aws-provider/issues/296): Fix SNS Subscription refresh error.
 
 ## 0.99.1 (May 20th, 2020)
