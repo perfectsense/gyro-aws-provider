@@ -16,6 +16,12 @@
 
 package gyro.aws.sns;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
@@ -23,24 +29,18 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.Type;
-
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.GetSubscriptionAttributesResponse;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
 import software.amazon.awssdk.services.sns.model.Subscription;
-
 import software.amazon.awssdk.utils.IoUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a SNS subscription to a topic.
@@ -63,15 +63,18 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
 
     private String endpoint;
     private String protocol;
-    private String subscriptionArn;
     private TopicResource topic;
     private String deliveryPolicy;
     private String filterPolicy;
     private Boolean rawMessageDelivery;
 
+    // Output
+    private String subscriptionArn;
+
     /**
      * The endpoint of the resource subscribed to the topic. (Required)
      */
+    @Required
     public String getEndpoint() {
         return endpoint;
     }
@@ -83,6 +86,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     /**
      * The protocol associated with the endpoint. (Required)
      */
+    @Required
     public String getProtocol() {
         return protocol;
     }
@@ -94,6 +98,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     /**
      * The topic resource to subscribe to. (Required)
      */
+    @Required
     public TopicResource getTopic() {
         return topic;
     }
@@ -103,7 +108,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     }
 
     /**
-     * The delivery retry policy. Can be json file or json blob.
+     * The delivery retry policy for the subscription. Can be json file or json blob.
      */
     @Updatable
     public String getDeliveryPolicy() {
@@ -117,7 +122,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     }
 
     /**
-     * The filter policy. Can be json file or json blob.
+     * The filter policy for the subscription. Can be json file or json blob.
      */
     @Updatable
     public String getFilterPolicy() {
