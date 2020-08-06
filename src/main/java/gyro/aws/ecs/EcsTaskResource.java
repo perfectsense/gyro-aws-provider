@@ -27,7 +27,25 @@ import software.amazon.awssdk.services.ecs.model.RunTaskResponse;
 import software.amazon.awssdk.services.ecs.model.Tag;
 import software.amazon.awssdk.services.ecs.model.Task;
 
-@Type("ecs-task")
+/**
+ * Create an ECS Task.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::ecs-task task
+ *        cluster: $(external-query aws::ecs-cluster {name: "example-ecs-task"})
+ *        count: 1
+ *        group: "example-group"
+ *        launch-type: ECS
+ *        reference-id: "example-ecs-task-reference"
+ *        started-by: "example-user"
+ *        task-definition: $(external-query aws::ecs-task-definition { family: 'test-ec2-task-definition', revision: 4 })
+ *    end
+ */
+ @Type("ecs-task")
 public class EcsTaskResource extends AwsResource implements Copyable<Task> {
 
     private List<EcsCapacityProviderStrategyItem> capacityProviderStrategyItem;

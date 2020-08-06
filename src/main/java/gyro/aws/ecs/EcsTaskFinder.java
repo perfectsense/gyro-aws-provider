@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.Task;
 
 /**
- * Query ECS service.
+ * Query ECS task.
  *
  * Example
  * -------
