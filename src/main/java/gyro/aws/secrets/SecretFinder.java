@@ -1,5 +1,6 @@
 package gyro.aws.secrets;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,7 +23,11 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
     @Override
     protected List<DescribeSecretResponse> findAws(
         SecretsManagerClient client, Map<String, String> filters) {
-        return null;
+        List<DescribeSecretResponse> list = new ArrayList<>();
+        list.add(client.describeSecret(r -> r.secretId(filters.get("arn"))));
+
+        return list;
+    }
 
     private DescribeSecretResponse convertEntry(SecretListEntry entry) {
         return DescribeSecretResponse.builder()
