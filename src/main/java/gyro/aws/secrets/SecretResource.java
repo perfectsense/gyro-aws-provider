@@ -42,7 +42,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private Boolean rotationEnabled;
     private String rotationLambdaARN;
     private RotationRulesType rotationRules;
-    private SdkBytes secretBinary;
+    private String secretBinary;
     private String secretString;
     private List<Tag> tags;
     private String versionId;
@@ -173,11 +173,11 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     @Updatable
-    public SdkBytes getSecretBinary() {
+    public String getSecretBinary() {
         return secretBinary;
     }
 
-    public void setSecretBinary(SdkBytes secretBinary) {
+    public void setSecretBinary(String secretBinary) {
         this.secretBinary = secretBinary;
     }
 
@@ -238,7 +238,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
             .description(getDescription())
             .kmsKeyId(getKmsKeyId())
             .name(getName())
-            .secretBinary(getSecretBinary())
+            .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
             .tags(getTags())
             .build();
