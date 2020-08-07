@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import gyro.core.FileBackend;
+import gyro.core.FileBackendAccess;
 import gyro.core.GyroCore;
 import gyro.core.Type;
 import gyro.core.auth.Credentials;
@@ -77,11 +78,11 @@ public class S3FileBackend extends FileBackend {
     }
 
     @Override
-    public OutputStream openOutput(String file) throws Exception {
+    public OutputStream openOutput(String file, FileBackendAccess acl) throws Exception {
         return new ByteArrayOutputStream() {
 
             public void close() {
-                upload(getBucket(), prefixed(file), RequestBody.fromBytes(toByteArray()));
+                upload(getBucket(), prefixed(file), RequestBody.fromBytes(toByteArray()), acl);
             }
         };
     }
@@ -103,22 +104,20 @@ public class S3FileBackend extends FileBackend {
     }
 
     @Override
-    public void copy(String source, String destination) throws Exception {
+    public void copy(String source, String destination, FileBackendAccess acl) throws Exception {
         String bucket = getBucket();
         client().copyObject(r -> r
             .copySource(bucket + "/" + prefixed(source))
             .destinationBucket(bucket)
             .destinationKey(prefixed(destination))
-            // Set private permission explicitly
-            .acl(ObjectCannedACL.PRIVATE));
+            .acl(cannedAcl(acl)));
     }
 
-    private void upload(String bucket, String path, RequestBody body) {
+    private void upload(String bucket, String path, RequestBody body, FileBackendAccess acl) {
         PutObjectRequest request = PutObjectRequest.builder()
             .bucket(bucket)
             .key(path)
-            // Set private permission explicitly
-            .acl(ObjectCannedACL.PRIVATE)
+            .acl(cannedAcl(acl))
             .build();
 
         client().putObject(request, body);
@@ -146,4 +145,12 @@ public class S3FileBackend extends FileBackend {
         return file;
     }
 
+    private ObjectCannedACL cannedAcl(FileBackendAccess acl) {
+        ObjectCannedACL cannedAcl = ObjectCannedACL.PRIVATE;
+
+        if (acl == FileBackendAccess.PUBLIC) {
+            cannedAcl = ObjectCannedACL.PUBLIC_READ;
+        }
+        return cannedAcl;
+    }
 }
