@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    subscriber: $(external-query aws::sns-subscriber { arn: ''})
+ *    subscription: $(external-query aws::sns-subscription { arn: ''})
  */
-@Type("sns-subscriber")
-public class SubscriberFinder extends AwsFinder<SnsClient, Subscription, SubscriberResource> {
+@Type("sns-subscription")
+public class SubscriptionFinder extends AwsFinder<SnsClient, Subscription, SubscriptionResource> {
 
     private String arn;
 
