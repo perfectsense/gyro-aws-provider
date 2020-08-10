@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -22,6 +23,7 @@ import software.amazon.awssdk.services.secretsmanager.model.DeleteSecretResponse
 import software.amazon.awssdk.services.secretsmanager.model.DescribeSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.RotationRulesType;
 import software.amazon.awssdk.services.secretsmanager.model.Tag;
+import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 
 @Type("secret")
@@ -44,7 +46,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private RotationRulesType rotationRules;
     private String secretBinary;
     private String secretString;
-    private List<Tag> tags;
+    private Map<String, String> tags;
     private String versionId;
     private Map<String, List<String>> versionIdsToStages;
 
@@ -190,11 +192,12 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.secretString = secretString;
     }
 
-    public List<Tag> getTags() {
+    @Updatable
+    public Map<String, String> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Map<String, String> tags) {
         this.tags = tags;
     }
 
@@ -224,7 +227,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         }
 
         copyFrom(response);
-
         return true;
     }
 
@@ -239,7 +241,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
             .name(getName())
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
-            .tags(getTags())
+            .tags(convertTags(getTags()))
             .build();
 
         CreateSecretResponse response = client.createSecret(request);
@@ -247,7 +249,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setArn(response.arn());
         setName(response.name());
         setVersionId(response.versionId());
-
     }
 
     @Override
@@ -255,7 +256,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        UpdateSecretRequest request = UpdateSecretRequest.builder()
+        UpdateSecretRequest updateRequest = UpdateSecretRequest.builder()
             .secretId(getArn())
             .clientRequestToken(getClientRequestToken())
             .description(getDescription())
@@ -264,7 +265,13 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
             .secretString(getSecretString())
             .build();
 
-        client.updateSecret(request);
+        TagResourceRequest tagRequest = TagResourceRequest.builder()
+            .secretId(getArn())
+            .tags(convertTags(getTags()))
+            .build();
+
+        client.updateSecret(updateRequest);
+        client.tagResource(tagRequest);
     }
 
     @Override
@@ -298,7 +305,13 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setRotationEnabled(model.rotationEnabled());
         setRotationLambdaARN(model.rotationLambdaARN());
         setRotationRules(model.rotationRules());
-        setTags(model.tags());
+        setTags(model.tags().stream().collect(Collectors.toMap(Tag::key, Tag::value)));
         setVersionIdsToStages(model.versionIdsToStages());
+    }
+
+    private List<Tag> convertTags(Map<String, String> tags) {
+        return tags.entrySet().stream()
+            .map(e -> Tag.builder().key(e.getKey()).value(e.getValue()).build())
+            .collect(Collectors.toList());
     }
 }
