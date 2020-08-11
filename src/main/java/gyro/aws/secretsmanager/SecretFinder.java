@@ -1,4 +1,4 @@
-package gyro.aws.secrets;
+package gyro.aws.secretsmanager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,15 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.DescribeSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.SecretListEntry;
 
+/**
+ * Query secrets manager.
+ *
+ * Example -------
+ *
+ * .. code-block:: gyro
+ *
+ * secrets: $(external-query aws::secret {"arn":"arn:aws:secretsmanager:Region:User-ARN:secret:'Secret-example-for-arn'"})
+ */
 @Type("secret")
 public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecretResponse, SecretResource> {
 

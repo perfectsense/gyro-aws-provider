@@ -1,4 +1,4 @@
-package gyro.aws.secrets;
+package gyro.aws.secretsmanager;
 
 import java.util.List;
 import java.util.Map;
@@ -12,9 +12,11 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ConflictsWith;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
@@ -26,15 +28,30 @@ import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 
+/**
+ * Creates a Secret with the Name, Description, and Tags.
+ *
+ * Example -------
+ *
+ * .. code-block:: gyro
+ *
+ * aws::secret secret name: 'secret-example' description: 'secret-example-description' tags: { "secret-example-tag" :
+ * "secret-example-tag-value" } end
+ */
 @Type("secret")
 public class SecretResource extends AwsResource implements Copyable<DescribeSecretResponse> {
 
-    private String arn;
     private String clientRequestToken;
-    private String deletedDate;
     private String description;
-    private Boolean forceDeleteWithoutRecovery;
     private String kmsKeyId;
+    private String secretBinary;
+    private String secretString;
+    private Map<String, String> tags;
+
+    // Read-only
+    private String arn;
+    private String deletedDate;
+    private Boolean forceDeleteWithoutRecovery;
     private String lastAccessedDate;
     private String lastChangedDate;
     private String lastRotatedDate;
@@ -44,21 +61,13 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private Boolean rotationEnabled;
     private String rotationLambdaARN;
     private RotationRulesType rotationRules;
-    private String secretBinary;
-    private String secretString;
-    private Map<String, String> tags;
     private String versionId;
     private Map<String, List<String>> versionIdsToStages;
 
-    @Id
-    public String getArn() {
-        return arn;
-    }
-
-    public void setArn(String arn) {
-        this.arn = arn;
-    }
-
+    /**
+     * Specifies a unique identifier for the new version that helps ensure idempotency. See `Client Request Token Info
+     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-ClientRequestToken/>`_.
+     */
     @Updatable
     public String getClientRequestToken() {
         return clientRequestToken;
@@ -68,14 +77,10 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.clientRequestToken = clientRequestToken;
     }
 
-    public String getDeletedDate() {
-        return deletedDate;
-    }
-
-    public void setDeletedDate(String deletedDate) {
-        this.deletedDate = deletedDate;
-    }
-
+    /**
+     * Specifies an updated user-provided description of the secret. See `Description Info
+     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-Description/>`_.
+     */
     @Updatable
     public String getDescription() {
         return description;
@@ -85,14 +90,11 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.description = description;
     }
 
-    public Boolean getForceDeleteWithoutRecovery() {
-        return forceDeleteWithoutRecovery;
-    }
-
-    public void setForceDeleteWithoutRecovery(Boolean forceDeleteWithoutRecovery) {
-        this.forceDeleteWithoutRecovery = forceDeleteWithoutRecovery;
-    }
-
+    /**
+     * Specifies an updated ARN or alias of the AWS KMS customer master key (CMK) to be used to encrypt the protected
+     * text in new versions of this secret. See `Kms Key Id Info <Specifies an updated ARN or alias of the AWS KMS
+     * customer master key (CMK) to be used to encrypt the protected text in new versions of this secret./>`_.
+     */
     @Updatable
     public String getKmsKeyId() {
         return kmsKeyId;
@@ -102,78 +104,10 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.kmsKeyId = kmsKeyId;
     }
 
-    public String getLastAccessedDate() {
-        return lastAccessedDate;
-    }
-
-    public void setLastAccessedDate(String lastAccessedDate) {
-        this.lastAccessedDate = lastAccessedDate;
-    }
-
-    public String getLastChangedDate() {
-        return lastChangedDate;
-    }
-
-    public void setLastChangedDate(String lastChangedDate) {
-        this.lastChangedDate = lastChangedDate;
-    }
-
-    public String getLastRotatedDate() {
-        return lastRotatedDate;
-    }
-
-    public void setLastRotatedDate(String lastRotatedDate) {
-        this.lastRotatedDate = lastRotatedDate;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOwningService() {
-        return owningService;
-    }
-
-    public void setOwningService(String owningService) {
-        this.owningService = owningService;
-    }
-
-    public Long getRecoveryWindowInDays() {
-        return recoveryWindowInDays;
-    }
-
-    public void setRecoveryWindowInDays(Long recoveryWindowInDays) {
-        this.recoveryWindowInDays = recoveryWindowInDays;
-    }
-
-    public Boolean getRotationEnabled() {
-        return rotationEnabled;
-    }
-
-    public void setRotationEnabled(Boolean rotationEnabled) {
-        this.rotationEnabled = rotationEnabled;
-    }
-
-    public String getRotationLambdaARN() {
-        return rotationLambdaARN;
-    }
-
-    public void setRotationLambdaARN(String rotationLambdaARN) {
-        this.rotationLambdaARN = rotationLambdaARN;
-    }
-
-    public RotationRulesType getRotationRules() {
-        return rotationRules;
-    }
-
-    public void setRotationRules(RotationRulesType rotationRules) {
-        this.rotationRules = rotationRules;
-    }
-
+    /**
+     * Specifies updated binary data that you want to encrypt and store in the new version of the secret. See `Secret
+     * Binary Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretBinary/>`_.
+     */
     @Updatable
     public String getSecretBinary() {
         return secretBinary;
@@ -183,6 +117,10 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.secretBinary = secretBinary;
     }
 
+    /**
+     * Specifies updated text data that you want to encrypt and store in this new version of the secret. See `Secret
+     * String Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretString/>`_.
+     */
     @Updatable
     public String getSecretString() {
         return secretString;
@@ -192,6 +130,9 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.secretString = secretString;
     }
 
+    /**
+     * Specifies a list of user-defined tags that are attached to the secret
+     */
     @Updatable
     public Map<String, String> getTags() {
         return tags;
@@ -201,6 +142,158 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.tags = tags;
     }
 
+    /**
+     * The Amazon Resource Name (ARN) of the secret. This is unique.
+     */
+    @Id
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
+    /**
+     * This value exists if the secret is scheduled for deletion and specifies the date.
+     */
+    @Output
+    public String getDeletedDate() {
+        return deletedDate;
+    }
+
+    public void setDeletedDate(String deletedDate) {
+        this.deletedDate = deletedDate;
+    }
+
+    /**
+     * Specifies that the secret is to be deleted without any recovery window.
+     */
+    @ConflictsWith("recovery-window-in-days")
+    @Output
+    public Boolean getForceDeleteWithoutRecovery() {
+        return forceDeleteWithoutRecovery;
+    }
+
+    public void setForceDeleteWithoutRecovery(Boolean forceDeleteWithoutRecovery) {
+        this.forceDeleteWithoutRecovery = forceDeleteWithoutRecovery;
+    }
+
+    /**
+     * The last date that this secret was accessed.
+     */
+    @Output
+    public String getLastAccessedDate() {
+        return lastAccessedDate;
+    }
+
+    public void setLastAccessedDate(String lastAccessedDate) {
+        this.lastAccessedDate = lastAccessedDate;
+    }
+
+    /**
+     * The last date and time that this secret was modified in any way.
+     */
+    @Output
+    public String getLastChangedDate() {
+        return lastChangedDate;
+    }
+
+    public void setLastChangedDate(String lastChangedDate) {
+        this.lastChangedDate = lastChangedDate;
+    }
+
+    /**
+     * The most recent date and time that the Secrets Manager rotation process was successfully completed. This value is
+     * null if the secret has never rotated.
+     */
+    @Output
+    public String getLastRotatedDate() {
+        return lastRotatedDate;
+    }
+
+    public void setLastRotatedDate(String lastRotatedDate) {
+        this.lastRotatedDate = lastRotatedDate;
+    }
+
+    /**
+     * The user-provided friendly name of the secret. (Required during create)
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Returns the name of the service that created this secret.
+     */
+    @Output
+    public String getOwningService() {
+        return owningService;
+    }
+
+    public void setOwningService(String owningService) {
+        this.owningService = owningService;
+    }
+
+    /**
+     * Specifies the number of days that Secrets Manager waits before it can delete the secret.
+     */
+    @ConflictsWith("force-delete-without-recovery")
+    @Output
+    public Long getRecoveryWindowInDays() {
+        return recoveryWindowInDays;
+    }
+
+    public void setRecoveryWindowInDays(Long recoveryWindowInDays) {
+        this.recoveryWindowInDays = recoveryWindowInDays;
+    }
+
+    /**
+     * Specifies whether automatic rotation is enabled for this secret.
+     */
+    @Output
+    public Boolean getRotationEnabled() {
+        return rotationEnabled;
+    }
+
+    public void setRotationEnabled(Boolean rotationEnabled) {
+        this.rotationEnabled = rotationEnabled;
+    }
+
+    /**
+     * Specifies the ARN of a Lambda function that's invoked by Secrets Manager to rotate the secret either
+     * automatically per the schedule or manually by a call to RotateSecret.
+     */
+    @Output
+    public String getRotationLambdaARN() {
+        return rotationLambdaARN;
+    }
+
+    public void setRotationLambdaARN(String rotationLambdaARN) {
+        this.rotationLambdaARN = rotationLambdaARN;
+    }
+
+    /**
+     * Specifies a structure that contains the rotation configuration for this secret.
+     */
+    @Output
+    public RotationRulesType getRotationRules() {
+        return rotationRules;
+    }
+
+    public void setRotationRules(RotationRulesType rotationRules) {
+        this.rotationRules = rotationRules;
+    }
+
+    /**
+     * The unique identifier associated with the version of the generated secret.
+     */
+    @Output
     public String getVersionId() {
         return versionId;
     }
@@ -209,6 +302,11 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.versionId = versionId;
     }
 
+    /**
+     * A list of all of the currently assigned VersionStage staging labels and the VersionId that each is attached to.
+     * Staging labels are used to keep track of the different versions during the rotation process.
+     */
+    @Output
     public Map<String, List<String>> getVersionIdsToStages() {
         return versionIdsToStages;
     }
