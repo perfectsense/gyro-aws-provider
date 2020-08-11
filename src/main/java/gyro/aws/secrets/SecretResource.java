@@ -1,11 +1,12 @@
 package gyro.aws.secrets;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -18,12 +19,11 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretResponse;
-import software.amazon.awssdk.services.secretsmanager.model.DeleteSecretRequest;
-import software.amazon.awssdk.services.secretsmanager.model.DeleteSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.DescribeSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.RotationRulesType;
 import software.amazon.awssdk.services.secretsmanager.model.Tag;
 import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
+import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 
 @Type("secret")
@@ -31,13 +31,13 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
     private String arn;
     private String clientRequestToken;
-    private Instant deletedDate;
+    private String deletedDate;
     private String description;
     private Boolean forceDeleteWithoutRecovery;
     private String kmsKeyId;
-    private Instant lastAccessedDate;
-    private Instant lastChangedDate;
-    private Instant lastRotatedDate;
+    private String lastAccessedDate;
+    private String lastChangedDate;
+    private String lastRotatedDate;
     private String name;
     private String owningService;
     private Long recoveryWindowInDays;
@@ -68,11 +68,11 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.clientRequestToken = clientRequestToken;
     }
 
-    public Instant getDeletedDate() {
+    public String getDeletedDate() {
         return deletedDate;
     }
 
-    public void setDeletedDate(Instant deletedDate) {
+    public void setDeletedDate(String deletedDate) {
         this.deletedDate = deletedDate;
     }
 
@@ -102,27 +102,27 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         this.kmsKeyId = kmsKeyId;
     }
 
-    public Instant getLastAccessedDate() {
+    public String getLastAccessedDate() {
         return lastAccessedDate;
     }
 
-    public void setLastAccessedDate(Instant lastAccessedDate) {
+    public void setLastAccessedDate(String lastAccessedDate) {
         this.lastAccessedDate = lastAccessedDate;
     }
 
-    public Instant getLastChangedDate() {
+    public String getLastChangedDate() {
         return lastChangedDate;
     }
 
-    public void setLastChangedDate(Instant lastChangedDate) {
+    public void setLastChangedDate(String lastChangedDate) {
         this.lastChangedDate = lastChangedDate;
     }
 
-    public Instant getLastRotatedDate() {
+    public String getLastRotatedDate() {
         return lastRotatedDate;
     }
 
-    public void setLastRotatedDate(Instant lastRotatedDate) {
+    public void setLastRotatedDate(String lastRotatedDate) {
         this.lastRotatedDate = lastRotatedDate;
     }
 
@@ -294,12 +294,12 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     @Override
     public void copyFrom(DescribeSecretResponse model) {
         setArn(model.arn());
-        setDeletedDate(model.deletedDate());
+        setDeletedDate(model.deletedDate() != null ? model.deletedDate().toString() : null);
         setDescription(model.description());
         setKmsKeyId(model.kmsKeyId());
-        setLastAccessedDate(model.lastAccessedDate());
-        setLastChangedDate(model.lastChangedDate());
-        setLastRotatedDate(model.lastRotatedDate());
+        setLastAccessedDate(model.lastAccessedDate() != null ? model.lastAccessedDate().toString() : null);
+        setLastChangedDate(model.lastAccessedDate() != null ? model.lastChangedDate().toString() : null);
+        setLastRotatedDate(model.lastRotatedDate() != null ? model.lastRotatedDate().toString() : null);
         setName(model.name());
         setOwningService(model.owningService());
         setRotationEnabled(model.rotationEnabled());
