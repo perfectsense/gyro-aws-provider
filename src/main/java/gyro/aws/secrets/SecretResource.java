@@ -278,17 +278,9 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     public void delete(GyroUI ui, State state) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        DeleteSecretRequest request = DeleteSecretRequest.builder()
-            .secretId(getArn())
+        client.deleteSecret(r -> r.secretId(getArn())
             .forceDeleteWithoutRecovery(getForceDeleteWithoutRecovery())
-            .recoveryWindowInDays(getRecoveryWindowInDays())
-            .build();
-
-        DeleteSecretResponse response = client.deleteSecret(request);
-
-        setArn(response.arn());
-        setDeletedDate(response.deletionDate());
-        setName(response.name());
+            .recoveryWindowInDays(getRecoveryWindowInDays()));
     }
 
     @Override
