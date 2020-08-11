@@ -33,6 +33,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
@@ -234,8 +235,9 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The user-provided friendly name of the secret. (Required during create)
+     * The user-provided friendly name of the secret. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
