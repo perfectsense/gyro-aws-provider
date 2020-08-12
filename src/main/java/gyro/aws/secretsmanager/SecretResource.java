@@ -39,6 +39,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.DescribeSecretResponse;
+import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.secretsmanager.model.RotationRulesType;
 import software.amazon.awssdk.services.secretsmanager.model.Tag;
 import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
@@ -342,13 +343,20 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     @Override
     public boolean refresh() {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
-        DescribeSecretResponse response = client.describeSecret(r -> r.secretId(getArn()));
 
-        if (response == null) {
+        try {
+            DescribeSecretResponse response = client.describeSecret(r -> r.secretId(getArn()));
+
+            if (response == null) {
+                return false;
+            }
+
+            copyFrom(response);
+        } catch (ResourceNotFoundException ex) {
+            // No Resource found
             return false;
         }
 
-        copyFrom(response);
         return true;
     }
 
