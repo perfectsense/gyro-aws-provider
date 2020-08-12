@@ -1,0 +1,66 @@
+aws::vpc vpc-efs
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc-efs-example"
+    }
+end
+
+aws::subnet subnet-efs
+    vpc: $(aws::vpc vpc-efs)
+    availability-zone: 'us-east-1a'
+    cidr-block: '10.0.0.0/24'
+
+    tags: {
+        Name: "subnet-example-efs"
+    }
+end
+
+aws::security-group security-group-efs
+    name: "Example eg for efs"
+    vpc: $(aws::vpc vpc-efs)
+    description: "Example eg for efs"
+end
+
+aws::file-system file-system
+    encrypted: false
+    performance-mode: GENERAL_PURPOSE
+    throughput-mode: BURSTING
+    policy: "policy.json"
+
+    lifecycle-policy
+        transition-to-ia-rules: AFTER_30_DAYS
+    end
+
+    backup-policy
+        status: DISABLED
+    end
+
+    tags: {
+        "Name": "example-file-system"
+    }
+end
+
+aws::mount-target mount-target
+    file-system: $(aws::file-system file-system)
+    ip-address: "10.0.0.16"
+    subnet: $(aws::subnet subnet-efs)
+
+    security-groups: [
+        $(aws::security-group security-group-efs)
+    ]
+end
+
+aws::access-point access-point
+    file-system: $(aws::file-system file-system)
+
+    posix-user
+        user-id: 42950
+        group-id: 42949
+    end
+
+    tags: {
+        "Name": "example-access-point"
+    }
+end
