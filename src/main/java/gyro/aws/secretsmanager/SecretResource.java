@@ -376,9 +376,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
         CreateSecretResponse response = client.createSecret(request);
 
-        setArn(response.arn());
-        setName(response.name());
         setVersionId(response.versionId());
+        copyFrom(client.describeSecret(r -> r.secretId(response.arn())));
     }
 
     @Override
