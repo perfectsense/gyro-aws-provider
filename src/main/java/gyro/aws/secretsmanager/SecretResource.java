@@ -48,12 +48,18 @@ import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 /**
  * Creates a Secret with the Name, Description, and Tags.
  *
- * Example -------
+ * Example
+ * -------
  *
  * .. code-block:: gyro
  *
- * aws::secret secret name: 'secret-example' description: 'secret-example-description' tags: { "secret-example-tag" :
- * "secret-example-tag-value" } end
+ *     aws::secret secret
+ *         name: 'secret-example'
+ *         description: 'secret-example-description'
+ *         tags: {
+ *             "secret-example-tag" : "secret-example-tag-value"
+ *         }
+ *     end
  */
 @Type("secret")
 public class SecretResource extends AwsResource implements Copyable<DescribeSecretResponse> {
