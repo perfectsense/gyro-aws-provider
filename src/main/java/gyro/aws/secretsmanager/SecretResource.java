@@ -101,7 +101,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies an updated user-provided description of the secret. See `Description Info
+     * The description of the secret. See `Description Info
      * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-Description/>`_.
      */
     @Updatable
@@ -154,7 +154,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies a list of user-defined tags that are attached to the secret
+     * Specifies a list of tags that are attached to the secret
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -191,10 +191,11 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies that the secret is to be deleted without any recovery window.
+     * Specifies that the secret is to be deleted without any recovery window. Cannot use both this parameter and the
+     * RecoveryWindowInDays parameter in the same API call. See `Force Delete Without Recovery Info
+     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_DeleteSecret.html#SecretsManager-DeleteSecret-request-ForceDeleteWithoutRecovery/>`_.
      */
     @ConflictsWith("recovery-window-in-days")
-    @Output
     public Boolean getForceDeleteWithoutRecovery() {
         return forceDeleteWithoutRecovery;
     }
@@ -228,8 +229,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The most recent date and time that the Secrets Manager rotation process was successfully completed. This value is
-     * null if the secret has never rotated.
+     * The most recent date and time that the Secrets Manager rotation process was successfully completed.
      */
     @Output
     public String getLastRotatedDate() {
@@ -241,7 +241,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The user-provided friendly name of the secret. (Required)
+     * The name of the secret. (Required)
      */
     @Required
     public String getName() {
@@ -253,7 +253,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Returns the name of the service that created this secret.
+     * The name of the owning service.
      */
     @Output
     public String getOwningService() {
@@ -265,10 +265,10 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies the number of days that Secrets Manager waits before it can delete the secret.
+     * Specifies the number of days that Secrets Manager waits before it can delete the secret. Cannot use both this
+     * parameter and the ForceDeleteWithoutRecovery parameter in the same API call.
      */
     @ConflictsWith("force-delete-without-recovery")
-    @Output
     public Long getRecoveryWindowInDays() {
         return recoveryWindowInDays;
     }
