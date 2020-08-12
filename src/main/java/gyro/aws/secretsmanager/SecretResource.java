@@ -396,9 +396,45 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
         if (changedFieldNames.contains("tags")) {
             SecretResource oldResource = (SecretResource) current;
-            saveTags(client, oldResource.getTags());
-        }
+            Map<String, String> oldTags = oldResource.getTags();
 
+            if (!oldTags.isEmpty() || !getTags().isEmpty()) {
+                MapDifference<String, String> diff = Maps.difference(oldTags, getTags());
+
+                TagResourceRequest tagRequest = null;
+                UntagResourceRequest untagRequest = null;
+
+                if (getTags().isEmpty()) {
+                    untagRequest = UntagResourceRequest.builder()
+                        .secretId(getArn())
+                        .tagKeys(diff.entriesOnlyOnLeft().keySet())
+                        .build();
+                } else if (diff.entriesOnlyOnLeft().isEmpty()) {
+                    tagRequest = TagResourceRequest.builder()
+                        .secretId(getArn())
+                        .tags(convertTags(getTags()))
+                        .build();
+                } else {
+                    tagRequest = TagResourceRequest.builder()
+                        .secretId(getArn())
+                        .tags(convertTags(getTags()))
+                        .build();
+
+                    untagRequest = UntagResourceRequest.builder()
+                        .secretId(getArn())
+                        .tagKeys(diff.entriesOnlyOnLeft().keySet())
+                        .build();
+                }
+
+                if (tagRequest != null) {
+                    client.tagResource(tagRequest);
+                }
+
+                if (untagRequest != null) {
+                    client.untagResource(untagRequest);
+                }
+            }
+        }
         client.updateSecret(updateRequest);
     }
 
@@ -433,44 +469,5 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         return tags.entrySet().stream()
             .map(e -> Tag.builder().key(e.getKey()).value(e.getValue()).build())
             .collect(Collectors.toList());
-    }
-
-    private void saveTags(SecretsManagerClient client, Map<String, String> oldTags) {
-        if (!oldTags.isEmpty() || !getTags().isEmpty()) {
-            MapDifference<String, String> diff = Maps.difference(oldTags, getTags());
-
-            TagResourceRequest tagRequest = null;
-            UntagResourceRequest untagRequest = null;
-
-            if (getTags().isEmpty()) {
-                untagRequest = UntagResourceRequest.builder()
-                    .secretId(getArn())
-                    .tagKeys(diff.entriesOnlyOnLeft().keySet())
-                    .build();
-            } else if (diff.entriesOnlyOnLeft().isEmpty()) {
-                tagRequest = TagResourceRequest.builder()
-                    .secretId(getArn())
-                    .tags(convertTags(getTags()))
-                    .build();
-            } else {
-                tagRequest = TagResourceRequest.builder()
-                    .secretId(getArn())
-                    .tags(convertTags(getTags()))
-                    .build();
-
-                untagRequest = UntagResourceRequest.builder()
-                    .secretId(getArn())
-                    .tagKeys(diff.entriesOnlyOnLeft().keySet())
-                    .build();
-            }
-
-            if (tagRequest != null) {
-                client.tagResource(tagRequest);
-            }
-
-            if (untagRequest != null) {
-                client.untagResource(untagRequest);
-            }
-        }
     }
 }
