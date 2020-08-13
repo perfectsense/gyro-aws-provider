@@ -16,7 +16,6 @@
 
 package gyro.aws.secretsmanager;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +50,13 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
     @Override
     protected List<DescribeSecretResponse> findAws(
         SecretsManagerClient client, Map<String, String> filters) {
+        List<DescribeSecretResponse> list = Collections.emptyList();
         try {
-            List<DescribeSecretResponse> list = new ArrayList<>();
             list.add(client.describeSecret(r -> r.secretId(filters.get("arn"))));
-            return list;
         } catch (ResourceNotFoundException ex) {
-            return Collections.emptyList();
+            // No resource found
         }
+        return list;
     }
 
     private DescribeSecretResponse convertEntry(SecretListEntry entry) {
