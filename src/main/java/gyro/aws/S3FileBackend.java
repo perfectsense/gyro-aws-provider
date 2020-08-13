@@ -19,9 +19,9 @@ package gyro.aws;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Spliterators;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import gyro.core.FileBackend;
 import gyro.core.GyroCore;
@@ -30,7 +30,8 @@ import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -59,25 +60,9 @@ public class S3FileBackend extends FileBackend {
     @Override
     public Stream<String> list() throws Exception {
         if (this.equals(GyroCore.getStateBackend(getName()))) {
-            List<S3Object> objects = new ArrayList<>();
-            S3Client client = client();
-            ListObjectsV2Response response = client.listObjectsV2(r -> r.bucket(getBucket()).prefix(prefixed("")));
-
-            // Currently we will paginate up to 10,000 objects
-            for (int i = 0; i < 10; i++) {
-                objects.addAll(response.contents());
-
-                if (response.isTruncated()) {
-                    String token = response.nextContinuationToken();
-                    response = client.listObjectsV2(r -> r.bucket(getBucket())
-                        .prefix(prefixed(""))
-                        .continuationToken(token));
-                } else {
-                    break;
-                }
-            }
-
-            return objects.stream()
+            return StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(new S3ObjectIterator(getBucket(), prefixed(""), client()), 0),
+                false)
                 .map(S3Object::key)
                 .filter(f -> f.endsWith(".gyro"))
                 .map(this::removePrefix);
@@ -94,6 +79,7 @@ public class S3FileBackend extends FileBackend {
     @Override
     public OutputStream openOutput(String file) throws Exception {
         return new ByteArrayOutputStream() {
+
             public void close() {
                 upload(getBucket(), prefixed(file), RequestBody.fromBytes(toByteArray()));
             }
@@ -105,19 +91,41 @@ public class S3FileBackend extends FileBackend {
         client().deleteObject(r -> r.bucket(getBucket()).key(prefixed(file)));
     }
 
+    @Override
+    public boolean exists(String file) throws Exception {
+        try {
+            client().headObject(r -> r.bucket(bucket).key(prefixed(file)));
+        } catch (NoSuchKeyException ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void copy(String source, String destination) throws Exception {
+        String bucket = getBucket();
+        client().copyObject(r -> r
+            .copySource(bucket + "/" + prefixed(source))
+            .destinationBucket(bucket)
+            .destinationKey(prefixed(destination))
+            .acl(ObjectCannedACL.PRIVATE));
+    }
+
     private void upload(String bucket, String path, RequestBody body) {
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(path)
-                .build();
+            .bucket(bucket)
+            .key(path)
+            .acl(ObjectCannedACL.PRIVATE)
+            .build();
 
         client().putObject(request, body);
     }
 
     private S3Client client() {
         Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-                .getCredentialsByName()
-                .get("aws::default");
+            .getCredentialsByName()
+            .get("aws::default");
 
         S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
 
@@ -135,5 +143,4 @@ public class S3FileBackend extends FileBackend {
 
         return file;
     }
-
 }
