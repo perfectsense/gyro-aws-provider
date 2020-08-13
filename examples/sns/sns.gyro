@@ -4,7 +4,7 @@ aws::sns-topic sns-topic-example
     policy: "sns-policy.json"
 end
 
-aws::sns-subscriber sns-subscriber-example
+aws::sns-subscription sns-subscription-example
     protocol: "sqs"
     endpoint: $(aws::sqs-queue sqs-example).arn
     topic: $(aws::sns-topic sns-topic-example)
