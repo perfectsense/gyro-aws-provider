@@ -25,6 +25,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -67,7 +68,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
     private String clientRequestToken;
     private String description;
-    private String kmsKeyId;
+    private KmsKeyResource kmsKey;
     private String secretBinary;
     private String secretString;
     private Map<String, String> tags;
@@ -120,12 +121,12 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
      * customer master key (CMK) to be used to encrypt the protected text in new versions of this secret./>`_.
      */
     @Updatable
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsKeyResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsKeyResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -367,7 +368,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         CreateSecretRequest request = CreateSecretRequest.builder()
             .clientRequestToken(getClientRequestToken())
             .description(getDescription())
-            .kmsKeyId(getKmsKeyId())
+            .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
             .name(getName())
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
@@ -389,7 +390,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
             .secretId(getArn())
             .clientRequestToken(getClientRequestToken())
             .description(getDescription())
-            .kmsKeyId(getKmsKeyId())
+            .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
             .build();
@@ -452,7 +453,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setArn(model.arn());
         setDeletedDate(model.deletedDate() != null ? model.deletedDate().toString() : null);
         setDescription(model.description());
-        setKmsKeyId(model.kmsKeyId());
+        setKmsKey(findById(KmsKeyResource.class, model.kmsKeyId()));
         setLastAccessedDate(model.lastAccessedDate() != null ? model.lastAccessedDate().toString() : null);
         setLastChangedDate(model.lastAccessedDate() != null ? model.lastChangedDate().toString() : null);
         setLastRotatedDate(model.lastRotatedDate() != null ? model.lastRotatedDate().toString() : null);
