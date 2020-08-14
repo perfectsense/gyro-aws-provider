@@ -68,7 +68,9 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
     private String clientRequestToken;
     private String description;
+    private Boolean forceDeleteWithoutRecovery;
     private KmsKeyResource kmsKey;
+    private Long recoveryWindowInDays;
     private String secretBinary;
     private String secretString;
     private Map<String, String> tags;
@@ -76,13 +78,11 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     // Read-only
     private String arn;
     private String deletedDate;
-    private Boolean forceDeleteWithoutRecovery;
     private String lastAccessedDate;
     private String lastChangedDate;
     private String lastRotatedDate;
     private String name;
     private String owningService;
-    private Long recoveryWindowInDays;
     private Boolean rotationEnabled;
     private String rotationLambdaARN;
     private RotationRulesType rotationRules;
