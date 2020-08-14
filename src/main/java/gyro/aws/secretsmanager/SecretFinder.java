@@ -52,10 +52,12 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
         SecretsManagerClient client, Map<String, String> filters) {
         List<DescribeSecretResponse> list = Collections.emptyList();
         try {
+            
             list.add(client.describeSecret(r -> r.secretId(filters.get("arn"))));
         } catch (ResourceNotFoundException ex) {
             // No resource found
         }
+
         return list;
     }
 
