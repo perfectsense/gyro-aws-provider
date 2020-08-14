@@ -395,42 +395,39 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         if (changedFieldNames.contains("tags")) {
             SecretResource oldResource = (SecretResource) current;
             Map<String, String> oldTags = oldResource.getTags();
+            MapDifference<String, String> diff = Maps.difference(oldTags, getTags());
 
-            if (!oldTags.isEmpty() || !getTags().isEmpty()) {
-                MapDifference<String, String> diff = Maps.difference(oldTags, getTags());
+            TagResourceRequest tagRequest = null;
+            UntagResourceRequest untagRequest = null;
 
-                TagResourceRequest tagRequest = null;
-                UntagResourceRequest untagRequest = null;
+            if (getTags().isEmpty()) {
+                untagRequest = UntagResourceRequest.builder()
+                    .secretId(getArn())
+                    .tagKeys(diff.entriesOnlyOnLeft().keySet())
+                    .build();
+            } else if (diff.entriesOnlyOnLeft().isEmpty()) {
+                tagRequest = TagResourceRequest.builder()
+                    .secretId(getArn())
+                    .tags(convertTags(getTags()))
+                    .build();
+            } else {
+                tagRequest = TagResourceRequest.builder()
+                    .secretId(getArn())
+                    .tags(convertTags(getTags()))
+                    .build();
 
-                if (getTags().isEmpty()) {
-                    untagRequest = UntagResourceRequest.builder()
-                        .secretId(getArn())
-                        .tagKeys(diff.entriesOnlyOnLeft().keySet())
-                        .build();
-                } else if (diff.entriesOnlyOnLeft().isEmpty()) {
-                    tagRequest = TagResourceRequest.builder()
-                        .secretId(getArn())
-                        .tags(convertTags(getTags()))
-                        .build();
-                } else {
-                    tagRequest = TagResourceRequest.builder()
-                        .secretId(getArn())
-                        .tags(convertTags(getTags()))
-                        .build();
+                untagRequest = UntagResourceRequest.builder()
+                    .secretId(getArn())
+                    .tagKeys(diff.entriesOnlyOnLeft().keySet())
+                    .build();
+            }
 
-                    untagRequest = UntagResourceRequest.builder()
-                        .secretId(getArn())
-                        .tagKeys(diff.entriesOnlyOnLeft().keySet())
-                        .build();
-                }
+            if (tagRequest != null) {
+                client.tagResource(tagRequest);
+            }
 
-                if (tagRequest != null) {
-                    client.tagResource(tagRequest);
-                }
-
-                if (untagRequest != null) {
-                    client.untagResource(untagRequest);
-                }
+            if (untagRequest != null) {
+                client.untagResource(untagRequest);
             }
         }
         client.updateSecret(updateRequest);
