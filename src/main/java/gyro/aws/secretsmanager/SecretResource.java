@@ -47,7 +47,7 @@ import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest;
 
 /**
- * Creates a Secret with the Name, Description, and Tags.
+ * Creates a Secret with the specified Name, Description, Kms Key, Secret String and Tags.
  *
  * Example
  * -------
@@ -55,11 +55,19 @@ import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest
  * .. code-block:: gyro
  *
  *     aws::secret secret
- *         name: 'secret-example'
- *         description: 'secret-example-description'
+ *         name: "secret-example"
+ *         description: secret-example-description-updated"
+ *         force-delete-without-recovery: true
+ *         kms-key: $(aws::kms-key secret-kms-key-example)
+ *         secret-string: "secret-string-example"
  *         tags: {
  *             "secret-example-tag" : "secret-example-tag-value"
  *         }
+ *     end
+ *
+ *     aws::kms-key secret-kms-key-example
+ *         aliases: ["alias/secret1", "alias/secret2"]
+ *         description: "secret kms key example description"
  *     end
  */
 @Type("secret")
@@ -88,10 +96,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private Map<String, List<String>> versionIdsToStages;
 
     /**
-
-    /**
-     * The description of the secret. See `Description Info
-     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-Description/>`_.
+     * The description of the secret. See `Description Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-Description/>`_.
      */
     @Updatable
     public String getDescription() {
@@ -103,7 +108,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The KMS master key to be used to encrypt the protected text in new versions of this secret
+     * The KMS master key to be used to encrypt the protected text in new versions of the secret.
      */
     @Updatable
     public KmsKeyResource getKmsKey() {
@@ -115,8 +120,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies updated binary data that you want to encrypt and store in the new version of the secret. See `Secret
-     * Binary Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretBinary/>`_.
+     * The binary data that you want to encrypt and store in the new version of the secret. See `Secret Binary Info
+     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretBinary/>`_.
      */
     @Updatable
     public String getSecretBinary() {
@@ -128,8 +133,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies updated text data that you want to encrypt and store in this new version of the secret. See `Secret
-     * String Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretString/>`_.
+     * The updated text data that you want to encrypt and store in this new version of the secret. See `Secret String
+     * Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretString/>`_.
      */
     @Updatable
     public String getSecretString() {
@@ -141,7 +146,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies a list of tags that are attached to the secret
+     * Specifies a list of tags that are attached to the secret.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -166,7 +171,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * This value exists if the secret is scheduled for deletion and specifies the date.
+     * The date that the secret is scheduled for deletion and specifies the date.
      */
     @Output
     public String getDeletedDate() {
@@ -178,9 +183,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies that the secret is to be deleted without any recovery window. Cannot use both this parameter and the
-     * RecoveryWindowInDays parameter in the same API call. See `Force Delete Without Recovery Info
-     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_DeleteSecret.html#SecretsManager-DeleteSecret-request-ForceDeleteWithoutRecovery/>`_.
+     * Enable the secret to be deleted without any recovery window.
      */
     @ConflictsWith("recovery-window-in-days")
     public Boolean getForceDeleteWithoutRecovery() {
@@ -192,7 +195,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The last date that this secret was accessed.
+     * The most recent date that this secret was accessed.
      */
     @Output
     public String getLastAccessedDate() {
@@ -204,7 +207,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The last date and time that this secret was modified in any way.
+     * The most recent date and time that this secret was modified in any way.
      */
     @Output
     public String getLastChangedDate() {
@@ -252,7 +255,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies the number of days that Secrets Manager waits before it can delete the secret.
+     * The number of days that Secrets Manager waits before it can delete the secret.
      */
     @ConflictsWith("force-delete-without-recovery")
     public Long getRecoveryWindowInDays() {
@@ -264,7 +267,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies whether automatic rotation is enabled for this secret.
+     * Enable automatic rotation for the secret.
      */
     @Output
     public Boolean getRotationEnabled() {
@@ -276,8 +279,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies the ARN of a Lambda function that's invoked by Secrets Manager to rotate the secret either
-     * automatically per the schedule or manually by a call to RotateSecret.
+     * The unique ARN of a Lambda function that's invoked by Secrets Manager to rotate the secret either automatically
+     * per the schedule or manually by a call to RotateSecret.
      */
     @Output
     public String getRotationLambdaARN() {
@@ -289,7 +292,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies a structure that contains the rotation configuration for this secret.
+     * The structure that contains the rotation configuration for the secret.
      */
     @Output
     public RotationRulesType getRotationRules() {
@@ -301,7 +304,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The unique identifier associated with the version of the generated secret.
+     * The unique identifier associated with the version of the secret.
      */
     @Output
     public String getVersionId() {
@@ -313,8 +316,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * A list of all of the currently assigned VersionStage staging labels and the VersionId that each is attached to.
-     * Staging labels are used to keep track of the different versions during the rotation process.
+     * The list of all of the currently assigned VersionStage staging labels and the VersionId that each is attached
+     * to.
      */
     @Output
     public Map<String, List<String>> getVersionIdsToStages() {
