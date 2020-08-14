@@ -351,7 +351,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
         CreateSecretRequest request = CreateSecretRequest.builder()
             .description(getDescription())
-            .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
+            .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
             .name(getName())
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
@@ -376,7 +376,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
         client.updateSecret(r -> r.secretId(getArn())
             .description(getDescription())
-            .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
+            .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
             .build());
