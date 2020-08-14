@@ -45,7 +45,6 @@ import software.amazon.awssdk.services.secretsmanager.model.RotationRulesType;
 import software.amazon.awssdk.services.secretsmanager.model.Tag;
 import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest;
-import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 
 /**
  * Creates a Secret with the Name, Description, and Tags.
@@ -383,14 +382,13 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        UpdateSecretRequest updateRequest = UpdateSecretRequest.builder()
-            .secretId(getArn())
+        client.updateSecret(r -> r.secretId(getArn())
             .clientRequestToken(getClientRequestToken())
             .description(getDescription())
             .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
-            .build();
+            .build());
 
         if (changedFieldNames.contains("tags")) {
             SecretResource oldResource = (SecretResource) current;
@@ -430,7 +428,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
                 client.untagResource(untagRequest);
             }
         }
-        client.updateSecret(updateRequest);
     }
 
     @Override
