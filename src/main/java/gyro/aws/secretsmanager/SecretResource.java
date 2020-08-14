@@ -116,9 +116,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies an updated ARN or alias of the AWS KMS customer master key (CMK) to be used to encrypt the protected
-     * text in new versions of this secret. See `Kms Key Id Info <Specifies an updated ARN or alias of the AWS KMS
-     * customer master key (CMK) to be used to encrypt the protected text in new versions of this secret./>`_.
+     * The KMS master key to be used to encrypt the protected text in new versions of this secret
      */
     @Updatable
     public KmsKeyResource getKmsKey() {
@@ -267,8 +265,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Specifies the number of days that Secrets Manager waits before it can delete the secret. Cannot use both this
-     * parameter and the ForceDeleteWithoutRecovery parameter in the same API call.
+     * Specifies the number of days that Secrets Manager waits before it can delete the secret.
      */
     @ConflictsWith("force-delete-without-recovery")
     public Long getRecoveryWindowInDays() {
