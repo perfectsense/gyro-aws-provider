@@ -65,7 +65,6 @@ import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest
 @Type("secret")
 public class SecretResource extends AwsResource implements Copyable<DescribeSecretResponse> {
 
-    private String clientRequestToken;
     private String description;
     private Boolean forceDeleteWithoutRecovery;
     private KmsKeyResource kmsKey;
@@ -89,17 +88,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private Map<String, List<String>> versionIdsToStages;
 
     /**
-     * Specifies a unique identifier for the new version that helps ensure idempotency. See `Client Request Token Info
-     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-ClientRequestToken/>`_.
-     */
-    @Updatable
-    public String getClientRequestToken() {
-        return clientRequestToken;
-    }
-
-    public void setClientRequestToken(String clientRequestToken) {
-        this.clientRequestToken = clientRequestToken;
-    }
 
     /**
      * The description of the secret. See `Description Info
@@ -362,7 +350,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
         CreateSecretRequest request = CreateSecretRequest.builder()
-            .clientRequestToken(getClientRequestToken())
             .description(getDescription())
             .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
             .name(getName())
@@ -388,7 +375,6 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
         client.updateSecret(r -> r.secretId(getArn())
-            .clientRequestToken(getClientRequestToken())
             .description(getDescription())
             .kmsKeyId(getKmsKey() != null ? getKmsKey().getId() : null)
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
