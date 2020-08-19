@@ -149,7 +149,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The Amazon Resource Name (ARN) of the secret. This is unique.
+     * The Amazon Resource Name (ARN) of the secret.
      */
     @Id
     @Output
