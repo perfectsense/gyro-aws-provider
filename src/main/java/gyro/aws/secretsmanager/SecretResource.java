@@ -54,7 +54,7 @@ import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest
  *
  *    aws::secret secret
  *        name: "secret-example"
- *        description: secret-example-description-updated"
+ *        description: "secret-example-description-updated"
  *        force-delete-without-recovery: true
  *        kms-key: $(aws::kms-key secret-kms-key-example)
  *        secret-string: "secret-string-example"
