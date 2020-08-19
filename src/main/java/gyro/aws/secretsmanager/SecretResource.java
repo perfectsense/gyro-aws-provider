@@ -331,20 +331,19 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     @Override
     public boolean refresh() {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
+        DescribeSecretResponse response = null;
 
         try {
-            DescribeSecretResponse response = client.describeSecret(r -> r.secretId(getArn()));
-
-            if (response == null) {
-                return false;
-            }
-
-            copyFrom(response);
+            response = client.describeSecret(r -> r.secretId(getArn()));
         } catch (ResourceNotFoundException ex) {
             // No Resource found
+        }
+
+        if (response == null) {
             return false;
         }
 
+        copyFrom(response);
         return true;
     }
 
