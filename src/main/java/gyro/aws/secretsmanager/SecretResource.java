@@ -352,16 +352,15 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     public void create(GyroUI ui, State state) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        CreateSecretRequest request = CreateSecretRequest.builder()
-            .description(getDescription())
+        CreateSecretResponse response = client.createSecret(r ->
+            r.description(getDescription())
             .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
             .name(getName())
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
             .secretString(getSecretString())
             .tags(convertTags(getTags()))
-            .build();
+        );
 
-        CreateSecretResponse response = client.createSecret(request);
         DescribeSecretResponse secret = null;
 
         try {
