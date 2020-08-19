@@ -36,7 +36,7 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretListEntry;
  *
  * .. code-block:: gyro
  *
- * secrets: $(external-query aws::secret {})
+ *    secrets: $(external-query aws::secret {})
  */
 @Type("secret")
 public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecretResponse, SecretResource> {

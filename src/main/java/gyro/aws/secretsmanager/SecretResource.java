@@ -52,21 +52,16 @@ import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest
  *
  * .. code-block:: gyro
  *
- *     aws::secret secret
- *         name: "secret-example"
- *         description: secret-example-description-updated"
- *         force-delete-without-recovery: true
- *         kms-key: $(aws::kms-key secret-kms-key-example)
- *         secret-string: "secret-string-example"
- *         tags: {
- *             "secret-example-tag" : "secret-example-tag-value"
- *         }
- *     end
- *
- *     aws::kms-key secret-kms-key-example
- *         aliases: ["alias/secret1", "alias/secret2"]
- *         description: "secret kms key example description"
- *     end
+ *    aws::secret secret
+ *        name: "secret-example"
+ *        description: secret-example-description-updated"
+ *        force-delete-without-recovery: true
+ *        kms-key: $(aws::kms-key secret-kms-key-example)
+ *        secret-string: "secret-string-example"
+ *        tags: {
+ *            "secret-example-tag" : "secret-example-tag-value"
+ *        }
+ *    end
  */
 @Type("secret")
 public class SecretResource extends AwsResource implements Copyable<DescribeSecretResponse> {
@@ -118,8 +113,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The binary data that you want to encrypt and store in the new version of the secret. See `Secret Binary Info
-     * <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretBinary/>`_.
+     * The data that you want to encrypt and store in the new version of the secret.
      */
     @Updatable
     public String getSecretBinary() {
@@ -131,8 +125,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The updated text data that you want to encrypt and store in this new version of the secret. See `Secret String
-     * Info <https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_UpdateSecret.html#SecretsManager-UpdateSecret-request-SecretString/>`_.
+     * The updated text data that you want to encrypt and store in this new version of the secret.
      */
     @Updatable
     public String getSecretString() {
@@ -169,7 +162,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The date that the secret is scheduled for deletion and specifies the date.
+     * The deletion date of the secret.
      */
     @Output
     public String getDeletedDate() {
@@ -181,7 +174,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * Enable the secret to be deleted without any recovery window.
+     *  When enabled, lets the secret be deleted without any recovery window.
      */
     @ConflictsWith("recovery-window-in-days")
     public Boolean getForceDeleteWithoutRecovery() {
@@ -193,7 +186,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     * The most recent date that this secret was accessed.
+     * The most recent date and time that this secret was accessed.
      */
     @Output
     public String getLastAccessedDate() {
