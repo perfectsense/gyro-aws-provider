@@ -37,11 +37,9 @@ import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.DescribeSecretResponse;
 import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
-import software.amazon.awssdk.services.secretsmanager.model.RotationRulesType;
 import software.amazon.awssdk.services.secretsmanager.model.Tag;
 import software.amazon.awssdk.services.secretsmanager.model.TagResourceRequest;
 import software.amazon.awssdk.services.secretsmanager.model.UntagResourceRequest;
@@ -91,7 +89,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     private String owningService;
     private Boolean rotationEnabled;
     private String rotationLambdaARN;
-    private RotationRulesType rotationRules;
+    private SecretRotationRulesType secretRotationRulesType;
     private String versionId;
     private Map<String, List<String>> versionIdsToStages;
 
@@ -295,12 +293,12 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
      * The structure that contains the rotation configuration for the secret.
      */
     @Output
-    public RotationRulesType getRotationRules() {
-        return rotationRules;
+    public SecretRotationRulesType getSecretRotationRulesType() {
+        return secretRotationRulesType;
     }
 
-    public void setRotationRules(RotationRulesType rotationRules) {
-        this.rotationRules = rotationRules;
+    public void setSecretRotationRulesType(SecretRotationRulesType secretRotationRulesType) {
+        this.secretRotationRulesType = secretRotationRulesType;
     }
 
     /**
@@ -444,7 +442,15 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setOwningService(model.owningService());
         setRotationEnabled(model.rotationEnabled());
         setRotationLambdaARN(model.rotationLambdaARN());
-        setRotationRules(model.rotationRules());
+
+        if (model.rotationRules() != null) {
+            SecretRotationRulesType secretRotationRulesType = newSubresource(SecretRotationRulesType.class);
+            secretRotationRulesType.copyFrom(model.rotationRules());
+            setSecretRotationRulesType(secretRotationRulesType);
+        } else {
+            setSecretRotationRulesType(null);
+        }
+
         setTags(model.tags().stream().collect(Collectors.toMap(Tag::key, Tag::value)));
         setVersionIdsToStages(model.versionIdsToStages());
     }
