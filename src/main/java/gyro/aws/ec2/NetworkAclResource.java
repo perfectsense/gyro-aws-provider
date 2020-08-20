@@ -129,6 +129,8 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     public void copyFrom(NetworkAcl networkAcl) {
         setId(networkAcl.networkAclId());
 
+        getEgressRule().clear();
+        getIngressRule().clear();
         for (NetworkAclEntry e: networkAcl.entries()) {
 
             if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
