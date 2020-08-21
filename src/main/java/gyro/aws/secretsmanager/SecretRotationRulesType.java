@@ -44,6 +44,6 @@ public class SecretRotationRulesType extends Diffable implements Copyable<Rotati
 
     @Override
     public String primaryKey() {
-        return "rotation rules type";
+        return "";
     }
 }
