@@ -423,7 +423,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setArn(model.arn());
         setDeletedDate(model.deletedDate() != null ? model.deletedDate().toString() : null);
         setDescription(model.description());
-        setKmsKey(findById(KmsKeyResource.class, model.kmsKeyId()));
+        setKmsKey(findById(KmsKeyResource.class, model.kmsKeyId()) != null
+            ? findById(KmsKeyResource.class, model.kmsKeyId())
             : null);
         setLastAccessedDate(model.lastAccessedDate() != null ? model.lastAccessedDate().toString() : null);
         setLastChangedDate(model.lastAccessedDate() != null ? model.lastChangedDate().toString() : null);
