@@ -362,12 +362,14 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        client.updateSecret(r -> r.secretId(getArn())
-            .description(getDescription())
-            .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
-            .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
-            .secretString(getSecretString())
-            .build());
+        if (changedFieldNames.size() >= 2) {
+            client.updateSecret(r -> r.secretId(getArn())
+                .description(getDescription())
+                .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
+                .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
+                .secretString(getSecretString())
+                .build());
+        }
 
         if (changedFieldNames.contains("tags")) {
             SecretResource oldResource = (SecretResource) current;
