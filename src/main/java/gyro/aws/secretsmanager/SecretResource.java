@@ -344,8 +344,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     public void create(GyroUI ui, State state) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        CreateSecretResponse response = client.createSecret(r ->
-            r.description(getDescription())
+        CreateSecretResponse response = client.createSecret(r -> r
+            .description(getDescription())
             .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
             .name(getName())
             .secretBinary(getSecretBinary() != null ? SdkBytes.fromUtf8String(getSecretBinary()) : null)
@@ -353,14 +353,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
             .tags(convertTags(getTags()))
         );
 
-        DescribeSecretResponse secret = null;
-
-        try {
-            secret = client.describeSecret(r -> r.secretId(response.arn()));
-        } catch (ResourceNotFoundException ex) {
-            // No Resource found
-        }
-        copyFrom(secret);
+        setArn(response.arn());
+        refresh();
     }
 
     @Override
@@ -430,6 +424,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         setDeletedDate(model.deletedDate() != null ? model.deletedDate().toString() : null);
         setDescription(model.description());
         setKmsKey(findById(KmsKeyResource.class, model.kmsKeyId()));
+            : null);
         setLastAccessedDate(model.lastAccessedDate() != null ? model.lastAccessedDate().toString() : null);
         setLastChangedDate(model.lastAccessedDate() != null ? model.lastChangedDate().toString() : null);
         setLastRotatedDate(model.lastRotatedDate() != null ? model.lastRotatedDate().toString() : null);
