@@ -174,7 +174,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
     }
 
     /**
-     *  When enabled, lets the secret be deleted without any recovery window.
+     * When enabled, lets the secret be deleted without any recovery window.
      */
     @ConflictsWith("recovery-window-in-days")
     public Boolean getForceDeleteWithoutRecovery() {
@@ -284,6 +284,8 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
 
     /**
      * The structure that contains the rotation configuration for the secret.
+     *
+     * @subresource gyro.aws.secretsmanager.SecretRotationRulesType
      */
     @Output
     public SecretRotationRulesType getSecretRotationRulesType() {
