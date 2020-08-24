@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -20,7 +19,7 @@ import gyro.core.validation.CollectionMax;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ecs.EcsClient;
-import software.amazon.awssdk.services.ecs.model.DescribeTasksResponse;
+import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
 import software.amazon.awssdk.services.ecs.model.LaunchType;
 import software.amazon.awssdk.services.ecs.model.PropagateTags;
 import software.amazon.awssdk.services.ecs.model.ResourceNotFoundException;
@@ -178,6 +177,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
         if (placementStrategy == null) {
             placementStrategy = new ArrayList<>();
         }
+
         return placementStrategy;
     }
 
@@ -272,14 +272,13 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     public boolean refresh() {
         EcsClient client = createClient(EcsClient.class);
 
-        DescribeTasksResponse describeTasksResponse = client.describeTasks(r -> r.tasks(getArn())
-            .cluster(getCluster().getArn()));
+        Task task = getTask(client);
 
-        if (describeTasksResponse.tasks().isEmpty()) {
+        if (task == null) {
             return false;
         }
 
-        copyFrom(describeTasksResponse.tasks().get(0));
+        copyFrom(task);
 
         return true;
     }
@@ -364,7 +363,21 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
             client.stopTask(r -> r.cluster(getCluster().getClusterName()).task(getArn()));
 
         } catch (ResourceNotFoundException ex) {
-            throw new GyroException(String.format("Task %s deleted or stopped.", getArn()));
+            // ignore
         }
+    }
+
+    public Task getTask(EcsClient client) {
+        Task task = null;
+
+        try {
+            List<Task> tasks = client.describeTasks(r -> r.tasks(getArn()).cluster(getCluster().getClusterName()))
+                .tasks();
+
+        } catch (ClusterNotFoundException ex) {
+            // ignore
+        }
+
+        return task;
     }
 }
