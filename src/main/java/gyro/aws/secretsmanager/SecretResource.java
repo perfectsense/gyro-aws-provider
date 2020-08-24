@@ -362,7 +362,7 @@ public class SecretResource extends AwsResource implements Copyable<DescribeSecr
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         SecretsManagerClient client = createClient(SecretsManagerClient.class);
 
-        if (changedFieldNames.size() >= 2) {
+        if (changedFieldNames.size() >= 1 || !changedFieldNames.contains("tags")) {
             client.updateSecret(r -> r.secretId(getArn())
                 .description(getDescription())
                 .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
