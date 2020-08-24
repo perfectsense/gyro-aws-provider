@@ -1,5 +1,7 @@
 package gyro.aws.ecs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +73,10 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
      */
     @ConflictsWith("launch-type")
     public List<EcsCapacityProviderStrategyItem> getCapacityProviderStrategyItem() {
+        if (capacityProviderStrategyItem == null) {
+            capacityProviderStrategyItem = new ArrayList<>();
+        }
+
         return capacityProviderStrategyItem;
     }
 
@@ -153,6 +159,10 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
      */
     @CollectionMax(10)
     public List<EcsPlacementConstraint> getPlacementConstraints() {
+        if (placementConstraints == null) {
+            placementConstraints = new ArrayList<>();
+        }
+
         return placementConstraints;
     }
 
@@ -165,6 +175,9 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
      */
     @CollectionMax(5)
     public List<EcsPlacementStrategy> getPlacementStrategy() {
+        if (placementStrategy == null) {
+            placementStrategy = new ArrayList<>();
+        }
         return placementStrategy;
     }
 
@@ -173,7 +186,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The option to propagate the tags from the task definition or the service to the tasks in the service.
+     * The option to propagate the tags from the task definition or the service to the tasks in the service. Valid values are ``TASK_DEFINITION`` or ``SERVICE``.
      */
     public PropagateTags getPropagateTags() {
         return propagateTags;
@@ -209,6 +222,10 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
      * The tags to apply to the task.
      */
     public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
         return tags;
     }
 
@@ -227,6 +244,9 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
         this.taskDefinition = taskDefinition;
     }
 
+    /**
+     * The Amazon Resource Number (ARN) of the task.
+     */
     @Output
     @Id
     public String getArn() {
