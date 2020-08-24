@@ -17,7 +17,6 @@
 package gyro.aws.efs;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -36,9 +35,9 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.efs.EfsClient;
 import software.amazon.awssdk.services.efs.model.AccessPointDescription;
+import software.amazon.awssdk.services.efs.model.AccessPointNotFoundException;
 import software.amazon.awssdk.services.efs.model.CreateAccessPointRequest;
 import software.amazon.awssdk.services.efs.model.CreateAccessPointResponse;
-import software.amazon.awssdk.services.efs.model.EfsException;
 import software.amazon.awssdk.services.efs.model.LifeCycleState;
 import software.amazon.awssdk.services.efs.model.Tag;
 
@@ -88,6 +87,8 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
 
     /**
      * The operating system user and group applied to all file system requests made using the access point.
+     *
+     * @subresource gyro.aws.efs.EfsPosixUser
      */
     public EfsPosixUser getPosixUser() {
         return posixUser;
@@ -99,6 +100,8 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
 
     /**
      * The directory on the file system that the access point exposes as its root to NFS clients using the access point.
+     *
+     * @subresource gyro.aws.efs.EfsRootDirectory
      */
     public EfsRootDirectory getRootDirectory() {
         return rootDirectory;
@@ -167,14 +170,13 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
     public boolean refresh() {
         EfsClient client = createClient(EfsClient.class);
 
-        List<AccessPointDescription> accessPointDescriptions = client.describeAccessPoints(r -> r.accessPointId(getId()))
-            .accessPoints();
+        AccessPointDescription accessPoint = getAccessPoint(client);
 
-        if (accessPointDescriptions.isEmpty()) {
+        if (accessPoint == null) {
             return false;
         }
 
-        copyFrom(accessPointDescriptions.get(0));
+        copyFrom(accessPoint);
 
         return true;
     }
@@ -204,9 +206,8 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {
-                List<AccessPointDescription> accessPoints = client.describeAccessPoints(r -> r.accessPointId(getId()))
-                    .accessPoints();
-                return (!accessPoints.isEmpty() && accessPoints.get(0).lifeCycleState()
+                AccessPointDescription accessPointDescription = getAccessPoint(client);
+                return (accessPointDescription != null && accessPointDescription.lifeCycleState()
                     .equals(LifeCycleState.AVAILABLE));
             });
 
@@ -215,7 +216,16 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        EfsClient client = createClient(EfsClient.class);
+        AccessPointResource currentResource = (AccessPointResource) current;
 
+        if (!currentResource.getTags().isEmpty()) {
+            client.untagResource(r -> r.resourceId(getId())
+                .tagKeys(currentResource.getTags().keySet()));
+        }
+
+        client.tagResource(r -> r.resourceId(getId()).tags(getTags().entrySet().stream()
+            .map(t -> Tag.builder().key(t.getKey()).value(t.getValue()).build()).collect(Collectors.toList())));
     }
 
     @Override
@@ -228,22 +238,21 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {
-                try {
-                    List<AccessPointDescription> accessPoints = client.describeAccessPoints(r -> r.accessPointId(getId()))
-                        .accessPoints();
-
-                    return (accessPoints.isEmpty() || accessPoints.get(0)
-                        .lifeCycleState()
-                        .equals(LifeCycleState.DELETED));
-
-                } catch (EfsException ex) {
-                    if (ex.awsErrorDetails().errorCode().equals("AccessPointNotFound")) {
-                        return true;
-
-                    } else {
-                        throw ex;
-                    }
-                }
+                AccessPointDescription accessPoint = getAccessPoint(client);
+                return (accessPoint == null || accessPoint.lifeCycleState().equals(LifeCycleState.DELETED));
             });
+    }
+
+    private AccessPointDescription getAccessPoint(EfsClient client) {
+        AccessPointDescription accessPoint = null;
+
+        try {
+            accessPoint = client.describeAccessPoints(r -> r.accessPointId(getId())).accessPoints().get(0);
+
+        } catch (AccessPointNotFoundException ex) {
+            // ignore
+        }
+
+        return accessPoint;
     }
 }
