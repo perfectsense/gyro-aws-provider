@@ -16,6 +16,7 @@
 
 package gyro.aws.efs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.efs.EfsClient;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
+import software.amazon.awssdk.services.efs.model.FileSystemNotFoundException;
 
 /**
  * Query file system.
@@ -57,6 +59,15 @@ public class FileSystemFinder extends AwsFinder<EfsClient, FileSystemDescription
 
     @Override
     protected List<FileSystemDescription> findAws(EfsClient client, Map<String, String> filters) {
-        return client.describeFileSystems(r -> r.fileSystemId(filters.get("id"))).fileSystems();
+        List<FileSystemDescription> fileSystems = new ArrayList<>();
+
+        try {
+            fileSystems = client.describeFileSystems(r -> r.fileSystemId(filters.get("id"))).fileSystems();
+
+        } catch (FileSystemNotFoundException ex) {
+            // ignore
+        }
+
+        return fileSystems;
     }
 }

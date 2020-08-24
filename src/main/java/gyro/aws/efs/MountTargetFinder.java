@@ -16,6 +16,7 @@
 
 package gyro.aws.efs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.efs.EfsClient;
 import software.amazon.awssdk.services.efs.model.DescribeMountTargetsRequest;
 import software.amazon.awssdk.services.efs.model.MountTargetDescription;
+import software.amazon.awssdk.services.efs.model.MountTargetNotFoundException;
 
 /**
  * Query point target.
@@ -73,6 +75,7 @@ public class MountTargetFinder
     protected List<MountTargetDescription> findAws(
         EfsClient client, Map<String, String> filters) {
         DescribeMountTargetsRequest.Builder builder = DescribeMountTargetsRequest.builder();
+        List<MountTargetDescription> mountTargets = new ArrayList<>();
 
         if ((!filters.containsKey("id") && !filters.containsKey("file-system-id")) ||
             (filters.containsKey("id") && filters.containsKey("file-system-id"))) {
@@ -87,6 +90,13 @@ public class MountTargetFinder
             builder = builder.fileSystemId(filters.get("file-system-id"));
         }
 
-        return client.describeMountTargets(builder.build()).mountTargets();
+        try {
+            mountTargets = client.describeMountTargets(builder.build()).mountTargets();
+
+        } catch (MountTargetNotFoundException ex) {
+            // ignore
+        }
+
+        return mountTargets;
     }
 }

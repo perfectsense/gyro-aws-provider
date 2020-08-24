@@ -16,6 +16,7 @@
 
 package gyro.aws.efs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,9 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.efs.EfsClient;
 import software.amazon.awssdk.services.efs.model.AccessPointDescription;
+import software.amazon.awssdk.services.efs.model.AccessPointNotFoundException;
 import software.amazon.awssdk.services.efs.model.DescribeAccessPointsRequest;
+import software.amazon.awssdk.services.efs.model.FileSystemNotFoundException;
 
 /**
  * Query access point.
@@ -71,6 +74,7 @@ public class AccessPointFinder extends AwsFinder<EfsClient, AccessPointDescripti
     @Override
     protected List<AccessPointDescription> findAws(EfsClient client, Map<String, String> filters) {
         DescribeAccessPointsRequest.Builder builder = DescribeAccessPointsRequest.builder();
+        List<AccessPointDescription> accessPoints = new ArrayList<>();
 
         if ((!filters.containsKey("id") && !filters.containsKey("file-system-id")) ||
             (filters.containsKey("id") && filters.containsKey("file-system-id"))) {
@@ -85,6 +89,13 @@ public class AccessPointFinder extends AwsFinder<EfsClient, AccessPointDescripti
             builder = builder.fileSystemId(filters.get("file-system-id"));
         }
 
-        return client.describeAccessPoints(builder.build()).accessPoints();
+        try {
+            accessPoints = client.describeAccessPoints(builder.build()).accessPoints();
+
+        } catch (AccessPointNotFoundException | FileSystemNotFoundException ex) {
+            // ignore
+        }
+
+        return accessPoints;
     }
 }
