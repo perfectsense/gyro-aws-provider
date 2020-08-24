@@ -32,7 +32,7 @@ import software.amazon.awssdk.services.efs.model.FileSystemDescription;
  *
  * .. code-block:: gyro
  *
- *    access-point: $(external-query aws::access-point { file-system-id: 'fs-217883a3'})
+ *    file-system: $(external-query aws::file-system { id: 'fs-217883a3'})
  */
 @Type("file-system")
 public class FileSystemFinder extends AwsFinder<EfsClient, FileSystemDescription, FileSystemResource> {

@@ -33,7 +33,7 @@ import software.amazon.awssdk.services.efs.model.DescribeAccessPointsRequest;
  *
  * .. code-block:: gyro
  *
- *    file-system: $(external-query aws::file-system { id: 'fs-217883a3'})
+ *    access-point: $(external-query aws::access-point { file-system-id: 'fs-217883a3'})
  */
 @Type("access-point")
 public class AccessPointFinder extends AwsFinder<EfsClient, AccessPointDescription, AccessPointResource> {
