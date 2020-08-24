@@ -58,12 +58,25 @@ public class EcsLoadBalancer extends Diffable implements Copyable<LoadBalancer> 
 
     @Override
     public String primaryKey() {
-        return String.format(
-            "Ecs Load Balancer - Name: %s, Target Group: %s, Container: %s, Port: %s",
-            getLoadBalancer(),
-            getTargetGroup().getArn(),
-            getContainer(),
-            getContainerPort());
+        StringBuilder sb = new StringBuilder("Ecs Load Balancer - ");
+
+        if (getLoadBalancer() != null) {
+            sb.append("Name: ").append(getLoadBalancer()).append(" ");
+        }
+
+        if (getTargetGroup() != null) {
+            sb.append("Target Group: ").append(getTargetGroup().getArn()).append(" ");
+        }
+
+        if (getContainer() != null) {
+            sb.append("Container: ").append(getContainer()).append(" ");
+        }
+
+        if (getContainerPort() != null) {
+            sb.append("Port: ").append(getContainerPort());
+        }
+
+        return sb.toString();
     }
 
     @Override

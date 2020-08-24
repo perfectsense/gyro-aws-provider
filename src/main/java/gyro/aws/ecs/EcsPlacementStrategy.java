@@ -36,7 +36,15 @@ public class EcsPlacementStrategy extends Diffable implements Copyable<Placement
 
     @Override
     public String primaryKey() {
-        return String.format("Field: %s, Type: %s", getField(), getType());
+        StringBuilder sb = new StringBuilder("Ecs Placement Strategy - ");
+
+        if (getField() != null) {
+            sb.append("Field: ").append(getField()).append(" ");
+        }
+
+        sb.append("Type: ").append(getType());
+
+        return sb.toString();
     }
 
     @Override
