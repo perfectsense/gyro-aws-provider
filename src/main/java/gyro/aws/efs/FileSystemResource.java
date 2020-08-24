@@ -123,6 +123,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
     /**
      * The performance mode of the file system.
+     * The performance mode of the file system. Valid values are ``GENERAL_PURPOSE`` or `MAX_IO``.
      */
     public PerformanceMode getPerformanceMode() {
         return performanceMode;
@@ -146,7 +147,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
     }
 
     /**
-     * The throughput mode for the file system to be created.
+     * The throughput mode for the file system to be created. Valid values are ``BURSTING`` or ``PROVISIONED``.
      */
     @Updatable
     public ThroughputMode getThroughputMode() {
@@ -159,6 +160,8 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
     /**
      * The backup policy for the file system.
+     *
+     * @subresource gyro.aws.efs.EfsBackupPolicy
      */
     @Updatable
     public EfsBackupPolicy getBackupPolicy() {
@@ -184,6 +187,8 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
     /**
      * The LifeCycle policy for the file system.
+     *
+     * @subresource gyro.aws.efs.EfsLifecyclePolicy
      */
     @Updatable
     public List<EfsLifecyclePolicy> getLifecyclePolicy() {

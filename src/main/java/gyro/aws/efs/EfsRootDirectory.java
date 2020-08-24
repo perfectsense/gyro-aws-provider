@@ -27,7 +27,7 @@ public class EfsRootDirectory extends Diffable implements Copyable<RootDirectory
     private EfsCreationInfo creationInfo;
 
     /**
-     * The path on the EFS file system to expose as the root directory to NFS clients using the access point.
+     * The path on the EFS file system to expose as the root directory to NFS clients using the access point. (Required)
      */
     @Required
     public String getPath() {
@@ -39,7 +39,9 @@ public class EfsRootDirectory extends Diffable implements Copyable<RootDirectory
     }
 
     /**
-     * The POSIX IDs and permissions to apply to the access point's RootDirectory
+     * The POSIX IDs and permissions to apply to the access point's RootDirectory.
+     *
+     * @subresource gyro.aws.efs.EfsCreationInfo
      */
     public EfsCreationInfo getCreationInfo() {
         return creationInfo;
