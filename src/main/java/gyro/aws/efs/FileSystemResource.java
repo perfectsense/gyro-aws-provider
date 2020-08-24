@@ -50,6 +50,7 @@ import software.amazon.awssdk.services.efs.model.EfsException;
 import software.amazon.awssdk.services.efs.model.FileSystemDescription;
 import software.amazon.awssdk.services.efs.model.LifeCycleState;
 import software.amazon.awssdk.services.efs.model.PerformanceMode;
+import software.amazon.awssdk.services.efs.model.PolicyNotFoundException;
 import software.amazon.awssdk.services.efs.model.Tag;
 import software.amazon.awssdk.services.efs.model.ThroughputMode;
 import software.amazon.awssdk.services.efs.model.UpdateFileSystemRequest;
@@ -122,7 +123,6 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
     }
 
     /**
-     * The performance mode of the file system.
      * The performance mode of the file system. Valid values are ``GENERAL_PURPOSE`` or `MAX_IO``.
      */
     public PerformanceMode getPerformanceMode() {
@@ -242,11 +242,17 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
         setProvisionedThroughput(model.provisionedThroughputInMibps());
         setThroughputMode(model.throughputMode());
         setId(model.fileSystemId());
-        setPolicy(client.describeFileSystemPolicy(r -> r.fileSystemId(getId())).policy());
+
+        try {
+            setPolicy(client.describeFileSystemPolicy(r -> r.fileSystemId(getId())).policy());
+
+        } catch (PolicyNotFoundException ex) {
+            // ignore
+        }
 
         EfsBackupPolicy efsBackupPolicy = newSubresource(EfsBackupPolicy.class);
         efsBackupPolicy.copyFrom(client.describeBackupPolicy(r -> r.fileSystemId(getId())).backupPolicy());
-        setBackupPolicy(getBackupPolicy());
+        setBackupPolicy(efsBackupPolicy);
 
         setLifecyclePolicy(client.describeLifecycleConfiguration(r -> r.fileSystemId(getId()))
             .lifecyclePolicies().stream().map(p -> {

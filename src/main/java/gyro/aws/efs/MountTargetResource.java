@@ -178,6 +178,8 @@ public class MountTargetResource extends AwsResource implements Copyable<MountTa
                 .map(SecurityGroupResource::getId)
                 .collect(Collectors.toList())));
 
+        setId(mountTarget.mountTargetId());
+
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
