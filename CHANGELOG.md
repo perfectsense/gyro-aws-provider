@@ -1,4 +1,9 @@
-## 0.99.3 (Unreleased)
+## 0.99.3 (August 25th, 2020)
+
+ENHANCEMENTS:
+
+* [294](https://github.com/perfectsense/gyro-aws-provider/issues/294): Add `exists(String file)` and `copy(String source, String dest)` methods to FileBackend.
+* [299](https://github.com/perfectsense/gyro-aws-provider/issues/299): Update SNS Subscription resource.
 
 ## 0.99.2 (August 5th, 2020)
 
