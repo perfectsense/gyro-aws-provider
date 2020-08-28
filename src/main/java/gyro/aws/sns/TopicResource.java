@@ -16,6 +16,13 @@
 
 package gyro.aws.sns;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
@@ -23,24 +30,22 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Regex;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 import software.amazon.awssdk.services.sns.model.GetTopicAttributesResponse;
+import software.amazon.awssdk.services.sns.model.Tag;
+import software.amazon.awssdk.services.sns.model.TagResourceRequest;
 import software.amazon.awssdk.services.sns.model.Topic;
+import software.amazon.awssdk.services.sns.model.UntagResourceRequest;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a SNS topic.
@@ -59,15 +64,20 @@ import java.util.Set;
 @Type("sns-topic")
 public class TopicResource extends AwsResource implements Copyable<Topic> {
 
-    private String arn;
     private String name;
     private String deliveryPolicy;
     private String policy;
     private String displayName;
+    private Map<String, String> tags;
+
+    // Output
+    private String arn;
 
     /**
-     * The name of the topic. (Required)
+     * The name of the topic. May contain alphanumeric characters, hyphens and underscores and it maybe up to 256 characters long. (Required)
      */
+    @Required
+    @Regex(value = "[a-zA-Z0-9_.-]{1,256}", message = "1-256 alphanumeric characters, hyphens and underscores.")
     public String getName() {
         return name;
     }
@@ -77,7 +87,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
-     * The delivery retry policy. Can be json file or json blob.
+     * The delivery retry policy for the sns topic. May be json file or json blob.
      */
     @Updatable
     public String getDeliveryPolicy() {
@@ -91,7 +101,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
-     * The access policy. Can be json file or json blob.
+     * The access policy for the sns topic. May be json file or json blob.
      */
     @Updatable
     public String getPolicy() {
@@ -105,9 +115,10 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
-     * The sns display name.
+     * The sns topic display name. May contain alphanumeric characters, hyphens and underscores and it maybe up to 100 characters long.
      */
     @Updatable
+    @Regex(value = "[a-zA-Z0-9_.-]{1,100}", message = "1-100 alphanumeric characters, hyphens and underscores.")
     public String getDisplayName() {
         return displayName;
     }
@@ -117,7 +128,22 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
-     * The arn of the sns.
+     * The tags for the sns topic.
+     */
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
+    /**
+     * The arn of the sns topic.
      */
     @Output
     @Id
@@ -143,13 +169,17 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
 
         setArn(attributesResponse.attributes().get("TopicArn"));
         setName(getArn().split(":")[getArn().split(":").length - 1]);
+
+        getTags().clear();
+        client.listTagsForResource(r -> r.resourceArn(getArn())).tags().forEach(t -> getTags().put(t.key(), t.value()));
+
     }
 
     @Override
     public boolean refresh() {
         SnsClient client = createClient(SnsClient.class);
 
-        Topic topic = client.listTopicsPaginator().topics().stream().findFirst().filter(o -> o.topicArn().equals(getArn())).orElse(null);
+        Topic topic = client.listTopicsPaginator().topics().stream().filter(o -> o.topicArn().equals(getArn())).findFirst().orElse(null);
 
         if (topic == null) {
             return false;
@@ -165,7 +195,12 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
         SnsClient client = createClient(SnsClient.class);
 
         CreateTopicResponse response = client.createTopic(
-            r -> r.attributes(getAttributes()).name(getName())
+            r -> r.attributes(getAttributes())
+                .name(getName())
+                .tags(getTags().entrySet()
+                    .stream()
+                    .map(e -> Tag.builder().key(e.getKey()).value(e.getValue()).build())
+                    .collect(Collectors.toList()))
         );
 
         setArn(response.topicArn());
@@ -199,6 +234,25 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
             client.setTopicAttributes(r -> r.attributeName("DeliveryPolicy")
                 .attributeValue(getDeliveryPolicy())
                 .topicArn(getArn()));
+        }
+
+        if (changedFieldNames.contains("tags")) {
+            TopicResource currentResource = (TopicResource) current;
+
+            if (!currentResource.getTags().isEmpty()) {
+                client.untagResource(UntagResourceRequest.builder()
+                    .resourceArn(getArn())
+                    .tagKeys(currentResource.getTags().keySet())
+                    .build());
+            }
+
+            client.tagResource(TagResourceRequest.builder()
+                .resourceArn(getArn())
+                .tags(getTags().entrySet()
+                    .stream()
+                    .map(t -> Tag.builder().key(t.getKey()).value(t.getValue()).build())
+                    .collect(Collectors.toList()))
+                .build());
         }
     }
 

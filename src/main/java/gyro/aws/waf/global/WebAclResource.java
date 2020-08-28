@@ -19,6 +19,7 @@ package gyro.aws.waf.global;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.waf.WafClient;
@@ -131,7 +132,7 @@ public class WebAclResource extends gyro.aws.waf.common.WebAclResource {
     }
 
     @Override
-    protected void doUpdate(UpdateWebAclRequest.Builder builder) {
+    protected void doUpdate(UpdateWebAclRequest.Builder builder, Resource current, Set<String> changedProperties) {
         WafClient client = getGlobalClient();
 
         client.updateWebACL(builder.changeToken(client.getChangeToken().changeToken()).build());

@@ -82,7 +82,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
     @Updatable
     public Map<String, String> getCustomHeaders() {
         if (customHeaders == null) {
-            return new HashMap<>();
+            customHeaders = new HashMap<>();
         }
 
         return customHeaders;
@@ -130,6 +130,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
         setDomainName(origin.domainName());
         setOriginPath(origin.originPath());
 
+        getCustomHeaders().clear();
         if (origin.customHeaders().quantity() > 0) {
             for (OriginCustomHeader header : origin.customHeaders().items()) {
                 getCustomHeaders().put(header.headerName(), header.headerValue());

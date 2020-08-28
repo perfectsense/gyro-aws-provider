@@ -30,6 +30,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.core.SdkBytes;
@@ -117,6 +118,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private InstanceProfileResource instanceProfile;
     private LaunchTemplateSpecificationResource launchTemplate;
     private String privateIpAddress;
+    private String status;
 
     // -- Readonly
 
@@ -381,6 +383,19 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
+     * The state of the instance. Valid values are ``Running`` or ``Stopped``
+     */
+    @ValidStrings({"running", "stopped"})
+    @Updatable
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    /**
      * Instance ID of this instance.
      */
     @Id
@@ -605,6 +620,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             setPrivateIpAddress(instance.privateIpAddress());
             setInstanceState(instance.state().nameAsString());
             setInstanceLaunchDate(Date.from(instance.launchTime()));
+            setStatus("running");
         }
     }
 
@@ -645,6 +661,29 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 r -> r.instanceId(getId())
                     .groups(securityGroupIds)
             );
+        }
+
+        if (changedProperties.contains("status")) {
+            if ("stopped".equals(getStatus())) {
+                client.stopInstances(
+                    r -> r.instanceIds(getId())
+                        .force(true)
+                );
+
+                Wait.atMost(3, TimeUnit.MINUTES)
+                    .checkEvery(10, TimeUnit.SECONDS)
+                    .prompt(false)
+                    .until(() -> isInstanceStopped(client));
+            } else {
+                client.startInstances(
+                    r -> r.instanceIds(getId())
+                );
+
+                Wait.atMost(3, TimeUnit.MINUTES)
+                    .checkEvery(10, TimeUnit.SECONDS)
+                    .prompt(false)
+                    .until(() -> isInstanceRunning(client));
+            }
         }
 
         boolean instanceStopped = isInstanceStopped(client);
@@ -745,6 +784,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         );
         setUserData(attributeResponse.userData().value() == null
             ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
+
+        setStatus("running".equals(instance.state().nameAsString()) ? "running" : "stopped");
 
         refreshTags();
     }

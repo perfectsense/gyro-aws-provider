@@ -103,7 +103,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
 
     protected abstract CreateWebAclResponse doCreate(CreateWebAclRequest.Builder builder);
 
-    protected abstract void doUpdate(UpdateWebAclRequest.Builder builder);
+    protected abstract void doUpdate(UpdateWebAclRequest.Builder builder, Resource current, Set<String> changedProperties);
 
     @Override
     public void copyFrom(WebACL webAcl) {
@@ -157,7 +157,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
             .webACLId(getWebAclId())
             .defaultAction(getDefaultAction().toWafAction());
 
-        doUpdate(builder);
+        doUpdate(builder, current, changedProperties);
     }
 
     protected void validateActivatedRule() {

@@ -1,4 +1,25 @@
-## 0.99.2 (Unreleased)
+## 0.99.4 (Unreleased)
+
+## 0.99.3 (August 25th, 2020)
+
+ENHANCEMENTS:
+
+* [294](https://github.com/perfectsense/gyro-aws-provider/issues/294): Add `exists(String file)` and `copy(String source, String dest)` methods to FileBackend.
+* [299](https://github.com/perfectsense/gyro-aws-provider/issues/299): Update SNS Subscription resource.
+
+## 0.99.2 (August 5th, 2020)
+
+ENHANCEMENTS:
+
+* [270](https://github.com/perfectsense/gyro-aws-provider/issues/270): Add ability to associate a Regional WAF to an ALB.
+
+ISSUES FIXED:
+
+* [265](https://github.com/perfectsense/gyro-aws-provider/issues/265): Allow for Instance type changes of non-autoscale instances.
+* [268](https://github.com/perfectsense/gyro-aws-provider/issues/268): Fix S3 replication config error.
+* [272](https://github.com/perfectsense/gyro-aws-provider/issues/272): Fix SNS Topic refresh error.
+* [273](https://github.com/perfectsense/gyro-aws-provider/issues/273): Fix CloudFront origin refresh error.
+* [296](https://github.com/perfectsense/gyro-aws-provider/issues/296): Fix SNS Subscription refresh error.
 
 ## 0.99.1 (May 20th, 2020)
 
@@ -20,7 +41,7 @@ ISSUES FIXED:
 
 * [191](https://github.com/perfectsense/gyro-aws-provider/issues/191): Allow inline policies for IAM Roles.
 * [195](https://github.com/perfectsense/gyro-aws-provider/issues/195): Fix needing multiple gyro up for S3 bucket with replication configuration.
- * [196](https://github.com/perfectsense/gyro-aws-provider/issues/196): Fix auto reordering of records in Route53 record sets.
+ Allow for instance type changes of non-autoscale instances* [196](https://github.com/perfectsense/gyro-aws-provider/issues/196): Fix auto reordering of records in Route53 record sets.
  * [200](https://github.com/perfectsense/gyro-aws-provider/issues/200): Allow EC2 Security groups to set rules referencing itself.
  * [210](https://github.com/perfectsense/gyro-aws-provider/issues/210): Fix NPE when refreshing EC2 Security groups.
  * [211](https://github.com/perfectsense/gyro-aws-provider/issues/211): Fix NPE when refreshing Route53 Hosted zone.
