@@ -60,6 +60,10 @@ public class S3FileBackend extends FileBackend {
     }
 
     public String getCredentials() {
+        if (ObjectUtils.isBlank(credentials)) {
+            credentials = "default";
+        }
+
         return credentials;
     }
 
@@ -135,7 +139,7 @@ public class S3FileBackend extends FileBackend {
     private S3Client client() {
         Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
             .getCredentialsByName()
-            .get(ObjectUtils.isBlank(getCredentials()) ? "aws::default" : "aws::" + getCredentials());
+            .get(String.format("aws::%s", getCredentials()));
 
         S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
 
