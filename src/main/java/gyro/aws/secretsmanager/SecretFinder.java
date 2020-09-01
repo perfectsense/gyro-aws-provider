@@ -63,14 +63,14 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
     @Override
     protected List<DescribeSecretResponse> findAws(
         SecretsManagerClient client, Map<String, String> filters) {
-        List<DescribeSecretResponse> list = new ArrayList<>();
+        List<DescribeSecretResponse> secretList = new ArrayList<>();
         try {
-            list.add(client.describeSecret(r -> r.secretId(filters.get("arn"))));
+            secretList.add(client.describeSecret(r -> r.secretId(filters.get("arn"))));
         } catch (ResourceNotFoundException ex) {
             // No resource found
         }
 
-        return list;
+        return secretList;
     }
 
     private DescribeSecretResponse convertEntry(SecretListEntry entry) {
