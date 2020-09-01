@@ -43,7 +43,6 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
 
     private String arn;
 
-
     /**
      * The Amazon Resource Name (ARN) of the secret.
      */
@@ -66,7 +65,6 @@ public class SecretFinder extends AwsFinder<SecretsManagerClient, DescribeSecret
         SecretsManagerClient client, Map<String, String> filters) {
         List<DescribeSecretResponse> list = new ArrayList<>();
         try {
-            
             list.add(client.describeSecret(r -> r.secretId(filters.get("arn"))));
         } catch (ResourceNotFoundException ex) {
             // No resource found
