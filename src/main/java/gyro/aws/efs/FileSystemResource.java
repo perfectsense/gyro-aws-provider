@@ -303,23 +303,19 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
         CreateFileSystemResponse fileSystemResponse = client.createFileSystem(builder.build());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> {
-                FileSystemDescription fileSystem = getFileSystem(client);
-                return (fileSystem != null && fileSystem.lifeCycleState().equals(LifeCycleState.AVAILABLE));
-            });
+        waitForAvailability(client);
 
         setId(fileSystemResponse.fileSystemId());
         state.save();
 
         if (getBackupPolicy() != null) {
             client.putBackupPolicy(r -> r.fileSystemId(getId()).backupPolicy(getBackupPolicy().toBackupPolicy()));
+            waitForAvailability(client);
         }
 
         if (getPolicy() != null) {
             client.putFileSystemPolicy(r -> r.fileSystemId(getId()).policy(getPolicy()));
+            waitForAvailability(client);
         }
 
         if (!getLifecyclePolicy().isEmpty()) {
@@ -327,7 +323,18 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
                 .lifecyclePolicies(getLifecyclePolicy().stream()
                     .map(EfsLifecyclePolicy::toLifecyclePolicy)
                     .collect(Collectors.toList())));
+            waitForAvailability(client);
         }
+    }
+
+    private void waitForAvailability(EfsClient client) {
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> {
+                FileSystemDescription fileSystem = getFileSystem(client);
+                return (fileSystem != null && fileSystem.lifeCycleState().equals(LifeCycleState.AVAILABLE));
+            });
     }
 
     @Override
@@ -346,20 +353,16 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
         client.updateFileSystem(builder.build());
 
-        Wait.atMost(1, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> {
-                FileSystemDescription fileSystem = getFileSystem(client);
-                return (fileSystem != null && fileSystem.lifeCycleState().equals(LifeCycleState.AVAILABLE));
-            });
+        waitForAvailability(client);
 
         if (changedFieldNames.contains("backup-policy")) {
             client.putBackupPolicy(r -> r.fileSystemId(getId()).backupPolicy(getBackupPolicy().toBackupPolicy()));
+            waitForAvailability(client);
         }
 
         if (changedFieldNames.contains("policy")) {
             client.putFileSystemPolicy(r -> r.fileSystemId(getId()).policy(getPolicy()));
+            waitForAvailability(client);
         }
 
         if (changedFieldNames.contains("lifecycle-policy")) {
@@ -367,6 +370,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
                 .lifecyclePolicies(getLifecyclePolicy().stream()
                     .map(EfsLifecyclePolicy::toLifecyclePolicy)
                     .collect(Collectors.toList())));
+            waitForAvailability(client);
         }
 
         if (changedFieldNames.contains("tags")) {
