@@ -157,9 +157,8 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
             setRootDirectory(efsRootDirectory);
         }
 
+        getTags().clear();
         if (model.hasTags()) {
-            getTags().clear();
-
             for (Tag tag : model.tags()) {
                 getTags().put(tag.key(), tag.value());
             }
