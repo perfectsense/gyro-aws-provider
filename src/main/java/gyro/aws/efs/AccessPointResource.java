@@ -17,6 +17,7 @@
 package gyro.aws.efs;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ import software.amazon.awssdk.services.efs.model.AccessPointDescription;
 import software.amazon.awssdk.services.efs.model.AccessPointNotFoundException;
 import software.amazon.awssdk.services.efs.model.CreateAccessPointRequest;
 import software.amazon.awssdk.services.efs.model.CreateAccessPointResponse;
+import software.amazon.awssdk.services.efs.model.DescribeAccessPointsResponse;
 import software.amazon.awssdk.services.efs.model.LifeCycleState;
 import software.amazon.awssdk.services.efs.model.Tag;
 
@@ -246,7 +248,15 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
         AccessPointDescription accessPoint = null;
 
         try {
-            accessPoint = client.describeAccessPoints(r -> r.accessPointId(getId())).accessPoints().get(0);
+            DescribeAccessPointsResponse response = client.describeAccessPoints(r -> r.accessPointId(getId()));
+
+            if (response.hasAccessPoints()) {
+                List<AccessPointDescription> accessPointDescriptions = response.accessPoints();
+
+                if (!accessPointDescriptions.isEmpty()) {
+                    accessPoint = accessPointDescriptions.get(0);
+                }
+            }
 
         } catch (AccessPointNotFoundException ex) {
             // ignore
