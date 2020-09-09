@@ -27,7 +27,7 @@ public class EfsBackupPolicy extends Diffable implements Copyable<BackupPolicy> 
     private Status status;
 
     /**
-     * The status of the file system's backup policy. Valid values are ``ENABLED``or ``ENABLING``or ``DISABLED``or ``DISABLING``. (Required)
+     * The status of the file system's backup policy. Valid values are ``ENABLED`` or ``DISABLED``. (Required)
      */
     @Required
     public Status getStatus() {
