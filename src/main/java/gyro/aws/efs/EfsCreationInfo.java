@@ -53,7 +53,7 @@ public class EfsCreationInfo extends Diffable implements Copyable<CreationInfo> 
     }
 
     /**
-     * The octal number representation of the POSIX permissions to apply to the root directory. Valid values are ``0000`` or ``0700`` or ``0770`` or ``0777`` or ``0111`` or ``0222`` or ``0333`` or ``0444`` or ``0555`` or ``0666`` or ``0740``.
+     * The octal number representation of the POSIX permissions to apply to the root directory. Valid values are ``0000``, ``0700``, ``0770``, ``0777``, ``0111``, ``0222``, ``0333``, ``0444``, ``0555``, ``0666`` or ``0740``.
      */
     @ValidStrings({ "0000", "0700", "0770", "0777", "0111", "0222", "0333", "0444", "0555", "0666", "0740" })
     public String getPermissions() {
