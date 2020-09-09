@@ -68,7 +68,7 @@ public class AccessPointFinder extends AwsFinder<EfsClient, AccessPointDescripti
 
     @Override
     protected List<AccessPointDescription> findAllAws(EfsClient client) {
-        throw new IllegalArgumentException("Either 'id' or 'file-system-id' is required.");
+        throw new IllegalArgumentException("Cannot query 'access-point' without 'id' or 'file-system-id.");
     }
 
     @Override
