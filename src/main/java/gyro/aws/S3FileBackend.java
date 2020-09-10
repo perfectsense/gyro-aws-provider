@@ -41,7 +41,6 @@ public class S3FileBackend extends FileBackend {
 
     private String bucket;
     private String prefix;
-    private String credentials;
 
     public String getBucket() {
         return bucket;
@@ -57,18 +56,6 @@ public class S3FileBackend extends FileBackend {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    public String getCredentials() {
-        if (ObjectUtils.isBlank(credentials)) {
-            credentials = "default";
-        }
-
-        return credentials;
-    }
-
-    public void setCredentials(String credentials) {
-        this.credentials = credentials;
     }
 
     @Override
@@ -137,13 +124,9 @@ public class S3FileBackend extends FileBackend {
     }
 
     private S3Client client() {
-        Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-            .getCredentialsByName()
-            .get(String.format("aws::%s", getCredentials()));
+        Credentials credentials = getCredentials("aws");
 
-        S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
-
-        return client;
+        return AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
     }
 
     private String prefixed(String file) {
