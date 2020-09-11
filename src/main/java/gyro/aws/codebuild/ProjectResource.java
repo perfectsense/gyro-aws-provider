@@ -113,6 +113,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         ProjectArtifacts projectArtifacts = ProjectArtifacts.builder()
             .type(artifacts.getType())
             .location(artifacts.getLocation())
+            .name(artifacts.getName())
+            .namespaceType(artifacts.getNamespaceType())
+            .encryptionDisabled(artifacts.getEncryptionDisabled())
+            .path(artifacts.getPath())
+            .packaging(artifacts.getPackaging())
             .build();
 
         CodebuildProjectEnvironment environment = getEnvironment();
@@ -147,6 +152,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         ProjectArtifacts projectArtifacts = ProjectArtifacts.builder()
             .type(artifacts.getType())
             .location(artifacts.getLocation())
+            .name(artifacts.getName())
+            .namespaceType(artifacts.getNamespaceType())
+            .encryptionDisabled(artifacts.getEncryptionDisabled())
+            .path(artifacts.getPath())
+            .packaging(artifacts.getPackaging())
             .build();
 
         CodebuildProjectEnvironment environment = getEnvironment();
