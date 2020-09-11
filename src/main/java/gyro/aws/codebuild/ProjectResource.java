@@ -273,6 +273,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .description(getDescription())
                 .name(getName())
                 .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
+                .environment(projectEnvironment)
                 .source(projectSource)
                 .artifacts(projectArtifacts)
                 .environment(projectEnvironment)
