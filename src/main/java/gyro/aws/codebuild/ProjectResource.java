@@ -167,117 +167,26 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     public void create(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
-            .context(source.getBuildStatusConfig().getContext())
-            .targetUrl(source.getBuildStatusConfig().getTargetUrl())
-            .build();
-
-        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
-            .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
-
-        CodebuildProjectSource source = getSource();
-        ProjectSource projectSource = ProjectSource.builder()
-            .type(source.getType())
-            .location(source.getLocation())
-            .buildspec(source.getBuildspec())
-            .buildStatusConfig(buildStatusConfig)
-            .gitCloneDepth(source.getGitCloneDepth())
-            .gitSubmodulesConfig(gitSubmodulesConfig)
-            .insecureSsl(source.getInsecureSsl())
-            .reportBuildStatus(source.getReportBuildStatus())
-            .sourceIdentifier(source.getSourceIdentifier())
-            .build();
-
-        CodebuildProjectArtifacts artifacts = getArtifacts();
-        ProjectArtifacts projectArtifacts = ProjectArtifacts.builder()
-            .type(artifacts.getType())
-            .location(artifacts.getLocation())
-            .name(artifacts.getName())
-            .namespaceType(artifacts.getNamespaceType())
-            .encryptionDisabled(artifacts.getEncryptionDisabled())
-            .path(artifacts.getPath())
-            .packaging(artifacts.getPackaging())
-            .build();
-
-        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
-
-        for (CodebuildProjectEnvironmentVariable var : environment.getEnvironmentVariables()) {
-            environmentVariables.add(EnvironmentVariable.builder()
-                .name(var.getName())
-                .type(var.getType())
-                .value(var.getValue())
-                .build());
-        }
-
-        CodebuildProjectEnvironment environment = getEnvironment();
-        ProjectEnvironment projectEnvironment = ProjectEnvironment.builder()
-            .computeType(environment.getComputeType())
-            .image(environment.getImage())
-            .type(environment.getType())
-            .certificate(environment.getCertificate())
-            .environmentVariables(environmentVariables)
-            .imagePullCredentialsType(environment.getImagePullCredentialsType())
-            .privilegedMode(environment.getPrivalegedMode())
-            .build();
-
-        Map<String, String> tags = getTags();
-        List<Tag> projectTags = new ArrayList<>();
-
-        for (String key : tags.keySet()) {
-            projectTags.add(Tag.builder()
-                .key(key)
-                .value(tags.get(key))
-                .build());
-        }
-
-        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
-            .computeTypesAllowed(buildBatchConfig.getRestrictions().getComputedTypesAllowed())
-            .maximumBuildsAllowed(buildBatchConfig.getRestrictions().getMaximumBuildsAllowed())
-            .build();
-
-        CodebuildProjectBuildBatchConfig buildBatchConfig = getBuildBatchConfig();
-        ProjectBuildBatchConfig projectBuildBatchConfig = ProjectBuildBatchConfig.builder()
-            .combineArtifacts(buildBatchConfig.getCombineArtifacts())
-            .restrictions(batchRestrictions)
-            .serviceRole(buildBatchConfig.getServiceRole())
-            .timeoutInMins(buildBatchConfig.getTimeoutInMins())
-            .build();
-
-
-        CodebuildLogsConfig logsConfig = getLogsConfig();
-        CodebuildCloudWatchLogsConfig cloudWatchLogs = logsConfig.getCloudWatchLogs();
-        CodebuildS3LogsConfig s3Logs = logsConfig.getS3Logs();
-
-        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
-            .groupName(cloudWatchLogs.getGroupName())
-            .status(cloudWatchLogs.getStatus())
-            .streamName(cloudWatchLogs.getStreamName())
-            .build();
-
-        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
-            .encryptionDisabled(s3Logs.getEncryptionDisabled())
-            .location(s3Logs.getLocation())
-            .status(s3Logs.getStatus())
-            .build();
-
-        LogsConfig projectLogsConfig = LogsConfig.builder()
-            .cloudWatchLogs(cloudWatchLogsConfig)
-            .s3Logs(s3LogsConfig)
-            .build();
+        Map<String, Object> projectFields = getProjectFields();
 
         client.createProject(r -> r
-                //            .artifacts()
-                .badgeEnabled(getBadge().getBadgeEnabled())
-                .buildBatchConfig(projectBuildBatchConfig)
-                .logsConfig(projectLogsConfig)
-                .description(getDescription())
-                .name(getName())
-                .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
-                .environment(projectEnvironment)
-                .source(projectSource)
-                .artifacts(projectArtifacts)
-                .environment(projectEnvironment)
-                .tags(projectTags)
+            .name(getName())
+            .badgeEnabled(getBadge().getBadgeEnabled())
+            .buildBatchConfig(
+                projectFields.get("build-batch-config") != null ? (ProjectBuildBatchConfig) projectFields.get(
+                    "build-batch-config") : null)
+            .logsConfig(projectFields.get("logs-config") != null ? (LogsConfig) projectFields.get(
+                "logs-config") : null)
+            .description(getDescription())
+            .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
+            .environment(projectFields.get("environment") != null ? (ProjectEnvironment) projectFields.get(
+                "environment") : null)
+            .source(projectFields.get("source") != null ? (ProjectSource) projectFields.get(
+                "source") : null)
+            .artifacts(projectFields.get("artifacts") != null ? (ProjectArtifacts) projectFields.get(
+                "artifacts") : null)
+            .tags(projectFields.get("tags") != null ? (List<Tag>) projectFields.get(
+                "tags") : null)
         );
     }
 
@@ -287,114 +196,61 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
-            .context(source.getBuildStatusConfig().getContext())
-            .targetUrl(source.getBuildStatusConfig().getTargetUrl())
-            .build();
+        Map<String, Object> projectFields = getProjectFields();
 
-        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
-            .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
-
-        CodebuildProjectSource source = getSource();
-        ProjectSource projectSource = ProjectSource.builder()
-            .type(source.getType())
-            .location(source.getLocation())
-            .buildspec(source.getBuildspec())
-            .buildStatusConfig(buildStatusConfig)
-            .gitCloneDepth(source.getGitCloneDepth())
-            .gitSubmodulesConfig(gitSubmodulesConfig)
-            .insecureSsl(source.getInsecureSsl())
-            .reportBuildStatus(source.getReportBuildStatus())
-            .sourceIdentifier(source.getSourceIdentifier())
-            .build();
-
-        CodebuildProjectArtifacts artifacts = getArtifacts();
-        ProjectArtifacts projectArtifacts = ProjectArtifacts.builder()
-            .type(artifacts.getType())
-            .location(artifacts.getLocation())
-            .name(artifacts.getName())
-            .namespaceType(artifacts.getNamespaceType())
-            .encryptionDisabled(artifacts.getEncryptionDisabled())
-            .path(artifacts.getPath())
-            .packaging(artifacts.getPackaging())
-            .build();
-
-        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
-
-        for (CodebuildProjectEnvironmentVariable var : environment.getEnvironmentVariables()) {
-            environmentVariables.add(EnvironmentVariable.builder()
-                .name(var.getName())
-                .type(var.getType())
-                .value(var.getValue())
-                .build());
+        if (changedFieldNames.contains("badge-enabled")) {
+            client.updateProject(r -> r.name(getName())
+                .badgeEnabled(getBadge().getBadgeEnabled())
+            );
         }
 
-        CodebuildProjectEnvironment environment = getEnvironment();
-        ProjectEnvironment projectEnvironment = ProjectEnvironment.builder()
-            .computeType(environment.getComputeType())
-            .image(environment.getImage())
-            .type(environment.getType())
-            .certificate(environment.getCertificate())
-            .environmentVariables(environmentVariables)
-            .imagePullCredentialsType(environment.getImagePullCredentialsType())
-            .privilegedMode(environment.getPrivalegedMode())
-            .build();
-
-        Map<String, String> tags = getTags();
-        List<Tag> projectTags = new ArrayList<>();
-
-        for (String key : tags.keySet()) {
-            projectTags.add(Tag.builder()
-                .key(key)
-                .value(tags.get(key))
-                .build());
+        if (changedFieldNames.contains("build-batch-config") && projectFields.get("build-batch-config") != null) {
+            client.updateProject(r -> r.name(getName())
+                .buildBatchConfig((ProjectBuildBatchConfig) projectFields.get("build-batch-config"))
+            );
         }
 
-        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
-            .computeTypesAllowed(buildBatchConfig.getRestrictions().getComputedTypesAllowed())
-            .maximumBuildsAllowed(buildBatchConfig.getRestrictions().getMaximumBuildsAllowed())
-            .build();
+        if (changedFieldNames.contains("logs-config") && projectFields.get("logs-config") != null) {
+            client.updateProject(r -> r.name(getName())
+                .logsConfig((LogsConfig) projectFields.get("logs-config"))
+            );
+        }
 
-        CodebuildProjectBuildBatchConfig buildBatchConfig = getBuildBatchConfig();
-        ProjectBuildBatchConfig projectBuildBatchConfig = ProjectBuildBatchConfig.builder()
-            .combineArtifacts(buildBatchConfig.getCombineArtifacts())
-            .restrictions(batchRestrictions)
-            .serviceRole(buildBatchConfig.getServiceRole())
-            .timeoutInMins(buildBatchConfig.getTimeoutInMins())
-            .build();
+        if (changedFieldNames.contains("description")) {
+            client.updateProject(r -> r.name(getName())
+                .description(getDescription())
+            );
+        }
 
-        CodebuildLogsConfig logsConfig = getLogsConfig();
-        CodebuildCloudWatchLogsConfig cloudWatchLogs = logsConfig.getCloudWatchLogs();
-        CodebuildS3LogsConfig s3Logs = logsConfig.getS3Logs();
+        if (changedFieldNames.contains("service-role")) {
+            client.updateProject(r -> r.name(getName())
+                .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
+            );
+        }
 
-        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
-            .groupName(cloudWatchLogs.getGroupName())
-            .status(cloudWatchLogs.getStatus())
-            .streamName(cloudWatchLogs.getStreamName())
-            .build();
+        if (changedFieldNames.contains("environment") && projectFields.get("environment") != null) {
+            client.updateProject(r -> r.name(getName())
+                .environment((ProjectEnvironment) projectFields.get("environment"))
+            );
+        }
 
-        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
-            .encryptionDisabled(s3Logs.getEncryptionDisabled())
-            .location(s3Logs.getLocation())
-            .status(s3Logs.getStatus())
-            .build();
+        if (changedFieldNames.contains("source") && projectFields.get("source") != null) {
+            client.updateProject(r -> r.name(getName())
+                .source((ProjectSource) projectFields.get("source"))
+            );
+        }
 
-        LogsConfig projectLogsConfig = LogsConfig.builder()
-            .cloudWatchLogs(cloudWatchLogsConfig)
-            .s3Logs(s3LogsConfig)
-            .build();
+        if (changedFieldNames.contains("artifacts") && projectFields.get("artifacts") != null) {
+            client.updateProject(r -> r.name(getName())
+                .artifacts((ProjectArtifacts) projectFields.get("artifacts"))
+            );
+        }
 
-        client.updateProject(r -> r
-            .name(getName())
-            .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
-            .environment(projectEnvironment)
-            .source(projectSource)
-            .artifacts(projectArtifacts)
-            .badgeEnabled(getBadge().getBadgeEnabled())
-            .tags(projectTags)
-            .buildBatchConfig(projectBuildBatchConfig)
-            .logsConfig(projectLogsConfig)
-        );
+        if (changedFieldNames.contains("tags") && projectFields.get("tags") != null) {
+            client.updateProject(r -> r.name(getName())
+                .tags((List<Tag>) projectFields.get("tags"))
+            );
+        }
     }
 
     @Override
@@ -462,6 +318,115 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             logsConfig.copyFrom(project.logsConfig());
             setLogsConfig(logsConfig);
         }
+    }
 
+    private Map<String, Object> getProjectFields() {
+        Map<String, Object> fields = new HashMap<>();
+
+        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
+            .context(source.getBuildStatusConfig().getContext())
+            .targetUrl(source.getBuildStatusConfig().getTargetUrl())
+            .build();
+
+        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
+            .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
+
+        CodebuildProjectSource source = getSource();
+        ProjectSource projectSource = ProjectSource.builder()
+            .type(source.getType())
+            .location(source.getLocation())
+            .buildspec(source.getBuildspec())
+            .buildStatusConfig(buildStatusConfig)
+            .gitCloneDepth(source.getGitCloneDepth())
+            .gitSubmodulesConfig(gitSubmodulesConfig)
+            .insecureSsl(source.getInsecureSsl())
+            .reportBuildStatus(source.getReportBuildStatus())
+            .sourceIdentifier(source.getSourceIdentifier())
+            .build();
+
+        CodebuildProjectArtifacts artifacts = getArtifacts();
+        ProjectArtifacts projectArtifacts = ProjectArtifacts.builder()
+            .type(artifacts.getType())
+            .location(artifacts.getLocation())
+            .name(artifacts.getName())
+            .namespaceType(artifacts.getNamespaceType())
+            .encryptionDisabled(artifacts.getEncryptionDisabled())
+            .path(artifacts.getPath())
+            .packaging(artifacts.getPackaging())
+            .build();
+
+        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
+
+        for (CodebuildProjectEnvironmentVariable var : environment.getEnvironmentVariables()) {
+            environmentVariables.add(EnvironmentVariable.builder()
+                .name(var.getName())
+                .type(var.getType())
+                .value(var.getValue())
+                .build());
+        }
+
+        CodebuildProjectEnvironment environment = getEnvironment();
+        ProjectEnvironment projectEnvironment = ProjectEnvironment.builder()
+            .computeType(environment.getComputeType())
+            .image(environment.getImage())
+            .type(environment.getType())
+            .certificate(environment.getCertificate())
+            .environmentVariables(environmentVariables)
+            .imagePullCredentialsType(environment.getImagePullCredentialsType())
+            .privilegedMode(environment.getPrivalegedMode())
+            .build();
+
+        Map<String, String> tags = getTags();
+        List<Tag> projectTags = new ArrayList<>();
+
+        for (String key : tags.keySet()) {
+            projectTags.add(Tag.builder()
+                .key(key)
+                .value(tags.get(key))
+                .build());
+        }
+
+        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
+            .computeTypesAllowed(buildBatchConfig.getRestrictions().getComputedTypesAllowed())
+            .maximumBuildsAllowed(buildBatchConfig.getRestrictions().getMaximumBuildsAllowed())
+            .build();
+
+        CodebuildProjectBuildBatchConfig buildBatchConfig = getBuildBatchConfig();
+        ProjectBuildBatchConfig projectBuildBatchConfig = ProjectBuildBatchConfig.builder()
+            .combineArtifacts(buildBatchConfig.getCombineArtifacts())
+            .restrictions(batchRestrictions)
+            .serviceRole(buildBatchConfig.getServiceRole())
+            .timeoutInMins(buildBatchConfig.getTimeoutInMins())
+            .build();
+
+        CodebuildLogsConfig logsConfig = getLogsConfig();
+        CodebuildCloudWatchLogsConfig cloudWatchLogs = logsConfig.getCloudWatchLogs();
+        CodebuildS3LogsConfig s3Logs = logsConfig.getS3Logs();
+
+        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
+            .groupName(cloudWatchLogs.getGroupName())
+            .status(cloudWatchLogs.getStatus())
+            .streamName(cloudWatchLogs.getStreamName())
+            .build();
+
+        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
+            .encryptionDisabled(s3Logs.getEncryptionDisabled())
+            .location(s3Logs.getLocation())
+            .status(s3Logs.getStatus())
+            .build();
+
+        LogsConfig projectLogsConfig = LogsConfig.builder()
+            .cloudWatchLogs(cloudWatchLogsConfig)
+            .s3Logs(s3LogsConfig)
+            .build();
+
+        fields.put("source", projectSource);
+        fields.put("artifacts", projectArtifacts);
+        fields.put("environment", projectEnvironment);
+        fields.put("tags", projectTags);
+        fields.put("build-batch-config", projectBuildBatchConfig);
+        fields.put("logs-config", projectLogsConfig);
+
+        return fields;
     }
 }
