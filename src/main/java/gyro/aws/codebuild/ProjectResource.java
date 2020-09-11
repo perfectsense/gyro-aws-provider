@@ -37,6 +37,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     private RoleResource serviceRole;
     private CodebuildProjectSource source;
 
+    // Project configuration
+    private CodebuildProjectBadge badge;
+    private String description;
+    private Map<String, String> tags;
+
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
@@ -44,6 +49,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setArtifacts(CodebuildProjectArtifacts artifacts) {
         this.artifacts = artifacts;
+    }
+
+    @Updatable
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Id
@@ -80,6 +94,24 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setEnvironment(CodebuildProjectEnvironment environment) {
         this.environment = environment;
+    }
+
+    @Updatable
+    public CodebuildProjectBadge getBadge() {
+        return badge;
+    }
+
+    public void setBadge(CodebuildProjectBadge badge) {
+        this.badge = badge;
+    }
+
+    @Updatable
+    public Map<String, String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
     }
 
     @Override
@@ -159,13 +191,26 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .privilegedMode(environment.getPrivalegedMode())
             .build();
 
+        Map<String, String> tags = getTags();
+        List<Tag> projectTags = new ArrayList<>();
+
+        for (String key : tags.keySet()) {
+            projectTags.add(Tag.builder()
+                .key(key)
+                .value(tags.get(key))
+                .build());
+        }
+
         client.createProject(r -> r
                 //            .artifacts()
+                .badgeEnabled(getBadge().getBadgeEnabled())
+                .description(getDescription())
                 .name(getName())
                 .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
                 .source(projectSource)
                 .artifacts(projectArtifacts)
                 .environment(projectEnvironment)
+                .tags(projectTags)
         );
     }
 
@@ -228,12 +273,24 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .privilegedMode(environment.getPrivalegedMode())
             .build();
 
+        Map<String, String> tags = getTags();
+        List<Tag> projectTags = new ArrayList<>();
+
+        for (String key : tags.keySet()) {
+            projectTags.add(Tag.builder()
+                .key(key)
+                .value(tags.get(key))
+                .build());
+        }
+
         client.updateProject(r -> r
             .name(getName())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(projectEnvironment)
             .source(projectSource)
             .artifacts(projectArtifacts)
+            .badgeEnabled(getBadge().getBadgeEnabled())
+            .tags(projectTags)
         );
     }
 
@@ -248,6 +305,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     public void copyFrom(BatchGetProjectsResponse model) {
         Project project = model.projects().get(0);
 
+        setDescription(project.description());
         setName(project.name());
         setServiceRole(!ObjectUtils.isBlank(project.serviceRole())
             ? findById(RoleResource.class, project.serviceRole())
@@ -271,6 +329,22 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             setEnvironment(environment);
         }
 
+        if (project.badge() != null) {
+            CodebuildProjectBadge badge = newSubresource(CodebuildProjectBadge.class);
+            badge.copyFrom(project.badge());
+            setBadge(badge);
+        }
+
+        if (project.tags() != null) {
+            Map<String, String> tags = new HashMap<>();
+            CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
+
+            for (Tag t : project.tags()) {
+                tag.copyFrom(t);
+                tags.put(t.key(), t.value());
+            }
+
+            setTags(tags);
         }
 
     }
