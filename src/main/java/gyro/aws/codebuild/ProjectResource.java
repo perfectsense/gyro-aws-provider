@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
@@ -20,6 +19,7 @@ import gyro.core.scope.State;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
+import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
@@ -138,14 +138,29 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .packaging(artifacts.getPackaging())
             .build();
 
+        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
+
+        for (CodebuildProjectEnvironmentVariable var : environment.getEnvironmentVariables()) {
+            environmentVariables.add(EnvironmentVariable.builder()
+                .name(var.getName())
+                .type(var.getType())
+                .value(var.getValue())
+                .build());
+        }
+
         CodebuildProjectEnvironment environment = getEnvironment();
         ProjectEnvironment projectEnvironment = ProjectEnvironment.builder()
             .computeType(environment.getComputeType())
             .image(environment.getImage())
             .type(environment.getType())
+            .certificate(environment.getCertificate())
+            .environmentVariables(environmentVariables)
+            .imagePullCredentialsType(environment.getImagePullCredentialsType())
+            .privilegedMode(environment.getPrivalegedMode())
             .build();
 
         client.createProject(r -> r
+                //            .artifacts()
                 .name(getName())
                 .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
                 .source(projectSource)
@@ -192,11 +207,25 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .packaging(artifacts.getPackaging())
             .build();
 
+        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
+
+        for (CodebuildProjectEnvironmentVariable var : environment.getEnvironmentVariables()) {
+            environmentVariables.add(EnvironmentVariable.builder()
+                .name(var.getName())
+                .type(var.getType())
+                .value(var.getValue())
+                .build());
+        }
+
         CodebuildProjectEnvironment environment = getEnvironment();
         ProjectEnvironment projectEnvironment = ProjectEnvironment.builder()
             .computeType(environment.getComputeType())
             .image(environment.getImage())
             .type(environment.getType())
+            .certificate(environment.getCertificate())
+            .environmentVariables(environmentVariables)
+            .imagePullCredentialsType(environment.getImagePullCredentialsType())
+            .privilegedMode(environment.getPrivalegedMode())
             .build();
 
         client.updateProject(r -> r
