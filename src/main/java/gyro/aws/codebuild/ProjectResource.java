@@ -19,12 +19,15 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
+import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
+import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.Tag;
+
 @Type("project")
 public class ProjectResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
 
@@ -103,10 +106,25 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     public void create(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        CodebuildProjectSource codebuildProjectSource = getSource();
+        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
+            .context(source.getBuildStatusConfig().getContext())
+            .targetUrl(source.getBuildStatusConfig().getTargetUrl())
+            .build();
+
+        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
+            .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
+
+        CodebuildProjectSource source = getSource();
         ProjectSource projectSource = ProjectSource.builder()
-            .type(codebuildProjectSource.getType())
-            .location(codebuildProjectSource.getLocation())
+            .type(source.getType())
+            .location(source.getLocation())
+            .buildspec(source.getBuildspec())
+            .buildStatusConfig(buildStatusConfig)
+            .gitCloneDepth(source.getGitCloneDepth())
+            .gitSubmodulesConfig(gitSubmodulesConfig)
+            .insecureSsl(source.getInsecureSsl())
+            .reportBuildStatus(source.getReportBuildStatus())
+            .sourceIdentifier(source.getSourceIdentifier())
             .build();
 
         CodebuildProjectArtifacts artifacts = getArtifacts();
@@ -142,10 +160,25 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
+        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
+            .context(source.getBuildStatusConfig().getContext())
+            .targetUrl(source.getBuildStatusConfig().getTargetUrl())
+            .build();
+
+        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
+            .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
+
         CodebuildProjectSource source = getSource();
         ProjectSource projectSource = ProjectSource.builder()
             .type(source.getType())
             .location(source.getLocation())
+            .buildspec(source.getBuildspec())
+            .buildStatusConfig(buildStatusConfig)
+            .gitCloneDepth(source.getGitCloneDepth())
+            .gitSubmodulesConfig(gitSubmodulesConfig)
+            .insecureSsl(source.getInsecureSsl())
+            .reportBuildStatus(source.getReportBuildStatus())
+            .sourceIdentifier(source.getSourceIdentifier())
             .build();
 
         CodebuildProjectArtifacts artifacts = getArtifacts();
