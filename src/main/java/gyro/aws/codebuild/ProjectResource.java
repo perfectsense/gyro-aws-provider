@@ -18,11 +18,13 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
+import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
+import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
@@ -41,6 +43,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     private CodebuildProjectBadge badge;
     private String description;
     private Map<String, String> tags;
+
+    // Batch configuration
+    private CodebuildProjectBuildBatchConfig buildBatchConfig;
 
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
@@ -112,6 +117,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setTags(Map<String, String> tags) {
         this.tags = tags;
+    }
+
+    @Updatable
+    public CodebuildProjectBuildBatchConfig getBuildBatchConfig() {
+        return buildBatchConfig;
+    }
+
+    public void setBuildBatchConfig(CodebuildProjectBuildBatchConfig buildBatchConfig) {
+        this.buildBatchConfig = buildBatchConfig;
     }
 
     @Override
@@ -201,9 +215,23 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .build());
         }
 
+        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
+            .computeTypesAllowed(buildBatchConfig.getRestrictions().getComputedTypesAllowed())
+            .maximumBuildsAllowed(buildBatchConfig.getRestrictions().getMaximumBuildsAllowed())
+            .build();
+
+        CodebuildProjectBuildBatchConfig buildBatchConfig = getBuildBatchConfig();
+        ProjectBuildBatchConfig projectBuildBatchConfig = ProjectBuildBatchConfig.builder()
+            .combineArtifacts(buildBatchConfig.getCombineArtifacts())
+            .restrictions(batchRestrictions)
+            .serviceRole(buildBatchConfig.getServiceRole())
+            .timeoutInMins(buildBatchConfig.getTimeoutInMins())
+            .build();
+
         client.createProject(r -> r
                 //            .artifacts()
                 .badgeEnabled(getBadge().getBadgeEnabled())
+                .buildBatchConfig(projectBuildBatchConfig)
                 .description(getDescription())
                 .name(getName())
                 .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
@@ -283,6 +311,19 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .build());
         }
 
+        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
+            .computeTypesAllowed(buildBatchConfig.getRestrictions().getComputedTypesAllowed())
+            .maximumBuildsAllowed(buildBatchConfig.getRestrictions().getMaximumBuildsAllowed())
+            .build();
+
+        CodebuildProjectBuildBatchConfig buildBatchConfig = getBuildBatchConfig();
+        ProjectBuildBatchConfig projectBuildBatchConfig = ProjectBuildBatchConfig.builder()
+            .combineArtifacts(buildBatchConfig.getCombineArtifacts())
+            .restrictions(batchRestrictions)
+            .serviceRole(buildBatchConfig.getServiceRole())
+            .timeoutInMins(buildBatchConfig.getTimeoutInMins())
+            .build();
+
         client.updateProject(r -> r
             .name(getName())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
@@ -291,6 +332,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .artifacts(projectArtifacts)
             .badgeEnabled(getBadge().getBadgeEnabled())
             .tags(projectTags)
+            .buildBatchConfig(projectBuildBatchConfig)
         );
     }
 
@@ -347,5 +389,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             setTags(tags);
         }
 
+        if (project.buildBatchConfig() != null) {
+            CodebuildProjectBuildBatchConfig buildBatchConfig = newSubresource(
+                CodebuildProjectBuildBatchConfig.class);
+            buildBatchConfig.copyFrom(project.buildBatchConfig());
+            setBuildBatchConfig(buildBatchConfig);
+        }
     }
 }
