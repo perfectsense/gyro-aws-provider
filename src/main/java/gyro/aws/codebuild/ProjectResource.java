@@ -20,14 +20,17 @@ import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
+import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
+import software.amazon.awssdk.services.codebuild.model.LogsConfig;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
 @Type("project")
@@ -46,6 +49,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     // Batch configuration
     private CodebuildProjectBuildBatchConfig buildBatchConfig;
+
+    // Logs
+    private CodebuildLogsConfig logsConfig;
 
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
@@ -126,6 +132,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setBuildBatchConfig(CodebuildProjectBuildBatchConfig buildBatchConfig) {
         this.buildBatchConfig = buildBatchConfig;
+    }
+
+    @Updatable
+    public CodebuildLogsConfig getLogsConfig() {
+        return logsConfig;
+    }
+
+    public void setLogsConfig(CodebuildLogsConfig logsConfig) {
+        this.logsConfig = logsConfig;
     }
 
     @Override
@@ -228,10 +243,33 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .timeoutInMins(buildBatchConfig.getTimeoutInMins())
             .build();
 
+
+        CodebuildLogsConfig logsConfig = getLogsConfig();
+        CodebuildCloudWatchLogsConfig cloudWatchLogs = logsConfig.getCloudWatchLogs();
+        CodebuildS3LogsConfig s3Logs = logsConfig.getS3Logs();
+
+        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
+            .groupName(cloudWatchLogs.getGroupName())
+            .status(cloudWatchLogs.getStatus())
+            .streamName(cloudWatchLogs.getStreamName())
+            .build();
+
+        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
+            .encryptionDisabled(s3Logs.getEncryptionDisabled())
+            .location(s3Logs.getLocation())
+            .status(s3Logs.getStatus())
+            .build();
+
+        LogsConfig projectLogsConfig = LogsConfig.builder()
+            .cloudWatchLogs(cloudWatchLogsConfig)
+            .s3Logs(s3LogsConfig)
+            .build();
+
         client.createProject(r -> r
                 //            .artifacts()
                 .badgeEnabled(getBadge().getBadgeEnabled())
                 .buildBatchConfig(projectBuildBatchConfig)
+                .logsConfig(projectLogsConfig)
                 .description(getDescription())
                 .name(getName())
                 .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
@@ -324,6 +362,27 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .timeoutInMins(buildBatchConfig.getTimeoutInMins())
             .build();
 
+        CodebuildLogsConfig logsConfig = getLogsConfig();
+        CodebuildCloudWatchLogsConfig cloudWatchLogs = logsConfig.getCloudWatchLogs();
+        CodebuildS3LogsConfig s3Logs = logsConfig.getS3Logs();
+
+        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
+            .groupName(cloudWatchLogs.getGroupName())
+            .status(cloudWatchLogs.getStatus())
+            .streamName(cloudWatchLogs.getStreamName())
+            .build();
+
+        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
+            .encryptionDisabled(s3Logs.getEncryptionDisabled())
+            .location(s3Logs.getLocation())
+            .status(s3Logs.getStatus())
+            .build();
+
+        LogsConfig projectLogsConfig = LogsConfig.builder()
+            .cloudWatchLogs(cloudWatchLogsConfig)
+            .s3Logs(s3LogsConfig)
+            .build();
+
         client.updateProject(r -> r
             .name(getName())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
@@ -333,6 +392,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .badgeEnabled(getBadge().getBadgeEnabled())
             .tags(projectTags)
             .buildBatchConfig(projectBuildBatchConfig)
+            .logsConfig(projectLogsConfig)
         );
     }
 
@@ -395,5 +455,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             buildBatchConfig.copyFrom(project.buildBatchConfig());
             setBuildBatchConfig(buildBatchConfig);
         }
+
+        if (project.logsConfig() != null) {
+            CodebuildLogsConfig logsConfig = newSubresource(CodebuildLogsConfig.class);
+            logsConfig.copyFrom(project.logsConfig());
+            setLogsConfig(logsConfig);
+        }
+
     }
 }
