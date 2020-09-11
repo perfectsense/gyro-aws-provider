@@ -64,7 +64,7 @@ import software.amazon.awssdk.utils.IoUtils;
  *
  * .. code-block:: gyro
  *
- *     aws::file-system file-system
+ *     aws::efs-file-system efs-file-system
  *         encrypted: false
  *         performance-mode: GENERAL_PURPOSE
  *         throughput-mode: BURSTING
@@ -79,11 +79,11 @@ import software.amazon.awssdk.utils.IoUtils;
  *         end
  *
  *         tags: {
- *             "Name": "example-file-system"
+ *             "Name": "example-efs-file-system"
  *         }
  *     end
  */
-@Type("file-system")
+@Type("efs-file-system")
 public class FileSystemResource extends AwsResource implements Copyable<FileSystemDescription> {
 
     private Boolean encrypted;
@@ -113,7 +113,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
     /**
      * The key to be used to protect the encrypted file system.
      */
-    @DependsOn("encrypted-file-system")
+    @DependsOn("encrypted")
     public KmsKeyResource getKey() {
         return key;
     }

@@ -51,8 +51,8 @@ import software.amazon.awssdk.services.efs.model.Tag;
  *
  * .. code-block:: gyro
  *
- *     aws::access-point access-point
- *         file-system: $(aws::file-system file-system)
+ *     aws::efs-access-point efs-access-point
+ *         file-system: $(aws::efs-file-system efs-file-system)
  *
  *         posix-user
  *             user-id: 42950
@@ -60,12 +60,12 @@ import software.amazon.awssdk.services.efs.model.Tag;
  *         end
  *
  *         tags: {
- *             "Name": "example-access-point"
+ *             "Name": "example-efs-access-point"
  *         }
  *     end
  */
-@Type("access-point")
-public class AccessPointResource extends AwsResource implements Copyable<AccessPointDescription> {
+@Type("efs-access-point")
+public class EfsAccessPointResource extends AwsResource implements Copyable<AccessPointDescription> {
 
     private FileSystemResource fileSystem;
     private EfsPosixUser posixUser;
@@ -218,7 +218,7 @@ public class AccessPointResource extends AwsResource implements Copyable<AccessP
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         EfsClient client = createClient(EfsClient.class);
-        AccessPointResource currentResource = (AccessPointResource) current;
+        EfsAccessPointResource currentResource = (EfsAccessPointResource) current;
 
         if (!currentResource.getTags().isEmpty()) {
             client.untagResource(r -> r.resourceId(getId())

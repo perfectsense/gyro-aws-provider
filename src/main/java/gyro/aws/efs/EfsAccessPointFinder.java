@@ -23,29 +23,29 @@ import java.util.Map;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.efs.EfsClient;
-import software.amazon.awssdk.services.efs.model.DescribeMountTargetsRequest;
-import software.amazon.awssdk.services.efs.model.MountTargetDescription;
-import software.amazon.awssdk.services.efs.model.MountTargetNotFoundException;
+import software.amazon.awssdk.services.efs.model.AccessPointDescription;
+import software.amazon.awssdk.services.efs.model.AccessPointNotFoundException;
+import software.amazon.awssdk.services.efs.model.DescribeAccessPointsRequest;
+import software.amazon.awssdk.services.efs.model.FileSystemNotFoundException;
 
 /**
- * Query point target.
+ * Query access point.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    file-system: $(external-query aws::mount-target { file-system-id: 'fs-217883a3'})
+ *    access-point: $(external-query aws::efs-access-point { file-system-id: 'fs-217883a3'})
  */
-@Type("mount-target")
-public class MountTargetFinder
-    extends AwsFinder<EfsClient, MountTargetDescription, MountTargetResource> {
+@Type("efs-access-point")
+public class EfsAccessPointFinder extends AwsFinder<EfsClient, AccessPointDescription, EfsAccessPointResource> {
 
     private String id;
     private String fileSystemId;
 
     /**
-     * The ID of the mount target.
+     * The ID of the access point.
      */
     public String getId() {
         return id;
@@ -56,7 +56,7 @@ public class MountTargetFinder
     }
 
     /**
-     * The ID of the file system to which the mount target is attached.
+     * The ID of the file system that the access point provides access to.
      */
     public String getFileSystemId() {
         return fileSystemId;
@@ -67,23 +67,22 @@ public class MountTargetFinder
     }
 
     @Override
-    protected List<MountTargetDescription> findAllAws(EfsClient client) {
-        throw new IllegalArgumentException("Either 'id' or 'file-system-id' is required.");
+    protected List<AccessPointDescription> findAllAws(EfsClient client) {
+        throw new IllegalArgumentException("Cannot query 'efs-access-point' without 'id' or 'file-system-id.");
     }
 
     @Override
-    protected List<MountTargetDescription> findAws(
-        EfsClient client, Map<String, String> filters) {
-        DescribeMountTargetsRequest.Builder builder = DescribeMountTargetsRequest.builder();
-        List<MountTargetDescription> mountTargets = new ArrayList<>();
+    protected List<AccessPointDescription> findAws(EfsClient client, Map<String, String> filters) {
+        DescribeAccessPointsRequest.Builder builder = DescribeAccessPointsRequest.builder();
+        List<AccessPointDescription> accessPoints = new ArrayList<>();
 
         if ((!filters.containsKey("id") && !filters.containsKey("file-system-id")) ||
             (filters.containsKey("id") && filters.containsKey("file-system-id"))) {
-            throw new IllegalArgumentException("Either 'id' or 'file-system-id' is required.");
+            throw new IllegalArgumentException("Exactly one of 'id' or 'file-system-id' is required.");
         }
 
         if (filters.containsKey("id")) {
-            builder = builder.mountTargetId(filters.get("id"));
+            builder = builder.accessPointId(filters.get("id"));
         }
 
         if (filters.containsKey("file-system-id")) {
@@ -91,12 +90,12 @@ public class MountTargetFinder
         }
 
         try {
-            mountTargets = client.describeMountTargets(builder.build()).mountTargets();
+            accessPoints = client.describeAccessPoints(builder.build()).accessPoints();
 
-        } catch (MountTargetNotFoundException ex) {
+        } catch (AccessPointNotFoundException | FileSystemNotFoundException ex) {
             // ignore
         }
 
-        return mountTargets;
+        return accessPoints;
     }
 }

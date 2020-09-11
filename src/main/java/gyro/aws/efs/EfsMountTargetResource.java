@@ -50,8 +50,8 @@ import software.amazon.awssdk.services.efs.model.MountTargetDescription;
  *
  * .. code-block:: gyro
  *
- *     aws::mount-target mount-target
- *         file-system: $(aws::file-system file-system)
+ *     aws::efs-mount-target efs-mount-target
+ *         file-system: $(aws::efs-file-system efs-file-system)
  *         ip-address: "10.0.0.16"
  *         subnet: $(aws::subnet subnet-efs)
  *
@@ -60,8 +60,8 @@ import software.amazon.awssdk.services.efs.model.MountTargetDescription;
  *         ]
  *     end
  */
-@Type("mount-target")
-public class MountTargetResource extends AwsResource implements Copyable<MountTargetDescription> {
+@Type("efs-mount-target")
+public class EfsMountTargetResource extends AwsResource implements Copyable<MountTargetDescription> {
 
     private FileSystemResource fileSystem;
     private String ipAddress;

@@ -34,9 +34,9 @@ import software.amazon.awssdk.services.efs.model.FileSystemNotFoundException;
  *
  * .. code-block:: gyro
  *
- *    file-system: $(external-query aws::file-system { id: 'fs-217883a3'})
+ *    file-system: $(external-query aws::efs-file-system { id: 'fs-217883a3'})
  */
-@Type("file-system")
+@Type("efs-file-system")
 public class FileSystemFinder extends AwsFinder<EfsClient, FileSystemDescription, FileSystemResource> {
 
     /**

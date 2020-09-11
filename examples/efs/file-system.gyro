@@ -23,7 +23,7 @@ aws::security-group security-group-efs
     description: "Example eg for efs"
 end
 
-aws::file-system file-system
+aws::efs-file-system efs-file-system
     encrypted: false
     performance-mode: GENERAL_PURPOSE
     throughput-mode: BURSTING
@@ -38,12 +38,12 @@ aws::file-system file-system
     end
 
     tags: {
-        "Name": "example-file-system"
+        "Name": "example-efs-file-system"
     }
 end
 
-aws::mount-target mount-target
-    file-system: $(aws::file-system file-system)
+aws::efs-mount-target efs-mount-target
+    file-system: $(aws::efs-file-system efs-file-system)
     ip-address: "10.0.0.16"
     subnet: $(aws::subnet subnet-efs)
 
@@ -52,8 +52,8 @@ aws::mount-target mount-target
     ]
 end
 
-aws::access-point access-point
-    file-system: $(aws::file-system file-system)
+aws::efs-access-point efs-access-point
+    file-system: $(aws::efs-file-system efs-file-system)
 
     posix-user
         user-id: 42950
@@ -61,6 +61,6 @@ aws::access-point access-point
     end
 
     tags: {
-        "Name": "example-access-point"
+        "Name": "example-efs-access-point"
     }
 end
