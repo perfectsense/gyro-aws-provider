@@ -69,6 +69,10 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     private List<CodebuildProjectArtifacts> secondaryArtifacts;
     private List<CodebuildProjectSource> secondarySources;
+
+    // Source - Source version
+    private String sourceVersion;
+
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
@@ -213,6 +217,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.secondarySources = secondarySources;
     }
 
+    @Updatable
+    public String getSourceVersion() {
+        return sourceVersion;
+    }
+
+    public void setSourceVersion(String sourceVersion) {
+        this.sourceVersion = sourceVersion;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -244,6 +257,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .badgeEnabled(getBadge().getBadgeEnabled())
             .encryptionKey(getEncryptionKey())
             .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
+            .sourceVersion(getSourceVersion())
             .buildBatchConfig(
                 projectFields.get("build-batch-config") != null ? (ProjectBuildBatchConfig) projectFields.get(
                     "build-batch-config") : null)
@@ -368,6 +382,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .secondarySources((List<ProjectSource>) projectFields.get("secondary-sources"))
             );
         }
+
+        if (changedFieldNames.contains("source-version")) {
+            client.updateProject(r -> r.name(getName())
+                .sourceVersion(getSourceVersion())
+            );
+        }
     }
 
     @Override
@@ -388,6 +408,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             : null);
         setEncryptionKey(project.encryptionKey());
         setQueuedTimeoutInMinutes(project.queuedTimeoutInMinutes());
+        setSourceVersion(project.sourceVersion());
 
         if (project.artifacts() != null) {
             CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
