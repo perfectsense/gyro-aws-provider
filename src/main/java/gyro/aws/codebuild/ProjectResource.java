@@ -29,6 +29,7 @@ import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 import software.amazon.awssdk.services.codebuild.model.ProjectCache;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
+import software.amazon.awssdk.services.codebuild.model.ProjectFileSystemLocation;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
@@ -59,6 +60,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     // Artifacts -- Encryption key
     private String encryptionKey;
+
+    // Environment - File systems
+    private List<CodebuildProjectFileSystemLocation> fileSystemLocations;
 
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
@@ -168,6 +172,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.encryptionKey = encryptionKey;
     }
 
+    @Updatable
+    public List<CodebuildProjectFileSystemLocation> getFileSystemLocations() {
+        return fileSystemLocations;
+    }
+
+    public void setFileSystemLocations(List<CodebuildProjectFileSystemLocation> fileSystemLocations) {
+        this.fileSystemLocations = fileSystemLocations;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -214,6 +227,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .tags(projectFields.get("tags") != null ? (List<Tag>) projectFields.get(
                 "tags") : null)
             .cache(projectFields.get("cache") != null ? (ProjectCache) projectFields.get("cache") : null)
+            .fileSystemLocations(projectFields.get("file-system-locations") != null
+                ? (List<ProjectFileSystemLocation>) projectFields.get("file-system-locations")
+                : null)
         );
     }
 
@@ -290,6 +306,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .encryptionKey(getEncryptionKey())
             );
         }
+
+        if (changedFieldNames.contains("file-system-locations") && projectFields.get("file-system-locations") != null) {
+            client.updateProject(r -> r.name(getName())
+                .fileSystemLocations((List<ProjectFileSystemLocation>) projectFields.get("file-system-locations"))
+            );
+        }
     }
 
     @Override
@@ -363,6 +385,18 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             CodebuildProjectCache cache = newSubresource(CodebuildProjectCache.class);
             cache.copyFrom(project.cache());
             setCache(cache);
+        }
+
+        if (project.fileSystemLocations() != null) {
+            List<CodebuildProjectFileSystemLocation> fileSystemLocations = new ArrayList<>();
+            CodebuildProjectFileSystemLocation fileSystemLocation = newSubresource(CodebuildProjectFileSystemLocation.class);
+
+            for (ProjectFileSystemLocation pfsl : project.fileSystemLocations()) {
+                fileSystemLocation.copyFrom(pfsl);
+                fileSystemLocations.add(fileSystemLocation);
+            }
+
+            setFileSystemLocations(fileSystemLocations);
         }
     }
 
@@ -473,6 +507,19 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .modesWithStrings(cache.getModes())
             .build();
 
+        List<CodebuildProjectFileSystemLocation> fileSystemLocations = getFileSystemLocations();
+        List<ProjectFileSystemLocation> projectFileSystemLocations = new ArrayList<>();
+
+        for (CodebuildProjectFileSystemLocation fileSystemLocation : fileSystemLocations) {
+            projectFileSystemLocations.add(ProjectFileSystemLocation.builder()
+                .identifier(fileSystemLocation.getIdentifier())
+                .location(fileSystemLocation.getLocation())
+                .mountOptions(fileSystemLocation.getMountOptions())
+                .mountPoint(fileSystemLocation.getMountPoint())
+                .type(fileSystemLocation.getType())
+                .build());
+        }
+
         fields.put("source", projectSource);
         fields.put("artifacts", projectArtifacts);
         fields.put("environment", projectEnvironment);
@@ -480,6 +527,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         fields.put("build-batch-config", projectBuildBatchConfig);
         fields.put("logs-config", projectLogsConfig);
         fields.put("cache", projectCache);
+        fields.put("file-system-locations", projectFileSystemLocations);
 
         return fields;
     }
