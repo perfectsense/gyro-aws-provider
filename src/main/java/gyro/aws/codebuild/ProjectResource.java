@@ -64,6 +64,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     // Environment - File systems
     private List<CodebuildProjectFileSystemLocation> fileSystemLocations;
 
+    // Environment -- Queued timeout
+    private Integer queuedTimeoutInMinutes;
+
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
@@ -181,6 +184,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.fileSystemLocations = fileSystemLocations;
     }
 
+    @Updatable
+    public Integer getQueuedTimeoutInMinutes() {
+        return queuedTimeoutInMinutes;
+    }
+
+    public void setQueuedTimeoutInMinutes(Integer queuedTimeoutInMinutes) {
+        this.queuedTimeoutInMinutes = queuedTimeoutInMinutes;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -211,6 +223,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .name(getName())
             .badgeEnabled(getBadge().getBadgeEnabled())
             .encryptionKey(getEncryptionKey())
+            .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
             .buildBatchConfig(
                 projectFields.get("build-batch-config") != null ? (ProjectBuildBatchConfig) projectFields.get(
                     "build-batch-config") : null)
@@ -312,6 +325,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .fileSystemLocations((List<ProjectFileSystemLocation>) projectFields.get("file-system-locations"))
             );
         }
+
+        if (changedFieldNames.contains("queued-out-time-in-minutes")) {
+            client.updateProject(r -> r.name(getName())
+                .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
+            );
+        }
     }
 
     @Override
@@ -331,6 +350,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             ? findById(RoleResource.class, project.serviceRole())
             : null);
         setEncryptionKey(project.encryptionKey());
+        setQueuedTimeoutInMinutes(project.queuedTimeoutInMinutes());
 
         if (project.artifacts() != null) {
             CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
