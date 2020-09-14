@@ -80,6 +80,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     // Environment - VPC
     private CodebuildVpcConfig vpcConfig;
 
+    // Source - Primary source webhook events - only when source is GitHub
+    private WebhookResource webhook;
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
@@ -249,6 +251,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setVpcConfig(CodebuildVpcConfig vpcConfig) {
         this.vpcConfig = vpcConfig;
+    }
+
+    @Updatable
+    public WebhookResource getWebhook() {
+        return webhook;
+    }
+
+    public void setWebhook(WebhookResource webhook) {
+        this.webhook = webhook;
     }
 
     @Override
@@ -455,6 +466,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             projectArtifacts.copyFrom(project.artifacts());
             setArtifacts(projectArtifacts);
         }
+            setWebhook(findById(WebhookResource.class, project.webhook()) != null ? findById(
+                WebhookResource.class,
+                project.webhook()) : null);
 
         if (project.source() != null) {
             CodebuildProjectSource projectSource = newSubresource(CodebuildProjectSource.class);
