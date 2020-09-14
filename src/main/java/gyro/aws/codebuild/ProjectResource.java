@@ -68,6 +68,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     private Integer queuedTimeoutInMinutes;
 
     private List<CodebuildProjectArtifacts> secondaryArtifacts;
+    private List<CodebuildProjectSource> secondarySources;
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
@@ -203,6 +204,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.secondaryArtifacts = secondaryArtifacts;
     }
 
+    @Updatable
+    public List<CodebuildProjectSource> getSecondarySources() {
+        return secondarySources;
+    }
+
+    public void setSecondarySources(List<CodebuildProjectSource> secondarySources) {
+        this.secondarySources = secondarySources;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -256,6 +266,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .secondaryArtifacts(
                 projectFields.get("secondary-artifacts") != null ? (List<ProjectArtifacts>) projectFields.get(
                     "secondary-artifacts") : null)
+            .secondarySources(projectFields.get("secondary-sources") != null ? (List<ProjectSource>) projectFields.get(
+                "secondary-sources") : null)
         );
     }
 
@@ -348,6 +360,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         if (changedFieldNames.contains("secondary-artifacts") && projectFields.get("secondary-artifacts") != null) {
             client.updateProject(r -> r.name(getName())
                 .secondaryArtifacts((List<ProjectArtifacts>) projectFields.get("secondary-artifacts"))
+            );
+        }
+
+        if (changedFieldNames.contains("secondary-sources") && projectFields.get("secondary-sources") != null) {
+            client.updateProject(r -> r.name(getName())
+                .secondarySources((List<ProjectSource>) projectFields.get("secondary-sources"))
             );
         }
     }
@@ -448,6 +466,18 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             }
 
             setSecondaryArtifacts(secondaryArtifacts);
+        }
+
+        if (project.secondarySources() != null) {
+            List<CodebuildProjectSource> secondarySources = new ArrayList<>();
+            CodebuildProjectSource source = newSubresource(CodebuildProjectSource.class);
+
+            for (ProjectSource s : project.secondarySources()) {
+                source.copyFrom(s);
+                secondarySources.add(source);
+            }
+
+            setSecondarySources(secondarySources);
         }
     }
 
@@ -586,6 +616,32 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .build());
         }
 
+        List<CodebuildProjectSource> secondarySources = getSecondarySources();
+        List<ProjectSource> projectSecondarySources = new ArrayList<>();
+
+        for (CodebuildProjectSource source : secondarySources) {
+            BuildStatusConfig bsc = BuildStatusConfig.builder()
+                .context(source.getBuildStatusConfig().getContext())
+                .targetUrl(source.getBuildStatusConfig().getTargetUrl())
+                .build();
+
+            GitSubmodulesConfig gsc = GitSubmodulesConfig.builder()
+                .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
+
+            projectSecondarySources.add(ProjectSource.builder()
+                .type(source.getType())
+                .location(source.getLocation())
+                .buildspec(source.getBuildspec())
+                .buildStatusConfig(bsc)
+                .gitCloneDepth(source.getGitCloneDepth())
+                .gitSubmodulesConfig(gsc)
+                .insecureSsl(source.getInsecureSsl())
+                .reportBuildStatus(source.getReportBuildStatus())
+                .sourceIdentifier(source.getSourceIdentifier())
+                .build()
+            );
+        }
+
         fields.put("source", projectSource);
         fields.put("artifacts", projectArtifacts);
         fields.put("environment", projectEnvironment);
@@ -595,6 +651,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         fields.put("cache", projectCache);
         fields.put("file-system-locations", projectFileSystemLocations);
         fields.put("secondary-artifacts", projectSecondaryArtifacts);
+        fields.put("secondary-sources", projectSecondarySources);
 
         return fields;
     }
