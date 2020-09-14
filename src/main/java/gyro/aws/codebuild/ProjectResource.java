@@ -34,6 +34,7 @@ import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 import software.amazon.awssdk.services.codebuild.model.Tag;
+import software.amazon.awssdk.services.codebuild.model.VpcConfig;
 
 @Type("project")
 public class ProjectResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
@@ -75,6 +76,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     // Environment - Timeout
     private Integer timeoutInMinutes;
+
+    // Environment - VPC
+    private CodebuildVpcConfig vpcConfig;
 
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
@@ -238,6 +242,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.timeoutInMinutes = timeoutInMinutes;
     }
 
+    @Updatable
+    public CodebuildVpcConfig getVpcConfig() {
+        return vpcConfig;
+    }
+
+    public void setVpcConfig(CodebuildVpcConfig vpcConfig) {
+        this.vpcConfig = vpcConfig;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -295,6 +308,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                     "secondary-artifacts") : null)
             .secondarySources(projectFields.get("secondary-sources") != null ? (List<ProjectSource>) projectFields.get(
                 "secondary-sources") : null)
+            .vpcConfig(projectFields.get("vpc-config") != null ? (VpcConfig) projectFields.get("vpc-config") : null)
         );
     }
 
@@ -405,6 +419,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         if (changedFieldNames.contains("timeout-in-minutes")) {
             client.updateProject(r -> r.name(getName())
                 .timeoutInMinutes(getTimeoutInMinutes())
+            );
+        }
+
+        if (changedFieldNames.contains("vpc-config") && projectFields.get("vpc-config") != null) {
+            client.updateProject(r -> r.name(getName())
+                .vpcConfig((VpcConfig) projectFields.get("vpc-config"))
             );
         }
     }
@@ -519,6 +539,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             }
 
             setSecondarySources(secondarySources);
+        }
+
+        if (project.vpcConfig() != null) {
+            CodebuildVpcConfig vpcConfig = newSubresource(CodebuildVpcConfig.class);
+            vpcConfig.copyFrom(project.vpcConfig());
+            setVpcConfig(vpcConfig);
         }
     }
 
@@ -683,6 +709,13 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             );
         }
 
+        CodebuildVpcConfig vpcConfig = getVpcConfig();
+        VpcConfig projectVpcConfig = VpcConfig.builder()
+            .vpcId(vpcConfig.getVpdId())
+            .securityGroupIds(vpcConfig.getSecurityGroupIds())
+            .subnets(vpcConfig.getSubnets())
+            .build();
+
         fields.put("source", projectSource);
         fields.put("artifacts", projectArtifacts);
         fields.put("environment", projectEnvironment);
@@ -693,6 +726,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         fields.put("file-system-locations", projectFileSystemLocations);
         fields.put("secondary-artifacts", projectSecondaryArtifacts);
         fields.put("secondary-sources", projectSecondarySources);
+        fields.put("vpc-config", projectVpcConfig);
 
         return fields;
     }
