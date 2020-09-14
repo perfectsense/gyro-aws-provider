@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.codebuild.model.LogsConfig;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
+import software.amazon.awssdk.services.codebuild.model.ProjectCache;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
@@ -52,6 +53,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     // Logs
     private CodebuildLogsConfig logsConfig;
+
+    // Artifacts - Cache
+    private CodebuildProjectCache cache;
+
+    // Artifacts -- Encryption key
+    private String encryptionKey;
 
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
@@ -143,6 +150,24 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.logsConfig = logsConfig;
     }
 
+    @Updatable
+    public CodebuildProjectCache getCache() {
+        return cache;
+    }
+
+    public void setCache(CodebuildProjectCache cache) {
+        this.cache = cache;
+    }
+
+    @Updatable
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -172,6 +197,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         client.createProject(r -> r
             .name(getName())
             .badgeEnabled(getBadge().getBadgeEnabled())
+            .encryptionKey(getEncryptionKey())
             .buildBatchConfig(
                 projectFields.get("build-batch-config") != null ? (ProjectBuildBatchConfig) projectFields.get(
                     "build-batch-config") : null)
@@ -187,6 +213,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 "artifacts") : null)
             .tags(projectFields.get("tags") != null ? (List<Tag>) projectFields.get(
                 "tags") : null)
+            .cache(projectFields.get("cache") != null ? (ProjectCache) projectFields.get("cache") : null)
         );
     }
 
@@ -251,6 +278,18 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .tags((List<Tag>) projectFields.get("tags"))
             );
         }
+
+        if (changedFieldNames.contains("cache") && projectFields.get("cache") != null) {
+            client.updateProject(r -> r.name(getName())
+                .cache((ProjectCache) projectFields.get("cache"))
+            );
+        }
+
+        if (changedFieldNames.contains("encryption-key")) {
+            client.updateProject(r -> r.name(getName())
+                .encryptionKey(getEncryptionKey())
+            );
+        }
     }
 
     @Override
@@ -269,6 +308,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         setServiceRole(!ObjectUtils.isBlank(project.serviceRole())
             ? findById(RoleResource.class, project.serviceRole())
             : null);
+        setEncryptionKey(project.encryptionKey());
 
         if (project.artifacts() != null) {
             CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
@@ -317,6 +357,12 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             CodebuildLogsConfig logsConfig = newSubresource(CodebuildLogsConfig.class);
             logsConfig.copyFrom(project.logsConfig());
             setLogsConfig(logsConfig);
+        }
+
+        if (project.cache() != null) {
+            CodebuildProjectCache cache = newSubresource(CodebuildProjectCache.class);
+            cache.copyFrom(project.cache());
+            setCache(cache);
         }
     }
 
@@ -420,12 +466,20 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .s3Logs(s3LogsConfig)
             .build();
 
+        CodebuildProjectCache cache = getCache();
+        ProjectCache projectCache = ProjectCache.builder()
+            .type(cache.getType())
+            .location(cache.getLocation())
+            .modesWithStrings(cache.getModes())
+            .build();
+
         fields.put("source", projectSource);
         fields.put("artifacts", projectArtifacts);
         fields.put("environment", projectEnvironment);
         fields.put("tags", projectTags);
         fields.put("build-batch-config", projectBuildBatchConfig);
         fields.put("logs-config", projectLogsConfig);
+        fields.put("cache", projectCache);
 
         return fields;
     }
