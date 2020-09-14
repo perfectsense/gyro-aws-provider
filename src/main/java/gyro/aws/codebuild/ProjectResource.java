@@ -13,6 +13,7 @@ import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -21,6 +22,7 @@ import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
 import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
+import software.amazon.awssdk.services.codebuild.model.CreateProjectResponse;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.LogsConfig;
@@ -82,6 +84,10 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     // Source - Primary source webhook events - only when source is GitHub
     private WebhookResource webhook;
+
+    // Read-only
+    private String arn;
+
     @Updatable
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
@@ -262,6 +268,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.webhook = webhook;
     }
 
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
@@ -288,7 +303,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         Map<String, Object> projectFields = getProjectFields();
 
-        client.createProject(r -> r
+        CreateProjectResponse response = client.createProject(r -> r
             .name(getName())
             .badgeEnabled(getBadge().getBadgeEnabled())
             .encryptionKey(getEncryptionKey())
@@ -321,6 +336,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 "secondary-sources") : null)
             .vpcConfig(projectFields.get("vpc-config") != null ? (VpcConfig) projectFields.get("vpc-config") : null)
         );
+
+        setArn(response.project().arn());
+        refresh();
     }
 
     @Override
@@ -464,6 +482,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             setWebhook(findById(WebhookResource.class, project.webhook()) != null ? findById(
                 WebhookResource.class,
                 project.webhook()) : null);
+            setArn(project.arn());
 
             if (project.artifacts() != null) {
                 CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
