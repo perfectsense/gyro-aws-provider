@@ -46,6 +46,6 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

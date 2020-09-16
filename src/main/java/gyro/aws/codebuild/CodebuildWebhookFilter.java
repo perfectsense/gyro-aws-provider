@@ -47,6 +47,6 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

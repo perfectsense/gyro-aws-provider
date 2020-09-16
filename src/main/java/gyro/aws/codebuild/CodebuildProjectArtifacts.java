@@ -116,6 +116,6 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
 
     @Override
     public String primaryKey() {
-        return "project artifacts";
+        return "";
     }
 }

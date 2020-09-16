@@ -109,6 +109,6 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

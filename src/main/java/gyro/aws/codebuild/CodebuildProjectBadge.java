@@ -37,6 +37,6 @@ public class CodebuildProjectBadge extends Diffable implements Copyable<ProjectB
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

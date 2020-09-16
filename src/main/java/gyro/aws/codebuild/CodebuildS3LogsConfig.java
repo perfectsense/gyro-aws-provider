@@ -47,6 +47,6 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
 
     @Override
     public String primaryKey() {
-        return "s3 logs config";
+        return "";
     }
 }

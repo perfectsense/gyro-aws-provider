@@ -49,6 +49,6 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
 
     @Override
     public String primaryKey() {
-        return "vpc config";
+        return "";
     }
 }

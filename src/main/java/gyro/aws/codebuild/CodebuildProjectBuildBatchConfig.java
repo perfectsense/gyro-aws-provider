@@ -63,6 +63,6 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

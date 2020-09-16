@@ -38,6 +38,6 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
 
     @Override
     public String primaryKey() {
-        return "batch restrictions";
+        return "";
     }
 }

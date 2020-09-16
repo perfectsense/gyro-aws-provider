@@ -47,6 +47,6 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
 
     @Override
     public String primaryKey() {
-        return "cloud watch logs config";
+        return "";
     }
 }

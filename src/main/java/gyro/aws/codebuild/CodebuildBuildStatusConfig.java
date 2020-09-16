@@ -36,6 +36,6 @@ public class CodebuildBuildStatusConfig extends Diffable implements Copyable<Bui
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

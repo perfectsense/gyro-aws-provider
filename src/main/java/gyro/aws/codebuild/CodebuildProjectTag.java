@@ -33,6 +33,6 @@ public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

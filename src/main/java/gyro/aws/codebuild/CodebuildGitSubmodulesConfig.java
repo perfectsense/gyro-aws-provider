@@ -25,6 +25,6 @@ public class CodebuildGitSubmodulesConfig extends Diffable implements Copyable<G
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

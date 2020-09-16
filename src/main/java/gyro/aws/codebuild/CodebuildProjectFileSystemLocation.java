@@ -69,6 +69,6 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
 
     @Override
     public String primaryKey() {
-        return "project file system location";
+        return "";
     }
 }

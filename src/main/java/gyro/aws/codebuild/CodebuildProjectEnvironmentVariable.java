@@ -47,6 +47,6 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 }

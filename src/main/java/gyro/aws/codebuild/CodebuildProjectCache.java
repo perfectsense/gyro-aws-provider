@@ -49,6 +49,6 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
 
     @Override
     public String primaryKey() {
-        return "project cache";
+        return "";
     }
 }

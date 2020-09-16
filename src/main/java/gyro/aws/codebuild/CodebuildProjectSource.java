@@ -125,6 +125,6 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
 
     @Override
     public String primaryKey() {
-        return "project source";
+        return "";
     }
 }
