@@ -1,9 +1,14 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
+import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 
 public class CodebuildProjectSource extends Diffable implements Copyable<ProjectSource> {
@@ -126,5 +131,56 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public ProjectSource toProjectSource() {
+        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
+            .context(getBuildStatusConfig().getContext())
+            .targetUrl(getBuildStatusConfig().getTargetUrl())
+            .build();
+
+        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
+            .fetchSubmodules(getGitSubmodulesConfig().getFetchSubmodules()).build();
+
+        return ProjectSource.builder()
+            .type(getType())
+            .location(getLocation())
+            .buildspec(getBuildspec())
+            .buildStatusConfig(buildStatusConfig)
+            .gitCloneDepth(getGitCloneDepth())
+            .gitSubmodulesConfig(gitSubmodulesConfig)
+            .insecureSsl(getInsecureSsl())
+            .reportBuildStatus(getReportBuildStatus())
+            .sourceIdentifier(getSourceIdentifier())
+            .build();
+    }
+
+    public static List<ProjectSource> toSecondaryProjectSources(List<CodebuildProjectSource> secondarySources) {
+        List<ProjectSource> projectSecondarySources = new ArrayList<>();
+
+        for (CodebuildProjectSource source : secondarySources) {
+            BuildStatusConfig bsc = BuildStatusConfig.builder()
+                .context(source.getBuildStatusConfig().getContext())
+                .targetUrl(source.getBuildStatusConfig().getTargetUrl())
+                .build();
+
+            GitSubmodulesConfig gsc = GitSubmodulesConfig.builder()
+                .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
+
+            projectSecondarySources.add(ProjectSource.builder()
+                .type(source.getType())
+                .location(source.getLocation())
+                .buildspec(source.getBuildspec())
+                .buildStatusConfig(bsc)
+                .gitCloneDepth(source.getGitCloneDepth())
+                .gitSubmodulesConfig(gsc)
+                .insecureSsl(source.getInsecureSsl())
+                .reportBuildStatus(source.getReportBuildStatus())
+                .sourceIdentifier(source.getSourceIdentifier())
+                .build()
+            );
+        }
+
+        return projectSecondarySources;
     }
 }

@@ -3,6 +3,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 
 public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyable<ProjectBuildBatchConfig> {
@@ -64,5 +65,19 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public ProjectBuildBatchConfig toProjectBuildBatchConfig() {
+        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
+            .computeTypesAllowed(getRestrictions().getComputedTypesAllowed())
+            .maximumBuildsAllowed(getRestrictions().getMaximumBuildsAllowed())
+            .build();
+
+        return ProjectBuildBatchConfig.builder()
+            .combineArtifacts(getCombineArtifacts())
+            .restrictions(batchRestrictions)
+            .serviceRole(getServiceRole())
+            .timeoutInMins(getTimeoutInMins())
+            .build();
     }
 }

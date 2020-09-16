@@ -1,5 +1,8 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
@@ -117,5 +120,35 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public ProjectArtifacts toProjectArtifacts() {
+        return ProjectArtifacts.builder()
+            .type(getType())
+            .location(getLocation())
+            .name(getName())
+            .namespaceType(getNamespaceType())
+            .encryptionDisabled(getEncryptionDisabled())
+            .path(getPath())
+            .packaging(getPackaging())
+            .build();
+    }
+
+    public static List<ProjectArtifacts> toSecondaryProjectArtifacts(List<CodebuildProjectArtifacts> secondaryProjectArtifacts) {
+        List<ProjectArtifacts> projectSecondaryArtifacts = new ArrayList<>();
+
+        for (CodebuildProjectArtifacts artifact : secondaryProjectArtifacts) {
+            projectSecondaryArtifacts.add(ProjectArtifacts.builder()
+                .type(artifact.getType())
+                .location(artifact.getLocation())
+                .name(artifact.getName())
+                .namespaceType(artifact.getNamespaceType())
+                .encryptionDisabled(artifact.getEncryptionDisabled())
+                .path(artifact.getPath())
+                .packaging(artifact.getPackaging())
+                .build());
+        }
+
+        return projectSecondaryArtifacts;
     }
 }

@@ -19,24 +19,13 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
-import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
-import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
-import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
 import software.amazon.awssdk.services.codebuild.model.CreateProjectResponse;
-import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
-import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
-import software.amazon.awssdk.services.codebuild.model.LogsConfig;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
-import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
-import software.amazon.awssdk.services.codebuild.model.ProjectCache;
-import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 import software.amazon.awssdk.services.codebuild.model.ProjectFileSystemLocation;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
-import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 import software.amazon.awssdk.services.codebuild.model.Tag;
-import software.amazon.awssdk.services.codebuild.model.VpcConfig;
 
 @Type("project")
 public class ProjectResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
@@ -301,8 +290,6 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     public void create(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        Map<String, Object> projectFields = getProjectFields();
-
         CreateProjectResponse response = client.createProject(r -> r
             .name(getName())
             .badgeEnabled(getBadge().getBadgeEnabled())
@@ -310,31 +297,19 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
             .sourceVersion(getSourceVersion())
             .timeoutInMinutes(getTimeoutInMinutes())
-            .buildBatchConfig(
-                projectFields.get("build-batch-config") != null ? (ProjectBuildBatchConfig) projectFields.get(
-                    "build-batch-config") : null)
-            .logsConfig(projectFields.get("logs-config") != null ? (LogsConfig) projectFields.get(
-                "logs-config") : null)
+            .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
+            .logsConfig(getLogsConfig().toProjectLogsConfig())
             .description(getDescription())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
-            .environment(projectFields.get("environment") != null ? (ProjectEnvironment) projectFields.get(
-                "environment") : null)
-            .source(projectFields.get("source") != null ? (ProjectSource) projectFields.get(
-                "source") : null)
-            .artifacts(projectFields.get("artifacts") != null ? (ProjectArtifacts) projectFields.get(
-                "artifacts") : null)
-            .tags(projectFields.get("tags") != null ? (List<Tag>) projectFields.get(
-                "tags") : null)
-            .cache(projectFields.get("cache") != null ? (ProjectCache) projectFields.get("cache") : null)
-            .fileSystemLocations(projectFields.get("file-system-locations") != null
-                ? (List<ProjectFileSystemLocation>) projectFields.get("file-system-locations")
-                : null)
-            .secondaryArtifacts(
-                projectFields.get("secondary-artifacts") != null ? (List<ProjectArtifacts>) projectFields.get(
-                    "secondary-artifacts") : null)
-            .secondarySources(projectFields.get("secondary-sources") != null ? (List<ProjectSource>) projectFields.get(
-                "secondary-sources") : null)
-            .vpcConfig(projectFields.get("vpc-config") != null ? (VpcConfig) projectFields.get("vpc-config") : null)
+            .environment(getEnvironment().toProjectEnvironment())
+            .source(getSource().toProjectSource())
+            .artifacts(getArtifacts().toProjectArtifacts())
+            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+            .cache(getCache().toProjectCache())
+            .fileSystemLocations(CodebuildProjectFileSystemLocation.toProjectFileSystemLocations(getFileSystemLocations()))
+            .secondaryArtifacts(CodebuildProjectArtifacts.toSecondaryProjectArtifacts(getSecondaryArtifacts()))
+            .secondarySources(CodebuildProjectSource.toSecondaryProjectSources(getSecondarySources()))
+            .vpcConfig(getVpcConfig().toProjectVpcConfig())
         );
 
         setArn(response.project().arn());
@@ -347,113 +322,27 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        Map<String, Object> projectFields = getProjectFields();
-
-        if (changedFieldNames.contains("badge-enabled")) {
+        if (changedFieldNames.size() > 1) {
             client.updateProject(r -> r.name(getName())
                 .badgeEnabled(getBadge().getBadgeEnabled())
-            );
-        }
-
-        if (changedFieldNames.contains("build-batch-config") && projectFields.get("build-batch-config") != null) {
-            client.updateProject(r -> r.name(getName())
-                .buildBatchConfig((ProjectBuildBatchConfig) projectFields.get("build-batch-config"))
-            );
-        }
-
-        if (changedFieldNames.contains("logs-config") && projectFields.get("logs-config") != null) {
-            client.updateProject(r -> r.name(getName())
-                .logsConfig((LogsConfig) projectFields.get("logs-config"))
-            );
-        }
-
-        if (changedFieldNames.contains("description")) {
-            client.updateProject(r -> r.name(getName())
+                .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
+                .logsConfig(getLogsConfig().toProjectLogsConfig())
                 .description(getDescription())
-            );
-        }
-
-        if (changedFieldNames.contains("service-role")) {
-            client.updateProject(r -> r.name(getName())
                 .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
-            );
-        }
-
-        if (changedFieldNames.contains("environment") && projectFields.get("environment") != null) {
-            client.updateProject(r -> r.name(getName())
-                .environment((ProjectEnvironment) projectFields.get("environment"))
-            );
-        }
-
-        if (changedFieldNames.contains("source") && projectFields.get("source") != null) {
-            client.updateProject(r -> r.name(getName())
-                .source((ProjectSource) projectFields.get("source"))
-            );
-        }
-
-        if (changedFieldNames.contains("artifacts") && projectFields.get("artifacts") != null) {
-            client.updateProject(r -> r.name(getName())
-                .artifacts((ProjectArtifacts) projectFields.get("artifacts"))
-            );
-        }
-
-        if (changedFieldNames.contains("tags") && projectFields.get("tags") != null) {
-            client.updateProject(r -> r.name(getName())
-                .tags((List<Tag>) projectFields.get("tags"))
-            );
-        }
-
-        if (changedFieldNames.contains("cache") && projectFields.get("cache") != null) {
-            client.updateProject(r -> r.name(getName())
-                .cache((ProjectCache) projectFields.get("cache"))
-            );
-        }
-
-        if (changedFieldNames.contains("encryption-key")) {
-            client.updateProject(r -> r.name(getName())
+                .environment(getEnvironment().toProjectEnvironment())
+                .source(getSource().toProjectSource())
+                .artifacts(getArtifacts().toProjectArtifacts())
+                .tags(CodebuildProjectTag.toProjectTags(getTags()))
+                .cache(getCache().toProjectCache())
                 .encryptionKey(getEncryptionKey())
-            );
-        }
-
-        if (changedFieldNames.contains("file-system-locations") && projectFields.get("file-system-locations") != null) {
-            client.updateProject(r -> r.name(getName())
-                .fileSystemLocations((List<ProjectFileSystemLocation>) projectFields.get("file-system-locations"))
-            );
-        }
-
-        if (changedFieldNames.contains("queued-out-time-in-minutes")) {
-            client.updateProject(r -> r.name(getName())
+                .fileSystemLocations(CodebuildProjectFileSystemLocation.toProjectFileSystemLocations(
+                    getFileSystemLocations()))
                 .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
-            );
-        }
-
-        if (changedFieldNames.contains("secondary-artifacts") && projectFields.get("secondary-artifacts") != null) {
-            client.updateProject(r -> r.name(getName())
-                .secondaryArtifacts((List<ProjectArtifacts>) projectFields.get("secondary-artifacts"))
-            );
-        }
-
-        if (changedFieldNames.contains("secondary-sources") && projectFields.get("secondary-sources") != null) {
-            client.updateProject(r -> r.name(getName())
-                .secondarySources((List<ProjectSource>) projectFields.get("secondary-sources"))
-            );
-        }
-
-        if (changedFieldNames.contains("source-version")) {
-            client.updateProject(r -> r.name(getName())
+                .secondaryArtifacts(CodebuildProjectArtifacts.toSecondaryProjectArtifacts(getSecondaryArtifacts()))
+                .secondarySources(CodebuildProjectSource.toSecondaryProjectSources(getSecondarySources()))
                 .sourceVersion(getSourceVersion())
-            );
-        }
-
-        if (changedFieldNames.contains("timeout-in-minutes")) {
-            client.updateProject(r -> r.name(getName())
                 .timeoutInMinutes(getTimeoutInMinutes())
-            );
-        }
-
-        if (changedFieldNames.contains("vpc-config") && projectFields.get("vpc-config") != null) {
-            client.updateProject(r -> r.name(getName())
-                .vpcConfig((VpcConfig) projectFields.get("vpc-config"))
+                .vpcConfig(getVpcConfig().toProjectVpcConfig())
             );
         }
     }
@@ -582,188 +471,5 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 setVpcConfig(vpcConfig);
             }
         }
-    }
-
-    private Map<String, Object> getProjectFields() {
-        Map<String, Object> fields = new HashMap<>();
-
-        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
-            .context(source.getBuildStatusConfig().getContext())
-            .targetUrl(source.getBuildStatusConfig().getTargetUrl())
-            .build();
-
-        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
-            .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
-
-        CodebuildProjectSource source = getSource();
-        ProjectSource projectSource = ProjectSource.builder()
-            .type(source.getType())
-            .location(source.getLocation())
-            .buildspec(source.getBuildspec())
-            .buildStatusConfig(buildStatusConfig)
-            .gitCloneDepth(source.getGitCloneDepth())
-            .gitSubmodulesConfig(gitSubmodulesConfig)
-            .insecureSsl(source.getInsecureSsl())
-            .reportBuildStatus(source.getReportBuildStatus())
-            .sourceIdentifier(source.getSourceIdentifier())
-            .build();
-
-        CodebuildProjectArtifacts artifacts = getArtifacts();
-        ProjectArtifacts projectArtifacts = ProjectArtifacts.builder()
-            .type(artifacts.getType())
-            .location(artifacts.getLocation())
-            .name(artifacts.getName())
-            .namespaceType(artifacts.getNamespaceType())
-            .encryptionDisabled(artifacts.getEncryptionDisabled())
-            .path(artifacts.getPath())
-            .packaging(artifacts.getPackaging())
-            .build();
-
-        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
-
-        for (CodebuildProjectEnvironmentVariable var : environment.getEnvironmentVariables()) {
-            environmentVariables.add(EnvironmentVariable.builder()
-                .name(var.getName())
-                .type(var.getType())
-                .value(var.getValue())
-                .build());
-        }
-
-        CodebuildProjectEnvironment environment = getEnvironment();
-        ProjectEnvironment projectEnvironment = ProjectEnvironment.builder()
-            .computeType(environment.getComputeType())
-            .image(environment.getImage())
-            .type(environment.getType())
-            .certificate(environment.getCertificate())
-            .environmentVariables(environmentVariables)
-            .imagePullCredentialsType(environment.getImagePullCredentialsType())
-            .privilegedMode(environment.getPrivalegedMode())
-            .build();
-
-        Map<String, String> tags = getTags();
-        List<Tag> projectTags = new ArrayList<>();
-
-        for (String key : tags.keySet()) {
-            projectTags.add(Tag.builder()
-                .key(key)
-                .value(tags.get(key))
-                .build());
-        }
-
-        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
-            .computeTypesAllowed(buildBatchConfig.getRestrictions().getComputedTypesAllowed())
-            .maximumBuildsAllowed(buildBatchConfig.getRestrictions().getMaximumBuildsAllowed())
-            .build();
-
-        CodebuildProjectBuildBatchConfig buildBatchConfig = getBuildBatchConfig();
-        ProjectBuildBatchConfig projectBuildBatchConfig = ProjectBuildBatchConfig.builder()
-            .combineArtifacts(buildBatchConfig.getCombineArtifacts())
-            .restrictions(batchRestrictions)
-            .serviceRole(buildBatchConfig.getServiceRole())
-            .timeoutInMins(buildBatchConfig.getTimeoutInMins())
-            .build();
-
-        CodebuildLogsConfig logsConfig = getLogsConfig();
-        CodebuildCloudWatchLogsConfig cloudWatchLogs = logsConfig.getCloudWatchLogs();
-        CodebuildS3LogsConfig s3Logs = logsConfig.getS3Logs();
-
-        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
-            .groupName(cloudWatchLogs.getGroupName())
-            .status(cloudWatchLogs.getStatus())
-            .streamName(cloudWatchLogs.getStreamName())
-            .build();
-
-        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
-            .encryptionDisabled(s3Logs.getEncryptionDisabled())
-            .location(s3Logs.getLocation())
-            .status(s3Logs.getStatus())
-            .build();
-
-        LogsConfig projectLogsConfig = LogsConfig.builder()
-            .cloudWatchLogs(cloudWatchLogsConfig)
-            .s3Logs(s3LogsConfig)
-            .build();
-
-        CodebuildProjectCache cache = getCache();
-        ProjectCache projectCache = ProjectCache.builder()
-            .type(cache.getType())
-            .location(cache.getLocation())
-            .modesWithStrings(cache.getModes())
-            .build();
-
-        List<CodebuildProjectFileSystemLocation> fileSystemLocations = getFileSystemLocations();
-        List<ProjectFileSystemLocation> projectFileSystemLocations = new ArrayList<>();
-
-        for (CodebuildProjectFileSystemLocation fileSystemLocation : fileSystemLocations) {
-            projectFileSystemLocations.add(ProjectFileSystemLocation.builder()
-                .identifier(fileSystemLocation.getIdentifier())
-                .location(fileSystemLocation.getLocation())
-                .mountOptions(fileSystemLocation.getMountOptions())
-                .mountPoint(fileSystemLocation.getMountPoint())
-                .type(fileSystemLocation.getType())
-                .build());
-        }
-
-        List<CodebuildProjectArtifacts> secondaryArtifacts = getSecondaryArtifacts();
-        List<ProjectArtifacts> projectSecondaryArtifacts = new ArrayList<>();
-
-        for (CodebuildProjectArtifacts artifact : secondaryArtifacts) {
-            projectSecondaryArtifacts.add(ProjectArtifacts.builder()
-                .type(artifact.getType())
-                .location(artifact.getLocation())
-                .name(artifact.getName())
-                .namespaceType(artifact.getNamespaceType())
-                .encryptionDisabled(artifact.getEncryptionDisabled())
-                .path(artifact.getPath())
-                .packaging(artifact.getPackaging())
-                .build());
-        }
-
-        List<CodebuildProjectSource> secondarySources = getSecondarySources();
-        List<ProjectSource> projectSecondarySources = new ArrayList<>();
-
-        for (CodebuildProjectSource source : secondarySources) {
-            BuildStatusConfig bsc = BuildStatusConfig.builder()
-                .context(source.getBuildStatusConfig().getContext())
-                .targetUrl(source.getBuildStatusConfig().getTargetUrl())
-                .build();
-
-            GitSubmodulesConfig gsc = GitSubmodulesConfig.builder()
-                .fetchSubmodules(source.getGitSubmodulesConfig().getFetchSubmodules()).build();
-
-            projectSecondarySources.add(ProjectSource.builder()
-                .type(source.getType())
-                .location(source.getLocation())
-                .buildspec(source.getBuildspec())
-                .buildStatusConfig(bsc)
-                .gitCloneDepth(source.getGitCloneDepth())
-                .gitSubmodulesConfig(gsc)
-                .insecureSsl(source.getInsecureSsl())
-                .reportBuildStatus(source.getReportBuildStatus())
-                .sourceIdentifier(source.getSourceIdentifier())
-                .build()
-            );
-        }
-
-        CodebuildVpcConfig vpcConfig = getVpcConfig();
-        VpcConfig projectVpcConfig = VpcConfig.builder()
-            .vpcId(vpcConfig.getVpdId())
-            .securityGroupIds(vpcConfig.getSecurityGroupIds())
-            .subnets(vpcConfig.getSubnets())
-            .build();
-
-        fields.put("source", projectSource);
-        fields.put("artifacts", projectArtifacts);
-        fields.put("environment", projectEnvironment);
-        fields.put("tags", projectTags);
-        fields.put("build-batch-config", projectBuildBatchConfig);
-        fields.put("logs-config", projectLogsConfig);
-        fields.put("cache", projectCache);
-        fields.put("file-system-locations", projectFileSystemLocations);
-        fields.put("secondary-artifacts", projectSecondaryArtifacts);
-        fields.put("secondary-sources", projectSecondarySources);
-        fields.put("vpc-config", projectVpcConfig);
-
-        return fields;
     }
 }

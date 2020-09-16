@@ -3,7 +3,9 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
 import software.amazon.awssdk.services.codebuild.model.LogsConfig;
+import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 
 public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig> {
 
@@ -47,5 +49,27 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public LogsConfig toProjectLogsConfig() {
+        CodebuildCloudWatchLogsConfig cloudWatchLogs = getCloudWatchLogs();
+        CodebuildS3LogsConfig s3Logs = getS3Logs();
+
+        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
+            .groupName(cloudWatchLogs.getGroupName())
+            .status(cloudWatchLogs.getStatus())
+            .streamName(cloudWatchLogs.getStreamName())
+            .build();
+
+        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
+            .encryptionDisabled(s3Logs.getEncryptionDisabled())
+            .location(s3Logs.getLocation())
+            .status(s3Logs.getStatus())
+            .build();
+
+        return LogsConfig.builder()
+            .cloudWatchLogs(cloudWatchLogsConfig)
+            .s3Logs(s3LogsConfig)
+            .build();
     }
 }

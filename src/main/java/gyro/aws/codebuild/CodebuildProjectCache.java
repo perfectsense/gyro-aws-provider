@@ -51,4 +51,12 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
     public String primaryKey() {
         return "";
     }
+
+    public ProjectCache toProjectCache() {
+        return ProjectCache.builder()
+            .type(getType())
+            .location(getLocation())
+            .modesWithStrings(getModes())
+            .build();
+    }
 }

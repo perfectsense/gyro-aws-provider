@@ -1,5 +1,8 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
@@ -70,5 +73,21 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public static List<ProjectFileSystemLocation> toProjectFileSystemLocations(List<CodebuildProjectFileSystemLocation> fileSystemLocations) {
+        List<ProjectFileSystemLocation> projectFileSystemLocations = new ArrayList<>();
+
+        for (CodebuildProjectFileSystemLocation fileSystemLocation : fileSystemLocations) {
+            projectFileSystemLocations.add(ProjectFileSystemLocation.builder()
+                .identifier(fileSystemLocation.getIdentifier())
+                .location(fileSystemLocation.getLocation())
+                .mountOptions(fileSystemLocation.getMountOptions())
+                .mountPoint(fileSystemLocation.getMountPoint())
+                .type(fileSystemLocation.getType())
+                .build());
+        }
+
+        return projectFileSystemLocations;
     }
 }

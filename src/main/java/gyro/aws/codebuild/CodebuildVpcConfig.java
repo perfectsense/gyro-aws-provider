@@ -51,4 +51,12 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     public String primaryKey() {
         return "";
     }
+
+    public VpcConfig toProjectVpcConfig() {
+        return VpcConfig.builder()
+            .vpcId(getVpdId())
+            .securityGroupIds(getSecurityGroupIds())
+            .subnets(getSubnets())
+            .build();
+    }
 }

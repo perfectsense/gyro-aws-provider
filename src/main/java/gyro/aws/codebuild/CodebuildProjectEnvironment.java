@@ -111,4 +111,26 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     public String primaryKey() {
         return "";
     }
+
+    public ProjectEnvironment toProjectEnvironment() {
+        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
+
+        for (CodebuildProjectEnvironmentVariable var : getEnvironmentVariables()) {
+            environmentVariables.add(EnvironmentVariable.builder()
+                .name(var.getName())
+                .type(var.getType())
+                .value(var.getValue())
+                .build());
+        }
+
+        return ProjectEnvironment.builder()
+            .computeType(getComputeType())
+            .image(getImage())
+            .type(getType())
+            .certificate(getCertificate())
+            .environmentVariables(environmentVariables)
+            .imagePullCredentialsType(getImagePullCredentialsType())
+            .privilegedMode(getPrivalegedMode())
+            .build();
+    }
 }

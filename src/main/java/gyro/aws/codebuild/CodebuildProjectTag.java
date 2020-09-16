@@ -1,5 +1,9 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.codebuild.model.Tag;
@@ -34,5 +38,18 @@ public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public static List<Tag> toProjectTags(Map<String, String> tags) {
+        List<Tag> projectTags = new ArrayList<>();
+
+        for (String key : tags.keySet()) {
+            projectTags.add(Tag.builder()
+                .key(key)
+                .value(tags.get(key))
+                .build());
+        }
+
+        return projectTags;
     }
 }
