@@ -30,6 +30,7 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
 @Type("project")
 public class ProjectResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
 
+    // Minimum required fields
     private CodebuildProjectArtifacts artifacts;
     private CodebuildProjectEnvironment environment;
     private String name;
