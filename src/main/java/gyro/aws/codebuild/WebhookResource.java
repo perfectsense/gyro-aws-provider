@@ -60,6 +60,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
 
     @Updatable
     public List<CodebuildWebhookFilter> getFilterGroups() {
+        if (filterGroups == null) {
+            filterGroups = new ArrayList<>();
+        }
         return filterGroups;
     }
 

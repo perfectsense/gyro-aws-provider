@@ -143,6 +143,10 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     @Updatable
     public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
         return tags;
     }
 
@@ -188,6 +192,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     @Updatable
     public List<CodebuildProjectFileSystemLocation> getFileSystemLocations() {
+        if (fileSystemLocations == null) {
+            fileSystemLocations = new ArrayList<>();
+        }
         return fileSystemLocations;
     }
 
@@ -206,6 +213,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     @Updatable
     public List<CodebuildProjectArtifacts> getSecondaryArtifacts() {
+        if (secondaryArtifacts == null) {
+            secondaryArtifacts = new ArrayList<>();
+        }
         return secondaryArtifacts;
     }
 
@@ -215,6 +225,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     @Updatable
     public List<CodebuildProjectSource> getSecondarySources() {
+        if (secondarySources == null) {
+            secondarySources = new ArrayList<>();
+        }
         return secondarySources;
     }
 
