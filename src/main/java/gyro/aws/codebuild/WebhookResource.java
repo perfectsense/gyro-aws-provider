@@ -25,7 +25,7 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     private String projectName;
     private String branchFilter;
     private String buildType;
-    private List<List<CodebuildWebhookFilter>> filterGroups;
+    private List<CodebuildWebhookFilter> filterGroups;
     private String lastModifiedSecret;
     private String payloadUrl;
     private String secret;
@@ -59,11 +59,11 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
-    public List<List<CodebuildWebhookFilter>> getFilterGroups() {
+    public List<CodebuildWebhookFilter> getFilterGroups() {
         return filterGroups;
     }
 
-    public void setFilterGroups(List<List<CodebuildWebhookFilter>> filterGroups) {
+    public void setFilterGroups(List<CodebuildWebhookFilter> filterGroups) {
         this.filterGroups = filterGroups;
     }
 
@@ -116,20 +116,17 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
             setUrl(webhook.url());
 
             if (webhook.filterGroups() != null) {
-                List<List<CodebuildWebhookFilter>> filterGroups = new ArrayList<>();
                 CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
+                List<CodebuildWebhookFilter> filterList = new ArrayList<>();
 
                 for (List<WebhookFilter> filters : webhook.filterGroups()) {
-                    List<CodebuildWebhookFilter> filterList = new ArrayList<>();
-
                     for (WebhookFilter filter : filters) {
                         webhookFilter.copyFrom(filter);
                         filterList.add(webhookFilter);
                     }
-                    filterGroups.add(filterList);
                 }
 
-                setFilterGroups(filterGroups);
+                setFilterGroups(filterList);
             }
         }
     }
@@ -188,22 +185,18 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         client.deleteWebhook(r -> r.projectName(getProjectName()));
     }
 
-    private List<List<WebhookFilter>> convertFilterGroups(List<List<CodebuildWebhookFilter>> filterGroups) {
+    private List<List<WebhookFilter>> convertFilterGroups(List<CodebuildWebhookFilter> filterGroups) {
         List<List<WebhookFilter>> projectFilterGroups = new ArrayList<>();
+        List<WebhookFilter> filterList = new ArrayList<>();
 
-        for (List<CodebuildWebhookFilter> filters : filterGroups) {
-            List<WebhookFilter> filterList = new ArrayList<>();
-
-            for (CodebuildWebhookFilter filter : filters) {
-                filterList.add(WebhookFilter.builder()
-                    .pattern(filter.getPattern())
-                    .type(filter.getType())
-                    .excludeMatchedPattern(filter.getExcludeMatchedPattern())
-                    .build());
-            }
-
-            projectFilterGroups.add(filterList);
+        for (CodebuildWebhookFilter filter : filterGroups) {
+            filterList.add(WebhookFilter.builder()
+                .pattern(filter.getPattern())
+                .type(filter.getType())
+                .excludeMatchedPattern(filter.getExcludeMatchedPattern())
+                .build());
         }
+        projectFilterGroups.add(filterList);
 
         return projectFilterGroups;
     }
