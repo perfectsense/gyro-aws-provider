@@ -172,7 +172,7 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        if (changedFieldNames.size() > 1) {
+        if (!changedFieldNames.isEmpty()) {
             client.updateWebhook(r -> r.projectName(getProjectName())
                 .branchFilter(getBranchFilter())
                 .buildType(getBuildType())
