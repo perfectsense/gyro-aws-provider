@@ -23,6 +23,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.FileBackend;
 import gyro.core.GyroCore;
 import gyro.core.Type;
@@ -123,13 +124,9 @@ public class S3FileBackend extends FileBackend {
     }
 
     private S3Client client() {
-        Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-            .getCredentialsByName()
-            .get("aws::default");
+        Credentials credentials = getCredentials("aws");
 
-        S3Client client = AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
-
-        return client;
+        return AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
     }
 
     private String prefixed(String file) {
