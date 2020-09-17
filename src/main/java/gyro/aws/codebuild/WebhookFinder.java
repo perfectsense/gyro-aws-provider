@@ -1,7 +1,6 @@
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,13 +16,15 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
 
     @Override
     protected List<Webhook> findAllAws(CodeBuildClient client) {
+        List<Webhook> webhooks = new ArrayList<>();
+
         try {
             List<BatchGetProjectsResponse> projectsResponseList = client.listProjectsPaginator().stream()
                 .map(projects ->
                     client.batchGetProjects(r -> r.names(projects.projects())))
                 .collect(Collectors.toList());
 
-            return projectsResponseList.stream()
+            webhooks = projectsResponseList.stream()
                 .map(BatchGetProjectsResponse::projects)
                 .flatMap(projects ->
                     projects.stream()
@@ -34,19 +35,20 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
             // Input project name list empty
         }
 
-        return Collections.emptyList();
+        return webhooks;
     }
 
     @Override
     protected List<Webhook> findAws(
         CodeBuildClient client, Map<String, String> filters) {
 
+        List<Webhook> webhooks = new ArrayList<>();
         List<BatchGetProjectsResponse> responseList = new ArrayList<>();
 
         try {
             responseList.add(client.batchGetProjects(r -> r.names(filters.get("names"))));
 
-            return responseList.stream()
+            webhooks = responseList.stream()
                 .map(BatchGetProjectsResponse::projects)
                 .flatMap(projects ->
                     projects.stream()
@@ -56,6 +58,6 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
             // Input project name list empty
         }
 
-        return Collections.emptyList();
+        return webhooks;
     }
 }
