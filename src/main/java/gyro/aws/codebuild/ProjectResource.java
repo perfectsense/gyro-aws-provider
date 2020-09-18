@@ -344,7 +344,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        if (changedFieldNames.size() > 1) {
+        if (!changedFieldNames.isEmpty()) {
             client.updateProject(r -> r.name(getName())
                 .badgeEnabled(getBadge().getBadgeEnabled())
                 .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
