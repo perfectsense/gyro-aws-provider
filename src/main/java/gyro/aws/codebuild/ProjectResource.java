@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
@@ -321,8 +322,13 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
             .cache(getCache().toProjectCache())
             .fileSystemLocations(CodebuildProjectFileSystemLocation.toProjectFileSystemLocations(getFileSystemLocations()))
-            .secondaryArtifacts(CodebuildProjectArtifacts.toSecondaryProjectArtifacts(getSecondaryArtifacts()))
-            .secondarySources(CodebuildProjectSource.toSecondaryProjectSources(getSecondarySources()))
+            .secondaryArtifacts(getSecondaryArtifacts().stream()
+                .map(CodebuildProjectArtifacts::toProjectArtifacts)
+                .collect(
+                    Collectors.toList()))
+            .secondarySources(getSecondarySources().stream()
+                .map(CodebuildProjectSource::toProjectSource)
+                .collect(Collectors.toList()))
             .vpcConfig(getVpcConfig().toProjectVpcConfig())
         );
 
@@ -352,8 +358,13 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .fileSystemLocations(CodebuildProjectFileSystemLocation.toProjectFileSystemLocations(
                     getFileSystemLocations()))
                 .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
-                .secondaryArtifacts(CodebuildProjectArtifacts.toSecondaryProjectArtifacts(getSecondaryArtifacts()))
-                .secondarySources(CodebuildProjectSource.toSecondaryProjectSources(getSecondarySources()))
+                .secondaryArtifacts(getSecondaryArtifacts().stream()
+                    .map(CodebuildProjectArtifacts::toProjectArtifacts)
+                    .collect(
+                        Collectors.toList()))
+                .secondarySources(getSecondarySources().stream()
+                    .map(CodebuildProjectSource::toProjectSource)
+                    .collect(Collectors.toList()))
                 .sourceVersion(getSourceVersion())
                 .timeoutInMinutes(getTimeoutInMinutes())
                 .vpcConfig(getVpcConfig().toProjectVpcConfig())

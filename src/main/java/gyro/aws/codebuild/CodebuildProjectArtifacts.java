@@ -133,22 +133,4 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
             .packaging(getPackaging())
             .build();
     }
-
-    public static List<ProjectArtifacts> toSecondaryProjectArtifacts(List<CodebuildProjectArtifacts> secondaryProjectArtifacts) {
-        List<ProjectArtifacts> projectSecondaryArtifacts = new ArrayList<>();
-
-        for (CodebuildProjectArtifacts artifact : secondaryProjectArtifacts) {
-            projectSecondaryArtifacts.add(ProjectArtifacts.builder()
-                .type(artifact.getType())
-                .location(artifact.getLocation())
-                .name(artifact.getName())
-                .namespaceType(artifact.getNamespaceType())
-                .encryptionDisabled(artifact.getEncryptionDisabled())
-                .path(artifact.getPath())
-                .packaging(artifact.getPackaging())
-                .build());
-        }
-
-        return projectSecondaryArtifacts;
-    }
 }
