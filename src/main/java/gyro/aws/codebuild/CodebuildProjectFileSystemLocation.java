@@ -75,19 +75,13 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
         return "";
     }
 
-    public static List<ProjectFileSystemLocation> toProjectFileSystemLocations(List<CodebuildProjectFileSystemLocation> fileSystemLocations) {
-        List<ProjectFileSystemLocation> projectFileSystemLocations = new ArrayList<>();
-
-        for (CodebuildProjectFileSystemLocation fileSystemLocation : fileSystemLocations) {
-            projectFileSystemLocations.add(ProjectFileSystemLocation.builder()
-                .identifier(fileSystemLocation.getIdentifier())
-                .location(fileSystemLocation.getLocation())
-                .mountOptions(fileSystemLocation.getMountOptions())
-                .mountPoint(fileSystemLocation.getMountPoint())
-                .type(fileSystemLocation.getType())
-                .build());
-        }
-
-        return projectFileSystemLocations;
+    public ProjectFileSystemLocation toProjectFileSystemLocation() {
+        return ProjectFileSystemLocation.builder()
+            .identifier(getIdentifier())
+            .location(getLocation())
+            .mountOptions(getMountOptions())
+            .mountPoint(getMountPoint())
+            .type(getType())
+            .build();
     }
 }

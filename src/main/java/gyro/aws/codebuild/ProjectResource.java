@@ -321,7 +321,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             .artifacts(getArtifacts().toProjectArtifacts())
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
             .cache(getCache().toProjectCache())
-            .fileSystemLocations(CodebuildProjectFileSystemLocation.toProjectFileSystemLocations(getFileSystemLocations()))
+            .fileSystemLocations(getFileSystemLocations().stream()
+                .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
+                .collect(Collectors.toList()))
             .secondaryArtifacts(getSecondaryArtifacts().stream()
                 .map(CodebuildProjectArtifacts::toProjectArtifacts)
                 .collect(
@@ -355,8 +357,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 .tags(CodebuildProjectTag.toProjectTags(getTags()))
                 .cache(getCache().toProjectCache())
                 .encryptionKey(getEncryptionKey())
-                .fileSystemLocations(CodebuildProjectFileSystemLocation.toProjectFileSystemLocations(
-                    getFileSystemLocations()))
+                .fileSystemLocations(getFileSystemLocations().stream()
+                    .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
+                    .collect(Collectors.toList()))
                 .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
                 .secondaryArtifacts(getSecondaryArtifacts().stream()
                     .map(CodebuildProjectArtifacts::toProjectArtifacts)
