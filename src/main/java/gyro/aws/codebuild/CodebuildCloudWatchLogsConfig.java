@@ -49,4 +49,12 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     public String primaryKey() {
         return "";
     }
+
+    public CloudWatchLogsConfig toCloudWatchLogsConfig() {
+        return CloudWatchLogsConfig.builder()
+            .groupName(getGroupName())
+            .status(getStatus())
+            .streamName(getStreamName())
+            .build();
+    }
 }

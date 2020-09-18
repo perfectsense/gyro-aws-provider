@@ -38,4 +38,11 @@ public class CodebuildBuildStatusConfig extends Diffable implements Copyable<Bui
     public String primaryKey() {
         return "";
     }
+
+    public BuildStatusConfig toBuildStatusConfig() {
+        return BuildStatusConfig.builder()
+            .context(getContext())
+            .targetUrl(getTargetUrl())
+            .build();
+    }
 }

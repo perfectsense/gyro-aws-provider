@@ -134,21 +134,13 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     }
 
     public ProjectSource toProjectSource() {
-        BuildStatusConfig buildStatusConfig = BuildStatusConfig.builder()
-            .context(getBuildStatusConfig().getContext())
-            .targetUrl(getBuildStatusConfig().getTargetUrl())
-            .build();
-
-        GitSubmodulesConfig gitSubmodulesConfig = GitSubmodulesConfig.builder()
-            .fetchSubmodules(getGitSubmodulesConfig().getFetchSubmodules()).build();
-
         return ProjectSource.builder()
             .type(getType())
             .location(getLocation())
             .buildspec(getBuildspec())
-            .buildStatusConfig(buildStatusConfig)
+            .buildStatusConfig(getBuildStatusConfig().toBuildStatusConfig())
             .gitCloneDepth(getGitCloneDepth())
-            .gitSubmodulesConfig(gitSubmodulesConfig)
+            .gitSubmodulesConfig(getGitSubmodulesConfig().toGitSubmodulesConfig())
             .insecureSsl(getInsecureSsl())
             .reportBuildStatus(getReportBuildStatus())
             .sourceIdentifier(getSourceIdentifier())

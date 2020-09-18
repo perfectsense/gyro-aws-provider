@@ -27,4 +27,9 @@ public class CodebuildGitSubmodulesConfig extends Diffable implements Copyable<G
     public String primaryKey() {
         return "";
     }
+
+    public GitSubmodulesConfig toGitSubmodulesConfig() {
+        return GitSubmodulesConfig.builder()
+            .fetchSubmodules(getFetchSubmodules()).build();
+    }
 }

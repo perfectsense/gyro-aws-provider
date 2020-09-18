@@ -52,24 +52,9 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
     }
 
     public LogsConfig toProjectLogsConfig() {
-        CodebuildCloudWatchLogsConfig cloudWatchLogs = getCloudWatchLogs();
-        CodebuildS3LogsConfig s3Logs = getS3Logs();
-
-        CloudWatchLogsConfig cloudWatchLogsConfig = CloudWatchLogsConfig.builder()
-            .groupName(cloudWatchLogs.getGroupName())
-            .status(cloudWatchLogs.getStatus())
-            .streamName(cloudWatchLogs.getStreamName())
-            .build();
-
-        S3LogsConfig s3LogsConfig = S3LogsConfig.builder()
-            .encryptionDisabled(s3Logs.getEncryptionDisabled())
-            .location(s3Logs.getLocation())
-            .status(s3Logs.getStatus())
-            .build();
-
         return LogsConfig.builder()
-            .cloudWatchLogs(cloudWatchLogsConfig)
-            .s3Logs(s3LogsConfig)
+            .cloudWatchLogs(getCloudWatchLogs().toCloudWatchLogsConfig())
+            .s3Logs(getS3Logs().toS3LogsConfig())
             .build();
     }
 }

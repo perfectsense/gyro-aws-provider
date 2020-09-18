@@ -49,4 +49,12 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
     public String primaryKey() {
         return "";
     }
+
+    public S3LogsConfig toS3LogsConfig() {
+        return S3LogsConfig.builder()
+            .encryptionDisabled(getEncryptionDisabled())
+            .location(getLocation())
+            .status(getStatus())
+            .build();
+    }
 }
