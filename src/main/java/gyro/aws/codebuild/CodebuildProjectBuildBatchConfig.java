@@ -1,8 +1,11 @@
 package gyro.aws.codebuild;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 
@@ -10,7 +13,7 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
 
     private Boolean combineArtifacts;
     private CodebuildProjectBatchRestrictions restrictions;
-    private String serviceRole;
+    private RoleResource serviceRole;
     private Integer timeoutInMins;
 
     @Updatable
@@ -32,11 +35,11 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     }
 
     @Updatable
-    public String getServiceRole() {
+    public RoleResource getServiceRole() {
         return serviceRole;
     }
 
-    public void setServiceRole(String serviceRole) {
+    public void setServiceRole(RoleResource serviceRole) {
         this.serviceRole = serviceRole;
     }
 
@@ -52,7 +55,9 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     @Override
     public void copyFrom(ProjectBuildBatchConfig model) {
         setCombineArtifacts(model.combineArtifacts());
-        setServiceRole(model.serviceRole());
+        setServiceRole(!ObjectUtils.isBlank(getServiceRole())
+            ? findById(RoleResource.class, getServiceRole())
+            : null);
         setTimeoutInMins(model.timeoutInMins());
 
         if (model.restrictions() != null) {
@@ -76,7 +81,7 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
         return ProjectBuildBatchConfig.builder()
             .combineArtifacts(getCombineArtifacts())
             .restrictions(batchRestrictions)
-            .serviceRole(getServiceRole())
+            .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .timeoutInMins(getTimeoutInMins())
             .build();
     }
