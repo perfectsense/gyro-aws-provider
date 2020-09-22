@@ -27,6 +27,7 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     /**
      *  Condition field name. (Required)
      */
+    @Required
     @Updatable
     public String getField() {
         return field;
@@ -65,6 +67,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     /**
      *  Condition value. (Required)
      */
+    @Required
     @Updatable
     public List<String> getValue() {
         if (value == null) {

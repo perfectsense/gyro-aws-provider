@@ -25,6 +25,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.docdb.model.DBClusterSnapshot;
@@ -64,6 +65,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     /**
      * Associated db cluster. (Required)
      */
+    @Required
     public DbClusterResource getDbCluster() {
         return dbCluster;
     }
@@ -75,6 +77,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     /**
      * The name of the db cluster snapshot. (Required)
      */
+    @Required
     public String getIdentifier() {
         return identifier;
     }

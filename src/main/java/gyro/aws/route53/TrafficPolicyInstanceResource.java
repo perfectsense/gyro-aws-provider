@@ -28,6 +28,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyInstanceResponse;
@@ -70,6 +71,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     /**
      * Name of the Traffic Policy Instance. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -92,6 +94,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     /**
      * The associated Hosted Zone. (Required)
      */
+    @Required
     public HostedZoneResource getHostedZone() {
         return hostedZone;
     }
@@ -103,6 +106,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     /**
      * The Traffic Policy to be associated. (Required)
      */
+    @Required
     @Updatable
     public TrafficPolicyResource getTrafficPolicy() {
         return trafficPolicy;

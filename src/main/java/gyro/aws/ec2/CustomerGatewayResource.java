@@ -25,6 +25,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateCustomerGatewayResponse;
@@ -61,6 +62,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     /**
      * Public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html/>`_. (Required)
      */
+    @Required
     public String getPublicIp() {
         return publicIp;
     }

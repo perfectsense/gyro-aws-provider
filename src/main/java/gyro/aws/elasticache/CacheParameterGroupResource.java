@@ -26,6 +26,7 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheParameterGroupNotFoundException;
@@ -73,6 +74,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
      * The name of the cache parameter group. (Required)
      */
     @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -84,6 +86,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     /**
      * The name of the cache parameter family. (Required)
      */
+    @Required
     public String getCacheParamGroupFamily() {
         return cacheParamGroupFamily;
     }

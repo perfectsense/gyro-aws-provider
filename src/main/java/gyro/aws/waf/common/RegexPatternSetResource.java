@@ -25,6 +25,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetSummary;
@@ -46,6 +47,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     /**
      * The name of the regex pattern set. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -67,6 +69,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     /**
      * A list of regular expression patterns to filter request on. (Required)
      */
+    @Required
     @Updatable
     public Set<String> getPatterns() {
         if (patterns == null) {

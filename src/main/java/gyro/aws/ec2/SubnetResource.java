@@ -27,6 +27,7 @@ import gyro.core.resource.Output;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
@@ -73,6 +74,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     /**
      * The VPC to create the Subnet in. (Required)
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }
@@ -84,6 +86,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     /**
      * The IPv4 network range for the Subnet, in CIDR notation. (Required)
      */
+    @Required
     public String getCidrBlock() {
         return cidrBlock;
     }

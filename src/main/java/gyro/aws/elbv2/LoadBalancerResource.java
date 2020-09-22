@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -91,6 +92,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     /**
      *  The name of the load balancer. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

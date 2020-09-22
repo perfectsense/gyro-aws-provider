@@ -26,6 +26,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolClientResponse;
@@ -199,6 +200,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     /**
      *  The name of the client. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

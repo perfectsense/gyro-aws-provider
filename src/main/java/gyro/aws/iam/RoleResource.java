@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
@@ -94,6 +95,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     /**
      * The assumed role policy. (Required)
      */
+    @Required
     @Updatable
     public String getAssumeRolePolicy() {
         if (this.assumeRolePolicy != null && this.assumeRolePolicy.contains(".json")) {
@@ -159,6 +161,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     /**
      * The name of the role. (Required)
      */
+    @Required
     public String getName() {
         return this.name;
     }
@@ -212,7 +215,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     /**
      * A list of inline rile policies.RolePolicyResource
      *
-     * @subresource gyro.aws.iam.
+     * @subresource gyro.aws.iam.RoleInlinePolicyResource
      */
     @Updatable
     public Set<RoleInlinePolicyResource> getInlinePolicy() {

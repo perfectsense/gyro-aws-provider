@@ -32,6 +32,7 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
@@ -110,6 +111,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     /**
      * The name of the queue. The name of a FIFO queue must end with the .fifo suffix. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -277,6 +279,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     /**
      * The policy document. A policy path or policy string is allowed. (Required)
      */
+    @Required
     @Updatable
     public String getPolicy() {
         if (this.policy != null && this.policy.contains(".json")) {

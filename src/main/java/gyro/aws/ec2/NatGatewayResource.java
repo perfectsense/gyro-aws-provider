@@ -68,6 +68,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     /**
      * Associated Elastic IP for the Nat Gateway. (Required)
      */
+    @Required
     public ElasticIpResource getElasticIp() {
         return elasticIp;
     }

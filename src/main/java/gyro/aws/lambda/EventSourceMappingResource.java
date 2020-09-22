@@ -28,6 +28,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequest;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
@@ -114,6 +115,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     /**
      * The batch size for the event to invoke the Lambda Function. (Required)
      */
+    @Required
     @Updatable
     public Integer getBatchSize() {
         return batchSize;
@@ -142,6 +144,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     /**
      * The event source arn to be connected with the function. (Required)
      */
+    @Required
     public String getEventSourceArn() {
         return eventSourceArn;
     }

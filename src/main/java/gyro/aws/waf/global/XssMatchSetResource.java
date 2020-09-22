@@ -22,6 +22,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateXssMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetXssMatchSetResponse;
@@ -59,6 +60,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
      *
      * @subresource gyro.aws.waf.global.XssMatchTupleResource
      */
+    @Required
     @Updatable
     public Set<XssMatchTupleResource> getXssMatchTuple() {
         if (xssMatchTuple == null) {

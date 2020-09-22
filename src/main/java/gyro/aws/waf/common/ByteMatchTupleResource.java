@@ -21,6 +21,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.waf.model.ByteMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
@@ -39,6 +40,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     /**
      * The field setting to match the condition. (Required)
      */
+    @Required
     public FieldToMatch getFieldToMatch() {
         return fieldToMatch;
     }
@@ -50,6 +52,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     /**
      * The comparison to be done on the filter. Valid values are ``EXACTLY`` or ``STARTS_WITH`` or ``ENDS_WITH`` or ``CONTAINS`` or ``CONTAINS_WORD``. (Required)
      */
+    @Required
     public String getPositionalConstraint() {
         return positionalConstraint != null ? positionalConstraint.toUpperCase() : null;
     }
@@ -61,6 +64,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     /**
      * The target string to filter on for the byte match filter. (Required)
      */
+    @Required
     public String getTargetString() {
         return targetString;
     }
@@ -72,6 +76,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     /**
      * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
      */
+    @Required
     public String getTextTransformation() {
         return textTransformation != null ? textTransformation.toUpperCase() : null;
     }

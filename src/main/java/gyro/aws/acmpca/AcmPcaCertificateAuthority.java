@@ -28,6 +28,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.acmpca.AcmPcaClient;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthority;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthorityStatus;
@@ -107,6 +108,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     /**
      * The configuration setting for the Certificate Authority. (Required)
      */
+    @Required
     public AcmPcaCertificateAuthorityConfiguration getConfiguration() {
         return configuration;
     }
@@ -118,6 +120,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     /**
      * The type of Certificate Authority. Valid values are ``ROOT`` or ``SUBORDINATE``. (Required)
      */
+    @Required
     public CertificateAuthorityType getType() {
         return type;
     }

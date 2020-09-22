@@ -23,6 +23,7 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -45,6 +46,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     /**
      * The rule to be attached. (Required)
      */
+    @Required
     public CommonRuleResource getRule() {
         return rule;
     }
@@ -56,6 +58,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     /**
      * The default action for the rule under this waf. (Required)
      */
+    @Required
     @Updatable
     public WafAction getAction() {
         return action;
@@ -68,6 +71,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     /**
      * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``. (Required)
      */
+    @Required
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }
@@ -79,6 +83,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     /**
      * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping. (Required)
      */
+    @Required
     @Updatable
     public Integer getPriority() {
         return priority;

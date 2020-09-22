@@ -30,6 +30,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
 import software.amazon.awssdk.services.acm.model.CertificateStatus;
@@ -124,8 +125,9 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
     }
 
     /**
-     * Fully qualified domain name (FQDN), that you want to secure with an ACM certificate. (Required)
+     * Fully qualified domain name (FQDN), that you want to secure with an ACM certificate.
      */
+    @Required
     public String getDomainName() {
         return domainName;
     }
@@ -139,6 +141,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
      *
      * @subresource gyro.aws.acm.AcmDomainValidationOption
      */
+    @Required
     public Set<AcmDomainValidationOption> getDomainValidationOption() {
         return domainValidationOption;
     }

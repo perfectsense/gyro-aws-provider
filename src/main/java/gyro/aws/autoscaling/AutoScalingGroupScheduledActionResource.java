@@ -25,6 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
@@ -50,6 +51,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     /**
      * The scheduled action name. (Required)
      */
+    @Required
     public String getScheduledActionName() {
         return scheduledActionName;
     }

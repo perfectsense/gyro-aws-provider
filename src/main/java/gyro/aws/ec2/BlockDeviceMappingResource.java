@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
@@ -39,6 +40,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     /**
      * Name of the drive to attach this volume to. (Required)
      */
+    @Required
     public String getDeviceName() {
         return deviceName;
     }

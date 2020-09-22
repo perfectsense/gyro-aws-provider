@@ -26,6 +26,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
@@ -68,6 +69,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     /**
      * Requester VPC. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html/>`_. (Required)
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }
@@ -79,6 +81,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     /**
      * Accepter VPC. (Required)
      */
+    @Required
     public VpcResource getPeerVpc() {
         return peerVpc;
     }

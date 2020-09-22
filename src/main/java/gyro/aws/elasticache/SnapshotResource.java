@@ -24,6 +24,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.elasticache.model.DescribeSnapshotsResponse;
@@ -57,6 +58,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     /**
      * Name of the snapshot. (Required)
      */
+    @Required
     @Id
     public String getSnapshotName() {
         return snapshotName;
@@ -69,6 +71,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     /**
      * Id of the replication group. (Required)
      */
+    @Required
     public String getReplicationGroupId() {
         return replicationGroupId;
     }
@@ -80,6 +83,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     /**
      * The cache cluster to snapshot from. (Required)
      */
+    @Required
     public CacheClusterResource getCacheCluster() {
         return cacheCluster;
     }

@@ -27,6 +27,8 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.CloudWatchException;
@@ -119,6 +121,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     /**
      * The name of the Metric Alarm. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -128,7 +131,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     }
 
     /**
-     * Indicates if actions are to be executed when reaches the Metric Alarm state. Defaults to true.
+     * Indicates if actions are to be executed when reaches the Metric Alarm state. Defaults to ``true``.
      */
     @Updatable
     public Boolean getActionsEnabled() {
@@ -199,6 +202,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * Key Value pair to specify what the metric is as specified in the metric name. Max limit of 10.
      */
     @Updatable
+    @CollectionMax(10)
     public Map<String, String> getDimensions() {
         if (dimensions == null) {
             dimensions = new HashMap<>();

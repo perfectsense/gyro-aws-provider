@@ -28,6 +28,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dlm.DlmClient;
 import software.amazon.awssdk.services.dlm.model.CreateLifecyclePolicyResponse;
 import software.amazon.awssdk.services.dlm.model.CreateRule;
@@ -92,6 +93,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The description of the snapshot policy. (Required)
      */
+    @Required
     @Updatable
     public String getDescription() {
         return description;
@@ -102,8 +104,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The permission role for the snapshot policy. (Required)0
+     * The permission role for the snapshot policy. (Required)
      */
+    @Required
     @Updatable
     public RoleResource getExecutionRole() {
         return executionRole;
@@ -131,6 +134,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The target tags for the snapshot policy. (Required)
      */
+    @Required
     @Updatable
     public Map<String, String> getTargetTags() {
         if (targetTags == null) {
@@ -179,6 +183,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The name of the schedule for the snapshot policy. (Required)
      */
+    @Required
     @Updatable
     public String getScheduleName() {
         return scheduleName;
@@ -191,6 +196,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``  (Required)
      */
+    @Required
     @Updatable
     public Integer getRuleInterval() {
         return ruleInterval;
@@ -235,6 +241,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The number of volumes to retain for the snapshot policy. Valid values are ``1`` to ``1000``. (Required)
      */
+    @Required
     @Updatable
     public Integer getRetainRuleCount() {
         return retainRuleCount;
@@ -247,6 +254,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The list of tags to add to the volumes for the snapshot policy. (Required)
      */
+    @Required
     @Updatable
     public Map<String, String> getTagsToAdd() {
         if (tagsToAdd == null) {

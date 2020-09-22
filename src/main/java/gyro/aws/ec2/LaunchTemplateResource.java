@@ -26,6 +26,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
@@ -118,6 +119,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The name of the launch template. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -129,6 +131,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The AMI to be used to launch the Instance created by this Template. (Required)
      */
+    @Required
     public AmiResource getAmi() {
         return ami;
     }
@@ -211,6 +214,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_. (Required)
      */
+    @Required
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -222,6 +226,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
+    @Required
     public String getKeyName() {
         return keyName;
     }

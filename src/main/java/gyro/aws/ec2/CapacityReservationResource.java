@@ -26,6 +26,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
@@ -92,6 +93,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The Availability Zone in which to create the Capacity Reservation. (Required)
      */
+    @Required
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -103,6 +105,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates whether the Capacity Reservation supports EBS-optimized instances. (Required)
      */
+    @Required
     public Boolean getEbsOptimized() {
         return ebsOptimized;
     }
@@ -126,6 +129,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates the way in which the Capacity Reservation ends. Valid values are ``unlimited`` or ``limited``. (Required)
      */
+    @Required
     @Updatable
     public String getEndDateType() {
         return endDateType != null ? endDateType.toLowerCase() : null;
@@ -138,6 +142,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates whether the Capacity Reservation supports instances with temporary, block-level storage. (Required)
      */
+    @Required
     public Boolean getEphemeralStorage() {
         return ephemeralStorage;
     }
@@ -149,6 +154,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values are ``open`` or ``targeted``. (Required)
      */
+    @Required
     public String getInstanceMatchCriteria() {
         return instanceMatchCriteria != null ? instanceMatchCriteria.toLowerCase() : null;
     }
@@ -160,6 +166,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The type of operating system for which to reserve capacity. (Required)
      */
+    @Required
     public String getInstancePlatform() {
         return instancePlatform;
     }
@@ -171,6 +178,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The instance type for which to reserve capacity. (Required)
      */
+    @Required
     public String getInstanceType() {
         return instanceType;
     }
@@ -182,6 +190,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * Indicates the tenancy of the Capacity Reservation. Valid values are ``default`` or ``dedicated``. (Required)
      */
+    @Required
     public String getTenancy() {
         return tenancy != null ? tenancy.toLowerCase() : null;
     }
@@ -193,6 +202,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     /**
      * The number of Instances for which to reserve capacity. (Required)
      */
+    @Required
     @Updatable
     public Integer getInstanceCount() {
         return instanceCount;

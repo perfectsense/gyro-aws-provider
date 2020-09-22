@@ -29,6 +29,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.CreateTrafficPolicyResponse;
@@ -68,6 +69,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     /**
      * The name of the Traffic Policy. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

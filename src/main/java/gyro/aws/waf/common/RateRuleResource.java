@@ -19,6 +19,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 import software.amazon.awssdk.services.waf.model.WafRuleType;
 
@@ -29,6 +30,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     /**
      * The rate key based on which the rate would be checked. (Required)
      */
+    @Required
     public String getRateKey() {
         return rateKey != null ? rateKey.toUpperCase() : null;
     }
@@ -40,6 +42,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     /**
      * The rate limit at which the action would be taken. Valid values integer ``2000`` and above. (Required)
      */
+    @Required
     @Updatable
     public Long getRateLimit() {
         return rateLimit;

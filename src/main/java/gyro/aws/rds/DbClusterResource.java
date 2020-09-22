@@ -29,6 +29,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
@@ -199,6 +200,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The unique name of the DB Cluster. (Required)
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;
@@ -281,6 +283,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The name of the database engine. Valid Values: ``aurora`` (for MySQL 5.6-compatible Aurora), ``aurora-mysql`` (for MySQL 5.7-compatible Aurora), and ``aurora-postgresql``. (Required)
      */
+    @Required
     public String getEngine() {
         return engine;
     }

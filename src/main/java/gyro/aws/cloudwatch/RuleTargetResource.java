@@ -24,6 +24,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
@@ -49,6 +50,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     /**
      * The identifier of the target resource. (Required)
      */
+    @Required
     public String getTargetId() {
         return targetId;
     }
@@ -60,6 +62,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     /**
      * The arn of the target resource. (Required)
      */
+    @Required
     @Updatable
     public String getTargetArn() {
         return targetArn;

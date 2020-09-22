@@ -26,6 +26,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateEgressOnlyInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatewaysResponse;
@@ -55,6 +56,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     /**
      * The VPC to create the egress only internet gateway in. (Required)
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }

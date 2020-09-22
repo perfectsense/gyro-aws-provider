@@ -25,6 +25,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.DBSnapshot;
@@ -61,6 +62,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     /**
      * The DB instance to create a snapshot for. (Required)
      */
+    @Required
     public DbInstanceResource getDbInstance() {
         return dbInstance;
     }
@@ -72,6 +74,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     /**
      * The unique identifier of the DB instance snapshot. (Required)
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;

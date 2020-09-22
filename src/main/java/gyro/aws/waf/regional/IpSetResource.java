@@ -21,6 +21,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.CreateIpSetResponse;
 import software.amazon.awssdk.services.waf.model.GetIpSetResponse;
 import software.amazon.awssdk.services.waf.model.IPSet;
@@ -56,6 +57,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
      *
      * @subresource gyro.aws.waf.regional.IpSetDescriptorResource
      */
+    @Required
     @Updatable
     public Set<IpSetDescriptorResource> getIpSetDescriptor() {
         if (ipSetDescriptor == null) {

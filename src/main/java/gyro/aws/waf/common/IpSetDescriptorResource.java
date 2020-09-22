@@ -22,6 +22,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
@@ -41,6 +42,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     /**
      * The ip to be filtered on. (Required)
      */
+    @Required
     public String getValue() {
         return getCidrValue();
     }
@@ -52,6 +54,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     /**
      * The type of ip provided. Valid values are ``IPV4`` or ``IPV6``. (Required)
      */
+    @Required
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }

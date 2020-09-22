@@ -25,6 +25,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
@@ -71,6 +72,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     /**
      * The volume id based on which the snapshot would be created. (Required)
      */
+    @Required
     public EbsVolumeResource getVolume() {
         return volume;
     }

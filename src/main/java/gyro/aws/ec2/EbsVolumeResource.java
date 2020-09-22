@@ -28,6 +28,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVolumeAttributeResponse;
@@ -77,6 +78,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     /**
      * The availability zone for the volume being created. (Required)
      */
+    @Required
     public String getAvailabilityZone() {
         return availabilityZone;
     }

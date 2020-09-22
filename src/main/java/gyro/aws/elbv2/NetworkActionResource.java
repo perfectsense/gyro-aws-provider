@@ -25,6 +25,7 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 
 import java.util.Set;
@@ -60,6 +61,7 @@ public class NetworkActionResource extends AwsResource {
     /**
      *  The type of action to perform  (Required)
      */
+    @Required
     @Updatable
     public String getType() {
         return type;

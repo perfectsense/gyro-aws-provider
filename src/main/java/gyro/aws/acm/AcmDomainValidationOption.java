@@ -19,6 +19,7 @@ package gyro.aws.acm;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.acm.model.DomainStatus;
 import software.amazon.awssdk.services.acm.model.DomainValidation;
 import software.amazon.awssdk.services.acm.model.DomainValidationOption;
@@ -40,6 +41,7 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
     /**
      * A fully qualified domain name (FQDN) in the certificate. (Required)
      */
+    @Required
     public String getDomainName() {
         return domainName;
     }
@@ -51,6 +53,7 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
     /**
      * The domain name that ACM used to send domain validation emails. (Required)
      */
+    @Required
     public String getValidationDomain() {
         return validationDomain;
     }

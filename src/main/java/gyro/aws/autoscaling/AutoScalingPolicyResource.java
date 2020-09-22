@@ -24,6 +24,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
@@ -55,6 +56,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     /**
      * The name of the policy. (Required)
      */
+    @Required
     public String getPolicyName() {
         return policyName;
     }

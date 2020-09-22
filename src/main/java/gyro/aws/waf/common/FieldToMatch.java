@@ -18,6 +18,7 @@ package gyro.aws.waf.common;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 
 public class FieldToMatch extends Diffable implements Copyable<software.amazon.awssdk.services.waf.model.FieldToMatch> {
     private String data;
@@ -37,6 +38,7 @@ public class FieldToMatch extends Diffable implements Copyable<software.amazon.a
     /**
      * Part of the request to filter on. Valid values are ``URI`` or ``QUERY_STRING`` or ``HEADER`` or ``METHOD`` or ``BODY`` or ``SINGLE_QUERY_ARG`` or ``ALL_QUERY_ARGS``. (Required)
      */
+    @Required
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }

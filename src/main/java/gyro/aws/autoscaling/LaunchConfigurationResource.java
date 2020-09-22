@@ -32,6 +32,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -104,6 +105,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The name of the launch configuration. (Required)
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -153,6 +155,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_. (Required)
      */
+    @Required
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -164,6 +167,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
+    @Required
     public KeyPairResource getKey() {
         return key;
     }
@@ -189,6 +193,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
+    @Required
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new HashSet<>();

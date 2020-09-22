@@ -21,6 +21,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.CreateGeoMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
 import software.amazon.awssdk.services.waf.model.GeoMatchSet;
@@ -56,6 +57,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
      *
      * @subresource gyro.aws.waf.regional.GeoMatchConstraintResource
      */
+    @Required
     @Updatable
     public Set<GeoMatchConstraintResource> getGeoMatchConstraint() {
         if (geoMatchConstraint == null) {

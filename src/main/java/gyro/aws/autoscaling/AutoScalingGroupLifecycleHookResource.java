@@ -27,6 +27,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
@@ -47,6 +48,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     /**
      * The name of the lifecycle hook. (Required)
      */
+    @Required
     public String getLifecycleHookName() {
         return lifecycleHookName;
     }

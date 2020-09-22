@@ -36,6 +36,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -167,6 +168,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The name of the Auto Scaling Group, also serves as its identifier and thus unique. (Required)
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -191,6 +193,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ/>`_. (Required)
      */
+    @Required
     @Updatable
     public Set<String> getAvailabilityZones() {
         if (availabilityZones == null) {
@@ -207,6 +210,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The maximum number of instances for the Auto Scaling group. (Required)
      */
+    @Required
     @Min(0)
     @Updatable
     public Integer getMaxSize() {
@@ -224,6 +228,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The minimum number of instances for the Auto Scaling group. (Required)
      */
+    @Required
     @Min(0)
     @Updatable
     public Integer getMinSize() {
@@ -241,6 +246,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The desired number of instances for the Auto Scaling group. (Required)
      */
+    @Required
     @Updatable
     public Integer getDesiredCapacity() {
         return desiredCapacity;

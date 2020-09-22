@@ -25,6 +25,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolDomainResponse;
@@ -66,6 +67,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     /**
      *  The domain. (Required)
      */
+    @Required
     @Updatable
     @Id
     public String getDomain() {
@@ -79,6 +81,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     /**
      *  The id of the user pool. (Required)
      */
+    @Required
     public UserPoolResource getUserPool() {
         return userPool;
     }

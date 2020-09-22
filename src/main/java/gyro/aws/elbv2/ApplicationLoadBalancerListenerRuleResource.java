@@ -26,6 +26,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateRuleResponse;
@@ -79,6 +80,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
+    @Required
     @Updatable
     public List<ActionResource> getAction() {
         if (action == null) {
@@ -97,6 +99,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
+    @Required
     @Updatable
     public List<ConditionResource> getCondition() {
         if (condition == null) {
@@ -113,6 +116,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     /**
      *  The alb associated with this listener rule. (Required)
      */
+    @Required
     public ApplicationLoadBalancerListenerResource getAlbListener() {
         return albListener;
     }
@@ -124,6 +128,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     /**
      *  Priority of the rule. Valid values between ``1`` and ``50000``. No two rules can have the same priority. ``-1`` points to the default rule. (Required)
      */
+    @Required
     public Integer getPriority() {
         return priority;
     }

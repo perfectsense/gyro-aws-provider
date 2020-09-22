@@ -27,6 +27,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
@@ -67,6 +68,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     /**
      * The unique identifier of the endpoint. (Required)
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;
@@ -79,6 +81,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     /**
      * The DB cluster associated with the endpoint. (Required)
      */
+    @Required
     public DbClusterResource getDbCluster() {
         return dbCluster;
     }
@@ -90,6 +93,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     /**
      * The type of the endpoint. Valid values are ``READER``, ``ANY``. (Required)
      */
+    @Required
     @Updatable
     public String getEndpointType() {
         return endpointType;

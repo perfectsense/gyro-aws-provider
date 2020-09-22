@@ -29,6 +29,7 @@ import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -166,6 +167,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     /**
      *  The name of the target group. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

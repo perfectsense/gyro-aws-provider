@@ -30,6 +30,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
@@ -329,6 +330,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     /**
      * The type of health check being created. Valid values are ``HTTP`` or ``HTTPS`` or ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` or ``TCP`` or ``CALCULATED`` or ``CLOUDWATCH_METRIC``. (Required)
      */
+    @Required
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }

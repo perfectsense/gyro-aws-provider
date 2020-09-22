@@ -29,6 +29,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -232,6 +233,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The DB instance type. See `DB Instance Class <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_. (Required)
      */
+    @Required
     @Updatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
@@ -244,6 +246,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The unique name of the DB instance. (Required)
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;

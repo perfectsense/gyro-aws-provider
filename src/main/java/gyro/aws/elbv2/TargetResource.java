@@ -23,6 +23,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.InvalidTargetException;
@@ -68,6 +69,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     /**
      *  The ID of the target. (Required)
      */
+    @Required
     public String getId() {
         return id;
     }
@@ -79,6 +81,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     /**
      *  The port on which the target is listening. (Required)
      */
+    @Required
     public Integer getPort() {
         return port;
     }
@@ -90,6 +93,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     /**
      *  The target group that the target is associated with. (Required)
      */
+    @Required
     public TargetGroupResource getTargetGroup() {
         return targetGroup;
     }

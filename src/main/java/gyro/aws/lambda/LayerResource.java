@@ -26,6 +26,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
@@ -78,6 +79,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     /**
      * The name of the Lambda Layer. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -111,15 +113,16 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     /**
      * The list of runtime language for the function using this Lambda Layer. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
      */
+    @Required
     public Set<String> getCompatibleRuntimes() {
-        return compatibleRuntimes;
-    }
-
-    public void setCompatibleRuntimes(Set<String> compatibleRuntimes) {
         if (compatibleRuntimes == null) {
             compatibleRuntimes = new HashSet<>();
         }
 
+        return compatibleRuntimes;
+    }
+
+    public void setCompatibleRuntimes(Set<String> compatibleRuntimes) {
         this.compatibleRuntimes = compatibleRuntimes;
     }
 

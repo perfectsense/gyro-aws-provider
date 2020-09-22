@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.s3.model.ReplicationConfiguration;
 import software.amazon.awssdk.services.s3.model.ReplicationRule;
 
@@ -34,6 +35,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     /**
      * The ARN for an IAM Role that the s3 bucket assumes when replicating objects. (Required)
      */
+    @Required
     @Updatable
     public RoleResource getRole() {
         return role;
@@ -49,6 +51,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
      *
      * @subresource gyro.aws.s3.ReplicationRule
      */
+    @Required
     @Updatable
     public List<S3ReplicationRule> getRule() {
         if(rule == null) {

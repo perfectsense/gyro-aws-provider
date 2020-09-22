@@ -22,6 +22,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.SizeConstraint;
@@ -61,6 +62,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
      *
      * @subresource gyro.aws.waf.regional.SizeConstraintResource
      */
+    @Required
     @Updatable
     public Set<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {

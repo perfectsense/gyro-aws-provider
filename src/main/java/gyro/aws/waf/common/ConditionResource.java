@@ -22,6 +22,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.Set;
 
@@ -50,6 +51,7 @@ public class ConditionResource extends AbstractWafResource {
     /**
      * The name of the condition. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

@@ -18,6 +18,7 @@ package gyro.aws.rds;
 
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 public class DbParameter extends Diffable {
 
@@ -28,6 +29,7 @@ public class DbParameter extends Diffable {
     /**
      * The name of the DB parameter. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -39,6 +41,7 @@ public class DbParameter extends Diffable {
     /**
      * The value of the DB parameter. (Required)
      */
+    @Required
     @Updatable
     public String getValue() {
         return value;

@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
@@ -92,6 +93,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     /**
      * The name of the policy. (Required)
      */
+    @Required
     public String getName() {
         return this.name;
     }
@@ -126,6 +128,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     /**
      * The policy document. A policy path or policy string is allowed. (Required)
      */
+    @Required
     @Updatable
     public String getPolicyDocument() {
         if (this.policyDocument != null && this.policyDocument.contains(".json")) {

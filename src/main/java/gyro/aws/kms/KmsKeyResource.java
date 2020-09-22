@@ -30,6 +30,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -98,6 +99,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The set of aliases associated with the key. (Required)
      */
+    @Required
     @Updatable
     public Set<String> getAliases() {
         if (aliases == null) {
@@ -222,6 +224,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The usage of the key. The only valid value is ``ENCRYPT_DECRYPT``. Defaults to ``ENCRYPT_DECRYPT``. (Required)
      */
+    @Required
     public String getKeyUsage() {
         if (keyUsage == null) {
             keyUsage = "ENCRYPT_DECRYPT";

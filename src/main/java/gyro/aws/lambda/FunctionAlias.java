@@ -26,6 +26,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateAliasRequest;
 import software.amazon.awssdk.services.lambda.model.CreateAliasResponse;
@@ -69,6 +70,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     /**
      * Name of the Lambda Alias. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -80,6 +82,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     /**
      * The Lambda Function for the Lambda Alias. (Required)
      */
+    @Required
     public FunctionResource getFunction() {
         return function;
     }
@@ -91,6 +94,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     /**
      * The Lambda Function version for the Lambda Alias. (Required)
      */
+    @Required
     @Updatable
     public String getFunctionVersion() {
         return functionVersion;

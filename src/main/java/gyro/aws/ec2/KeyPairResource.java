@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeKeyPairsResponse;
@@ -70,6 +71,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     /**
      * The key name that you want to assign for your key pair. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -82,6 +84,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     /**
      * The file path that contains the public key needed to generate the key pair. See `Importing Your Own Public Key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws/>`_. (Required)
      */
+    @Required
     public String getPublicKeyPath() {
         return publicKeyPath;
     }
@@ -93,6 +96,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     /**
      * The public key needed to generate the key pair. See `Importing Your Own Public Key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws/>`_. (Required)
      */
+    @Required
     public String getPublicKey() {
         return publicKey;
     }

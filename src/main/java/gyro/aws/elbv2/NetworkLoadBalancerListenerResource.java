@@ -23,6 +23,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -62,6 +63,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
+    @Required
     @Updatable
     public NetworkActionResource getDefaultAction() {
         return defaultAction;
@@ -74,6 +76,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     /**
      *  The nlb that the listener is attached to. (Required)
      **/
+    @Required
     public NetworkLoadBalancerResource getNlb() {
         return nlb;
     }

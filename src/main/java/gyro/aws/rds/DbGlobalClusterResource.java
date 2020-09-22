@@ -26,6 +26,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DescribeGlobalClustersResponse;
 import software.amazon.awssdk.services.rds.model.GlobalCluster;
@@ -105,6 +106,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     /**
      * The unique identifier of the global database cluster. (Required)
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;

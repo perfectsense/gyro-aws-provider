@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
@@ -124,6 +125,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     /**
      * The alias target of the record.
+     *
      * @subresource gyro.aws.route53.AliasTarget
      */
     @Updatable
@@ -160,6 +162,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
 
     /**
      * The geolocation configuration of the record.
+     *
      * @subresource gyro.aws.route53.Geolocation
      */
     @Updatable
@@ -174,6 +177,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The Hosted Zone under which the the Record Set is to be created. (Required)
      */
+    @Required
     public HostedZoneResource getHostedZone() {
         return hostedZone;
     }
@@ -209,6 +213,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The name of the Record Set being created. (Required)
      */
+    @Required
     @Updatable
     public String getName() {
         if (name != null) {
@@ -273,6 +278,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The type of Record Set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``. (Required)
      */
+    @Required
     @Updatable
     public String getType() {
         return type;

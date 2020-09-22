@@ -28,6 +28,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -109,6 +110,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The Subnet to create the Network Interface in. (Required)
      */
+    @Required
     @Updatable
     public SubnetResource getSubnet() {
         return subnet;

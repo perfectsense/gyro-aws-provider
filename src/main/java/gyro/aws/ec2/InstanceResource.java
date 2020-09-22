@@ -30,6 +30,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
@@ -131,6 +132,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * The AMI to be used to launch the Instance. (Required)
      */
+    @Required
     public AmiResource getAmi() {
         return ami;
     }
@@ -215,6 +217,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_. (Required)
      */
+    @Required
     @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
@@ -227,6 +230,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
      */
+    @Required
     public KeyPairResource getKey() {
         return key;
     }
@@ -252,6 +256,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
      */
+    @Required
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {

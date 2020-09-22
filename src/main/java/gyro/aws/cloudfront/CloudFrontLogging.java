@@ -21,6 +21,7 @@ import gyro.aws.Copyable;
 import gyro.aws.s3.BucketResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudfront.model.LoggingConfig;
 
 public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfig> {
@@ -31,6 +32,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     /**
      * The bucket to save access logs. (Required)
      */
+    @Required
     @Updatable
     public BucketResource getBucket() {
         return bucket;

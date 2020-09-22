@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -89,6 +90,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Set availability zone for the instance. Must belong to one of the ones specified by the associated db cluster. (Required)
      */
+    @Required
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -100,6 +102,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Set the size of the data base instance. (Required)
      */
+    @Required
     @Updatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
@@ -112,6 +115,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Name of the database instance. (Required)
      */
+    @Required
     public String getIdentifier() {
         return identifier;
     }
@@ -123,6 +127,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Engine used by the instance. (Required)
      */
+    @Required
     public String getEngine() {
         return engine;
     }
@@ -134,6 +139,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Set the preferred maintenance window. Valid format ``ddd:hh24:mi-ddd:hh24:mi``. (Required)
      */
+    @Required
     @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
@@ -146,6 +152,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * Set the promotion tier. Valid values ``0-15``. (Required)
      */
+    @Required
     @Updatable
     public Integer getPromotionTier() {
         return promotionTier;
@@ -158,6 +165,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     /**
      * The parent db cluster. (Required)
      */
+    @Required
     public DbClusterResource getDbCluster() {
         return dbCluster;
     }

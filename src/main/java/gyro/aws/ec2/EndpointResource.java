@@ -28,6 +28,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
@@ -121,6 +122,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     /**
      * The name of the service that is going to associated with this Endpoint. (Required)
      */
+    @Required
     public String getServiceName() {
         return serviceName;
     }
@@ -132,6 +134,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     /**
      * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_. (Required)
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }

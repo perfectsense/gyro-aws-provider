@@ -18,6 +18,7 @@ package gyro.aws.waf.common;
 
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.Predicate;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
     /**
      * The name of the rule. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -41,6 +43,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
     /**
      * The metric name of the rule. Can only contain letters and numbers. (Required)
      */
+    @Required
     public String getMetricName() {
         return metricName;
     }

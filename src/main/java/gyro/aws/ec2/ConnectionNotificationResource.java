@@ -27,6 +27,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
  *
  *     aws::vpc-connection-notification connection-notification-example
  *         vpc-endpoint: $(aws::vpc-endpoint endpoint-example-interface)
- *         connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
+ *         arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
  *         connection-events: [
  *             "Accept"
  *         ]
@@ -102,6 +103,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     /**
      * The ARN of the SNS topic. (Required)
      */
+    @Required
     @Updatable
     public String getArn() {
         return arn;
