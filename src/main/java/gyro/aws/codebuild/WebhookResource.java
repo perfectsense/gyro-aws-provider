@@ -13,6 +13,9 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Regex;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
@@ -32,6 +35,8 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     private String url;
 
     @Id
+    @Required
+    @Regex("[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}")
     public String getProjectName() {
         return projectName;
     }
@@ -50,6 +55,7 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    @ValidStrings({"BUILD", "BUILD_BATCH"})
     public String getBuildType() {
         return buildType;
     }

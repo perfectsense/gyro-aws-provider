@@ -2,11 +2,16 @@ package gyro.aws.codebuild;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Min;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
 import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
@@ -25,6 +30,8 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     private String sourceIdentifier;
 
     @Updatable
+    @Required
+    @ValidStrings({ "CODECOMMIT", "CODEPIPELINE", "GITHUB", "S3", "BITBUCKET", "GITHUB_ENTERPRISE", "NO_SOURCE" })
     public String getType() {
         return type;
     }
@@ -61,6 +68,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     }
 
     @Updatable
+    @Min(0)
     public Integer getGitCloneDepth() {
         return gitCloneDepth;
     }
@@ -131,6 +139,31 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getBuildStatusConfig() != null && !(getType().equals("GITHUB") || getType().equals("GITHUB_ENTERPRISE")
+            || getType().equals("BITBUCKET"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'build-status-config' is only used when 'type' is 'GITHUB', 'GITHUB_ENTERPRISE', or 'BITBUCKET'."
+            ));
+        }
+
+        if (getReportBuildStatus() && !(getType().equals("GITHUB") || getType().equals("GITHUB_ENTERPRISE")
+            || getType().equals("BITBUCKET"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'report-build-status' is valid only when 'type' is 'GITHUB', 'GITHUB_ENTERPRISE', or 'BITBUCKET'."
+            ));
+        }
+
+        return errors;
     }
 
     public ProjectSource toProjectSource() {

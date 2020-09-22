@@ -1,10 +1,13 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.ProjectCache;
 
 public class CodebuildProjectCache extends Diffable implements Copyable<ProjectCache> {
@@ -14,6 +17,8 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
     private List<String> modes;
 
     @Updatable
+    @Required
+    @ValidStrings({ "NO_CACHE", "S3", "LOCAL" })
     public String getType() {
         return type;
     }
@@ -32,7 +37,11 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
     }
 
     @Updatable
+    @ValidStrings({"LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE"})
     public List<String> getModes() {
+        if (modes == null) {
+            modes = new ArrayList<>();
+        }
         return modes;
     }
 

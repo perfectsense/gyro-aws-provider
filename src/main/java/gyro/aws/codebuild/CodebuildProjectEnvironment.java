@@ -2,10 +2,16 @@ package gyro.aws.codebuild;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Min;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 
@@ -19,8 +25,15 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     private List<CodebuildProjectEnvironmentVariable> environmentVariables;
     private String imagePullCredentialsType;
     private Boolean privalegedMode;
+    private CodebuildRegistryCredential registryCredential;
 
     @Updatable
+    @Required
+    @ValidStrings({
+        "BUILD_GENERAL1_SMALL",
+        "BUILD_GENERAL1_MEDIUM",
+        "BUILD_GENERAL1_LARGE",
+        "BUILD_GENERAL1_2XLARGE" })
     public String getComputeType() {
         return computeType;
     }
@@ -30,6 +43,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     @Updatable
+    @Required
     public String getImage() {
         return image;
     }
@@ -39,6 +53,13 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     @Updatable
+    @Required
+    @ValidStrings({
+        "WINDOWS_CONTAINER",
+        "LINUX_CONTAINER",
+        "LINUX_GPU_CONTAINER",
+        "ARM_CONTAINER",
+        "WINDOWS_SERVER_2019_CONTAINER" })
     public String getType() {
         return type;
     }
@@ -66,6 +87,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     @Updatable
+    @ValidStrings({ "CODEBUILD", "SERVICE_ROLE" })
     public String getImagePullCredentialsType() {
         return imagePullCredentialsType;
     }
@@ -81,6 +103,15 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
 
     public void setPrivalegedMode(Boolean privalegedMode) {
         this.privalegedMode = privalegedMode;
+    }
+
+    @Updatable
+    public CodebuildRegistryCredential getRegistryCredential() {
+        return registryCredential;
+    }
+
+    public void setRegistryCredential(CodebuildRegistryCredential registryCredential) {
+        this.registryCredential = registryCredential;
     }
 
     @Override
@@ -102,14 +133,35 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
                 environmentVariable.copyFrom(variable);
                 environmentVariables.add(environmentVariable);
             }
+
+            setEnvironmentVariables(environmentVariables);
         }
 
-        setEnvironmentVariables(getEnvironmentVariables());
+        if (model.registryCredential() != null) {
+            CodebuildRegistryCredential registryCredential = newSubresource(CodebuildRegistryCredential.class);
+            registryCredential.copyFrom(model.registryCredential());
+            setRegistryCredential(registryCredential);
+        }
     }
 
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getRegistryCredential() != null && !getImagePullCredentialsType().equals("SERVICE_ROLE")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'image-pull-credentials-type' must be set to 'SERVICE_ROLE' to set 'registry-credential'."
+            ));
+        }
+
+        return errors;
     }
 
     public ProjectEnvironment toProjectEnvironment() {
@@ -131,6 +183,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
             .environmentVariables(environmentVariables)
             .imagePullCredentialsType(getImagePullCredentialsType())
             .privilegedMode(getPrivalegedMode())
+            .registryCredential(getRegistryCredential().toRegistryCredential())
             .build();
     }
 }

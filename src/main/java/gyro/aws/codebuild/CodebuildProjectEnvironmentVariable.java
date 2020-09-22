@@ -3,6 +3,8 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 
 public class CodebuildProjectEnvironmentVariable extends Diffable implements Copyable<EnvironmentVariable> {
@@ -12,6 +14,7 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     private String type;
 
     @Updatable
+    @Required
     public String getName() {
         return name;
     }
@@ -21,6 +24,7 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     }
 
     @Updatable
+    @Required
     public String getValue() {
         return value;
     }
@@ -30,6 +34,7 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     }
 
     @Updatable
+    @ValidStrings({ "PLAINTEXT", "PARAMETER_STORE", "SECRETS_MANAGER" })
     public String getType() {
         return type;
     }

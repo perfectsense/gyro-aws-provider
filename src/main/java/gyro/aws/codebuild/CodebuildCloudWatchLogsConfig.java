@@ -3,6 +3,8 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
 
 public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<CloudWatchLogsConfig> {
@@ -12,6 +14,8 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     private String streamName;
 
     @Updatable
+    @Required
+    @ValidStrings({ "ENABLED", "DISABLED" })
     public String getStatus() {
         return status;
     }

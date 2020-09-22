@@ -6,6 +6,7 @@ import java.util.List;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.ProjectFileSystemLocation;
 
 public class CodebuildProjectFileSystemLocation extends Diffable implements Copyable<ProjectFileSystemLocation> {
@@ -53,6 +54,7 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
     }
 
     @Updatable
+    @ValidStrings("EFS")
     public String getType() {
         return type;
     }

@@ -1,5 +1,6 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gyro.aws.Copyable;
@@ -14,6 +15,9 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
 
     @Updatable
     public List<String> getComputedTypesAllowed() {
+        if (computedTypesAllowed == null) {
+            computedTypesAllowed = new ArrayList<>();
+        }
         return computedTypesAllowed;
     }
 

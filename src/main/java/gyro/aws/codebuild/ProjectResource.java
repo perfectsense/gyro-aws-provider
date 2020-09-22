@@ -18,6 +18,11 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Max;
+import gyro.core.validation.Min;
+import gyro.core.validation.Regex;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.CreateProjectResponse;
@@ -63,6 +68,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     private List<CodebuildProjectArtifacts> secondaryArtifacts;
     private List<CodebuildProjectSource> secondarySources;
+    private List<CodebuildProjectSourceVersion> secondarySourceVersions;
 
     // Source - Source version
     private String sourceVersion;
@@ -80,6 +86,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     private String arn;
 
     @Updatable
+    @Required
     public CodebuildProjectArtifacts getArtifacts() {
         return artifacts;
     }
@@ -98,6 +105,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Id
+    @Required
+    @Regex("[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}")
     public String getName() {
         return name;
     }
@@ -107,6 +116,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    @Required
     public RoleResource getServiceRole() {
         return serviceRole;
     }
@@ -116,6 +126,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    @Required
     public CodebuildProjectSource getSource() {
         return source;
     }
@@ -125,6 +136,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    @Required
     public CodebuildProjectEnvironment getEnvironment() {
         return environment;
     }
@@ -204,6 +216,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    @Min(5)
+    @Max(480)
     public Integer getQueuedTimeoutInMinutes() {
         return queuedTimeoutInMinutes;
     }
@@ -237,6 +251,18 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    public List<CodebuildProjectSourceVersion> getSecondarySourceVersions() {
+        if (secondarySourceVersions == null) {
+            secondarySourceVersions = new ArrayList<>();
+        }
+        return secondarySourceVersions;
+    }
+
+    public void setSecondarySourceVersions(List<CodebuildProjectSourceVersion> secondarySourceVersions) {
+        this.secondarySourceVersions = secondarySourceVersions;
+    }
+
+    @Updatable
     public String getSourceVersion() {
         return sourceVersion;
     }
@@ -246,6 +272,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
+    @Min(5)
+    @Max(480)
     public Integer getTimeoutInMinutes() {
         return timeoutInMinutes;
     }
@@ -380,6 +408,21 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
         client.deleteProject(r -> r.name(getName()));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getSecondaryArtifacts().size() > 12 || getSecondarySources().size() > 12 || getSecondarySourceVersions().size() > 12) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'secondary-artifacts', 'secondary-sources', or 'secondary-source-versions' cannot have more than 12 items."
+            ));
+        }
+
+        return errors;
     }
 
     @Override

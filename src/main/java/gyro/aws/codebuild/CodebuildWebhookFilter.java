@@ -3,6 +3,8 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
 
 public class CodebuildWebhookFilter extends Diffable implements Copyable<WebhookFilter> {
@@ -12,6 +14,7 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     private Boolean excludeMatchedPattern;
 
     @Updatable
+    @Required
     public String getPattern() {
         return pattern;
     }
@@ -21,6 +24,8 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     }
 
     @Updatable
+    @Required
+    @ValidStrings({"EVENT", "BASE_REF", "HEAD_REF", "ACTOR_ACCOUNT_ID", "FILE_PATH", "COMMIT_MESSAGE"})
     public String getType() {
         return type;
     }

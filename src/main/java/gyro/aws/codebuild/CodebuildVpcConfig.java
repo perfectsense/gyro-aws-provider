@@ -1,10 +1,13 @@
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.VpcConfig;
 
 public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> {
@@ -50,6 +53,29 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getSecurityGroupIds().size() > 5) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'security-group-ids' cannot have more than 5 items."
+            ));
+        }
+
+        if (getSubnets().size() > 16) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'subnets' cannot have more than 16 items."
+            ));
+        }
+
+        return errors;
     }
 
     public VpcConfig toProjectVpcConfig() {

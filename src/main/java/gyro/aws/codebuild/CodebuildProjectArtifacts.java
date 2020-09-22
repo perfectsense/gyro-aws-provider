@@ -2,11 +2,15 @@ package gyro.aws.codebuild;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
 
 public class CodebuildProjectArtifacts extends Diffable implements Copyable<ProjectArtifacts> {
@@ -23,7 +27,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     // Read-only
     private String artifactIdentifier;
 
+    @Required
     @Updatable
+    @ValidStrings({ "CODEPIPELINE", "S3", "NO_ARTIFACTS" })
     public String getType() {
         return type;
     }
@@ -60,6 +66,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     @Updatable
+    @ValidStrings({ "NONE", "BUILD_ID" })
     public String getNamespaceType() {
         return namespaceType;
     }
@@ -77,6 +84,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     @Updatable
+    @ValidStrings({ "NONE", "ZIP" })
     public String getPackaging() {
         return packaging;
     }
@@ -120,6 +128,34 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getLocation() == null && getType().equals("S3")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'location' cannot be empty if 'type' is 'S3'. Needs to specify the name of the output bucket."));
+        }
+
+        if (getName() == null && getType().equals("S3")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'name' cannot be empty if 'type' is 'S3'. Needs to specify the name of the output artifact object."));
+        }
+
+        if (getEncryptionDisabled() != null && !getType().equals("S3")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'encryption-disabled' option is valid only if 'type' is 'S3'."));
+        }
+
+        return errors;
     }
 
     public ProjectArtifacts toProjectArtifacts() {
