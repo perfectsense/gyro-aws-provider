@@ -57,7 +57,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     private String name;
 
     /**
-     *  List of tags associated with the user pool. (Optional)
+     *  List of tags associated with the user pool.
      */
     @Updatable
     public Map<String, String> getTags() {

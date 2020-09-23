@@ -44,7 +44,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     private String sslPolicy;
 
     /**
-     *  List of certificates associated with the listener. (Optional)
+     *  List of certificates associated with the listener.
      *
      *  @subresource gyro.aws.elbv2.CertificateResource
      */
@@ -62,7 +62,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  The default certificate ARN associated with the listener. Required with ``HTTPS`` protocol. (Optional)
+     *  The default certificate ARN associated with the listener. Required with ``HTTPS`` protocol.
      */
     @Updatable
     public String getDefaultCertificate() {
@@ -113,7 +113,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  Security policy that defines supported protocols and ciphers. (Optional)
+     *  Security policy that defines supported protocols and ciphers.
      */
     @Updatable
     public String getSslPolicy() {

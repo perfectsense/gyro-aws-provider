@@ -115,7 +115,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The description of the role. (Optional)
+     * The description of the role.
      */
     @Updatable
     public String getDescription() {
@@ -127,7 +127,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The policies associated with the role. (Optional)
+     * The policies associated with the role.
      */
     @Updatable
     public Set<PolicyResource> getPolicies() {
@@ -143,7 +143,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The maximum duration of the role, in seconds. Valid values are between ``3600`` and ``43200``. (Optional)
+     * The maximum duration of the role, in seconds. Valid values are between ``3600`` and ``43200``.
      */
     @Updatable
     public Integer getMaxSessionDuration() {
@@ -171,7 +171,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The path to the role. Defaults to ``/``. (Optional)
+     * The path to the role. Defaults to ``/``.
      */
     public String getPath() {
         if (path == null) {
@@ -186,7 +186,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The arn of the permission boundary. (Optional)
+     * The arn of the permission boundary.
      */
     public String getPermissionsBoundaryArn() {
         return permissionsBoundaryArn;
@@ -197,7 +197,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The tags associated with the role. (Optional)
+     * The tags associated with the role.
      */
     @Updatable
     public Map<String, String> getTags() {

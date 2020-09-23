@@ -48,7 +48,7 @@ public class NetworkActionResource extends AwsResource {
     private String type;
 
     /**
-     *  The target group that this action is associated with  (Optional)
+     *  The target group that this action is associated with 
      */
     public TargetGroupResource getTargetGroup() {
         return targetGroup;

@@ -201,7 +201,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The ARN of the dead-letter queue to which Amazon SQS moves messages after the value of maxReceiveCount is exceeded. (Optional) See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
+     * The ARN of the dead-letter queue to which Amazon SQS moves messages after the value of maxReceiveCount is exceeded. See `<https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html>`_.
      */
     @Updatable
     public String getDeadLetterTargetArn() {
@@ -213,7 +213,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The number of times a message is received before being moved to the dead-letter queue. (Optional)
+     * The number of times a message is received before being moved to the dead-letter queue.
      */
     @Updatable
     public String getMaxReceiveCount() {
@@ -225,7 +225,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The name of the dead-letter queue. (Optional)
+     * The name of the dead-letter queue.
      */
     @Updatable
     public String getDeadLetterQueueName() {
@@ -249,7 +249,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. (Optional)
+     * The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK.
      */
     @Updatable
     public Integer getKmsMasterKeyId() {

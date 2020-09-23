@@ -65,7 +65,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
     private Set<SubnetResource> subnets;
 
     /**
-     *  List of security groups associated with the alb. (Optional)
+     *  List of security groups associated with the alb.
      */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {

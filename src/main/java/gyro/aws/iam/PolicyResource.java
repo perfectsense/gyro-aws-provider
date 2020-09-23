@@ -80,7 +80,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     /**
-     * The description of the role. (Optional)
+     * The description of the role.
      */
     public String getDescription() {
         return this.description;
@@ -115,7 +115,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     /**
-     * The path for the policy. (Optional)
+     * The path for the policy.
      */
     public String getPath() {
         return path;

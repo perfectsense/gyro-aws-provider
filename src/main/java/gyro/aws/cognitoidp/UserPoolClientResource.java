@@ -70,7 +70,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     private List<String> writeAttributes;
 
     /**
-     *  Sets to true if client is allowed to follow OAuth protocol when interacting with Cognito user pools. (Optional)
+     *  Sets to true if client is allowed to follow OAuth protocol when interacting with Cognito user pools.
      */
     @Updatable
     public Boolean getAllowedOAuthFlowsClient() {
@@ -82,7 +82,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  Sets the OAuth flows. Valid values are ``code`` and ``token``. (Optional)
+     *  Sets the OAuth flows. Valid values are ``code`` and ``token``.
      */
     @Updatable
     public List<String> getAllowedOAuthFlows() {
@@ -98,7 +98,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The list of allowed redirect URLs for the identity providers. (Optional)
+     *  The list of allowed redirect URLs for the identity providers.
      */
     @Updatable
     public List<String> getCallbackUrls() {
@@ -114,7 +114,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The default redirect URI. (Optional)
+     *  The default redirect URI.
      */
     @Updatable
     public String getDefaultRedirectUri() {
@@ -126,7 +126,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The explicit authentication flows. (Optional)
+     *  The explicit authentication flows.
      */
     @Updatable
     public List<String> getExplicitAuthFlows() {
@@ -142,7 +142,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The list of allowed OAuth scopes. (Optional)
+     *  The list of allowed OAuth scopes.
      */
     @Updatable
     public List<String> getAllowedOAuthScopes() {
@@ -158,7 +158,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  Specified whether you want to generate a secret for the client. (Optional)
+     *  Specified whether you want to generate a secret for the client.
      */
     public Boolean getGenerateSecret() {
         return generateSecret;
@@ -182,7 +182,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The list of logout URLs for the identity providers. (Optional)
+     *  The list of logout URLs for the identity providers.
      */
     @Updatable
     public List<String> getLogoutUrls() {
@@ -210,7 +210,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The read attributes. (Optional)
+     *  The read attributes.
      */
     @Updatable
     public List<String> getReadAttributes() {
@@ -226,7 +226,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The time limit after which the refresh token cannot be used because it is no longer valid. (Optional)
+     *  The time limit after which the refresh token cannot be used because it is no longer valid.
      */
     @Updatable
     public Integer getRefreshTokenValidity() {
@@ -247,7 +247,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The list of provider names for support identity providers. (Optional)
+     *  The list of provider names for support identity providers.
      */
     @Updatable
     public List<String> getSupportedIdentityProviders() {
@@ -263,7 +263,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The user pool resource where the client will be created. (Optional)
+     *  The user pool resource where the client will be created.
      */
     public UserPoolResource getUserPool() {
         return userPool;
@@ -274,7 +274,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The user pool attributes the app client can write to. (Optional)
+     *  The user pool attributes the app client can write to.
      */
     @Updatable
     public List<String> getWriteAttributes() {

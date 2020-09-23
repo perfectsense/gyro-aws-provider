@@ -56,7 +56,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     private TargetGroupResource targetGroup;
 
     /**
-     *  The availability zone from where the target receives traffic. (Optional)
+     *  The availability zone from where the target receives traffic.
      */
     public String getAvailabilityZone() {
         return availabilityZone;

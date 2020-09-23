@@ -66,7 +66,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  Type of IP address used by the subnets of the alb. (Optional)
+     *  Type of IP address used by the subnets of the alb.
      */
     public String getIpAddressType() {
         return ipAddressType;
@@ -102,7 +102,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  Type of nodes used by the alb. (Optional)
+     *  Type of nodes used by the alb.
      */
     public String getScheme() {
         return scheme;
@@ -113,7 +113,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  List of tags associated with the alb. (Optional)
+     *  List of tags associated with the alb.
      */
     @Updatable
     public Map<String, String> getTags() {

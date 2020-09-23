@@ -182,7 +182,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated kms key. (Optional)
+     * Associated kms key.
      */
     public KmsKeyResource getKmsKey() {
         return kmsKey;
@@ -273,7 +273,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Encrypt storage. (Optional)
+     * Encrypt storage.
      */
     public Boolean getStorageEncrypted() {
         return storageEncrypted;
@@ -284,7 +284,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Enabled cloud watch log exports. (Optional)
+     * Enabled cloud watch log exports.
      */
     public List<String> getEnableCloudwatchLogsExports() {
         if (enableCloudwatchLogsExports == null) {

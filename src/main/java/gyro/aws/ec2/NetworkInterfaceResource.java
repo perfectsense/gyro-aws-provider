@@ -189,7 +189,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The Primary IPV4 address which gets assigned to the Network Interface. (Optional)
+     * The Primary IPV4 address which gets assigned to the Network Interface.
      */
     public String getPrimaryIpv4Address() {
         return primaryIpv4Address;

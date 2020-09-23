@@ -55,7 +55,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     private RedirectAction redirectAction;
 
     /**
-     *  Authentication through user pools supported by Amazon Cognito. (Optional)
+     *  Authentication through user pools supported by Amazon Cognito.
      */
     @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
@@ -67,7 +67,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  Authentication through provider that is OpenID Connect (OIDC) compliant. (Optional)
+     *  Authentication through provider that is OpenID Connect (OIDC) compliant.
      */
     @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
@@ -79,7 +79,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  Used to specify a custom response for an action. (Optional)
+     *  Used to specify a custom response for an action.
      */
     @Updatable
     public FixedResponseAction getFixedResponseAction() {
@@ -91,7 +91,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  The order in which the action should take place. (Optional)
+     *  The order in which the action should take place.
      */
     @Updatable
     public Integer getOrder() {
@@ -103,7 +103,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
-     *  Redirect requests from one URL to another. (Optional)
+     *  Redirect requests from one URL to another.
      */
     @Updatable
     public RedirectAction getRedirectAction() {

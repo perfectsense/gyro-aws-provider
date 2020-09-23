@@ -53,7 +53,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     private UserPoolResource userPool;
 
     /**
-     *  The certificate arn for the subdomain of the custom domain. (Optional)
+     *  The certificate arn for the subdomain of the custom domain.
      */
     @Updatable
     public String getCertificateArn() {

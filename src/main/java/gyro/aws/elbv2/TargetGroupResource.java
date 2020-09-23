@@ -98,7 +98,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     private VpcResource vpc;
 
     /**
-     *  The health check associated with the target group. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  The health check associated with the target group. Required for use with ``instance`` and ``ip`` target types.
      */
     @Updatable
     public HealthCheck getHealthCheck() {
@@ -110,7 +110,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  Port on which traffic is received by targets. Required for use ``instance`` and ``ip`` target types. (Optional)
+     *  Port on which traffic is received by targets. Required for use ``instance`` and ``ip`` target types.
      */
     public Integer getPort() {
         return port;
@@ -121,7 +121,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types.
      */
     public String getProtocol() {
         return protocol;
@@ -132,7 +132,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  List of tags associated with the target group. (Optional)
+     *  List of tags associated with the target group.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -177,7 +177,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  The type of the target. Valid values are ``instance``, ``ip``, and ``lambda``. Will default to ``instance``. (Optional)
+     *  The type of the target. Valid values are ``instance``, ``ip``, and ``lambda``. Will default to ``instance``.
      */
     @Updatable
     public String getTargetType() {
@@ -193,7 +193,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  The vpc where the target group resides. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  The vpc where the target group resides. Required for use with ``instance`` and ``ip`` target types.
      */
     public VpcResource getVpc() {
         return vpc;

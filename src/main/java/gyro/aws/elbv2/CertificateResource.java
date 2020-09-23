@@ -60,7 +60,7 @@ public class CertificateResource extends AwsResource {
     }
 
     /**
-     *  Determines if the certificate is default. (Optional)
+     *  Determines if the certificate is default.
      */
     @Updatable
     public Boolean getIsDefault() {

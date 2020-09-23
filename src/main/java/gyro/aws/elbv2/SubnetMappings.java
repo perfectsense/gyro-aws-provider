@@ -40,7 +40,7 @@ public class SubnetMappings extends Diffable {
     private SubnetResource subnet;
 
     /**
-     *  The elastic ip associated with the nlb. (Optional)
+     *  The elastic ip associated with the nlb.
      */
     public ElasticIpResource getIpAddress() {
         return ipAddress;

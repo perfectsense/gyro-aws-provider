@@ -79,7 +79,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     /**
-     * The path to the instance profile. Defaults to ``/``. (Optional)
+     * The path to the instance profile. Defaults to ``/``.
      */
     public String getPath() {
         if (path == null) {
@@ -94,7 +94,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     /**
-     * The role associated with the instance profile. (Optional)
+     * The role associated with the instance profile.
      */
     @Updatable
     public RoleResource getRole() {

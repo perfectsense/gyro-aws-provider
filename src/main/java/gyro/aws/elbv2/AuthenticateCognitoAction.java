@@ -53,7 +53,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     private UserPoolClientResource userPoolClient;
     private UserPoolDomainResource userPoolDomain;
     /**
-     *  Up to 10 query parameters to include in the redirect request to the authorization endpoint. (Optional)
+     *  Up to 10 query parameters to include in the redirect request to the authorization endpoint.
      */
     public Map<String, String> getExtraParams() {
         return extraParams;
@@ -65,7 +65,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
 
     /**
      *  The behavior if the use is not authenticated. Valid values are ``deny``, ``allow``, and ``authenticate``.
-     *  Defaults to ``authenticate``. (Optional)
+     *  Defaults to ``authenticate``.
      */
     public String getOnUnauthenticatedRequest() {
         if (onUnauthenticatedRequest == null) {
@@ -80,7 +80,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The set of user claims to be request from th IdP. Defaults to ``openid``. (Optional)
+     *  The set of user claims to be request from th IdP. Defaults to ``openid``.
      */
     public String getScope() {
         return scope;
@@ -91,7 +91,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The name of the cookie used to maintain session information. Defaults to ``AWSELBAuthSessionCookie``. (Optional)
+     *  The name of the cookie used to maintain session information. Defaults to ``AWSELBAuthSessionCookie``.
      */
     public String getSessionCookieName() {
         return sessionCookieName;
@@ -102,7 +102,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The maximum duration of the authentication session. Defaults to 604800 seconds. (Optional)
+     *  The maximum duration of the authentication session. Defaults to 604800 seconds.
      */
     public Long getSessionTimeout() {
         return sessionTimeout;
