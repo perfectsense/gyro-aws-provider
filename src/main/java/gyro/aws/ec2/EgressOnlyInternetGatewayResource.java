@@ -54,7 +54,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     private String id;
 
     /**
-     * The VPC to create the egress only internet gateway in. (Required)
+     * The VPC to create the egress only internet gateway in.
      */
     @Required
     public VpcResource getVpc() {

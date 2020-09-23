@@ -46,7 +46,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     private Integer globalTimeout;
 
     /**
-     * The name of the lifecycle hook. (Required)
+     * The name of the lifecycle hook.
      */
     @Required
     public String getLifecycleHookName() {

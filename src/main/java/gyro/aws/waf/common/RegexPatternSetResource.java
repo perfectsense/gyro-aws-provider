@@ -45,7 +45,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     private Set<String> patterns;
 
     /**
-     * The name of the regex pattern set. (Required)
+     * The name of the regex pattern set.
      */
     @Required
     public String getName() {
@@ -67,7 +67,7 @@ public abstract class RegexPatternSetResource extends AbstractWafResource implem
     }
 
     /**
-     * A list of regular expression patterns to filter request on. (Required)
+     * A list of regular expression patterns to filter request on.
      */
     @Required
     @Updatable

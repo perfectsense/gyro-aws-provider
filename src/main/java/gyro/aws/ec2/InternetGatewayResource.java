@@ -55,7 +55,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     private VpcResource vpc;
 
     /**
-     * The VPC to create an internet gateway in. (Required)
+     * The VPC to create an internet gateway in.
      */
     @Required
     public VpcResource getVpc() {

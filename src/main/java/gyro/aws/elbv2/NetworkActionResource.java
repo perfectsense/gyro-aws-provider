@@ -59,7 +59,7 @@ public class NetworkActionResource extends AwsResource {
     }
 
     /**
-     *  The type of action to perform  (Required)
+     *  The type of action to perform 
      */
     @Required
     @Updatable

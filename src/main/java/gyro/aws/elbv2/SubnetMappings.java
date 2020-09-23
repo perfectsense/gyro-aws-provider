@@ -51,7 +51,7 @@ public class SubnetMappings extends Diffable {
     }
 
     /**
-     *  The subnet associated with the nlb. (Required)
+     *  The subnet associated with the nlb.
      */
     public SubnetResource getSubnet() {
         return subnet;

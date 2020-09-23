@@ -49,7 +49,7 @@ public class ConditionResource extends AbstractWafResource {
     }
 
     /**
-     * The name of the condition. (Required)
+     * The name of the condition.
      */
     @Required
     public String getName() {

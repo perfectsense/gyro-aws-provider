@@ -28,7 +28,7 @@ public class DynamoDbAttributeDefinition extends Diffable implements Copyable<At
     private String type;
 
     /**
-     * The name for the attribute. (Required)
+     * The name for the attribute.
      */
     @Required
     public String getName() {
@@ -40,7 +40,7 @@ public class DynamoDbAttributeDefinition extends Diffable implements Copyable<At
     }
 
     /**
-     * The data type for the attribute. Valid values are ``S`` (string), ``N`` (number), or ``B`` (binary). (Required)
+     * The data type for the attribute. Valid values are ``S`` (string), ``N`` (number), or ``B`` (binary).
      */
     @Required
     @ValidStrings({ "S", "N", "B" })

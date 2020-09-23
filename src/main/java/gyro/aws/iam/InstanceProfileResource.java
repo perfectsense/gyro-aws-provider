@@ -67,7 +67,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     /**
-     * The name of the instance profile. (Required)
+     * The name of the instance profile.
      */
     @Required
     public String getName() {

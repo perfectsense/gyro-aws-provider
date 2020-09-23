@@ -74,7 +74,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     private String arn;
 
     /**
-     * The name of the topic. May contain alphanumeric characters, hyphens and underscores and it maybe up to 256 characters long. (Required)
+     * The name of the topic. May contain alphanumeric characters, hyphens and underscores and it maybe up to 256 characters long.
      */
     @Required
     @Regex(value = "[a-zA-Z0-9_.-]{1,256}", message = "1-256 alphanumeric characters, hyphens and underscores.")

@@ -32,7 +32,7 @@ public class DynamoDbServerSideEncryption extends Diffable implements Copyable<S
     private KmsKeyResource kmsKey;
 
     /**
-     * Whether or not to enable server-side encryption using an AWS managed KMS customer master key. (Required)
+     * Whether or not to enable server-side encryption using an AWS managed KMS customer master key.
      */
     @Required
     @Updatable

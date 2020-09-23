@@ -81,7 +81,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
     }
 
     /**
-     *  List of subnets associated with the alb. (Required)
+     *  List of subnets associated with the alb.
      */
     @Required
     @Updatable

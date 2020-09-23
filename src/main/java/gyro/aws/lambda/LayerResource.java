@@ -77,7 +77,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     private String createdDate;
 
     /**
-     * The name of the Lambda Layer. (Required)
+     * The name of the Lambda Layer.
      */
     @Required
     public String getName() {
@@ -111,7 +111,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The list of runtime language for the function using this Lambda Layer. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     * The list of runtime language for the function using this Lambda Layer. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``.
      */
     @Required
     public Set<String> getCompatibleRuntimes() {

@@ -165,7 +165,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  The name of the target group. (Required)
+     *  The name of the target group.
      */
     @Required
     public String getName() {

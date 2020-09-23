@@ -68,7 +68,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     private String revisionId;
 
     /**
-     * Name of the Lambda Alias. (Required)
+     * Name of the Lambda Alias.
      */
     @Required
     public String getName() {
@@ -80,7 +80,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The Lambda Function for the Lambda Alias. (Required)
+     * The Lambda Function for the Lambda Alias.
      */
     @Required
     public FunctionResource getFunction() {
@@ -92,7 +92,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The Lambda Function version for the Lambda Alias. (Required)
+     * The Lambda Function version for the Lambda Alias.
      */
     @Required
     @Updatable

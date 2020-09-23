@@ -33,7 +33,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     private List<S3ReplicationRule> rule;
 
     /**
-     * The ARN for an IAM Role that the s3 bucket assumes when replicating objects. (Required)
+     * The ARN for an IAM Role that the s3 bucket assumes when replicating objects.
      */
     @Required
     @Updatable
@@ -47,7 +47,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
 
 
     /**
-     * Configure cross region replication rules. (Required)
+     * Configure cross region replication rules.
      *
      * @subresource gyro.aws.s3.ReplicationRule
      */

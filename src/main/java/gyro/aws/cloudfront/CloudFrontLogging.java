@@ -30,7 +30,7 @@ public class CloudFrontLogging extends Diffable implements Copyable<LoggingConfi
     private Boolean includeCookies;
 
     /**
-     * The bucket to save access logs. (Required)
+     * The bucket to save access logs.
      */
     @Required
     @Updatable

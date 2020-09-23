@@ -35,7 +35,7 @@ public class ElasticsearchAdvancedSecurityOptions extends Diffable implements Co
     private ElasticsearchMasterUserOptions masterUserOptions;
 
     /**
-     * Enable advanced security for the domain. (Required)
+     * Enable advanced security for the domain.
      */
     @Updatable
     @Required

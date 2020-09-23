@@ -115,7 +115,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     private String arn;
 
     /**
-     * The name of the EKS cluster. (Required)
+     * The name of the EKS cluster.
      */
     @Id
     @Required
@@ -128,7 +128,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The IAM role that provides permissions for the EKS. (Required)
+     * The IAM role that provides permissions for the EKS.
      */
     @Required
     public RoleResource getRole() {
@@ -152,7 +152,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The VPC configuration used by the cluster. (Required)
+     * The VPC configuration used by the cluster.
      */
     @Updatable
     @Required

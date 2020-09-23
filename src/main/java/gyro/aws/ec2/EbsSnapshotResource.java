@@ -70,7 +70,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     private Integer volumeSize;
 
     /**
-     * The volume id based on which the snapshot would be created. (Required)
+     * The volume id based on which the snapshot would be created.
      */
     @Required
     public EbsVolumeResource getVolume() {

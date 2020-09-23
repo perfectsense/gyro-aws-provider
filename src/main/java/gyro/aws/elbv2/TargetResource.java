@@ -67,7 +67,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     }
 
     /**
-     *  The ID of the target. (Required)
+     *  The ID of the target.
      */
     @Required
     public String getId() {
@@ -79,7 +79,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     }
 
     /**
-     *  The port on which the target is listening. (Required)
+     *  The port on which the target is listening.
      */
     @Required
     public Integer getPort() {
@@ -91,7 +91,7 @@ public class TargetResource extends AwsResource implements Copyable<TargetDescri
     }
 
     /**
-     *  The target group that the target is associated with. (Required)
+     *  The target group that the target is associated with.
      */
     @Required
     public TargetGroupResource getTargetGroup() {

@@ -108,7 +108,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The Subnet to create the Network Interface in. (Required)
+     * The Subnet to create the Network Interface in.
      */
     @Required
     @Updatable

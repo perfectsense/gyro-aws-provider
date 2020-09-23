@@ -106,7 +106,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     private CertificateAuthorityStatus status;
 
     /**
-     * The configuration setting for the Certificate Authority. (Required)
+     * The configuration setting for the Certificate Authority.
      */
     @Required
     public AcmPcaCertificateAuthorityConfiguration getConfiguration() {
@@ -118,7 +118,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     }
 
     /**
-     * The type of Certificate Authority. Valid values are ``ROOT`` or ``SUBORDINATE``. (Required)
+     * The type of Certificate Authority. Valid values are ``ROOT`` or ``SUBORDINATE``.
      */
     @Required
     public CertificateAuthorityType getType() {

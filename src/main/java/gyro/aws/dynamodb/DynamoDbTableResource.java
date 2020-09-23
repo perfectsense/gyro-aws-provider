@@ -148,7 +148,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     private String streamLabel;
 
     /**
-     * Set of attribute definitions that describe the key schema. (Required)
+     * Set of attribute definitions that describe the key schema.
      *
      * @subresource gyro.aws.dynamodb.DynamoDbAttributeDefinition
      */
@@ -166,7 +166,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     }
 
     /**
-     * The name of the hash (partition) key for this index. Must be defined as an ``attribute``. (Required)
+     * The name of the hash (partition) key for this index. Must be defined as an ``attribute``.
      */
     @Required
     public String getHashKey() {
@@ -189,7 +189,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     }
 
     /**
-     * The name of the DynamoDb table. (Required)
+     * The name of the DynamoDb table.
      */
     @Id
     @Required

@@ -33,7 +33,7 @@ public class EksNodegroupRemoteAccessConfig extends Diffable implements Copyable
     private List<SecurityGroupResource> sourceSecurityGroups;
 
     /**
-     * The SSH key that provides access for communication with the worker nodes in the managed node group. (Required)
+     * The SSH key that provides access for communication with the worker nodes in the managed node group.
      */
     @Required
     public KeyPairResource getEc2SshKey() {

@@ -38,7 +38,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     private Integer icmpCode;
 
     /**
-     * A number that determines the rule's processing order. (Required)
+     * A number that determines the rule's processing order.
      */
     @Required
     public Integer getRuleNumber() {
@@ -50,7 +50,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     }
 
     /**
-     * The action of the rule. Valid values are: ``allow`` or ``deny``. (Required)
+     * The action of the rule. Valid values are: ``allow`` or ``deny``.
      */
     @Required
     @Updatable
@@ -63,7 +63,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     }
 
     /**
-     * The protocol of the rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP). (Required)
+     * The protocol of the rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP).
      */
     @Required
     @Updatable

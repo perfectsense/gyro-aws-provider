@@ -328,7 +328,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The type of health check being created. Valid values are ``HTTP`` or ``HTTPS`` or ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` or ``TCP`` or ``CALCULATED`` or ``CLOUDWATCH_METRIC``. (Required)
+     * The type of health check being created. Valid values are ``HTTP`` or ``HTTPS`` or ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` or ``TCP`` or ``CALCULATED`` or ``CLOUDWATCH_METRIC``.
      */
     @Required
     public String getType() {

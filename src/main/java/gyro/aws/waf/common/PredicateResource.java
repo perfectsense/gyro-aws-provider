@@ -38,7 +38,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     private String type;
 
     /**
-     * The condition to be attached with the rule. (Required)
+     * The condition to be attached with the rule.
      */
     @Required
     public ConditionResource getCondition() {
@@ -66,7 +66,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     /**
-     * The type of condition being attached. Valid values are ``XssMatch`` or ``GeoMatch`` or ``SqlInjectionMatch`` or ``ByteMatch`` or ``RegexMatch`` or ``SizeConstraint`` or ``IPMatch``. (Required)
+     * The type of condition being attached. Valid values are ``XssMatch`` or ``GeoMatch`` or ``SqlInjectionMatch`` or ``ByteMatch`` or ``RegexMatch`` or ``SizeConstraint`` or ``IPMatch``.
      */
     @Required
     public String getType() {

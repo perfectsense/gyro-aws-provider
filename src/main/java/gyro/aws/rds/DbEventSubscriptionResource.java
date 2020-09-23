@@ -99,7 +99,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The subscribed SNS topic. (Required)
+     * The subscribed SNS topic.
      */
     @Required
     @Updatable
@@ -139,7 +139,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The name of the subscription. (Required)
+     * The name of the subscription.
      */
     @Required
     @Id

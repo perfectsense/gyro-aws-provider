@@ -35,7 +35,7 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
     private ReadWriteType readWriteType;
 
     /**
-     * The Amazon S3 buckets or AWS Lambda functions that you specify in your event selectors for your trail to log data events. (Required)
+     * The Amazon S3 buckets or AWS Lambda functions that you specify in your event selectors for your trail to log data events.
      */
     @Required
     @Updatable
@@ -80,7 +80,7 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
     }
 
     /**
-     * The type of events to be logged by the trail. (Required)
+     * The type of events to be logged by the trail.
      */
     @Updatable
     public ReadWriteType getReadWriteType() {

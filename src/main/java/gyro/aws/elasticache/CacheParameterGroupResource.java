@@ -71,7 +71,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     private Set<String> configParamSet;
 
     /**
-     * The name of the cache parameter group. (Required)
+     * The name of the cache parameter group.
      */
     @Id
     @Required
@@ -84,7 +84,7 @@ public class CacheParameterGroupResource extends AwsResource implements Copyable
     }
 
     /**
-     * The name of the cache parameter family. (Required)
+     * The name of the cache parameter family.
      */
     @Required
     public String getCacheParamGroupFamily() {

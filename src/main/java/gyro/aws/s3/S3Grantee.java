@@ -85,7 +85,7 @@ public class S3Grantee extends Diffable implements Copyable<Grantee> {
     }
 
     /**
-     * The type of the grantee. (Required)
+     * The type of the grantee.
      */
     @Required
     public Type getType() {

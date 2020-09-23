@@ -49,7 +49,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     private String arn;
 
     /**
-     * The scheduled action name. (Required)
+     * The scheduled action name.
      */
     @Required
     public String getScheduledActionName() {

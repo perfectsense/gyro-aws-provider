@@ -45,7 +45,7 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
     private TransitGatewayVpcAttachmentResource vpcAttachment;
 
     /**
-     * The attachment to propagate to the route table. (Required)
+     * The attachment to propagate to the route table.
      */
     @Required
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {

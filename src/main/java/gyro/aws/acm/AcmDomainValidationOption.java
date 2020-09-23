@@ -39,7 +39,7 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
     private AcmResourceRecord resourceRecord;
 
     /**
-     * A fully qualified domain name (FQDN) in the certificate. (Required)
+     * A fully qualified domain name (FQDN) in the certificate.
      */
     @Required
     public String getDomainName() {
@@ -51,7 +51,7 @@ public class AcmDomainValidationOption extends Diffable implements Copyable<Doma
     }
 
     /**
-     * The domain name that ACM used to send domain validation emails. (Required)
+     * The domain name that ACM used to send domain validation emails.
      */
     @Required
     public String getValidationDomain() {

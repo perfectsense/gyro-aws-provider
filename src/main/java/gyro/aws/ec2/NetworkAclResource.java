@@ -62,7 +62,7 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     private Set<NetworkAclEgressRuleResource> egressRule;
 
     /**
-     * The VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_. (Required)
+     * The VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_.
      */
     @Required
     public VpcResource getVpc() {

@@ -42,7 +42,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     private String arn;
 
     /**
-     * The name of the waf acl. (Required)
+     * The name of the waf acl.
      */
     @Required
     public String getName() {
@@ -54,7 +54,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     /**
-     * The metric name of the waf acl. Can only contain letters and numbers. (Required)
+     * The metric name of the waf acl. Can only contain letters and numbers.
      */
     @Required
     public String getMetricName() {
@@ -66,7 +66,7 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     /**
-     * The default action for the waf acl. (Required)
+     * The default action for the waf acl.
      */
     @Required
     @Updatable

@@ -60,7 +60,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     private DbOptionGroupResource optionGroup;
 
     /**
-     * The DB instance to create a snapshot for. (Required)
+     * The DB instance to create a snapshot for.
      */
     @Required
     public DbInstanceResource getDbInstance() {
@@ -72,7 +72,7 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The unique identifier of the DB instance snapshot. (Required)
+     * The unique identifier of the DB instance snapshot.
      */
     @Required
     @Id

@@ -33,7 +33,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
     private String type;
 
     /**
-     * The value filter. Uses two letter country codes (i.e. US) when type selected as ``COUNTRY``. (Required)
+     * The value filter. Uses two letter country codes (i.e. US) when type selected as ``COUNTRY``.
      */
     @Required
     public String getValue() {
@@ -45,7 +45,7 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
     }
 
     /**
-     * The type of geo match filter. Allowed values are ``Country``. (Required)
+     * The type of geo match filter. Allowed values are ``Country``.
      */
     @Required
     public String getType() {

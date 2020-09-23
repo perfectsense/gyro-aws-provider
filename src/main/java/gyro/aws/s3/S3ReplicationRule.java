@@ -34,7 +34,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     private S3SourceSelectionCriteria sourceSelectionCriteria;
 
     /**
-     * The destination bucket and config for this rule. (Required)
+     * The destination bucket and config for this rule.
      */
      @Updatable
     public S3Destination getDestination() {
@@ -71,7 +71,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
     /**
-     * Unique name for this rule. (Required)
+     * Unique name for this rule.
      */
     @Updatable
     public String getId() {
@@ -83,7 +83,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
      /**
-     * The state of this replication rule. Valid values are ``Enabled`` or ``Disabled``. (Required)
+     * The state of this replication rule. Valid values are ``Enabled`` or ``Disabled``.
      */
     @Updatable
     public ReplicationRuleStatus getStatus() {
@@ -95,7 +95,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
     /**
-     * State of the delete marker replication. Valid values are ``Enabled`` or ``Disabled``. (Required)
+     * State of the delete marker replication. Valid values are ``Enabled`` or ``Disabled``.
      */
     @Updatable
     public DeleteMarkerReplicationStatus getDeleteMarkerReplicationStatus() {

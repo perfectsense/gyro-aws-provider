@@ -86,7 +86,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     private Set<RuleTargetResource> target;
 
     /**
-     * The name of the rule associated that matches incoming events. (Required)
+     * The name of the rule associated that matches incoming events.
      */
     @Id
     @Required

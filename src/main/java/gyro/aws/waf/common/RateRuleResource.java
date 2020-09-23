@@ -28,7 +28,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     private Long rateLimit;
 
     /**
-     * The rate key based on which the rate would be checked. (Required)
+     * The rate key based on which the rate would be checked.
      */
     @Required
     public String getRateKey() {
@@ -40,7 +40,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     }
 
     /**
-     * The rate limit at which the action would be taken. Valid values integer ``2000`` and above. (Required)
+     * The rate limit at which the action would be taken. Valid values integer ``2000`` and above.
      */
     @Required
     @Updatable

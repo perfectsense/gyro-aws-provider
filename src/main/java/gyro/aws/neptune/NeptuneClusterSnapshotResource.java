@@ -78,7 +78,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
     private String vpcId;
 
     /**
-     * The unique name of the Neptune cluster snapshot. (Required)
+     * The unique name of the Neptune cluster snapshot.
      */
     @Id
     @Required
@@ -92,7 +92,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
     }
 
     /**
-     * The Neptune cluster to create a snapshot for. (Required)
+     * The Neptune cluster to create a snapshot for.
      */
     @Required
     public NeptuneClusterResource getDbCluster() {

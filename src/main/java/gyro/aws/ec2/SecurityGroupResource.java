@@ -62,7 +62,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private String ownerId;
 
     /**
-     * The name of the Security Group. (Required)
+     * The name of the Security Group.
      */
     @Required
     public String getName() {
@@ -74,7 +74,7 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     /**
-     * The VPC to create the Security Group in. (Required)
+     * The VPC to create the Security Group in.
      */
     @Required
     public VpcResource getVpc() {

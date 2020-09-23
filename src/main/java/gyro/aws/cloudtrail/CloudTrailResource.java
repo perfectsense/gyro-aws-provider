@@ -111,7 +111,7 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
     private Date stopLoggingTime;
 
     /**
-     * The name of the trail. (Required)
+     * The name of the trail.
      */
     @Required
     public String getName() {
@@ -123,7 +123,7 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
     }
 
     /**
-     * The Amazon S3 bucket designated for publishing log files. (Required)
+     * The Amazon S3 bucket designated for publishing log files.
      */
     @Required
     @Updatable

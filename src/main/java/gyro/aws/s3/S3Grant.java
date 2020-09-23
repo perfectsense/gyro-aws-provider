@@ -28,7 +28,7 @@ public class S3Grant extends Diffable implements Copyable<Grant> {
     private Permission permission;
 
     /**
-     * The object being granted the permission. (Required)
+     * The object being granted the permission.
      *
      * @subresource gyro.aws.s3.S3Grantee
      */
@@ -42,7 +42,7 @@ public class S3Grant extends Diffable implements Copyable<Grant> {
     }
 
     /**
-     * The permission to be granted. (Required)
+     * The permission to be granted.
      */
     @Required
     public Permission getPermission() {

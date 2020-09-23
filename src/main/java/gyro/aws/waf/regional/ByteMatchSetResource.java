@@ -58,7 +58,7 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     private Set<ByteMatchTupleResource> byteMatchTuple;
 
     /**
-     * Set of byte match tuple data defining the condition. (Required)
+     * Set of byte match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.regional.ByteMatchTupleResource
      */

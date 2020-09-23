@@ -76,7 +76,7 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
     private String id;
 
     /**
-     * The transit gateway that processes the multicast traffic. (Required)
+     * The transit gateway that processes the multicast traffic.
      */
     @Required
     public TransitGatewayResource getTransitGateway() {

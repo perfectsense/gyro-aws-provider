@@ -72,7 +72,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private String defaultAclId;
 
     /**
-     * The VPC to create the Subnet in. (Required)
+     * The VPC to create the Subnet in.
      */
     @Required
     public VpcResource getVpc() {
@@ -84,7 +84,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     }
 
     /**
-     * The IPv4 network range for the Subnet, in CIDR notation. (Required)
+     * The IPv4 network range for the Subnet, in CIDR notation.
      */
     @Required
     public String getCidrBlock() {

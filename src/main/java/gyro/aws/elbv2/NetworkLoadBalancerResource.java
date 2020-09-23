@@ -74,7 +74,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     private List<SubnetMappings> subnetMapping;
 
     /**
-     * The list of subnet mappings associated with the nlb. (Required)
+     * The list of subnet mappings associated with the nlb.
      *
      * @subresource gyro.aws.elbv2.SubnetMappingResource
      */

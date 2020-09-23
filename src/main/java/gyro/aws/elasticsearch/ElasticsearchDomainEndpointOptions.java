@@ -29,7 +29,7 @@ public class ElasticsearchDomainEndpointOptions extends Diffable implements Copy
     private TLSSecurityPolicy tlsSecurityPolicy;
 
     /**
-     * Enforce HTTPS endpoints for the Elasticsearch cluster. (Required)
+     * Enforce HTTPS endpoints for the Elasticsearch cluster.
      */
     @Required
     @Updatable

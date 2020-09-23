@@ -93,7 +93,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The assumed role policy. (Required)
+     * The assumed role policy.
      */
     @Required
     @Updatable
@@ -159,7 +159,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The name of the role. (Required)
+     * The name of the role.
      */
     @Required
     public String getName() {

@@ -90,7 +90,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  The name of the load balancer. (Required)
+     *  The name of the load balancer.
      */
     @Required
     public String getName() {

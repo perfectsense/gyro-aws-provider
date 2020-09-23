@@ -65,7 +65,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     /**
-     *  The domain. (Required)
+     *  The domain.
      */
     @Required
     @Updatable
@@ -79,7 +79,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     /**
-     *  The id of the user pool. (Required)
+     *  The id of the user pool.
      */
     @Required
     public UserPoolResource getUserPool() {

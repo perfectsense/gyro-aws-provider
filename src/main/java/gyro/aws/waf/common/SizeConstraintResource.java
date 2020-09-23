@@ -36,7 +36,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     private Long size;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      */
     @Required
     public FieldToMatch getFieldToMatch() {
@@ -48,7 +48,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     /**
-     * The comparison to be done on the filter. Valid values are ``EQ`` or ``NE`` or ``LE`` or ``LT`` or ``GE`` or ``GT``. (Required)
+     * The comparison to be done on the filter. Valid values are ``EQ`` or ``NE`` or ``LE`` or ``LT`` or ``GE`` or ``GT``.
      */
     @Required
     public String getComparisonOperator() {
@@ -60,7 +60,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``.
      */
     @Required
     public String getTextTransformation() {

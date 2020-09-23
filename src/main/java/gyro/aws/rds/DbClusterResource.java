@@ -198,7 +198,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The unique name of the DB Cluster. (Required)
+     * The unique name of the DB Cluster.
      */
     @Required
     @Id
@@ -281,7 +281,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The name of the database engine. Valid Values: ``aurora`` (for MySQL 5.6-compatible Aurora), ``aurora-mysql`` (for MySQL 5.7-compatible Aurora), and ``aurora-postgresql``. (Required)
+     * The name of the database engine. Valid Values: ``aurora`` (for MySQL 5.6-compatible Aurora), ``aurora-mysql`` (for MySQL 5.7-compatible Aurora), and ``aurora-postgresql``.
      */
     @Required
     public String getEngine() {

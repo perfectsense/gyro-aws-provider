@@ -101,7 +101,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The ARN of the SNS topic. (Required)
+     * The ARN of the SNS topic.
      */
     @Required
     @Updatable

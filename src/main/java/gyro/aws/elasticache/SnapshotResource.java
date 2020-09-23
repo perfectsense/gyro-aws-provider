@@ -56,7 +56,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     private String status;
 
     /**
-     * Name of the snapshot. (Required)
+     * Name of the snapshot.
      */
     @Required
     @Id
@@ -69,7 +69,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     /**
-     * Id of the replication group. (Required)
+     * Id of the replication group.
      */
     @Required
     public String getReplicationGroupId() {
@@ -81,7 +81,7 @@ public class SnapshotResource extends AwsResource implements Copyable<Snapshot> 
     }
 
     /**
-     * The cache cluster to snapshot from. (Required)
+     * The cache cluster to snapshot from.
      */
     @Required
     public CacheClusterResource getCacheCluster() {

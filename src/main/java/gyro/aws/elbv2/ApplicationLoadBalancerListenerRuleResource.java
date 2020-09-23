@@ -76,7 +76,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     private String arn;
 
     /**
-     *  List of actions associated with the rule. (Required)
+     *  List of actions associated with the rule.
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -95,7 +95,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  List of conditions associated with the rule. (Required)
+     *  List of conditions associated with the rule.
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
@@ -114,7 +114,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  The alb associated with this listener rule. (Required)
+     *  The alb associated with this listener rule.
      */
     @Required
     public ApplicationLoadBalancerListenerResource getAlbListener() {
@@ -126,7 +126,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  Priority of the rule. Valid values between ``1`` and ``50000``. No two rules can have the same priority. ``-1`` points to the default rule. (Required)
+     *  Priority of the rule. Valid values between ``1`` and ``50000``. No two rules can have the same priority. ``-1`` points to the default rule.
      */
     @Required
     public Integer getPriority() {

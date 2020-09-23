@@ -117,7 +117,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private Long version;
 
     /**
-     * The name of the launch template. (Required)
+     * The name of the launch template.
      */
     @Required
     public String getName() {
@@ -129,7 +129,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * The AMI to be used to launch the Instance created by this Template. (Required)
+     * The AMI to be used to launch the Instance created by this Template.
      */
     @Required
     public AmiResource getAmi() {
@@ -212,7 +212,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_. (Required)
+     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_.
      */
     @Required
     public String getInstanceType() {
@@ -224,7 +224,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
+     * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
      */
     @Required
     public String getKeyName() {

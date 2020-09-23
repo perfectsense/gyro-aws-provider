@@ -137,7 +137,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
     }
 
     /**
-     * The domain validation option that you want ACM to use to send you emails so that you can validate domain ownership. (Required)
+     * The domain validation option that you want ACM to use to send you emails so that you can validate domain ownership.
      *
      * @subresource gyro.aws.acm.AcmDomainValidationOption
      */

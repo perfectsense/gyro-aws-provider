@@ -52,7 +52,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     private List<String> value;
 
     /**
-     *  Condition field name. (Required)
+     *  Condition field name.
      */
     @Required
     @Updatable
@@ -65,7 +65,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     }
 
     /**
-     *  Condition value. (Required)
+     *  Condition value.
      */
     @Required
     @Updatable

@@ -86,7 +86,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private String account;
 
     /**
-     * The IPv4 network range for the VPC, in CIDR notation. (Required)
+     * The IPv4 network range for the VPC, in CIDR notation.
      */
     @Required
     public String getCidrBlock() {

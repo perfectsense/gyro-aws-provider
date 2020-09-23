@@ -53,7 +53,7 @@ public class GeoMatchSetResource extends gyro.aws.waf.common.GeoMatchSetResource
     private Set<GeoMatchConstraintResource> geoMatchConstraint;
 
     /**
-     * List of geo match constraint data defining the condition. (Required)
+     * List of geo match constraint data defining the condition.
      *
      * @subresource gyro.aws.waf.regional.GeoMatchConstraintResource
      */

@@ -308,7 +308,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private S3AccessControlPolicy accessControlPolicy;
 
     /**
-     * The name of the bucket. (Required)
+     * The name of the bucket.
      */
     @Required
     @Id

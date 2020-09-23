@@ -62,7 +62,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     private Set<SubnetResource> subnets;
 
     /**
-     * The name of the cache subnet group. (Required)
+     * The name of the cache subnet group.
      */
     @Required
     @Id
@@ -87,7 +87,7 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     /**
-     * A list of subnets. (Required)
+     * A list of subnets.
      */
     @Required
     @Updatable

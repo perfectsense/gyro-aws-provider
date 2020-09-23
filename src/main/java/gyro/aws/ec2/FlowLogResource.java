@@ -91,7 +91,7 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
     }
 
     /**
-     * The destination to which flow log data should be published. (Required)
+     * The destination to which flow log data should be published.
      */
     @Required
     public String getLogDestination() {
@@ -103,7 +103,7 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
     }
 
     /**
-     * The type of destination to which flow log data should be published. (Required)
+     * The type of destination to which flow log data should be published.
      */
     @Required
     public LogDestinationType getDestinationType() {
@@ -174,7 +174,7 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
     }
 
     /**
-     * The type of traffic to log. (Required)
+     * The type of traffic to log.
      */
     @Required
     public TrafficType getTrafficType() {

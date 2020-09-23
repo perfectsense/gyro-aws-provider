@@ -113,7 +113,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     /**
-     * The batch size for the event to invoke the Lambda Function. (Required)
+     * The batch size for the event to invoke the Lambda Function.
      */
     @Required
     @Updatable
@@ -142,7 +142,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     /**
-     * The event source arn to be connected with the function. (Required)
+     * The event source arn to be connected with the function.
      */
     @Required
     public String getEventSourceArn() {

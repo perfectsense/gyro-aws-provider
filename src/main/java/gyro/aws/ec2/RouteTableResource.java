@@ -72,7 +72,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     private String ownerId;
 
     /**
-     * The VPC to create a Route Table for. (Required)
+     * The VPC to create a Route Table for.
      */
     @Required
     public VpcResource getVpc() {

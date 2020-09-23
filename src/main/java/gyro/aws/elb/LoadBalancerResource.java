@@ -142,7 +142,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The listeners to associate with this load balancer. (Required)
+     * The listeners to associate with this load balancer.
      *
      * @subresource gyro.aws.elb.ListenerResource
      */
@@ -160,7 +160,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The load balancer name. (Required)
+     * The load balancer name.
      */
     @Required
     @Id
@@ -173,7 +173,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The scheme - either internal or internet-facing. (Required)
+     * The scheme - either internal or internet-facing.
      */
     @Required
     public String getScheme() {
@@ -185,7 +185,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The security groups to associate with this load balancer. (Required)
+     * The security groups to associate with this load balancer.
      */
     @Required
     @Updatable
@@ -202,7 +202,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * Subnet IDs to associate with this load balancer. (Required)
+     * Subnet IDs to associate with this load balancer.
      */
     @Required
     @Updatable

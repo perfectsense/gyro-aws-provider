@@ -175,7 +175,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The Hosted Zone under which the the Record Set is to be created. (Required)
+     * The Hosted Zone under which the the Record Set is to be created.
      */
     @Required
     public HostedZoneResource getHostedZone() {
@@ -211,7 +211,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The name of the Record Set being created. (Required)
+     * The name of the Record Set being created.
      */
     @Required
     @Updatable
@@ -276,7 +276,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The type of Record Set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``. (Required)
+     * The type of Record Set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``.
      */
     @Required
     @Updatable

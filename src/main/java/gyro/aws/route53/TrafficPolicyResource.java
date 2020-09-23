@@ -67,7 +67,7 @@ public class TrafficPolicyResource extends AwsResource implements Copyable<Traff
     private Integer version;
 
     /**
-     * The name of the Traffic Policy. (Required)
+     * The name of the Traffic Policy.
      */
     @Required
     public String getName() {

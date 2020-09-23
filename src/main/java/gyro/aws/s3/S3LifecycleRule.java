@@ -46,7 +46,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     private List<S3LifecycleRuleTransition> transition;
 
     /**
-     * Name of the life cycle rule. (Required)
+     * Name of the life cycle rule.
      */
     @Required
     public String getId() {
@@ -94,7 +94,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     }
 
     /**
-     * State of the lifecycle policy. Valid values ``Enabled`` or ``Disabled``. (Required)
+     * State of the lifecycle policy. Valid values ``Enabled`` or ``Disabled``.
      */
     @Required
     @Updatable

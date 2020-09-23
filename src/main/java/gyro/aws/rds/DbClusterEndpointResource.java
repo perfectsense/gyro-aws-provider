@@ -66,7 +66,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     private String endpointAddress;
 
     /**
-     * The unique identifier of the endpoint. (Required)
+     * The unique identifier of the endpoint.
      */
     @Required
     @Id
@@ -79,7 +79,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * The DB cluster associated with the endpoint. (Required)
+     * The DB cluster associated with the endpoint.
      */
     @Required
     public DbClusterResource getDbCluster() {
@@ -91,7 +91,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * The type of the endpoint. Valid values are ``READER``, ``ANY``. (Required)
+     * The type of the endpoint. Valid values are ``READER``, ``ANY``.
      */
     @Required
     @Updatable

@@ -70,7 +70,7 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
     private NeptuneParameter queryTimeout;
 
     /**
-     * The description of the parameter group. (Required)
+     * The description of the parameter group.
      */
     @Required
     public String getDescription() {
@@ -83,7 +83,7 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
 
     /**
      * The name of the parameter group family.
-     * The only supported family for Neptune is ``neptune1``. (Required)
+     * The only supported family for Neptune is ``neptune1``.
      */
     @ValidStrings("neptune1")
     @Required
@@ -96,7 +96,7 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
     }
 
     /**
-     * The name of the parameter group. (Required)
+     * The name of the parameter group.
      */
     @Id
     @Required

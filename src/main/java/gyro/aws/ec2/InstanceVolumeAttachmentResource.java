@@ -62,7 +62,7 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
     private InstanceResource instance;
 
     /**
-     * Device name to attach the volume to. (Required)
+     * Device name to attach the volume to.
      */
     @Required
     public String getDeviceName() {
@@ -74,7 +74,7 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
     }
 
     /**
-     * The volume to be attached. (Required)
+     * The volume to be attached.
      */
     @Required
     public EbsVolumeResource getVolume() {
@@ -86,7 +86,7 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
     }
 
     /**
-     * The Instance the volume should attach to. (Required)
+     * The Instance the volume should attach to.
      */
     @Required
     public InstanceResource getInstance() {

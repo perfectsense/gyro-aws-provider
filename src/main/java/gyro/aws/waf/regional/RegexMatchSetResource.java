@@ -65,7 +65,7 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     private Set<RegexMatchTupleResource> regexMatchTuple;
 
     /**
-     * List of regex match tuple data defining the condition. (Required)
+     * List of regex match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.regional.RegexMatchTupleResource
      */

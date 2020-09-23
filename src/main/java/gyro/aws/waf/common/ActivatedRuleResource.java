@@ -44,7 +44,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     private List<String> excludedRules;
 
     /**
-     * The rule to be attached. (Required)
+     * The rule to be attached.
      */
     @Required
     public CommonRuleResource getRule() {
@@ -56,7 +56,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The default action for the rule under this waf. (Required)
+     * The default action for the rule under this waf.
      */
     @Required
     @Updatable
@@ -69,7 +69,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``. (Required)
+     * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``.
      */
     @Required
     public String getType() {
@@ -81,7 +81,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping. (Required)
+     * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping.
      */
     @Required
     @Updatable

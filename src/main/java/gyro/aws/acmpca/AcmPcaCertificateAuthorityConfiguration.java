@@ -28,7 +28,7 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
     private AcmPcaAsn1Subject subject;
 
     /**
-     * The type of the key algorithm. Valid values are ``RSA_2048`` or ``RSA_4096`` or ``EC_prime256v1`` or ``EC_secp384r1``. (Required)
+     * The type of the key algorithm. Valid values are ``RSA_2048`` or ``RSA_4096`` or ``EC_prime256v1`` or ``EC_secp384r1``.
      */
     public KeyAlgorithm getKeyAlgorithm() {
         return keyAlgorithm;
@@ -39,7 +39,7 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
     }
 
     /**
-     * The type of signing algorithm. Valid values are ``SHA256WITHECDSA`` or ``SHA384WITHECDSA`` or ``SHA512WITHECDSA`` or ``SHA256WITHRSA`` or ``SHA384WITHRSA`` or ``SHA512WITHRSA``. (Required)
+     * The type of signing algorithm. Valid values are ``SHA256WITHECDSA`` or ``SHA384WITHECDSA`` or ``SHA512WITHECDSA`` or ``SHA256WITHRSA`` or ``SHA384WITHRSA`` or ``SHA512WITHRSA``.
      */
     public SigningAlgorithm getSigningAlgorithm() {
         return signingAlgorithm;
@@ -50,7 +50,7 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
     }
 
     /**
-     * The subject configuration. (Required)
+     * The subject configuration.
      */
     public AcmPcaAsn1Subject getSubject() {
         return subject;

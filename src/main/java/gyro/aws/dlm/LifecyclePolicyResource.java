@@ -91,7 +91,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     private Map<String, String> tagsToAdd;
 
     /**
-     * The description of the snapshot policy. (Required)
+     * The description of the snapshot policy.
      */
     @Required
     @Updatable
@@ -104,7 +104,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The permission role for the snapshot policy. (Required)
+     * The permission role for the snapshot policy.
      */
     @Required
     @Updatable
@@ -132,7 +132,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The target tags for the snapshot policy. (Required)
+     * The target tags for the snapshot policy.
      */
     @Required
     @Updatable
@@ -181,7 +181,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The name of the schedule for the snapshot policy. (Required)
+     * The name of the schedule for the snapshot policy.
      */
     @Required
     @Updatable
@@ -194,7 +194,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``  (Required)
+     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24`` 
      */
     @Required
     @Updatable
@@ -239,7 +239,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The number of volumes to retain for the snapshot policy. Valid values are ``1`` to ``1000``. (Required)
+     * The number of volumes to retain for the snapshot policy. Valid values are ``1`` to ``1000``.
      */
     @Required
     @Updatable
@@ -252,7 +252,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The list of tags to add to the volumes for the snapshot policy. (Required)
+     * The list of tags to add to the volumes for the snapshot policy.
      */
     @Required
     @Updatable

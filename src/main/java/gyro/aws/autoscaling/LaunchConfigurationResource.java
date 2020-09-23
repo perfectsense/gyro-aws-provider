@@ -103,7 +103,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private InstanceProfileResource instanceProfile;
 
     /**
-     * The name of the launch configuration. (Required)
+     * The name of the launch configuration.
      */
     @Required
     @Id
@@ -153,7 +153,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_. (Required)
+     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_.
      */
     @Required
     public String getInstanceType() {
@@ -165,7 +165,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_. (Required)
+     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
      */
     @Required
     public KeyPairResource getKey() {
@@ -191,7 +191,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. (Required)
+     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_.
      */
     @Required
     public Set<SecurityGroupResource> getSecurityGroups() {

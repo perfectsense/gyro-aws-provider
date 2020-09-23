@@ -198,7 +198,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  The name of the client. (Required)
+     *  The name of the client.
      */
     @Required
     public String getName() {

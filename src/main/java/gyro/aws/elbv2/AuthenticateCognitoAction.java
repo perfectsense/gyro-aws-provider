@@ -113,7 +113,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The arn of the cognito user pool associated with the action. (Required)
+     *  The arn of the cognito user pool associated with the action.
      */
     public String getUserPoolArn() {
         return userPoolArn;
@@ -124,7 +124,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The cognito user pool client resource associated with the action. (Required)
+     *  The cognito user pool client resource associated with the action.
      */
     public UserPoolClientResource getUserPoolClient() {
         return userPoolClient;
@@ -135,7 +135,7 @@ public class AuthenticateCognitoAction extends Diffable implements Copyable<Auth
     }
 
     /**
-     *  The user pool domain resource associated with the user pool. (Required)
+     *  The user pool domain resource associated with the user pool.
      */
     public UserPoolDomainResource getUserPoolDomain() {
         return userPoolDomain;

@@ -54,7 +54,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     private Set<AutoScalingPolicyStepAdjustment> stepAdjustment;
 
     /**
-     * The name of the policy. (Required)
+     * The name of the policy.
      */
     @Required
     public String getPolicyName() {

@@ -35,7 +35,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     private CommonRegexPatternSet regexPatternSet;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      */
     @Required
     public FieldToMatch getFieldToMatch() {
@@ -47,7 +47,7 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``.
      */
     @Required
     public String getTextTransformation() {

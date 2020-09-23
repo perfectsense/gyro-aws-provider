@@ -56,7 +56,7 @@ public class XssMatchSetResource extends gyro.aws.waf.common.XssMatchSetResource
     private Set<XssMatchTupleResource> xssMatchTuple;
 
     /**
-     * List of xss match tuple data defining the condition. (Required)
+     * List of xss match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.global.XssMatchTupleResource
      */

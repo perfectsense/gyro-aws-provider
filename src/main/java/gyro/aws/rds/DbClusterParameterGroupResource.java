@@ -75,7 +75,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     private List<DbParameter> parameter;
 
     /**
-     * The description of the cluster parameter group. (Required)
+     * The description of the cluster parameter group.
      */
     @Required
     public String getDescription() {
@@ -87,7 +87,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     /**
-     * The name of the cluster parameter group family. (Required)
+     * The name of the cluster parameter group family.
      */
     @Required
     public String getFamily() {
@@ -99,7 +99,7 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     /**
-     * The name of the cluster parameter group. (Required)
+     * The name of the cluster parameter group.
      */
     @Required
     @Id

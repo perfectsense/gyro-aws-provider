@@ -75,7 +75,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     private List<DbParameter> parameter;
 
     /**
-     * The description of the DB parameter group. (Required)
+     * The description of the DB parameter group.
      */
     @Required
     public String getDescription() {
@@ -87,7 +87,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     }
 
     /**
-     * The name of the DB parameter group family. (Required)
+     * The name of the DB parameter group family.
      */
     @Required
     public String getFamily() {
@@ -99,7 +99,7 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
     }
 
     /**
-     * The name of the DB parameter group. (Required)
+     * The name of the DB parameter group.
      */
     @Required
     @Id

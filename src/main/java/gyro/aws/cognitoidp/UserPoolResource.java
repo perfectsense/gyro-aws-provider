@@ -102,7 +102,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     /**
-     *  The name of the user pool. (Required)
+     *  The name of the user pool.
      */
     @Required
     public String getName() {

@@ -119,7 +119,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     private String state;
 
     /**
-     * The name of the Metric Alarm. (Required)
+     * The name of the Metric Alarm.
      */
     @Required
     public String getName() {

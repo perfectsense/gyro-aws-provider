@@ -57,7 +57,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     private String identifier;
 
     /**
-     * The DB cluster to create a snapshot for. (Required)
+     * The DB cluster to create a snapshot for.
      */
     @Required
     public DbClusterResource getDbCluster() {
@@ -69,7 +69,7 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     }
 
     /**
-     * The unique identifier of the DB cluster snapshot. (Required)
+     * The unique identifier of the DB cluster snapshot.
      */
     @Required
     @Id

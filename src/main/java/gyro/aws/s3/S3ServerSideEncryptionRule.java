@@ -27,7 +27,7 @@ public class S3ServerSideEncryptionRule extends Diffable implements Copyable<Ser
     private S3ServerSideEncryptionByDefault defaultEncryption;
 
     /**
-     * The default server-side encryption to apply to new objects in the bucket. (Required)
+     * The default server-side encryption to apply to new objects in the bucket.
      *
      * @subresource gyro.aws.s3.S3ServerSideEncryptionByDefault
      */

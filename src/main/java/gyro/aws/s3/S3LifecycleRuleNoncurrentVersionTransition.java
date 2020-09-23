@@ -27,7 +27,7 @@ public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable impleme
     private String storageClass;
 
     /**
-     * Days after creation that versioning would start. Min value 30. (Required)
+     * Days after creation that versioning would start. Min value 30.
      */
     @Required
     @Updatable
@@ -40,7 +40,7 @@ public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable impleme
     }
 
     /**
-     * Type of transition. Valid values are ``GLACIER`` or ``STANDARD_IA`` or ``ONEZONE_IA`` or ``INTELLIGENT_TIERING``. (Required)
+     * Type of transition. Valid values are ``GLACIER`` or ``STANDARD_IA`` or ``ONEZONE_IA`` or ``INTELLIGENT_TIERING``.
      */
     @Required
     public String getStorageClass() {

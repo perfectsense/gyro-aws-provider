@@ -166,7 +166,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         ));
 
     /**
-     * The name of the Auto Scaling Group, also serves as its identifier and thus unique. (Required)
+     * The name of the Auto Scaling Group, also serves as its identifier and thus unique.
      */
     @Required
     @Id
@@ -191,7 +191,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ/>`_. (Required)
+     *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ/>`_.
      */
     @Required
     @Updatable
@@ -208,7 +208,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The maximum number of instances for the Auto Scaling group. (Required)
+     * The maximum number of instances for the Auto Scaling group.
      */
     @Required
     @Min(0)
@@ -226,7 +226,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The minimum number of instances for the Auto Scaling group. (Required)
+     * The minimum number of instances for the Auto Scaling group.
      */
     @Required
     @Min(0)
@@ -244,7 +244,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The desired number of instances for the Auto Scaling group. (Required)
+     * The desired number of instances for the Auto Scaling group.
      */
     @Required
     @Updatable

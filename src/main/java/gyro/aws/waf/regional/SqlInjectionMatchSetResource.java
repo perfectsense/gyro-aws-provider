@@ -56,7 +56,7 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     private Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
 
     /**
-     * List of sql injection match tuple data defining the condition. (Required)
+     * List of sql injection match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.regional.SqlInjectionMatchTupleResource
      */

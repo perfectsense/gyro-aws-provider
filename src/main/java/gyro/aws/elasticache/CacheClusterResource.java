@@ -119,7 +119,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     private String preferredAvailabilityZone;
 
     /**
-     * The Az mode of the cluster. Valid value is ``single-az`` or ``cross-az`` (Required)
+     * The Az mode of the cluster. Valid value is ``single-az`` or ``cross-az``
      */
     @Required
     @Updatable
@@ -132,7 +132,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The name of the cache cluster. (Required)
+     * The name of the cache cluster.
      */
     @Required
     @Id
@@ -145,7 +145,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The type of the cache cluster nodes. (Required)
+     * The type of the cache cluster nodes.
      */
     @Required
     @Updatable
@@ -158,7 +158,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The cache parameter group to be associated. (Required)
+     * The cache parameter group to be associated.
      */
     @Required
     @Updatable
@@ -187,7 +187,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The cache subnet group to be associated. (Required)
+     * The cache subnet group to be associated.
      */
     @Required
     public CacheSubnetGroupResource getCacheSubnetGroup() {
@@ -199,7 +199,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The name of the engine used to create the cluster. (Required)
+     * The name of the engine used to create the cluster.
      */
     @Required
     public String getEngine() {
@@ -211,7 +211,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The version of the engine used to create the cluster. (Required)
+     * The version of the engine used to create the cluster.
      */
     @Required
     @Updatable
@@ -236,7 +236,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The number of nodes to be created. (Required)
+     * The number of nodes to be created.
      */
     @Required
     @Updatable
@@ -249,7 +249,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The port to be used by the cache cluster. (Required)
+     * The port to be used by the cache cluster.
      */
     @Required
     public Integer getPort() {
@@ -261,7 +261,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The preferred maintenance window to be used by the cache cluster. (Required)
+     * The preferred maintenance window to be used by the cache cluster.
      */
     @Required
     @Updatable
@@ -356,7 +356,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The preferred availability zone for the cluster. (Required)
+     * The preferred availability zone for the cluster.
      */
     @Required
     @Updatable

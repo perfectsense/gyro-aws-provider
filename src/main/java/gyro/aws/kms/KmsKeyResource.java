@@ -97,7 +97,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private Map<String, String> tags;
 
     /**
-     * The set of aliases associated with the key. (Required)
+     * The set of aliases associated with the key.
      */
     @Required
     @Updatable
@@ -222,7 +222,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The usage of the key. The only valid value is ``ENCRYPT_DECRYPT``. Defaults to ``ENCRYPT_DECRYPT``. (Required)
+     * The usage of the key. The only valid value is ``ENCRYPT_DECRYPT``. Defaults to ``ENCRYPT_DECRYPT``.
      */
     @Required
     public String getKeyUsage() {

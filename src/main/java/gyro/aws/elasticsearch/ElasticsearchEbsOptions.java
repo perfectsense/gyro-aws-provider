@@ -37,7 +37,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     private Integer iops;
 
     /**
-     * Enable the EBS volume, a block level storage device. (Required)
+     * Enable the EBS volume, a block level storage device.
      */
     @Updatable
     @Required

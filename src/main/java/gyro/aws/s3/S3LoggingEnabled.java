@@ -28,7 +28,7 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     private String prefix;
 
     /**
-     * The target destination bucket for the logs. (Required)
+     * The target destination bucket for the logs.
      */
     @Required
     @Updatable

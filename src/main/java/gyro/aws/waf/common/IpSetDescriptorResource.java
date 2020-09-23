@@ -40,7 +40,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     private String type;
 
     /**
-     * The ip to be filtered on. (Required)
+     * The ip to be filtered on.
      */
     @Required
     public String getValue() {
@@ -52,7 +52,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     }
 
     /**
-     * The type of ip provided. Valid values are ``IPV4`` or ``IPV6``. (Required)
+     * The type of ip provided. Valid values are ``IPV4`` or ``IPV6``.
      */
     @Required
     public String getType() {

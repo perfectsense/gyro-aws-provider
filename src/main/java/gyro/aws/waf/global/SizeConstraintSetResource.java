@@ -58,7 +58,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
     private Set<SizeConstraintResource> sizeConstraint;
 
     /**
-     * List of size constraint data defining the condition. (Required)
+     * List of size constraint data defining the condition.
      *
      * @subresource gyro.aws.waf.global.SizeConstraintResource
      */

@@ -91,7 +91,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     /**
-     * The name of the policy. (Required)
+     * The name of the policy.
      */
     @Required
     public String getName() {
@@ -126,7 +126,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     }
 
     /**
-     * The policy document. A policy path or policy string is allowed. (Required)
+     * The policy document. A policy path or policy string is allowed.
      */
     @Required
     @Updatable

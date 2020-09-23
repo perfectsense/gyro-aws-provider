@@ -120,7 +120,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The name of the service that is going to associated with this Endpoint. (Required)
+     * The name of the service that is going to associated with this Endpoint.
      */
     @Required
     public String getServiceName() {
@@ -132,7 +132,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_. (Required)
+     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_.
      */
     @Required
     public VpcResource getVpc() {

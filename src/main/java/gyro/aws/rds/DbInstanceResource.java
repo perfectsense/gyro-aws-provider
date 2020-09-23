@@ -231,7 +231,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The DB instance type. See `DB Instance Class <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_. (Required)
+     * The DB instance type. See `DB Instance Class <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_.
      */
     @Required
     @Updatable
@@ -244,7 +244,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The unique name of the DB instance. (Required)
+     * The unique name of the DB instance.
      */
     @Required
     @Id

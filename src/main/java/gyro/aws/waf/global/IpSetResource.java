@@ -53,7 +53,7 @@ public class IpSetResource extends gyro.aws.waf.common.IpSetResource {
     private Set<IpSetDescriptorResource> ipSetDescriptor;
 
     /**
-     * List of ip set descriptor data defining the condition. (Required)
+     * List of ip set descriptor data defining the condition.
      *
      * @subresource gyro.aws.waf.global.IpSetDescriptorResource
      */

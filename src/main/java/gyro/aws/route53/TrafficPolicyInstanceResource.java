@@ -69,7 +69,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     private String id;
 
     /**
-     * Name of the Traffic Policy Instance. (Required)
+     * Name of the Traffic Policy Instance.
      */
     @Required
     public String getName() {
@@ -92,7 +92,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The associated Hosted Zone. (Required)
+     * The associated Hosted Zone.
      */
     @Required
     public HostedZoneResource getHostedZone() {
@@ -104,7 +104,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
     }
 
     /**
-     * The Traffic Policy to be associated. (Required)
+     * The Traffic Policy to be associated.
      */
     @Required
     @Updatable

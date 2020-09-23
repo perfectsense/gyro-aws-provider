@@ -84,7 +84,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     /**
-     * Name of the db subnet group. (Required)
+     * Name of the db subnet group.
      */
     @Required
     @Id
@@ -97,7 +97,7 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     /**
-     * A list of associated subnets. (Required)
+     * A list of associated subnets.
      */
     @Required
     @Updatable

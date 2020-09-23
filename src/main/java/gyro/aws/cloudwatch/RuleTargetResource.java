@@ -48,7 +48,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     private String kinesisPartitionKeyPath;
 
     /**
-     * The identifier of the target resource. (Required)
+     * The identifier of the target resource.
      */
     @Required
     public String getTargetId() {
@@ -60,7 +60,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The arn of the target resource. (Required)
+     * The arn of the target resource.
      */
     @Required
     @Updatable

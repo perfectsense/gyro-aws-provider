@@ -66,7 +66,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     private Set<SubnetResource> subnets;
 
     /**
-     * The description for the DB subnet group. (Required)
+     * The description for the DB subnet group.
      */
     @Required
     @Updatable
@@ -79,7 +79,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     /**
-     * The name for the DB subnet group. (Required)
+     * The name for the DB subnet group.
      */
     @Required
     @Id
@@ -92,7 +92,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     /**
-     * The list of Subnets for the DB subnet group. (Required)
+     * The list of Subnets for the DB subnet group.
      */
     @Required
     @Updatable

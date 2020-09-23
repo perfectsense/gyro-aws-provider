@@ -38,7 +38,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     private Boolean autoEnableIo;
 
     /**
-     * Name of the drive to attach this volume to. (Required)
+     * Name of the drive to attach this volume to.
      */
     @Required
     public String getDeviceName() {

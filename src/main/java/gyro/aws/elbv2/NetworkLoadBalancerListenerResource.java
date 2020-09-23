@@ -59,7 +59,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     private NetworkLoadBalancerResource nlb;
 
     /**
-     *  The default action associated with the listener. (Required)
+     *  The default action associated with the listener.
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
@@ -74,7 +74,7 @@ public class NetworkLoadBalancerListenerResource extends ListenerResource implem
     }
 
     /**
-     *  The nlb that the listener is attached to. (Required)
+     *  The nlb that the listener is attached to.
      **/
     @Required
     public NetworkLoadBalancerResource getNlb() {

@@ -109,7 +109,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     private String policy;
 
     /**
-     * The name of the queue. The name of a FIFO queue must end with the .fifo suffix. (Required)
+     * The name of the queue. The name of a FIFO queue must end with the .fifo suffix.
      */
     @Required
     public String getName() {
@@ -277,7 +277,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The policy document. A policy path or policy string is allowed. (Required)
+     * The policy document. A policy path or policy string is allowed.
      */
     @Required
     @Updatable

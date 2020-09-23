@@ -105,7 +105,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private String arn;
 
     /**
-     * Set backup retention period. Minimum 1. (Required)
+     * Set backup retention period. Minimum 1.
      */
     @Required
     @Updatable
@@ -119,7 +119,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Name of the cluster. (Required)
+     * Name of the cluster.
      */
     @Required
     @Id
@@ -132,7 +132,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated db subnet group. (Required)
+     * Associated db subnet group.
      */
     @Required
     public DbSubnetGroupResource getDbSubnetGroup() {
@@ -144,7 +144,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Engine for the cluster. (Required)
+     * Engine for the cluster.
      */
     @Required
     public String getEngine() {
@@ -156,7 +156,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Engine version for the cluster. (Required)
+     * Engine version for the cluster.
      */
     @Required
     @Updatable
@@ -169,7 +169,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated db cluster parameter group. (Required)
+     * Associated db cluster parameter group.
      */
     @Required
     @Updatable
@@ -193,7 +193,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Master username. (Required)
+     * Master username.
      */
     @Required
     public String getMasterUsername() {
@@ -205,7 +205,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Master user password. (Required)
+     * Master user password.
      */
     @Required
     public String getMasterUserPassword() {
@@ -217,7 +217,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Set the access port. (Required)
+     * Set the access port.
      */
     @Required
     @Updatable
@@ -230,7 +230,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Set preferred backup window. (Required)
+     * Set preferred backup window.
      */
     @Required
     @Updatable
@@ -243,7 +243,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Set preferred maintenance window. (Required)
+     * Set preferred maintenance window.
      */
     @Required
     @Updatable
@@ -256,7 +256,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated vpc security groups. (Required)
+     * Associated vpc security groups.
      */
     @Required
     @Updatable

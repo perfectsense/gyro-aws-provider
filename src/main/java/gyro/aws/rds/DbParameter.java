@@ -27,7 +27,7 @@ public class DbParameter extends Diffable {
     private String applyMethod;
 
     /**
-     * The name of the DB parameter. (Required)
+     * The name of the DB parameter.
      */
     @Required
     public String getName() {
@@ -39,7 +39,7 @@ public class DbParameter extends Diffable {
     }
 
     /**
-     * The value of the DB parameter. (Required)
+     * The value of the DB parameter.
      */
     @Required
     @Updatable

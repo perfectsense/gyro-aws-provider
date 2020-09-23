@@ -34,7 +34,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
     private String textTransformation;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      */
     @Required
     public FieldToMatch getFieldToMatch() {
@@ -46,7 +46,7 @@ public abstract class XssMatchTupleResource extends AbstractWafResource implemen
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``.
      */
     @Required
     public String getTextTransformation() {

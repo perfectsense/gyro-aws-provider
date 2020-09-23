@@ -29,7 +29,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
     private String ruleId;
 
     /**
-     * The name of the rule. (Required)
+     * The name of the rule.
      */
     @Required
     public String getName() {
@@ -41,7 +41,7 @@ public abstract class AbstractRuleResource extends AbstractWafResource {
     }
 
     /**
-     * The metric name of the rule. Can only contain letters and numbers. (Required)
+     * The metric name of the rule. Can only contain letters and numbers.
      */
     @Required
     public String getMetricName() {

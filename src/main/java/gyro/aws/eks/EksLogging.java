@@ -33,7 +33,7 @@ public class EksLogging extends Diffable implements Copyable<Logging> {
     private List<EksLogSetup> enabledLogTypes;
 
     /**
-     * The cluster control plane logging configuration for your cluster. (Required)
+     * The cluster control plane logging configuration for your cluster.
      */
     @Required
     @Updatable

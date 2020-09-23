@@ -42,7 +42,7 @@ public class S3ServerSideEncryptionByDefault extends Diffable implements Copyabl
     }
 
     /**
-     * The server-side encryption algorithm to use for the default encryption. (Required)
+     * The server-side encryption algorithm to use for the default encryption.
      */
     @Required
     @Updatable

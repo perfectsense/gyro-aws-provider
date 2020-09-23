@@ -63,7 +63,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     private String arn;
 
     /**
-     * Associated db cluster. (Required)
+     * Associated db cluster.
      */
     @Required
     public DbClusterResource getDbCluster() {
@@ -75,7 +75,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
     }
 
     /**
-     * The name of the db cluster snapshot. (Required)
+     * The name of the db cluster snapshot.
      */
     @Required
     public String getIdentifier() {

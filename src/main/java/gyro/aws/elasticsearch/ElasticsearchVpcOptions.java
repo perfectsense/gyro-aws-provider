@@ -35,7 +35,7 @@ public class ElasticsearchVpcOptions extends Diffable implements Copyable<VPCDer
     private Set<SecurityGroupResource> securityGroups;
 
     /**
-     * The list of subnets in the same region for the VPC endpoint. One subnet per availability zone. (Required)
+     * The list of subnets in the same region for the VPC endpoint. One subnet per availability zone.
      */
     @Required
     @Updatable
@@ -52,7 +52,7 @@ public class ElasticsearchVpcOptions extends Diffable implements Copyable<VPCDer
     }
 
     /**
-     * The list if security groups for the VPC endpoint that need to access the domain. (Required)
+     * The list if security groups for the VPC endpoint that need to access the domain.
      */
     @Required
     @Updatable

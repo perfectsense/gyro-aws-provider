@@ -82,7 +82,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     private NeptuneParameter queryTimeout;
 
     /**
-     * The description of the cluster parameter group. (Required)
+     * The description of the cluster parameter group.
      */
     @Required
     public String getDescription() {
@@ -95,7 +95,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * The name of the cluster parameter group family.
-     * The only supported family for Neptune is ``neptune1``. (Required)
+     * The only supported family for Neptune is ``neptune1``.
      */
     @ValidStrings("neptune1")
     @Required
@@ -108,7 +108,7 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
     }
 
     /**
-     * The name of the cluster parameter group. (Required)
+     * The name of the cluster parameter group.
      */
     @Id
     @Required

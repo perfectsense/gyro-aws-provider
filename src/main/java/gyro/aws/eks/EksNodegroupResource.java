@@ -97,7 +97,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private String arn;
 
     /**
-     * The name of the nodegroup. (Required)
+     * The name of the nodegroup.
      */
     @Required
     public String getName() {
@@ -109,7 +109,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The name of the cluster for which to manage the nodegroup. (Required)
+     * The name of the cluster for which to manage the nodegroup.
      */
     @Required
     public EksClusterResource getCluster() {
@@ -172,7 +172,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The subnets to use for the Auto Scaling group that is created for your node group. (Required)
+     * The subnets to use for the Auto Scaling group that is created for your node group.
      */
     @Required
     public List<SubnetResource> getSubnets() {
@@ -210,7 +210,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The IAM role to use for the nodegroup. (Required)
+     * The IAM role to use for the nodegroup.
      */
     @Required
     public RoleResource getNodeRole() {

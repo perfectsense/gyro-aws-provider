@@ -91,7 +91,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The Availability Zone in which to create the Capacity Reservation. (Required)
+     * The Availability Zone in which to create the Capacity Reservation.
      */
     @Required
     public String getAvailabilityZone() {
@@ -103,7 +103,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates whether the Capacity Reservation supports EBS-optimized instances. (Required)
+     * Indicates whether the Capacity Reservation supports EBS-optimized instances.
      */
     @Required
     public Boolean getEbsOptimized() {
@@ -127,7 +127,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the way in which the Capacity Reservation ends. Valid values are ``unlimited`` or ``limited``. (Required)
+     * Indicates the way in which the Capacity Reservation ends. Valid values are ``unlimited`` or ``limited``.
      */
     @Required
     @Updatable
@@ -140,7 +140,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates whether the Capacity Reservation supports instances with temporary, block-level storage. (Required)
+     * Indicates whether the Capacity Reservation supports instances with temporary, block-level storage.
      */
     @Required
     public Boolean getEphemeralStorage() {
@@ -152,7 +152,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values are ``open`` or ``targeted``. (Required)
+     * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values are ``open`` or ``targeted``.
      */
     @Required
     public String getInstanceMatchCriteria() {
@@ -164,7 +164,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The type of operating system for which to reserve capacity. (Required)
+     * The type of operating system for which to reserve capacity.
      */
     @Required
     public String getInstancePlatform() {
@@ -176,7 +176,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The instance type for which to reserve capacity. (Required)
+     * The instance type for which to reserve capacity.
      */
     @Required
     public String getInstanceType() {
@@ -188,7 +188,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the tenancy of the Capacity Reservation. Valid values are ``default`` or ``dedicated``. (Required)
+     * Indicates the tenancy of the Capacity Reservation. Valid values are ``default`` or ``dedicated``.
      */
     @Required
     public String getTenancy() {
@@ -200,7 +200,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The number of Instances for which to reserve capacity. (Required)
+     * The number of Instances for which to reserve capacity.
      */
     @Required
     @Updatable

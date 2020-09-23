@@ -67,7 +67,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     private Boolean peerAllowEgressFromLocalVpcToRemoteClassicLink;
 
     /**
-     * Requester VPC. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html/>`_. (Required)
+     * Requester VPC. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html/>`_.
      */
     @Required
     public VpcResource getVpc() {
@@ -79,7 +79,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * Accepter VPC. (Required)
+     * Accepter VPC.
      */
     @Required
     public VpcResource getPeerVpc() {

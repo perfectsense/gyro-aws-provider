@@ -104,7 +104,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     }
 
     /**
-     * The unique identifier of the global database cluster. (Required)
+     * The unique identifier of the global database cluster.
      */
     @Required
     @Id

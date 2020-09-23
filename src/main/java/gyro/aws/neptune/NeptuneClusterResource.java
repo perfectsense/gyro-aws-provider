@@ -113,7 +113,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private Boolean applyImmediately;
 
     /**
-     * The name of the database engine. The only valid value is ``neptune``. (Required)
+     * The name of the database engine. The only valid value is ``neptune``.
      */
     @ValidStrings("neptune")
     @Required
@@ -139,7 +139,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The unique name of the Neptune cluster. (Required)
+     * The unique name of the Neptune cluster.
      */
     @Id
     @Required

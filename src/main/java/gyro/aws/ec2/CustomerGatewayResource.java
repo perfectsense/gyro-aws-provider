@@ -60,7 +60,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     private Integer bgpAsn;
 
     /**
-     * Public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html/>`_. (Required)
+     * Public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html/>`_.
      */
     @Required
     public String getPublicIp() {

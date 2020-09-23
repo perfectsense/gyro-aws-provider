@@ -78,7 +78,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     private String id;
 
     /**
-     * List of subnets for the availability zone that the transit gateway uses. Limited to one subnet per availability zone. (Required)
+     * List of subnets for the availability zone that the transit gateway uses. Limited to one subnet per availability zone.
      */
     @Required
     @Updatable
@@ -95,7 +95,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * The transit gateway for this attachment. (Required)
+     * The transit gateway for this attachment.
      */
     @Required
     public TransitGatewayResource getTransitGateway() {
@@ -107,7 +107,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * The VPC to attach to the transit gateway selected. This VPC should have at least one subnet associated with it. (Required)
+     * The VPC to attach to the transit gateway selected. This VPC should have at least one subnet associated with it.
      */
     @Required
     public VpcResource getVpc() {

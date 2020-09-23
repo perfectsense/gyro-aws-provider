@@ -60,7 +60,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     private String id;
 
     /**
-     * The name of the Placement Group. (Required)
+     * The name of the Placement Group.
      */
     @Required
     public String getName() {
@@ -73,7 +73,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
 
     /**
      * Approaches towards managing the placement of instances on the underlying hardware. Valid values are ``cluster``, ``spread`` or ``partition``.
-     * Defaults to the``cluster`` strategy. (Required)
+     * Defaults to the``cluster`` strategy.
      */
     @Required
     public PlacementStrategy getPlacementStrategy() {

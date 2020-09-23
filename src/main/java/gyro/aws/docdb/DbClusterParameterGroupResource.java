@@ -76,7 +76,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     private String arn;
 
     /**
-     * Name of the db cluster parameter group. (Required)
+     * Name of the db cluster parameter group.
      */
     @Required
     @Id
@@ -89,7 +89,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     /**
-     * Name of the db cluster parameter family. (Required)
+     * Name of the db cluster parameter family.
      */
     @Required
     public String getDbParamGroupFamily() {
@@ -101,7 +101,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     /**
-     * Description for the db cluster parameter family. (Required)
+     * Description for the db cluster parameter family.
      */
     @Required
     public String getDescription() {

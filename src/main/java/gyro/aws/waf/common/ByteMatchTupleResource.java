@@ -38,7 +38,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     private String textTransformation;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      */
     @Required
     public FieldToMatch getFieldToMatch() {
@@ -50,7 +50,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     /**
-     * The comparison to be done on the filter. Valid values are ``EXACTLY`` or ``STARTS_WITH`` or ``ENDS_WITH`` or ``CONTAINS`` or ``CONTAINS_WORD``. (Required)
+     * The comparison to be done on the filter. Valid values are ``EXACTLY`` or ``STARTS_WITH`` or ``ENDS_WITH`` or ``CONTAINS`` or ``CONTAINS_WORD``.
      */
     @Required
     public String getPositionalConstraint() {
@@ -62,7 +62,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     /**
-     * The target string to filter on for the byte match filter. (Required)
+     * The target string to filter on for the byte match filter.
      */
     @Required
     public String getTargetString() {
@@ -74,7 +74,7 @@ public abstract class ByteMatchTupleResource extends AbstractWafResource impleme
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``.
      */
     @Required
     public String getTextTransformation() {

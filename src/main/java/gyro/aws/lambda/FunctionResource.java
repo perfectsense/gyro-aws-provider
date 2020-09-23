@@ -117,7 +117,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private String codeHash;
 
     /**
-     * The name of the Lambda Function. (Required)
+     * The name of the Lambda Function.
      */
     @Id
     @Required
@@ -194,7 +194,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The IAM Role to be associated with this Lambda Function. (Required)
+     * The IAM Role to be associated with this Lambda Function.
      */
     @Required
     @Updatable
@@ -207,7 +207,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The runtime language for this Lambda Function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     * The runtime language for this Lambda Function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``.
      */
     @Required
     @Updatable
@@ -220,7 +220,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The name of the method within your code that Lambda calls to execute the Lambda Function. (Required)
+     * The name of the method within your code that Lambda calls to execute the Lambda Function.
      */
     @Required
     @Updatable
