@@ -24,6 +24,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -83,6 +84,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
      * The amount of time between two scaling events. Valid values is any integer greater than 0.
      */
     @Updatable
+    @Min(0)
     public Integer getCooldown() {
         return cooldown;
     }
@@ -95,6 +97,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
      * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics. Valid values are Integers greater than ``0``.
      */
     @Updatable
+    @Min(0)
     public Integer getEstimatedInstanceWarmup() {
         return estimatedInstanceWarmup;
     }

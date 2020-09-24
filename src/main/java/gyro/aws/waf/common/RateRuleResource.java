@@ -19,6 +19,7 @@ package gyro.aws.waf.common;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.RateBasedRule;
 import software.amazon.awssdk.services.waf.model.WafRuleType;
@@ -44,6 +45,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
      */
     @Required
     @Updatable
+    @Min(2000)
     public Long getRateLimit() {
         return rateLimit;
     }

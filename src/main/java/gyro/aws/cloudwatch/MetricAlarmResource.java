@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -192,6 +193,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * Number of data points to breach to trigger this Metric Alarm. Valid value Integer greater than ``0``.
      */
     @Updatable
+    @Min(1)
     public Integer getDatapointsToAlarm() {
         return datapointsToAlarm;
     }
@@ -234,6 +236,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * The number of period over which the data point's are evaluated. Valid values are any Integer greater than ``0``.
      */
     @Updatable
+    @Min(1)
     public Integer getEvaluationPeriods() {
         return evaluationPeriods;
     }

@@ -29,6 +29,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -426,6 +427,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The amount of Provisioned IOPS to be allocated. The value must be equal to or greater than 1000. Required if `storage-type` is ``io1``.
      */
     @Updatable
+    @Min(1000)
     public Integer getIops() {
         return iops;
     }
