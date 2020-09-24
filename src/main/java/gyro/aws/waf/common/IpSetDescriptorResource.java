@@ -23,6 +23,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.IPSetDescriptor;
@@ -55,6 +56,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
      * The type of ip provided. Valid values are ``IPV4`` or ``IPV6``.
      */
     @Required
+    @ValidStrings({"IPV4", "IPV6"})
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }

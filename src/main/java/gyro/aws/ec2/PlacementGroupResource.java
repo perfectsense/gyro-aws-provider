@@ -27,6 +27,7 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
@@ -76,6 +77,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
      * Defaults to the``cluster`` strategy.
      */
     @Required
+    @ValidStrings({"cluster", "spread", "partition"})
     public PlacementStrategy getPlacementStrategy() {
         return placementStrategy;
     }

@@ -34,6 +34,7 @@ import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
@@ -123,6 +124,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
      */
     @Required
     @Updatable
+    @ValidStrings({"single-az", "cross-az"})
     public String getAzMode() {
         return azMode;
     }

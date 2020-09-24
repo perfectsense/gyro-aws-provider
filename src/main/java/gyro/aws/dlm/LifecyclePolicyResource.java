@@ -29,6 +29,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.dlm.DlmClient;
 import software.amazon.awssdk.services.dlm.model.CreateLifecyclePolicyResponse;
 import software.amazon.awssdk.services.dlm.model.CreateRule;
@@ -119,6 +120,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     /**
      * The resource type of the snapshot policy. Valid values are ``VOLUME`` or ``INSTANCE``. Defaults to ``VOLUME``.
      */
+    @ValidStrings({"VOLUME", "INSTANCE"})
     public String getResourceType() {
         if (resourceType == null) {
             resourceType = "VOLUME";
@@ -152,6 +154,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
      * The state of the snapshot policy. Valid values are ``ENABLED`` or ``DISABLED``. Defaults to ``ENABLED``
      */
     @Updatable
+    @ValidStrings({"ENABLED", "DISABLED"})
     public String getState() {
         if (state == null) {
             state = "ENABLED";
@@ -210,6 +213,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
      * The rule interval for the snapshot policy. Valid values are ``HOURS``. Defaults to ``HOURS``
      */
     @Updatable
+    @ValidStrings("HOURS")
     public String getRuleIntervalUnit() {
         if (ruleIntervalUnit == null) {
             ruleIntervalUnit = "HOURS";
@@ -226,6 +230,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
      * The time format of the interval for the snapshot policy. Currenly only supported value is ``hh:mm``. Defaults to ``hh:mm``
      */
     @Updatable
+    @ValidStrings("hh:mm")
     public String getRuleTime() {
         if (ruleTime == null) {
             ruleTime = "hh:mm";

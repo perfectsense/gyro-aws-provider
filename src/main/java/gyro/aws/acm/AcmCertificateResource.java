@@ -31,6 +31,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
 import software.amazon.awssdk.services.acm.model.CertificateStatus;
@@ -180,6 +181,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
     /**
      * The method you want to use if you are requesting a public certificate to validate that you own or control domain. Valid values are ``DNS`` or ``EMAIl``. Defaults to ``DNS``
      */
+    @ValidStrings({"DNS", "EMAIL"})
     public ValidationMethod getValidationMethod() {
         if (validationMethod == null) {
             validationMethod = ValidationMethod.DNS;

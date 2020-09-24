@@ -29,6 +29,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
@@ -146,6 +147,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     /**
      * The type of service being associated. Valid values ``INTERFACE`` or ``GATEWAY``. Defaults to ``GATEWAY``.
      */
+    @ValidStrings({"INTERFACE", "GATEWAY"})
     public VpcEndpointType getType() {
         if (type == null) {
             type = VpcEndpointType.GATEWAY;

@@ -30,6 +30,7 @@ import gyro.core.resource.Updatable;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -121,7 +122,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types.
+     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` or ``HTTPS`` for ALBs and ``TCP`` or ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types.
      */
     public String getProtocol() {
         return protocol;
@@ -180,6 +181,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
      *  The type of the target. Valid values are ``instance``, ``ip``, and ``lambda``. Will default to ``instance``.
      */
     @Updatable
+    @ValidStrings({"instance", "ip", "lambda"})
     public String getTargetType() {
         if (targetType == null) {
             targetType = "instance";

@@ -30,6 +30,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -351,7 +352,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The list of log types to export to CloudWatch Logs. Valid values depend on the DB engine being used. See `Publishing Database Logs to Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch>`_.
+     * The list of log types to export to CloudWatch Logs. See `Publishing Database Logs to Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch>`_.
      */
     @Updatable
     public List<String> getEnableCloudwatchLogsExports() {
@@ -389,6 +390,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The name of the database engine to use for this DB Instance. Valid values are ``aurora``, ``aurora-mysql``, ``aurora-postgresql``, ``mariadb``, ``mysql``, ``oracle-ee``, ``oracle-se2``, ``oracle-se1``, ``oracle-se``, ``postgres``, ``sqlserver-ee``, ``sqlserver-se``, ``sqlserver-ex``, ``sqlserver-we``.
      */
+    @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql", "mariadb", "mysql", "oracle-ee", "oracle-se2", "oracle-se1", "oracle-se", "postgres", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-we"})
     public String getEngine() {
         return engine;
     }
@@ -447,6 +449,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * License model for this DB instance. Valid values: ``license-included``, ``bring-your-own-license``, ``general-public-license``.
      */
     @Updatable
+    @ValidStrings({"license-included", "bring-your-own-license", "general-public-license"})
     public String getLicenseModel() {
         return licenseModel;
     }
@@ -482,6 +485,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection). Valid Values: ``0``, ``1``, ``5``, ``10``, ``15``, ``30``, ``60``.
      */
     @Updatable
+    @ValidNumbers({0,1,5,10,15,30,60})
     public Integer getMonitoringInterval() {
         return monitoringInterval;
     }
@@ -542,6 +546,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * How many days to retain Performance Insights data. Valid values are ``7`` or ``731`` (2 years).
      */
     @Updatable
+    @ValidNumbers({7,731})
     public Integer getPerformanceInsightsRetentionPeriod() {
         return performanceInsightsRetentionPeriod;
     }
@@ -638,6 +643,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The storage type for the DB instance. Valid values are ``standard``, ``gp2``, ``io1``.
      */
     @Updatable
+    @ValidStrings({"standard", "gp2", "io1"})
     public String getStorageType() {
         return storageType;
     }

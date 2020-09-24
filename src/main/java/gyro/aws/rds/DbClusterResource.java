@@ -30,6 +30,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
@@ -284,6 +285,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The name of the database engine. Valid Values: ``aurora`` (for MySQL 5.6-compatible Aurora), ``aurora-mysql`` (for MySQL 5.7-compatible Aurora), and ``aurora-postgresql``.
      */
     @Required
+    @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql"})
     public String getEngine() {
         return engine;
     }
@@ -295,6 +297,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The DB engine mode of the DB cluster. Valid values are ``provisioned``, ``serverless``, ``parallelquery``, or ``global``.
      */
+    @ValidStrings({"provisioned", "serverless", "parallelquery", "global"})
     public String getEngineMode() {
         return engineMode;
     }

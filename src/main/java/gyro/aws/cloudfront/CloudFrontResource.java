@@ -29,6 +29,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehaviors;
@@ -218,6 +219,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * The maximum http version that users can request on this distribution. Valid values are ``HTTP1_1`` or ``HTTP2``.
      */
     @Updatable
+    @ValidStrings({"HTTP1_1", "HTTP2"})
     public String getHttpVersion() {
         if (httpVersion == null) {
             httpVersion = "http1.1";
@@ -234,6 +236,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * The maximum price you want to pay for CloudFront. Valid values are ``PriceClass_All``, ``PriceClass_200`` and ``PriceClass_100``. For information on pricing see `Price classes <https://aws.amazon.com/cloudfront/pricing/#On-demand_Pricing>`_.
      */
     @Updatable
+    @ValidStrings({"PriceClass_All", "PriceClass_200", "PriceClass_100"})
     public String getPriceClass() {
         if (priceClass == null) {
             return "PriceClass_All";

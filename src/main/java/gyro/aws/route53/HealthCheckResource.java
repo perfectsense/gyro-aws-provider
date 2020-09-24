@@ -31,6 +31,7 @@ import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
@@ -205,6 +206,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
      * What status to give if there is insufficient data for the health check to analyze. Valid values are ``HEALTHY`` or ``UNHEALTHY`` or ``LAST_KNOWN_STATUS``.
      */
     @Updatable
+    @ValidStrings({"HEALTHY", "UNHEALTHY", "LAST_KNOWN_STATUS"})
     public String getInsufficientDataHealthStatus() {
         return insufficientDataHealthStatus;
     }
@@ -308,6 +310,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
         if (!ObjectUtils.isBlank(resourcePath)) {
             resourcePath = (resourcePath.startsWith("/") ? "" : "/") + resourcePath;
         }
+
         return resourcePath;
     }
 
@@ -331,6 +334,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
      * The type of health check being created. Valid values are ``HTTP`` or ``HTTPS`` or ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` or ``TCP`` or ``CALCULATED`` or ``CLOUDWATCH_METRIC``.
      */
     @Required
+    @ValidStrings({"HTTP", "HTTPS", "HTTP_STR_MATCH", "HTTPS_STR_MATCH", "TCP", "CALCULATED", "CLOUDWATCH_METRIC"})
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }

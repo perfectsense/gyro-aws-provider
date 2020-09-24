@@ -137,7 +137,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The Instance to which the Network Interface will be attached.(Optional)
+     * The Instance to which the Network Interface will be attached.
      */
     @Updatable
     public InstanceResource getInstance() {

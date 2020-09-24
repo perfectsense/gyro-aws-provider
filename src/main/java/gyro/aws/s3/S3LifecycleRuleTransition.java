@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.Transition;
 
 public class S3LifecycleRuleTransition extends Diffable implements Copyable<Transition> {
@@ -43,6 +44,7 @@ public class S3LifecycleRuleTransition extends Diffable implements Copyable<Tran
      * Type of transition. Valid values are ``GLACIER`` or ``STANDARD_IA`` or ``ONEZONE_IA`` or ``INTELLIGENT_TIERING``.
      */
     @Required
+    @ValidStrings({"GLACIER", "STANDARD_IA", "ONEZONE_IA", "INTELLIGENT_TIERING"})
     public String getStorageClass() {
         return storageClass;
     }

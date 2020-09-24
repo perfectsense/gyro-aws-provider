@@ -27,6 +27,7 @@ import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolClientResponse;
@@ -85,6 +86,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
      *  Sets the OAuth flows. Valid values are ``code`` and ``token``.
      */
     @Updatable
+    @ValidStrings({"code", "token"})
     public List<String> getAllowedOAuthFlows() {
         if (allowedOAuthFlows == null) {
             allowedOAuthFlows = new ArrayList<>();

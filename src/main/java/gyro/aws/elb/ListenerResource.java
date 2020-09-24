@@ -31,6 +31,7 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerPoliciesResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.Listener;
@@ -75,9 +76,10 @@ public class ListenerResource extends AwsResource implements Copyable<ListenerDe
     }
 
     /**
-     * The protocol to use for routing traffic to instances : HTTP, HTTPS, TCP, SSL.
+     * The protocol to use for routing traffic to instances. Valid values : HTTP, HTTPS, TCP, SSL.
      */
     @Updatable
+    @ValidStrings({"HTTP", "HTTPS", "TCP", "SSL"})
     public String getInstanceProtocol() {
         return instanceProtocol;
     }
@@ -101,6 +103,7 @@ public class ListenerResource extends AwsResource implements Copyable<ListenerDe
      * The load balancer transport protocol to use for routing: HTTP, HTTPS, TCP, or SSL.
      */
     @Updatable
+    @ValidStrings({"HTTP", "HTTPS", "TCP", "SSL"})
     public String getProtocol() {
         return protocol;
     }

@@ -22,6 +22,7 @@ import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
@@ -54,6 +55,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
      */
     @Required
     @Updatable
+    @ValidStrings({"allow", "deny"})
     public String getRuleAction() {
         return ruleAction;
     }

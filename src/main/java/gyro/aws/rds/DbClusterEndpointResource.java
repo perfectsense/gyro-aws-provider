@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
@@ -95,6 +96,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
      */
     @Required
     @Updatable
+    @ValidStrings({"READER", "ANY"})
     public String getEndpointType() {
         return endpointType;
     }

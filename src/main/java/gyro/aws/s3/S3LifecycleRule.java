@@ -22,6 +22,7 @@ import gyro.core.GyroException;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -98,6 +99,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
      */
     @Required
     @Updatable
+    @ValidStrings({"Enabled", "Disabled"})
     public String getStatus() {
         return status;
     }

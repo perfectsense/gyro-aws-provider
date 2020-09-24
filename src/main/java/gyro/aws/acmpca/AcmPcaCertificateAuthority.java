@@ -29,6 +29,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acmpca.AcmPcaClient;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthority;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthorityStatus;
@@ -121,6 +122,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
      * The type of Certificate Authority. Valid values are ``ROOT`` or ``SUBORDINATE``.
      */
     @Required
+    @ValidStrings({"ROOT", "SUBORDINATE"})
     public CertificateAuthorityType getType() {
         return type;
     }

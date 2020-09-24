@@ -24,6 +24,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -72,6 +73,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
      * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``.
      */
     @Required
+    @ValidStrings({"REGULAR", "RATE_BASED"})
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }

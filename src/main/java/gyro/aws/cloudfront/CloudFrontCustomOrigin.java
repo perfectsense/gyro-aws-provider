@@ -19,6 +19,7 @@ package gyro.aws.cloudfront;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.CustomOriginConfig;
 
 import java.util.Arrays;
@@ -102,6 +103,7 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
      * The protocol CloudFront should use to connect to the origin. Valid values are ``http-only``, ``https-only``, or ``match-viewer``.
      */
     @Updatable
+    @ValidStrings({"http-only", "https-only", "match-viewer"})
     public String getOriginProtocolPolicy() {
         if (originProtocolPolicy == null) {
             originProtocolPolicy = "http-only";
@@ -118,6 +120,7 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
      * SSL protocols CloudFront is allow to connect to the origin with. Valid values are ``SSLv3``, ``TLSv1``, ``TLSv1.1``, ``TLSv1.2``.
      */
     @Updatable
+    @ValidStrings({"SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"})
     public Set<String> getOriginSslProtocols() {
         if (originSslProtocols == null) {
             originSslProtocols = new HashSet<>(Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2"));

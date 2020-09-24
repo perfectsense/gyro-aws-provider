@@ -29,6 +29,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.CloudWatchException;
@@ -178,6 +179,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * The operation to use when comparing using threshold and statistics. Valid values are ``GreaterThanOrEqualToThreshold`` or ``GreaterThanThreshold`` or ``LessThanThreshold`` or ``LessThanOrEqualToThreshold``.
      */
     @Updatable
+    @ValidStrings({"GreaterThanOrEqualToThreshold", "GreaterThanThreshold", "LessThanThreshold", "LessThanOrEqualToThreshold"})
     public String getComparisonOperator() {
         return comparisonOperator;
     }
@@ -219,6 +221,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * This value indicates if less data points are present to evaluate a trigger, should it ignore or evaluate. Setting 'ignore' would ignore the data at that point. Valid values are ``evaluate`` or ``ignore``.
      */
     @Updatable
+    @ValidStrings({"evaluate", "ignore"})
     public String getEvaluateLowSampleCountPercentile() {
         return evaluateLowSampleCountPercentile;
     }
@@ -324,6 +327,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * The namespace associated with the metric specified in 'metric-name' provided. Valid values are ``SampleCount`` or ``Average`` or ``Sum`` or ``Minimum`` or ``Maximum``. Can only be set if 'metric' not set.
      */
     @Updatable
+    @ValidStrings({"SampleCount", "Average", "Sum", "Minimum", "Maximum"})
     public String getStatistic() {
         return statistic;
     }
@@ -348,6 +352,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * How the metric handles missing data. Defaults to 'missing'. Valid values are ``breaching`` or ``notBreaching`` or ``ignore`` or ``missing``.
      */
     @Updatable
+    @ValidStrings({"breaching", "notBreaching", "ignore", "missing"})
     public String getTreatMissingData() {
         if (treatMissingData == null) {
             treatMissingData = "missing";

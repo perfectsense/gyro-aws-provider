@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
@@ -152,6 +153,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to ``failover``.
      */
     @Updatable
+    @ValidStrings({"Primary", "Secondary"})
     public String getFailover() {
         return failover != null ? failover.toUpperCase() : null;
     }
@@ -280,6 +282,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      */
     @Required
     @Updatable
+    @ValidStrings({"SOA", "A", "TXT", "NS", "CNAME", "MX", "NAPTR", "PTR", "SRV", "SPF", "AAAA", "CAA"})
     public String getType() {
         return type;
     }
@@ -317,9 +320,10 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Routing policy type the Record Set is going to be. Defaults to Simple. Valid Values are ``geolocation`` or ``failover`` or ``multivalue`` or ``weighted`` or ``latency`` or ``simple``.
+     * Routing policy type the Record Set is going to be. Defaults to ``Simple``. Valid Values are ``geolocation`` or ``failover`` or ``multivalue`` or ``weighted`` or ``latency`` or ``simple``.
      */
     @Updatable
+    @ValidStrings({"geolocation", "failover", "multivalue", "weighted", "latency", "simple"})
     public String getRoutingPolicy() {
         if (routingPolicy == null) {
             routingPolicy = "simple";

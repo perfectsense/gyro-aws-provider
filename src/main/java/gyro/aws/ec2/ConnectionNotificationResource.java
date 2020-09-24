@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
@@ -117,6 +118,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      * The events this notification is subscribing to. Defaults to all values. Valid values are ``Accept`` or ``Connect`` or ``Delete``.
      */
     @Updatable
+    @ValidStrings({"Accept", "Connect", "Delete"})
     public Set<String> getConnectionEvents() {
         if (connectionEvents == null) {
             connectionEvents = new HashSet<>(masterEventSet);

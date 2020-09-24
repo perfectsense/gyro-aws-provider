@@ -25,6 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
@@ -69,6 +70,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
      * The adjustment type. Valid values are ``ChangeInCapacity`` or ``ExactCapacity`` or ``PercentChangeInCapacity``.
      */
     @Updatable
+    @ValidStrings({"ChangeInCapacity", "ExactCapacity", "PercentChangeInCapacity"})
     public String getAdjustmentType() {
         return adjustmentType;
     }
@@ -102,9 +104,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * the aggregation type for cloud watch metrics. Valid values are ``Minimum`` or ``Maximum`` or ``Average``. Defaults to ``Average``.
+     * The aggregation type for cloud watch metrics. Valid values are ``Minimum`` or ``Maximum`` or ``Average``. Defaults to ``Average``.
      */
     @Updatable
+    @ValidStrings({"Minimum", "Maximum", "Average"})
     public String getMetricAggregationType() {
         if (metricAggregationType == null) {
             metricAggregationType = "Average";
@@ -130,8 +133,9 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The type of policy. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. Defaults to ``SimpleScaling``
+     * The type of policy. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. Defaults to ``SimpleScaling``.
      */
+    @ValidStrings({"SimpleScaling", "StepScaling", "TargetTrackingScaling"})
     public String getPolicyType() {
         if (policyType == null) {
             policyType = "SimpleScaling";
@@ -199,6 +203,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
      * Predefined defines metric resource label. Valid values are ``ASGAverageCPUUtilization`` or ``ASGAverageNetworkIn`` or ``ASGAverageNetworkOut`` or ``ALBRequestCountPerTarget``.
      */
     @Updatable
+    @ValidStrings({"ASGAverageCPUUtilization", "ASGAverageNetworkIn", "ASGAverageNetworkOut", "ALBRequestCountPerTarget"})
     public String getPredefinedMetricResourceLabel() {
         return predefinedMetricResourceLabel;
     }

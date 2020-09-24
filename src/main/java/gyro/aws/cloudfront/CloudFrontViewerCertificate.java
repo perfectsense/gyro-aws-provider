@@ -19,6 +19,7 @@ package gyro.aws.cloudfront;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.ViewerCertificate;
 
 public class CloudFrontViewerCertificate extends Diffable implements Copyable<ViewerCertificate> {
@@ -73,6 +74,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
      * Minimum SSL protocol. Valid valies are ``SSLv3``, ``TLSv1``, ``TLSv1_2016``, ``TLSv1.1_2016``, ``TLSv1.2_2018``.
      */
     @Updatable
+    @ValidStrings({"SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018"})
     public String getMinimumProtocolVersion() {
         if (minimumProtocolVersion == null) {
             minimumProtocolVersion = "TLSv1";
@@ -89,6 +91,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
      * Whether CloudFront uses a dedicated IP or SNI for serving SSL traffic. Valid values are ``vip`` or ``sni-only``. There is a significant additional monthly charge for ``vip`.
      */
     @Updatable
+    @ValidStrings({"vip", "sni-only"})
     public String getSslSupportMethod() {
         if (getCloudfrontDefaultCertificate())  {
             return null;
