@@ -6,12 +6,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
+import gyro.core.Type;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.Webhook;
 
+@Type("webhook")
 public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookResource> {
 
     @Override
