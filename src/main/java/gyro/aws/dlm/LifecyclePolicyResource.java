@@ -30,6 +30,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.dlm.DlmClient;
 import software.amazon.awssdk.services.dlm.model.CreateLifecyclePolicyResponse;
@@ -198,10 +199,11 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24`` 
+     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``
      */
     @Required
     @Updatable
+    @ValidNumbers({2,3,4,6,8,12,24})
     public Integer getRuleInterval() {
         return ruleInterval;
     }
