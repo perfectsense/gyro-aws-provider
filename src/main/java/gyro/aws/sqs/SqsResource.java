@@ -32,6 +32,7 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JsonProcessor;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.CreateQueueResponse;
@@ -124,6 +125,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The visibility timeout for the queue, in seconds. Valid values include any integer from ``0`` to ``43200``. Defaults to ``30``.
      */
     @Updatable
+    @Range(min = 0, max = 43200)
     public Integer getVisibilityTimeout() {
         if (visibilityTimeout == null) {
             visibilityTimeout = 30;
@@ -140,6 +142,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The length of time, in seconds, for which thw queue retains a message. Valid values include any integer from ``60`` to ``1209600``. Defaults to ``345600``.
      */
     @Updatable
+    @Range(min = 60, max = 1209600)
     public Integer getMessageRetentionPeriod() {
         if (messageRetentionPeriod == null){
             messageRetentionPeriod = 345600;
@@ -156,6 +159,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The length of time, in seconds, for which the delivery of all messages in the queue is delayed. Valid values include any integer from ``0`` to ``900``. Defaults to 0.
      */
     @Updatable
+    @Range(min = 0, max = 900)
     public Integer getDelaySeconds() {
         if (delaySeconds == null) {
             delaySeconds = 0;
@@ -172,6 +176,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The limit of how many bytes a message can contain before the queue rejects it. Valid values include any integer from ``1024`` to ``262144``. Defaults to ``262144``.
      */
     @Updatable
+    @Range(min = 1024, max = 262144)
     public Integer getMaximumMessageSize() {
         if (maximumMessageSize == null) {
             maximumMessageSize = 262144;
@@ -188,6 +193,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The length of time, in seconds, for which a ReceiveMessage action waits for a message to arrive. Valid values include any integer from ``0`` to ``20``. Defaults to ``0``.
      */
     @Updatable
+    @Range(min = 0, max = 20)
     public Integer getReceiveMessageWaitTimeSeconds() {
         if (receiveMessageWaitTimeSeconds == null) {
             receiveMessageWaitTimeSeconds = 0;
@@ -264,6 +270,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. Valid valus are any integer ``60`` to ``86400``. Defaults to ``300``
      */
     @Updatable
+    @Range(min = 60, max = 86400)
     public Integer getKmsDataKeyReusePeriodSeconds() {
         if (kmsDataKeyReusePeriodSeconds == null) {
             kmsDataKeyReusePeriodSeconds = 300;

@@ -19,6 +19,7 @@ package gyro.aws.cloudfront;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Range;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.CustomOriginConfig;
 
@@ -87,6 +88,7 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
      * The max amount of a time CloudFront will wait, in seconds, for an initial connection, and subsequent reads. Valid values are between 4 and 60.
      */
     @Updatable
+    @Range(min = 4, max = 60)
     public Integer getOriginReadTimeout() {
         if (originReadTimeout == null) {
             originReadTimeout = 30;

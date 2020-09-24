@@ -26,6 +26,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
@@ -129,6 +130,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
      *  Priority of the rule. Valid values between ``1`` and ``50000``. No two rules can have the same priority. ``-1`` points to the default rule.
      */
     @Required
+    @Range(min = 1, max = 50000)
     public Integer getPriority() {
         return priority;
     }

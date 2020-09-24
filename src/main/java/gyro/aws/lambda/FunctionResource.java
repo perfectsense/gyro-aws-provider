@@ -30,6 +30,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -238,6 +239,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``. Valid values between ``3`` and ``900``.
      */
     @Updatable
+    @Range(min = 3, max = 900)
     public Integer getTimeout() {
         if (timeout == null) {
             timeout = 3;

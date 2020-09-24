@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -269,6 +270,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      * The resource record cache time to live. Valid values [ 0 - 172800]. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
+    @Range(min = 0, max = 172800)
     public Long getTtl() {
         return ttl;
     }
@@ -295,6 +297,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
      * The weight value determines the probability of a Record Set being selected. Valid values ``[ 0 - 255]``. Required if 'route policy' set to ``weighted``.
      */
     @Updatable
+    @Range(min = 0, max = 255)
     public Long getWeight() {
         return weight;
     }

@@ -30,7 +30,9 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
@@ -190,6 +192,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The number of days to retain backups. Must be a value from ``0`` to ``35`` where ``0`` to disables automated backups. Not applicable for Aurora.
      */
     @Updatable
+    @Range(min = 0, max = 35)
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
     }
@@ -596,6 +599,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The order of the Aurora Replica is promoted to the primary instance after the existing primary instance fails. Valid Values: 0 - 15.
      */
     @Updatable
+    @Range(min = 0, max = 15)
     public Integer getPromotionTier() {
         return promotionTier;
     }

@@ -248,7 +248,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
     }
 
     /**
-     * The type of the Neptune cluster snapshot. Valid values are ``automated``, ``manual``, ``shared``, and ``public``.
+     * The type of the Neptune cluster snapshot.
      */
     @Output
     public String getSnapshotType() {

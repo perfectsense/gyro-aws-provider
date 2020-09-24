@@ -100,7 +100,9 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  Connection protocol between client and the load balancer. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs.
+     * Connection protocol between client and the load balancer. Valid values are ``HTTP`` or ``HTTPS`` for ALBs and ``TCP`` or ``TLS`` for NLBs.
+     *
+     * @no-doc ValidStrings
      */
     @Required
     @Updatable

@@ -28,6 +28,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.dlm.DlmClient;
@@ -248,6 +249,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
      */
     @Required
     @Updatable
+    @Range(min = 1, max = 1000)
     public Integer getRetainRuleCount() {
         return retainRuleCount;
     }

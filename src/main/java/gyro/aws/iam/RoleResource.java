@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
@@ -146,6 +147,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
      * The maximum duration of the role, in seconds. Valid values are between ``3600`` and ``43200``.
      */
     @Updatable
+    @Range(min = 3600, max = 43200)
     public Integer getMaxSessionDuration() {
         if (maxSessionDuration == null) {
             maxSessionDuration = 3600;

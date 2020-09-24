@@ -26,6 +26,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateAliasRequest;
@@ -132,6 +133,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
      * The weight to switch between the secondary version. Required if additional version set. Valid values are between ``0.0`` to ``1.0``
      */
     @Updatable
+    @Range(min = 0.0, max = 1.0)
     public Double getWeight() {
         return weight;
     }
