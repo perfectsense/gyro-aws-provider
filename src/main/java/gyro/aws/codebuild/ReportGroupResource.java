@@ -1,7 +1,9 @@
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import gyro.aws.AwsResource;
@@ -11,6 +13,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -20,18 +23,23 @@ import software.amazon.awssdk.services.codebuild.model.CreateReportGroupResponse
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.ReportGroup;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.codebuild.model.Tag;
 
 @Type("report-group")
 public class ReportGroupResource extends AwsResource implements Copyable<BatchGetReportGroupsResponse> {
 
+    // Minimum required fields
     private CodebuildReportExportConfig reportExportConfig;
     private String name;
     private String type;
+
+    private Map<String, String> tags;
 
     // Read-only
     private String arn;
 
     @Required
+    @Updatable
     public CodebuildReportExportConfig getReportExportConfig() {
         return reportExportConfig;
     }
@@ -40,7 +48,6 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
         this.reportExportConfig = reportExportConfig;
     }
 
-    @Id
     @Required
     public String getName() {
         return name;
@@ -60,6 +67,20 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
         this.type = type;
     }
 
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -83,8 +104,19 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
                 exportConfig.copyFrom(reportGroup.exportConfig());
                 setReportExportConfig(exportConfig);
             }
-        }
 
+            if (reportGroup.tags() != null) {
+                Map<String, String> tags = new HashMap<>();
+                CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
+
+                for (Tag t : reportGroup.tags()) {
+                    tag.copyFrom(t);
+                    tags.put(t.key(), t.value());
+                }
+
+                setTags(tags);
+            }
+        }
     }
 
     @Override
@@ -118,6 +150,7 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
             .exportConfig(getReportExportConfig().toReportExportConfig())
             .name(getName())
             .type(getType())
+            .tags(CodebuildProjectTag.toProjectTags(getTags()))
         );
 
         setArn(response.reportGroup().arn());
@@ -133,5 +166,6 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
 
+        client.deleteReportGroup(r -> r.arn(getArn()));
     }
 }
