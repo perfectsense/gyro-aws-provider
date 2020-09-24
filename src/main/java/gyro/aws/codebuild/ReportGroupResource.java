@@ -160,11 +160,19 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        CodeBuildClient client = createClient(CodeBuildClient.class);
+
+        client.updateReportGroup(r -> r
+            .arn(getArn())
+            .exportConfig(getReportExportConfig().toReportExportConfig())
+            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+        );
 
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
+        CodeBuildClient client = createClient(CodeBuildClient.class);
 
         client.deleteReportGroup(r -> r.arn(getArn()));
     }
