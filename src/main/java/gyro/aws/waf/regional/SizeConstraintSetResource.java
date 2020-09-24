@@ -22,6 +22,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.CreateSizeConstraintSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSizeConstraintSetResponse;
@@ -64,6 +65,7 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
      */
     @Required
     @Updatable
+    @CollectionMax(10)
     public Set<SizeConstraintResource> getSizeConstraint() {
         if (sizeConstraint == null) {
             sizeConstraint = new HashSet<>();
@@ -73,10 +75,6 @@ public class SizeConstraintSetResource extends gyro.aws.waf.common.SizeConstrain
 
     public void setSizeConstraint(Set<SizeConstraintResource> sizeConstraint) {
         this.sizeConstraint = sizeConstraint;
-
-        if (sizeConstraint.size() > 10) {
-            throw new GyroException("Size constraint limit exception. Max 10 per Byte Match Set.");
-        }
     }
 
     @Override
