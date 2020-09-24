@@ -6,6 +6,7 @@ import java.util.Map;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Regex;
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
 public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
@@ -13,6 +14,7 @@ public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
     private String key;
     private String value;
 
+    @Regex("^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$")
     public String getKey() {
         return key;
     }
@@ -21,6 +23,7 @@ public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
         this.key = key;
     }
 
+    @Regex("^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$")
     public String getValue() {
         return value;
     }
