@@ -35,8 +35,11 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
 
     private Map<String, String> tags;
 
+    private Boolean deleteReports;
+
     // Read-only
     private String arn;
+    private CodebuildReport report;
 
     @Required
     @Updatable
@@ -80,6 +83,15 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
         this.tags = tags;
     }
 
+    @Updatable
+    public Boolean getDeleteReports() {
+        return deleteReports;
+    }
+
+    public void setDeleteReports(Boolean deleteReports) {
+        this.deleteReports = deleteReports;
+    }
+
     @Id
     @Output
     public String getArn() {
@@ -88,6 +100,15 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
 
     public void setArn(String arn) {
         this.arn = arn;
+    }
+
+    @Output
+    public CodebuildReport getReport() {
+        return report;
+    }
+
+    public void setReport(CodebuildReport report) {
+        this.report = report;
     }
 
     @Override
@@ -174,6 +195,8 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
     public void delete(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        client.deleteReportGroup(r -> r.arn(getArn()));
+        client.deleteReportGroup(r -> r
+            .arn(getArn())
+            .deleteReports(getDeleteReports()));
     }
 }
