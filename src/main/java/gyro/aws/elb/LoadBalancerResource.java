@@ -116,6 +116,8 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     /**
      * The HealthCheck subresource for this load balancer.
+     *
+     * @subresource gyro.aws.elb.HealthCheckResource
      */
     public HealthCheckResource getHealthCheck() {
         return healthCheck;
@@ -236,6 +238,8 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     /**
      * The attributes for the Load Balancer.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerAttributes
      */
     @Updatable
     public LoadBalancerAttributes getAttribute() {

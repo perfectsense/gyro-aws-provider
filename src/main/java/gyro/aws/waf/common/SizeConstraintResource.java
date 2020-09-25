@@ -38,6 +38,8 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
 
     /**
      * The field setting to match the condition.
+     *
+     * @subresource gyro.aws.waf.common.FieldToMatch
      */
     @Required
     public FieldToMatch getFieldToMatch() {

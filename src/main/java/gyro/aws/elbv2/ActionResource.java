@@ -56,6 +56,8 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     /**
      *  Authentication through user pools supported by Amazon Cognito.
+     *
+     *  @subresource gyro.aws.elbv2.AuthenticateCognitoAction
      */
     @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
@@ -68,6 +70,8 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     /**
      *  Authentication through provider that is OpenID Connect (OIDC) compliant.
+     *
+     *  @subresource gyro.aws.elbv2.AuthenticateOidcAction
      */
     @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
@@ -80,6 +84,8 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     /**
      *  Used to specify a custom response for an action.
+     *
+     *  @subresource gyro.aws.elbv2.FixedResponseAction
      */
     @Updatable
     public FixedResponseAction getFixedResponseAction() {
@@ -104,6 +110,8 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     /**
      *  Redirect requests from one URL to another.
+     *
+     *  @subresource gyro.aws.elbv2.RedirectAction
      */
     @Updatable
     public RedirectAction getRedirectAction() {

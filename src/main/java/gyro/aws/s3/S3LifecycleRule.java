@@ -60,6 +60,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     /**
      * Expiration setting for the life cycle rule.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRuleExpiration
      */
     @Updatable
     public S3LifecycleRuleExpiration getExpiration() {
@@ -72,6 +74,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     /**
      * Incomplete multi part upload setting for the life cycle rule.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRuleAbortIncompleteMultipartUpload
      */
     @Updatable
     public S3LifecycleRuleAbortIncompleteMultipartUpload getAbortIncompleteMultipartUpload() {
@@ -84,6 +88,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     /**
      * Non current version expiration settings for the life cycle rule.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRuleNoncurrentVersionExpiration
      */
     @Updatable
     public S3LifecycleRuleNoncurrentVersionExpiration getNoncurrentVersionExpiration() {

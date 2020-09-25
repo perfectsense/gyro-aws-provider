@@ -153,6 +153,8 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
 
     /**
      * Set certificate options for the ACM.
+     *
+     * @subresource gyro.aws.acm.AcmCertificateOptions
      */
     @Updatable
     public AcmCertificateOptions getOptions() {

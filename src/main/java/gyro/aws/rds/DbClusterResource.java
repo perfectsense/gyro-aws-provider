@@ -445,7 +445,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     *  The scaling properties of the DB cluster. Only applicable for DB clusters in `serverless` DB engine mode,
+     *  The scaling properties of the DB cluster. Only applicable for DB clusters in `serverless` DB engine mode.
+     *
+     * @subresource gyro.aws.rds.ScalingConfiguration
      */
     @Updatable
     public ScalingConfiguration getScalingConfiguration() {

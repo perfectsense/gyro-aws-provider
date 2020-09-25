@@ -51,6 +51,8 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
 
     /**
      * The subject configuration.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaAsn1Subject
      */
     public AcmPcaAsn1Subject getSubject() {
         return subject;

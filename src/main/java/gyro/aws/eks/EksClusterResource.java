@@ -153,6 +153,8 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The VPC configuration used by the cluster.
+     *
+     * @subresource gyro.aws.eks.EksVpcConfig
      */
     @Updatable
     @Required
@@ -166,6 +168,8 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The logging configuration used by the cluster.
+     *
+     * @subresource gyro.aws.eks.EksLogging
      */
     @Updatable
     public EksLogging getLogging() {

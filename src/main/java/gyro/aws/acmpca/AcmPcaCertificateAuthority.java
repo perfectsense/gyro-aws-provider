@@ -108,6 +108,8 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
 
     /**
      * The configuration setting for the Certificate Authority.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaCertificateAuthorityConfiguration
      */
     @Required
     public AcmPcaCertificateAuthorityConfiguration getConfiguration() {
@@ -133,6 +135,8 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
 
     /**
      * The revocation configuration for the Certificate Authority.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaRevocationConfiguration
      */
     public AcmPcaRevocationConfiguration getRevocationConfiguration() {
         if (revocationConfiguration == null) {
@@ -164,6 +168,8 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
 
     /**
      * The permission setting for the Certificate Authority.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaPermission
      */
     @Updatable
     public AcmPcaPermission getPermission() {

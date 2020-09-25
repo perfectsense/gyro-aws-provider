@@ -100,6 +100,8 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
 
     /**
      *  The health check associated with the target group. Required for use with ``instance`` and ``ip`` target types.
+     *
+     *  @subresource gyro.aws.elbv2.HealthCheck
      */
     @Updatable
     public HealthCheck getHealthCheck() {

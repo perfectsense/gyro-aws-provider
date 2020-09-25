@@ -146,6 +146,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
     /**
      * The scaling configuration details for the Auto Scaling group that is created for your node group.
+     *
+     * @subresource gyro.aws.eks.EksNodegroupScalingConfig
      */
     @Updatable
     public EksNodegroupScalingConfig getScalingConfig() {
@@ -189,6 +191,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
     /**
      * The remote access (SSH) configuration for the node group.
+     *
+     * @subresource gyro.aws.eks.EksNodegroupRemoteAccessConfig
      */
     public EksNodegroupRemoteAccessConfig getRemoteAccess() {
         return remoteAccess;

@@ -262,6 +262,8 @@ public class CloudTrailResource extends AwsResource implements Copyable<Trail> {
 
     /**
      * The list of management and data event settings for the trail.
+     *
+     * @subresource gyro.aws.cloudtrail.CloudTrailEventSelector
      */
     @Updatable
     public CloudTrailEventSelector getEventSelector() {

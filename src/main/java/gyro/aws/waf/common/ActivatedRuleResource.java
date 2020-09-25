@@ -59,6 +59,8 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
 
     /**
      * The default action for the rule under this waf.
+     *
+     * @subresource gyro.aws.waf.common.WafAction
      */
     @Required
     @Updatable

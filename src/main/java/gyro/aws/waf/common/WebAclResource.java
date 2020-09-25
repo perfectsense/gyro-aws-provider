@@ -67,6 +67,8 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
 
     /**
      * The default action for the waf acl.
+     *
+     * @subresource gyro.aws.waf.common.WafAction
      */
     @Required
     @Updatable
