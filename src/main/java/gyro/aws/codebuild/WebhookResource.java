@@ -29,6 +29,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     private String branchFilter;
     private String buildType;
     private List<CodebuildWebhookFilter> filterGroups;
+    private Boolean rotateSecret;
+
+    // Read-only
     private String lastModifiedSecret;
     private String payloadUrl;
     private String secret;
@@ -74,6 +77,15 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setFilterGroups(List<CodebuildWebhookFilter> filterGroups) {
         this.filterGroups = filterGroups;
+    }
+
+    @Updatable
+    public Boolean getRotateSecret() {
+        return rotateSecret;
+    }
+
+    public void setRotateSecret(Boolean rotateSecret) {
+        this.rotateSecret = rotateSecret;
     }
 
     @Output
@@ -175,6 +187,10 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         );
 
         refresh();
+
+        if (getRotateSecret() != null) {
+            client.updateWebhook(r -> r.projectName(getProjectName()).rotateSecret(getRotateSecret()));
+        }
     }
 
     @Override
