@@ -203,6 +203,7 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
                 .branchFilter(getBranchFilter())
                 .buildType(getBuildType())
                 .filterGroups(convertFilterGroups(getFilterGroups()))
+                .rotateSecret(getRotateSecret())
             );
         }
     }
