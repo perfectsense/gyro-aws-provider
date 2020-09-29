@@ -55,7 +55,7 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Updatable
-    @ValidStrings({"BUILD", "BUILD_BATCH"})
+    @ValidStrings({ "BUILD", "BUILD_BATCH" })
     public String getBuildType() {
         return buildType;
     }
