@@ -114,28 +114,32 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
 
     @Override
     public void copyFrom(BatchGetProjectsResponse model) {
-        if (!model.projects().isEmpty()) {
+        if (model != null && !model.projects().isEmpty()) {
             Webhook webhook = model.projects().get(0).webhook();
 
-            setBranchFilter(webhook.branchFilter());
-            setBuildType(webhook.buildTypeAsString());
-            setLastModifiedSecret(webhook.lastModifiedSecret().toString());
-            setPayloadUrl(webhook.payloadUrl());
-            setSecret(webhook.secret());
-            setUrl(webhook.url());
+            if (webhook != null) {
+                setBranchFilter(webhook.branchFilter());
+                setBuildType(webhook.buildTypeAsString());
+                setBranchFilter(webhook.branchFilter() != null ? webhook.branchFilter() : null);
+                setLastModifiedSecret(
+                    webhook.lastModifiedSecret() != null ? webhook.lastModifiedSecret().toString() : null);
+                setPayloadUrl(webhook.payloadUrl());
+                setSecret(webhook.secret());
+                setUrl(webhook.url());
 
-            if (webhook.filterGroups() != null) {
-                CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
-                List<CodebuildWebhookFilter> filterList = new ArrayList<>();
+                if (webhook.filterGroups() != null) {
+                    CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
+                    List<CodebuildWebhookFilter> filterList = new ArrayList<>();
 
-                for (List<WebhookFilter> filters : webhook.filterGroups()) {
-                    for (WebhookFilter filter : filters) {
-                        webhookFilter.copyFrom(filter);
-                        filterList.add(webhookFilter);
+                    for (List<WebhookFilter> filters : webhook.filterGroups()) {
+                        for (WebhookFilter filter : filters) {
+                            webhookFilter.copyFrom(filter);
+                            filterList.add(webhookFilter);
+                        }
                     }
-                }
 
-                setFilterGroups(filterList);
+                    setFilterGroups(filterList);
+                }
             }
         }
     }
