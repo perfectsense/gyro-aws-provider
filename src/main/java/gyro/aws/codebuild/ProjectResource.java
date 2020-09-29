@@ -49,6 +49,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     private Map<String, String> tags;
 
     // Batch configuration
+    private Boolean badgeEnabled;
     private CodebuildProjectBuildBatchConfig buildBatchConfig;
 
     // Logs
@@ -93,6 +94,15 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setArtifacts(CodebuildProjectArtifacts artifacts) {
         this.artifacts = artifacts;
+    }
+
+    @Updatable
+    public Boolean getBadgeEnabled() {
+        return badgeEnabled;
+    }
+
+    public void setBadgeEnabled(Boolean badgeEnabled) {
+        this.badgeEnabled = badgeEnabled;
     }
 
     @Updatable
@@ -145,7 +155,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.environment = environment;
     }
 
-    @Updatable
+    @Output
     public CodebuildProjectBadge getBadge() {
         return badge;
     }
@@ -335,7 +345,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         CreateProjectResponse response = client.createProject(r -> r
             .name(getName())
-            .badgeEnabled(getBadge().getBadgeEnabled())
+            .badgeEnabled(getBadgeEnabled())
             .encryptionKey(getEncryptionKey())
             .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
             .sourceVersion(getSourceVersion())
@@ -374,7 +384,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         if (!changedFieldNames.isEmpty()) {
             client.updateProject(r -> r.name(getName())
-                .badgeEnabled(getBadge().getBadgeEnabled())
+                .badgeEnabled(getBadgeEnabled())
                 .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
                 .logsConfig(getLogsConfig().toProjectLogsConfig())
                 .description(getDescription())
@@ -466,6 +476,7 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
                 CodebuildProjectBadge badge = newSubresource(CodebuildProjectBadge.class);
                 badge.copyFrom(project.badge());
                 setBadge(badge);
+                setBadgeEnabled(badge.getBadgeEnabled());
             }
 
             if (project.tags() != null) {
