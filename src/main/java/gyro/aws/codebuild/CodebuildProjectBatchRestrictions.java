@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
@@ -13,6 +29,9 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
     private List<String> computedTypesAllowed;
     private Integer maximumBuildsAllowed;
 
+    /**
+     * The list that specifies the compute types that are allowed for the batch build.
+     */
     @Updatable
     public List<String> getComputedTypesAllowed() {
         if (computedTypesAllowed == null) {
@@ -25,6 +44,9 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
         this.computedTypesAllowed = computedTypesAllowed;
     }
 
+    /**
+     * The maximum number of builds allowed.
+     */
     @Updatable
     public Integer getMaximumBuildsAllowed() {
         return maximumBuildsAllowed;

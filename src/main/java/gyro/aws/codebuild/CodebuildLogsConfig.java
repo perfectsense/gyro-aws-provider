@@ -1,17 +1,34 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
 import software.amazon.awssdk.services.codebuild.model.LogsConfig;
-import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 
 public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig> {
 
     private CodebuildCloudWatchLogsConfig cloudWatchLogs;
     private CodebuildS3LogsConfig s3Logs;
 
+    /**
+     * The Amazon CloudWatch Logs for a build project.
+     */
     @Updatable
     public CodebuildCloudWatchLogsConfig getCloudWatchLogs() {
         return cloudWatchLogs;
@@ -21,6 +38,9 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
         this.cloudWatchLogs = cloudWatchLogs;
     }
 
+    /**
+     * The logs built to an S3 bucket for a build project.
+     */
     @Updatable
     public CodebuildS3LogsConfig getS3Logs() {
         return s3Logs;

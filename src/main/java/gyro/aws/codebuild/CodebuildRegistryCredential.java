@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import gyro.aws.Copyable;
@@ -11,6 +27,9 @@ public class CodebuildRegistryCredential extends Diffable implements Copyable<Re
     private String credential;
     private String credentialProvider;
 
+    /**
+     * The Amazon Resource Name (ARN) or name of credentials created using AWS Secrets Manager.
+     */
     @Required
     public String getCredential() {
         return credential;
@@ -20,6 +39,9 @@ public class CodebuildRegistryCredential extends Diffable implements Copyable<Re
         this.credential = credential;
     }
 
+    /**
+     * The service that created the credentials to access a private Docker registry.
+     */
     @Required
     @ValidStrings("SECRETS_MANAGER")
     public String getCredentialProvider() {

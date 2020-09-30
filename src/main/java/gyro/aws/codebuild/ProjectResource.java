@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
@@ -36,56 +52,35 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
 @Type("project")
 public class ProjectResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
 
-    // Minimum required fields
     private CodebuildProjectArtifacts artifacts;
-    private CodebuildProjectEnvironment environment;
-    private String name;
-    private RoleResource serviceRole;
-    private CodebuildProjectSource source;
-
-    // Project configuration
-    private CodebuildProjectBadge badge;
-    private String description;
-    private Map<String, String> tags;
-
-    // Batch configuration
     private Boolean badgeEnabled;
     private CodebuildProjectBuildBatchConfig buildBatchConfig;
-
-    // Logs
-    private CodebuildLogsConfig logsConfig;
-
-    // Artifacts - Cache
     private CodebuildProjectCache cache;
-
-    // Artifacts -- Encryption key
+    private String description;
     private String encryptionKey;
-
-    // Environment - File systems
+    private CodebuildProjectEnvironment environment;
     private List<CodebuildProjectFileSystemLocation> fileSystemLocations;
-
-    // Environment -- Queued timeout
+    private CodebuildLogsConfig logsConfig;
+    private String name;
     private Integer queuedTimeoutInMinutes;
-
     private List<CodebuildProjectArtifacts> secondaryArtifacts;
     private List<CodebuildProjectSource> secondarySources;
     private List<CodebuildProjectSourceVersion> secondarySourceVersions;
-
-    // Source - Source version
+    private RoleResource serviceRole;
+    private CodebuildProjectSource source;
     private String sourceVersion;
-
-    // Environment - Timeout
+    private Map<String, String> tags;
     private Integer timeoutInMinutes;
-
-    // Environment - VPC
     private CodebuildVpcConfig vpcConfig;
-
-    // Source - Primary source webhook events - only when source is GitHub
     private WebhookResource webhook;
 
     // Read-only
     private String arn;
+    private CodebuildProjectBadge badge;
 
+    /**
+     * The build output artifacts for the build project.
+     */
     @Updatable
     @Required
     public CodebuildProjectArtifacts getArtifacts() {
@@ -96,6 +91,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.artifacts = artifacts;
     }
 
+    /**
+     * The project build badge to generate a publicly accessible URL.
+     */
     @Updatable
     public Boolean getBadgeEnabled() {
         return badgeEnabled;
@@ -105,6 +103,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.badgeEnabled = badgeEnabled;
     }
 
+    /**
+     * The description of the build project.
+     */
     @Updatable
     public String getDescription() {
         return description;
@@ -114,6 +115,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.description = description;
     }
 
+    /**
+     * The name of the build project.
+     */
     @Id
     @Required
     @Regex("[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}")
@@ -125,6 +129,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.name = name;
     }
 
+    /**
+     * The ARN of the AWS IAM role.
+     */
     @Updatable
     @Required
     public RoleResource getServiceRole() {
@@ -135,6 +142,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.serviceRole = serviceRole;
     }
 
+    /**
+     * The build input source code for the build project.
+     */
     @Updatable
     @Required
     public CodebuildProjectSource getSource() {
@@ -145,6 +155,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.source = source;
     }
 
+    /**
+     * The build environment for the build project.
+     */
     @Updatable
     @Required
     public CodebuildProjectEnvironment getEnvironment() {
@@ -155,15 +168,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.environment = environment;
     }
 
-    @Output
-    public CodebuildProjectBadge getBadge() {
-        return badge;
-    }
-
-    public void setBadge(CodebuildProjectBadge badge) {
-        this.badge = badge;
-    }
-
+    /**
+     * Specifies a list of tags that are attached to the build project.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -177,6 +184,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.tags = tags;
     }
 
+    /**
+     * The batch build options for the build project.
+     */
     @Updatable
     public CodebuildProjectBuildBatchConfig getBuildBatchConfig() {
         return buildBatchConfig;
@@ -186,6 +196,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.buildBatchConfig = buildBatchConfig;
     }
 
+    /**
+     * The logs for the build project.
+     */
     @Updatable
     public CodebuildLogsConfig getLogsConfig() {
         return logsConfig;
@@ -195,6 +208,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.logsConfig = logsConfig;
     }
 
+    /**
+     * The recently used information for the build project.
+     */
     @Updatable
     public CodebuildProjectCache getCache() {
         return cache;
@@ -204,6 +220,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.cache = cache;
     }
 
+    /**
+     * The AWS Key Management Service Customer Master Key.
+     */
     @Updatable
     public String getEncryptionKey() {
         return encryptionKey;
@@ -213,6 +232,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.encryptionKey = encryptionKey;
     }
 
+    /**
+     * The list of File System Locations for a build project.
+     */
     @Updatable
     public List<CodebuildProjectFileSystemLocation> getFileSystemLocations() {
         if (fileSystemLocations == null) {
@@ -225,6 +247,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.fileSystemLocations = fileSystemLocations;
     }
 
+    /**
+     * The number of minutes a build is allowed to be queued before it times out.
+     */
     @Updatable
     @Min(5)
     @Max(480)
@@ -236,6 +261,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.queuedTimeoutInMinutes = queuedTimeoutInMinutes;
     }
 
+    /**
+     * The list of optional secondary artifacts.
+     */
     @Updatable
     public List<CodebuildProjectArtifacts> getSecondaryArtifacts() {
         if (secondaryArtifacts == null) {
@@ -248,6 +276,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.secondaryArtifacts = secondaryArtifacts;
     }
 
+    /**
+     * The list of optional secondary sources.
+     */
     @Updatable
     public List<CodebuildProjectSource> getSecondarySources() {
         if (secondarySources == null) {
@@ -260,6 +291,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.secondarySources = secondarySources;
     }
 
+    /**
+     * The list of optional secondary source versions.
+     */
     @Updatable
     public List<CodebuildProjectSourceVersion> getSecondarySourceVersions() {
         if (secondarySourceVersions == null) {
@@ -272,6 +306,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.secondarySourceVersions = secondarySourceVersions;
     }
 
+    /**
+     * The version of the build input for the build project.
+     */
     @Updatable
     public String getSourceVersion() {
         return sourceVersion;
@@ -281,6 +318,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.sourceVersion = sourceVersion;
     }
 
+    /**
+     * The number of minutes to wait before it times out any build that has not been completed.
+     */
     @Updatable
     @Min(5)
     @Max(480)
@@ -292,6 +332,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.timeoutInMinutes = timeoutInMinutes;
     }
 
+    /**
+     * The VPC config to access resources in an Amazon VPC.
+     */
     @Updatable
     public CodebuildVpcConfig getVpcConfig() {
         return vpcConfig;
@@ -301,6 +344,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.vpcConfig = vpcConfig;
     }
 
+    /**
+     * The webhook that connects repository events to a build project.
+     */
     @Updatable
     public WebhookResource getWebhook() {
         return webhook;
@@ -310,6 +356,9 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         this.webhook = webhook;
     }
 
+    /**
+     * The Amazon Resource Name (ARN) of the build project.
+     */
     @Output
     public String getArn() {
         return arn;
@@ -317,6 +366,18 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     public void setArn(String arn) {
         this.arn = arn;
+    }
+
+    /**
+     * The build badge for the build project
+     */
+    @Output
+    public CodebuildProjectBadge getBadge() {
+        return badge;
+    }
+
+    public void setBadge(CodebuildProjectBadge badge) {
+        this.badge = badge;
     }
 
     @Override
@@ -424,7 +485,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getSecondaryArtifacts().size() > 12 || getSecondarySources().size() > 12 || getSecondarySourceVersions().size() > 12) {
+        if (getSecondaryArtifacts().size() > 12 || getSecondarySources().size() > 12
+            || getSecondarySourceVersions().size() > 12) {
             errors.add(new ValidationError(
                 this,
                 null,

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import gyro.aws.Copyable;
@@ -13,6 +29,10 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     private String type;
     private Boolean excludeMatchedPattern;
 
+    /**
+     * For 'EVENT' type: The pattern that specifies one or more events. For non-'EVENT' type: The regular expression
+     * pattern.
+     */
     @Updatable
     @Required
     public String getPattern() {
@@ -23,9 +43,12 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
         this.pattern = pattern;
     }
 
+    /**
+     * The ty pe of webhook filter.
+     */
     @Updatable
     @Required
-    @ValidStrings({"EVENT", "BASE_REF", "HEAD_REF", "ACTOR_ACCOUNT_ID", "FILE_PATH", "COMMIT_MESSAGE"})
+    @ValidStrings({ "EVENT", "BASE_REF", "HEAD_REF", "ACTOR_ACCOUNT_ID", "FILE_PATH", "COMMIT_MESSAGE" })
     public String getType() {
         return type;
     }
@@ -34,6 +57,9 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
         this.type = type;
     }
 
+    /**
+     * The field that specifies if the pattern determines which webhook events that do not trigger a build.
+     */
     @Updatable
     public Boolean getExcludeMatchedPattern() {
         return excludeMatchedPattern;

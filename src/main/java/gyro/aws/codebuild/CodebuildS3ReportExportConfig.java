@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import gyro.aws.Copyable;
@@ -14,6 +30,9 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     private String packaging;
     private String path;
 
+    /**
+     * The name of the S3 bucket where the raw data of a report are exported.
+     */
     @Updatable
     public String getBucket() {
         return bucket;
@@ -23,6 +42,9 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
         this.bucket = bucket;
     }
 
+    /**
+     * The field that specifies if the results of a report are encrypted.
+     */
     @Updatable
     public Boolean getEncryptionDisabled() {
         return encryptionDisabled;
@@ -32,6 +54,9 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
         this.encryptionDisabled = encryptionDisabled;
     }
 
+    /**
+     * The encryption key for the report's encrypted raw data.
+     */
     @Updatable
     public String getEncryptionKey() {
         return encryptionKey;
@@ -41,6 +66,9 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
         this.encryptionKey = encryptionKey;
     }
 
+    /**
+     * The type of build output artifact to create.
+     */
     @Updatable
     @ValidStrings({ "ZIP", "NONE" })
     public String getPackaging() {
@@ -51,6 +79,9 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
         this.packaging = packaging;
     }
 
+    /**
+     * The path to the exported report's raw data results.
+     */
     public String getPath() {
         return path;
     }

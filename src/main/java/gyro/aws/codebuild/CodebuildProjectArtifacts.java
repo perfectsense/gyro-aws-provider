@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
@@ -27,6 +43,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     // Read-only
     private String artifactIdentifier;
 
+    /**
+     * the type of the build output artifact.
+     */
     @Required
     @Updatable
     @ValidStrings({ "CODEPIPELINE", "S3", "NO_ARTIFACTS" })
@@ -38,6 +57,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.type = type;
     }
 
+    /**
+     * The field that specifies for the output artifacts to be encrypted.
+     */
     @Updatable
     public Boolean getEncryptionDisabled() {
         return encryptionDisabled;
@@ -47,6 +69,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.encryptionDisabled = encryptionDisabled;
     }
 
+    /**
+     * The build output artifact location.
+     */
     @Updatable
     public String getLocation() {
         return location;
@@ -56,6 +81,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.location = location;
     }
 
+    /**
+     * The pattern that is used to name and store the output artifact.
+     */
     @Updatable
     public String getName() {
         return name;
@@ -65,6 +93,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.name = name;
     }
 
+    /**
+     * The pattern that is used to determine the name and location to store the output artifact.
+     */
     @Updatable
     @ValidStrings({ "NONE", "BUILD_ID" })
     public String getNamespaceType() {
@@ -75,6 +106,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.namespaceType = namespaceType;
     }
 
+    /**
+     * The field that specifies if a name specified in the buildspec file overrides the artifact name.
+     */
     public Boolean getOverrideArtifactName() {
         return overrideArtifactName;
     }
@@ -83,6 +117,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.overrideArtifactName = overrideArtifactName;
     }
 
+    /**
+     * The type of build output artifact to create.
+     */
     @Updatable
     @ValidStrings({ "NONE", "ZIP" })
     public String getPackaging() {
@@ -93,6 +130,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.packaging = packaging;
     }
 
+    /**
+     * The pattern that is used to name and store the output artifact.
+     */
     @Updatable
     public String getPath() {
         return path;
@@ -102,6 +142,9 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         this.path = path;
     }
 
+    /**
+     * The identifier for this artifact definition.
+     */
     @Output
     public String getArtifactIdentifier() {
         return artifactIdentifier;

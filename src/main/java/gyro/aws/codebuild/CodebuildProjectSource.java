@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
@@ -12,23 +28,23 @@ import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
-import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
-import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 
 public class CodebuildProjectSource extends Diffable implements Copyable<ProjectSource> {
-
-    private String type;
-    private String location;
 
     private String buildspec;
     private CodebuildBuildStatusConfig buildStatusConfig;
     private Integer gitCloneDepth;
     private CodebuildGitSubmodulesConfig gitSubmodulesConfig;
     private Boolean insecureSsl;
+    private String location;
     private Boolean reportBuildStatus;
     private String sourceIdentifier;
+    private String type;
 
+    /**
+     * The type of repository that contains the source code to be built.
+     */
     @Updatable
     @Required
     @ValidStrings({ "CODECOMMIT", "CODEPIPELINE", "GITHUB", "S3", "BITBUCKET", "GITHUB_ENTERPRISE", "NO_SOURCE" })
@@ -40,6 +56,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.type = type;
     }
 
+    /**
+     * The location of the source code to be built.
+     */
     @Updatable
     public String getLocation() {
         return location;
@@ -49,6 +68,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.location = location;
     }
 
+    /**
+     * The buildspec file declaration to use for the builds in the build project.
+     */
     @Updatable
     public String getBuildspec() {
         return buildspec;
@@ -58,6 +80,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.buildspec = buildspec;
     }
 
+    /**
+     * The config that defines how the build project reports the build status to the source provider.
+     */
     @Updatable
     public CodebuildBuildStatusConfig getBuildStatusConfig() {
         return buildStatusConfig;
@@ -67,6 +92,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.buildStatusConfig = buildStatusConfig;
     }
 
+    /**
+     * The Git clone depth for the build project.
+     */
     @Updatable
     @Min(0)
     public Integer getGitCloneDepth() {
@@ -77,6 +105,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.gitCloneDepth = gitCloneDepth;
     }
 
+    /**
+     * The Git submodules configuration for the build project.
+     */
     @Updatable
     public CodebuildGitSubmodulesConfig getGitSubmodulesConfig() {
         return gitSubmodulesConfig;
@@ -86,6 +117,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.gitSubmodulesConfig = gitSubmodulesConfig;
     }
 
+    /**
+     * The field that specifies to ignore SSL warnings while connecting to the project source code.
+     */
     @Updatable
     public Boolean getInsecureSsl() {
         return insecureSsl;
@@ -95,6 +129,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.insecureSsl = insecureSsl;
     }
 
+    /**
+     * The field that specifies to report the status of a build's start and finish to the source provider.
+     */
     @Updatable
     public Boolean getReportBuildStatus() {
         return reportBuildStatus;
@@ -104,6 +141,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         this.reportBuildStatus = reportBuildStatus;
     }
 
+    /**
+     * The identifier for the project source.
+     */
     @Output
     public String getSourceIdentifier() {
         return sourceIdentifier;

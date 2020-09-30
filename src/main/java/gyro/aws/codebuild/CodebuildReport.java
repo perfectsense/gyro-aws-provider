@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import gyro.aws.Copyable;
@@ -21,6 +37,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     private Boolean truncated;
     private String type;
 
+    /**
+     * The ARN of the report run.
+     */
     @Output
     public String getArn() {
         return arn;
@@ -30,6 +49,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.arn = arn;
     }
 
+    /**
+     * The report summary that contains a code coverage summary for the report.
+     */
     @Output
     public CodebuildCodeCoverageReportSummary getCodeCoverageReportSummary() {
         return codeCoverageReportSummary;
@@ -39,6 +61,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.codeCoverageReportSummary = codeCoverageReportSummary;
     }
 
+    /**
+     * The date and time the report run occurred.
+     */
     @Output
     public String getCreated() {
         return created;
@@ -48,6 +73,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.created = created;
     }
 
+    /**
+     * The ARN of the build run that generated the report.
+     */
     @Output
     public String getExecutionId() {
         return executionId;
@@ -57,6 +85,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.executionId = executionId;
     }
 
+    /**
+     * The date and time the report expires.
+     */
     @Output
     public String getExpired() {
         return expired;
@@ -66,6 +97,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.expired = expired;
     }
 
+    /**
+     * Specifies where the raw data used to generate the report was exported.
+     */
     @Output
     public CodebuildReportExportConfig getExportConfig() {
         return exportConfig;
@@ -75,6 +109,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.exportConfig = exportConfig;
     }
 
+    /**
+     * The name of the report that was run.
+     */
     @Output
     public String getName() {
         return name;
@@ -84,6 +121,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.name = name;
     }
 
+    /**
+     * The ARN of the report group associated with the report.
+     */
     @Output
     public String getReportGroupArn() {
         return reportGroupArn;
@@ -93,6 +133,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.reportGroupArn = reportGroupArn;
     }
 
+    /**
+     * The status of the report.
+     */
     @Output
     @ValidStrings({ "GENERATING", "SUCCEEDED", "FAILED", "INCOMPLETE", "DELETING" })
     public String getStatus() {
@@ -103,6 +146,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.status = status;
     }
 
+    /**
+     * The test report summary.
+     */
     @Output
     public CodebuildTestReportSummary getTestSummary() {
         return testSummary;
@@ -112,6 +158,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.testSummary = testSummary;
     }
 
+    /**
+     * The field that specifies if this report run is truncated.
+     */
     @Output
     public Boolean getTruncated() {
         return truncated;
@@ -121,6 +170,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         this.truncated = truncated;
     }
 
+    /**
+     * The type of the report that was run.
+     */
     @Output
     @ValidStrings({ "TEST", "CODE_COVERAGE" })
     public String getType() {

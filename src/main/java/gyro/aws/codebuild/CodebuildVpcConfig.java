@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
@@ -16,6 +32,9 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     private List<String> subnets;
     private String vpdId;
 
+    /**
+     * The list of security group IDs in the Amazon VPC.
+     */
     @Updatable
     public List<String> getSecurityGroupIds() {
         return securityGroupIds;
@@ -25,6 +44,9 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
         this.securityGroupIds = securityGroupIds;
     }
 
+    /**
+     * The list of subnet IDs in the Amazon VPC.
+     */
     @Updatable
     public List<String> getSubnets() {
         return subnets;
@@ -34,6 +56,9 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
         this.subnets = subnets;
     }
 
+    /**
+     * The ID of the Amazon VPC.
+     */
     @Updatable
     public String getVpdId() {
         return vpdId;

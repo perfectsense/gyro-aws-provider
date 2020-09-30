@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
@@ -37,6 +53,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     private String secret;
     private String url;
 
+    /**
+     * The name of the build project.
+     */
     @Id
     @Required
     @Regex("[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}")
@@ -48,6 +67,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.projectName = projectName;
     }
 
+    /**
+     * The regular expression used to determine which repository branches are built when a webhook is triggered.
+     */
     @Updatable
     public String getBranchFilter() {
         return branchFilter;
@@ -57,6 +79,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.branchFilter = branchFilter;
     }
 
+    /**
+     * The type of build the webhook will trigger.
+     */
     @Updatable
     @ValidStrings({ "BUILD", "BUILD_BATCH" })
     public String getBuildType() {
@@ -67,6 +92,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.buildType = buildType;
     }
 
+    /**
+     * The list of filter groups to determine which webhooks are triggered.
+     */
     @Updatable
     public List<CodebuildWebhookFilter> getFilterGroups() {
         if (filterGroups == null) {
@@ -79,6 +107,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.filterGroups = filterGroups;
     }
 
+    /**
+     * The rotate secret field that specifies whether the associated GitHub repository's secret token should be updated.
+     */
     @Updatable
     public Boolean getRotateSecret() {
         return rotateSecret;
@@ -88,6 +119,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.rotateSecret = rotateSecret;
     }
 
+    /**
+     * The time that indicates the last time a repository's secret token was modified.
+     */
     @Output
     public String getLastModifiedSecret() {
         return lastModifiedSecret;
@@ -97,6 +131,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.lastModifiedSecret = lastModifiedSecret;
     }
 
+    /**
+     * The build project endpoint where webhook events are sent.
+     */
     @Output
     public String getPayloadUrl() {
         return payloadUrl;
@@ -106,6 +143,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.payloadUrl = payloadUrl;
     }
 
+    /**
+     * The secret token of the associated repository.
+     */
     @Output
     public String getSecret() {
         return secret;
@@ -115,6 +155,9 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         this.secret = secret;
     }
 
+    /**
+     * The URL to the webhook.
+     */
     @Output
     public String getUrl() {
         return url;

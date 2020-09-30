@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.codebuild;
 
 import java.util.HashMap;
@@ -14,6 +30,9 @@ public class CodebuildTestReportSummary extends Diffable implements Copyable<Tes
     private Map<String, Integer> statusCounts;
     private Integer total;
 
+    /**
+     * The number of nanoseconds to run all of the test cases in the report.
+     */
     @Output
     public Long getDurationInNanoSeconds() {
         return durationInNanoSeconds;
@@ -23,6 +42,9 @@ public class CodebuildTestReportSummary extends Diffable implements Copyable<Tes
         this.durationInNanoSeconds = durationInNanoSeconds;
     }
 
+    /**
+     * The list that contains the number of each type of status returned by the test results in the test report summary.
+     */
     @Output
     public Map<String, Integer> getStatusCounts() {
         if (statusCounts == null) {
@@ -36,6 +58,9 @@ public class CodebuildTestReportSummary extends Diffable implements Copyable<Tes
         this.statusCounts = statusCounts;
     }
 
+    /**
+     * The number of test cases in the test report summary.
+     */
     @Output
     public Integer getTotal() {
         return total;
