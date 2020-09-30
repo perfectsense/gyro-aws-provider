@@ -37,6 +37,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.AMITypes;
 import software.amazon.awssdk.services.eks.model.CreateNodegroupRequest;
@@ -205,6 +206,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     /**
      * The Ami type of the node group.
      */
+    @ValidStrings({"AL2_x86_6", "AL2_x86_64_GPU"})
     public AMITypes getAmiType() {
         return amiType;
     }

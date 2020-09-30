@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticsearch.model.DomainEndpointOptions;
 import software.amazon.awssdk.services.elasticsearch.model.TLSSecurityPolicy;
 
@@ -45,6 +46,7 @@ public class ElasticsearchDomainEndpointOptions extends Diffable implements Copy
      * The TLS security policy that needs to be applied to the HTTPS endpoints of the Elasticsearch domain.
      */
     @Updatable
+    @ValidStrings({"Policy-Min-TLS-1-0-2019-07", "Policy-Min-TLS-1-2-2019-07"})
     public TLSSecurityPolicy getTlsSecurityPolicy() {
         return tlsSecurityPolicy;
     }

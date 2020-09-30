@@ -26,6 +26,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Min;
 import gyro.core.validation.Range;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.ESPartitionInstanceType;
 import software.amazon.awssdk.services.elasticsearch.model.ESWarmPartitionInstanceType;
@@ -166,6 +167,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
      */
     @Updatable
     @DependsOn("enable-warm")
+    @ValidStrings({"ultrawarm1.medium.elasticsearch", "ultrawarm1.large.elasticsearch"})
     public ESWarmPartitionInstanceType getWarmType() {
         return warmType;
     }

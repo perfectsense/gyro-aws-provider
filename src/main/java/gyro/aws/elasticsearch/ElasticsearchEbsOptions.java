@@ -25,6 +25,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.EBSOptions;
 import software.amazon.awssdk.services.elasticsearch.model.VolumeType;
@@ -53,6 +54,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
      * The volume type for the EBS-based storage. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
+    @ValidStrings({"standard", "gp2", "io1"})
     public VolumeType getVolumeType() {
         return volumeType;
     }

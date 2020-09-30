@@ -24,6 +24,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.s3.model.Grantee;
 import software.amazon.awssdk.services.s3.model.Type;
@@ -88,6 +89,7 @@ public class S3Grantee extends Diffable implements Copyable<Grantee> {
      * The type of the grantee.
      */
     @Required
+    @ValidStrings({"CanonicalUser", "AmazonCustomerByEmail", "Group"})
     public Type getType() {
         return type;
     }

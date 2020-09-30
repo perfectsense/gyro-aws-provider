@@ -19,6 +19,7 @@ package gyro.aws.acm;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acm.model.CertificateOptions;
 import software.amazon.awssdk.services.acm.model.CertificateTransparencyLoggingPreference;
 
@@ -29,6 +30,7 @@ public class AcmCertificateOptions extends Diffable implements Copyable<Certific
      * Enable or Disable certificate transparency logging. Valid values are ``ENABLED`` or ``DISABLED``. Defaults to ``DISABLED``.
      */
     @Updatable
+    @ValidStrings({"ENABLED", "DISABLED"})
     public CertificateTransparencyLoggingPreference getPreference() {
         if (preference == null) {
             preference = CertificateTransparencyLoggingPreference.DISABLED;

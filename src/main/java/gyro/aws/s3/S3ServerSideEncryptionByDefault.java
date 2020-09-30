@@ -21,6 +21,7 @@ import gyro.aws.kms.KmsKeyResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryptionByDefault;
 
@@ -46,6 +47,7 @@ public class S3ServerSideEncryptionByDefault extends Diffable implements Copyabl
      */
     @Required
     @Updatable
+    @ValidStrings({"AES256", "aws:kms"})
     public ServerSideEncryption getEncryptionType() {
         return encryptionType;
     }

@@ -31,6 +31,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidNumbers;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateFlowLogsRequest;
@@ -106,6 +107,7 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
      * The type of destination to which flow log data should be published.
      */
     @Required
+    @ValidStrings({"cloud-watch-logs", "s3"})
     public LogDestinationType getDestinationType() {
         return destinationType;
     }
@@ -177,6 +179,7 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
      * The type of traffic to log.
      */
     @Required
+    @ValidStrings({"ACCEPT", "REJECT", "ALL"})
     public TrafficType getTrafficType() {
         return trafficType;
     }

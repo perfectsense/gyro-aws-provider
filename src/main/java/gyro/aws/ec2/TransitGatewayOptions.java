@@ -19,6 +19,7 @@ package gyro.aws.ec2;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Range;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.model.AutoAcceptSharedAttachmentsValue;
 import software.amazon.awssdk.services.ec2.model.DefaultRouteTableAssociationValue;
 import software.amazon.awssdk.services.ec2.model.DefaultRouteTablePropagationValue;
@@ -56,6 +57,7 @@ public class TransitGatewayOptions
     /**
      * Enable the VPC to resolve public IPv4 DNS host names to private IPv4 addresses when queried from instances in another VPC attached to the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
+    @ValidStrings({"enable", "disable"})
     public DnsSupportValue getDnsSupport() {
         return dnsSupport;
     }
@@ -67,6 +69,7 @@ public class TransitGatewayOptions
     /**
      * Enable Equal Cost Multipath (ECMP) routing support between VPN connections. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
+    @ValidStrings({"enable", "disable"})
     public VpnEcmpSupportValue getVpnEcmpSupport() {
         return vpnEcmpSupport;
     }
@@ -78,6 +81,7 @@ public class TransitGatewayOptions
     /**
      * Enable to automatically associate transit gateway attachments with the default route table for the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
+    @ValidStrings({"enable", "disable"})
     public DefaultRouteTableAssociationValue getDefaultRouteTableAssociation() {
         return defaultRouteTableAssociation;
     }
@@ -89,6 +93,7 @@ public class TransitGatewayOptions
     /**
      * Enable to automatically propagate transit gateway attachments to the default route table for the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
      */
+    @ValidStrings({"enable", "disable"})
     public DefaultRouteTablePropagationValue getDefaultRouteTablePropagation() {
         return defaultRouteTablePropagation;
     }
@@ -100,6 +105,7 @@ public class TransitGatewayOptions
     /**
      * Enable to automatically accept cross-account attachments. Valid values ``enable`` or ``disable``. Defaults to ``disable``.
      */
+    @ValidStrings({"enable", "disable"})
     public AutoAcceptSharedAttachmentsValue getAutoAcceptSharedAttachments() {
         return autoAcceptSharedAttachments;
     }
@@ -111,6 +117,7 @@ public class TransitGatewayOptions
     /**
      * Enable to support Multicast communication protocol. Valid values ``enable`` or ``disable``. Defaults to ``disable``.
      */
+    @ValidStrings({"enable", "disable"})
     public MulticastSupportValue getMulticastSupport() {
         return multicastSupport;
     }

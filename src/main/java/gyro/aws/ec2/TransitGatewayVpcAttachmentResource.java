@@ -33,6 +33,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayVpcAttachmentResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayVpcAttachmentsResponse;
@@ -121,6 +122,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     /**
      * Enable DNS resolution for the attachment. Valid values are ``enable`` or ``disable``. Defaults to ``enable``.
      */
+    @ValidStrings({"enable", "disable"})
     @Updatable
     public DnsSupportValue getDnsSupport() {
         return dnsSupport;
@@ -133,6 +135,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     /**
      * Enable support for ipv6 block support for the attachment. Valid values are ``enable`` or ``disable``. Defaults to ``disable``.
      */
+    @ValidStrings({"enable", "disable"})
     public Ipv6SupportValue getIpv6Support() {
         return ipv6Support;
     }
