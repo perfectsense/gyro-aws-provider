@@ -101,7 +101,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The topic of the SNS topic. (Required)
+     * The SNS topic. (Required)
      */
     @Updatable
     public TopicResource getTopic() {
