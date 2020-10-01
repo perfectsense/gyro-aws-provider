@@ -22,6 +22,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
@@ -94,7 +95,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private Integer memorySize;
     private String trackingConfig;
     private String deadLetterConfigArn;
-    private String kmsKeyArn;
+    private KmsKeyResource kmsKey;
     private Map<String, String> environment;
     private Map<String, String> tags;
     private Set<SecurityGroupResource> securityGroups;
@@ -292,15 +293,15 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn of KMS key to be associated with the Lambda Function.
+     * The KMS key to be associated with the Lambda Function.
      */
     @Updatable
-    public String getKmsKeyArn() {
-        return kmsKeyArn;
+    public KmsKeyResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyArn(String kmsKeyArn) {
-        this.kmsKeyArn = kmsKeyArn;
+    public void setKmsKey(KmsKeyResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -529,7 +530,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setTimeout(configuration.timeout());
         setMemorySize(configuration.memorySize());
         setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-        setKmsKeyArn(configuration.kmsKeyArn());
+        setKmsKey(findById(KmsKeyResource.class, configuration.kmsKeyArn()));
         setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
         setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
 
@@ -610,7 +611,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             .timeout(getTimeout())
             .memorySize(getMemorySize())
             .tracingConfig(t -> t.mode(getTrackingConfig()))
-            .kmsKeyArn(getKmsKeyArn())
+            .kmsKeyArn(getKmsKey() != null ? getKmsKey().getArn() : null)
             .tags(getTags())
             .publish(getPublish())
             .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()));
@@ -743,7 +744,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                     .timeout(getTimeout())
                     .memorySize(getMemorySize())
                     .tracingConfig(t -> t.mode(getTrackingConfig()))
-                    .kmsKeyArn(getKmsKeyArn())
+                    .kmsKeyArn(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()))
                     .environment(e -> e.variables(getEnvironment()))
                     .vpcConfig(
