@@ -171,9 +171,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         setConnectionEvents(connectionNotification.connectionEvents() != null
             ? new HashSet<>(connectionNotification.connectionEvents())
             : null);
-        setTopic(findById(TopicResource.class, connectionNotification.connectionNotificationId()) != null ? findById(
-                TopicResource.class,
-                connectionNotification.connectionNotificationId()) : null);
+        setTopic(findById(TopicResource.class, connectionNotification.connectionNotificationId()));
         setId(connectionNotification.connectionNotificationId());
         setState(connectionNotification.connectionNotificationStateAsString());
         setType(connectionNotification.connectionNotificationTypeAsString());
@@ -212,13 +210,13 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
             response = client.createVpcEndpointConnectionNotification(
                 r -> r.vpcEndpointId(getEndpoint().getId())
                     .connectionEvents(getConnectionEvents())
-                    .connectionNotificationArn(getTopic() != null ? getTopic().getArn() : null)
+                    .connectionNotificationArn(getTopic().getArn())
             );
         } else if (getEndpointService() != null) {
             response = client.createVpcEndpointConnectionNotification(
                 r -> r.serviceId(getEndpointService().getId())
                     .connectionEvents(getConnectionEvents())
-                    .connectionNotificationArn(getTopic() != null ? getTopic().getArn() : null)
+                    .connectionNotificationArn(getTopic().getArn())
             );
         } else {
             throw new GyroException("endpoint or endpoint-service required.");
