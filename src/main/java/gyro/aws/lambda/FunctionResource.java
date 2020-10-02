@@ -530,7 +530,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setTimeout(configuration.timeout());
         setMemorySize(configuration.memorySize());
         setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-        setKmsKey(findById(KmsKeyResource.class, configuration.kmsKeyArn()));
+        setKmsKey(!ObjectUtils.isBlank(configuration.kmsKeyArn()) ? findById(KmsKeyResource.class, configuration.kmsKeyArn()) : null);
         setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
         setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
 
