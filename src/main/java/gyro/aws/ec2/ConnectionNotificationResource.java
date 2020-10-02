@@ -236,7 +236,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         client.modifyVpcEndpointConnectionNotification(
             r -> r.connectionNotificationId(getId())
                 .connectionEvents(getConnectionEvents())
-                .connectionNotificationArn(getTopic() != null ? getTopic().getArn() : null)
+                .connectionNotificationArn(getTopic().getArn())
         );
     }
 
