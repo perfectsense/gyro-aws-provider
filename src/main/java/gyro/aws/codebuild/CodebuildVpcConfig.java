@@ -18,41 +18,46 @@ package gyro.aws.codebuild;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SecurityGroupResource;
+import gyro.aws.ec2.SubnetResource;
+import gyro.aws.ec2.VpcResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.ValidationError;
+import gyro.core.validation.CollectionMax;
 import software.amazon.awssdk.services.codebuild.model.VpcConfig;
 
 public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> {
 
-    private List<String> securityGroupIds;
-    private List<String> subnets;
-    private String vpdId;
+    private List<SecurityGroupResource> securityGroups;
+    private List<SubnetResource> subnets;
+    private VpcResource vpc;
 
     /**
-     * The list of security group IDs in the Amazon VPC.
+     * The list of security groups in the Amazon VPC.
      */
+    @CollectionMax(5)
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        return securityGroupIds;
+    public List<SecurityGroupResource> getSecurityGroups() {
+        return securityGroups;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroups(List<SecurityGroupResource> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     /**
-     * The list of subnet IDs in the Amazon VPC.
+     * The list of subnets in the Amazon VPC.
      */
+    @CollectionMax(16)
     @Updatable
-    public List<String> getSubnets() {
+    public List<SubnetResource> getSubnets() {
         return subnets;
     }
 
-    public void setSubnets(List<String> subnets) {
+    public void setSubnets(List<SubnetResource> subnets) {
         this.subnets = subnets;
     }
 
@@ -60,19 +65,36 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
      * The ID of the Amazon VPC.
      */
     @Updatable
-    public String getVpdId() {
-        return vpdId;
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpdId(String vpdId) {
-        this.vpdId = vpdId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     @Override
     public void copyFrom(VpcConfig model) {
-        setSecurityGroupIds(model.securityGroupIds());
-        setSubnets(model.subnets());
-        setVpdId(model.vpcId());
+
+        if (model.securityGroupIds() != null && !model.securityGroupIds().isEmpty()) {
+            List<SecurityGroupResource> securityGroups = new ArrayList<>();
+            for (String id : model.securityGroupIds()) {
+                securityGroups.add(findById(SecurityGroupResource.class, id));
+            }
+            setSecurityGroups(securityGroups);
+        }
+
+        if (model.subnets() != null && !model.subnets().isEmpty()) {
+            List<SubnetResource> subnets = new ArrayList<>();
+            for (String id : model.subnets()) {
+                subnets.add(findById(SubnetResource.class, id));
+            }
+            setSubnets(subnets);
+        }
+
+        if (model.vpcId() != null) {
+            setVpc(findById(VpcResource.class, model.vpcId()));
+        }
     }
 
     @Override
@@ -80,34 +102,11 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
         return "";
     }
 
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
-
-        if (getSecurityGroupIds().size() > 5) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'security-group-ids' cannot have more than 5 items."
-            ));
-        }
-
-        if (getSubnets().size() > 16) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'subnets' cannot have more than 16 items."
-            ));
-        }
-
-        return errors;
-    }
-
     public VpcConfig toProjectVpcConfig() {
         return VpcConfig.builder()
-            .vpcId(getVpdId())
-            .securityGroupIds(getSecurityGroupIds())
-            .subnets(getSubnets())
+            .vpcId(getVpc().getId())
+            .securityGroupIds(getSecurityGroups().stream().map(group -> group.getId()).collect(Collectors.toList()))
+            .subnets(getSubnets().stream().map(subnet -> subnet.getId()).collect(Collectors.toList()))
             .build();
     }
 }
