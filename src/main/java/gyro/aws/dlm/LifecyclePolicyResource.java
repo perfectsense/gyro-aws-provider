@@ -230,7 +230,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The time format of the interval for the snapshot policy. Currenly only supported value is ``hh:mm``. Defaults to ``hh:mm``
+     * The time format of the interval for the snapshot policy. Defaults to ``hh:mm``
      */
     @Updatable
     @ValidStrings("hh:mm")

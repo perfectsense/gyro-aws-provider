@@ -95,7 +95,6 @@ public class NeptuneClusterParameterGroupResource extends NeptuneTaggableResourc
 
     /**
      * The name of the cluster parameter group family.
-     * The only supported family for Neptune is ``neptune1``.
      */
     @ValidStrings("neptune1")
     @Required

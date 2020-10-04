@@ -83,7 +83,6 @@ public class NeptuneParameterGroupResource extends NeptuneTaggableResource imple
 
     /**
      * The name of the parameter group family.
-     * The only supported family for Neptune is ``neptune1``.
      */
     @ValidStrings("neptune1")
     @Required

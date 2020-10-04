@@ -327,7 +327,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The list of log types to export to CloudWatch Logs. Currently, the only supported value is ``audit``.
+     * The list of log types to export to CloudWatch Logs.
      */
     @ValidStrings("audit")
     @Updatable
