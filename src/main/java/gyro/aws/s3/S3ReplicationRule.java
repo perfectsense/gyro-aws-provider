@@ -83,7 +83,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
      /**
-     * The state of this replication rule. Valid values are ``Enabled`` or ``Disabled``.
+     * The state of this replication rule.
      */
     @Updatable
     public ReplicationRuleStatus getStatus() {
@@ -95,7 +95,7 @@ public class S3ReplicationRule extends Diffable implements Copyable<ReplicationR
     }
 
     /**
-     * State of the delete marker replication. Valid values are ``Enabled`` or ``Disabled``.
+     * State of the delete marker replication.
      */
     @Updatable
     public DeleteMarkerReplicationStatus getDeleteMarkerReplicationStatus() {

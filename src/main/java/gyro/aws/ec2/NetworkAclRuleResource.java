@@ -51,7 +51,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     }
 
     /**
-     * The action of the rule. Valid values are: ``allow`` or ``deny``.
+     * The action of the rule.
      */
     @Required
     @Updatable

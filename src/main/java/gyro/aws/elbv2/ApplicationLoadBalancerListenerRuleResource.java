@@ -127,7 +127,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  Priority of the rule. Valid values between ``1`` and ``50000``. No two rules can have the same priority. ``-1`` points to the default rule.
+     *  Priority of the rule. No two rules can have the same priority. ``-1`` points to the default rule.
      */
     @Required
     @Range(min = 1, max = 50000)

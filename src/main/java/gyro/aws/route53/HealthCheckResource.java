@@ -203,7 +203,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * What status to give if there is insufficient data for the health check to analyze. Valid values are ``HEALTHY`` or ``UNHEALTHY`` or ``LAST_KNOWN_STATUS``.
+     * What status to give if there is insufficient data for the health check to analyze.
      */
     @Updatable
     @ValidStrings({"HEALTHY", "UNHEALTHY", "LAST_KNOWN_STATUS"})
@@ -331,7 +331,7 @@ public class HealthCheckResource extends AwsResource implements Copyable<HealthC
     }
 
     /**
-     * The type of health check being created. Valid values are ``HTTP`` or ``HTTPS`` or ``HTTP_STR_MATCH`` or ``HTTPS_STR_MATCH`` or ``TCP`` or ``CALCULATED`` or ``CLOUDWATCH_METRIC``.
+     * The type of health check being created.
      */
     @Required
     @ValidStrings({"HTTP", "HTTPS", "HTTP_STR_MATCH", "HTTPS_STR_MATCH", "TCP", "CALCULATED", "CLOUDWATCH_METRIC"})

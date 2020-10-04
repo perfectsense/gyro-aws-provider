@@ -128,7 +128,7 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The type of source that is generating the events. If omitted, all events are returned. Valid values: ``db-instance``, ``db-cluster``, ``db-parameter-group``, ``db-security-group``, ``db-snapshot``, ``db-cluster-snapshot``.
+     * The type of source that is generating the events. If omitted, all events are returned.
      */
     @Updatable
     @ValidStrings({"db-instance", "db-cluster", "db-parameter-group", "db-security-group", "db-snapshot", "db-cluster-snapshot"})

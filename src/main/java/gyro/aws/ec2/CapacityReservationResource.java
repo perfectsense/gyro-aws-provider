@@ -128,7 +128,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the way in which the Capacity Reservation ends. Valid values are ``unlimited`` or ``limited``.
+     * Indicates the way in which the Capacity Reservation ends.
      */
     @Required
     @Updatable
@@ -154,7 +154,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values are ``open`` or ``targeted``.
+     * Indicates the type of instance launches that the Capacity Reservation accepts.
      */
     @Required
     @ValidStrings({"open", "targeted"})
@@ -191,7 +191,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the tenancy of the Capacity Reservation. Valid values are ``default`` or ``dedicated``.
+     * Indicates the tenancy of the Capacity Reservation.
      */
     @Required
     @ValidStrings({"default", "dedicated"})

@@ -72,7 +72,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The port. Valid values range from 1 - 65536.
+     *  The port.
      */
     @Updatable
     public String getPort() {
@@ -108,7 +108,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The HTTP redirect code. Valid values are ``HTTP_301`` and ``HTTP_302``.
+     *  The HTTP redirect code.
      */
     @Updatable
     public String getStatusCode() {

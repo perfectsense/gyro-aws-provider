@@ -85,7 +85,7 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
     }
 
     /**
-     * The max amount of a time CloudFront will wait, in seconds, for an initial connection, and subsequent reads. Valid values are between 4 and 60.
+     * The max amount of a time CloudFront will wait, in seconds, for an initial connection, and subsequent reads.
      */
     @Updatable
     @Range(min = 4, max = 60)
@@ -102,7 +102,7 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
     }
 
     /**
-     * The protocol CloudFront should use to connect to the origin. Valid values are ``http-only``, ``https-only``, or ``match-viewer``.
+     * The protocol CloudFront should use to connect to the origin.
      */
     @Updatable
     @ValidStrings({"http-only", "https-only", "match-viewer"})
@@ -119,7 +119,7 @@ public class CloudFrontCustomOrigin extends Diffable implements Copyable<CustomO
     }
 
     /**
-     * SSL protocols CloudFront is allow to connect to the origin with. Valid values are ``SSLv3``, ``TLSv1``, ``TLSv1.1``, ``TLSv1.2``.
+     * SSL protocols CloudFront is allow to connect to the origin with.1``, ``TLSv1.2``.
      */
     @Updatable
     @ValidStrings({"SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"})

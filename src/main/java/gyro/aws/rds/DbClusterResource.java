@@ -282,7 +282,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The name of the database engine. Valid Values: ``aurora`` (for MySQL 5.6-compatible Aurora), ``aurora-mysql`` (for MySQL 5.7-compatible Aurora), and ``aurora-postgresql``.
+     * The name of the database engine.
      */
     @Required
     @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql"})
@@ -295,7 +295,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The DB engine mode of the DB cluster. Valid values are ``provisioned``, ``serverless``, ``parallelquery``, or ``global``.
+     * The DB engine mode of the DB cluster.
      */
     @ValidStrings({"provisioned", "serverless", "parallelquery", "global"})
     public String getEngineMode() {

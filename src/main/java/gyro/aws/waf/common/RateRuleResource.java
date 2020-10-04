@@ -41,7 +41,7 @@ public abstract class RateRuleResource extends CommonRuleResource implements Cop
     }
 
     /**
-     * The rate limit at which the action would be taken. Valid values integer ``2000`` and above.
+     * The rate limit at which the action would be taken.
      */
     @Required
     @Updatable

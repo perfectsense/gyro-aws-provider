@@ -66,7 +66,7 @@ public class DynamoDbLocalSecondaryIndex extends Diffable implements Copyable<Lo
     }
 
     /**
-     * The set of attributes that are projected into this index. Valid values are ``ALL``, ``INCLUDE`` or ``KEYS_ONLY``.
+     * The set of attributes that are projected into this index.
      */
     @Required
     @ValidStrings({ "ALL", "INCLUDE", "KEYS_ONLY" })

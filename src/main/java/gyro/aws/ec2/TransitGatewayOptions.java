@@ -40,7 +40,7 @@ public class TransitGatewayOptions
     private MulticastSupportValue multicastSupport;
 
     /**
-     * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. Valid values belong in between ``64512`` to ``65534`` for a 16-bit ASN or between ``4200000000`` to ``4294967294`` for a 32-bit ASN. Defaults to ``64512``.
+     * A private Autonomous System Number (ASN) for the Amazon side of a BGP session. Defaults to ``64512``.
      *
      * @no-doc Range
      */
@@ -55,7 +55,7 @@ public class TransitGatewayOptions
     }
 
     /**
-     * Enable the VPC to resolve public IPv4 DNS host names to private IPv4 addresses when queried from instances in another VPC attached to the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
+     * Enable the VPC to resolve public IPv4 DNS host names to private IPv4 addresses when queried from instances in another VPC attached to the transit gateway. Defaults to ``enable``.
      */
     @ValidStrings({"enable", "disable"})
     public DnsSupportValue getDnsSupport() {
@@ -67,7 +67,7 @@ public class TransitGatewayOptions
     }
 
     /**
-     * Enable Equal Cost Multipath (ECMP) routing support between VPN connections. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
+     * Enable Equal Cost Multipath (ECMP) routing support between VPN connections. Defaults to ``enable``.
      */
     @ValidStrings({"enable", "disable"})
     public VpnEcmpSupportValue getVpnEcmpSupport() {
@@ -79,7 +79,7 @@ public class TransitGatewayOptions
     }
 
     /**
-     * Enable to automatically associate transit gateway attachments with the default route table for the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
+     * Enable to automatically associate transit gateway attachments with the default route table for the transit gateway. Defaults to ``enable``.
      */
     @ValidStrings({"enable", "disable"})
     public DefaultRouteTableAssociationValue getDefaultRouteTableAssociation() {
@@ -91,7 +91,7 @@ public class TransitGatewayOptions
     }
 
     /**
-     * Enable to automatically propagate transit gateway attachments to the default route table for the transit gateway. Valid values ``enable`` or ``disable``. Defaults to ``enable``.
+     * Enable to automatically propagate transit gateway attachments to the default route table for the transit gateway. Defaults to ``enable``.
      */
     @ValidStrings({"enable", "disable"})
     public DefaultRouteTablePropagationValue getDefaultRouteTablePropagation() {
@@ -103,7 +103,7 @@ public class TransitGatewayOptions
     }
 
     /**
-     * Enable to automatically accept cross-account attachments. Valid values ``enable`` or ``disable``. Defaults to ``disable``.
+     * Enable to automatically accept cross-account attachments. Defaults to ``disable``.
      */
     @ValidStrings({"enable", "disable"})
     public AutoAcceptSharedAttachmentsValue getAutoAcceptSharedAttachments() {
@@ -115,7 +115,7 @@ public class TransitGatewayOptions
     }
 
     /**
-     * Enable to support Multicast communication protocol. Valid values ``enable`` or ``disable``. Defaults to ``disable``.
+     * Enable to support Multicast communication protocol. Defaults to ``disable``.
      */
     @ValidStrings({"enable", "disable"})
     public MulticastSupportValue getMulticastSupport() {

@@ -53,7 +53,7 @@ public abstract class IpSetDescriptorResource extends AbstractWafResource implem
     }
 
     /**
-     * The type of ip provided. Valid values are ``IPV4`` or ``IPV6``.
+     * The type of ip provided.
      */
     @Required
     @ValidStrings({"IPV4", "IPV6"})

@@ -113,7 +113,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private Boolean applyImmediately;
 
     /**
-     * The name of the database engine. The only valid value is ``neptune``.
+     * The name of the database engine. The only
      */
     @ValidStrings("neptune")
     @Required
@@ -126,7 +126,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The version number of the database engine to use. Valid values are ``1.0.2.1``, ``1.0.2.0`` or ``1.0.1.0``.
+     * The version number of the database engine to use.
      * Defaults to ``1.0.2.1``.
      */
     @ValidStrings({ "1.0.2.1", "1.0.2.0", "1.0.1.0" })
@@ -207,7 +207,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The number of days to retain backups. Valid values are from ``1`` to ``35``.
+     * The number of days to retain backups.
      */
     @Range(min = 1, max = 35)
     @Updatable

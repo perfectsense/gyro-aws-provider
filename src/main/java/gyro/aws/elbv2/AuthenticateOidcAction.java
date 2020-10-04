@@ -119,7 +119,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The behavior if the use is not authenticated. Valid values are ``deny``, ``allow``, and ``authenticate``.
+     *  The behavior if the use is not authenticated.
      *  Defaults to ``authenticate``.
      */
     @Updatable

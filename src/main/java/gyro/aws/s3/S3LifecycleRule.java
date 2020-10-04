@@ -101,7 +101,7 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     }
 
     /**
-     * State of the lifecycle policy. Valid values ``Enabled`` or ``Disabled``.
+     * State of the lifecycle policy.
      */
     @Required
     @Updatable

@@ -41,7 +41,7 @@ public class AcmPcaPermission extends AwsResource implements Copyable<Permission
     private Date createdAt;
 
     /**
-     * Actions associated with the permission. Valid values are ``IssueCertificate`` and ``GetCertificate`` and ``ListPermissions``.
+     * Actions associated with the permission.
      */
     @Updatable
     public Set<String> getActions() {

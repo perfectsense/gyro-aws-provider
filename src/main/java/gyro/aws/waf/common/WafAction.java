@@ -25,7 +25,7 @@ public class WafAction extends Diffable implements Copyable<software.amazon.awss
     private String type;
 
     /**
-     * The action for a rule under a waf. valid values are ``ALLOW`` or ``BLOCK``.
+     * The action for a rule under a waf.
      */
     @Required
     @Updatable

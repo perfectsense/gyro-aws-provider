@@ -120,7 +120,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * Enable DNS resolution for the attachment. Valid values are ``enable`` or ``disable``. Defaults to ``enable``.
+     * Enable DNS resolution for the attachment. Defaults to ``enable``.
      */
     @ValidStrings({"enable", "disable"})
     @Updatable
@@ -133,7 +133,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * Enable support for ipv6 block support for the attachment. Valid values are ``enable`` or ``disable``. Defaults to ``disable``.
+     * Enable support for ipv6 block support for the attachment. Defaults to ``disable``.
      */
     @ValidStrings({"enable", "disable"})
     public Ipv6SupportValue getIpv6Support() {

@@ -120,7 +120,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The resource type of the snapshot policy. Valid values are ``VOLUME`` or ``INSTANCE``. Defaults to ``VOLUME``.
+     * The resource type of the snapshot policy. Defaults to ``VOLUME``.
      */
     @ValidStrings({"VOLUME", "INSTANCE"})
     public String getResourceType() {
@@ -153,7 +153,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The state of the snapshot policy. Valid values are ``ENABLED`` or ``DISABLED``. Defaults to ``ENABLED``
+     * The state of the snapshot policy. Defaults to ``ENABLED``
      */
     @Updatable
     @ValidStrings({"ENABLED", "DISABLED"})
@@ -213,7 +213,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The rule interval for the snapshot policy. Valid values are ``HOURS``. Defaults to ``HOURS``
+     * The rule interval for the snapshot policy. Defaults to ``HOURS``
      */
     @Updatable
     @ValidStrings("HOURS")
@@ -247,7 +247,7 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The number of volumes to retain for the snapshot policy. Valid values are ``1`` to ``1000``.
+     * The number of volumes to retain for the snapshot policy.
      */
     @Required
     @Updatable

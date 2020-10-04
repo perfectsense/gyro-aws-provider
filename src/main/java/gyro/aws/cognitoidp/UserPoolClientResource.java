@@ -83,7 +83,7 @@ public class UserPoolClientResource extends AwsResource implements Copyable<User
     }
 
     /**
-     *  Sets the OAuth flows. Valid values are ``code`` and ``token``.
+     *  Sets the OAuth flows.
      */
     @Updatable
     @ValidStrings({"code", "token"})

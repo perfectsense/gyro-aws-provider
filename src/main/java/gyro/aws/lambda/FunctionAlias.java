@@ -130,7 +130,7 @@ public class FunctionAlias extends AwsResource implements Copyable<GetAliasRespo
     }
 
     /**
-     * The weight to switch between the secondary version. Required if additional version set. Valid values are between ``0.0`` to ``1.0``
+     * The weight to switch between the secondary version. Required if additional version set.
      */
     @Updatable
     @Range(min = 0.0, max = 1.0)

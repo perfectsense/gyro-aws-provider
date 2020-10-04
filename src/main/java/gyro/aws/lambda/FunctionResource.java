@@ -209,7 +209,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The runtime language for this Lambda Function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``.
+     * The runtime language for this Lambda Function.
      */
     @Required
     @Updatable
@@ -236,7 +236,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``. Valid values between ``3`` and ``900``.
+     * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``.
      */
     @Updatable
     @Range(min = 3, max = 900)
@@ -253,7 +253,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The amount of memory that the Lambda Function has access to. Defaults to ``128``. valid values are multiple of ``64``.
+     * The amount of memory that the Lambda Function has access to. Defaults to ``128``.
      */
     @Updatable
     public Integer getMemorySize() {

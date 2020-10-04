@@ -73,7 +73,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     /**
-     * Approaches towards managing the placement of instances on the underlying hardware. Valid values are ``cluster``, ``spread`` or ``partition``.
+     * Approaches towards managing the placement of instances on the underlying hardware.
      * Defaults to the``cluster`` strategy.
      */
     @Required
@@ -87,7 +87,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     /**
-     * The number of partitions comprising the Placement Group. Valid values are within 1 to 7. Only required when strategy is set to ``partition``.
+     * The number of partitions comprising the Placement Group. Only required when strategy is set to ``partition``.
      */
     @Range(min= 1, max= 7)
     public Integer getPartitionCount() {

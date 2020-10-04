@@ -44,7 +44,7 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
     }
 
     /**
-     * Allowed HTTP methods for the rule. Valid values are ``GET``, ``PUT``, ``POST``, ``DELETE`` and ``HEAD``.
+     * Allowed HTTP methods for the rule.
      */
     @Updatable
     @ValidStrings({"GET", "PUT", "POST", "DELETE", "HEAD"})

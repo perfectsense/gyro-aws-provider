@@ -155,7 +155,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     /**
-     * The starting position in terms of the connected resource for the Lambda Function to be invoked. Required if source event is DynamoDb or Kinesis. Valid values are ``TRIM_HORIZON`` or ``LATEST`` or ``AT_TIMESTAMP``.
+     * The starting position in terms of the connected resource for the Lambda Function to be invoked. Required if source event is DynamoDb or Kinesis.
      */
     @ValidStrings({"TRIM_HORIZON", "LATEST", "AT_TIMESTAMP"})
     public String getStartingPosition() {

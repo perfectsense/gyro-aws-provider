@@ -73,7 +73,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``.
+     * The type of rule being attached.
      */
     @Required
     @ValidStrings({"REGULAR", "RATE_BASED"})
@@ -86,7 +86,7 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping.
+     * The priority of the rule when attached to the acl.
      */
     @Required
     @Updatable

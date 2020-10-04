@@ -50,7 +50,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     /**
-     * The event on which to notify. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCH`` or ``autoscaling:EC2_INSTANCE_LAUNCH_ERROR`` or ``autoscaling:EC2_INSTANCE_TERMINATE`` or ``autoscaling:EC2_INSTANCE_TERMINATE_ERROR``.
+     * The event on which to notify.
      */
     @Updatable
     @ValidStrings({

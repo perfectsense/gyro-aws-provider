@@ -122,7 +122,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The visibility timeout for the queue, in seconds. Valid values include any integer from ``0`` to ``43200``. Defaults to ``30``.
+     * The visibility timeout for the queue, in seconds. Defaults to ``30``.
      */
     @Updatable
     @Range(min = 0, max = 43200)
@@ -139,7 +139,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The length of time, in seconds, for which thw queue retains a message. Valid values include any integer from ``60`` to ``1209600``. Defaults to ``345600``.
+     * The length of time, in seconds, for which thw queue retains a message. Defaults to ``345600``.
      */
     @Updatable
     @Range(min = 60, max = 1209600)
@@ -156,7 +156,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The length of time, in seconds, for which the delivery of all messages in the queue is delayed. Valid values include any integer from ``0`` to ``900``. Defaults to 0.
+     * The length of time, in seconds, for which the delivery of all messages in the queue is delayed. Defaults to 0.
      */
     @Updatable
     @Range(min = 0, max = 900)
@@ -173,7 +173,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The limit of how many bytes a message can contain before the queue rejects it. Valid values include any integer from ``1024`` to ``262144``. Defaults to ``262144``.
+     * The limit of how many bytes a message can contain before the queue rejects it. Defaults to ``262144``.
      */
     @Updatable
     @Range(min = 1024, max = 262144)
@@ -190,7 +190,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The length of time, in seconds, for which a ReceiveMessage action waits for a message to arrive. Valid values include any integer from ``0`` to ``20``. Defaults to ``0``.
+     * The length of time, in seconds, for which a ReceiveMessage action waits for a message to arrive. Defaults to ``0``.
      */
     @Updatable
     @Range(min = 0, max = 20)

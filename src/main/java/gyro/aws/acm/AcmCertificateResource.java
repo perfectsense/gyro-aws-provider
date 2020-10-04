@@ -181,7 +181,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
     }
 
     /**
-     * The method you want to use if you are requesting a public certificate to validate that you own or control domain. Valid values are ``DNS`` or ``EMAIl``. Defaults to ``DNS``
+     * The method you want to use if you are requesting a public certificate to validate that you own or control domain. Defaults to ``DNS``
      */
     @ValidStrings({"DNS", "EMAIL"})
     public ValidationMethod getValidationMethod() {

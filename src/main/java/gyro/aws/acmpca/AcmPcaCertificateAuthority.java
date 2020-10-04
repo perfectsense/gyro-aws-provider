@@ -121,7 +121,7 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     }
 
     /**
-     * The type of Certificate Authority. Valid values are ``ROOT`` or ``SUBORDINATE``.
+     * The type of Certificate Authority.
      */
     @Required
     @ValidStrings({"ROOT", "SUBORDINATE"})

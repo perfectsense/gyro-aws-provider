@@ -151,7 +151,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Set the promotion tier. Valid values ``0-15``.
+     * Set the promotion tier.
      */
     @Required
     @Updatable

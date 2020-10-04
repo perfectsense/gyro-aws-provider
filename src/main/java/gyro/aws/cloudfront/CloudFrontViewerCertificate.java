@@ -88,7 +88,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
     }
 
     /**
-     * Whether CloudFront uses a dedicated IP or SNI for serving SSL traffic. Valid values are ``vip`` or ``sni-only``. There is a significant additional monthly charge for ``vip`.
+     * Whether CloudFront uses a dedicated IP or SNI for serving SSL traffic. There is a significant additional monthly charge for ``vip`.
      */
     @Updatable
     @ValidStrings({"vip", "sni-only"})

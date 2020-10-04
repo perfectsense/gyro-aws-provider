@@ -145,7 +145,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The type of service being associated. Valid values ``INTERFACE`` or ``GATEWAY``. Defaults to ``GATEWAY``.
+     * The type of service being associated. Defaults to ``GATEWAY``.
      */
     @ValidStrings({"INTERFACE", "GATEWAY"})
     public VpcEndpointType getType() {

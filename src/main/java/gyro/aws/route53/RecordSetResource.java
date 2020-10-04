@@ -151,7 +151,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The failover value. Valid values [ Primary, Secondary]. Required if 'route policy' set to ``failover``.
+     * The failover value. Required if 'route policy' set to ``failover``.
      */
     @Updatable
     @ValidStrings({"Primary", "Secondary"})
@@ -267,7 +267,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The resource record cache time to live. Valid values [ 0 - 172800]. Required if 'enable alias' is set to ``false``.
+     * The resource record cache time to live. Required if 'enable alias' is set to ``false``.
      */
     @Updatable
     @Range(min = 0, max = 172800)
@@ -280,7 +280,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The type of Record Set being created. Valid values are ``SOA`` or ``A`` or ``TXT`` or ``NS`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SRV`` or ``SPF`` or ``AAAA`` or ``CAA``.
+     * The type of Record Set being created.
      */
     @Required
     @Updatable
@@ -294,7 +294,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * The weight value determines the probability of a Record Set being selected. Valid values ``[ 0 - 255]``. Required if 'route policy' set to ``weighted``.
+     * The weight value determines the probability of a Record Set being selected. Required if 'route policy' set to ``weighted``.
      */
     @Updatable
     @Range(min = 0, max = 255)
@@ -323,7 +323,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     /**
-     * Routing policy type the Record Set is going to be. Defaults to ``Simple``. Valid Values are ``geolocation`` or ``failover`` or ``multivalue`` or ``weighted`` or ``latency`` or ``simple``.
+     * Routing policy type the Record Set is going to be. Defaults to ``Simple``.
      */
     @Updatable
     @ValidStrings({"geolocation", "failover", "multivalue", "weighted", "latency", "simple"})
@@ -579,7 +579,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         } else if (getRoutingPolicy().equals("weighted")) {
             if ((getWeight() == null) || getWeight() < 0 || getWeight() > 255) {
                 errors.add(new ValidationError(this, null, "The param 'weight' is required when 'routing-policy' is set to 'weighted'."
-                    + " Valid values [ Long 0 - 255 ]."));
+                    + ""));
             }
         }
 

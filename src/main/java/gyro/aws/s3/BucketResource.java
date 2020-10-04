@@ -385,7 +385,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. Valid values are ``BUCKET_OWNER`` or ``REQUESTER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
+     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
      */
     @Updatable
     @ValidStrings({"BUCKET_OWNER", "REQUESTER"})

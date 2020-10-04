@@ -46,7 +46,7 @@ public class FixedResponseAction extends Diffable implements Copyable<FixedRespo
     private String statusCode;
 
     /**
-     *  The content type. Valid values are ``text/plain``, ``text/css``, ``text/html``, ``application/javascript`` and ``application/json``.
+     *  The content type.
      */
     @Updatable
     public String getContentType() {
@@ -70,7 +70,7 @@ public class FixedResponseAction extends Diffable implements Copyable<FixedRespo
     }
 
     /**
-     *  The status code. Valid values are 2XX, 4XX, or 5XX.
+     *  The status code.
      */
     @Updatable
     public String getStatusCode() {

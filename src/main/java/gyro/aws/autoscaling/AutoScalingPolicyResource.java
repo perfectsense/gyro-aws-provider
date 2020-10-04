@@ -68,7 +68,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The adjustment type. Valid values are ``ChangeInCapacity`` or ``ExactCapacity`` or ``PercentChangeInCapacity``.
+     * The adjustment type.
      */
     @Updatable
     @ValidStrings({"ChangeInCapacity", "ExactCapacity", "PercentChangeInCapacity"})
@@ -81,7 +81,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The amount of time between two scaling events. Valid values is any integer greater than 0.
+     * The amount of time between two scaling events.
      */
     @Updatable
     @Min(0)
@@ -94,7 +94,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics. Valid values are Integers greater than ``0``.
+     * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics.
      */
     @Updatable
     @Min(0)
@@ -107,7 +107,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The aggregation type for cloud watch metrics. Valid values are ``Minimum`` or ``Maximum`` or ``Average``. Defaults to ``Average``.
+     * The aggregation type for cloud watch metrics. Defaults to ``Average``.
      */
     @Updatable
     @ValidStrings({"Minimum", "Maximum", "Average"})
@@ -136,7 +136,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The type of policy. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. Defaults to ``SimpleScaling``.
+     * The type of policy. Defaults to ``SimpleScaling``.
      */
     @ValidStrings({"SimpleScaling", "StepScaling", "TargetTrackingScaling"})
     public String getPolicyType() {
@@ -203,7 +203,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * Predefined defines metric resource label. Valid values are ``ASGAverageCPUUtilization`` or ``ASGAverageNetworkIn`` or ``ASGAverageNetworkOut`` or ``ALBRequestCountPerTarget``.
+     * Predefined defines metric resource label.
      */
     @Updatable
     @ValidStrings({"ASGAverageCPUUtilization", "ASGAverageNetworkIn", "ASGAverageNetworkOut", "ALBRequestCountPerTarget"})

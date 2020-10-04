@@ -41,7 +41,7 @@ public class S3LifecycleRuleTransition extends Diffable implements Copyable<Tran
     }
 
     /**
-     * Type of transition. Valid values are ``GLACIER`` or ``STANDARD_IA`` or ``ONEZONE_IA`` or ``INTELLIGENT_TIERING``.
+     * Type of transition.
      */
     @Required
     @ValidStrings({"GLACIER", "STANDARD_IA", "ONEZONE_IA", "INTELLIGENT_TIERING"})

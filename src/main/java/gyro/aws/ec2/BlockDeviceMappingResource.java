@@ -140,7 +140,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
 
     /**
      * The type of volume being created. Defaults to 'gp2'.
-     * Valid values are ``gp2``, ``io1``, ``st1``, ``sc1`` or ``standard``.
+     *
      */
     @Updatable
     @ValidStrings({"gp2", "io1", "st1", "sc1", "standard"})

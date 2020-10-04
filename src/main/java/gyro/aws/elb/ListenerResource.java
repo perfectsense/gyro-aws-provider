@@ -76,7 +76,7 @@ public class ListenerResource extends AwsResource implements Copyable<ListenerDe
     }
 
     /**
-     * The protocol to use for routing traffic to instances. Valid values : HTTP, HTTPS, TCP, SSL.
+     * The protocol to use for routing traffic to instances.
      */
     @Updatable
     @ValidStrings({"HTTP", "HTTPS", "TCP", "SSL"})

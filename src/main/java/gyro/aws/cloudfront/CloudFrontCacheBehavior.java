@@ -77,7 +77,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     }
 
     /**
-     * The protocol the user is allowed to access resources that match this cache behavior. Valid values are ``allow-all`` or ``redirect-to-https`` or ``https-only``.
+     * The protocol the user is allowed to access resources that match this cache behavior.
      */
     @Updatable
     @ValidStrings({"allow-all", "redirect-to-https", "https-only"})

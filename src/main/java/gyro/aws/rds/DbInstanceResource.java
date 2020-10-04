@@ -392,7 +392,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The name of the database engine to use for this DB Instance. Valid values are ``aurora``, ``aurora-mysql``, ``aurora-postgresql``, ``mariadb``, ``mysql``, ``oracle-ee``, ``oracle-se2``, ``oracle-se1``, ``oracle-se``, ``postgres``, ``sqlserver-ee``, ``sqlserver-se``, ``sqlserver-ex``, ``sqlserver-we``.
+     * The name of the database engine to use for this DB Instance.
      */
     @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql", "mariadb", "mysql", "oracle-ee", "oracle-se2", "oracle-se1", "oracle-se", "postgres", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-we"})
     public String getEngine() {
@@ -451,7 +451,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * License model for this DB instance. Valid values: ``license-included``, ``bring-your-own-license``, ``general-public-license``.
+     * License model for this DB instance.
      */
     @Updatable
     @ValidStrings({"license-included", "bring-your-own-license", "general-public-license"})
@@ -487,7 +487,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection). Valid Values: ``0``, ``1``, ``5``, ``10``, ``15``, ``30``, ``60``.
+     * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection).
      */
     @Updatable
     @ValidNumbers({0,1,5,10,15,30,60})
@@ -548,7 +548,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * How many days to retain Performance Insights data. Valid values are ``7`` or ``731`` (2 years).
+     * How many days to retain Performance Insights data.
      */
     @Updatable
     @ValidNumbers({7,731})
@@ -596,7 +596,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The order of the Aurora Replica is promoted to the primary instance after the existing primary instance fails. Valid Values: 0 - 15.
+     * The order of the Aurora Replica is promoted to the primary instance after the existing primary instance fails.
      */
     @Updatable
     @Range(min = 0, max = 15)
@@ -646,7 +646,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The storage type for the DB instance. Valid values are ``standard``, ``gp2``, ``io1``.
+     * The storage type for the DB instance.
      */
     @Updatable
     @ValidStrings({"standard", "gp2", "io1"})

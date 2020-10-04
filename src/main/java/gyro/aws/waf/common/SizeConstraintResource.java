@@ -51,7 +51,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     /**
-     * The comparison to be done on the filter. Valid values are ``EQ`` or ``NE`` or ``LE`` or ``LT`` or ``GE`` or ``GT``.
+     * The comparison to be done on the filter.
      */
     @Required
     @ValidStrings({"EQ", "NE", "LE", "LT", "GE", "GT"})
@@ -64,7 +64,7 @@ public abstract class SizeConstraintResource extends AbstractWafResource impleme
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``.
+     * Text transformation on the data provided before doing the check.
      */
     @Required
     @ValidStrings({"NONE", "COMPRESS_WHITE_SPACE", "HTML_ENTITY_DECODE", "LOWERCASE", "CMD_LINE", "URL_DECODE"})

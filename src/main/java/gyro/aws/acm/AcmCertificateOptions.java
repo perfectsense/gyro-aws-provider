@@ -27,7 +27,7 @@ public class AcmCertificateOptions extends Diffable implements Copyable<Certific
     private CertificateTransparencyLoggingPreference preference;
 
     /**
-     * Enable or Disable certificate transparency logging. Valid values are ``ENABLED`` or ``DISABLED``. Defaults to ``DISABLED``.
+     * Enable or Disable certificate transparency logging. Defaults to ``DISABLED``.
      */
     @Updatable
     @ValidStrings({"ENABLED", "DISABLED"})

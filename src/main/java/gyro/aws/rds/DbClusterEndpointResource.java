@@ -92,7 +92,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * The type of the endpoint. Valid values are ``READER``, ``ANY``.
+     * The type of the endpoint.
      */
     @Required
     @Updatable

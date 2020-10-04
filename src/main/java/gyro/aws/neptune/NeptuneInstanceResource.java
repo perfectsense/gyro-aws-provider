@@ -82,7 +82,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
     private Boolean applyImmediately;
 
     /**
-     * The name of the database engine. The only valid value is ``neptune``.
+     * The name of the database engine. The only
      */
     @ValidStrings("neptune")
     @Required
@@ -184,7 +184,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
 
     /**
      * License model information for this Neptune instance.
-     * The only valid value is ``amazon-license``.
+     * The only
      */
     @Updatable
     @ValidStrings("amazon-license")
@@ -198,7 +198,7 @@ public class NeptuneInstanceResource extends NeptuneTaggableResource implements 
 
     /**
      * Specifies the order in which a read replica is promoted to the primary instance after a failure of the existing primary instance.
-     * Valid values range from 0 to 15. Defaults to 1.
+     * Defaults to 1.
      */
     @Updatable
     @Range(min = 0, max = 15)

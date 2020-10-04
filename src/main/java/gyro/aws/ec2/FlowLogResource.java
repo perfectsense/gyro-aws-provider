@@ -128,7 +128,7 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
     }
 
     /**
-     * The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid values are ``60`` or ``600``.
+     * The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record.
      */
     @ValidNumbers({60, 600})
     public Integer getMaxAggregationInterval() {

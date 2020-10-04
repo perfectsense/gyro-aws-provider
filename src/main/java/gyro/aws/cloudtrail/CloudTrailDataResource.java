@@ -30,7 +30,7 @@ public class CloudTrailDataResource extends Diffable implements Copyable<DataRes
     private List<String> values;
 
     /**
-     * The resource type in which the data events should be logged. Valid values are ``AWS::S3::Object`` or ``AWS::Lambda::Function``.
+     * The resource type in which the data events should be logged.
      */
     @Required
     @ValidStrings({"AWS::S3::Object", "AWS::Lambda::Function"})
