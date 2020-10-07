@@ -81,7 +81,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.13.46')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.14.20')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:cloudfront'
@@ -111,6 +111,7 @@ dependencies {
     implementation 'software.amazon.awssdk:acmpca'
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:neptune'
+    implementation 'software.amazon.awssdk:kendra'
     implementation 'org.json:json:20180813'
 
     gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"

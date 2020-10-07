@@ -1,0 +1,297 @@
+aws::kendra-index index-example-enter
+    description: "example-index-desc"
+    edition: ENTERPRISE_EDITION
+    name: "example-index-1"
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-us-east-1-example-role-har"
+
+    capacity-units-configuration
+        query-capacity-units: 5
+        storage-capacity-units: 1
+    end
+
+    tags: {
+        "example-key-1": "example-value-1",
+        "example-key-2": "example-value-2"
+    }
+end
+
+aws::kendra-data-source data-source-example-rds
+    name: "rds"
+    description: "rds-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-rds-role"
+    schedule: 'cron(0 11 * * ? *)'
+    type: DATABASE
+
+    configuration
+        database-configuration
+            engine-type: RDS_AURORA_POSTGRESQL
+
+            acl-configuration
+                allowed-groups-column-name: "example_change"
+            end
+
+            column-configuration
+                document-data-column-name: "example_data"
+                document-id-column-name: "example_id"
+                document-title-column-name: "example_title"
+
+                change-detecting-columns: [
+                    "example_change_detecting_column",
+                    "example_change_detecting_column_2"
+                ]
+
+                field-mapping
+                    data-source-field-name: "field_name"
+                    index-field-name: "_authors"
+                end
+            end
+
+            connection-configuration
+                database-host: "129.144.50.56"
+                database-name: "example_name_2"
+                database-port: 90
+                secret: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+                table-name: "example_table_change"
+            end
+
+            sql-configuration
+                query-identifiers-enclosing-option: DOUBLE_QUOTES
+            end
+        end
+    end
+
+    tags: {
+        "example-key-2": "example-value-2"
+    }
+end
+
+aws::kendra-data-source data-source-example-onedrive
+    name: "onedrive-ex"
+    description: "onedrive-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-onedrive"
+    schedule: 'cron(0 11 * * ? *)'
+    type: ONEDRIVE
+
+    configuration
+        one-drive-configuration
+            exclusion-patterns: ["example_pattern"]
+            inclusion-patterns: ["example_pattern"]
+            secret: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+            tenant-domain: "example.microsoft.com"
+
+            field-mapping
+                data-source-field-name: "createdDateTime"
+                index-field-name: "_created_at"
+            end
+
+            users
+                user-list: [
+                    "exampleUser@example.com"
+                ]
+            end
+        end
+    end
+
+    tags: {
+        "example-key-1": "example-value-1"
+    }
+end
+
+aws::kendra-data-source data-source-example-s3
+    name: "s3-ex"
+    description: "s3-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-s3"
+    schedule: 'cron(0 11 * * ? *)'
+    type: S3
+
+    configuration
+        s3-configuration
+            bucket: "example-kendra"
+
+            exclusion-patterns: [
+                "example_pattern"
+            ]
+
+            inclusion-prefixes: [
+                "example_pattern"
+            ]
+        end
+    end
+
+    tags: {
+        "example-key-1": "example-value-1"
+    }
+end
+
+aws::kendra-data-source data-source-example-salesforce
+    name: "salesforce-ex"
+    description: "salesforce-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-salesforce"
+    schedule: 'cron(0 11 * * ? *)'
+    type: SALESFORCE
+
+    configuration
+        salesforce-configuration
+            chatter-feed-configuration
+                document-data-field-name: "example_data"
+                document-title-field-name: "example_title"
+
+                field-mapping
+                    data-source-field-name: "createdDateTime"
+                    index-field-name: "_created_at"
+                end
+
+                include-filter-types: [
+                    "ACTIVE_USER",
+                    "STANDARD_USER"
+                ]
+            end
+
+            crawl-attachments: true
+
+            exclude-attachment-file-patterns: [
+                "example_pattern"
+            ]
+
+            include-attachment-file-patterns: [
+                "example_pattern"
+            ]
+
+            knowledge-article-configuration
+                custom-type-configuration
+                    document-data-field-name: "example_data"
+                    document-title-field-name: "example_title"
+
+                    field-mapping
+                        data-source-field-name: "createdDateTime"
+                        index-field-name: "_created_at"
+                    end
+
+                    name: "custom_config"
+                end
+
+                states: [
+                    "PUBLISHED"
+                ]
+            end
+
+            secret-arn: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+            server-url: "https://mysite.salesforce.com"
+
+            object-configuration
+                document-data-field-name: "example_data"
+                document-title-field-name: "example_title"
+                name: "custom_config"
+            end
+        end
+    end
+
+    tags: {
+        "example-key-1": "example-value-1"
+    }
+end
+
+aws::kendra-data-source data-source-example-service-now
+    name: "service-now-ex"
+    description: "service-now-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-service-now"
+    schedule: 'cron(0 11 * * ? *)'
+    type: SERVICENOW
+
+    configuration
+        service-now-configuration
+            host-url: "example.service-now.com"
+            secret-arn: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+            version-type: LONDON
+
+            knowledge-article-configuration
+                document-data-field-name: "example_data"
+                document-title-field-name: "example_title"
+
+                field-mapping
+                    data-source-field-name: "createdDateTime"
+                    index-field-name: "_created_at"
+                end
+
+                crawl-attachments: true
+
+                exclude-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+
+                include-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+            end
+
+            service-catalog-configuration
+                document-data-field-name: "example_data"
+                document-title-field-name: "example_title"
+
+                field-mapping
+                    data-source-field-name: "createdDateTime"
+                    index-field-name: "_created_at"
+                end
+
+                crawl-attachments: true
+
+                exclude-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+
+                include-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+            end
+        end
+    end
+
+    tags: {
+        "example-key-1": "example-value-1"
+    }
+end
+
+aws::kendra-data-source data-source-example-share-point
+    name: "share-point-ex"
+    description: "share-point-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-sharepoint"
+    schedule: 'cron(0 11 * * ? *)'
+    type: SHAREPOINT
+
+    configuration
+        share-point-configuration
+            document-title-field-name: "example_title"
+            crawl-attachments: true
+            secret-arn: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+            share-point-version: SHAREPOINT_ONLINE
+            use-change-log: false
+
+            field-mapping
+                data-source-field-name: "createdDateTime"
+                index-field-name: "_created_at"
+            end
+
+            exclusion-patterns: [
+                "example_pattern"
+            ]
+
+            inclusion-patterns: [
+                "example_pattern"
+            ]
+
+            urls: [
+                'https://yourcompany.sharepoint.com/sites/mysite'
+            ]
+        end
+    end
+
+    tags: {
+        "example-key-1": "example-value-1"
+    }
+end

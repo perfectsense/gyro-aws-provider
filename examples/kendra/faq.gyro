@@ -1,0 +1,33 @@
+aws::kendra-index index-example-enter
+    description: "example-index-desc"
+    edition: ENTERPRISE_EDITION
+    name: "example-index-1"
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-us-east-1-example-role-har"
+
+    capacity-units-configuration
+        query-capacity-units: 5
+        storage-capacity-units: 1
+    end
+
+    tags: {
+        "example-key-1": "example-value-1",
+        "example-key-2": "example-value-2"
+    }
+end
+
+aws::kendra-faq kendra-faq-example
+    description: "example-faq-desc"
+    index: $(aws::kendra-index index-example-enter)
+    name: "example-faq"
+    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-faq"
+    file-format: JSON
+
+    s3-path
+        bucket: "example-kendra"
+        key: "example-file"
+    end
+
+    tags: {
+        "example-key-1": "example-value-1"
+    }
+end
