@@ -16,9 +16,8 @@
 
 package gyro.aws.codebuild;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +41,7 @@ import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
 @Type("report-group")
-public class ReportGroupResource extends AwsResource implements Copyable<BatchGetReportGroupsResponse> {
+public class ReportGroupResource extends AwsResource implements Copyable<ReportGroup> {
 
     // Minimum required fields
     private Boolean deleteReports;
@@ -94,7 +93,7 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
     }
 
     /**
-     * Specifies a list of tags that are attached to the report group.
+     * A list of tags that are attached to the report group.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -110,8 +109,8 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
     }
 
     /**
-     * The report group deletion field that deletes any reports that belong to a report group before deleting the report
-     * group.
+     * When set to ``true`` deleting the report group automatically deletes all the reports under it. If set to
+     * ``false`` deleting a non empty report group is halted.
      */
     @Updatable
     public Boolean getDeleteReports() {
@@ -148,31 +147,30 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
     }
 
     @Override
-    public void copyFrom(BatchGetReportGroupsResponse model) {
+    public void copyFrom(ReportGroup reportGroup) {
+        setName(reportGroup.name());
+        setType(reportGroup.typeAsString());
 
-        if (!model.reportGroups().isEmpty()) {
-            ReportGroup reportGroup = model.reportGroups().get(0);
+        if (reportGroup.exportConfig() != null) {
+            CodebuildReportExportConfig exportConfig = newSubresource(CodebuildReportExportConfig.class);
+            exportConfig.copyFrom(reportGroup.exportConfig());
+            setReportExportConfig(exportConfig);
+        } else {
+            setReportExportConfig(null);
+        }
 
-            setName(reportGroup.name());
-            setType(reportGroup.typeAsString());
+        if (reportGroup.tags() != null) {
+            Map<String, String> tags = new HashMap<>();
+            CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
 
-            if (reportGroup.exportConfig() != null) {
-                CodebuildReportExportConfig exportConfig = newSubresource(CodebuildReportExportConfig.class);
-                exportConfig.copyFrom(reportGroup.exportConfig());
-                setReportExportConfig(exportConfig);
+            for (Tag t : reportGroup.tags()) {
+                tag.copyFrom(t);
+                tags.put(t.key(), t.value());
             }
 
-            if (reportGroup.tags() != null) {
-                Map<String, String> tags = new HashMap<>();
-                CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
-
-                for (Tag t : reportGroup.tags()) {
-                    tag.copyFrom(t);
-                    tags.put(t.key(), t.value());
-                }
-
-                setTags(tags);
-            }
+            setTags(tags);
+        } else {
+            setTags(null);
         }
     }
 
@@ -182,20 +180,19 @@ public class ReportGroupResource extends AwsResource implements Copyable<BatchGe
         BatchGetReportGroupsResponse response = null;
 
         try {
-            List<String> arns = new ArrayList<>();
-            arns.add(getArn());
-            response = client.batchGetReportGroups(r -> r.reportGroupArns(arns));
+            response = client.batchGetReportGroups(r -> r.reportGroupArns(Collections.singletonList(getArn())));
         } catch (ResourceNotFoundException ex) {
             // No Resource found
         } catch (InvalidInputException ex) {
             // Invalid input, empty or ARN is not valid
-        }
-
-        if (response == null) {
             return false;
         }
 
-        copyFrom(response);
+        if (response == null || response.reportGroups().isEmpty()) {
+            return false;
+        }
+
+        copyFrom(response.reportGroups().get(0));
         return true;
     }
 

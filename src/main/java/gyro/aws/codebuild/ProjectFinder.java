@@ -30,6 +30,16 @@ import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 @Type("project")
 public class ProjectFinder extends AwsFinder<CodeBuildClient, BatchGetProjectsResponse, ProjectResource> {
 
+    private List<String> names;
+
+    public List<String> getNames() {
+        return names;
+    }
+
+    public void setNames(List<String> names) {
+        this.names = names;
+    }
+
     @Override
     protected List<BatchGetProjectsResponse> findAllAws(CodeBuildClient client) {
         List<BatchGetProjectsResponse> responseList = new ArrayList<>();

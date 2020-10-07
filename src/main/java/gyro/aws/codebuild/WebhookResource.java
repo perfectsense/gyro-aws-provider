@@ -39,7 +39,7 @@ import software.amazon.awssdk.services.codebuild.model.Webhook;
 import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
 
 @Type("webhook")
-public class WebhookResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
+public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
     private String projectName;
     private String branchFilter;
@@ -58,7 +58,7 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
      */
     @Id
     @Required
-    @Regex("[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}")
+    @Regex(value = "[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}", message = "2-255 letters, numbers , hypehs, or underscores. The first character must be a letter or number.")
     public String getProjectName() {
         return projectName;
     }
@@ -108,7 +108,8 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     /**
-     * The rotate secret field that specifies whether the associated GitHub repository's secret token should be updated.
+     * When set to ``true`` the associated GitHub repository's secret token is updated. When set to ``false`` the secret
+     * token is not updated.
      */
     @Updatable
     public Boolean getRotateSecret() {
@@ -168,33 +169,31 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Override
-    public void copyFrom(BatchGetProjectsResponse model) {
-        if (model != null && !model.projects().isEmpty()) {
-            Webhook webhook = model.projects().get(0).webhook();
+    public void copyFrom(Webhook webhook) {
+        if (webhook != null) {
+            setBranchFilter(webhook.branchFilter());
+            setBuildType(webhook.buildTypeAsString());
+            setBranchFilter(webhook.branchFilter() != null ? webhook.branchFilter() : null);
+            setLastModifiedSecret(
+                webhook.lastModifiedSecret() != null ? webhook.lastModifiedSecret().toString() : null);
+            setPayloadUrl(webhook.payloadUrl());
+            setSecret(webhook.secret());
+            setUrl(webhook.url());
 
-            if (webhook != null) {
-                setBranchFilter(webhook.branchFilter());
-                setBuildType(webhook.buildTypeAsString());
-                setBranchFilter(webhook.branchFilter() != null ? webhook.branchFilter() : null);
-                setLastModifiedSecret(
-                    webhook.lastModifiedSecret() != null ? webhook.lastModifiedSecret().toString() : null);
-                setPayloadUrl(webhook.payloadUrl());
-                setSecret(webhook.secret());
-                setUrl(webhook.url());
+            if (webhook.filterGroups() != null) {
+                CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
+                List<CodebuildWebhookFilter> filterList = new ArrayList<>();
 
-                if (webhook.filterGroups() != null) {
-                    CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
-                    List<CodebuildWebhookFilter> filterList = new ArrayList<>();
-
-                    for (List<WebhookFilter> filters : webhook.filterGroups()) {
-                        for (WebhookFilter filter : filters) {
-                            webhookFilter.copyFrom(filter);
-                            filterList.add(webhookFilter);
-                        }
+                for (List<WebhookFilter> filters : webhook.filterGroups()) {
+                    for (WebhookFilter filter : filters) {
+                        webhookFilter.copyFrom(filter);
+                        filterList.add(webhookFilter);
                     }
-
-                    setFilterGroups(filterList);
                 }
+
+                setFilterGroups(filterList);
+            } else {
+                setFilterGroups(null);
             }
         }
     }
@@ -210,11 +209,11 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
             // No Resource found
         }
 
-        if (response == null) {
+        if (response == null || response.projects().isEmpty()) {
             return false;
         }
 
-        copyFrom(response);
+        copyFrom(response.projects().get(0).webhook());
         return true;
     }
 
@@ -241,14 +240,12 @@ public class WebhookResource extends AwsResource implements Copyable<BatchGetPro
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        if (!changedFieldNames.isEmpty()) {
-            client.updateWebhook(r -> r.projectName(getProjectName())
-                .branchFilter(getBranchFilter())
-                .buildType(getBuildType())
-                .filterGroups(convertFilterGroups(getFilterGroups()))
-                .rotateSecret(getRotateSecret())
-            );
-        }
+        client.updateWebhook(r -> r.projectName(getProjectName())
+            .branchFilter(getBranchFilter())
+            .buildType(getBuildType())
+            .filterGroups(convertFilterGroups(getFilterGroups()))
+            .rotateSecret(getRotateSecret())
+        );
     }
 
     @Override

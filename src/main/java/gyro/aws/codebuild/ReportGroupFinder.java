@@ -25,20 +25,36 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetReportGroupsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
+import software.amazon.awssdk.services.codebuild.model.ListReportGroupsResponse;
 
 @Type("report-group")
 public class ReportGroupFinder extends AwsFinder<CodeBuildClient, BatchGetReportGroupsResponse, ReportGroupResource> {
+
+    private String arn;
+
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
 
     @Override
     protected List<BatchGetReportGroupsResponse> findAllAws(CodeBuildClient client) {
         List<BatchGetReportGroupsResponse> reportGroups = new ArrayList<>();
 
-        try {
-            reportGroups.add(client.batchGetReportGroups(request -> request
-                .reportGroupArns(client.listReportGroups(r -> r.maxResults(100)).reportGroups())));
-        } catch (InvalidInputException ex) {
-            // Input report group ARNs empty
-        }
+        String reportGroupToken;
+
+        do {
+            ListReportGroupsResponse listReportGroupsResponse = client.listReportGroups(r -> r.maxResults(100));
+
+            for (String group : listReportGroupsResponse.reportGroups()) {
+                reportGroups.add(client.batchGetReportGroups(r -> r.reportGroupArns(group)));
+            }
+
+            reportGroupToken = listReportGroupsResponse.nextToken();
+        } while (reportGroupToken != null);
 
         return reportGroups;
     }
@@ -51,6 +67,10 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, BatchGetReport
         try {
             reportGroups.add(client.batchGetReportGroups(request -> request
                 .reportGroupArns(filters.get("arn"))));
+
+            if (reportGroups.isEmpty()) {
+                return reportGroups;
+            }
 
         } catch (InvalidInputException ex) {
             // Input report group ARN empty

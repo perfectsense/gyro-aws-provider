@@ -34,11 +34,11 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Max;
 import gyro.core.validation.Min;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.CreateProjectResponse;
@@ -50,7 +50,7 @@ import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
 @Type("project")
-public class ProjectResource extends AwsResource implements Copyable<BatchGetProjectsResponse> {
+public class ProjectResource extends AwsResource implements Copyable<Project> {
 
     private CodebuildProjectArtifacts artifacts;
     private Boolean badgeEnabled;
@@ -80,6 +80,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The build output artifacts for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectArtifacts
      */
     @Updatable
     @Required
@@ -92,7 +94,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     /**
-     * The project build badge to generate a publicly accessible URL.
+     * When set to ``true`` a publicly accessible URL will be generated for the project's build badge. When set to
+     * ``false`` then no URL is generated.
      */
     @Updatable
     public Boolean getBadgeEnabled() {
@@ -144,6 +147,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The build input source code for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectSource
      */
     @Updatable
     @Required
@@ -157,6 +162,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The build environment for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectEnvironment
      */
     @Updatable
     @Required
@@ -186,6 +193,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The batch build options for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectBuildBatchConfig
      */
     @Updatable
     public CodebuildProjectBuildBatchConfig getBuildBatchConfig() {
@@ -198,6 +207,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The logs for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildLogsConfig
      */
     @Updatable
     public CodebuildLogsConfig getLogsConfig() {
@@ -210,6 +221,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The recently used information for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectCache
      */
     @Updatable
     public CodebuildProjectCache getCache() {
@@ -234,6 +247,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The list of File System Locations for a build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectFileSystemLocation
      */
     @Updatable
     public List<CodebuildProjectFileSystemLocation> getFileSystemLocations() {
@@ -262,8 +277,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     /**
-     * The list of optional secondary artifacts.
+     * The list of secondary artifacts.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectArtifacts
      */
+    @CollectionMax(12)
     @Updatable
     public List<CodebuildProjectArtifacts> getSecondaryArtifacts() {
         if (secondaryArtifacts == null) {
@@ -277,8 +295,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     /**
-     * The list of optional secondary sources.
+     * The list of secondary sources.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectSource
      */
+    @CollectionMax(12)
     @Updatable
     public List<CodebuildProjectSource> getSecondarySources() {
         if (secondarySources == null) {
@@ -293,7 +314,10 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The list of optional secondary source versions.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectSourceVersion
      */
+    @CollectionMax(12)
     @Updatable
     public List<CodebuildProjectSourceVersion> getSecondarySourceVersions() {
         if (secondarySourceVersions == null) {
@@ -334,6 +358,8 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
     /**
      * The VPC config to access resources in an Amazon VPC.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildVpcConfig
      */
     @Updatable
     public CodebuildVpcConfig getVpcConfig() {
@@ -381,6 +407,147 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
     }
 
     @Override
+    public void copyFrom(Project project) {
+        setDescription(project.description());
+        setName(project.name());
+        setServiceRole(!ObjectUtils.isBlank(project.serviceRole())
+            ? findById(RoleResource.class, project.serviceRole())
+            : null);
+        setEncryptionKey(project.encryptionKey());
+        setQueuedTimeoutInMinutes(project.queuedTimeoutInMinutes());
+        setSourceVersion(project.sourceVersion());
+        setTimeoutInMinutes(project.timeoutInMinutes());
+        setWebhook(findById(WebhookResource.class, project.webhook()) != null ? findById(
+            WebhookResource.class,
+            project.webhook()) : null);
+        setArn(project.arn());
+
+        if (project.artifacts() != null) {
+            CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
+            projectArtifacts.copyFrom(project.artifacts());
+            setArtifacts(projectArtifacts);
+        } else {
+            setArtifacts(null);
+        }
+
+        if (project.source() != null) {
+            CodebuildProjectSource projectSource = newSubresource(CodebuildProjectSource.class);
+            projectSource.copyFrom(project.source());
+            setSource(projectSource);
+        } else {
+            setSource(null);
+        }
+
+        if (project.environment() != null) {
+            CodebuildProjectEnvironment environment = newSubresource(CodebuildProjectEnvironment.class);
+            environment.copyFrom(project.environment());
+            setEnvironment(environment);
+        } else {
+            setEnvironment(null);
+        }
+
+        if (project.badge() != null) {
+            CodebuildProjectBadge badge = newSubresource(CodebuildProjectBadge.class);
+            badge.copyFrom(project.badge());
+            setBadge(badge);
+            setBadgeEnabled(badge.getBadgeEnabled());
+        } else {
+            setBadge(null);
+            setBadgeEnabled(null);
+        }
+
+        if (project.tags() != null) {
+            Map<String, String> tags = new HashMap<>();
+            CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
+
+            for (Tag t : project.tags()) {
+                tag.copyFrom(t);
+                tags.put(t.key(), t.value());
+            }
+
+            setTags(tags);
+        } else {
+            setTags(null);
+        }
+
+        if (project.buildBatchConfig() != null) {
+            CodebuildProjectBuildBatchConfig buildBatchConfig = newSubresource(
+                CodebuildProjectBuildBatchConfig.class);
+            buildBatchConfig.copyFrom(project.buildBatchConfig());
+            setBuildBatchConfig(buildBatchConfig);
+        } else {
+            setBuildBatchConfig(null);
+        }
+
+        if (project.logsConfig() != null) {
+            CodebuildLogsConfig logsConfig = newSubresource(CodebuildLogsConfig.class);
+            logsConfig.copyFrom(project.logsConfig());
+            setLogsConfig(logsConfig);
+        } else {
+            setLogsConfig(null);
+        }
+
+        if (project.cache() != null) {
+            CodebuildProjectCache cache = newSubresource(CodebuildProjectCache.class);
+            cache.copyFrom(project.cache());
+            setCache(cache);
+        } else {
+            setCache(null);
+        }
+
+        if (project.fileSystemLocations() != null) {
+            List<CodebuildProjectFileSystemLocation> fileSystemLocations = new ArrayList<>();
+            CodebuildProjectFileSystemLocation fileSystemLocation = newSubresource(
+                CodebuildProjectFileSystemLocation.class);
+
+            for (ProjectFileSystemLocation pfsl : project.fileSystemLocations()) {
+                fileSystemLocation.copyFrom(pfsl);
+                fileSystemLocations.add(fileSystemLocation);
+            }
+
+            setFileSystemLocations(fileSystemLocations);
+        } else {
+            setFileSystemLocations(null);
+        }
+
+        if (project.secondaryArtifacts() != null) {
+            List<CodebuildProjectArtifacts> secondaryArtifacts = new ArrayList<>();
+            CodebuildProjectArtifacts artifact = newSubresource(CodebuildProjectArtifacts.class);
+
+            for (ProjectArtifacts a : project.secondaryArtifacts()) {
+                artifact.copyFrom(a);
+                secondaryArtifacts.add(artifact);
+            }
+
+            setSecondaryArtifacts(secondaryArtifacts);
+        } else {
+            setSecondaryArtifacts(null);
+        }
+
+        if (project.secondarySources() != null) {
+            List<CodebuildProjectSource> secondarySources = new ArrayList<>();
+            CodebuildProjectSource source = newSubresource(CodebuildProjectSource.class);
+
+            for (ProjectSource s : project.secondarySources()) {
+                source.copyFrom(s);
+                secondarySources.add(source);
+            }
+
+            setSecondarySources(secondarySources);
+        } else {
+            setSecondarySources(null);
+        }
+
+        if (project.vpcConfig() != null) {
+            CodebuildVpcConfig vpcConfig = newSubresource(CodebuildVpcConfig.class);
+            vpcConfig.copyFrom(project.vpcConfig());
+            setVpcConfig(vpcConfig);
+        } else {
+            setVpcConfig(null);
+        }
+    }
+
+    @Override
     public boolean refresh() {
         CodeBuildClient client = createClient(CodeBuildClient.class);
         BatchGetProjectsResponse response = null;
@@ -391,11 +558,11 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
             // No Resource found
         }
 
-        if (response == null) {
+        if (response == null || response.projects().isEmpty()) {
             return false;
         }
 
-        copyFrom(response);
+        copyFrom(response.projects().get(0));
         return true;
 
     }
@@ -443,35 +610,33 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
 
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        if (!changedFieldNames.isEmpty()) {
-            client.updateProject(r -> r.name(getName())
-                .badgeEnabled(getBadgeEnabled())
-                .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
-                .logsConfig(getLogsConfig().toProjectLogsConfig())
-                .description(getDescription())
-                .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
-                .environment(getEnvironment().toProjectEnvironment())
-                .source(getSource().toProjectSource())
-                .artifacts(getArtifacts().toProjectArtifacts())
-                .tags(CodebuildProjectTag.toProjectTags(getTags()))
-                .cache(getCache().toProjectCache())
-                .encryptionKey(getEncryptionKey())
-                .fileSystemLocations(getFileSystemLocations().stream()
-                    .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
-                    .collect(Collectors.toList()))
-                .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
-                .secondaryArtifacts(getSecondaryArtifacts().stream()
-                    .map(CodebuildProjectArtifacts::toProjectArtifacts)
-                    .collect(
-                        Collectors.toList()))
-                .secondarySources(getSecondarySources().stream()
-                    .map(CodebuildProjectSource::toProjectSource)
-                    .collect(Collectors.toList()))
-                .sourceVersion(getSourceVersion())
-                .timeoutInMinutes(getTimeoutInMinutes())
-                .vpcConfig(getVpcConfig().toProjectVpcConfig())
-            );
-        }
+        client.updateProject(r -> r.name(getName())
+            .badgeEnabled(getBadgeEnabled())
+            .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
+            .logsConfig(getLogsConfig().toProjectLogsConfig())
+            .description(getDescription())
+            .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
+            .environment(getEnvironment().toProjectEnvironment())
+            .source(getSource().toProjectSource())
+            .artifacts(getArtifacts().toProjectArtifacts())
+            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+            .cache(getCache().toProjectCache())
+            .encryptionKey(getEncryptionKey())
+            .fileSystemLocations(getFileSystemLocations().stream()
+                .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
+                .collect(Collectors.toList()))
+            .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
+            .secondaryArtifacts(getSecondaryArtifacts().stream()
+                .map(CodebuildProjectArtifacts::toProjectArtifacts)
+                .collect(
+                    Collectors.toList()))
+            .secondarySources(getSecondarySources().stream()
+                .map(CodebuildProjectSource::toProjectSource)
+                .collect(Collectors.toList()))
+            .sourceVersion(getSourceVersion())
+            .timeoutInMinutes(getTimeoutInMinutes())
+            .vpcConfig(getVpcConfig().toProjectVpcConfig())
+        );
     }
 
     @Override
@@ -479,141 +644,5 @@ public class ProjectResource extends AwsResource implements Copyable<BatchGetPro
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
         client.deleteProject(r -> r.name(getName()));
-    }
-
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
-
-        if (getSecondaryArtifacts().size() > 12 || getSecondarySources().size() > 12
-            || getSecondarySourceVersions().size() > 12) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'secondary-artifacts', 'secondary-sources', or 'secondary-source-versions' cannot have more than 12 items."
-            ));
-        }
-
-        return errors;
-    }
-
-    @Override
-    public void copyFrom(BatchGetProjectsResponse model) {
-        if (!model.projects().isEmpty()) {
-            Project project = model.projects().get(0);
-
-            setDescription(project.description());
-            setName(project.name());
-            setServiceRole(!ObjectUtils.isBlank(project.serviceRole())
-                ? findById(RoleResource.class, project.serviceRole())
-                : null);
-            setEncryptionKey(project.encryptionKey());
-            setQueuedTimeoutInMinutes(project.queuedTimeoutInMinutes());
-            setSourceVersion(project.sourceVersion());
-            setTimeoutInMinutes(project.timeoutInMinutes());
-            setWebhook(findById(WebhookResource.class, project.webhook()) != null ? findById(
-                WebhookResource.class,
-                project.webhook()) : null);
-            setArn(project.arn());
-
-            if (project.artifacts() != null) {
-                CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
-                projectArtifacts.copyFrom(project.artifacts());
-                setArtifacts(projectArtifacts);
-            }
-
-            if (project.source() != null) {
-                CodebuildProjectSource projectSource = newSubresource(CodebuildProjectSource.class);
-                projectSource.copyFrom(project.source());
-                setSource(projectSource);
-            }
-
-            if (project.environment() != null) {
-                CodebuildProjectEnvironment environment = newSubresource(CodebuildProjectEnvironment.class);
-                environment.copyFrom(project.environment());
-                setEnvironment(environment);
-            }
-
-            if (project.badge() != null) {
-                CodebuildProjectBadge badge = newSubresource(CodebuildProjectBadge.class);
-                badge.copyFrom(project.badge());
-                setBadge(badge);
-                setBadgeEnabled(badge.getBadgeEnabled());
-            }
-
-            if (project.tags() != null) {
-                Map<String, String> tags = new HashMap<>();
-                CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
-
-                for (Tag t : project.tags()) {
-                    tag.copyFrom(t);
-                    tags.put(t.key(), t.value());
-                }
-
-                setTags(tags);
-            }
-
-            if (project.buildBatchConfig() != null) {
-                CodebuildProjectBuildBatchConfig buildBatchConfig = newSubresource(
-                    CodebuildProjectBuildBatchConfig.class);
-                buildBatchConfig.copyFrom(project.buildBatchConfig());
-                setBuildBatchConfig(buildBatchConfig);
-            }
-
-            if (project.logsConfig() != null) {
-                CodebuildLogsConfig logsConfig = newSubresource(CodebuildLogsConfig.class);
-                logsConfig.copyFrom(project.logsConfig());
-                setLogsConfig(logsConfig);
-            }
-
-            if (project.cache() != null) {
-                CodebuildProjectCache cache = newSubresource(CodebuildProjectCache.class);
-                cache.copyFrom(project.cache());
-                setCache(cache);
-            }
-
-            if (project.fileSystemLocations() != null) {
-                List<CodebuildProjectFileSystemLocation> fileSystemLocations = new ArrayList<>();
-                CodebuildProjectFileSystemLocation fileSystemLocation = newSubresource(
-                    CodebuildProjectFileSystemLocation.class);
-
-                for (ProjectFileSystemLocation pfsl : project.fileSystemLocations()) {
-                    fileSystemLocation.copyFrom(pfsl);
-                    fileSystemLocations.add(fileSystemLocation);
-                }
-
-                setFileSystemLocations(fileSystemLocations);
-            }
-
-            if (project.secondaryArtifacts() != null) {
-                List<CodebuildProjectArtifacts> secondaryArtifacts = new ArrayList<>();
-                CodebuildProjectArtifacts artifact = newSubresource(CodebuildProjectArtifacts.class);
-
-                for (ProjectArtifacts a : project.secondaryArtifacts()) {
-                    artifact.copyFrom(a);
-                    secondaryArtifacts.add(artifact);
-                }
-
-                setSecondaryArtifacts(secondaryArtifacts);
-            }
-
-            if (project.secondarySources() != null) {
-                List<CodebuildProjectSource> secondarySources = new ArrayList<>();
-                CodebuildProjectSource source = newSubresource(CodebuildProjectSource.class);
-
-                for (ProjectSource s : project.secondarySources()) {
-                    source.copyFrom(s);
-                    secondarySources.add(source);
-                }
-
-                setSecondarySources(secondarySources);
-            }
-
-            if (project.vpcConfig() != null) {
-                CodebuildVpcConfig vpcConfig = newSubresource(CodebuildVpcConfig.class);
-                vpcConfig.copyFrom(project.vpcConfig());
-                setVpcConfig(vpcConfig);
-            }
-        }
     }
 }

@@ -32,28 +32,29 @@ import software.amazon.awssdk.services.codebuild.model.Webhook;
 @Type("webhook")
 public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookResource> {
 
+    private List<String> names;
+
+    public List<String> getNames() {
+        return names;
+    }
+
+    public void setNames(List<String> names) {
+        this.names = names;
+    }
+
     @Override
     protected List<Webhook> findAllAws(CodeBuildClient client) {
-        List<Webhook> webhooks = new ArrayList<>();
+        List<BatchGetProjectsResponse> projectsResponseList = client.listProjectsPaginator().stream()
+            .map(projects ->
+                client.batchGetProjects(r -> r.names(projects.projects())))
+            .collect(Collectors.toList());
 
-        try {
-            List<BatchGetProjectsResponse> projectsResponseList = client.listProjectsPaginator().stream()
-                .map(projects ->
-                    client.batchGetProjects(r -> r.names(projects.projects())))
-                .collect(Collectors.toList());
-
-            webhooks = projectsResponseList.stream()
-                .map(BatchGetProjectsResponse::projects)
-                .flatMap(projects ->
-                    projects.stream()
-                        .map(Project::webhook))
-                .collect(Collectors.toList());
-
-        } catch (InvalidInputException ex) {
-            // Input project name list empty
-        }
-
-        return webhooks;
+        return projectsResponseList.stream()
+            .map(BatchGetProjectsResponse::projects)
+            .flatMap(projects ->
+                projects.stream()
+                    .map(Project::webhook))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -72,8 +73,13 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
                     projects.stream()
                         .map(Project::webhook))
                 .collect(Collectors.toList());
+
+            if (webhooks.isEmpty()) {
+                return webhooks;
+            }
+
         } catch (InvalidInputException ex) {
-            // Input project name list empty
+            return webhooks;
         }
 
         return webhooks;
