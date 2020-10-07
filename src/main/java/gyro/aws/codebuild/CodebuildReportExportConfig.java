@@ -42,6 +42,8 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
 
     /**
      * The S3 bucket where the run of a export is exported.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildS3ReportExportConfig
      */
     @Updatable
     public CodebuildS3ReportExportConfig getS3ReportExportConfig() {

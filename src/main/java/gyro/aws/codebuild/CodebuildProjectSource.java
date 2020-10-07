@@ -82,6 +82,8 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
 
     /**
      * The config that defines how the build project reports the build status to the source provider.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildBuildStatusConfig
      */
     @Updatable
     public CodebuildBuildStatusConfig getBuildStatusConfig() {
@@ -107,6 +109,8 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
 
     /**
      * The Git submodules configuration for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildGitSubmodulesConfig
      */
     @Updatable
     public CodebuildGitSubmodulesConfig getGitSubmodulesConfig() {
@@ -190,7 +194,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             errors.add(new ValidationError(
                 this,
                 null,
-                "'build-status-config' is only used when 'type' is 'GITHUB', 'GITHUB_ENTERPRISE', or 'BITBUCKET'."
+                "'build-status-config' can only be set when 'type' is 'GITHUB', 'GITHUB_ENTERPRISE', or 'BITBUCKET'."
             ));
         }
 
@@ -199,7 +203,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             errors.add(new ValidationError(
                 this,
                 null,
-                "'report-build-status' is valid only when 'type' is 'GITHUB', 'GITHUB_ENTERPRISE', or 'BITBUCKET'."
+                "'report-build-status' can only be set when 'type' is 'GITHUB', 'GITHUB_ENTERPRISE', or 'BITBUCKET'."
             ));
         }
 

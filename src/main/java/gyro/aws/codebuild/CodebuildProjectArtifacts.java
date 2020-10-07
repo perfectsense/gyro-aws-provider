@@ -58,7 +58,8 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The field that specifies for the output artifacts to be encrypted.
+     * When set to ``true`` the output artifacts are not encrypted. When set to ``false`` the output artifacts are
+     * encrypted.
      */
     @Updatable
     public Boolean getEncryptionDisabled() {
@@ -107,7 +108,8 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The field that specifies if a name specified in the buildspec file overrides the artifact name.
+     * When set to ``true`` the name specified in the buildspec file overrides the artifact name. When set to ``false``
+     * then the artifact name is not overridden.
      */
     public Boolean getOverrideArtifactName() {
         return overrideArtifactName;
@@ -181,21 +183,21 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
             errors.add(new ValidationError(
                 this,
                 null,
-                "'location' cannot be empty if 'type' is 'S3'. Needs to specify the name of the output bucket."));
+                "'location' must be set if 'type' is set to 'S3'. Needs to specify the name of the output bucket."));
         }
 
         if (getName() == null && getType().equals("S3")) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "'name' cannot be empty if 'type' is 'S3'. Needs to specify the name of the output artifact object."));
+                "'name' must be set if 'type' is set to 'S3'. Needs to specify the name of the output artifact object."));
         }
 
         if (getEncryptionDisabled() != null && !getType().equals("S3")) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "'encryption-disabled' option is valid only if 'type' is 'S3'."));
+                "'encryption-disabled' can only be set if 'type' is set to 'S3'."));
         }
 
         return errors;

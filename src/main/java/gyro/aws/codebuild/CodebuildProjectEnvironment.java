@@ -36,7 +36,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     private List<CodebuildProjectEnvironmentVariable> environmentVariables;
     private String image;
     private String imagePullCredentialsType;
-    private Boolean privalegedMode;
+    private Boolean privilegedMode;
     private CodebuildRegistryCredential registryCredential;
     private String type;
 
@@ -104,6 +104,8 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
 
     /**
      * The list of environment variables available to builds for the build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectEnvironmentVariable
      */
     @Updatable
     public List<CodebuildProjectEnvironmentVariable> getEnvironmentVariables() {
@@ -128,19 +130,22 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The field that specifies running the Docker daemon inside a Docker container.
+     * When set to ``true`` the Docker daemon is run inside a Docker container. When set to ``false`` the Docker daemon
+     * is run outside a Docker container.
      */
     @Updatable
-    public Boolean getPrivalegedMode() {
-        return privalegedMode;
+    public Boolean getPrivilegedMode() {
+        return privilegedMode;
     }
 
-    public void setPrivalegedMode(Boolean privalegedMode) {
-        this.privalegedMode = privalegedMode;
+    public void setPrivilegedMode(Boolean privilegedMode) {
+        this.privilegedMode = privilegedMode;
     }
 
     /**
      * The credentials for access to a private registry.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildRegistryCredential
      */
     @Updatable
     public CodebuildRegistryCredential getRegistryCredential() {
@@ -158,7 +163,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
         setType(model.typeAsString());
         setCertificate(model.certificate());
         setImagePullCredentialsType(model.imagePullCredentialsTypeAsString());
-        setPrivalegedMode(model.privilegedMode());
+        setPrivilegedMode(model.privilegedMode());
 
         if (model.environmentVariables() != null) {
             List<CodebuildProjectEnvironmentVariable> environmentVariables = new ArrayList<>();
@@ -194,7 +199,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
             errors.add(new ValidationError(
                 this,
                 null,
-                "'image-pull-credentials-type' must be set to 'SERVICE_ROLE' to set 'registry-credential'."
+                "'image-pull-credentials-type' can be set if 'SERVICE_ROLE' is set to 'registry-credential'."
             ));
         }
 
@@ -219,7 +224,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
             .certificate(getCertificate())
             .environmentVariables(environmentVariables)
             .imagePullCredentialsType(getImagePullCredentialsType())
-            .privilegedMode(getPrivalegedMode())
+            .privilegedMode(getPrivilegedMode())
             .registryCredential(getRegistryCredential().toRegistryCredential())
             .build();
     }

@@ -51,6 +51,8 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
 
     /**
      * The report summary that contains a code coverage summary for the report.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildCodeCoverageReportSummary
      */
     @Output
     public CodebuildCodeCoverageReportSummary getCodeCoverageReportSummary() {
@@ -99,6 +101,8 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
 
     /**
      * Specifies where the raw data used to generate the report was exported.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildReportExportConfig
      */
     @Output
     public CodebuildReportExportConfig getExportConfig() {
@@ -148,6 +152,8 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
 
     /**
      * The test report summary.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildTestReportSummary
      */
     @Output
     public CodebuildTestReportSummary getTestSummary() {
@@ -159,7 +165,7 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The field that specifies if this report run is truncated.
+     * When set to ``true`` the report run is truncated. When set to ``false`` the report run is not truncated.
      */
     @Output
     public Boolean getTruncated() {

@@ -28,6 +28,8 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
 
     /**
      * The Amazon CloudWatch Logs for a build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildCloudWatchLogsConfig
      */
     @Updatable
     public CodebuildCloudWatchLogsConfig getCloudWatchLogs() {
@@ -40,6 +42,8 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
 
     /**
      * The logs built to an S3 bucket for a build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildS3LogsConfig
      */
     @Updatable
     public CodebuildS3LogsConfig getS3Logs() {

@@ -43,7 +43,8 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     }
 
     /**
-     * The field that specifies if the results of a report are encrypted.
+     * When set to ``true`` the results of a report are not encrypted. When set to ``false`` the results of a report are
+     * encrypted.
      */
     @Updatable
     public Boolean getEncryptionDisabled() {

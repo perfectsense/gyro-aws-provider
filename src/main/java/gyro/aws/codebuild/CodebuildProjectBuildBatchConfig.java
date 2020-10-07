@@ -32,8 +32,8 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     private Integer timeoutInMins;
 
     /**
-     * The field that specifies if the build artifacts for the batch build should be combined into a single artifact
-     * location.
+     * When set to ``true`` then the build artifacts for the batch build are combined into a single artifact location.
+     * When set to ``false`` then the build artifacts for the batch build remain in individual artifact locations.
      */
     @Updatable
     public Boolean getCombineArtifacts() {
@@ -46,6 +46,8 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
 
     /**
      * The restrictrions for the batch build.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildProjectBatchRestrictions
      */
     @Updatable
     public CodebuildProjectBatchRestrictions getRestrictions() {

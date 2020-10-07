@@ -44,7 +44,8 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
     }
 
     /**
-     * The field that specifies for the S3 build log output to be encrypted.
+     * When set to ``true`` the S3 build log output is not encrypted. When set to ``false`` the S3 build log output is
+     * encrypted.
      */
     @Updatable
     public Boolean getEncryptionDisabled() {
