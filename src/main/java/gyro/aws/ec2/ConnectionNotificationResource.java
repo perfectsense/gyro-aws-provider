@@ -53,7 +53,7 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
  *
  *     aws::vpc-connection-notification connection-notification-example
  *         vpc-endpoint: $(aws::vpc-endpoint endpoint-example-interface)
- *         connection-notification-arn: "arn:aws:sns:us-west-2:242040583208:gyro-instance-state"
+ *         topic: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
  *         connection-events: [
  *             "Accept"
  *         ]
