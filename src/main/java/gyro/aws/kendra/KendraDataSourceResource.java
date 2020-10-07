@@ -99,7 +99,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
     private String id;
 
     /**
-     * The name of the data source. (Required)
+     * The name of the data source.
      */
     @Updatable
     @Required
@@ -124,7 +124,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
     }
 
     /**
-     * The index that should be associated with this data source. (Required)
+     * The index that should be associated with this data source.
      */
     @Required
     public KendraIndexResource getIndex() {
@@ -136,7 +136,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
     }
 
     /**
-     * The role with permission to access the data source. (Required)
+     * The role with permission to access the data source.
      */
     @Updatable
     @Required
@@ -149,7 +149,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
     }
 
     /**
-     * The frequency that Amazon Kendra will check the documents in your repository and update the index. (Required)
+     * The frequency that Amazon Kendra will check the documents in your repository and update the index.
      */
     @Updatable
     @Required
@@ -162,7 +162,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
     }
 
     /**
-     * The type of repository that contains the data source. Valid values are ``S3``, ``SHAREPOINT``, ``DATABASE``, ``SALESFORCE``, ``ONEDRIVE`` or ``SERVICENOW``. (Required)
+     * The type of repository that contains the data source.
      */
     @Required
     public DataSourceType getType() {
@@ -174,7 +174,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
     }
 
     /**
-     * The data source connector configuration information required to access the repository. (Required)
+     * The data source connector configuration information required to access the repository.
      */
     @Updatable
     @Required

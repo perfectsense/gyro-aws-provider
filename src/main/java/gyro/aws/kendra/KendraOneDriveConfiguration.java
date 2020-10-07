@@ -66,7 +66,7 @@ public class KendraOneDriveConfiguration extends Diffable implements Copyable<On
     }
 
     /**
-     * The Amazon Resource Name (ARN) of an AWS Secrets Manager secret that contains the user name and password to connect to OneDrive. (Required)
+     * The Amazon Resource Name (ARN) of an AWS Secrets Manager secret that contains the user name and password to connect to OneDrive.
      */
     @Updatable
     @Required
@@ -79,7 +79,7 @@ public class KendraOneDriveConfiguration extends Diffable implements Copyable<On
     }
 
     /**
-     * Tha Azure Active Directory domain of the organization. (Required)
+     * Tha Azure Active Directory domain of the organization.
      */
     @Updatable
     @Required
@@ -107,7 +107,7 @@ public class KendraOneDriveConfiguration extends Diffable implements Copyable<On
     }
 
     /**
-     * The list of user accounts whose documents should be indexed. (Required)
+     * The list of user accounts whose documents should be indexed.
      */
     @Required
     public KendraOneDriveUsers getUsers() {

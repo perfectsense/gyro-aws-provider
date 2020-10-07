@@ -27,7 +27,7 @@ public class DatabaseAclConfiguration extends Diffable implements Copyable<AclCo
     private String allowedGroupsColumnName;
 
     /**
-     * A list of groups, separated by semi-colons, that filters a query response based on user context. (Required)
+     * A list of groups, separated by semi-colons, that filters a query response based on user context.
      */
     @Required
     @Updatable

@@ -47,7 +47,7 @@ public class KendraS3DataSourceConfiguration extends Diffable implements Copyabl
     }
 
     /**
-     * The bucket that contains the documents. (Required)
+     * The bucket that contains the documents.
      */
     @Updatable
     @Required

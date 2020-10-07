@@ -34,7 +34,7 @@ public class KendraSalesforceCustomKnowledgeArticleTypeConfiguration extends Dif
     private String name;
 
     /**
-     * The name of the field in the custom knowledge article that contains the document data to index. (Required)
+     * The name of the field in the custom knowledge article that contains the document data to index.
      */
     @Required
     public String getDocumentDataFieldName() {
@@ -72,7 +72,7 @@ public class KendraSalesforceCustomKnowledgeArticleTypeConfiguration extends Dif
     }
 
     /**
-     * The name of the configuration. (Required)
+     * The name of the configuration.
      */
     @Required
     public String getName() {

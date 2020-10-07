@@ -96,7 +96,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
     }
 
     /**
-     * The index associated to the FAQ. (Required)
+     * The index associated to the FAQ.
      */
     @Required
     public KendraIndexResource getIndex() {
@@ -108,7 +108,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
     }
 
     /**
-     * The name of the FAQ. (Required)
+     * The name of the FAQ.
      */
     @Required
     public String getName() {
@@ -120,7 +120,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
     }
 
     /**
-     * The role with permission to access the S3 bucket that contains the FAQs. (Required)
+     * The role with permission to access the S3 bucket that contains the FAQs.
      */
     @Required
     public RoleResource getRole() {
@@ -132,7 +132,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
     }
 
     /**
-     * The S3 location of the FAQ input data. (Required)
+     * The S3 location of the FAQ input data.
      */
     @Required
     public KendraS3Path getS3Path() {
@@ -144,7 +144,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
     }
 
     /**
-     * The format of the input file. Valid values are ``CSV``, ``CSV_WITH_HEADER`` or ``JSON``. (Required)
+     * The format of the input file.
      */
     @Required
     public FaqFileFormat getFileFormat() {
