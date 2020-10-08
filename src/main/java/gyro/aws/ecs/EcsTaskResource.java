@@ -112,7 +112,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The cluster on which to run your task. (Required)
+     * The number of instantiations of the specified task to place on your cluster. (Required)
      */
     @Required
     public Integer getCount() {
