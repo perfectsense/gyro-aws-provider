@@ -225,7 +225,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
             .environmentVariables(environmentVariables)
             .imagePullCredentialsType(getImagePullCredentialsType())
             .privilegedMode(getPrivilegedMode())
-            .registryCredential(getRegistryCredential().toRegistryCredential())
+            .registryCredential(getRegistryCredential() != null ? getRegistryCredential().toRegistryCredential() : null)
             .build();
     }
 }

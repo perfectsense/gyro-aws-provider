@@ -198,7 +198,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             ));
         }
 
-        if (getReportBuildStatus() && !(getType().equals("GITHUB") || getType().equals("GITHUB_ENTERPRISE")
+        if (getReportBuildStatus() != null && !(getType().equals("GITHUB") || getType().equals("GITHUB_ENTERPRISE")
             || getType().equals("BITBUCKET"))) {
             errors.add(new ValidationError(
                 this,
@@ -215,9 +215,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             .type(getType())
             .location(getLocation())
             .buildspec(getBuildspec())
-            .buildStatusConfig(getBuildStatusConfig().toBuildStatusConfig())
+            .buildStatusConfig(getBuildStatusConfig() != null ? getBuildStatusConfig().toBuildStatusConfig() : null)
             .gitCloneDepth(getGitCloneDepth())
-            .gitSubmodulesConfig(getGitSubmodulesConfig().toGitSubmodulesConfig())
+            .gitSubmodulesConfig(getGitSubmodulesConfig() != null ? getGitSubmodulesConfig().toGitSubmodulesConfig() : null)
             .insecureSsl(getInsecureSsl())
             .reportBuildStatus(getReportBuildStatus())
             .sourceIdentifier(getSourceIdentifier())

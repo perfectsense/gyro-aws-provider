@@ -612,8 +612,8 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
 
         client.updateProject(r -> r.name(getName())
             .badgeEnabled(getBadgeEnabled())
-            .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
-            .logsConfig(getLogsConfig().toProjectLogsConfig())
+            .buildBatchConfig(getBuildBatchConfig() != null ? getBuildBatchConfig().toProjectBuildBatchConfig() : null)
+            .logsConfig(getLogsConfig() != null ? getLogsConfig().toProjectLogsConfig() : null)
             .description(getDescription())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(getEnvironment().toProjectEnvironment())
@@ -633,9 +633,9 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .secondarySources(getSecondarySources().stream()
                 .map(CodebuildProjectSource::toProjectSource)
                 .collect(Collectors.toList()))
-            .sourceVersion(getSourceVersion())
+            .sourceVersion(getSourceVersion() != null ? getSourceVersion() : null)
             .timeoutInMinutes(getTimeoutInMinutes())
-            .vpcConfig(getVpcConfig().toProjectVpcConfig())
+            .vpcConfig(getVpcConfig() != null ? getVpcConfig().toProjectVpcConfig() : null)
         );
     }
 
