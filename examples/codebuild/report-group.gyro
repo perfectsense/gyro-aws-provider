@@ -1,0 +1,8 @@
+aws::report-group report-group
+    report-export-config
+        export-config-type: "NO_EXPORT"
+    end
+
+    name: "gyro-test-report-group"
+    type: "TEST"
+end

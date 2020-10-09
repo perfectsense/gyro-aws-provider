@@ -49,6 +49,41 @@ import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
+/**
+ * Creates a build project with the specified Name, Artifacts, Environment, Source, and Role.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::project project
+ *        name: "project-example-name"
+ *        description: "project-description"
+ *        service-role: $(aws::iam-role iam-role-example)
+ *        tags: {
+ *            "tag1": "value1"
+ *        }
+ *
+ *        source
+ *            type: "S3"
+ *            location: "codebuild-us-east-2-242040583208-input-bucket/MessageUtil.zip"
+ *        end
+ *
+ *        artifacts
+ *            type: "S3"
+ *            location: "codebuild-us-east-2-242040583208-output-bucket"
+ *            encryption-disabled: false
+ *            path: "example-path/path"
+ *            packaging: "NONE"
+ *        end
+ *
+ *        environment
+ *            type: "ARM_CONTAINER"
+ *            image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+ *        end
+ *    end
+ */
 @Type("project")
 public class ProjectResource extends AwsResource implements Copyable<Project> {
 
@@ -133,7 +168,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     }
 
     /**
-     * The ARN of the AWS IAM role.
+     * The IAM role that provides permissions for the build project.
      */
     @Updatable
     @Required
@@ -579,7 +614,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .sourceVersion(getSourceVersion())
             .timeoutInMinutes(getTimeoutInMinutes())
             .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
-            .logsConfig(getLogsConfig().toProjectLogsConfig())
+            .logsConfig(getLogsConfig().toLogsConfig())
             .description(getDescription())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(getEnvironment().toProjectEnvironment())
@@ -613,7 +648,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         client.updateProject(r -> r.name(getName())
             .badgeEnabled(getBadgeEnabled())
             .buildBatchConfig(getBuildBatchConfig() != null ? getBuildBatchConfig().toProjectBuildBatchConfig() : null)
-            .logsConfig(getLogsConfig() != null ? getLogsConfig().toProjectLogsConfig() : null)
+            .logsConfig(getLogsConfig() != null ? getLogsConfig().toLogsConfig() : null)
             .description(getDescription())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(getEnvironment().toProjectEnvironment())

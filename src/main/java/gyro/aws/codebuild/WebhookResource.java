@@ -38,6 +38,25 @@ import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException
 import software.amazon.awssdk.services.codebuild.model.Webhook;
 import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
 
+/**
+ * Creates a webhook with the specified Name, Build Type, Rotate Secret, and Filter Groups.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::webhook webhook
+ *        project-name: "project-example-name"
+ *        build-type: "BUILD"
+ *        rotate-secret: true
+ *
+ *        filter-groups
+ *            pattern: "PUSH"
+ *            type: "EVENT"
+ *        end
+ *    end
+ */
 @Type("webhook")
 public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 

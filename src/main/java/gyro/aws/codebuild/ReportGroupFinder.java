@@ -23,12 +23,22 @@ import java.util.Map;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
-import software.amazon.awssdk.services.codebuild.model.BatchGetReportGroupsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.ListReportGroupsResponse;
+import software.amazon.awssdk.services.codebuild.model.ReportGroup;
 
+/**
+ * Query report group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    report-group: $(external-query aws::report-group { arn: "arn:aws:codebuild:us-east-2:242040583208:report-group/report-group-test"})
+ */
 @Type("report-group")
-public class ReportGroupFinder extends AwsFinder<CodeBuildClient, BatchGetReportGroupsResponse, ReportGroupResource> {
+public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, ReportGroupResource> {
 
     private String arn;
 
@@ -41,8 +51,8 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, BatchGetReport
     }
 
     @Override
-    protected List<BatchGetReportGroupsResponse> findAllAws(CodeBuildClient client) {
-        List<BatchGetReportGroupsResponse> reportGroups = new ArrayList<>();
+    protected List<ReportGroup> findAllAws(CodeBuildClient client) {
+        List<ReportGroup> reportGroups = new ArrayList<>();
 
         String reportGroupToken;
 
@@ -50,7 +60,7 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, BatchGetReport
             ListReportGroupsResponse listReportGroupsResponse = client.listReportGroups(r -> r.maxResults(100));
 
             for (String group : listReportGroupsResponse.reportGroups()) {
-                reportGroups.add(client.batchGetReportGroups(r -> r.reportGroupArns(group)));
+                reportGroups.addAll(client.batchGetReportGroups(r -> r.reportGroupArns(group)).reportGroups());
             }
 
             reportGroupToken = listReportGroupsResponse.nextToken();
@@ -60,13 +70,13 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, BatchGetReport
     }
 
     @Override
-    protected List<BatchGetReportGroupsResponse> findAws(
+    protected List<ReportGroup> findAws(
         CodeBuildClient client, Map<String, String> filters) {
-        List<BatchGetReportGroupsResponse> reportGroups = new ArrayList<>();
+        List<ReportGroup> reportGroups = new ArrayList<>();
 
         try {
-            reportGroups.add(client.batchGetReportGroups(request -> request
-                .reportGroupArns(filters.get("arn"))));
+            reportGroups.addAll(client.batchGetReportGroups(request -> request
+                .reportGroupArns(filters.get("arn"))).reportGroups());
 
             if (reportGroups.isEmpty()) {
                 return reportGroups;

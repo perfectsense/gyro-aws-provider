@@ -29,6 +29,16 @@ import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.Webhook;
 
+/**
+ * Query webhook.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    webhook: $(external-query aws::webhook {names : ['project-example-name']})
+ */
 @Type("webhook")
 public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookResource> {
 

@@ -1,0 +1,32 @@
+aws::project project
+    name: "project-example-name"
+    description: "project-description"
+    service-role: $(aws::iam-role iam-role-example)
+    tags: {
+        "tag1": "value1"
+    }
+
+    source
+        type: "S3"
+        location: "codebuild-us-east-2-242040583208-input-bucket/MessageUtil.zip"
+    end
+
+    artifacts
+        type: "S3"
+        location: "codebuild-us-east-2-242040583208-output-bucket"
+        encryption-disabled: false
+        path: "example-path/path"
+        packaging: "NONE"
+    end
+
+    environment
+        type: "ARM_CONTAINER"
+        image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+    end
+end
+
+aws::iam-role iam-role-example
+    name: "project-example-name-service-role"
+    arn: "arn:aws:iam::242040583208:role/service-role/project-example-name-service-role"
+    assume-role-policy: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+end 

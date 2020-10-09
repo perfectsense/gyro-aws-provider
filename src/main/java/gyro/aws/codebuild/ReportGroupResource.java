@@ -40,6 +40,23 @@ import software.amazon.awssdk.services.codebuild.model.ReportGroup;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
+/**
+ * Creates a report group with the specified Name, Type, and Report Export Configuration.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::report-group report-group
+ *        report-export-config
+ *            export-config-type: "NO_EXPORT"
+ *        end
+ *
+ *        name: "gyro-test-report-group"
+ *        type: "TEST"
+ *    end
+ */
 @Type("report-group")
 public class ReportGroupResource extends AwsResource implements Copyable<ReportGroup> {
 

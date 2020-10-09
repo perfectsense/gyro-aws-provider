@@ -1,0 +1,10 @@
+aws::webhook webhook
+    project-name: "project-example-name"
+    build-type: "BUILD"
+    rotate-secret: true
+
+    filter-groups
+        pattern: "PUSH"
+        type: "EVENT"
+    end
+end
