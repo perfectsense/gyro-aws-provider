@@ -52,6 +52,7 @@ import software.amazon.awssdk.services.ecs.model.EcsException;
 import software.amazon.awssdk.services.ecs.model.IpcMode;
 import software.amazon.awssdk.services.ecs.model.NetworkMode;
 import software.amazon.awssdk.services.ecs.model.PidMode;
+import software.amazon.awssdk.services.ecs.model.RegisterTaskDefinitionRequest;
 import software.amazon.awssdk.services.ecs.model.RegisterTaskDefinitionResponse;
 import software.amazon.awssdk.services.ecs.model.ResourceType;
 import software.amazon.awssdk.services.ecs.model.Tag;
@@ -606,33 +607,36 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     public void create(GyroUI ui, State state) throws Exception {
         EcsClient client = createClient(EcsClient.class);
 
-        RegisterTaskDefinitionResponse response = client.registerTaskDefinition(
-            r -> r.family(getFamily())
-                .requiresCompatibilitiesWithStrings(getRequiresCompatibilities())
-                .containerDefinitions(getContainerDefinition().stream()
-                    .map(EcsContainerDefinition::copyTo)
-                    .collect(Collectors.toList()))
-                .volumes(getVolume().stream()
-                    .map(EcsVolume::copyTo)
-                    .collect(Collectors.toList()))
-                .placementConstraints(getPlacementConstraint().stream()
-                    .map(EcsTaskDefinitionPlacementConstraint::copyTo)
-                    .collect(Collectors.toList()))
-                .networkMode(getNetworkMode())
-                .cpu(getCpu() != null ? getCpu().toString() : null)
-                .memory(getMemory() != null ? getMemory().toString() : null)
-                .pidMode(getPidMode())
-                .ipcMode(getIpcMode())
-                .taskRoleArn(getTaskRole() != null ? getTaskRole().getArn() : null)
-                .executionRoleArn(getExecutionRole() != null ? getExecutionRole().getArn() : null)
-                .proxyConfiguration(getProxyConfiguration() != null ? getProxyConfiguration().copyTo() : null)
-                .inferenceAccelerators(getInferenceAccelerator().stream()
-                    .map(EcsInferenceAccelerator::copyTo)
-                    .collect(Collectors.toList()))
-                .tags(getTags().entrySet().stream()
-                    .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
-                    .collect(Collectors.toList()))
-        );
+        RegisterTaskDefinitionRequest.Builder builder = RegisterTaskDefinitionRequest.builder().family(getFamily())
+            .requiresCompatibilitiesWithStrings(getRequiresCompatibilities())
+            .containerDefinitions(getContainerDefinition().stream()
+                .map(EcsContainerDefinition::copyTo)
+                .collect(Collectors.toList()))
+            .volumes(getVolume().stream()
+                .map(EcsVolume::copyTo)
+                .collect(Collectors.toList()))
+            .placementConstraints(getPlacementConstraint().stream()
+                .map(EcsTaskDefinitionPlacementConstraint::copyTo)
+                .collect(Collectors.toList()))
+            .networkMode(getNetworkMode())
+            .cpu(getCpu() != null ? getCpu().toString() : null)
+            .memory(getMemory() != null ? getMemory().toString() : null)
+            .pidMode(getPidMode())
+            .ipcMode(getIpcMode())
+            .taskRoleArn(getTaskRole() != null ? getTaskRole().getArn() : null)
+            .executionRoleArn(getExecutionRole() != null ? getExecutionRole().getArn() : null)
+            .proxyConfiguration(getProxyConfiguration() != null ? getProxyConfiguration().copyTo() : null)
+            .inferenceAccelerators(getInferenceAccelerator().stream()
+                .map(EcsInferenceAccelerator::copyTo)
+                .collect(Collectors.toList()));
+
+        if (!getTags().isEmpty()) {
+            builder = builder.tags(getTags().entrySet().stream()
+                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                .collect(Collectors.toList()));
+        }
+
+        RegisterTaskDefinitionResponse response = client.registerTaskDefinition(builder.build());
 
         if (response.taskDefinition() != null) {
             setArn(response.taskDefinition().taskDefinitionArn());
