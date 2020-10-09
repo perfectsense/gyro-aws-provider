@@ -1,0 +1,9 @@
+aws::ecs-task task
+    cluster: $(external-query aws::ecs-cluster {name: "example-ecs-task"})
+    count: 1
+    group: "example-group"
+    launch-type: ECS
+    reference-id: "example-ecs-task-reference"
+    started-by: "example-user"
+    task-definition: $(external-query aws::ecs-task-definition { family: 'test-ec2-task-definition', revision: 4 })
+end

@@ -110,6 +110,7 @@ dependencies {
     implementation 'software.amazon.awssdk:docdb'
     implementation 'software.amazon.awssdk:acm'
     implementation 'software.amazon.awssdk:acmpca'
+    implementation 'software.amazon.awssdk:ecs'
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:neptune'
     implementation 'org.json:json:20180813'
