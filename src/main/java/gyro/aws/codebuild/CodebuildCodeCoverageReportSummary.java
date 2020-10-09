@@ -19,6 +19,8 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
+import gyro.core.validation.Max;
+import gyro.core.validation.Min;
 import software.amazon.awssdk.services.codebuild.model.CodeCoverageReportSummary;
 
 public class CodebuildCodeCoverageReportSummary extends Diffable implements Copyable<CodeCoverageReportSummary> {
@@ -30,6 +32,11 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     private Integer linesCovered;
     private Integer linesMissed;
 
+    /**
+     * The percentage of branches that are covered by the tests.
+     */
+    @Max(100)
+    @Min(0)
     @Output
     public Double getBranchCoveragePercentage() {
         return branchCoveragePercentage;
@@ -39,6 +46,10 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
         this.branchCoveragePercentage = branchCoveragePercentage;
     }
 
+    /**
+     * The number of conditional branches that are covered by the tests.
+     */
+    @Min(0)
     @Output
     public Integer getBranchesCovered() {
         return branchesCovered;
@@ -48,6 +59,10 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
         this.branchesCovered = branchesCovered;
     }
 
+    /**
+     * The number of conditional branches that are not covered by the tests.
+     */
+    @Min(0)
     @Output
     public Integer getBranchesMissed() {
         return branchesMissed;
@@ -57,6 +72,11 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
         this.branchesMissed = branchesMissed;
     }
 
+    /**
+     * The percentage of lines that are covered by the tests.
+     */
+    @Max(100)
+    @Min(0)
     @Output
     public Double getLineCoveragePercentage() {
         return lineCoveragePercentage;
@@ -66,6 +86,10 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
         this.lineCoveragePercentage = lineCoveragePercentage;
     }
 
+    /**
+     * The number of lines that are covered by the tests.
+     */
+    @Min(0)
     @Output
     public Integer getLinesCovered() {
         return linesCovered;
@@ -75,6 +99,10 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
         this.linesCovered = linesCovered;
     }
 
+    /**
+     * The number of lines that are not covered by the tests.
+     */
+    @Min(0)
     @Output
     public Integer getLinesMissed() {
         return linesMissed;

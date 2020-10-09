@@ -109,6 +109,10 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
      */
     @Updatable
     public List<CodebuildProjectEnvironmentVariable> getEnvironmentVariables() {
+        if (environmentVariables == null) {
+            environmentVariables = new ArrayList<>();
+        }
+
         return environmentVariables;
     }
 
@@ -165,24 +169,22 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
         setImagePullCredentialsType(model.imagePullCredentialsTypeAsString());
         setPrivilegedMode(model.privilegedMode());
 
+        getEnvironmentVariables().clear();
         if (model.environmentVariables() != null) {
-            List<CodebuildProjectEnvironmentVariable> environmentVariables = new ArrayList<>();
-
-            CodebuildProjectEnvironmentVariable environmentVariable = newSubresource(
-                CodebuildProjectEnvironmentVariable.class);
-
-            for (EnvironmentVariable variable : model.environmentVariables()) {
+            model.environmentVariables().forEach(variable -> {
+                CodebuildProjectEnvironmentVariable environmentVariable = newSubresource(
+                    CodebuildProjectEnvironmentVariable.class);
                 environmentVariable.copyFrom(variable);
-                environmentVariables.add(environmentVariable);
-            }
-
-            setEnvironmentVariables(environmentVariables);
+                getEnvironmentVariables().add(environmentVariable);
+            });
         }
 
         if (model.registryCredential() != null) {
             CodebuildRegistryCredential registryCredential = newSubresource(CodebuildRegistryCredential.class);
             registryCredential.copyFrom(model.registryCredential());
             setRegistryCredential(registryCredential);
+        } else {
+            setRegistryCredential(null);
         }
     }
 
@@ -195,11 +197,12 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getRegistryCredential() != null && !getImagePullCredentialsType().equals("SERVICE_ROLE")) {
+        if (getRegistryCredential() != null && getImagePullCredentialsType() != null
+            && !getImagePullCredentialsType().equals("SERVICE_ROLE")) {
             errors.add(new ValidationError(
                 this,
-                null,
-                "'image-pull-credentials-type' can be set if 'SERVICE_ROLE' is set to 'registry-credential'."
+                "registry-credential",
+                "'registry-credential' can only be set if 'image-pull-credentials-type' is set to 'SERVICE_ROLE'."
             ));
         }
 
@@ -210,11 +213,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
         List<EnvironmentVariable> environmentVariables = new ArrayList<>();
 
         for (CodebuildProjectEnvironmentVariable var : getEnvironmentVariables()) {
-            environmentVariables.add(EnvironmentVariable.builder()
-                .name(var.getName())
-                .type(var.getType())
-                .value(var.getValue())
-                .build());
+            environmentVariables.add(var.toEnvironmentVariable());
         }
 
         return ProjectEnvironment.builder()

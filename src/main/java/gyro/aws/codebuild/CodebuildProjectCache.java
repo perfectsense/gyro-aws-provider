@@ -62,7 +62,7 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
      * The list of local cache modes.
      */
     @Updatable
-    @ValidStrings({"LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE"})
+    @ValidStrings({ "LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE" })
     public List<String> getModes() {
         if (modes == null) {
             modes = new ArrayList<>();

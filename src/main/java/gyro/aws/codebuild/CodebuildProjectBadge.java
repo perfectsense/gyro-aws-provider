@@ -28,8 +28,7 @@ public class CodebuildProjectBadge extends Diffable implements Copyable<ProjectB
     private String badgeRequestUrl;
 
     /**
-     * When set to ``true`` then a publicly accessible URL is generated for the project's build badge. When set to
-     * ``false`` then no URL is generated.
+     * When set to ``true`` generates a publicly accessible URL for the project's build badge.
      */
     @Updatable
     public Boolean getBadgeEnabled() {

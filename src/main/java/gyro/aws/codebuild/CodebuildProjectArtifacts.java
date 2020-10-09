@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
@@ -44,7 +45,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     private String artifactIdentifier;
 
     /**
-     * the type of the build output artifact.
+     * The type of the build output artifact.
      */
     @Required
     @Updatable
@@ -58,8 +59,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * When set to ``true`` the output artifacts are not encrypted. When set to ``false`` the output artifacts are
-     * encrypted.
+     * When set to ``true`` the output artifacts are not encrypted.
      */
     @Updatable
     public Boolean getEncryptionDisabled() {
@@ -95,7 +95,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The pattern that is used to determine the name and location to store the output artifact.
+     * The type that is used to determine the name and location to store the output artifact.
      */
     @Updatable
     @ValidStrings({ "NONE", "BUILD_ID" })
@@ -108,8 +108,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * When set to ``true`` the name specified in the buildspec file overrides the artifact name. When set to ``false``
-     * then the artifact name is not overridden.
+     * When set to ``true`` the name specified in the buildspec file overrides the artifact name.
      */
     public Boolean getOverrideArtifactName() {
         return overrideArtifactName;
@@ -133,7 +132,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The pattern that is used to name and store the output artifact.
+     * The path that is used to name and store the output artifact.
      */
     @Updatable
     public String getPath() {
@@ -179,21 +178,22 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getLocation() == null && getType().equals("S3")) {
+        if (!ObjectUtils.isBlank(getLocation()) && getType().equals("S3")) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "'location' must be set if 'type' is set to 'S3'. Needs to specify the name of the output bucket."));
+                "'location' cannot be empty if 'type' is set to 'S3'."));
         }
 
-        if (getName() == null && getType().equals("S3")) {
+        if (!ObjectUtils.isBlank(getName()) && getType().equals("S3")) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "'name' must be set if 'type' is set to 'S3'. Needs to specify the name of the output artifact object."));
+                "'name' cannot be empty if 'type' is 'S3'. "));
+
         }
 
-        if (getEncryptionDisabled() != null && !getType().equals("S3")) {
+        if (getEncryptionDisabled() != null && !getEncryptionDisabled() && !getType().equals("S3")) {
             errors.add(new ValidationError(
                 this,
                 null,

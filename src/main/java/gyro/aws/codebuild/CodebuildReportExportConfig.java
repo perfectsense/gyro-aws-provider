@@ -62,6 +62,8 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
             CodebuildS3ReportExportConfig s3ReportExportConfig = newSubresource(CodebuildS3ReportExportConfig.class);
             s3ReportExportConfig.copyFrom(model.s3Destination());
             setS3ReportExportConfig(s3ReportExportConfig);
+        } else {
+            setS3ReportExportConfig(null);
         }
     }
 
@@ -73,7 +75,8 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
     public ReportExportConfig toReportExportConfig() {
         return ReportExportConfig.builder()
             .exportConfigType(getExportConfigType())
-            .s3Destination(getS3ReportExportConfig() != null ? getS3ReportExportConfig().toS3ReportExportConfig() : null)
+            .s3Destination(
+                getS3ReportExportConfig() != null ? getS3ReportExportConfig().toS3ReportExportConfig() : null)
             .build();
     }
 }

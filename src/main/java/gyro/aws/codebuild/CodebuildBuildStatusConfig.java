@@ -28,7 +28,7 @@ public class CodebuildBuildStatusConfig extends Diffable implements Copyable<Bui
 
     /**
      * The context of the build status CodeBuild sends to the source provider. See `Context Info
-     * <https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/codebuild/model/BuildStatusConfig.html#getContext--/>`_.
+     * <https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/codebuild/model/BuildStatusConfig.html#getContext>`_.
      */
     @Updatable
     public String getContext() {
@@ -41,7 +41,7 @@ public class CodebuildBuildStatusConfig extends Diffable implements Copyable<Bui
 
     /**
      * The target URL of the build status CodeBuild sends to the source provider. See `Target URL Info
-     * <https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/codebuild/model/BuildStatusConfig.html#getTargetUrl--/>`_.
+     * <https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/codebuild/model/BuildStatusConfig.html#getTargetUrl>`_.
      */
     @Updatable
     public String getTargetUrl() {

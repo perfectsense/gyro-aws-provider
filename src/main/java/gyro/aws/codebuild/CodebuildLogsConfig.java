@@ -27,7 +27,7 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
     private CodebuildS3LogsConfig s3Logs;
 
     /**
-     * The Amazon CloudWatch Logs for a build project.
+     * The configuration for cloud watch logs.
      *
      * @subresource gyro.aws.codebuild.CodebuildCloudWatchLogsConfig
      */
@@ -41,7 +41,7 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
     }
 
     /**
-     * The logs built to an S3 bucket for a build project.
+     * The configuration for the S3 logs.
      *
      * @subresource gyro.aws.codebuild.CodebuildS3LogsConfig
      */
@@ -61,12 +61,16 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
             CodebuildCloudWatchLogsConfig cloudWatchLogsConfig = newSubresource(CodebuildCloudWatchLogsConfig.class);
             cloudWatchLogsConfig.copyFrom(model.cloudWatchLogs());
             setCloudWatchLogs(cloudWatchLogsConfig);
+        } else {
+            setCloudWatchLogs(null);
         }
 
         if (model.s3Logs() != null) {
             CodebuildS3LogsConfig s3LogsConfig = newSubresource(CodebuildS3LogsConfig.class);
             s3LogsConfig.copyFrom(model.s3Logs());
             setS3Logs(s3LogsConfig);
+        } else {
+            setS3Logs(null);
         }
     }
 
@@ -75,7 +79,7 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
         return "";
     }
 
-    public LogsConfig toProjectLogsConfig() {
+    public LogsConfig toLogsConfig() {
         return LogsConfig.builder()
             .cloudWatchLogs(getCloudWatchLogs().toCloudWatchLogsConfig())
             .s3Logs(getS3Logs().toS3LogsConfig())

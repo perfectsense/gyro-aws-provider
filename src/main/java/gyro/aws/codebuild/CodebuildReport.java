@@ -206,18 +206,24 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
             CodebuildCodeCoverageReportSummary summary = newSubresource(CodebuildCodeCoverageReportSummary.class);
             summary.copyFrom(model.codeCoverageSummary());
             setCodeCoverageReportSummary(summary);
+        } else {
+            setCodeCoverageReportSummary(null);
         }
 
         if (model.exportConfig() != null) {
             CodebuildReportExportConfig exportConfig = newSubresource(CodebuildReportExportConfig.class);
             exportConfig.copyFrom(model.exportConfig());
             setExportConfig(exportConfig);
+        } else {
+            setExportConfig(null);
         }
 
         if (model.testSummary() != null) {
             CodebuildTestReportSummary summary = newSubresource(CodebuildTestReportSummary.class);
             summary.copyFrom(model.testSummary());
             setTestSummary(summary);
+        } else {
+            setTestSummary(null);
         }
     }
 

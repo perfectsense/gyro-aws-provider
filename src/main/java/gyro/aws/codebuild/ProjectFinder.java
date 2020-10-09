@@ -27,6 +27,16 @@ import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 
+/**
+ * Query build project.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    project: $(external-query aws::project { names: ['project-example-name']})
+ */
 @Type("project")
 public class ProjectFinder extends AwsFinder<CodeBuildClient, BatchGetProjectsResponse, ProjectResource> {
 

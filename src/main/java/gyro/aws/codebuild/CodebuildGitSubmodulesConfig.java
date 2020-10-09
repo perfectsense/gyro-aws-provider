@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.model.GitSubmodulesConfig;
 
 public class CodebuildGitSubmodulesConfig extends Diffable implements Copyable<GitSubmodulesConfig> {
@@ -26,9 +27,9 @@ public class CodebuildGitSubmodulesConfig extends Diffable implements Copyable<G
     private Boolean fetchSubmodules;
 
     /**
-     * When set to ``true`` all Git submodules are fetched for the build project. When set to ``false`` no Git
-     * submodules are fetched.
+     * When set to ``true`` all Git submodules are fetched for the build project.
      */
+    @Required
     @Updatable
     public Boolean getFetchSubmodules() {
         return fetchSubmodules;

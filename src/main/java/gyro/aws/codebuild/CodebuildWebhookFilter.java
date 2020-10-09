@@ -30,8 +30,8 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     private Boolean excludeMatchedPattern;
 
     /**
-     * Based on the 'type', if 'type' is 'EVENT', the pattern is a comma-separated string that specifies one or more events.
-     * If 'type' is not 'EVENT', the pattern is a regular expression pattern.
+     * Based on the 'type', if 'type' is 'EVENT', the pattern is a comma-separated string that specifies one or more
+     * events. If 'type' is not 'EVENT', the pattern is a regular expression pattern.
      */
     @Updatable
     @Required

@@ -79,4 +79,12 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     public String primaryKey() {
         return "";
     }
+
+    public EnvironmentVariable toEnvironmentVariable() {
+        return EnvironmentVariable.builder()
+            .name(getName())
+            .type(getType())
+            .value(getValue())
+            .build();
+    }
 }

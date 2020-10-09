@@ -171,12 +171,16 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             CodebuildBuildStatusConfig buildStatusConfig = newSubresource(CodebuildBuildStatusConfig.class);
             buildStatusConfig.copyFrom(model.buildStatusConfig());
             setBuildStatusConfig(buildStatusConfig);
+        } else {
+            setBuildStatusConfig(null);
         }
 
         if (model.gitSubmodulesConfig() != null) {
             CodebuildGitSubmodulesConfig gitSubmodulesConfig = newSubresource(CodebuildGitSubmodulesConfig.class);
             gitSubmodulesConfig.copyFrom(model.gitSubmodulesConfig());
             setGitSubmodulesConfig(gitSubmodulesConfig);
+        } else {
+            setGitSubmodulesConfig(null);
         }
     }
 
@@ -217,7 +221,8 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             .buildspec(getBuildspec())
             .buildStatusConfig(getBuildStatusConfig() != null ? getBuildStatusConfig().toBuildStatusConfig() : null)
             .gitCloneDepth(getGitCloneDepth())
-            .gitSubmodulesConfig(getGitSubmodulesConfig() != null ? getGitSubmodulesConfig().toGitSubmodulesConfig() : null)
+            .gitSubmodulesConfig(
+                getGitSubmodulesConfig() != null ? getGitSubmodulesConfig().toGitSubmodulesConfig() : null)
             .insecureSsl(getInsecureSsl())
             .reportBuildStatus(getReportBuildStatus())
             .sourceIdentifier(getSourceIdentifier())

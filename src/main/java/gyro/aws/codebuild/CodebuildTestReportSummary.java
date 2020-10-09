@@ -43,7 +43,8 @@ public class CodebuildTestReportSummary extends Diffable implements Copyable<Tes
     }
 
     /**
-     * The list that contains the number of each type of status returned by the test results in the test report summary.
+     * The list that contains the number of each type of status returned by the test results in the test report
+     * summary.
      */
     @Output
     public Map<String, Integer> getStatusCounts() {

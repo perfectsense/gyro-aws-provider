@@ -30,7 +30,7 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     private String streamName;
 
     /**
-     * The current status of the logs in the Amazon CloudWatch Logs for a build project.
+     * The status configuration for the cloud watch logs for a build project.
      */
     @Updatable
     @Required
@@ -44,7 +44,7 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     }
 
     /**
-     * The group name of the logs in Amazon CloudWatch Logs.
+     * The group name of the cloud watch logs.
      */
     @Updatable
     public String getGroupName() {
@@ -56,7 +56,7 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     }
 
     /**
-     * The prefix of the stream name of the Amazon CloudWatch Logs
+     * The prefix of the stream name of the cloud watch Logs
      */
     @Updatable
     public String getStreamName() {

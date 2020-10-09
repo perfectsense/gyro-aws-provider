@@ -21,19 +21,17 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 
 public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyable<ProjectBuildBatchConfig> {
 
     private Boolean combineArtifacts;
-    private CodebuildProjectBatchRestrictions restrictions;
+    private CodebuildProjectBatchRestrictions restriction;
     private RoleResource serviceRole;
     private Integer timeoutInMins;
 
     /**
-     * When set to ``true`` then the build artifacts for the batch build are combined into a single artifact location.
-     * When set to ``false`` then the build artifacts for the batch build remain in individual artifact locations.
+     * When set to ``true`` the build artifacts for the batch build are combined into a single artifact.
      */
     @Updatable
     public Boolean getCombineArtifacts() {
@@ -45,21 +43,21 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     }
 
     /**
-     * The restrictrions for the batch build.
+     * The configuration for project build batch restriction.
      *
      * @subresource gyro.aws.codebuild.CodebuildProjectBatchRestrictions
      */
     @Updatable
     public CodebuildProjectBatchRestrictions getRestrictions() {
-        return restrictions;
+        return restriction;
     }
 
-    public void setRestrictions(CodebuildProjectBatchRestrictions restrictions) {
-        this.restrictions = restrictions;
+    public void setRestrictions(CodebuildProjectBatchRestrictions restriction) {
+        this.restriction = restriction;
     }
 
     /**
-     * The service role ARN for the batch build project.
+     * The service role for the batch build project.
      */
     @Updatable
     public RoleResource getServiceRole() {
@@ -85,15 +83,15 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     @Override
     public void copyFrom(ProjectBuildBatchConfig model) {
         setCombineArtifacts(model.combineArtifacts());
-        setServiceRole(!ObjectUtils.isBlank(getServiceRole())
-            ? findById(RoleResource.class, getServiceRole())
-            : null);
+        setServiceRole(!ObjectUtils.isBlank(getServiceRole()) ? getServiceRole() : null);
         setTimeoutInMins(model.timeoutInMins());
 
         if (model.restrictions() != null) {
             CodebuildProjectBatchRestrictions batchRestrictions = newSubresource(CodebuildProjectBatchRestrictions.class);
             batchRestrictions.copyFrom(model.restrictions());
             setRestrictions(batchRestrictions);
+        } else {
+            setRestrictions(null);
         }
     }
 
@@ -103,14 +101,9 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     }
 
     public ProjectBuildBatchConfig toProjectBuildBatchConfig() {
-        BatchRestrictions batchRestrictions = BatchRestrictions.builder()
-            .computeTypesAllowed(getRestrictions().getComputedTypesAllowed())
-            .maximumBuildsAllowed(getRestrictions().getMaximumBuildsAllowed())
-            .build();
-
         return ProjectBuildBatchConfig.builder()
             .combineArtifacts(getCombineArtifacts())
-            .restrictions(batchRestrictions)
+            .restrictions(getRestrictions().toBatchRestriction())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .timeoutInMins(getTimeoutInMins())
             .build();

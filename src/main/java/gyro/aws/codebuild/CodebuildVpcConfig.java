@@ -82,6 +82,8 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
                 securityGroups.add(findById(SecurityGroupResource.class, id));
             }
             setSecurityGroups(securityGroups);
+        } else {
+            setSecurityGroups(null);
         }
 
         if (model.subnets() != null && !model.subnets().isEmpty()) {
@@ -90,10 +92,14 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
                 subnets.add(findById(SubnetResource.class, id));
             }
             setSubnets(subnets);
+        } else {
+            setSubnets(null);
         }
 
         if (model.vpcId() != null) {
             setVpc(findById(VpcResource.class, model.vpcId()));
+        } else {
+            setVpc(null);
         }
     }
 
