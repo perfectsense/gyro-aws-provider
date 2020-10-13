@@ -27,7 +27,7 @@ public class S3AccessControlListConfiguration extends Diffable implements Copyab
     private String keyPath;
 
     /**
-     * The path to the AWS S3 bucket that contains the ACL files.
+     * The path to the AWS S3 bucket that contains the ACL files. (Required)
      */
     @Updatable
     @Required

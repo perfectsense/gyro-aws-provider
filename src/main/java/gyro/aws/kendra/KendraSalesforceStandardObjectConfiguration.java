@@ -35,7 +35,7 @@ public class KendraSalesforceStandardObjectConfiguration extends Diffable
     private SalesforceStandardObjectName name;
 
     /**
-     * The name of the field in the standard object configuration that contains the document data to index.
+     * The name of the field in the standard object configuration that contains the document data to index. (Required)
      */
     @Required
     public String getDocumentDataFieldName() {
@@ -73,7 +73,7 @@ public class KendraSalesforceStandardObjectConfiguration extends Diffable
     }
 
     /**
-     * The name of the configuration.
+     * The name of the configuration. (Required)
      */
     @Required
     public SalesforceStandardObjectName getName() {

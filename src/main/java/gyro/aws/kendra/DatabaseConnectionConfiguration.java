@@ -31,7 +31,7 @@ public class DatabaseConnectionConfiguration extends Diffable implements Copyabl
     private String tableName;
 
     /**
-     * The name of the host for the database.
+     * The name of the host for the database. (Required)
      */
     @Updatable
     @Required
@@ -44,7 +44,7 @@ public class DatabaseConnectionConfiguration extends Diffable implements Copyabl
     }
 
     /**
-     * The name of the database containing the document data.
+     * The name of the database containing the document data. (Required)
      */
     @Updatable
     @Required
@@ -57,7 +57,7 @@ public class DatabaseConnectionConfiguration extends Diffable implements Copyabl
     }
 
     /**
-     * The port that the database uses for connections.
+     * The port that the database uses for connections. (Required)
      */
     @Updatable
     @Required
@@ -70,7 +70,7 @@ public class DatabaseConnectionConfiguration extends Diffable implements Copyabl
     }
 
     /**
-     * The Amazon Resource Name (ARN) of credentials stored in AWS Secrets Manager.
+     * The Amazon Resource Name (ARN) of credentials stored in AWS Secrets Manager. (Required)
      */
     @Updatable
     @Required
@@ -83,7 +83,7 @@ public class DatabaseConnectionConfiguration extends Diffable implements Copyabl
     }
 
     /**
-     * The name of the table that contains the document data.
+     * The name of the table that contains the document data. (Required)
      */
     @Updatable
     @Required

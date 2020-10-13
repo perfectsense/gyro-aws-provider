@@ -37,7 +37,7 @@ public class KendraServiceNowConfiguration extends Diffable implements Copyable<
     private KendraServiceNowServiceCatalogConfiguration serviceCatalogConfiguration;
 
     /**
-     * The ServiceNow instance that the data source connects to.
+     * The ServiceNow instance that the data source connects to. (Required)
      */
     @Updatable
     @Required
@@ -50,7 +50,7 @@ public class KendraServiceNowConfiguration extends Diffable implements Copyable<
     }
 
     /**
-     * The Amazon Resource Name (ARN) of the AWS Secret Manager secret that contains the user name and password required to connect to the ServiceNow instance.
+     * The Amazon Resource Name (ARN) of the AWS Secret Manager secret that contains the user name and password required to connect to the ServiceNow instance. (Required)
      */
     @Updatable
     @Required
@@ -63,7 +63,7 @@ public class KendraServiceNowConfiguration extends Diffable implements Copyable<
     }
 
     /**
-     * The identifier of the release that the ServiceNow host is running.
+     * The identifier of the release that the ServiceNow host is running. Valid values are ``LONDON`` or ``OTHERS``.
      */
     @Updatable
     public ServiceNowBuildVersionType getVersionType() {

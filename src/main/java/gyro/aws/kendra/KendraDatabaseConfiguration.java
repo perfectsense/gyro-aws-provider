@@ -33,7 +33,7 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
     private KendraDataSourceVpcConfiguration vpcConfiguration;
 
     /**
-     * The type of database engine that runs the database.
+     * The type of database engine that runs the database. Valid values are ``RDS_AURORA_MYSQL``, ``RDS_AURORA_POSTGRESQL``, ``RDS_MYSQL`` or ``RDS_POSTGRESQL``. (Required)
      */
     @Updatable
     @Required
@@ -58,7 +58,7 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
     }
 
     /**
-     * The information about where the index should get the document information from the database.
+     * The information about where the index should get the document information from the database. (Required)
      */
     @Updatable
     @Required
@@ -71,7 +71,7 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
     }
 
     /**
-     * The information necessary to connect to a database.
+     * The information necessary to connect to a database. (Required)
      */
     @Updatable
     @Required

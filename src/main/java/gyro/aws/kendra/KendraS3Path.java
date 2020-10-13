@@ -28,7 +28,7 @@ public class KendraS3Path extends Diffable implements Copyable<S3Path> {
     private String key;
 
     /**
-     * The S3 bucket that contains the file.
+     * The S3 bucket that contains the file. (Required)
      */
     @Required
     public BucketResource getBucket() {

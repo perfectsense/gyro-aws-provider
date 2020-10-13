@@ -67,7 +67,7 @@ public class KendraSalesforceKnowledgeArticleConfiguration extends Diffable
     }
 
     /**
-     * The document states that should be included when Amazon Kendra indexes knowledge articles.
+     * The document states that should be included when Amazon Kendra indexes knowledge articles. Valid values are ``DRAFT``, ``PUBLISHED`` or ``ARCHIVED``.
      */
     @Updatable
     @Required

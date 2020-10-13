@@ -27,7 +27,7 @@ public class KendraDocumentsMetadataConfiguration extends Diffable implements Co
     private String s3Prefix;
 
     /**
-     * The prefix used to filter metadata configuration files in the AWS S3 bucket.
+     * The prefix used to filter metadata configuration files in the AWS S3 bucket. (Required)
      */
     @Updatable
     @Required

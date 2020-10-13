@@ -99,7 +99,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
     }
 
     /**
-     * The Amazon Kendra edition to use for the index.
+     * The Amazon Kendra edition to use for the index. Valid values are ``DEVELOPER_EDITION`` or ``ENTERPRISE_EDITION``.
      */
     public IndexEdition getEdition() {
         return edition;
@@ -110,7 +110,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
     }
 
     /**
-     * The name of the index.
+     * The name of the index. (Required)
      */
     @Required
     @Updatable
@@ -123,7 +123,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
     }
 
     /**
-     * The IAM role that gives Amazon Kendra permissions to access Amazon CloudWatch logs and metrics.
+     * The IAM role that gives Amazon Kendra permissions to access Amazon CloudWatch logs and metrics. (Required)
      */
     @Required
     @Updatable

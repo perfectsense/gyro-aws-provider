@@ -29,7 +29,7 @@ public class KendraDataSourceToIndexFieldMapping extends Diffable
     private String indexFieldName;
 
     /**
-     * The name of the column or attribute in the data source.
+     * The name of the column or attribute in the data source. (Required)
      */
     @Required
     public String getDataSourceFieldName() {
@@ -52,7 +52,7 @@ public class KendraDataSourceToIndexFieldMapping extends Diffable
     }
 
     /**
-     * The name of the field in the index.
+     * The name of the field in the index. (Required)
      */
     @Required
     public String getIndexFieldName() {

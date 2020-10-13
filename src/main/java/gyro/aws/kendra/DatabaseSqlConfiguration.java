@@ -28,7 +28,7 @@ public class DatabaseSqlConfiguration extends Diffable implements Copyable<SqlCo
     private QueryIdentifiersEnclosingOption queryIdentifiersEnclosingOption;
 
     /**
-     * Determines whether SQL identifiers for tables and column names are enclosed in double quotes (") when making a database query.
+     * Determines whether SQL identifiers for tables and column names are enclosed in double quotes (") when making a database query. Valid values are ``DOUBLE_QUOTES`` or ``NONE``. (Required)
      */
     @Updatable
     @Required

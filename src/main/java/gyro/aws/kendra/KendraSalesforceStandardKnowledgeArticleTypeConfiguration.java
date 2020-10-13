@@ -33,7 +33,7 @@ public class KendraSalesforceStandardKnowledgeArticleTypeConfiguration extends D
     private List<KendraDataSourceToIndexFieldMapping> fieldMapping;
 
     /**
-     * The name of the field in the standard knowledge article that contains the document data to index.
+     * The name of the field in the standard knowledge article that contains the document data to index. (Required)
      */
     @Required
     public String getDocumentDataFieldName() {

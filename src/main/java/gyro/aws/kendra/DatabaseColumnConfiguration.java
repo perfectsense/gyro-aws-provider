@@ -36,7 +36,7 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
     private List<KendraDataSourceToIndexFieldMapping> fieldMapping;
 
     /**
-     * The column that contains the contents of the document.
+     * The column that contains the contents of the document. (Required)
      */
     @Required
     public String getDocumentDataColumnName() {
@@ -48,7 +48,7 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
     }
 
     /**
-     * The column that provides the document's unique identifier.
+     * The column that provides the document's unique identifier. (Required)
      */
     @Required
     public String getDocumentIdColumnName() {
@@ -71,7 +71,7 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
     }
 
     /**
-     * The columns that indicate when a document in the database has changed. Max limit of ``5``.
+     * The columns that indicate when a document in the database has changed. Max limit of ``5``. (Required)
      */
     @Updatable
     @Required

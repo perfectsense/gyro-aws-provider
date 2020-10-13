@@ -35,7 +35,7 @@ public class KendraSalesforceChatterFeedConfiguration extends Diffable
     private List<String> includeFilterTypes;
 
     /**
-     * The name of the column in the Salesforce FeedItem table that contains the content to index.
+     * The name of the column in the Salesforce FeedItem table that contains the content to index. (Required)
      */
     @Updatable
     @Required
