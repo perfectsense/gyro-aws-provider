@@ -58,7 +58,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * The zone awareness options configuration. Can only be set if ``enable-zone-awareness`` is set to ``true``.
+     * The zone awareness options configuration.
      *
      * @subresource gyro.aws.elasticsearch.ElasticsearchZoneAwarenessConfiguration
      */
@@ -110,7 +110,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * The instance type for the dedicated master nodes. Defaults to ``m4.large_elasticsearch``. Can only be set if ``dedicated-master-enabled`` is set to ``true``.
+     * The instance type for the dedicated master nodes. Defaults to ``m4.large_elasticsearch``.
      */
     @Updatable
     @DependsOn("dedicated-master-enabled")
@@ -123,7 +123,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * The number of dedicated master nodes for the cluster. Defaults to ``3``. Can only be set if ``dedicated-master-enabled`` is set to ``true``.
+     * The number of dedicated master nodes for the cluster. Defaults to ``3``.
      */
     @Updatable
     @DependsOn("dedicated-master-enabled")
@@ -149,7 +149,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * The number of warm nodes in the cluster. Defaults to ``3``. Minimum ``3`` nodes. Can only be set if ``enable-warm`` is set to ``true``.
+     * The number of warm nodes in the cluster. Defaults to ``3``.
      */
     @Min(3)
     @Updatable
@@ -163,7 +163,7 @@ public class ElasticsearchClusterConfiguration extends Diffable implements Copya
     }
 
     /**
-     * The instance type for warm nodes. Defaults to ``ultrawarm1.medium.elasticsearch``. Can only be set if ``enable-warm`` is set to ``true``.
+     * The instance type for warm nodes. Defaults to ``ultrawarm1.medium.elasticsearch``.
      */
     @Updatable
     @DependsOn("enable-warm")

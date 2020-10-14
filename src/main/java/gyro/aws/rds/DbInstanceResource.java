@@ -427,7 +427,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The amount of Provisioned IOPS to be allocated. The value must be equal to or greater than 1000. Required if `storage-type` is ``io1``.
+     * The amount of Provisioned IOPS to be allocated. Required if `storage-type` is ``io1``.
      */
     @Updatable
     @Min(1000)

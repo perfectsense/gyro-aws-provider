@@ -267,7 +267,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     }
 
     /**
-     * The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. Valid valus are any integer ``60`` to ``86400``. Defaults to ``300``
+     * The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. Defaults to ``300``
      */
     @Updatable
     @Range(min = 60, max = 86400)

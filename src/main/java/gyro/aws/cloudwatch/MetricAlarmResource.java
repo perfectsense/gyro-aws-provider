@@ -203,7 +203,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     }
 
     /**
-     * Key Value pair to specify what the metric is as specified in the metric name. Max limit of 10.
+     * Key Value pair to specify what the metric is as specified in the metric name.
      */
     @Updatable
     @CollectionMax(10)

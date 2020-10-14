@@ -34,7 +34,6 @@ public class EcsResourceRequirement extends Diffable {
 
     /**
      * The type of resource to assign to a container.
-     * Valid values are ``GPU`` and ``InferenceAccelerator``.
      */
     @Required
     @ValidStrings({"GPU", "InferenceAccelerator"})

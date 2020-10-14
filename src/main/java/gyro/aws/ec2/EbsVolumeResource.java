@@ -187,7 +187,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The type of volume being created. Defaults to 'gp2'. Valid options are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
+     * The type of volume being created. Defaults to 'gp2'.
      */
     @Updatable
     @ValidStrings({"gp2", "io1", "st1", "sc1", "standard"})

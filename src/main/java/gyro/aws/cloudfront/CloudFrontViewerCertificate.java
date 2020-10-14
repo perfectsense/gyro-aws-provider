@@ -71,7 +71,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
     }
 
     /**
-     * Minimum SSL protocol. Valid valies are ``SSLv3``, ``TLSv1``, ``TLSv1_2016``, ``TLSv1.1_2016``, ``TLSv1.2_2018``.
+     * Minimum SSL protocol.
      */
     @Updatable
     @ValidStrings({"SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018"})

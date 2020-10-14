@@ -105,7 +105,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private String arn;
 
     /**
-     * Set backup retention period. Minimum 1.
+     * Set backup retention period.
      */
     @Required
     @Updatable
