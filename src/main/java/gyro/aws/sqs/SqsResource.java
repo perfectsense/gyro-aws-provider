@@ -335,6 +335,8 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     public void copyFrom(String sqs) {
         SqsClient client = createClient(SqsClient.class);
 
+        setQueueUrl(sqs);
+
         GetQueueAttributesResponse response = client.getQueueAttributes(r -> r.queueUrl(sqs)
                 .attributeNames(QueueAttributeName.ALL));
 

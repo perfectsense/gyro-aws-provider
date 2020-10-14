@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedRespons
  * .. code-block:: gyro
  *
  *     action
- *         type: “fixed-response”
+ *         type: "fixed-response"
  *
  *         fixed-response-action
  *             content-type: "text/plain"

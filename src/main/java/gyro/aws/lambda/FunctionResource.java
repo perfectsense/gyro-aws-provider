@@ -22,6 +22,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
@@ -97,14 +98,13 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private Integer memorySize;
     private String trackingConfig;
     private String deadLetterConfigArn;
-    private String kmsKeyArn;
+    private KmsKeyResource kmsKey;
     private Map<String, String> environment;
     private Map<String, String> tags;
     private Set<SecurityGroupResource> securityGroups;
     private Set<SubnetResource> subnets;
     private Set<LayerResource> lambdaLayers;
     private Integer reservedConcurrentExecutions;
-    private String fileHash;
     private Map<String, String> versionMap;
     private Boolean publish;
 
@@ -184,15 +184,19 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      */
     @Updatable
     public String getContentZipPath() {
+        if (!ObjectUtils.isBlank(contentZipPath) && !contentZipPath.startsWith("Path:")) {
+            return String.format("Path: %s, Hash: %s", contentZipPath, getFileHashFromPath());
+        } else {
+            return contentZipPath;
+        }
+    }
+
+    private String getContentZipPathRaw() {
         return contentZipPath;
     }
 
     public void setContentZipPath(String contentZipPath) {
         this.contentZipPath = contentZipPath;
-
-        if (!ObjectUtils.isBlank(contentZipPath)) {
-            setFileHashFromPath();
-        }
     }
 
     /**
@@ -302,15 +306,15 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn of KMS key to be associated with the Lambda Function.
+     * The KMS key to be associated with the Lambda Function.
      */
     @Updatable
-    public String getKmsKeyArn() {
-        return kmsKeyArn;
+    public KmsKeyResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyArn(String kmsKeyArn) {
-        this.kmsKeyArn = kmsKeyArn;
+    public void setKmsKey(KmsKeyResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -507,19 +511,6 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         this.version = version;
     }
 
-    @Updatable
-    public String getFileHash() {
-        if (fileHash == null) {
-            fileHash = "";
-        }
-
-        return fileHash;
-    }
-
-    public void setFileHash(String fileHash) {
-        this.fileHash = fileHash;
-    }
-
     public String getCodeHash() {
         return codeHash;
     }
@@ -539,7 +530,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setTimeout(configuration.timeout());
         setMemorySize(configuration.memorySize());
         setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-        setKmsKeyArn(configuration.kmsKeyArn());
+        setKmsKey(!ObjectUtils.isBlank(configuration.kmsKeyArn()) ? findById(KmsKeyResource.class, configuration.kmsKeyArn()) : null);
         setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
         setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
 
@@ -573,10 +564,6 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         );
 
         setTags(tagResponse.tags());
-
-        if (!ObjectUtils.isBlank(getContentZipPath())) {
-            setFileHashFromPath();
-        }
 
         setVersions(client);
 
@@ -620,16 +607,15 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             .timeout(getTimeout())
             .memorySize(getMemorySize())
             .tracingConfig(t -> t.mode(getTrackingConfig()))
-            .kmsKeyArn(getKmsKeyArn())
+            .kmsKeyArn(getKmsKey() != null ? getKmsKey().getArn() : null)
             .tags(getTags())
             .publish(getPublish())
             .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()));
 
-        if (!ObjectUtils.isBlank(getContentZipPath())) {
+        if (!ObjectUtils.isBlank(getContentZipPathRaw())) {
             builder = builder.code(c -> c.zipFile(getZipFile()));
         } else {
             builder = builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion()));
-            setFileHash("");
         }
 
         if (!ObjectUtils.isBlank(getDeadLetterConfigArn())) {
@@ -643,9 +629,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         if (!getSecurityGroups().isEmpty() && !getSubnets().isEmpty()) {
             builder = builder.vpcConfig(
                 v -> v.securityGroupIds(
-                        getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getId)
-                            .collect(Collectors.toList()))
+                    getSecurityGroups().stream()
+                        .map(SecurityGroupResource::getId)
+                        .collect(Collectors.toList()))
                     .subnetIds(
                         getSubnets().stream()
                             .map(SubnetResource::getId)
@@ -753,7 +739,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                     .timeout(getTimeout())
                     .memorySize(getMemorySize())
                     .tracingConfig(t -> t.mode(getTrackingConfig()))
-                    .kmsKeyArn(getKmsKeyArn())
+                    .kmsKeyArn(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()))
                     .environment(e -> e.variables(getEnvironment()))
                     .vpcConfig(
@@ -781,22 +767,24 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     private SdkBytes getZipFile() {
-        try (InputStream input = openInput(getContentZipPath())) {
+        try (InputStream input = openInput(getContentZipPathRaw())) {
             return SdkBytes.fromInputStream(input);
 
         } catch (IOException ex) {
-            throw new GyroException(String.format("File not found - %s",getContentZipPath()));
+            throw new GyroException(String.format("File not found - %s",getContentZipPathRaw()));
         }
     }
 
-    private void setFileHashFromPath() {
-        try (InputStream input = openInput(getContentZipPath())) {
-            setFileHash(DigestUtils.sha256Hex(input));
+    private String getFileHashFromPath() {
+        String hash = "";
+        try (InputStream input = openInput(getContentZipPathRaw())) {
+            hash = DigestUtils.sha256Hex(input);
 
         } catch (Exception ignore) {
             // ignore
         }
 
+        return hash;
     }
 
     @Override
@@ -811,7 +799,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             errors.add(new ValidationError(this, null, "Fields s3-bucket, s3-key and s3-object-version are needed to set together or none."));
         }
 
-        if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPath())) {
+        if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPathRaw())) {
             errors.add(new ValidationError(this, null, "Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set."));
         }
 

@@ -57,7 +57,9 @@ end
 
 aws::vpc-connection-notification connection-notification-example
     endpoint-service: $(aws::vpc-endpoint-service endpoint-service-connection-notification-example)
-    arn: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
+
+    topic: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
+
     connection-events: [
         "Accept"
     ]
