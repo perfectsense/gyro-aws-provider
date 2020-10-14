@@ -72,7 +72,7 @@ public class EfsMountTargetResource extends AwsResource implements Copyable<Moun
     private String id;
 
     /**
-     * The file system for which to attach a mount target. (Required)
+     * The file system for which to attach a mount target.
      */
     @Required
     public FileSystemResource getFileSystem() {
@@ -95,7 +95,7 @@ public class EfsMountTargetResource extends AwsResource implements Copyable<Moun
     }
 
     /**
-     * The subnet to add the mount target in. (Required)
+     * The subnet to add the mount target in.
      */
     @Required
     public SubnetResource getSubnet() {
@@ -107,7 +107,7 @@ public class EfsMountTargetResource extends AwsResource implements Copyable<Moun
     }
 
     /**
-     * The security groups currently in effect for a mount target. Maximum of 5 security groups. (Required)
+     * The security groups currently in effect for a mount target.
      */
     @CollectionMax(5)
     @Updatable

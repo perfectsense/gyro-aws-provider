@@ -19,6 +19,7 @@ package gyro.aws.efs;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.efs.model.LifecyclePolicy;
 import software.amazon.awssdk.services.efs.model.TransitionToIARules;
 
@@ -27,9 +28,10 @@ public class EfsLifecyclePolicy extends Diffable implements Copyable<LifecyclePo
     public TransitionToIARules transitionToIaRules;
 
     /**
-     * The value that describes the period of time that a file is not accessed, after which it transitions to the IA storage class. Valid values are ``AFTER_7_DAYS``, ``AFTER_14_DAYS``, ``AFTER_30_DAYS``, ``AFTER_60_DAYS`` or ``AFTER_90_DAYS``. (Required)
+     * The value that describes the period of time that a file is not accessed, after which it transitions to the IA storage class.
      */
     @Required
+    @ValidStrings({"AFTER_7_DAYS", "AFTER_14_DAYS", "AFTER_30_DAYS", "AFTER_60_DAYS", "AFTER_90_DAYS"})
     public TransitionToIARules getTransitionToIaRules() {
         return transitionToIaRules;
     }
