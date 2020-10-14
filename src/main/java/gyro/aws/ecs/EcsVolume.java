@@ -34,11 +34,10 @@ public class EcsVolume extends Diffable {
     private EcsDockerVolumeConfiguration dockerVolumeConfiguration;
 
     /**
-     * The name of the volume. (Required)
-     * Valid values consist of 1 to 255 letters, numbers, and hyphens.
+     * The name of the volume.
      */
     @Required
-    @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
+    @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "a string 1 to 255 characters long containing letters, numbers, and hyphens")
     public String getName() {
         return name;
     }

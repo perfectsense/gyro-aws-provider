@@ -18,6 +18,7 @@ package gyro.aws.ecs;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ecs.model.ContainerCondition;
 import software.amazon.awssdk.services.ecs.model.ContainerDependency;
 
@@ -27,7 +28,7 @@ public class EcsContainerDependency extends Diffable {
     private ContainerCondition condition;
 
     /**
-     * The ``name`` of a container. (Required)
+     * The ``name`` of a container.
      */
     @Required
     public String getContainerName() {
@@ -39,10 +40,10 @@ public class EcsContainerDependency extends Diffable {
     }
 
     /**
-     * The dependency condition of the container. (Required)
-     * Valid values are ``START``, ``COMPLETE``, ``SUCCESS``, and ``HEALTHY``.
+     * The dependency condition of the container.
      */
     @Required
+    @ValidStrings({"START", "COMPLETE", "SUCCESS", "HEALTHY"})
     public ContainerCondition getCondition() {
         return condition;
     }

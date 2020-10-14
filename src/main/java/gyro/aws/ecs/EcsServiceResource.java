@@ -196,7 +196,6 @@ public class EcsServiceResource extends AwsResource
 
     /**
      * The period of time, in seconds, that the Amazon ECS service scheduler should ignore unhealthy Elastic Load Balancing target health checks after a task first starts.
-     * Valid values belong in between ``0`` and ``2147483647``.
      */
     @Range(min = 0, max = 2147483647L)
     @DependsOn("load-balancer")
@@ -249,7 +248,7 @@ public class EcsServiceResource extends AwsResource
     }
 
     /**
-     * The placement constraints to use for tasks in your service. Maximum of ``10`` constraints.
+     * The placement constraints to use for tasks in your service.
      */
     @CollectionMax(10)
     @Updatable
@@ -266,7 +265,7 @@ public class EcsServiceResource extends AwsResource
     }
 
     /**
-     * The placement strategies to use for tasks in your service. Maximum of ``5`` strategies.
+     * The placement strategies to use for tasks in your service.
      */
     @CollectionMax(5)
     @Updatable
@@ -329,9 +328,9 @@ public class EcsServiceResource extends AwsResource
     }
 
     /**
-     * The name of the service. Can contain 1 to 255 letters, numbers, and hyphens and it must begin with a letter. (Required)
+     * The name of the service.
      */
-    @Regex(value = "^[a-zA-Z]([-a-zA-Z0-9]{0,254})?", message = "1 to 255 letters, numbers, and hyphens. Must begin with a letter.")
+    @Regex(value = "^[a-zA-Z]([-a-zA-Z0-9]{0,254})?", message = "a string 1 to 255 characters long containing letters, numbers, and hyphens. Must begin with a letter")
     @Required
     public String getName() {
         return name;
@@ -380,7 +379,7 @@ public class EcsServiceResource extends AwsResource
     }
 
     /**
-     * The cluster on which to run your service. (Required)
+     * The cluster on which to run your service.
      */
     @Required
     public EcsClusterResource getCluster() {

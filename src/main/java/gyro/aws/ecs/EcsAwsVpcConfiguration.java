@@ -26,6 +26,7 @@ import gyro.aws.ec2.SubnetResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ecs.model.AssignPublicIp;
 import software.amazon.awssdk.services.ecs.model.AwsVpcConfiguration;
 
@@ -39,6 +40,7 @@ public class EcsAwsVpcConfiguration extends Diffable implements Copyable<AwsVpcC
      * Option to select whether the task's elastic network interface receives a public IP address.
      */
     @Updatable
+    @ValidStrings("ENABLED, DISABLED")
     public AssignPublicIp getAssignPublicIp() {
         return assignPublicIp;
     }
@@ -48,7 +50,7 @@ public class EcsAwsVpcConfiguration extends Diffable implements Copyable<AwsVpcC
     }
 
     /**
-     * The security groups associated with the task or service. (Required)
+     * The security groups associated with the task or service.
      */
     @Required
     @Updatable
@@ -65,7 +67,7 @@ public class EcsAwsVpcConfiguration extends Diffable implements Copyable<AwsVpcC
     }
 
     /**
-     * The subnets associated with the task or service. (Required)
+     * The subnets associated with the task or service.
      */
     @Required
     @Updatable

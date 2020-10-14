@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.model.KeyValuePair;
 import software.amazon.awssdk.services.ecs.model.NetworkMode;
@@ -40,10 +41,10 @@ public class EcsProxyConfiguration extends Diffable {
     private Map<String, String> properties;
 
     /**
-     * The proxy type. (Required)
-     * The only valid value is ``APPMESH``.
+     * The proxy type.
      */
     @Required
+    @ValidStrings("APPMESH")
     public ProxyConfigurationType getType() {
         return type;
     }
@@ -53,7 +54,7 @@ public class EcsProxyConfiguration extends Diffable {
     }
 
     /**
-     * The ``name`` of the container that will serve as the App Mesh proxy. (Required)
+     * The ``name`` of the container that will serve as the App Mesh proxy.
      */
     @Required
     public String getContainerName() {
@@ -65,7 +66,7 @@ public class EcsProxyConfiguration extends Diffable {
     }
 
     /**
-     * The set of network configuration parameters to provide the Container Network Interface (CNI) plugin, specified as key-value pairs. (Required)
+     * The set of network configuration parameters to provide the Container Network Interface (CNI) plugin, specified as key-value pairs.
      *
      * Valid keys include:
      *      ``IgnoredUID`` - (Required) The user ID (UID) of the proxy container as defined by the ``user`` parameter in a ``container-definition``. This is used to ensure the proxy ignores its own traffic. If ``IgnoredGID`` is specified, this parameter may be excluded.

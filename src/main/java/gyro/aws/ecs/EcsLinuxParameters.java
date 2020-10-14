@@ -114,7 +114,6 @@ public class EcsLinuxParameters extends Diffable {
     /**
      * The total amount of swap memory (in MiB) a container can use.
      * If a value of ``0`` is specified, the container will not use swap.
-     * Valid values are ``0`` or any positive integer.
      * Not supported under task definitions whose ``requires-compatibilities`` parameter contains ``FARGATE``.
      */
     @Min(0)
@@ -127,9 +126,7 @@ public class EcsLinuxParameters extends Diffable {
     }
 
     /**
-     * This allows you to tune a container's memory swappiness behavior. A swappiness value of ``0`` will cause swapping to not happen unless absolutely necessary. A swappiness value of ``100`` will cause pages to be swapped very aggressively.
-     * Valid values are integers from ``0`` to ``100``. Defaults to ``60``.
-     * This parameter may only be configured if ``max-swap`` is specified.
+     * This allows you to tune a container's memory swappiness behavior. A swappiness value of ``0`` will cause swapping to not happen unless absolutely necessary. A swappiness value of ``100`` will cause pages to be swapped very aggressively. Defaults to ``60``.
      */
     @Range(min = 0, max = 100)
     @DependsOn("max-swap")

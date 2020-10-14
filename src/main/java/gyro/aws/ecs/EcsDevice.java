@@ -31,7 +31,7 @@ public class EcsDevice extends Diffable {
     private List<String> permissions;
 
     /**
-     * The path for the device on the host container instance. (Required)
+     * The path for the device on the host container instance.
      */
     @Required
     public String getHostPath() {
@@ -56,7 +56,6 @@ public class EcsDevice extends Diffable {
     /**
      * The explicit permissions to provide to the container for the device.
      * By default, the container has permissions for ``read``, ``write``, and ``mknod`` for the device.
-     * Valid values are ``read``, ``write``, and ``mknod``.
      */
     @ValidStrings({"read", "write", "mknod"})
     public List<String> getPermissions() {
