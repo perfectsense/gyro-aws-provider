@@ -82,7 +82,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
      */
     @Id
     @Required
-    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "1-255 letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
+    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "a string 1-255 characters long containing letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
     public String getDbClusterSnapshotIdentifier() {
         return dbClusterSnapshotIdentifier;
     }
