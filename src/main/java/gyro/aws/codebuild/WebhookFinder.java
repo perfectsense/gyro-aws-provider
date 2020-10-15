@@ -42,6 +42,9 @@ import software.amazon.awssdk.services.codebuild.model.Webhook;
 @Type("webhook")
 public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookResource> {
 
+    /**
+     * The names of build projects.
+     */
     private List<String> names;
 
     public List<String> getNames() {

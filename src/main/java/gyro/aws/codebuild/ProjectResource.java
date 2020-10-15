@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -35,8 +35,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
-import gyro.core.validation.Max;
-import gyro.core.validation.Min;
+import gyro.core.validation.Range;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
@@ -92,7 +91,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     private CodebuildProjectBuildBatchConfig buildBatchConfig;
     private CodebuildProjectCache cache;
     private String description;
-    private String encryptionKey;
+    private KmsKeyResource encryptionKey;
     private CodebuildProjectEnvironment environment;
     private List<CodebuildProjectFileSystemLocation> fileSystemLocations;
     private CodebuildLogsConfig logsConfig;
@@ -129,8 +128,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     }
 
     /**
-     * When set to ``true`` a publicly accessible URL will be generated for the project's build badge. When set to
-     * ``false`` then no URL is generated.
+     * When set to ``true`` a publicly accessible URL will be generated for the project's build badge.
      */
     @Updatable
     public Boolean getBadgeEnabled() {
@@ -181,7 +179,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     }
 
     /**
-     * The build input source code for the build project.
+     * The build input source code configuration for the build project.
      *
      * @subresource gyro.aws.codebuild.CodebuildProjectSource
      */
@@ -196,7 +194,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     }
 
     /**
-     * The build environment for the build project.
+     * The build environment configuration for the build project.
      *
      * @subresource gyro.aws.codebuild.CodebuildProjectEnvironment
      */
@@ -241,7 +239,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     }
 
     /**
-     * The logs for the build project.
+     * The configuration to store logs for the build project.
      *
      * @subresource gyro.aws.codebuild.CodebuildLogsConfig
      */
@@ -272,11 +270,11 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
      * The AWS Key Management Service Customer Master Key.
      */
     @Updatable
-    public String getEncryptionKey() {
+    public KmsKeyResource getEncryptionKey() {
         return encryptionKey;
     }
 
-    public void setEncryptionKey(String encryptionKey) {
+    public void setEncryptionKey(KmsKeyResource encryptionKey) {
         this.encryptionKey = encryptionKey;
     }
 
@@ -301,8 +299,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
      * The number of minutes a build is allowed to be queued before it times out.
      */
     @Updatable
-    @Min(5)
-    @Max(480)
+    @Range(min = 5, max = 480)
     public Integer getQueuedTimeoutInMinutes() {
         return queuedTimeoutInMinutes;
     }
@@ -381,8 +378,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
      * The number of minutes to wait before it times out any build that has not been completed.
      */
     @Updatable
-    @Min(5)
-    @Max(480)
+    @Range(min = 5, max = 480)
     public Integer getTimeoutInMinutes() {
         return timeoutInMinutes;
     }
@@ -445,16 +441,12 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     public void copyFrom(Project project) {
         setDescription(project.description());
         setName(project.name());
-        setServiceRole(!ObjectUtils.isBlank(project.serviceRole())
-            ? findById(RoleResource.class, project.serviceRole())
-            : null);
-        setEncryptionKey(project.encryptionKey());
+        setServiceRole(findById(RoleResource.class, project.serviceRole()));
+        setEncryptionKey(findById(KmsKeyResource.class, project.encryptionKey()));
         setQueuedTimeoutInMinutes(project.queuedTimeoutInMinutes());
         setSourceVersion(project.sourceVersion());
         setTimeoutInMinutes(project.timeoutInMinutes());
-        setWebhook(findById(WebhookResource.class, project.webhook()) != null ? findById(
-            WebhookResource.class,
-            project.webhook()) : null);
+        setWebhook(findById(WebhookResource.class, project.webhook()));
         setArn(project.arn());
 
         if (project.artifacts() != null) {
@@ -609,7 +601,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         CreateProjectResponse response = client.createProject(r -> r
             .name(getName())
             .badgeEnabled(getBadgeEnabled())
-            .encryptionKey(getEncryptionKey())
+            .encryptionKey(getEncryptionKey() != null ? getEncryptionKey().getArn() : null)
             .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
             .sourceVersion(getSourceVersion())
             .timeoutInMinutes(getTimeoutInMinutes())
@@ -621,7 +613,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .source(getSource().toProjectSource())
             .artifacts(getArtifacts().toProjectArtifacts())
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
-            .cache(getCache().toProjectCache())
+            .cache(getCache() != null ? getCache().toProjectCache() : null)
             .fileSystemLocations(getFileSystemLocations().stream()
                 .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
                 .collect(Collectors.toList()))
@@ -632,7 +624,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .secondarySources(getSecondarySources().stream()
                 .map(CodebuildProjectSource::toProjectSource)
                 .collect(Collectors.toList()))
-            .vpcConfig(getVpcConfig().toProjectVpcConfig())
+            .vpcConfig(getVpcConfig() != null ? getVpcConfig().toProjectVpcConfig() : null)
         );
 
         setArn(response.project().arn());
@@ -655,8 +647,8 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .source(getSource().toProjectSource())
             .artifacts(getArtifacts().toProjectArtifacts())
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
-            .cache(getCache().toProjectCache())
-            .encryptionKey(getEncryptionKey())
+            .cache(getCache() != null ? getCache().toProjectCache() : null)
+            .encryptionKey(getEncryptionKey() != null ? getEncryptionKey().getArn() : null)
             .fileSystemLocations(getFileSystemLocations().stream()
                 .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
                 .collect(Collectors.toList()))

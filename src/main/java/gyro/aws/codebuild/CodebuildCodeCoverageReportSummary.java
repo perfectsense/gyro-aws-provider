@@ -21,6 +21,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.validation.Max;
 import gyro.core.validation.Min;
+import gyro.core.validation.Range;
 import software.amazon.awssdk.services.codebuild.model.CodeCoverageReportSummary;
 
 public class CodebuildCodeCoverageReportSummary extends Diffable implements Copyable<CodeCoverageReportSummary> {
@@ -35,8 +36,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The percentage of branches that are covered by the tests.
      */
-    @Max(100)
-    @Min(0)
+    @Range(min = 0, max = 100)
     @Output
     public Double getBranchCoveragePercentage() {
         return branchCoveragePercentage;

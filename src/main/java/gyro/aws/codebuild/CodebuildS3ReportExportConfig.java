@@ -19,7 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.codebuild.model.ReportPackagingType;
 import software.amazon.awssdk.services.codebuild.model.S3ReportExportConfig;
 
 public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<S3ReportExportConfig> {
@@ -27,7 +27,7 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     private String bucket;
     private Boolean encryptionDisabled;
     private String encryptionKey;
-    private String packaging;
+    private ReportPackagingType packaging;
     private String path;
 
     /**
@@ -43,8 +43,7 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     }
 
     /**
-     * When set to ``true`` the results of a report are not encrypted. When set to ``false`` the results of a report are
-     * encrypted.
+     * When set to ``true`` the results of a report are not encrypted.
      */
     @Updatable
     public Boolean getEncryptionDisabled() {
@@ -71,12 +70,11 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
      * The type of build output artifact to create.
      */
     @Updatable
-    @ValidStrings({ "ZIP", "NONE" })
-    public String getPackaging() {
+    public ReportPackagingType getPackaging() {
         return packaging;
     }
 
-    public void setPackaging(String packaging) {
+    public void setPackaging(ReportPackagingType packaging) {
         this.packaging = packaging;
     }
 
@@ -96,7 +94,7 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
         setBucket(model.bucket());
         setEncryptionDisabled(model.encryptionDisabled());
         setEncryptionKey(model.encryptionKey());
-        setPackaging(model.packagingAsString());
+        setPackaging(model.packaging());
         setPath(model.path());
     }
 

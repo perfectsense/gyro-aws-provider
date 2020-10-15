@@ -20,18 +20,18 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
+import software.amazon.awssdk.services.codebuild.model.WebhookFilterType;
 
 public class CodebuildWebhookFilter extends Diffable implements Copyable<WebhookFilter> {
 
     private String pattern;
-    private String type;
+    private WebhookFilterType type;
     private Boolean excludeMatchedPattern;
 
     /**
-     * Based on the 'type', if 'type' is 'EVENT', the pattern is a comma-separated string that specifies one or more
-     * events. If 'type' is not 'EVENT', the pattern is a regular expression pattern.
+     * The comma-separated string that specifies one or more events. If ``type`` is set to ``EVENT``, the pattern is a
+     * comma-separated string that specifies one or more events. Else, the pattern is a regular expression.
      */
     @Updatable
     @Required
@@ -48,12 +48,11 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
      */
     @Updatable
     @Required
-    @ValidStrings({ "EVENT", "BASE_REF", "HEAD_REF", "ACTOR_ACCOUNT_ID", "FILE_PATH", "COMMIT_MESSAGE" })
-    public String getType() {
+    public WebhookFilterType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(WebhookFilterType type) {
         this.type = type;
     }
 
@@ -72,12 +71,30 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     @Override
     public void copyFrom(WebhookFilter model) {
         setPattern(model.pattern());
-        setType(model.typeAsString());
+        setType(model.type());
         setExcludeMatchedPattern(model.excludeMatchedPattern());
     }
 
     @Override
     public String primaryKey() {
-        return "";
+        StringBuilder sb = new StringBuilder("Webhook Filter - ");
+
+        if (getPattern() != null) {
+            sb.append("Pattern: ").append(getPattern()).append(" ");
+        }
+
+        if (getType() != null) {
+            sb.append("Type: ").append(getType().toString()).append(" ");
+        }
+
+        return sb.toString();
+    }
+
+    public WebhookFilter toWebhookFilter() {
+        return WebhookFilter.builder()
+            .pattern(getPattern())
+            .type(getType())
+            .excludeMatchedPattern(getExcludeMatchedPattern())
+            .build();
     }
 }

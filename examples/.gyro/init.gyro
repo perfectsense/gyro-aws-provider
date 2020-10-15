@@ -1,2 +1,14 @@
 @highlander: true
 @repository: 'https://artifactory.psdops.com/public'
+@repository: 'https://artifactory.psdops.com/gyro-snapshots'
+@plugin: 'gyro:gyro-aws-provider:0.99.5-SNAPSHOT'
+@plugin: 'gyro:gyro-brightspot-plugin:0.99.2-SNAPSHOT'
+project: "gyro-sandbox"
+account: "psd-beam-sandbox"
+environment: "sandbox"
+@credentials 'enterprise::aws-credentials'
+    enterprise-url: "https://beam-enterprise.psdops.com"
+    project: $(project)
+    account: $(account)
+    region: "us-east-2"
+@end

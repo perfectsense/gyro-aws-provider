@@ -42,6 +42,9 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, R
 
     private String arn;
 
+    /**
+     * The ARN of the report group.
+     */
     public String getArn() {
         return arn;
     }
@@ -77,10 +80,6 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, R
         try {
             reportGroups.addAll(client.batchGetReportGroups(request -> request
                 .reportGroupArns(filters.get("arn"))).reportGroups());
-
-            if (reportGroups.isEmpty()) {
-                return reportGroups;
-            }
 
         } catch (InvalidInputException ex) {
             // Input report group ARN empty

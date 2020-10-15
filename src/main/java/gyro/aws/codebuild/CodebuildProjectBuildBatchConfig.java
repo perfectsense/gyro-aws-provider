@@ -103,7 +103,7 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     public ProjectBuildBatchConfig toProjectBuildBatchConfig() {
         return ProjectBuildBatchConfig.builder()
             .combineArtifacts(getCombineArtifacts())
-            .restrictions(getRestrictions().toBatchRestriction())
+            .restrictions(getRestrictions() != null ? getRestrictions().toBatchRestriction() : null)
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .timeoutInMins(getTimeoutInMins())
             .build();

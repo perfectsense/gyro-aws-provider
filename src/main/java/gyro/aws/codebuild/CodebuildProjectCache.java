@@ -16,33 +16,32 @@
 
 package gyro.aws.codebuild;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.codebuild.model.CacheMode;
+import software.amazon.awssdk.services.codebuild.model.CacheType;
 import software.amazon.awssdk.services.codebuild.model.ProjectCache;
 
 public class CodebuildProjectCache extends Diffable implements Copyable<ProjectCache> {
 
-    private String type;
+    private CacheType type;
     private String location;
-    private List<String> modes;
+    private List<CacheMode> modes;
 
     /**
      * The type of cache used by the build project.
      */
     @Updatable
     @Required
-    @ValidStrings({ "NO_CACHE", "S3", "LOCAL" })
-    public String getType() {
+    public CacheType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CacheType type) {
         this.type = type;
     }
 
@@ -62,23 +61,19 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
      * The list of local cache modes.
      */
     @Updatable
-    @ValidStrings({ "LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE" })
-    public List<String> getModes() {
-        if (modes == null) {
-            modes = new ArrayList<>();
-        }
+    public List<CacheMode> getModes() {
         return modes;
     }
 
-    public void setModes(List<String> modes) {
+    public void setModes(List<CacheMode> modes) {
         this.modes = modes;
     }
 
     @Override
     public void copyFrom(ProjectCache model) {
-        setType(model.typeAsString());
+        setType(model.type());
         setLocation(model.location());
-        setModes(model.modesAsStrings());
+        setModes(model.modes());
     }
 
     @Override
@@ -90,7 +85,7 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
         return ProjectCache.builder()
             .type(getType())
             .location(getLocation())
-            .modesWithStrings(getModes())
+            .modes(getModes())
             .build();
     }
 }

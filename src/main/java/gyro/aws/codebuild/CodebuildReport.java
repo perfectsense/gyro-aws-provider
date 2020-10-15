@@ -19,8 +19,9 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.Report;
+import software.amazon.awssdk.services.codebuild.model.ReportStatusType;
+import software.amazon.awssdk.services.codebuild.model.ReportType;
 
 public class CodebuildReport extends Diffable implements Copyable<Report> {
 
@@ -32,10 +33,10 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     private CodebuildReportExportConfig exportConfig;
     private String name;
     private String reportGroupArn;
-    private String status;
+    private ReportStatusType status;
     private CodebuildTestReportSummary testSummary;
     private Boolean truncated;
-    private String type;
+    private ReportType type;
 
     /**
      * The ARN of the report run.
@@ -141,12 +142,11 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
      * The status of the report.
      */
     @Output
-    @ValidStrings({ "GENERATING", "SUCCEEDED", "FAILED", "INCOMPLETE", "DELETING" })
-    public String getStatus() {
+    public ReportStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ReportStatusType status) {
         this.status = status;
     }
 
@@ -165,7 +165,7 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * When set to ``true`` the report run is truncated. When set to ``false`` the report run is not truncated.
+     * When set to ``true`` the report run is truncated.
      */
     @Output
     public Boolean getTruncated() {
@@ -180,12 +180,11 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
      * The type of the report that was run.
      */
     @Output
-    @ValidStrings({ "TEST", "CODE_COVERAGE" })
-    public String getType() {
+    public ReportType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ReportType type) {
         this.type = type;
     }
 
@@ -198,9 +197,9 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         setExpired(model.expired().toString());
         setName(model.name());
         setReportGroupArn(model.reportGroupArn());
-        setStatus(model.statusAsString());
+        setStatus(model.status());
         setTruncated(model.truncated());
-        setType(model.typeAsString());
+        setType(model.type());
 
         if (model.codeCoverageSummary() != null) {
             CodebuildCodeCoverageReportSummary summary = newSubresource(CodebuildCodeCoverageReportSummary.class);

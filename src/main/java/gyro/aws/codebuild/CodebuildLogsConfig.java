@@ -81,8 +81,8 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
 
     public LogsConfig toLogsConfig() {
         return LogsConfig.builder()
-            .cloudWatchLogs(getCloudWatchLogs().toCloudWatchLogsConfig())
-            .s3Logs(getS3Logs().toS3LogsConfig())
+            .cloudWatchLogs(getCloudWatchLogs() != null ? getCloudWatchLogs().toCloudWatchLogsConfig() : null)
+            .s3Logs(getS3Logs() != null ? getS3Logs().toS3LogsConfig() : null)
             .build();
     }
 }

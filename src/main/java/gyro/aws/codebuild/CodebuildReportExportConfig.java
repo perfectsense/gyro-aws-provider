@@ -19,24 +19,23 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.ReportExportConfig;
+import software.amazon.awssdk.services.codebuild.model.ReportExportConfigType;
 
 public class CodebuildReportExportConfig extends Diffable implements Copyable<ReportExportConfig> {
 
-    private String exportConfigType;
+    private ReportExportConfigType exportConfigType;
     private CodebuildS3ReportExportConfig s3ReportExportConfig;
 
     /**
      * The export configuration type.
      */
     @Updatable
-    @ValidStrings({ "S3", "NO_EXPORT" })
-    public String getExportConfigType() {
+    public ReportExportConfigType getExportConfigType() {
         return exportConfigType;
     }
 
-    public void setExportConfigType(String exportConfigType) {
+    public void setExportConfigType(ReportExportConfigType exportConfigType) {
         this.exportConfigType = exportConfigType;
     }
 
@@ -56,7 +55,7 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
 
     @Override
     public void copyFrom(ReportExportConfig model) {
-        setExportConfigType(model.exportConfigTypeAsString());
+        setExportConfigType(model.exportConfigType());
 
         if (model.s3Destination() != null) {
             CodebuildS3ReportExportConfig s3ReportExportConfig = newSubresource(CodebuildS3ReportExportConfig.class);

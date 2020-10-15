@@ -20,12 +20,12 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.codebuild.model.LogsConfigStatusType;
 import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 
 public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsConfig> {
 
-    private String status;
+    private LogsConfigStatusType status;
     private Boolean encryptionDisabled;
     private String location;
 
@@ -34,18 +34,16 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
      */
     @Updatable
     @Required
-    @ValidStrings({ "ENABLED", "DISABLED" })
-    public String getStatus() {
+    public LogsConfigStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(LogsConfigStatusType status) {
         this.status = status;
     }
 
     /**
-     * When set to ``true`` the S3 build log output is not encrypted. When set to ``false`` the S3 build log output is
-     * encrypted.
+     * When set to ``true`` the S3 build log output is not encrypted.
      */
     @Updatable
     public Boolean getEncryptionDisabled() {
@@ -70,7 +68,7 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
 
     @Override
     public void copyFrom(S3LogsConfig model) {
-        setStatus(model.statusAsString());
+        setStatus(model.status());
         setEncryptionDisabled(model.encryptionDisabled());
         setLocation(model.location());
     }

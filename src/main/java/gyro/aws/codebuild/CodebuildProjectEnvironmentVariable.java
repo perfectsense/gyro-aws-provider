@@ -20,14 +20,14 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
+import software.amazon.awssdk.services.codebuild.model.EnvironmentVariableType;
 
 public class CodebuildProjectEnvironmentVariable extends Diffable implements Copyable<EnvironmentVariable> {
 
     private String name;
     private String value;
-    private String type;
+    private EnvironmentVariableType type;
 
     /**
      * The name or key of the environment variable.
@@ -59,12 +59,11 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
      * The type of the environment variable.
      */
     @Updatable
-    @ValidStrings({ "PLAINTEXT", "PARAMETER_STORE", "SECRETS_MANAGER" })
-    public String getType() {
+    public EnvironmentVariableType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EnvironmentVariableType type) {
         this.type = type;
     }
 
@@ -72,12 +71,12 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     public void copyFrom(EnvironmentVariable model) {
         setName(model.name());
         setValue(model.value());
-        setType(model.typeAsString());
+        setType(model.type());
     }
 
     @Override
     public String primaryKey() {
-        return "";
+        return getName();
     }
 
     public EnvironmentVariable toEnvironmentVariable() {

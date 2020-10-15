@@ -20,12 +20,12 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
+import software.amazon.awssdk.services.codebuild.model.LogsConfigStatusType;
 
 public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<CloudWatchLogsConfig> {
 
-    private String status;
+    private LogsConfigStatusType status;
     private String groupName;
     private String streamName;
 
@@ -34,12 +34,11 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
      */
     @Updatable
     @Required
-    @ValidStrings({ "ENABLED", "DISABLED" })
-    public String getStatus() {
+    public LogsConfigStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(LogsConfigStatusType status) {
         this.status = status;
     }
 
@@ -69,7 +68,7 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
 
     @Override
     public void copyFrom(CloudWatchLogsConfig model) {
-        setStatus(model.statusAsString());
+        setStatus(model.status());
         setGroupName(model.groupName());
         setStreamName(model.streamName());
     }

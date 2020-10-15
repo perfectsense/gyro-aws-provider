@@ -26,19 +26,21 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
+import software.amazon.awssdk.services.codebuild.model.ArtifactNamespace;
+import software.amazon.awssdk.services.codebuild.model.ArtifactPackaging;
+import software.amazon.awssdk.services.codebuild.model.ArtifactsType;
 import software.amazon.awssdk.services.codebuild.model.ProjectArtifacts;
 
 public class CodebuildProjectArtifacts extends Diffable implements Copyable<ProjectArtifacts> {
 
-    private String type;
+    private ArtifactsType type;
     private Boolean encryptionDisabled;
     private String location;
     private String name;
-    private String namespaceType;
+    private ArtifactNamespace namespaceType;
     private Boolean overrideArtifactName;
-    private String packaging;
+    private ArtifactPackaging packaging;
     private String path;
 
     // Read-only
@@ -49,12 +51,11 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
      */
     @Required
     @Updatable
-    @ValidStrings({ "CODEPIPELINE", "S3", "NO_ARTIFACTS" })
-    public String getType() {
+    public ArtifactsType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ArtifactsType type) {
         this.type = type;
     }
 
@@ -98,12 +99,11 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
      * The type that is used to determine the name and location to store the output artifact.
      */
     @Updatable
-    @ValidStrings({ "NONE", "BUILD_ID" })
-    public String getNamespaceType() {
+    public ArtifactNamespace getNamespaceType() {
         return namespaceType;
     }
 
-    public void setNamespaceType(String namespaceType) {
+    public void setNamespaceType(ArtifactNamespace namespaceType) {
         this.namespaceType = namespaceType;
     }
 
@@ -122,12 +122,11 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
      * The type of build output artifact to create.
      */
     @Updatable
-    @ValidStrings({ "NONE", "ZIP" })
-    public String getPackaging() {
+    public ArtifactPackaging getPackaging() {
         return packaging;
     }
 
-    public void setPackaging(String packaging) {
+    public void setPackaging(ArtifactPackaging packaging) {
         this.packaging = packaging;
     }
 
@@ -161,17 +160,16 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
         setEncryptionDisabled(model.encryptionDisabled());
         setLocation(model.location());
         setName(model.name());
-        setNamespaceType(model.namespaceTypeAsString());
+        setNamespaceType(model.namespaceType());
         setOverrideArtifactName(model.overrideArtifactName());
-        setPackaging(model.packagingAsString());
+        setPackaging(model.packaging());
         setPath(model.path());
-        setType(model.typeAsString());
-
+        setType(model.type());
     }
 
     @Override
     public String primaryKey() {
-        return "";
+        return getName();
     }
 
     @Override

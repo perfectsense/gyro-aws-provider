@@ -19,7 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.codebuild.model.FileSystemType;
 import software.amazon.awssdk.services.codebuild.model.ProjectFileSystemLocation;
 
 public class CodebuildProjectFileSystemLocation extends Diffable implements Copyable<ProjectFileSystemLocation> {
@@ -28,7 +28,7 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
     private String location;
     private String mountOptions;
     private String mountPoint;
-    private String type;
+    private FileSystemType type;
 
     /**
      * The name used to access a file system created by Amazon EFS.
@@ -82,12 +82,11 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
      * The type of the file system.
      */
     @Updatable
-    @ValidStrings("EFS")
-    public String getType() {
+    public FileSystemType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(FileSystemType type) {
         this.type = type;
     }
 
@@ -97,12 +96,12 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
         setLocation(model.location());
         setMountOptions(model.mountOptions());
         setMountPoint(model.mountPoint());
-        setType(model.typeAsString());
+        setType(model.type());
     }
 
     @Override
     public String primaryKey() {
-        return "";
+        return String.format("%s", getIdentifier());
     }
 
     public ProjectFileSystemLocation toProjectFileSystemLocation() {

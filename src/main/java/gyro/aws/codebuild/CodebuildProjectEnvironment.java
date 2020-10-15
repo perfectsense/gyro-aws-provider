@@ -19,42 +19,40 @@ package gyro.aws.codebuild;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
+import software.amazon.awssdk.services.codebuild.model.ComputeType;
+import software.amazon.awssdk.services.codebuild.model.EnvironmentType;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
+import software.amazon.awssdk.services.codebuild.model.ImagePullCredentialsType;
 import software.amazon.awssdk.services.codebuild.model.ProjectEnvironment;
 
 public class CodebuildProjectEnvironment extends Diffable implements Copyable<ProjectEnvironment> {
 
     private String certificate;
-    private String computeType;
+    private ComputeType computeType;
     private List<CodebuildProjectEnvironmentVariable> environmentVariables;
     private String image;
-    private String imagePullCredentialsType;
+    private ImagePullCredentialsType imagePullCredentialsType;
     private Boolean privilegedMode;
     private CodebuildRegistryCredential registryCredential;
-    private String type;
+    private EnvironmentType type;
 
     /**
      * The compute resources used by the build project.
      */
     @Updatable
     @Required
-    @ValidStrings({
-        "BUILD_GENERAL1_SMALL",
-        "BUILD_GENERAL1_MEDIUM",
-        "BUILD_GENERAL1_LARGE",
-        "BUILD_GENERAL1_2XLARGE" })
-    public String getComputeType() {
+    public ComputeType getComputeType() {
         return computeType;
     }
 
-    public void setComputeType(String computeType) {
+    public void setComputeType(ComputeType computeType) {
         this.computeType = computeType;
     }
 
@@ -76,17 +74,11 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
      */
     @Updatable
     @Required
-    @ValidStrings({
-        "WINDOWS_CONTAINER",
-        "LINUX_CONTAINER",
-        "LINUX_GPU_CONTAINER",
-        "ARM_CONTAINER",
-        "WINDOWS_SERVER_2019_CONTAINER" })
-    public String getType() {
+    public EnvironmentType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EnvironmentType type) {
         this.type = type;
     }
 
@@ -124,12 +116,11 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
      * The type of credentials the build project uses to pull images in the build.
      */
     @Updatable
-    @ValidStrings({ "CODEBUILD", "SERVICE_ROLE" })
-    public String getImagePullCredentialsType() {
+    public ImagePullCredentialsType getImagePullCredentialsType() {
         return imagePullCredentialsType;
     }
 
-    public void setImagePullCredentialsType(String imagePullCredentialsType) {
+    public void setImagePullCredentialsType(ImagePullCredentialsType imagePullCredentialsType) {
         this.imagePullCredentialsType = imagePullCredentialsType;
     }
 
@@ -162,11 +153,11 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
 
     @Override
     public void copyFrom(ProjectEnvironment model) {
-        setComputeType(model.computeTypeAsString());
+        setComputeType(model.computeType());
         setImage(model.image());
-        setType(model.typeAsString());
+        setType(model.type());
         setCertificate(model.certificate());
-        setImagePullCredentialsType(model.imagePullCredentialsTypeAsString());
+        setImagePullCredentialsType(model.imagePullCredentialsType());
         setPrivilegedMode(model.privilegedMode());
 
         getEnvironmentVariables().clear();
@@ -221,7 +212,9 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
             .image(getImage())
             .type(getType())
             .certificate(getCertificate())
-            .environmentVariables(environmentVariables)
+            .environmentVariables(getEnvironmentVariables().stream()
+                .map(CodebuildProjectEnvironmentVariable::toEnvironmentVariable)
+                .collect(Collectors.toList()))
             .imagePullCredentialsType(getImagePullCredentialsType())
             .privilegedMode(getPrivilegedMode())
             .registryCredential(getRegistryCredential() != null ? getRegistryCredential().toRegistryCredential() : null)

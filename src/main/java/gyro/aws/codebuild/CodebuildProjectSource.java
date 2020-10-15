@@ -26,9 +26,9 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
+import software.amazon.awssdk.services.codebuild.model.SourceType;
 
 public class CodebuildProjectSource extends Diffable implements Copyable<ProjectSource> {
 
@@ -40,19 +40,18 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     private String location;
     private Boolean reportBuildStatus;
     private String sourceIdentifier;
-    private String type;
+    private SourceType type;
 
     /**
      * The type of repository that contains the source code to be built.
      */
     @Updatable
     @Required
-    @ValidStrings({ "CODECOMMIT", "CODEPIPELINE", "GITHUB", "S3", "BITBUCKET", "GITHUB_ENTERPRISE", "NO_SOURCE" })
-    public String getType() {
+    public SourceType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(SourceType type) {
         this.type = type;
     }
 
@@ -159,7 +158,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
 
     @Override
     public void copyFrom(ProjectSource model) {
-        setType(model.typeAsString());
+        setType(model.type());
         setLocation(model.location());
         setBuildspec(model.buildspec());
         setGitCloneDepth(model.gitCloneDepth());
@@ -186,7 +185,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
 
     @Override
     public String primaryKey() {
-        return "";
+        return String.format("%s", getSourceIdentifier());
     }
 
     @Override

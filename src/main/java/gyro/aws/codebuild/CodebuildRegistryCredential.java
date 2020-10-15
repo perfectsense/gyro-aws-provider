@@ -19,13 +19,13 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.codebuild.model.CredentialProviderType;
 import software.amazon.awssdk.services.codebuild.model.RegistryCredential;
 
 public class CodebuildRegistryCredential extends Diffable implements Copyable<RegistryCredential> {
 
     private String credential;
-    private String credentialProvider;
+    private CredentialProviderType credentialProvider;
 
     /**
      * The Amazon Resource Name (ARN) or name of credentials created using AWS Secrets Manager.
@@ -43,19 +43,18 @@ public class CodebuildRegistryCredential extends Diffable implements Copyable<Re
      * The service that created the credentials to access a private Docker registry.
      */
     @Required
-    @ValidStrings("SECRETS_MANAGER")
-    public String getCredentialProvider() {
+    public CredentialProviderType getCredentialProvider() {
         return credentialProvider;
     }
 
-    public void setCredentialProvider(String credentialProvider) {
+    public void setCredentialProvider(CredentialProviderType credentialProvider) {
         this.credentialProvider = credentialProvider;
     }
 
     @Override
     public void copyFrom(RegistryCredential model) {
         setCredential(model.credential());
-        setCredentialProvider(model.credentialProviderAsString());
+        setCredentialProvider(model.credentialProvider());
     }
 
     @Override

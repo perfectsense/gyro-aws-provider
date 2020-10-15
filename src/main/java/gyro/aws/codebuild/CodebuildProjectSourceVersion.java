@@ -58,6 +58,6 @@ public class CodebuildProjectSourceVersion extends Diffable implements Copyable<
 
     @Override
     public String primaryKey() {
-        return "";
+        return String.format("%s", getSourceIdentifier());
     }
 }
