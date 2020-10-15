@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
-import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
+import software.amazon.awssdk.services.codebuild.model.Project;
 
 /**
  * Query build project.
@@ -38,8 +38,11 @@ import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
  *    project: $(external-query aws::project { names: ['project-example-name']})
  */
 @Type("project")
-public class ProjectFinder extends AwsFinder<CodeBuildClient, BatchGetProjectsResponse, ProjectResource> {
+public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectResource> {
 
+    /**
+     * The names of build projects.
+     */
     private List<String> names;
 
     public List<String> getNames() {
@@ -51,14 +54,13 @@ public class ProjectFinder extends AwsFinder<CodeBuildClient, BatchGetProjectsRe
     }
 
     @Override
-    protected List<BatchGetProjectsResponse> findAllAws(CodeBuildClient client) {
-        List<BatchGetProjectsResponse> responseList = new ArrayList<>();
+    protected List<Project> findAllAws(CodeBuildClient client) {
+        List<Project> responseList = new ArrayList<>();
 
         try {
-            responseList = client.listProjectsPaginator().stream()
-                .map(projects ->
-                    client.batchGetProjects(r -> r.names(projects.projects())))
-                .collect(Collectors.toList());
+            List<String> projectNames = client.listProjectsPaginator().projects().stream().collect(Collectors.toList());
+            responseList = client.batchGetProjects(r -> r.names(projectNames)).projects();
+
         } catch (InvalidInputException ex) {
             // Input project name list empty
         }
@@ -67,12 +69,12 @@ public class ProjectFinder extends AwsFinder<CodeBuildClient, BatchGetProjectsRe
     }
 
     @Override
-    protected List<BatchGetProjectsResponse> findAws(
+    protected List<Project> findAws(
         CodeBuildClient client, Map<String, String> filters) {
-        List<BatchGetProjectsResponse> responseList = new ArrayList<>();
+        List<Project> responseList = new ArrayList<>();
 
         try {
-            responseList.add(client.batchGetProjects(r -> r.names(filters.get("names"))));
+            responseList = client.batchGetProjects(r -> r.names(filters.get("names"))).projects();
         } catch (InvalidInputException ex) {
             // Input project name list empty
         }
