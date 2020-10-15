@@ -35,7 +35,6 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.BatchGetReportGroupsResponse;
 import software.amazon.awssdk.services.codebuild.model.CreateReportGroupResponse;
-import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.ReportGroup;
 import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.Tag;
@@ -129,7 +128,6 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
      * When set to ``true`` deleting the report group automatically deletes all the reports under it. If set to
      * ``false`` deleting a non empty report group is halted.
      */
-    @Updatable
     public Boolean getDeleteReports() {
         return deleteReports;
     }
@@ -200,9 +198,6 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
             response = client.batchGetReportGroups(r -> r.reportGroupArns(Collections.singletonList(getArn())));
         } catch (ResourceNotFoundException ex) {
             // No Resource found
-        } catch (InvalidInputException ex) {
-            // Invalid input, empty or ARN is not valid
-            return false;
         }
 
         if (response == null || response.reportGroups().isEmpty()) {
@@ -238,7 +233,6 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
             .exportConfig(getReportExportConfig().toReportExportConfig())
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
         );
-
     }
 
     @Override
