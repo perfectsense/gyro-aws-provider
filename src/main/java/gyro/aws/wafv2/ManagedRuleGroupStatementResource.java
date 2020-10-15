@@ -50,7 +50,7 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
     }
 
     /**
-     * The name of the managed rule group. (Required)
+     * The name of the managed rule group.
      */
     @Required
     public String getName() {
@@ -62,7 +62,7 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
     }
 
     /**
-     * The vendor name of the managed rule group. (Required)
+     * The vendor name of the managed rule group.
      */
     @Required
     public String getVendorName() {

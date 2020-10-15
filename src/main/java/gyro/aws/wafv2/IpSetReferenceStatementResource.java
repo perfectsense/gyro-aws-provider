@@ -27,7 +27,7 @@ public class IpSetReferenceStatementResource extends Diffable implements Copyabl
     private IpSetResource ipSet;
 
     /**
-     * The ip set resource to associate with. (Required)
+     * The ip set resource to associate with.
      */
     @Required
     @Updatable

@@ -35,6 +35,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
@@ -121,7 +122,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     private Long capacity;
 
     /**
-     * The name of the web acl. (Required)
+     * The name of the web acl.
      */
     @Required
     public String getName() {
@@ -145,10 +146,11 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     }
 
     /**
-     * The default action when no rules match. Valid values are ``ALLOW`` or ``BLOCK``. (Required)
+     * The default action when no rules match.
      */
     @Required
     @Updatable
+    @ValidStrings({"ALLOW", "BLOCK"})
     public WafDefaultAction.DefaultAction getDefaultAction() {
         return defaultAction;
     }
@@ -158,7 +160,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     }
 
     /**
-     * A set of rules having the request filters for the web acl. (Required)
+     * A set of rules having the request filters for the web acl.
      *
      * @subresource gyro.aws.wafv2.RuleResource
      */
@@ -178,7 +180,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     }
 
     /**
-     * The visibility config for the web acl. (Required)
+     * The visibility config for the web acl.
      *
      * @subresource gyro.aws.wafv2.VisibilityConfigResource
      */

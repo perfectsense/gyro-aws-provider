@@ -46,27 +46,8 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
     private WafDefaultAction.OverrideAction overrideAction;
     private StatementResource statement;
 
-    static boolean invalidPriority(Set<RuleResource> rules) {
-        List<Integer> priorityList = rules.stream()
-            .sorted(Comparator.comparing(RuleResource::getPriority))
-            .map(RuleResource::getPriority)
-            .collect(Collectors.toList());
-
-        boolean invalidPriority = false;
-        int start = 0;
-
-        for (int priority : priorityList) {
-            if (priority != start) {
-                invalidPriority = true;
-            }
-            start++;
-        }
-
-        return invalidPriority;
-    }
-
     /**
-     * The name of the rule. (Required)
+     * The name of the rule.
      */
     @Required
     public String getName() {
@@ -78,7 +59,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
     }
 
     /**
-     * The priority of the rule. The priority assigned needs to be ordered in increasing order starting from 0. (Required)
+     * The priority of the rule. The priority assigned needs to be ordered in increasing order starting from 0.
      */
     @Required
     @Updatable
@@ -91,7 +72,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
     }
 
     /**
-     * The visibility configuration for the rule. (Required)
+     * The visibility configuration for the rule.
      */
     @Required
     public VisibilityConfigResource getVisibilityConfig() {
@@ -103,7 +84,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
     }
 
     /**
-     * The action to perform if the rule passes. Valid values are ``ALLOW``, ``BLOCK`` or ``COUNT``.
+     * The action to perform if the rule passes.
      */
     @Updatable
     @ValidStrings({"ALLOW", "BLOCK", "COUNT"})
@@ -117,7 +98,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
     }
 
     /**
-     * The override action to perform if the rule passes. Valid values are ``NONE`` or ``COUNT``.
+     * The override action to perform if the rule passes.
      */
     @Updatable
     @ValidStrings({"NONE", "COUNT"})
@@ -265,5 +246,24 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
         }
 
         return errors;
+    }
+
+    static boolean invalidPriority(Set<RuleResource> rules) {
+        List<Integer> priorityList = rules.stream()
+            .sorted(Comparator.comparing(RuleResource::getPriority))
+            .map(RuleResource::getPriority)
+            .collect(Collectors.toList());
+
+        boolean invalidPriority = false;
+        int start = 0;
+
+        for (int priority : priorityList) {
+            if (priority != start) {
+                invalidPriority = true;
+            }
+            start++;
+        }
+
+        return invalidPriority;
     }
 }

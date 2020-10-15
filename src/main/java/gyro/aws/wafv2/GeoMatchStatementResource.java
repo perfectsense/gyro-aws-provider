@@ -29,7 +29,7 @@ public class GeoMatchStatementResource extends Diffable implements Copyable<GeoM
     private Set<String> countryCodes;
 
     /**
-     * A set of 2 character country codes based on ISO 3166 on which to filter the request. (Required)
+     * A set of 2 character country codes based on ISO 3166 on which to filter the request.
      */
     @Required
     public Set<String> getCountryCodes() {

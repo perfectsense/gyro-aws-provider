@@ -258,7 +258,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     private String id;
 
     /**
-     * Name of the rule group. (Required)
+     * Name of the rule group.
      */
     @Required
     public String getName() {
@@ -294,7 +294,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     }
 
     /**
-     * A set of rule configurations that contains the conditions. (Required)
+     * A set of rule configurations that contains the conditions.
      *
      * @subresource gyro.aws.wafv2.RuleResource
      */
@@ -314,7 +314,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     }
 
     /**
-     * The visibility configuration for the rule group. (Required)
+     * The visibility configuration for the rule group.
      *
      * @subresource gyro.aws.wafv2.VisibilityConfigResource
      */

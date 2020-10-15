@@ -31,7 +31,7 @@ public class NotStatementResource extends Diffable implements Copyable<NotStatem
     private StatementResource statement;
 
     /**
-     * The statement resource associated with the NOT statement. (Required)
+     * The statement resource associated with the NOT statement.
      *
      * @subresource gyro.aws.wafv2.StatementResource
      */

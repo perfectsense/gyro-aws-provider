@@ -43,8 +43,8 @@ public abstract class WafTaggableResource extends AwsResource {
     private boolean tagsLoaded = false;
 
     /**
-     * The scope where the resource is going to be created. Valid values are ``GLOBAL`` or ``REGIONAL``.
-     * Resources can only use and associate with other similar scoped resources (Required)
+     * The scope where the resource is going to be created.
+     * Resources can only use and associate with other similar scoped resources.
      */
     @Required
     @ValidStrings({ "GLOBAL", "REGIONAL" })

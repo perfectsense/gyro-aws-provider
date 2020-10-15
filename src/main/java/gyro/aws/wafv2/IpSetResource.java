@@ -65,7 +65,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
     private String arn;
 
     /**
-     * The name of the ip set. (Required)
+     * The name of the ip set.
      */
     @Required
     public String getName() {
@@ -77,7 +77,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
     }
 
     /**
-     * The ip address version. Valid values are ``IPV4`` or ``IPV6``. (Required)
+     * The ip address version.
      */
     @Required
     @ValidStrings({ "IPV4", "IPV6" })
@@ -102,7 +102,7 @@ public class IpSetResource extends WafTaggableResource implements Copyable<IPSet
     }
 
     /**
-     * The set of ip address to filter the requests on. (Required)
+     * The set of ip address to filter the requests on.
      */
     @Required
     @Updatable

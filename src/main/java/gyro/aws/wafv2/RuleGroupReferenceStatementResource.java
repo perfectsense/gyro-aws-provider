@@ -33,7 +33,7 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
     private Set<String> excludedRules;
 
     /**
-     * A rule group resource to reference with. (Required)
+     * A rule group resource to reference with.
      */
     @Required
     public RuleGroupResource getRuleGroup() {

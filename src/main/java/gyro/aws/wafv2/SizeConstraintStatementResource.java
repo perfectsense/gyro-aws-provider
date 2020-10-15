@@ -25,6 +25,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.ComparisonOperator;
 import software.amazon.awssdk.services.wafv2.model.SizeConstraintStatement;
 
@@ -36,7 +37,7 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
     private Long size;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      *
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
@@ -50,9 +51,10 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
     }
 
     /**
-     * The comparison operator for the size specified. Valid values ``EQ``, ``NE``, ``LE``, ``LT``, ``GE`` or ``GT``. (Required)
+     * The comparison operator for the size specified.
      */
     @Required
+    @ValidStrings({"EQ", "NE", "LE", "LT", "GE", "GT"})
     public ComparisonOperator getComparisonOperator() {
         return comparisonOperator;
     }
@@ -62,7 +64,7 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
     }
 
     /**
-     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configuration is allowed.
+     * Text transformation configuration on the data provided before doing the check.
      *
      * @subresource gyro.aws.wafv2.TextTransformationResource
      */
@@ -81,7 +83,7 @@ public class SizeConstraintStatementResource extends Diffable implements Copyabl
     }
 
     /**
-     * The size in byte for the constraint to work on. (Required)
+     * The size in byte for the constraint to work on.
      */
     @Required
     public Long getSize() {

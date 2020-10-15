@@ -24,6 +24,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AllQueryArguments;
 import software.amazon.awssdk.services.wafv2.model.Body;
@@ -40,9 +41,10 @@ public class FieldToMatchResource extends Diffable implements Copyable<FieldToMa
     private String name;
 
     /**
-     * The field match type. Valid values are ``SINGLE_HEADER``, ``SINGLE_QUERY_ARGUMENT``, ``ALL_QUERY_ARGUMENTS``, ``BODY``, ``QUERY_STRING``, ``METHOD`` or ``URI_PATH``. (Required)
+     * The field match type.
      */
     @Required
+    @ValidStrings({"SINGLE_HEADER", "SINGLE_QUERY_ARGUMENT", "ALL_QUERY_ARGUMENTS", "BODY", "QUERY_STRING", "METHOD", "URI_PATH"})
     public FieldMatchType getMatchType() {
         return matchType;
     }

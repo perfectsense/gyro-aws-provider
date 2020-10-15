@@ -19,6 +19,7 @@ package gyro.aws.wafv2;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.TextTransformation;
 import software.amazon.awssdk.services.wafv2.model.TextTransformationType;
 
@@ -28,7 +29,7 @@ public class TextTransformationResource extends Diffable implements Copyable<Tex
     private TextTransformationType type;
 
     /**
-     * The priority of the text transformation. (Required)
+     * The priority of the text transformation.
      */
     @Required
     public Integer getPriority() {
@@ -41,10 +42,9 @@ public class TextTransformationResource extends Diffable implements Copyable<Tex
 
     /**
      * The type of the text transformation.
-     * Valid values are ``NONE``, ``COMPRESS_WHITE_SPACE``, ``HTML_ENTITY_DECODE``, ``LOWERCASE``,
-     * ``CMD_LINE`` or ``URL_DECODE``. (Required)
      */
     @Required
+    @ValidStrings({"NONE", "COMPRESS_WHITE_SPACE", "HTML_ENTITY_DECODE", "LOWERCASE", "CMD_LINE", "URL_DECODE"})
     public TextTransformationType getType() {
         return type;
     }

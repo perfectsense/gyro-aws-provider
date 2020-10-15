@@ -29,7 +29,7 @@ public class VisibilityConfigResource extends Diffable implements Copyable<Visib
     private Boolean sampledRequestsEnabled;
 
     /**
-     * The name of the cloud watch metric. (Required)
+     * The name of the cloud watch metric.
      */
     @Required
     @Updatable

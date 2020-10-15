@@ -33,7 +33,7 @@ public class SqliMatchStatementResource extends Diffable implements Copyable<Sql
     private Set<TextTransformationResource> textTransformation;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      *
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
@@ -47,7 +47,7 @@ public class SqliMatchStatementResource extends Diffable implements Copyable<Sql
     }
 
     /**
-     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configuration is allowed.
+     * Text transformation configuration on the data provided before doing the check.
      *
      * @subresource gyro.aws.wafv2.TextTransformationResource
      */

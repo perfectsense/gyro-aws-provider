@@ -30,7 +30,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     private StatementResource scopeDownStatement;
 
     /**
-     * The aggregate key type for the rate based statement. Currently only supported value is ``IP``. Defaults to ``IP``.
+     * The aggregate key type for the rate based statement. Defaults to ``IP``.
      */
     @ValidStrings("IP")
     public String getAggregateKeyType() {
@@ -46,7 +46,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     }
 
     /**
-     * The rate limit for the rate based statement. Minimum value is ``100``. (Required)
+     * The rate limit for the rate based statement.
      */
     @Required
     @Min(100)

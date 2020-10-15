@@ -25,6 +25,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.wafv2.model.ByteMatchStatement;
 import software.amazon.awssdk.services.wafv2.model.PositionalConstraint;
@@ -37,7 +38,7 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
     private String searchString;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
      *
      * @subresource gyro.aws.wafv2.FieldToMatchResource
      */
@@ -52,9 +53,9 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
 
     /**
      * The positional search type for the search string.
-     * Valid values are ``EXACTLY``, ``STARTS_WITH``, ``ENDS_WITH``, ``CONTAINS`` or ``CONTAINS_WORD``.  (Required)
      */
     @Required
+    @ValidStrings({"EXACTLY", "STARTS_WITH", "ENDS_WITH", "CONTAINS", "CONTAINS_WORD"})
     public PositionalConstraint getPositionalConstraint() {
         return positionalConstraint;
     }
@@ -64,7 +65,7 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
     }
 
     /**
-     * Text transformation configuration on the data provided before doing the check. Maximum of 3 configurations is allowed.
+     * Text transformation configuration on the data provided before doing the check.
      *
      * @subresource gyro.aws.wafv2.TextTransformationResource
      */
@@ -83,7 +84,7 @@ public class ByteMatchStatementResource extends Diffable implements Copyable<Byt
     }
 
     /**
-     * The search string you want aws to search for in the request. (Required)
+     * The search string you want aws to search for in the request.
      */
     @Required
     public String getSearchString() {

@@ -63,7 +63,7 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
     private String arn;
 
     /**
-     * The name of the regex pattern set. (Required)
+     * The name of the regex pattern set.
      */
     @Required
     public String getName() {
@@ -87,7 +87,7 @@ public class RegexPatternSetResource extends WafTaggableResource implements Copy
     }
 
     /**
-     * The set of regular expressions to which the condition is going to be checked. (Required)
+     * The set of regular expressions to which the condition is going to be checked.
      */
     @Required
     @Updatable
