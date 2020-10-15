@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -244,7 +245,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
             .projectName(getProjectName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
-            .filterGroups(convertFilterGroups(getFilterGroups()))
+            .filterGroups(getFilterGroups().stream().map(CodebuildWebhookFilter::toWebhookFilter).collect(Collectors.toList()))
         );
 
         refresh();
@@ -262,7 +263,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         client.updateWebhook(r -> r.projectName(getProjectName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
-            .filterGroups(convertFilterGroups(getFilterGroups()))
+            .filterGroups(getFilterGroups().stream().map(CodebuildWebhookFilter::toWebhookFilter).collect(Collectors.toList()))
             .rotateSecret(getRotateSecret())
         );
     }
@@ -272,21 +273,5 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
         client.deleteWebhook(r -> r.projectName(getProjectName()));
-    }
-
-    private List<List<WebhookFilter>> convertFilterGroups(List<CodebuildWebhookFilter> filterGroups) {
-        List<List<WebhookFilter>> projectFilterGroups = new ArrayList<>();
-        List<WebhookFilter> filterList = new ArrayList<>();
-
-        for (CodebuildWebhookFilter filter : filterGroups) {
-            filterList.add(WebhookFilter.builder()
-                .pattern(filter.getPattern())
-                .type(filter.getType())
-                .excludeMatchedPattern(filter.getExcludeMatchedPattern())
-                .build());
-        }
-        projectFilterGroups.add(filterList);
-
-        return projectFilterGroups;
     }
 }
