@@ -56,7 +56,7 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     }
 
     /**
-     * The prefix of the stream name of the cloud watch Logs
+     * The prefix of the stream name of the cloud watch logs.
      */
     @Updatable
     public String getStreamName() {
