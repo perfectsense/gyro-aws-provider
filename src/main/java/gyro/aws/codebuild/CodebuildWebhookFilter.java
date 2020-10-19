@@ -31,7 +31,7 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
 
     /**
      * The comma-separated string that specifies one or more events. If ``type`` is set to ``EVENT``, the pattern is a
-     * comma-separated string that specifies one or more events. Else, the pattern is a regular expression.
+     * comma-separated string that specifies one or more events. Else, the pattern is a regular expression. (Required)
      */
     @Updatable
     @Required
@@ -44,7 +44,8 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     }
 
     /**
-     * The type of webhook filter.
+     * The type of webhook filter. Valid values are ``EVENT``, ``BASE_REF``, ``HEAD_REF``, ``ACTOR_ACCOUNT_ID``,
+     * ``FILE_PATH``, ``COMMIT_MESSAGE``. (Required)
      */
     @Updatable
     @Required

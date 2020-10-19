@@ -139,7 +139,8 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The status of the report.
+     * The status of the report. Valid values are ``GENERATING``, ``SUCCEEDED``, ``FAILED``, ``INCOMPLETE``,
+     * ``DELETING``.
      */
     @Output
     public ReportStatusType getStatus() {
@@ -177,7 +178,7 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The type of the report that was run.
+     * The type of the report that was run. Valid values are ``TEST`` or ``CODE_COVERAGE``.
      */
     @Output
     public ReportType getType() {

@@ -28,7 +28,7 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
     private CodebuildS3ReportExportConfig s3ReportExportConfig;
 
     /**
-     * The export configuration type.
+     * The export configuration type. Valid values are ``S3`` or ``NO_EXPORT``.
      */
     @Updatable
     public ReportExportConfigType getExportConfigType() {

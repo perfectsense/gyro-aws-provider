@@ -30,7 +30,8 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     private String streamName;
 
     /**
-     * The status configuration for the cloud watch logs for a build project.
+     * The status configuration for the cloud watch logs for a build project. Valid values are ``ENABLED`` or
+     * ``DISABLED``. (Required)
      */
     @Updatable
     @Required

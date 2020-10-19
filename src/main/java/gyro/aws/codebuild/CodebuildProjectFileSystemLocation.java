@@ -79,7 +79,7 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
     }
 
     /**
-     * The type of the file system.
+     * The type of the file system. Valid values are ``EFS``.
      */
     @Updatable
     public FileSystemType getType() {

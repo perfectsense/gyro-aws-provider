@@ -27,7 +27,7 @@ public class CodebuildGitSubmodulesConfig extends Diffable implements Copyable<G
     private Boolean fetchSubmodules;
 
     /**
-     * When set to ``true`` all Git submodules are fetched for the build project.
+     * When set to ``true`` all Git submodules are fetched for the build project. (Required)
      */
     @Required
     @Updatable

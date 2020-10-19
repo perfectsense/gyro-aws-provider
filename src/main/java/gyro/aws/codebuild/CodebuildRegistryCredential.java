@@ -40,7 +40,8 @@ public class CodebuildRegistryCredential extends Diffable implements Copyable<Re
     }
 
     /**
-     * The service that created the credentials to access a private Docker registry.
+     * The service that created the credentials to access a private Docker registry. Valid values are
+     * ``SECRETS_MANAGER``. (Required)
      */
     @Required
     public CredentialProviderType getCredentialProvider() {

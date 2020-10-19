@@ -47,7 +47,8 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     private String artifactIdentifier;
 
     /**
-     * The type of the build output artifact.
+     * The type of the build output artifact. Valid values are ``CODEPIPELINE``, ``S3``, or ``NO_ARTIFACTS``.
+     * (Required)
      */
     @Required
     @Updatable
@@ -96,7 +97,8 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The type that is used to determine the name and location to store the output artifact.
+     * The type that is used to determine the name and location to store the output artifact. Valid values are ``NONE``
+     * or ``BUILD_ID``.
      */
     @Updatable
     public ArtifactNamespace getNamespaceType() {
@@ -119,7 +121,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The type of build output artifact to create.
+     * The type of build output artifact to create. Valid values are ``NONE`` or ``ZIP``.
      */
     @Updatable
     public ArtifactPackaging getPackaging() {

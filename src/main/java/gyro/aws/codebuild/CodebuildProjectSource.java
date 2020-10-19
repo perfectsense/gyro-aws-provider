@@ -43,7 +43,8 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     private SourceType type;
 
     /**
-     * The type of repository that contains the source code to be built.
+     * The type of repository that contains the source code to be built. Valid values are ``CODECOMMIT``,
+     * ``CODEPIPELINE``, ``GITHUB``, ``S3``, ``BITBUCKET``, ``GITHUB_ENTERPRISE``, ``NO_SOURCE``. (Required)
      */
     @Updatable
     @Required

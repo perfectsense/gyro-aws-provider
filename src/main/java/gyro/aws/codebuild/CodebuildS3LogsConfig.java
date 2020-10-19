@@ -30,7 +30,7 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
     private String location;
 
     /**
-     * The current status of the S3 build logs.
+     * The current status of the S3 build logs. Valid values are ``ENABLED`` or ``DISABLED``. (Required)
      */
     @Updatable
     @Required

@@ -56,7 +56,8 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     }
 
     /**
-     * The type of the environment variable.
+     * The type of the environment variable. Valid values are ``PLAINTEXT``, ``PARAMETER_STORE``, or
+     * ``SECRETS_MANAGER``.
      */
     @Updatable
     public EnvironmentVariableType getType() {

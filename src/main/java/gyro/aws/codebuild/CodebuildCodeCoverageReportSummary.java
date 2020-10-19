@@ -19,7 +19,6 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
-import gyro.core.validation.Max;
 import gyro.core.validation.Min;
 import gyro.core.validation.Range;
 import software.amazon.awssdk.services.codebuild.model.CodeCoverageReportSummary;
@@ -34,7 +33,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     private Integer linesMissed;
 
     /**
-     * The percentage of branches that are covered by the tests.
+     * The percentage of branches that are covered by the tests. Valid values between ``0`` to ``100``.
      */
     @Range(min = 0, max = 100)
     @Output
@@ -47,7 +46,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of conditional branches that are covered by the tests.
+     * The number of conditional branches that are covered by the tests. Minimum ``0`` branches covered.
      */
     @Min(0)
     @Output
@@ -60,7 +59,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of conditional branches that are not covered by the tests.
+     * The number of conditional branches that are not covered by the tests. Minimum ``0`` branches missed.
      */
     @Min(0)
     @Output
@@ -73,10 +72,9 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The percentage of lines that are covered by the tests.
+     * The percentage of lines that are covered by the tests. Valid values between ``0`` to ``100``.
      */
-    @Max(100)
-    @Min(0)
+    @Range(min = 0, max = 100)
     @Output
     public Double getLineCoveragePercentage() {
         return lineCoveragePercentage;
@@ -87,7 +85,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of lines that are covered by the tests.
+     * The number of lines that are covered by the tests. Minimum ``0`` lines covered.
      */
     @Min(0)
     @Output
@@ -100,7 +98,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of lines that are not covered by the tests.
+     * The number of lines that are not covered by the tests. Minimum ``0`` lines missed.
      */
     @Min(0)
     @Output

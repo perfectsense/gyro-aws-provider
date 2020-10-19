@@ -44,7 +44,8 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     private EnvironmentType type;
 
     /**
-     * The compute resources used by the build project.
+     * The compute resources used by the build project. Valid values are ``BUILD_GENERAL1_SMALL``,
+     * ``BUILD_GENERAL1_MEDIUM``, ``BUILD_GENERAL1_LARGE``, or ``BUILD_GENERAL1_2XLARGE``. (Required)
      */
     @Updatable
     @Required
@@ -57,7 +58,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The image tag or image digest that identifies the Docker image used for the build project.
+     * The image tag or image digest that identifies the Docker image used for the build project. (Required)
      */
     @Updatable
     @Required
@@ -70,7 +71,9 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The type of build environment used for related builds.
+     * The type of build environment used for related builds. Valid values are ``WINDOWS_CONTAINER``,
+     * ``LINUX_CONTAINER``, ``LINUX_GPU_CONTAINER``, ``ARM_CONTAINER``, or ``WINDOWS_SERVER_2019_CONTAINER``.
+     * (Required)
      */
     @Updatable
     @Required
@@ -113,7 +116,8 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The type of credentials the build project uses to pull images in the build.
+     * The type of credentials the build project uses to pull images in the build. Valid values are ``CODEBUILD``,
+     * ``SERVICE_ROLE``.
      */
     @Updatable
     public ImagePullCredentialsType getImagePullCredentialsType() {

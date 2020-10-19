@@ -67,7 +67,7 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     }
 
     /**
-     * The type of build output artifact to create.
+     * The type of build output artifact to create. Valid values are ``ZIP`` or ``NONE``.
      */
     @Updatable
     public ReportPackagingType getPackaging() {
