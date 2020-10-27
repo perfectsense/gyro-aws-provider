@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.autoscalingplans.model.PredictiveScalingMaxCapacityBehavior;
 import software.amazon.awssdk.services.autoscalingplans.model.PredictiveScalingMode;
@@ -31,6 +33,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
     private ServiceNamespace serviceNamspace;
     private List<AutoScalingTargetTrackingConfiguration> targetTrackingConfiguration;
 
+    /**
+     * The customized load metric for predictive scaling.
+     */
+    @Updatable
     public AutoScalingCustomizedLoadMetricSpecification getCustomizedLoadMetricSpecification() {
         return customizedLoadMetricSpecification;
     }
@@ -39,6 +45,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.customizedLoadMetricSpecification = customizedLoadMetricSpecification;
     }
 
+    /**
+     * When set to ``true`` the dynamic scaling by AWS Auto Scaling is disabled.
+     */
+    @Updatable
     public Boolean getDisableDynamicScaling() {
         return disableDynamicScaling;
     }
@@ -47,6 +57,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.disableDynamicScaling = disableDynamicScaling;
     }
 
+    /**
+     * The maximum capacity of the resource.
+     */
+    @Updatable
     @Required
     public Integer getMaxCapacity() {
         return maxCapacity;
@@ -56,6 +70,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.maxCapacity = maxCapacity;
     }
 
+    /**
+     * The minimum capacity of the resource.
+     */
+    @Updatable
     @Required
     public Integer getMinCapacity() {
         return minCapacity;
@@ -65,6 +83,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.minCapacity = minCapacity;
     }
 
+    /**
+     * The predefined load metric to use for predictive scaling.
+     */
+    @Updatable
     public AutoScalingPredefinedLoadMetricSpecification getPredefinedLoadMetricSpecification() {
         return predefinedLoadMetricSpecification;
     }
@@ -73,6 +95,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.predefinedLoadMetricSpecification = predefinedLoadMetricSpecification;
     }
 
+    /**
+     * The forecast max capacity behavior that should be applied to the resource.
+     */
+    @Updatable
     public PredictiveScalingMaxCapacityBehavior getPredictiveScalingMaxCapacityBehavior() {
         return predictiveScalingMaxCapacityBehavior;
     }
@@ -81,6 +107,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.predictiveScalingMaxCapacityBehavior = predictiveScalingMaxCapacityBehavior;
     }
 
+    /**
+     * The size of the capacity buffer.
+     */
+    @Updatable
     public Integer getPredictiveScalingMaxCapacityBuffer() {
         return predictiveScalingMaxCapacityBuffer;
     }
@@ -89,6 +119,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.predictiveScalingMaxCapacityBuffer = predictiveScalingMaxCapacityBuffer;
     }
 
+    /**
+     * The predictive scaling mode.
+     */
+    @Updatable
     public PredictiveScalingMode getPredictiveScalingMode() {
         return predictiveScalingMode;
     }
@@ -97,6 +131,9 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.predictiveScalingMode = predictiveScalingMode;
     }
 
+    /**
+     * The ID of the resource.
+     */
     @Required
     public String getResourceId() {
         return resourceId;
@@ -106,6 +143,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.resourceId = resourceId;
     }
 
+    /**
+     * The scalable dimension associated with the resource.
+     */
+    @Updatable
     public ScalableDimension getScalableDimension() {
         return scalableDimension;
     }
@@ -114,6 +155,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.scalableDimension = scalableDimension;
     }
 
+    /**
+     * The policy update behavior for the resource.
+     */
+    @Updatable
     public ScalingPolicyUpdateBehavior getScalingPolicyUpdateBehavior() {
         return scalingPolicyUpdateBehavior;
     }
@@ -122,6 +167,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.scalingPolicyUpdateBehavior = scalingPolicyUpdateBehavior;
     }
 
+    /**
+     * The amount of time, in seconds, to buffer the run time of scheduled scaling actions.
+     */
+    @Updatable
     public Integer getScheduledActionBufferTime() {
         return scheduledActionBufferTime;
     }
@@ -130,6 +179,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.scheduledActionBufferTime = scheduledActionBufferTime;
     }
 
+    /**
+     * The namespace of the service.
+     */
+    @Updatable
     public ServiceNamespace getServiceNamspace() {
         return serviceNamspace;
     }
@@ -138,6 +191,11 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         this.serviceNamspace = serviceNamspace;
     }
 
+    /**
+     * The target tracking configurations.
+     */
+    @CollectionMax(10)
+    @Updatable
     public List<AutoScalingTargetTrackingConfiguration> getTargetTrackingConfiguration() {
         if (targetTrackingConfiguration == null) {
             targetTrackingConfiguration = new ArrayList<>();
@@ -190,6 +248,8 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
                 configurations.add(configuration);
             });
             setTargetTrackingConfiguration(configurations);
+        } else {
+            setTargetTrackingConfiguration(null);
         }
     }
 

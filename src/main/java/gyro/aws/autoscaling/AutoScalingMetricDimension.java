@@ -36,7 +36,7 @@ public class AutoScalingMetricDimension extends Diffable implements Copyable<Met
 
     @Override
     public String primaryKey() {
-        return null;
+        return getName();
     }
 
     public MetricDimension toMetricDimension() {

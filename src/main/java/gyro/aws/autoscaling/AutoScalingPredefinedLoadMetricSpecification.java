@@ -2,15 +2,21 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.autoscalingplans.model.LoadMetricType;
 import software.amazon.awssdk.services.autoscalingplans.model.PredefinedLoadMetricSpecification;
 
-public class AutoScalingPredefinedLoadMetricSpecification extends Diffable implements Copyable<PredefinedLoadMetricSpecification> {
+public class AutoScalingPredefinedLoadMetricSpecification extends Diffable
+    implements Copyable<PredefinedLoadMetricSpecification> {
 
     private LoadMetricType predefinedLoadMetricType;
     private String resourceLabel;
 
+    /**
+     * The metric type.
+     */
+    @Updatable
     @Required
     public LoadMetricType getPredefinedLoadMetricType() {
         return predefinedLoadMetricType;
@@ -20,6 +26,10 @@ public class AutoScalingPredefinedLoadMetricSpecification extends Diffable imple
         this.predefinedLoadMetricType = predefinedLoadMetricType;
     }
 
+    /**
+     * The resource associated with the metric type.
+     */
+    @Updatable
     public String getResourceLabel() {
         return resourceLabel;
     }

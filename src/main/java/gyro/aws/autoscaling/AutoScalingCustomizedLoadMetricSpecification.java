@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.model.CustomizedLoadMetricSpecification;
@@ -19,6 +20,10 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
     private String statistic;
     private String unit;
 
+    /**
+     * The dimensions of the metric.
+     */
+    @Updatable
     public List<AutoScalingMetricDimension> getDimensions() {
         if (dimensions == null) {
             dimensions = new ArrayList<>();
@@ -30,6 +35,10 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
         this.dimensions = dimensions;
     }
 
+    /**
+     * The name of the metric.
+     */
+    @Updatable
     @Required
     public String getMetricName() {
         return metricName;
@@ -39,6 +48,10 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
         this.metricName = metricName;
     }
 
+    /**
+     * The namespace of the metric.
+     */
+    @Updatable
     @Required
     public String getNamespace() {
         return namespace;
@@ -48,6 +61,10 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
         this.namespace = namespace;
     }
 
+    /**
+     * The statistic of the metric.
+     */
+    @Updatable
     @Required
     @ValidStrings("Sum")
     public String getStatistic() {
@@ -58,6 +75,10 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
         this.statistic = statistic;
     }
 
+    /**
+     * The unit of the metric.
+     */
+    @Updatable
     public String getUnit() {
         return unit;
     }
@@ -81,6 +102,8 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
                 dimensions.add(autoScalingMetricDimension);
             });
             setDimensions(dimensions);
+        } else {
+            setDimensions(null);
         }
     }
 

@@ -2,6 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.autoscalingplans.model.TargetTrackingConfiguration;
 
 public class AutoScalingTargetTrackingConfiguration extends Diffable implements Copyable<TargetTrackingConfiguration> {
@@ -14,6 +15,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
     private Integer scaleOutCooldown;
     private Double targetValue;
 
+    /**
+     * The customized metric.
+     */
+    @Updatable
     public AutoScalingCustomizedScalingMetricSpecification getCustomizedScalingMetricSpecification() {
         return customizedScalingMetricSpecification;
     }
@@ -22,6 +27,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         this.customizedScalingMetricSpecification = customizedScalingMetricSpecification;
     }
 
+    /**
+     * When set to ``true`` the scale in by the target tracking scaling policy is disabled.
+     */
+    @Updatable
     public Boolean getDisableScaleIn() {
         return disableScaleIn;
     }
@@ -30,6 +39,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         this.disableScaleIn = disableScaleIn;
     }
 
+    /**
+     * The estimated time, in seconds, until a new instance can contribute to the CloudWatch metrics.
+     */
+    @Updatable
     public Integer getEstimatedInstanceWarmup() {
         return estimatedInstanceWarmup;
     }
@@ -38,6 +51,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         this.estimatedInstanceWarmup = estimatedInstanceWarmup;
     }
 
+    /**
+     * The predefined metric sepcification.
+     */
+    @Updatable
     public AutoScalingPredefinedScalingMetricSpecification getPredefinedScalingMetricSpecification() {
         return predefinedScalingMetricSpecification;
     }
@@ -46,6 +63,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         this.predefinedScalingMetricSpecification = predefinedScalingMetricSpecification;
     }
 
+    /**
+     * The amount of time, in seconds, after a scale in activity completes before another can start.
+     */
+    @Updatable
     public Integer getScaleInCooldown() {
         return scaleInCooldown;
     }
@@ -54,6 +75,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         this.scaleInCooldown = scaleInCooldown;
     }
 
+    /**
+     * The amount of time, in seconds, after a scale out activity completes before another can start.
+     **/
+    @Updatable
     public Integer getScaleOutCooldown() {
         return scaleOutCooldown;
     }
@@ -62,6 +87,10 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         this.scaleOutCooldown = scaleOutCooldown;
     }
 
+    /**
+     * The target value for the metric.
+     */
+    @Updatable
     public Double getTargetValue() {
         return targetValue;
     }

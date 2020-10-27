@@ -4,8 +4,6 @@ import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.validation.CollectionMax;
-import gyro.core.validation.CollectionMin;
 import gyro.core.validation.Range;
 import gyro.core.validation.Regex;
 import software.amazon.awssdk.services.autoscalingplans.model.TagFilter;
@@ -15,8 +13,10 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
     private String key;
     private List<String> values;
 
-    @Range(min = 1, max = 128)
-    @Regex("[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*")
+    /**
+     * The tag key.
+     */
+    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
     public String getKey() {
         return key;
     }
@@ -25,9 +25,11 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
         this.key = key;
     }
 
-    @CollectionMin(1)
-    @CollectionMax(256)
-    @Regex("[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*")
+    /**
+     * The tag values.
+     */
+    @Range(min = 0, max = 20)
+    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
     public List<String> getValues() {
         return values;
     }

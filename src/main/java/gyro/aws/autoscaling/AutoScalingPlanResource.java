@@ -10,10 +10,11 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.autoscalingplans.AutoScalingPlansClient;
 import software.amazon.awssdk.services.autoscalingplans.model.CreateScalingPlanResponse;
@@ -35,8 +36,10 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     private String statusMessage;
     private String statusStartTime;
 
+    /**
+     * The CloudFormation stack or a set of tag filters.
+     */
     @Updatable
-    @ConflictsWith("scaling-plan-name")
     @Required
     public AutoScalingApplicationSource getApplicationSource() {
         return applicationSource;
@@ -46,6 +49,10 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.applicationSource = applicationSource;
     }
 
+    /**
+     * The time and date when the scaling plan was created.
+     */
+    @Output
     public String getCreationTime() {
         return creationTime;
     }
@@ -54,6 +61,9 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.creationTime = creationTime;
     }
 
+    /**
+     * The scaling instructions.
+     */
     @Updatable
     @Required
     public List<AutoScalingScalingInstruction> getScalingIntructions() {
@@ -64,8 +74,10 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.scalingIntructions = scalingIntructions;
     }
 
+    /**
+     * The name of the scaling plan.
+     */
     @Id
-    @ConflictsWith("application-source")
     @Required
     public String getScalingPlanName() {
         return scalingPlanName;
@@ -75,6 +87,9 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.scalingPlanName = scalingPlanName;
     }
 
+    /**
+     * The version of the scaling plan.
+     */
     public Long getScalingPlanVersion() {
         return scalingPlanVersion;
     }
@@ -83,6 +98,10 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.scalingPlanVersion = scalingPlanVersion;
     }
 
+    /**
+     * The status of the scaling plan.
+     */
+    @Output
     @Required
     public ScalingPlanStatusCode getStatusCode() {
         return statusCode;
@@ -92,6 +111,11 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.statusCode = statusCode;
     }
 
+    /**
+     * The current status of the scaling plan.
+     */
+    @Output
+    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
     public String getStatusMessage() {
         return statusMessage;
     }
@@ -100,6 +124,10 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         this.statusMessage = statusMessage;
     }
 
+    /**
+     * The time and date when the scaling plan entered the current status.
+     */
+    @Output
     public String getStatusStartTime() {
         return statusStartTime;
     }

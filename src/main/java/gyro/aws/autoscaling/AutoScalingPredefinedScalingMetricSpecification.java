@@ -2,6 +2,7 @@ package gyro.aws.autoscaling;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.autoscalingplans.model.PredefinedScalingMetricSpecification;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingMetricType;
@@ -12,6 +13,10 @@ public class AutoScalingPredefinedScalingMetricSpecification extends Diffable
     private ScalingMetricType predefinedScalingMetricType;
     private String resourceLabel;
 
+    /**
+     * The metric type.
+     */
+    @Updatable
     @Required
     public ScalingMetricType getPredefinedScalingMetricType() {
         return predefinedScalingMetricType;
@@ -21,6 +26,10 @@ public class AutoScalingPredefinedScalingMetricSpecification extends Diffable
         this.predefinedScalingMetricType = predefinedScalingMetricType;
     }
 
+    /**
+     * The resource associated with the metric type.
+     */
+    @Updatable
     public String getResourceLabel() {
         return resourceLabel;
     }
