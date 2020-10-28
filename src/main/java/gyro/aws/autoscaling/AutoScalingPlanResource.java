@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020, Brightspot.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.autoscaling;
 
 import java.util.ArrayList;
@@ -24,6 +40,31 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlan;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusCode;
 import software.amazon.awssdk.services.autoscalingplans.model.ValidationException;
 
+/**
+ * Creates a scaling plan with the specified Application Source, Scaling Instructions, Scaling Plan Name, and Scaling
+ * Plan Version.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::autoscaling-plan autoscaling-plan-example
+ *        scaling-plan-name: "scaling-plan-example"
+ *        scaling-plan-version: 1.0
+ *
+ *        application-source
+ *            cloud-formation-stack-arn: "arn:aws:cloudformation:us-east-2:242040583208:stack/example-stack/e95a0400-192f-11eb-8eb9-0a36006b772c"
+ *        end
+ *
+ *        scaling-instructions
+ *            max-capacity: 100
+ *            min-capacity: 0
+ *            resource-id: "autoScalingGroup/test-autoscaling-group"
+ *            scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
+ *        end
+ *
+ */
 @Type("autoscaling-plan")
 public class AutoScalingPlanResource extends AwsResource implements Copyable<ScalingPlan> {
 

@@ -1,0 +1,15 @@
+aws::autoscaling-plan autoscaling-plan-example
+    scaling-plan-name: "scaling-plan-example"
+    scaling-plan-version: 1.0
+
+    application-source
+        cloud-formation-stack-arn: "arn:aws:cloudformation:us-east-2:242040583208:stack/example-stack/e95a0400-192f-11eb-8eb9-0a36006b772c"
+    end
+
+    scaling-instructions
+        max-capacity: 100
+        min-capacity: 0
+        resource-id: "autoScalingGroup/test-autoscaling-group"
+        scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
+    end
+end
