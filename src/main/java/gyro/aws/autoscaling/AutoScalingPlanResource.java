@@ -108,6 +108,9 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     @Updatable
     @Required
     public List<AutoScalingScalingInstruction> getScalingIntructions() {
+        if (scalingIntructions == null) {
+            scalingIntructions = new ArrayList<>();
+        }
         return scalingIntructions;
     }
 
