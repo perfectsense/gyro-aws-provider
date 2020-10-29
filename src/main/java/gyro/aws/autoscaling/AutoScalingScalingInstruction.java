@@ -46,7 +46,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
     private ScalableDimension scalableDimension;
     private ScalingPolicyUpdateBehavior scalingPolicyUpdateBehavior;
     private Integer scheduledActionBufferTime;
-    private ServiceNamespace serviceNamspace;
+    private ServiceNamespace serviceNamespace;
     private List<AutoScalingTargetTrackingConfiguration> targetTrackingConfiguration;
 
     /**
@@ -199,12 +199,12 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The namespace of the service.
      */
     @Updatable
-    public ServiceNamespace getServiceNamspace() {
-        return serviceNamspace;
+    public ServiceNamespace getServiceNamespace() {
+        return serviceNamespace;
     }
 
-    public void setServiceNamspace(ServiceNamespace serviceNamspace) {
-        this.serviceNamspace = serviceNamspace;
+    public void setServiceNamespace(ServiceNamespace serviceNamespace) {
+        this.serviceNamespace = serviceNamespace;
     }
 
     /**
@@ -235,7 +235,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         setScalableDimension(model.scalableDimension());
         setScalingPolicyUpdateBehavior(model.scalingPolicyUpdateBehavior());
         setScheduledActionBufferTime(model.scheduledActionBufferTime());
-        setServiceNamspace(model.serviceNamespace());
+        setServiceNamespace(model.serviceNamespace());
 
         if (model.customizedLoadMetricSpecification() != null) {
             AutoScalingCustomizedLoadMetricSpecification specification = newSubresource(
@@ -292,7 +292,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
             .scalableDimension(getScalableDimension())
             .scalingPolicyUpdateBehavior(getScalingPolicyUpdateBehavior())
             .scheduledActionBufferTime(getScheduledActionBufferTime())
-            .serviceNamespace(getServiceNamspace())
+            .serviceNamespace(getServiceNamespace())
             .targetTrackingConfigurations(getTargetTrackingConfiguration().stream()
                 .map(AutoScalingTargetTrackingConfiguration::toTargetTrackingConfiguration)
                 .collect(Collectors.toList()))
