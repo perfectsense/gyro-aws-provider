@@ -52,6 +52,7 @@ import software.amazon.awssdk.services.autoscalingplans.model.ValidationExceptio
  *    aws::autoscaling-plan autoscaling-plan-example
  *        scaling-plan-name: "scaling-plan-example"
  *        scaling-plan-version: 1.0
+ *        status-code: "Active"
  *
  *        application-source
  *            cloud-formation-stack-arn: "arn:aws:cloudformation:us-east-2:242040583208:stack/example-stack/e95a0400-192f-11eb-8eb9-0a36006b772c"
@@ -60,9 +61,26 @@ import software.amazon.awssdk.services.autoscalingplans.model.ValidationExceptio
  *        scaling-instructions
  *            max-capacity: 100
  *            min-capacity: 0
+ *            service-namespace: "autoscaling"
  *            resource-id: "autoScalingGroup/test-autoscaling-group"
  *            scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
+ *
+ *            target-tracking-configuration
+ *                target-value: 2.0
+ *
+ *                customized-scaling-metric-specification
+ *                    dimensions
+ *                        name: "dimension-test"
+ *                        value: "dimension-test-value"
+ *                    end
+ *
+ *                    metric-name: "metric-name-test"
+ *                    namespace: "namespace"
+ *                    statistic: "Sum"
+ *                end
+ *            end
  *        end
+ *    end
  *
  */
 @Type("autoscaling-plan")
@@ -70,7 +88,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
 
     private AutoScalingApplicationSource applicationSource;
     private String creationTime;
-    private List<AutoScalingScalingInstruction> scalingIntructions;
+    private List<AutoScalingScalingInstruction> scalingInstructions;
     private String scalingPlanName;
     private Long scalingPlanVersion;
     private ScalingPlanStatusCode statusCode;
@@ -107,15 +125,12 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
      */
     @Updatable
     @Required
-    public List<AutoScalingScalingInstruction> getScalingIntructions() {
-        if (scalingIntructions == null) {
-            scalingIntructions = new ArrayList<>();
-        }
-        return scalingIntructions;
+    public List<AutoScalingScalingInstruction> getScalingInstructions() {
+        return scalingInstructions;
     }
 
-    public void setScalingIntructions(List<AutoScalingScalingInstruction> scalingIntructions) {
-        this.scalingIntructions = scalingIntructions;
+    public void setScalingInstructions(List<AutoScalingScalingInstruction> scalingInstructions) {
+        this.scalingInstructions = scalingInstructions;
     }
 
     /**
@@ -205,9 +220,9 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
                 scalingInstruction.copyFrom(instruction);
                 instructions.add(scalingInstruction);
             });
-            setScalingIntructions(instructions);
+            setScalingInstructions(instructions);
         } else {
-            setScalingIntructions(null);
+            setScalingInstructions(null);
         }
 
     }
@@ -240,7 +255,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         CreateScalingPlanResponse response = client.createScalingPlan(r -> r
             .scalingPlanName(getScalingPlanName())
             .applicationSource(getApplicationSource() != null ? getApplicationSource().toApplicationSource() : null)
-            .scalingInstructions(getScalingIntructions().stream()
+            .scalingInstructions(getScalingInstructions().stream()
                 .map(AutoScalingScalingInstruction::toScalingInstruction).collect(Collectors.toList()))
         );
 
@@ -257,7 +272,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         client.updateScalingPlan(r -> r
             .scalingPlanName(getScalingPlanName())
             .applicationSource(getApplicationSource() != null ? getApplicationSource().toApplicationSource() : null)
-            .scalingInstructions(getScalingIntructions().stream()
+            .scalingInstructions(getScalingInstructions().stream()
                 .map(AutoScalingScalingInstruction::toScalingInstruction).collect(Collectors.toList()))
         );
     }

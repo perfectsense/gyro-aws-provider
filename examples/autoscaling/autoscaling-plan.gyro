@@ -1,6 +1,7 @@
 aws::autoscaling-plan autoscaling-plan-example
     scaling-plan-name: "scaling-plan-example"
     scaling-plan-version: 1.0
+    status-code: "Active"
 
     application-source
         cloud-formation-stack-arn: "arn:aws:cloudformation:us-east-2:242040583208:stack/example-stack/e95a0400-192f-11eb-8eb9-0a36006b772c"
@@ -9,7 +10,23 @@ aws::autoscaling-plan autoscaling-plan-example
     scaling-instructions
         max-capacity: 100
         min-capacity: 0
+        service-namespace: "autoscaling"
         resource-id: "autoScalingGroup/test-autoscaling-group"
         scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
+
+        target-tracking-configuration
+            target-value: 2.0
+
+            customized-scaling-metric-specification
+                dimensions
+                    name: "dimension-test"
+                    value: "dimension-test-value"
+                end
+
+                metric-name: "metric-name-test"
+                namespace: "namespace"
+                statistic: "Sum"
+            end
+        end
     end
 end
