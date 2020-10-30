@@ -31,11 +31,10 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
     private Integer maximumBuildsAllowed;
 
     /**
-     * The list that specifies the compute types that are allowed for the batch build. Valid values are
-     * ``BUILD_GENERAL1_SMALL``, ``BUILD_GENERAL1_MEDIUM``, ``BUILD_GENERAL1_LARGE``, ``BUILD_GENERAL1_2XLARGE``.
+     * The list that specifies the compute types that are allowed for the batch build.
      */
-    @ValidStrings({ "BUILD_GENERAL1_SMALL", "BUILD_GENERAL1_MEDIUM", "BUILD_GENERAL1_LARGE", "BUILD_GENERAL1_2XLARGE" })
     @Updatable
+    @ValidStrings({ "BUILD_GENERAL1_SMALL", "BUILD_GENERAL1_MEDIUM", "BUILD_GENERAL1_LARGE", "BUILD_GENERAL1_2XLARGE" })
     public List<String> getComputedTypesAllowed() {
         if (computedTypesAllowed == null) {
             computedTypesAllowed = new ArrayList<>();

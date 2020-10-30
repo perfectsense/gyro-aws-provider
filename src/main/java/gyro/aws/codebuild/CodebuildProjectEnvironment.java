@@ -25,6 +25,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.ComputeType;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentType;
@@ -44,11 +45,11 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     private EnvironmentType type;
 
     /**
-     * The compute resources used by the build project. Valid values are ``BUILD_GENERAL1_SMALL``,
-     * ``BUILD_GENERAL1_MEDIUM``, ``BUILD_GENERAL1_LARGE``, or ``BUILD_GENERAL1_2XLARGE``. (Required)
+     * The compute resources used by the build project.
      */
     @Updatable
     @Required
+    @ValidStrings({ "BUILD_GENERAL1_SMALL", "BUILD_GENERAL1_MEDIUM", "BUILD_GENERAL1_LARGE", "BUILD_GENERAL1_2XLARGE" })
     public ComputeType getComputeType() {
         return computeType;
     }
@@ -58,7 +59,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The image tag or image digest that identifies the Docker image used for the build project. (Required)
+     * The image tag or image digest that identifies the Docker image used for the build project.
      */
     @Updatable
     @Required
@@ -71,12 +72,16 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The type of build environment used for related builds. Valid values are ``WINDOWS_CONTAINER``,
-     * ``LINUX_CONTAINER``, ``LINUX_GPU_CONTAINER``, ``ARM_CONTAINER``, or ``WINDOWS_SERVER_2019_CONTAINER``.
-     * (Required)
+     * The type of build environment used for related builds.
      */
     @Updatable
     @Required
+    @ValidStrings({
+        "WINDOWS_CONTAINER",
+        "LINUX_CONTAINER",
+        "LINUX_GPU_CONTAINER",
+        "ARM_CONTAINER",
+        "WINDOWS_SERVER_2019_CONTAINER" })
     public EnvironmentType getType() {
         return type;
     }
@@ -116,10 +121,10 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
     }
 
     /**
-     * The type of credentials the build project uses to pull images in the build. Valid values are ``CODEBUILD``,
-     * ``SERVICE_ROLE``.
+     * The type of credentials the build project uses to pull images in the build.
      */
     @Updatable
+    @ValidStrings({ "CODEBUILD", "SERVICE_ROLE" })
     public ImagePullCredentialsType getImagePullCredentialsType() {
         return imagePullCredentialsType;
     }

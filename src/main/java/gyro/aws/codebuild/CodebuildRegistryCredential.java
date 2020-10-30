@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.CredentialProviderType;
 import software.amazon.awssdk.services.codebuild.model.RegistryCredential;
 
@@ -40,10 +41,10 @@ public class CodebuildRegistryCredential extends Diffable implements Copyable<Re
     }
 
     /**
-     * The service that created the credentials to access a private Docker registry. Valid values are
-     * ``SECRETS_MANAGER``. (Required)
+     * The service that created the credentials to access a private Docker registry.
      */
     @Required
+    @ValidStrings("SECRETS_MANAGER")
     public CredentialProviderType getCredentialProvider() {
         return credentialProvider;
     }

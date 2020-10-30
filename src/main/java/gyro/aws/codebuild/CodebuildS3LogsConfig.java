@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.LogsConfigStatusType;
 import software.amazon.awssdk.services.codebuild.model.S3LogsConfig;
 
@@ -30,10 +31,11 @@ public class CodebuildS3LogsConfig extends Diffable implements Copyable<S3LogsCo
     private String location;
 
     /**
-     * The current status of the S3 build logs. Valid values are ``ENABLED`` or ``DISABLED``. (Required)
+     * The current status of the S3 build logs.
      */
     @Updatable
     @Required
+    @ValidStrings({ "ENABLED", "DISABLED" })
     public LogsConfigStatusType getStatus() {
         return status;
     }

@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.CloudWatchLogsConfig;
 import software.amazon.awssdk.services.codebuild.model.LogsConfigStatusType;
 
@@ -30,11 +31,11 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
     private String streamName;
 
     /**
-     * The status configuration for the cloud watch logs for a build project. Valid values are ``ENABLED`` or
-     * ``DISABLED``. (Required)
+     * The status configuration for the cloud watch logs for a build project.
      */
     @Updatable
     @Required
+    @ValidStrings({"ENABLED", "DISABLED"})
     public LogsConfigStatusType getStatus() {
         return status;
     }

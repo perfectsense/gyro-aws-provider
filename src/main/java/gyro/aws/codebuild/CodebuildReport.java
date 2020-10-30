@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.Report;
 import software.amazon.awssdk.services.codebuild.model.ReportStatusType;
 import software.amazon.awssdk.services.codebuild.model.ReportType;
@@ -139,10 +140,10 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The status of the report. Valid values are ``GENERATING``, ``SUCCEEDED``, ``FAILED``, ``INCOMPLETE``,
-     * ``DELETING``.
+     * The status of the report.
      */
     @Output
+    @ValidStrings({"GENERATING", "SUCCEEDED", "FAILED", "INCOMPLETE", "DELETING"})
     public ReportStatusType getStatus() {
         return status;
     }
@@ -178,9 +179,10 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The type of the report that was run. Valid values are ``TEST`` or ``CODE_COVERAGE``.
+     * The type of the report that was run.
      */
     @Output
+    @ValidStrings({"TEST", "CODE_COVERAGE"})
     public ReportType getType() {
         return type;
     }

@@ -26,6 +26,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.ArtifactNamespace;
 import software.amazon.awssdk.services.codebuild.model.ArtifactPackaging;
@@ -47,11 +48,11 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     private String artifactIdentifier;
 
     /**
-     * The type of the build output artifact. Valid values are ``CODEPIPELINE``, ``S3``, or ``NO_ARTIFACTS``.
-     * (Required)
+     * The type of the build output artifact.
      */
     @Required
     @Updatable
+    @ValidStrings({ "CODEPIPELINE", "S3", "NO_ARTIFACTS" })
     public ArtifactsType getType() {
         return type;
     }
@@ -97,10 +98,10 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The type that is used to determine the name and location to store the output artifact. Valid values are ``NONE``
-     * or ``BUILD_ID``.
+     * The type that is used to determine the name and location to store the output artifact.
      */
     @Updatable
+    @ValidStrings({ "NONE", "BUILD_ID" })
     public ArtifactNamespace getNamespaceType() {
         return namespaceType;
     }
@@ -121,9 +122,10 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     }
 
     /**
-     * The type of build output artifact to create. Valid values are ``NONE`` or ``ZIP``.
+     * The type of build output artifact to create.
      */
     @Updatable
+    @ValidStrings({ "NONE", "ZIP" })
     public ArtifactPackaging getPackaging() {
         return packaging;
     }

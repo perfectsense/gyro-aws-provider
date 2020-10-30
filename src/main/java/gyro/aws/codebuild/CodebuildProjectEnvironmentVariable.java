@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariable;
 import software.amazon.awssdk.services.codebuild.model.EnvironmentVariableType;
 
@@ -56,10 +57,10 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     }
 
     /**
-     * The type of the environment variable. Valid values are ``PLAINTEXT``, ``PARAMETER_STORE``, or
-     * ``SECRETS_MANAGER``.
+     * The type of the environment variable.
      */
     @Updatable
+    @ValidStrings({ "PLAINTEXT", "PARAMETER_STORE", "SECRETS_MANAGER" })
     public EnvironmentVariableType getType() {
         return type;
     }

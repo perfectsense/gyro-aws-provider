@@ -34,10 +34,11 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
     private List<String> modes;
 
     /**
-     * The type of cache used by the build project. Valid values are ``NO_CACHE``, ``S3``, ``LOCAL``. (Required)
+     * The type of cache used by the build project.
      */
     @Updatable
     @Required
+    @ValidStrings({ "NO_CACHE", "S3", "LOCAL" })
     public CacheType getType() {
         return type;
     }
@@ -59,8 +60,7 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
     }
 
     /**
-     * The list of local cache modes. Valid values are ``LOCAL_DOCKER_LAYER_CACHE``, ``LOCAL_SOURCE_CACHE``,
-     * ``LOCAL_CUSTOM_CACHE``.
+     * The list of local cache modes.
      */
     @Updatable
     @ValidStrings({ "LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE" })

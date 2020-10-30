@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.FileSystemType;
 import software.amazon.awssdk.services.codebuild.model.ProjectFileSystemLocation;
 
@@ -79,9 +80,10 @@ public class CodebuildProjectFileSystemLocation extends Diffable implements Copy
     }
 
     /**
-     * The type of the file system. Valid values are ``EFS``.
+     * The type of the file system.
      */
     @Updatable
+    @ValidStrings("EFS")
     public FileSystemType getType() {
         return type;
     }

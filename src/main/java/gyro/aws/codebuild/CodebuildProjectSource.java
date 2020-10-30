@@ -26,6 +26,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.ProjectSource;
 import software.amazon.awssdk.services.codebuild.model.SourceType;
@@ -43,11 +44,11 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     private SourceType type;
 
     /**
-     * The type of repository that contains the source code to be built. Valid values are ``CODECOMMIT``,
-     * ``CODEPIPELINE``, ``GITHUB``, ``S3``, ``BITBUCKET``, ``GITHUB_ENTERPRISE``, ``NO_SOURCE``. (Required)
+     * The type of repository that contains the source code to be built.
      */
     @Updatable
     @Required
+    @ValidStrings({ "CODECOMMIT", "CODEPIPELINE", "GITHUB", "S3", "BITBUCKET", "GITHUB_ENTERPRISE", "NO_SOURCE" })
     public SourceType getType() {
         return type;
     }

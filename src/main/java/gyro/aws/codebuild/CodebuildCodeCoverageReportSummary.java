@@ -33,7 +33,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     private Integer linesMissed;
 
     /**
-     * The percentage of branches that are covered by the tests. Valid values between ``0`` to ``100``.
+     * The percentage of branches that are covered by the tests.
      */
     @Range(min = 0, max = 100)
     @Output
@@ -46,7 +46,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of conditional branches that are covered by the tests. Minimum ``0`` branches covered.
+     * The number of conditional branches that are covered by the tests.
      */
     @Min(0)
     @Output
@@ -59,7 +59,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of conditional branches that are not covered by the tests. Minimum ``0`` branches missed.
+     * The number of conditional branches that are not covered by the tests.
      */
     @Min(0)
     @Output
@@ -72,7 +72,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The percentage of lines that are covered by the tests. Valid values between ``0`` to ``100``.
+     * The percentage of lines that are covered by the tests.
      */
     @Range(min = 0, max = 100)
     @Output
@@ -85,7 +85,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of lines that are covered by the tests. Minimum ``0`` lines covered.
+     * The number of lines that are covered by the tests.
      */
     @Min(0)
     @Output
@@ -98,7 +98,7 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     }
 
     /**
-     * The number of lines that are not covered by the tests. Minimum ``0`` lines missed.
+     * The number of lines that are not covered by the tests.
      */
     @Min(0)
     @Output
