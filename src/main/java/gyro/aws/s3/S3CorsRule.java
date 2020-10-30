@@ -19,6 +19,7 @@ package gyro.aws.s3;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.CORSRule;
 
 import java.util.List;
@@ -43,9 +44,10 @@ public class S3CorsRule extends Diffable implements Copyable<CORSRule> {
     }
 
     /**
-     * Allowed HTTP methods for the rule. Valid values are ``GET``, ``PUT``, ``POST``, ``DELETE`` and ``HEAD``.
+     * Allowed HTTP methods for the rule.
      */
     @Updatable
+    @ValidStrings({"GET", "PUT", "POST", "DELETE", "HEAD"})
     public List<String> getAllowedMethods() {
         return allowedMethods;
     }

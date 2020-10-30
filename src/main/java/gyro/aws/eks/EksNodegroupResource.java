@@ -37,6 +37,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.AMITypes;
 import software.amazon.awssdk.services.eks.model.CreateNodegroupRequest;
@@ -97,7 +98,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private String arn;
 
     /**
-     * The name of the nodegroup. (Required)
+     * The name of the nodegroup.
      */
     @Required
     public String getName() {
@@ -109,7 +110,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The name of the cluster for which to manage the nodegroup. (Required)
+     * The name of the cluster for which to manage the nodegroup.
      */
     @Required
     public EksClusterResource getCluster() {
@@ -146,6 +147,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
     /**
      * The scaling configuration details for the Auto Scaling group that is created for your node group.
+     *
+     * @subresource gyro.aws.eks.EksNodegroupScalingConfig
      */
     @Updatable
     public EksNodegroupScalingConfig getScalingConfig() {
@@ -172,7 +175,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The subnets to use for the Auto Scaling group that is created for your node group. (Required)
+     * The subnets to use for the Auto Scaling group that is created for your node group.
      */
     @Required
     public List<SubnetResource> getSubnets() {
@@ -189,6 +192,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
     /**
      * The remote access (SSH) configuration for the node group.
+     *
+     * @subresource gyro.aws.eks.EksNodegroupRemoteAccessConfig
      */
     public EksNodegroupRemoteAccessConfig getRemoteAccess() {
         return remoteAccess;
@@ -201,6 +206,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     /**
      * The Ami type of the node group.
      */
+    @ValidStrings({"AL2_x86_6", "AL2_x86_64_GPU"})
     public AMITypes getAmiType() {
         return amiType;
     }
@@ -210,7 +216,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * The IAM role to use for the nodegroup. (Required)
+     * The IAM role to use for the nodegroup.
      */
     @Required
     public RoleResource getNodeRole() {

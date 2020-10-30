@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.GeoMatchConstraint;
 import software.amazon.awssdk.services.waf.model.GeoMatchSetUpdate;
@@ -32,8 +33,9 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
     private String type;
 
     /**
-     * The value filter. Uses two letter country codes (i.e. US) when type selected as ``COUNTRY``. (Required)
+     * The value filter. Uses two letter country codes (i.e. US) when type selected as ``COUNTRY``.
      */
+    @Required
     public String getValue() {
         return value != null ? value.toUpperCase() : null;
     }
@@ -43,8 +45,9 @@ public abstract class GeoMatchConstraintResource extends AbstractWafResource imp
     }
 
     /**
-     * The type of geo match filter. Allowed values are ``Country``. (Required)
+     * The type of geo match filter. Allowed values are ``Country``.
      */
+    @Required
     public String getType() {
         return type;
     }

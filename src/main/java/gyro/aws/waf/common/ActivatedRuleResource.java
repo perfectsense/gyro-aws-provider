@@ -23,6 +23,9 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.ExcludedRule;
@@ -43,8 +46,9 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     private List<String> excludedRules;
 
     /**
-     * The rule to be attached. (Required)
+     * The rule to be attached.
      */
+    @Required
     public CommonRuleResource getRule() {
         return rule;
     }
@@ -54,8 +58,11 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The default action for the rule under this waf. (Required)
+     * The default action for the rule under this waf.
+     *
+     * @subresource gyro.aws.waf.common.WafAction
      */
+    @Required
     @Updatable
     public WafAction getAction() {
         return action;
@@ -66,8 +73,10 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The type of rule being attached. Valid values are ``REGULAR`` or ``RATE_BASED``. (Required)
+     * The type of rule being attached.
      */
+    @Required
+    @ValidStrings({"REGULAR", "RATE_BASED"})
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }
@@ -77,9 +86,11 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     }
 
     /**
-     * The priority of the rule when attached to the acl. Valid values integer 1 through 10 without skipping. (Required)
+     * The priority of the rule when attached to the acl.
      */
+    @Required
     @Updatable
+    @Range(min = 1, max = 10)
     public Integer getPriority() {
         return priority;
     }

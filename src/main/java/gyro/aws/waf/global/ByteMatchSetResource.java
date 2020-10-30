@@ -22,6 +22,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.ByteMatchSet;
 import software.amazon.awssdk.services.waf.model.ByteMatchTuple;
@@ -57,10 +58,11 @@ public class ByteMatchSetResource extends gyro.aws.waf.common.ByteMatchSetResour
     private Set<ByteMatchTupleResource> byteMatchTuple;
 
     /**
-     * List of byte match tuple data defining the condition. (Required)
+     * List of byte match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.global.ByteMatchTupleResource
      */
+    @Required
     @Updatable
     public Set<ByteMatchTupleResource> getByteMatchTuple() {
         if (byteMatchTuple == null) {

@@ -93,7 +93,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     private String arn;
 
     /**
-     * The name of the fargate profile. (Required)
+     * The name of the fargate profile.
      */
     @Required
     public String getName() {
@@ -105,7 +105,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     }
 
     /**
-     * The cluster for which to manage the fargate profile. (Required)
+     * The cluster for which to manage the fargate profile.
      */
     @Required
     public EksClusterResource getCluster() {
@@ -117,7 +117,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     }
 
     /**
-     * The pod execution role to use for pods in the fargate profile. (Required)
+     * The pod execution role to use for pods in the fargate profile.
      */
     @Required
     public RoleResource getPodExecutionRole() {
@@ -129,7 +129,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     }
 
     /**
-     * The selectors to match for pods to use the fargate profile. (Required)
+     * The selectors to match for pods to use the fargate profile.
      */
     @Required
     public List<EksFargateProfileSelector> getSelector() {
@@ -145,7 +145,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     }
 
     /**
-     * The subnets where the pods should be launched. (Required)
+     * The subnets where the pods should be launched.
      */
     @Required
     public Set<SubnetResource> getSubnets() {

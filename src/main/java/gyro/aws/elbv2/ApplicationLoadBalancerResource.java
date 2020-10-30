@@ -25,6 +25,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
@@ -64,7 +65,7 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
     private Set<SubnetResource> subnets;
 
     /**
-     *  List of security groups associated with the alb. (Optional)
+     *  List of security groups associated with the alb.
      */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
@@ -80,8 +81,9 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
     }
 
     /**
-     *  List of subnets associated with the alb. (Required)
+     *  List of subnets associated with the alb.
      */
+    @Required
     @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {

@@ -115,7 +115,7 @@ dependencies {
     implementation 'software.amazon.awssdk:neptune'
     implementation 'org.json:json:20180813'
 
-    gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
+    gyroDoclet "gyro:gyro-doclet:0.99.1"
 }
 
 task referenceDocs(type: Javadoc) {

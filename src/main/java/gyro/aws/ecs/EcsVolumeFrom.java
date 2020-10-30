@@ -26,7 +26,7 @@ public class EcsVolumeFrom extends Diffable {
     private Boolean readOnly;
 
     /**
-     * The ``name`` of another container within the same task definition from which to mount volumes. (Required)
+     * The ``name`` of another container within the same task definition from which to mount volumes.
      */
     @Required
     public String getSourceContainer() {

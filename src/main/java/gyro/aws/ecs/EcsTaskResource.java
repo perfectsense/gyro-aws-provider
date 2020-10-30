@@ -34,6 +34,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
 import software.amazon.awssdk.services.ecs.model.LaunchType;
@@ -100,7 +101,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The cluster on which to run your task. (Required)
+     * The cluster on which to run your task.
      */
     @Required
     public EcsClusterResource getCluster() {
@@ -112,7 +113,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The number of instantiations of the specified task to place on your cluster. (Required)
+     * The number of instantiations of the specified task to place on your cluster.
      */
     @Required
     public Integer getCount() {
@@ -170,7 +171,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The placement constraints to use for task. Maximum of ``10`` constraints.
+     * The placement constraints to use for task.
      */
     @CollectionMax(10)
     public List<EcsPlacementConstraint> getPlacementConstraints() {
@@ -186,7 +187,7 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The placement strategies to use for your task. Maximum of ``5`` strategies.
+     * The placement strategies to use for your task.
      */
     @CollectionMax(5)
     public List<EcsPlacementStrategy> getPlacementStrategy() {
@@ -202,8 +203,9 @@ public class EcsTaskResource extends AwsResource implements Copyable<Task> {
     }
 
     /**
-     * The option to propagate the tags from the task definition or the service to the tasks in the service. Valid values are ``TASK_DEFINITION`` or ``SERVICE``.
+     * The option to propagate the tags from the task definition or the service to the tasks in the service.
      */
+    @ValidStrings({"TASK_DEFINITION", "SERVICE"})
     public PropagateTags getPropagateTags() {
         return propagateTags;
     }

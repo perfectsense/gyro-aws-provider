@@ -25,6 +25,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticsearch.model.EBSOptions;
 import software.amazon.awssdk.services.elasticsearch.model.VolumeType;
@@ -37,7 +38,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     private Integer iops;
 
     /**
-     * Enable the EBS volume, a block level storage device. (Required)
+     * Enable the EBS volume, a block level storage device.
      */
     @Updatable
     @Required
@@ -53,6 +54,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
      * The volume type for the EBS-based storage. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
+    @ValidStrings({"standard", "gp2", "io1"})
     public VolumeType getVolumeType() {
         return volumeType;
     }
@@ -62,7 +64,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     }
 
     /**
-     * The size of the EBS volume. Valid values belong between ``10`` to ``1024``. Can only be set if ``enable-ebs`` is set to ``true``.
+     * The size of the EBS volume. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
     @Range(min = 10, max = 1024)
@@ -75,7 +77,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
     }
 
     /**
-     * The baseline I/O performance for the EBS volume. Only used by Provisioned IOPS volumes. Valid values between ``1000`` to ``16000``. Can only be set if ``enable-ebs`` is set to ``true``.
+     * The baseline I/O performance for the EBS volume. Only used by Provisioned IOPS volumes. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
     @Range(min = 1000, max = 16000)

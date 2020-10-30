@@ -39,7 +39,7 @@ public class ScalingConfiguration extends Diffable {
     }
 
     /**
-     * The maximum capacity for an Aurora DB cluster in serverless DB engine mode. Valid values are ``2``, ``4``, ``8``, ``16``, ``32``, ``64``, ``128``, and ``256``.
+     * The maximum capacity for an Aurora DB cluster in serverless DB engine mode.
      */
     @Updatable
     public Integer getMaxCapacity() {
@@ -51,7 +51,7 @@ public class ScalingConfiguration extends Diffable {
     }
 
     /**
-     * The minimum capacity for an Aurora DB cluster in serverless DB engine mode. Valid values are ``2``, ``4``, ``8``, ``16``, ``32``, ``64``, ``128``, and ``256``.
+     * The minimum capacity for an Aurora DB cluster in serverless DB engine mode.
      */
     @Updatable
     public Integer getMinCapacity() {

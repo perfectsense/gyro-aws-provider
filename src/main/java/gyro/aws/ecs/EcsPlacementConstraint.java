@@ -28,7 +28,7 @@ public class EcsPlacementConstraint extends Diffable implements Copyable<Placeme
     private PlacementConstraintType type;
 
     /**
-     * A cluster query language expression to apply to the constraint. (Required)
+     * A cluster query language expression to apply to the constraint.
      */
     @Required
     public String getExpression() {
@@ -40,7 +40,7 @@ public class EcsPlacementConstraint extends Diffable implements Copyable<Placeme
     }
 
     /**
-     * The type of constraint. (Required)
+     * The type of constraint.
      */
     @Required
     public PlacementConstraintType getType() {

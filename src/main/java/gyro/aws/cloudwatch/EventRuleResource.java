@@ -31,6 +31,8 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.CloudWatchEventsException;
 import software.amazon.awssdk.services.cloudwatchevents.model.ListRulesResponse;
@@ -55,7 +57,7 @@ import java.util.Set;
  * -------
  *
  * .. code-block:: gyro
- * 
+ *
  *     aws::cloudwatch-event-rule event-pattern-example
  *         name: "event-pattern-test"
  *         description: "first rule test"
@@ -85,9 +87,10 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     private Set<RuleTargetResource> target;
 
     /**
-     * The name of the rule associated that matches incoming events. (Required)
+     * The name of the rule associated that matches incoming events.
      */
     @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -97,7 +100,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     /**
-     * The description of the rule associated with the event.(Optional)
+     * The description of the rule associated with the event.
      */
     @Updatable
     public String getDescription() {
@@ -148,6 +151,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
      * This value indicates if the rule is enabled to invoke target actions. Valid values are ``ENABLED`` or ``DISABLED``
      */
     @Updatable
+    @ValidStrings({"ENABLED", "DISABLED"})
     public String getState() {
         return state;
     }

@@ -19,6 +19,7 @@ package gyro.aws.efs;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.efs.model.BackupPolicy;
 import software.amazon.awssdk.services.efs.model.Status;
 
@@ -27,9 +28,10 @@ public class EfsBackupPolicy extends Diffable implements Copyable<BackupPolicy> 
     private Status status;
 
     /**
-     * The status of the file system's backup policy. Valid values are ``ENABLED`` or ``DISABLED``. (Required)
+     * The status of the file system's backup policy.
      */
     @Required
+    @ValidStrings({"ENABLED", "DISABLED"})
     public Status getStatus() {
         return status;
     }

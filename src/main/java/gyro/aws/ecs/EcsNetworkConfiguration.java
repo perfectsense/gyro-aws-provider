@@ -27,7 +27,7 @@ public class EcsNetworkConfiguration extends Diffable implements Copyable<Networ
     private EcsAwsVpcConfiguration awsVpcConfiguration;
 
     /**
-     * The VPC configuration for the service. (Required)
+     * The VPC configuration for the service.
      */
     @Required
     @Updatable

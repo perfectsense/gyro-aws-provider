@@ -59,7 +59,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     private String userInfoEndpoint;
 
     /**
-     *  Up to 10 query parameters to include in the redirect request to the authorization endpoint. (Optional)
+     *  Up to 10 query parameters to include in the redirect request to the authorization endpoint.
      */
     @Updatable
     public Map<String, String> getExtraParams() {
@@ -71,7 +71,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The authorization endpoint of the IdP. (Required)
+     *  The authorization endpoint of the IdP.
      */
     @Updatable
     public String getAuthorizationEndpoint() {
@@ -83,7 +83,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The OAuth 2.0 client identifier. (Required)
+     *  The OAuth 2.0 client identifier.
      */
     @Updatable
     public String getClientId() {
@@ -95,7 +95,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The OAuth 2.0 client secret. Required if creating a rule. (Required)
+     *  The OAuth 2.0 client secret. Required if creating a rule.
      */
     @Updatable
     public String getClientSecret() {
@@ -107,7 +107,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The OIDC issuer identifier of the IdP. (Required)
+     *  The OIDC issuer identifier of the IdP.
      */
     @Updatable
     public String getIssuer() {
@@ -119,8 +119,8 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The behavior if the use is not authenticated. Valid values are ``deny``, ``allow``, and ``authenticate``.
-     *  Defaults to ``authenticate``. (Optional)
+     *  The behavior if the use is not authenticated.
+     *  Defaults to ``authenticate``.
      */
     @Updatable
     public String getOnUnauthenticatedRequest() {
@@ -136,7 +136,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The set of user claims to be request from th IdP. Defaults to ``openid``. (Optional)
+     *  The set of user claims to be request from th IdP. Defaults to ``openid``.
      */
     @Updatable
     public String getScope() {
@@ -152,7 +152,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The name of the cookie used to maintain session information. Defaults to ``AWSELBAuthSessionCookie``. (Optional)
+     *  The name of the cookie used to maintain session information. Defaults to ``AWSELBAuthSessionCookie``.
      */
     @Updatable
     public String getSessionCookieName() {
@@ -168,7 +168,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The maximum duration of the authentication session. Defaults to 604800 seconds. (Optional)
+     *  The maximum duration of the authentication session. Defaults to 604800 seconds.
      */
     @Updatable
     public Long getSessionTimeout() {
@@ -184,7 +184,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The token endpoint of the IdP. (Required)
+     *  The token endpoint of the IdP.
      */
     @Updatable
     public String getTokenEndpoint() {
@@ -196,7 +196,7 @@ public class AuthenticateOidcAction extends Diffable implements Copyable<Authent
     }
 
     /**
-     *  The user token endpoint of the IdP. (Required)
+     *  The user token endpoint of the IdP.
      */
     @Updatable
     public String getUserInfoEndpoint() {

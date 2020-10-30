@@ -41,7 +41,7 @@ public class DynamoDbLocalSecondaryIndex extends Diffable implements Copyable<Lo
     private List<String> nonKeyAttributes;
 
     /**
-     * The name for the index. (Required)
+     * The name for the index.
      */
     @Required
     @Regex("[a-zA-Z0-9_.-]+")
@@ -54,7 +54,7 @@ public class DynamoDbLocalSecondaryIndex extends Diffable implements Copyable<Lo
     }
 
     /**
-     * The name of the range (sort) key for this index. (Required)
+     * The name of the range (sort) key for this index.
      */
     @Required
     public String getRangeKey() {
@@ -66,7 +66,7 @@ public class DynamoDbLocalSecondaryIndex extends Diffable implements Copyable<Lo
     }
 
     /**
-     * The set of attributes that are projected into this index. Valid values are ``ALL``, ``INCLUDE`` or ``KEYS_ONLY``.
+     * The set of attributes that are projected into this index.
      */
     @Required
     @ValidStrings({ "ALL", "INCLUDE", "KEYS_ONLY" })

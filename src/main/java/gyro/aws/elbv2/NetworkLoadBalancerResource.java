@@ -27,6 +27,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Resource;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AvailabilityZone;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateLoadBalancerResponse;
@@ -73,10 +74,11 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     private List<SubnetMappings> subnetMapping;
 
     /**
-     * The list of subnet mappings associated with the nlb. (Required)
+     * The list of subnet mappings associated with the nlb.
      *
      * @subresource gyro.aws.elbv2.SubnetMappingResource
      */
+    @Required
     public List<SubnetMappings> getSubnetMapping() {
         if (subnetMapping == null) {
             subnetMapping = new ArrayList<>();
@@ -121,7 +123,7 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
     @Override
     public void create(GyroUI ui, State state) {
         ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        
+
         CreateLoadBalancerResponse response = client.createLoadBalancer(r -> r.ipAddressType(getIpAddressType())
                 .name(getName())
                 .scheme(getScheme())

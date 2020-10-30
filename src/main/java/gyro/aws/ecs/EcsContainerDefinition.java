@@ -75,11 +75,10 @@ public class EcsContainerDefinition extends Diffable {
     private EcsFirelensConfiguration firelensConfiguration;
 
     /**
-     * The name of the container. (Required)
-     * Valid values consist of 1 to 255 letters, numbers, and hyphens.
+     * The name of the container.
      */
     @Required
-    @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
+    @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "a string 1 to 255 characters long containing letters, numbers, and hyphens")
     public String getName() {
         return name;
     }
@@ -89,7 +88,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
-     * The image used to start a container. This string is passed directly to the Docker daemon. (Required)
+     * The image used to start a container. This string is passed directly to the Docker daemon.
      */
     @Required
     public String getImage() {
@@ -115,7 +114,6 @@ public class EcsContainerDefinition extends Diffable {
      * The amount (in MiB) of memory to present to the container. If your container attempts to exceed the memory specified here, the container is killed.
      * The total amount of memory reserved for all containers within a task must be lower than the task ``memory`` value, if one is specified.
      * If a task-level ``memory`` value is not specified, you must specify a non-zero integer for one or both of ``memory`` or ``memory-reservation`` in a container definition. If you specify both, ``memory`` must be greater than ``memory-reservation``.
-     * The minimum value is ``4``.
      */
     @Min(4)
     public Integer getMemory() {
@@ -129,7 +127,6 @@ public class EcsContainerDefinition extends Diffable {
     /**
      * The soft limit (in MiB) of memory to reserve for the container. When system memory is under heavy contention, Docker attempts to keep the container memory to this soft limit. However, the container can consume more memory when it needs to, up to either the hard limit specified with the ``memory`` parameter (if applicable), or all of the available memory on the container instance, whichever comes first.
      * If a task-level ``memory`` value is not specified, you must specify a non-zero integer for one or both of ``memory`` or ``memory-reservation`` in a container definition. If you specify both, ``memory`` must be greater than ``memory-reservation``.
-     * The minimum value is ``4``.
      */
     @Min(4)
     public Integer getMemoryReservation() {
@@ -310,8 +307,7 @@ public class EcsContainerDefinition extends Diffable {
     }
 
     /**
-     * Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own.
-     * The maximum value is ``120``. Defaults to ``30``.
+     * Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own. Defaults to ``30``.
      */
     @Max(120)
     public Integer getStopTimeout() {

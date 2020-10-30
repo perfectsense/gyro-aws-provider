@@ -45,7 +45,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
     private String startRecordType;
 
     /**
-     * The ID of the hosted zone that contains the resource record sets that you want to list. (Required)
+     * The ID of the hosted zone that contains the resource record sets that you want to list.
      */
     public String getHostedZoneId() {
         return hostedZoneId;
@@ -56,7 +56,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
     }
 
     /**
-     * The first name in the lexicographic ordering of resource record sets that you want to list. (Required)
+     * The first name in the lexicographic ordering of resource record sets that you want to list.
      */
     public String getStartRecordName() {
         return startRecordName;
@@ -67,7 +67,7 @@ public class RecordSetFinder extends AwsFinder<Route53Client, ResourceRecordSet,
     }
 
     /**
-     * The type of resource record set to begin the record listing from. Valid values for basic resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``NS`` or ``PTR`` or ``SOA`` or ``SPF`` or ``SRV`` or ``TXT``. Values for weighted, latency, geolocation, and failover resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SPF`` or ``SRV`` or ``TXT``. (Required)
+     * The type of resource record set to begin the record listing from. Valid values for basic resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``NS`` or ``PTR`` or ``SOA`` or ``SPF`` or ``SRV`` or ``TXT``. Values for weighted, latency, geolocation, and failover resource record sets are ``A`` or ``AAAA`` or ``CAA`` or ``CNAME`` or ``MX`` or ``NAPTR`` or ``PTR`` or ``SPF`` or ``SRV`` or ``TXT``.
      */
     public String getStartRecordType() {
         return startRecordType;

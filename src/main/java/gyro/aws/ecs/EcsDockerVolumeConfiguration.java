@@ -24,6 +24,7 @@ import java.util.Set;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.model.DockerVolumeConfiguration;
 import software.amazon.awssdk.services.ecs.model.Scope;
@@ -37,11 +38,11 @@ public class EcsDockerVolumeConfiguration extends Diffable {
     private Map<String, String> labels;
 
     /**
-     * The scope for the Docker volume that determines its lifecycle. (Required)
-     * Valid values are ``task`` and ``shared``.
+     * The scope for the Docker volume that determines its lifecycle.
      * Docker volumes that are scoped to a ``task`` are automatically provisioned when the task starts and destroyed when the task stops. Docker volumes that are scoped as ``shared`` persist after the task stops.
      */
     @Required
+    @ValidStrings({"task", "scope"})
     public Scope getScope() {
         return scope;
     }
@@ -63,7 +64,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
     }
 
     /**
-     * The Docker volume driver to use. The ``driver`` value must match the driver name provided by Docker. (Required)
+     * The Docker volume driver to use. The ``driver`` value must match the driver name provided by Docker.
      */
     @Required
     public String getDriver() {

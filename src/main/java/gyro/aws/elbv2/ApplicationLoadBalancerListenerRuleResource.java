@@ -26,6 +26,8 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateRuleResponse;
@@ -75,10 +77,11 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     private String arn;
 
     /**
-     *  List of actions associated with the rule. (Required)
+     *  List of actions associated with the rule.
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
+    @Required
     @Updatable
     public List<ActionResource> getAction() {
         if (action == null) {
@@ -93,10 +96,11 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  List of conditions associated with the rule. (Required)
+     *  List of conditions associated with the rule.
      *
      *  @subresource gyro.aws.elbv2.ConditionResource
      */
+    @Required
     @Updatable
     public List<ConditionResource> getCondition() {
         if (condition == null) {
@@ -111,8 +115,9 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  The alb associated with this listener rule. (Required)
+     *  The alb associated with this listener rule.
      */
+    @Required
     public ApplicationLoadBalancerListenerResource getAlbListener() {
         return albListener;
     }
@@ -122,8 +127,10 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
     }
 
     /**
-     *  Priority of the rule. Valid values between ``1`` and ``50000``. No two rules can have the same priority. ``-1`` points to the default rule. (Required)
+     *  Priority of the rule. No two rules can have the same priority. ``-1`` points to the default rule.
      */
+    @Required
+    @Range(min = 1, max = 50000)
     public Integer getPriority() {
         return priority;
     }

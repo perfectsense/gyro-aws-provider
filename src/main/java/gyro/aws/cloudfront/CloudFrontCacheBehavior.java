@@ -19,6 +19,7 @@ package gyro.aws.cloudfront;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.DefaultCacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.ForwardedValues;
@@ -76,9 +77,10 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     }
 
     /**
-     * The protocol the user is allowed to access resources that match this cache behavior. Valid values are ``allow-all`` or ``redirect-to-https`` or ``https-only``.
+     * The protocol the user is allowed to access resources that match this cache behavior.
      */
     @Updatable
+    @ValidStrings({"allow-all", "redirect-to-https", "https-only"})
     public String getViewerProtocolPolicy() {
         if (viewerProtocolPolicy == null) {
             viewerProtocolPolicy = "allow-all";

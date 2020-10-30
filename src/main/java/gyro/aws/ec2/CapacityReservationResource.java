@@ -26,6 +26,8 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
@@ -90,8 +92,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The Availability Zone in which to create the Capacity Reservation. (Required)
+     * The Availability Zone in which to create the Capacity Reservation.
      */
+    @Required
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -101,8 +104,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates whether the Capacity Reservation supports EBS-optimized instances. (Required)
+     * Indicates whether the Capacity Reservation supports EBS-optimized instances.
      */
+    @Required
     public Boolean getEbsOptimized() {
         return ebsOptimized;
     }
@@ -124,9 +128,11 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the way in which the Capacity Reservation ends. Valid values are ``unlimited`` or ``limited``. (Required)
+     * Indicates the way in which the Capacity Reservation ends.
      */
+    @Required
     @Updatable
+    @ValidStrings({"unlimited", "limited"})
     public String getEndDateType() {
         return endDateType != null ? endDateType.toLowerCase() : null;
     }
@@ -136,8 +142,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates whether the Capacity Reservation supports instances with temporary, block-level storage. (Required)
+     * Indicates whether the Capacity Reservation supports instances with temporary, block-level storage.
      */
+    @Required
     public Boolean getEphemeralStorage() {
         return ephemeralStorage;
     }
@@ -147,8 +154,10 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the type of instance launches that the Capacity Reservation accepts. Valid values are ``open`` or ``targeted``. (Required)
+     * Indicates the type of instance launches that the Capacity Reservation accepts.
      */
+    @Required
+    @ValidStrings({"open", "targeted"})
     public String getInstanceMatchCriteria() {
         return instanceMatchCriteria != null ? instanceMatchCriteria.toLowerCase() : null;
     }
@@ -158,8 +167,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The type of operating system for which to reserve capacity. (Required)
+     * The type of operating system for which to reserve capacity.
      */
+    @Required
     public String getInstancePlatform() {
         return instancePlatform;
     }
@@ -169,8 +179,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The instance type for which to reserve capacity. (Required)
+     * The instance type for which to reserve capacity.
      */
+    @Required
     public String getInstanceType() {
         return instanceType;
     }
@@ -180,8 +191,10 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates the tenancy of the Capacity Reservation. Valid values are ``default`` or ``dedicated``. (Required)
+     * Indicates the tenancy of the Capacity Reservation.
      */
+    @Required
+    @ValidStrings({"default", "dedicated"})
     public String getTenancy() {
         return tenancy != null ? tenancy.toLowerCase() : null;
     }
@@ -191,8 +204,9 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The number of Instances for which to reserve capacity. (Required)
+     * The number of Instances for which to reserve capacity.
      */
+    @Required
     @Updatable
     public Integer getInstanceCount() {
         return instanceCount;

@@ -72,7 +72,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     private String subscriptionArn;
 
     /**
-     * The endpoint of the resource subscribed to the topic. (Required)
+     * The endpoint of the resource subscribed to the topic.
      */
     @Required
     public String getEndpoint() {
@@ -84,7 +84,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     }
 
     /**
-     * The protocol associated with the endpoint. (Required)
+     * The protocol associated with the endpoint.
      */
     @Required
     public String getProtocol() {
@@ -96,7 +96,7 @@ public class SubscriptionResource extends AwsResource implements Copyable<Subscr
     }
 
     /**
-     * The topic resource to subscribe to. (Required)
+     * The topic resource to subscribe to.
      */
     @Required
     public TopicResource getTopic() {

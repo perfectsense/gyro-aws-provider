@@ -27,6 +27,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
@@ -45,8 +46,9 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     private Integer globalTimeout;
 
     /**
-     * The name of the lifecycle hook. (Required)
+     * The name of the lifecycle hook.
      */
+    @Required
     public String getLifecycleHookName() {
         return lifecycleHookName;
     }
@@ -56,7 +58,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON. Valid values are ``ABANDON`` or ``CONTINUE``.
+     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON.
      */
     @Updatable
     @ValidStrings({ "CONTINUE", "ABANDON" })
@@ -73,7 +75,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600. Valid values are Integer between ``30`` and ``7200``.
+     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600.
      */
     @Range(min = 30, max = 7200)
     @Updatable
@@ -90,7 +92,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCHING`` or ``autoscaling:EC2_INSTANCE_TERMINATING``.
+     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'.
      */
     @Updatable
     @ValidStrings({ "autoscaling:EC2_INSTANCE_LAUNCHING", "autoscaling:EC2_INSTANCE_TERMINATING" })

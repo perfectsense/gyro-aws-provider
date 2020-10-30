@@ -28,6 +28,8 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVolumeResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVolumeAttributeResponse;
@@ -75,8 +77,9 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     private Boolean autoEnableIo;
 
     /**
-     * The availability zone for the volume being created. (Required)
+     * The availability zone for the volume being created.
      */
+    @Required
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -85,6 +88,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The creation time for the volume.
+     */
+    @Output
     public Date getCreateTime() {
         return createTime;
     }
@@ -180,9 +187,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The type of volume being created. Defaults to 'gp2'. Valid options are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
+     * The type of volume being created. Defaults to 'gp2'.
      */
     @Updatable
+    @ValidStrings({"gp2", "io1", "st1", "sc1", "standard"})
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";

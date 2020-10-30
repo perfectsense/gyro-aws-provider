@@ -28,7 +28,7 @@ public class EcsCapacityProviderStrategyItem extends Diffable {
     private Integer weight;
 
     /**
-     * The capacity provider to include in the strategy. (Required)
+     * The capacity provider to include in the strategy.
      */
     @Required
     @Updatable

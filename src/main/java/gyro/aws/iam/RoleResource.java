@@ -26,6 +26,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.AttachedPolicy;
 import software.amazon.awssdk.services.iam.model.CreateRoleResponse;
@@ -92,8 +94,9 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The assumed role policy. (Required)
+     * The assumed role policy.
      */
+    @Required
     @Updatable
     public String getAssumeRolePolicy() {
         if (this.assumeRolePolicy != null && this.assumeRolePolicy.contains(".json")) {
@@ -113,7 +116,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The description of the role. (Optional)
+     * The description of the role.
      */
     @Updatable
     public String getDescription() {
@@ -125,7 +128,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The policies associated with the role. (Optional)
+     * The policies associated with the role.
      */
     @Updatable
     public Set<PolicyResource> getPolicies() {
@@ -141,9 +144,10 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The maximum duration of the role, in seconds. Valid values are between ``3600`` and ``43200``. (Optional)
+     * The maximum duration of the role, in seconds.
      */
     @Updatable
+    @Range(min = 3600, max = 43200)
     public Integer getMaxSessionDuration() {
         if (maxSessionDuration == null) {
             maxSessionDuration = 3600;
@@ -157,8 +161,9 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The name of the role. (Required)
+     * The name of the role.
      */
+    @Required
     public String getName() {
         return this.name;
     }
@@ -168,7 +173,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The path to the role. Defaults to ``/``. (Optional)
+     * The path to the role. Defaults to ``/``.
      */
     public String getPath() {
         if (path == null) {
@@ -183,7 +188,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The arn of the permission boundary. (Optional)
+     * The arn of the permission boundary.
      */
     public String getPermissionsBoundaryArn() {
         return permissionsBoundaryArn;
@@ -194,7 +199,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     /**
-     * The tags associated with the role. (Optional)
+     * The tags associated with the role.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -212,7 +217,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     /**
      * A list of inline rile policies.RolePolicyResource
      *
-     * @subresource gyro.aws.iam.
+     * @subresource gyro.aws.iam.RoleInlinePolicyResource
      */
     @Updatable
     public Set<RoleInlinePolicyResource> getInlinePolicy() {

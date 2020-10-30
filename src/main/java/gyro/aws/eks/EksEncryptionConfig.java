@@ -26,7 +26,7 @@ public class EksEncryptionConfig extends Diffable implements Copyable<Encryption
     private EksProvider provider;
 
     /**
-     * The provider to use for the cluster. (Required)
+     * The provider to use for the cluster.
      */
     @Required
     public EksProvider getProvider() {

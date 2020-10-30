@@ -19,6 +19,8 @@ package gyro.aws.s3;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 
 public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable implements Copyable<NoncurrentVersionTransition> {
@@ -26,8 +28,9 @@ public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable impleme
     private String storageClass;
 
     /**
-     * Days after creation that versioning would start. Min value 30. (Required)
+     * Days after creation that versioning would start. Min value 30.
      */
+    @Required
     @Updatable
     public Integer getDays() {
         return days;
@@ -38,8 +41,10 @@ public class S3LifecycleRuleNoncurrentVersionTransition extends Diffable impleme
     }
 
     /**
-     * Type of transition. Valid values are ``GLACIER`` or ``STANDARD_IA`` or ``ONEZONE_IA`` or ``INTELLIGENT_TIERING``. (Required)
+     * Type of transition.
      */
+    @Required
+    @ValidStrings({"GLACIER", "STANDARD_IA", "ONEZONE_IA", "INTELLIGENT_TIERING"})
     public String getStorageClass() {
         return storageClass;
     }
