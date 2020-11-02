@@ -1,0 +1,79 @@
+aws::api example-api
+    name: "example-api"
+    protocol-type: HTTP
+    description: "example-desc-up"
+    api-key-selection-expression: '$request.header.x-api-key'
+    version: "example-version"
+    disable-execute-api-endpoint: true
+    route-selection-expression: "${request.method} ${request.path}"
+
+    cors-configuration
+        allow-credentials: true
+        max-age: 1000
+
+        allow-headers: [
+            "example-header"
+        ]
+
+        expose-headers: [
+            "example-header"
+        ]
+    end
+
+    tags: {
+        "example-key-changed": "example-value"
+    }
+end
+
+aws::route example-route
+    api: $(aws::api example-api)
+    route-key: 'ANY /api/example/route'
+end
+
+aws::stage example-stage
+    api: $(aws::api example-api)
+    name: example-stage
+    description: "example-desc"
+    auto-deploy: false
+
+    default-route-settings
+        detailed-metrics-enabled: true
+        throttling-burst-limit: 2
+        throttling-rate-limit: 2
+    end
+
+    route-settings
+        key: 'ANY /api/example/route'
+        detailed-metrics-enabled: true
+        throttling-burst-limit: 2
+        throttling-rate-limit: 2
+    end
+
+    stage-variables: {
+        "exampleKey": "exampleValue"
+    }
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
+
+aws::domain-name example-domain-name
+    name: "vpn.ops-test.psdops.com"
+
+    domain-name-configurations
+        certificate: 'arn:aws:acm:us-east-2:572681481110:certificate/c7de099f-599d-4112-b813-e731fdef0760'
+        endpoint-type: REGIONAL
+    end
+
+    tags: {
+        "example-key-change": "example-value"
+    }
+end
+
+aws::api-mapping example-mapping
+    api: $(aws::api example-api)
+    domain-name: $(aws::domain-name example-domain-name)
+    stage: $(aws::stage example-stage)
+    api-mapping-key: "example-key"
+end

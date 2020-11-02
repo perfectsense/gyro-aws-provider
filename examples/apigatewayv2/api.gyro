@@ -1,0 +1,153 @@
+aws::api example-api
+    name: "example-api"
+    protocol-type: HTTP
+    description: "example-desc-up"
+    api-key-selection-expression: '$request.header.x-api-key'
+    version: "example-version"
+    disable-execute-api-endpoint: true
+    route-selection-expression: "${request.method} ${request.path}"
+
+    cors-configuration
+        allow-credentials: true
+        max-age: 1000
+
+        allow-headers: [
+            "example-header"
+        ]
+
+        expose-headers: [
+            "example-header"
+        ]
+    end
+
+    tags: {
+        "example-key-changed": "example-value"
+    }
+end
+
+aws::authorizer example-authorizer
+    api: $(aws::api example-api)
+    name: "example-authorizer-changed"
+    authorizer-type: JWT
+
+    identity-sources: [
+        '$request.header.Authorization'
+    ]
+
+    jwt-configuration
+        audiences: [
+            "example-audience"
+        ]
+
+        issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_pQJThFAx4"
+    end
+end
+
+aws::route example-route
+    api: $(aws::api example-api)
+    route-key: 'ANY /api/example/route'
+    authorizer: $(aws::authorizer example-authorizer)
+    authorization-type: JWT
+    authorization-scopes: [ "example-scope" ]
+    target: 'integrations/bicxh4j'
+end
+
+aws::stage example-stage
+    api: $(aws::api example-api)
+    name: example-stage
+    description: "example-desc"
+    auto-deploy: false
+
+    default-route-settings
+        detailed-metrics-enabled: true
+        throttling-burst-limit: 2
+        throttling-rate-limit: 2
+    end
+
+    route-settings
+        key: 'ANY /api/example/route'
+        detailed-metrics-enabled: true
+        throttling-burst-limit: 2
+        throttling-rate-limit: 2
+    end
+
+    stage-variables: {
+        "exampleKey": "exampleValue"
+    }
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
+
+aws::deployment example-deployment
+    api: $(aws::api example-api)
+    description: "example-desc-changed"
+    stage: $(aws::stage example-stage)
+end
+
+aws::vpc vpc-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+end
+
+aws::security-group security-group-example
+    name: "security-group-example"
+    vpc: $(aws::vpc vpc-example)
+    description: "security group example description"
+end
+
+aws::subnet subnet-example-2a
+    vpc: $(aws::vpc vpc-example)
+    availability-zone: us-east-2a
+    cidr-block: "10.0.0.0/24"
+end
+
+aws::subnet subnet-example-2b
+    vpc: $(aws::vpc vpc-example)
+    availability-zone: us-east-2b
+    cidr-block: "10.0.1.0/24"
+end
+
+# Websocket api
+
+aws::api example-api-websock
+    name: "example-api-websocket"
+    protocol-type: WEBSOCKET
+    route-selection-expression: "${request.method} ${request.path}"
+end
+
+aws::integration example-integration-websock
+    api: $(aws::api example-api-websock)
+    integration-type: HTTP_PROXY
+    timeout-in-millis: 10000
+    integration-uri: 'https://example-domain.com'
+    integration-method: ANY
+    payload-format-version: "1.0"
+end
+
+aws::integration-response example-int-response
+    api: $(aws::api example-api-websock)
+    integration: $(aws::integration example-integration-websock)
+    integration-response-key: '$default'
+end
+
+aws::model example-model
+    api: $(aws::api example-api-websock)
+    content-type: "application/json"
+    description: "example-desc"
+    name: "exampleModel"
+
+    schema: '{"type": "object","properties": {"id": {"type": "string"}}}'
+end
+
+aws::route example-route-websocket
+    api: $(aws::api example-api-websock)
+    route-key: 'ANY /api/example/route'
+end
+
+aws::route-response example-route-websocket
+    api: $(aws::api example-api-websock)
+    route: $(aws::route example-route-websocket)
+    route-response-key: '$default'
+end
