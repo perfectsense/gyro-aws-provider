@@ -35,7 +35,7 @@ public class CodebuildCloudWatchLogsConfig extends Diffable implements Copyable<
      */
     @Updatable
     @Required
-    @ValidStrings({"ENABLED", "DISABLED"})
+    @ValidStrings({ "ENABLED", "DISABLED" })
     public LogsConfigStatusType getStatus() {
         return status;
     }
