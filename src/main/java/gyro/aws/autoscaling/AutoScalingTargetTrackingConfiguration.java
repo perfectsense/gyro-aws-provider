@@ -33,6 +33,8 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
 
     /**
      * The customized metric.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingCustomizedScalingMetricSpecification
      */
     @Updatable
     public AutoScalingCustomizedScalingMetricSpecification getCustomizedScalingMetricSpecification() {
@@ -44,7 +46,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
     }
 
     /**
-     * When set to ``true`` the scale in by the target tracking scaling policy is disabled.
+     * When set to ``true``, the scale in by the target tracking scaling policy is disabled.
      */
     @Updatable
     public Boolean getDisableScaleIn() {
@@ -56,7 +58,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
     }
 
     /**
-     * The estimated time, in seconds, until a new instance can contribute to the CloudWatch metrics.
+     * The estimated time (in seconds) until a new instance can contribute to the CloudWatch metrics.
      */
     @Updatable
     public Integer getEstimatedInstanceWarmup() {
@@ -69,6 +71,8 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
 
     /**
      * The predefined metric sepcification.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingPredefinedScalingMetricSpecification
      */
     @Updatable
     public AutoScalingPredefinedScalingMetricSpecification getPredefinedScalingMetricSpecification() {
@@ -144,7 +148,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
 
     @Override
     public String primaryKey() {
-        return null;
+        return String.format("%s", getCustomizedScalingMetricSpecification().getName());
     }
 
     public TargetTrackingConfiguration toTargetTrackingConfiguration() {

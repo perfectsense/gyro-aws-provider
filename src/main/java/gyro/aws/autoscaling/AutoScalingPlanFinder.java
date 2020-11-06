@@ -37,17 +37,16 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlan;
 @Type("autoscaling-plan")
 public class AutoScalingPlanFinder extends AwsFinder<AutoScalingPlansClient, ScalingPlan, AutoScalingPlanResource> {
 
-    private List<String> scalingPlanNames;
-
+    private String scalingPlanName;
     /**
-     * The set of scaling plan names.
+     * The scaling plan name.
      */
-    public List<String> getScalingPlanNames() {
-        return scalingPlanNames;
+    public String getScalingPlanName() {
+        return scalingPlanName;
     }
 
-    public void setScalingPlanNames(List<String> scalingPlanNames) {
-        this.scalingPlanNames = scalingPlanNames;
+    public void setScalingPlanName(String scalingPlanName) {
+        this.scalingPlanName = scalingPlanName;
     }
 
     @Override

@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.model.LoadMetricType;
 import software.amazon.awssdk.services.autoscalingplans.model.PredefinedLoadMetricSpecification;
 
@@ -34,6 +35,7 @@ public class AutoScalingPredefinedLoadMetricSpecification extends Diffable
      */
     @Updatable
     @Required
+    @ValidStrings({ "ASGTotalCPUUtilization", "ASGTotalNetworkIn", "ASGTotalNetworkOut", "ALBTargetGroupRequestCount" })
     public LoadMetricType getPredefinedLoadMetricType() {
         return predefinedLoadMetricType;
     }
@@ -62,7 +64,7 @@ public class AutoScalingPredefinedLoadMetricSpecification extends Diffable
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public PredefinedLoadMetricSpecification toPredefinedLoadMetricSpecification() {

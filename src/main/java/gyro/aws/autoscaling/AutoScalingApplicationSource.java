@@ -24,6 +24,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Regex;
 import software.amazon.awssdk.services.autoscalingplans.model.ApplicationSource;
 
@@ -36,6 +37,7 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
      * The Amazon Resource Name of a CloudFormation stack.
      */
     @Updatable
+    @ConflictsWith("tag-filters")
     @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
     public String getCloudFormationStackArn() {
         return cloudFormationStackArn;
@@ -47,9 +49,12 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
 
     /**
      * The tags for the application source.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingTagFilter
      */
     @Updatable
     @CollectionMax(50)
+    @ConflictsWith("cloud-formation-stack-arn")
     public List<AutoScalingTagFilter> getTagFilters() {
         if (tagFilters == null) {
             tagFilters = new ArrayList<>();
@@ -79,7 +84,7 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public ApplicationSource toApplicationSource() {

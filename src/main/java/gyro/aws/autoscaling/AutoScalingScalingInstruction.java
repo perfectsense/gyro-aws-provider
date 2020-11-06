@@ -24,7 +24,9 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.model.PredictiveScalingMaxCapacityBehavior;
 import software.amazon.awssdk.services.autoscalingplans.model.PredictiveScalingMode;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalableDimension;
@@ -47,10 +49,12 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
     private ScalingPolicyUpdateBehavior scalingPolicyUpdateBehavior;
     private Integer scheduledActionBufferTime;
     private ServiceNamespace serviceNamespace;
-    private List<AutoScalingTargetTrackingConfiguration> targetTrackingConfiguration;
+    private List<AutoScalingTargetTrackingConfiguration> targetTrackingConfigurations;
 
     /**
      * The customized load metric for predictive scaling.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingCustomizedLoadMetricSpecification
      */
     @Updatable
     public AutoScalingCustomizedLoadMetricSpecification getCustomizedLoadMetricSpecification() {
@@ -101,6 +105,8 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
 
     /**
      * The predefined load metric to use for predictive scaling.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingPredefinedLoadMetricSpecification
      */
     @Updatable
     public AutoScalingPredefinedLoadMetricSpecification getPredefinedLoadMetricSpecification() {
@@ -115,6 +121,10 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The forecast max capacity behavior that should be applied to the resource.
      */
     @Updatable
+    @ValidStrings({
+        "SetForecastCapacityToMaxCapacity",
+        "SetMaxCapacityToForecastCapacity",
+        "SetMaxCapacityAboveForecastCapacity" })
     public PredictiveScalingMaxCapacityBehavior getPredictiveScalingMaxCapacityBehavior() {
         return predictiveScalingMaxCapacityBehavior;
     }
@@ -127,6 +137,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The size of the capacity buffer.
      */
     @Updatable
+    @Range(min = 1, max = 100)
     public Integer getPredictiveScalingMaxCapacityBuffer() {
         return predictiveScalingMaxCapacityBuffer;
     }
@@ -139,6 +150,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The predictive scaling mode.
      */
     @Updatable
+    @ValidStrings({ "ForecastAndScale", "ForecastOnly" })
     public PredictiveScalingMode getPredictiveScalingMode() {
         return predictiveScalingMode;
     }
@@ -148,7 +160,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
     }
 
     /**
-     * The ID of the resource.
+     * The ID of the resource that also specifies the resource type and unique identifier.
      */
     @Required
     public String getResourceId() {
@@ -163,6 +175,15 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The scalable dimension associated with the resource.
      */
     @Updatable
+    @ValidStrings({
+        "autoscaling:autoScalingGroup:DesiredCapacity",
+        "ecs:service:DesiredCount",
+        "ec2:spot-fleet-request:TargetCapacity",
+        "rds:cluster:ReadReplicaCount",
+        "dynamodb:table:ReadCapacityUnits",
+        "dynamodb:table:WriteCapacityUnits",
+        "dynamodb:index:ReadCapacityUnits",
+        "dynamodb:index:WriteCapacityUnits" })
     public ScalableDimension getScalableDimension() {
         return scalableDimension;
     }
@@ -175,6 +196,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The policy update behavior for the resource.
      */
     @Updatable
+    @ValidStrings({ "KeepExternalPolicies", "ReplaceExternalPolicies" })
     public ScalingPolicyUpdateBehavior getScalingPolicyUpdateBehavior() {
         return scalingPolicyUpdateBehavior;
     }
@@ -199,6 +221,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
      * The namespace of the service.
      */
     @Updatable
+    @ValidStrings({ "autoscaling", "ecs", "ec2", "rds", "dynamodb" })
     public ServiceNamespace getServiceNamespace() {
         return serviceNamespace;
     }
@@ -209,18 +232,20 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
 
     /**
      * The target tracking configurations.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingTargetTrackingConfiguration
      */
     @CollectionMax(10)
     @Updatable
-    public List<AutoScalingTargetTrackingConfiguration> getTargetTrackingConfiguration() {
-        if (targetTrackingConfiguration == null) {
-            targetTrackingConfiguration = new ArrayList<>();
+    public List<AutoScalingTargetTrackingConfiguration> getTargetTrackingConfigurations() {
+        if (targetTrackingConfigurations == null) {
+            targetTrackingConfigurations = new ArrayList<>();
         }
-        return targetTrackingConfiguration;
+        return targetTrackingConfigurations;
     }
 
-    public void setTargetTrackingConfiguration(List<AutoScalingTargetTrackingConfiguration> targetTrackingConfiguration) {
-        this.targetTrackingConfiguration = targetTrackingConfiguration;
+    public void setTargetTrackingConfigurations(List<AutoScalingTargetTrackingConfiguration> targetTrackingConfigurations) {
+        this.targetTrackingConfigurations = targetTrackingConfigurations;
     }
 
     @Override
@@ -255,23 +280,20 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
             setPredefinedLoadMetricSpecification(null);
         }
 
+        getTargetTrackingConfigurations().clear();
         if (model.targetTrackingConfigurations() != null) {
-            List<AutoScalingTargetTrackingConfiguration> configurations = new ArrayList<>();
             model.targetTrackingConfigurations().forEach(config -> {
                 AutoScalingTargetTrackingConfiguration configuration = newSubresource(
                     AutoScalingTargetTrackingConfiguration.class);
                 configuration.copyFrom(config);
-                configurations.add(configuration);
+                getTargetTrackingConfigurations().add(configuration);
             });
-            setTargetTrackingConfiguration(configurations);
-        } else {
-            setTargetTrackingConfiguration(null);
         }
     }
 
     @Override
     public String primaryKey() {
-        return String.format("%s, instruction", getResourceId());
+        return String.format("%s", getCustomizedLoadMetricSpecification().getName());
     }
 
     public ScalingInstruction toScalingInstruction() {
@@ -293,7 +315,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
             .scalingPolicyUpdateBehavior(getScalingPolicyUpdateBehavior())
             .scheduledActionBufferTime(getScheduledActionBufferTime())
             .serviceNamespace(getServiceNamespace())
-            .targetTrackingConfigurations(getTargetTrackingConfiguration().stream()
+            .targetTrackingConfigurations(getTargetTrackingConfigurations().stream()
                 .map(AutoScalingTargetTrackingConfiguration::toTargetTrackingConfiguration)
                 .collect(Collectors.toList()))
             .build();

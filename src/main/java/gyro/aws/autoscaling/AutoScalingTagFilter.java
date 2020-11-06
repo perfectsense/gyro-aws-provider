@@ -62,7 +62,7 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
 
     @Override
     public String primaryKey() {
-        return null;
+        return getKey();
     }
 
     public TagFilter toTagFilter() {

@@ -16,7 +16,6 @@
 
 package gyro.aws.autoscaling;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,8 +29,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.AutoScalingPlansClient;
 import software.amazon.awssdk.services.autoscalingplans.model.CreateScalingPlanResponse;
 import software.amazon.awssdk.services.autoscalingplans.model.DescribeScalingPlansResponse;
@@ -41,8 +40,7 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusC
 import software.amazon.awssdk.services.autoscalingplans.model.ValidationException;
 
 /**
- * Creates a scaling plan with the specified Application Source, Scaling Instructions, Scaling Plan Name, and Scaling
- * Plan Version.
+ * Creates a Scaling plan.
  *
  * Example
  * -------
@@ -97,6 +95,8 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
 
     /**
      * The CloudFormation stack or a set of tag filters.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingApplicationSource
      */
     @Updatable
     @Required
@@ -121,7 +121,9 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     }
 
     /**
-     * The scaling instructions.
+     * A list of scaling instruction configuration.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingScalingInstruction
      */
     @Updatable
     @Required
@@ -161,7 +163,15 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
      * The status of the scaling plan.
      */
     @Output
-    @Required
+    @ValidStrings({
+        "Active",
+        "ActiveWithProblems",
+        "CreationInProgress",
+        "CreationFailed",
+        "DeletionInProgress",
+        "DeletionFailed",
+        "UpdateInProgress",
+        "UpdateFailed" })
     public ScalingPlanStatusCode getStatusCode() {
         return statusCode;
     }
@@ -174,7 +184,6 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
      * The current status of the scaling plan.
      */
     @Output
-    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
     public String getStatusMessage() {
         return statusMessage;
     }
@@ -212,17 +221,14 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
             setApplicationSource(null);
         }
 
+        getScalingInstructions().clear();
         if (model.scalingInstructions() != null) {
-            List<AutoScalingScalingInstruction> instructions = new ArrayList<>();
             model.scalingInstructions().forEach(instruction -> {
                 AutoScalingScalingInstruction scalingInstruction = newSubresource(
                     AutoScalingScalingInstruction.class);
                 scalingInstruction.copyFrom(instruction);
-                instructions.add(scalingInstruction);
+                getScalingInstructions().add(scalingInstruction);
             });
-            setScalingInstructions(instructions);
-        } else {
-            setScalingInstructions(null);
         }
 
     }
@@ -240,7 +246,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
             // Service encountered a validation issue
         }
 
-        if (response == null) {
+        if (response == null || response.scalingPlans().isEmpty()) {
             return false;
         }
 
@@ -266,7 +272,6 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
 
         client.updateScalingPlan(r -> r
@@ -280,6 +285,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
+
         client.deleteScalingPlan(r -> r
             .scalingPlanName(getScalingPlanName())
             .scalingPlanVersion(getScalingPlanVersion())

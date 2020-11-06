@@ -31,13 +31,15 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
     implements Copyable<CustomizedLoadMetricSpecification> {
 
     List<AutoScalingMetricDimension> dimensions;
-    private String metricName;
+    private String name;
     private String namespace;
     private String statistic;
     private String unit;
 
     /**
      * The dimensions of the metric.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingMetricDimension
      */
     @Updatable
     public List<AutoScalingMetricDimension> getDimensions() {
@@ -56,12 +58,12 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
      */
     @Updatable
     @Required
-    public String getMetricName() {
-        return metricName;
+    public String getName() {
+        return name;
     }
 
-    public void setMetricName(String metricName) {
-        this.metricName = metricName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -105,7 +107,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
 
     @Override
     public void copyFrom(CustomizedLoadMetricSpecification model) {
-        setMetricName(model.metricName());
+        setName(model.metricName());
         setNamespace(model.namespace());
         setStatistic(model.statisticAsString());
         setUnit(model.unit());
@@ -117,6 +119,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
                 autoScalingMetricDimension.copyFrom(metricDimension);
                 dimensions.add(autoScalingMetricDimension);
             });
+
             setDimensions(dimensions);
         } else {
             setDimensions(null);
@@ -125,7 +128,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public CustomizedLoadMetricSpecification toCustomizedLoadMetricSpecification() {
@@ -133,7 +136,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
             .dimensions(getDimensions().stream()
                 .map(AutoScalingMetricDimension::toMetricDimension)
                 .collect(Collectors.toList()))
-            .metricName(getMetricName())
+            .metricName(getName())
             .namespace(getNamespace())
             .statistic(getStatistic())
             .unit(getUnit())

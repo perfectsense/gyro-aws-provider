@@ -23,7 +23,7 @@ aws::autoscaling-plan autoscaling-plan-example
                     value: "dimension-test-value"
                 end
 
-                metric-name: "metric-name-test"
+                name: "metric-name-test"
                 namespace: "namespace"
                 statistic: "Sum"
             end

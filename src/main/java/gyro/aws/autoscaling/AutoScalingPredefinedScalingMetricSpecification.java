@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.model.PredefinedScalingMetricSpecification;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingMetricType;
 
@@ -34,6 +35,20 @@ public class AutoScalingPredefinedScalingMetricSpecification extends Diffable
      */
     @Updatable
     @Required
+    @ValidStrings({
+        "ASGAverageCPUUtilization",
+        "ASGAverageNetworkIn",
+        "ASGAverageNetworkOut",
+        "DynamoDBReadCapacityUtilization",
+        "DynamoDBWriteCapacityUtilization",
+        "ECSServiceAverageCPUUtilization",
+        "ECSServiceAverageMemoryUtilization",
+        "ALBRequestCountPerTarget",
+        "RDSReaderAverageCPUUtilization",
+        "RDSReaderAverageDatabaseConnections",
+        "EC2SpotFleetRequestAverageCPUUtilization",
+        "EC2SpotFleetRequestAverageNetworkIn",
+        "EC2SpotFleetRequestAverageNetworkOuts" })
     public ScalingMetricType getPredefinedScalingMetricType() {
         return predefinedScalingMetricType;
     }
@@ -62,7 +77,7 @@ public class AutoScalingPredefinedScalingMetricSpecification extends Diffable
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     public PredefinedScalingMetricSpecification toPredefinedScalingMetricSpecification() {
