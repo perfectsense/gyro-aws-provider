@@ -34,10 +34,8 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.AutoScalingPlansClient;
 import software.amazon.awssdk.services.autoscalingplans.model.CreateScalingPlanResponse;
 import software.amazon.awssdk.services.autoscalingplans.model.DescribeScalingPlansResponse;
-import software.amazon.awssdk.services.autoscalingplans.model.InternalServiceException;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlan;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusCode;
-import software.amazon.awssdk.services.autoscalingplans.model.ValidationException;
 
 /**
  * Creates a Scaling plan.
@@ -236,15 +234,9 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     @Override
     public boolean refresh() {
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
-        DescribeScalingPlansResponse response = null;
+        DescribeScalingPlansResponse response;
 
-        try {
-            response = client.describeScalingPlans(r -> r.scalingPlanNames(getScalingPlanName()));
-        } catch (InternalServiceException ex) {
-            // Service encountered an internal error
-        } catch (ValidationException ex) {
-            // Service encountered a validation issue
-        }
+        response = client.describeScalingPlans(r -> r.scalingPlanNames(getScalingPlanName()));
 
         if (response == null || response.scalingPlans().isEmpty()) {
             return false;
