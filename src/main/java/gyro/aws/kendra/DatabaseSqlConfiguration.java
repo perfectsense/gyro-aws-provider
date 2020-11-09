@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kendra.model.QueryIdentifiersEnclosingOption;
 import software.amazon.awssdk.services.kendra.model.SqlConfiguration;
 
@@ -32,6 +33,7 @@ public class DatabaseSqlConfiguration extends Diffable implements Copyable<SqlCo
      */
     @Updatable
     @Required
+    @ValidStrings({ "DOUBLE_QUOTES", "NONE" })
     public QueryIdentifiersEnclosingOption getQueryIdentifiersEnclosingOption() {
         return queryIdentifiersEnclosingOption;
     }

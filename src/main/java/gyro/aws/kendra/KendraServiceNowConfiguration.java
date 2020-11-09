@@ -24,6 +24,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.kendra.model.ServiceNowBuildVersionType;
 import software.amazon.awssdk.services.kendra.model.ServiceNowConfiguration;
@@ -66,6 +67,7 @@ public class KendraServiceNowConfiguration extends Diffable implements Copyable<
      * The identifier of the release that the ServiceNow host is running.
      */
     @Updatable
+    @ValidStrings({ "LONDON", "OTHERS" })
     public ServiceNowBuildVersionType getVersionType() {
         return versionType;
     }

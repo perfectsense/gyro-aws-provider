@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kendra.model.SalesforceStandardObjectConfiguration;
 import software.amazon.awssdk.services.kendra.model.SalesforceStandardObjectName;
 
@@ -76,6 +77,9 @@ public class KendraSalesforceStandardObjectConfiguration extends Diffable
      * The name of the configuration.
      */
     @Required
+    @ValidStrings({
+        "ACCOUNT", "CAMPAIGN", "CASE", "CONTACT", "CONTRACT", "DOCUMENT", "GROUP", "IDEA", "LEAD",
+        "OPPORTUNITY", "PARTNER", "PRICEBOOK", "PRODUCT", "PROFILE", "SOLUTION", "TASK", "USER" })
     public SalesforceStandardObjectName getName() {
         return name;
     }

@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kendra.model.DatabaseConfiguration;
 import software.amazon.awssdk.services.kendra.model.DatabaseEngineType;
 
@@ -37,6 +38,7 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
      */
     @Updatable
     @Required
+    @ValidStrings({ "RDS_AURORA_MYSQL", "RDS_AURORA_POSTGRESQL", "RDS_MYSQL", "RDS_POSTGRESQL" })
     public DatabaseEngineType getEngineType() {
         return engineType;
     }

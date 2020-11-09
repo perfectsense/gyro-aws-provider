@@ -35,6 +35,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kendra.KendraClient;
 import software.amazon.awssdk.services.kendra.model.CreateFaqResponse;
 import software.amazon.awssdk.services.kendra.model.DescribeFaqResponse;
@@ -148,6 +149,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
      * The format of the input file.
      */
     @Required
+    @ValidStrings({ "CSV", "CSV_WITH_HEADER", "JSON" })
     public FaqFileFormat getFileFormat() {
         return fileFormat;
     }

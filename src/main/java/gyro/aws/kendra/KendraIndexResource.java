@@ -35,6 +35,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kendra.KendraClient;
 import software.amazon.awssdk.services.kendra.model.CreateIndexRequest;
 import software.amazon.awssdk.services.kendra.model.CreateIndexResponse;
@@ -102,6 +103,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
     /**
      * The Amazon Kendra edition to use for the index.
      */
+    @ValidStrings({ "DEVELOPER_EDITION", "ENTERPRISE_EDITION" })
     public IndexEdition getEdition() {
         return edition;
     }

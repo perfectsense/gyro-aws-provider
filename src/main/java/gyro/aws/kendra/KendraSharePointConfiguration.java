@@ -25,6 +25,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.kendra.model.SharePointConfiguration;
 import software.amazon.awssdk.services.kendra.model.SharePointVersion;
@@ -127,6 +128,7 @@ public class KendraSharePointConfiguration extends Diffable implements Copyable<
     /**
      * The version of Microsoft SharePoint that you are using as a data source. Valid value is ``SHAREPOINT_ONLINE``.
      */
+    @ValidStrings("SHAREPOINT_ONLINE")
     public SharePointVersion getSharePointVersion() {
         return sharePointVersion;
     }

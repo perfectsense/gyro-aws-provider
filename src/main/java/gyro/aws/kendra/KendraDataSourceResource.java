@@ -35,6 +35,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kendra.KendraClient;
 import software.amazon.awssdk.services.kendra.model.CreateDataSourceResponse;
 import software.amazon.awssdk.services.kendra.model.DataSourceStatus;
@@ -166,6 +167,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
      * The type of repository that contains the data source.
      */
     @Required
+    @ValidStrings({ "S3", "SHAREPOINT", "DATABASE", "SALESFORCE", "ONEDRIVE", "SERVICENOW" })
     public DataSourceType getType() {
         return type;
     }
