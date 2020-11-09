@@ -35,9 +35,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.Stage;
  *
  * .. code-block:: gyro
  *
- *    stage: $(external-query aws::stage {api-id: "tf2x92hetc"})
+ *    stage: $(external-query aws::api-gateway-stage {api-id: ""})
  */
-@Type("stage")
+@Type("api-gateway-stage")
 public class StageFinder extends AwsFinder<ApiGatewayV2Client, Stage, StageResource> {
 
     private String name;

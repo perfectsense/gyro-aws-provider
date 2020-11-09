@@ -38,9 +38,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.NotFoundException;
  *
  * .. code-block:: gyro
  *
- *    integration-response: $(external-query aws::integration-response {id: "6j49jc5"})
+ *    integration-response: $(external-query aws::api-gateway-integration-response {id: ""})
  */
-@Type("integration-response")
+@Type("api-gateway-integration-response")
 public class IntegrationResponseFinder
     extends AwsFinder<ApiGatewayV2Client, IntegrationResponse, IntegrationResponseResource> {
 

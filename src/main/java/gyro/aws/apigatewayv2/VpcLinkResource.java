@@ -52,7 +52,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.VpcLinkStatus;
  *
  * .. code-block:: gyro
  *
- *     aws::vpc-link example-vpc-link
+ *     aws::api-gateway-vpc-link example-vpc-link
  *         name: "example-vpc-link"
  *         security-groups: [ $(aws::security-group security-group-example) ]
  *
@@ -65,7 +65,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.VpcLinkStatus;
  *         }
  *     end
  */
-@Type("vpc-link")
+@Type("api-gateway-vpc-link")
 public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
 
     private String name;

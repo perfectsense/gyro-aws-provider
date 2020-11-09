@@ -33,7 +33,23 @@ import software.amazon.awssdk.services.apigatewayv2.model.CreateModelResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.GetModelsResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Model;
 
-@Type("model")
+/**
+ * Create a model.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::api-gateway-model example-model
+ *         api: $(aws::api-gateway example-api-websock)
+ *         content-type: "application/json"
+ *         description: "example-desc"
+ *         name: "exampleModel"
+ *         schema: '{"type": "object","properties": {"id": {"type": "string"}}}'
+ *     end
+ */
+@Type("api-gateway-model")
 public class ModelResource extends AwsResource implements Copyable<Model> {
 
     private ApiResource api;

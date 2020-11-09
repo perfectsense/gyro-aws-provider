@@ -27,7 +27,17 @@ import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.Model;
 
-@Type("model")
+/**
+ * Query Model.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    model: $(external-query aws::api-gateway-model {api-id: "", name: "example"})
+ */
+@Type("api-gateway-model")
 public class ModelFinder extends AwsFinder<ApiGatewayV2Client, Model, ModelResource> {
 
     private String name;

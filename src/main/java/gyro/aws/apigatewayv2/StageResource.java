@@ -45,7 +45,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Stage;
  *
  * .. code-block:: gyro
  *
- *     aws::stage example-stage
+ *     aws::api-gateway-stage example-stage
  *         api: $(aws::api example-api)
  *         name: example-stage
  *         description: "example-desc"
@@ -73,7 +73,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Stage;
  *         }
  *     end
  */
-@Type("stage")
+@Type("api-gateway-stage")
 public class StageResource extends AwsResource implements Copyable<Stage> {
 
     private String name;

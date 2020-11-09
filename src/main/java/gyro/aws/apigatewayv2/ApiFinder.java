@@ -33,9 +33,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.Api;
  *
  * .. code-block:: gyro
  *
- *    api: $(external-query aws::api {name: "example-api"})
+ *    api-gateway: $(external-query aws::api-gateway {name: "example-api"})
  */
-@Type("api")
+@Type("api-gateway")
 public class ApiFinder extends AwsFinder<ApiGatewayV2Client, Api, ApiResource> {
 
     private String name;

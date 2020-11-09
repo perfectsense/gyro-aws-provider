@@ -48,16 +48,16 @@ import software.amazon.awssdk.services.apigatewayv2.model.Route;
  *
  * .. code-block:: gyro
  *
- *     aws::route example-route
+ *     aws::api-gateway-route example-route
  *         api: $(aws::api example-api)
  *         route-key: 'ANY /api/example/route'
- *         authorizer: $(aws::authorizer example-authorizer)
+ *         authorizer: $(aws::api-gateway-authorizer example-authorizer)
  *         authorization-type: JWT
  *         authorization-scopes: [ "example-scope" ]
  *         target: 'integrations/bicxh4j'
  *     end
  */
-@Type("route")
+@Type("api-gateway-route")
 public class RouteResource extends AwsResource implements Copyable<Route> {
 
     private ApiResource api;

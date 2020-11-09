@@ -1,4 +1,4 @@
-aws::api example-api
+aws::api-gateway example-api
     name: "example-api"
     protocol-type: HTTP
     description: "example-desc-up"
@@ -25,8 +25,8 @@ aws::api example-api
     }
 end
 
-aws::authorizer example-authorizer
-    api: $(aws::api example-api)
+aws::api-gateway-authorizer example-authorizer
+    api: $(aws::api-gateway example-api)
     name: "example-authorizer-changed"
     authorizer-type: JWT
 
@@ -43,17 +43,17 @@ aws::authorizer example-authorizer
     end
 end
 
-aws::route example-route
-    api: $(aws::api example-api)
+aws::api-gateway-route example-route
+    api: $(aws::api-gateway example-api)
     route-key: 'ANY /api/example/route'
-    authorizer: $(aws::authorizer example-authorizer)
+    authorizer: $(aws::api-gateway-authorizer example-authorizer)
     authorization-type: JWT
     authorization-scopes: [ "example-scope" ]
     target: 'integrations/bicxh4j'
 end
 
-aws::stage example-stage
-    api: $(aws::api example-api)
+aws::api-gateway-stage example-stage
+    api: $(aws::api-gateway example-api)
     name: example-stage
     description: "example-desc"
     auto-deploy: false
@@ -80,10 +80,10 @@ aws::stage example-stage
     }
 end
 
-aws::deployment example-deployment
-    api: $(aws::api example-api)
+aws::api-gateway-deployment example-deployment
+    api: $(aws::api-gateway example-api)
     description: "example-desc-changed"
-    stage: $(aws::stage example-stage)
+    stage: $(aws::api-gateway-stage example-stage)
 end
 
 aws::vpc vpc-example
@@ -109,16 +109,30 @@ aws::subnet subnet-example-2b
     cidr-block: "10.0.1.0/24"
 end
 
+aws::api-gateway-vpc-link example-vpc-link
+    name: "example-vpc-link"
+    security-groups: [ $(aws::security-group security-group-example) ]
+
+    subnets: [
+        $(aws::subnet subnet-example-2a),
+        $(aws::subnet subnet-example-2b)
+    ]
+
+    tags: {
+        "example-key" : "example-value"
+    }
+end
+
 # Websocket api
 
-aws::api example-api-websock
+aws::api-gateway example-api-websock
     name: "example-api-websocket"
     protocol-type: WEBSOCKET
     route-selection-expression: "${request.method} ${request.path}"
 end
 
-aws::integration example-integration-websock
-    api: $(aws::api example-api-websock)
+aws::api-gateway-integration example-integration-websock
+    api: $(aws::api-gateway example-api-websock)
     integration-type: HTTP_PROXY
     timeout-in-millis: 10000
     integration-uri: 'https://example-domain.com'
@@ -126,14 +140,14 @@ aws::integration example-integration-websock
     payload-format-version: "1.0"
 end
 
-aws::integration-response example-int-response
-    api: $(aws::api example-api-websock)
-    integration: $(aws::integration example-integration-websock)
+aws::api-gateway-integration-response example-int-response
+    api: $(aws::api-gateway example-api-websock)
+    integration: $(aws::api-gateway-integration example-integration-websock)
     integration-response-key: '$default'
 end
 
-aws::model example-model
-    api: $(aws::api example-api-websock)
+aws::api-gateway-model example-model
+    api: $(aws::api-gateway example-api-websock)
     content-type: "application/json"
     description: "example-desc"
     name: "exampleModel"
@@ -141,13 +155,13 @@ aws::model example-model
     schema: '{"type": "object","properties": {"id": {"type": "string"}}}'
 end
 
-aws::route example-route-websocket
-    api: $(aws::api example-api-websock)
+aws::api-gateway-route example-route-websocket
+    api: $(aws::api-gateway example-api-websock)
     route-key: 'ANY /api/example/route'
 end
 
-aws::route-response example-route-websocket
-    api: $(aws::api example-api-websock)
-    route: $(aws::route example-route-websocket)
+aws::api-gateway-route-response example-route-websocket
+    api: $(aws::api-gateway example-api-websock)
+    route: $(aws::api-gateway-route example-route-websocket)
     route-response-key: '$default'
 end

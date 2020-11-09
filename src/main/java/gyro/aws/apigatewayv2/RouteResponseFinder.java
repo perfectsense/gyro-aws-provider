@@ -38,9 +38,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.RouteResponse;
  *
  * .. code-block:: gyro
  *
- *    route-response: $(external-query aws::route-response {api-id: "qoeqbv9k5l", route-id: "a9ov3hm", id: "lucem9"})
+ *    route-response: $(external-query aws::api-gateway-route-response {api-id: "", route-id: "", id: ""})
  */
-@Type("route-response")
+@Type("api-gateway-route-response")
 public class RouteResponseFinder extends AwsFinder<ApiGatewayV2Client, RouteResponse, RouteResponseResource> {
 
     private String id;

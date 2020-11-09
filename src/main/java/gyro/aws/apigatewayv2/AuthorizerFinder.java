@@ -35,9 +35,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.Authorizer;
  *
  * .. code-block:: gyro
  *
- *    authorizer: $(external-query aws::authorizer {api-id: "tf2x92hetc"})
+ *    authorizer: $(external-query aws::api-gateway-authorizer {api-id: ""})
  */
-@Type("authorizer")
+@Type("api-gateway-authorizer")
 public class AuthorizerFinder extends AwsFinder<ApiGatewayV2Client, Authorizer, AuthorizerResource> {
 
     private String name;

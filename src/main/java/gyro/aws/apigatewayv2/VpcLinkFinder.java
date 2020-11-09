@@ -34,9 +34,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.VpcLink;
  *
  * .. code-block:: gyro
  *
- *    vpc-link: $(external-query aws::vpc-link {name: "example-vpc-link"})
+ *    vpc-link: $(external-query aws::api-gateway-vpc-link {name: "example-vpc-link"})
  */
-@Type("vpc-link")
+@Type("api-gateway-vpc-link")
 public class VpcLinkFinder extends AwsFinder<ApiGatewayV2Client, VpcLink, VpcLinkResource> {
 
     private String name;

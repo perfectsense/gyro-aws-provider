@@ -35,9 +35,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.Integration;
  *
  * .. code-block:: gyro
  *
- *    integration: $(external-query aws::integration {api-id: "tf2x92hetc", id: "voi8a4l"})
+ *    integration: $(external-query aws::api-gateway-integration {api-id: "", id: ""})
  */
-@Type("integration")
+@Type("api-gateway-integration")
 public class IntegrationFinder extends AwsFinder<ApiGatewayV2Client, Integration, IntegrationResource> {
 
     private String id;

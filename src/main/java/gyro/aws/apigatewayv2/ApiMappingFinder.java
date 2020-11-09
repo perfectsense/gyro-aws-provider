@@ -32,7 +32,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.ApiMapping;
  *
  * .. code-block:: gyro
  *
- *    api: $(external-query aws::api-mapping {domain-name: "vpn.ops-test.psdops.com", mapping-id: "7nsm1u"})
+ *    api-mapping: $(external-query aws::api-mapping {domain-name: "vpn.ops-test.psdops.com", mapping-id: ""})
  */
 @Type("api-mapping")
 public class ApiMappingFinder extends AwsFinder<ApiGatewayV2Client, ApiMapping, ApiMappingResource> {

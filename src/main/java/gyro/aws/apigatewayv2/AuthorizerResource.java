@@ -45,7 +45,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetAuthorizersResponse
  *
  * .. code-block:: gyro
  *
- *     aws::authorizer example-authorizer
+ *     aws::api-gateway-authorizer example-authorizer
  *         api: $(aws::api example-api)
  *         name: "example-authorizer"
  *         authorizer-type: JWT
@@ -63,7 +63,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetAuthorizersResponse
  *         end
  *     end
  */
-@Type("authorizer")
+@Type("api-gateway-authorizer")
 public class AuthorizerResource extends AwsResource implements Copyable<Authorizer> {
 
     private ApiResource api;

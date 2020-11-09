@@ -45,13 +45,13 @@ import software.amazon.awssdk.services.apigatewayv2.model.RouteResponse;
  *
  * .. code-block:: gyro
  *
- *     aws::route-response example-route-websocket
- *         api: $(aws::api example-api-websock)
- *         route: $(aws::route example-route-websocket)
+ *     aws::api-gateway-route-response example-route-websocket
+ *         api: $(aws::api-gateway example-api-websock)
+ *         route: $(aws::api-gateway-route example-route-websocket)
  *         route-response-key: '$default'
  *     end
  */
-@Type("route-response")
+@Type("api-gateway-route-response")
 public class RouteResponseResource extends AwsResource implements Copyable<RouteResponse> {
 
     private ApiResource api;

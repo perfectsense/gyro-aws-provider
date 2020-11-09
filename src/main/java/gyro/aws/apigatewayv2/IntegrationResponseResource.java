@@ -44,13 +44,13 @@ import software.amazon.awssdk.services.apigatewayv2.model.IntegrationResponse;
  *
  * .. code-block:: gyro
  *
- *     aws::integration-response example-int-response
- *         api: $(aws::api example-api-websock)
- *         integration: $(aws::integration example-integration-websock)
+ *     aws::api-gateway-integration-response example-int-response
+ *         api: $(aws::api-gateway example-api-websock)
+ *         integration: $(aws::api-gateway-integration example-integration-websock)
  *         integration-response-key: '$default'
  *     end
  */
-@Type("integration-response")
+@Type("api-gateway-integration-response")
 public class IntegrationResponseResource extends AwsResource implements Copyable<IntegrationResponse> {
 
     private ApiResource api;

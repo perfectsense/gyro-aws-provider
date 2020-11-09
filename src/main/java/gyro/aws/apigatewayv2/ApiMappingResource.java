@@ -42,9 +42,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetApiMappingsResponse
  * .. code-block:: gyro
  *
  *     aws::api-mapping example-mapping
- *         api: $(aws::api example-api)
+ *         api: $(aws::api-gateway example-api)
  *         domain-name: "vpn.ops-test.psdops.com"
- *         stage: $(aws::stage example-stage)
+ *         stage: $(aws::api-gateway-stage example-stage)
  *         api-mapping-key: "example-key"
  *     end
  */

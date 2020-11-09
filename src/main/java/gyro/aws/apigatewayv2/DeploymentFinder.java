@@ -35,9 +35,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.Deployment;
  *
  * .. code-block:: gyro
  *
- *    deployment: $(external-query aws::deployment {api-id: "tf2x92hetc"})
+ *    deployment: $(external-query aws::api-gateway-deployment {api-id: ""})
  */
-@Type("deployment")
+@Type("api-gateway-deployment")
 public class DeploymentFinder extends AwsFinder<ApiGatewayV2Client, Deployment, DeploymentResource> {
 
     private String id;

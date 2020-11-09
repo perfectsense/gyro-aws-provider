@@ -42,13 +42,13 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetDeploymentsResponse
  *
  * .. code-block:: gyro
  *
- *     aws::deployment example-deployment
- *         api: $(aws::api example-api)
+ *     aws::api-gateway-deployment example-deployment
+ *         api: $(aws::api-gateway example-api)
  *         description: "example-desc-changed"
- *         stage: $(aws::stage example-stage)
+ *         stage: $(aws::api-gateway-stage example-stage)
  *     end
  */
-@Type("deployment")
+@Type("api-gateway-deployment")
 public class DeploymentResource extends AwsResource implements Copyable<Deployment> {
 
     private ApiResource api;

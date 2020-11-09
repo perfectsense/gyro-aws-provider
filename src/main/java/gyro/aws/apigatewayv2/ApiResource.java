@@ -48,8 +48,8 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
  *
  * .. code-block:: gyro
  *
- *     aws::api example-api
- *         name: "example-har-api"
+ *     aws::api-gateway example-api
+ *         name: "example-api"
  *         protocol-type: HTTP
  *         description: "example-desc-up"
  *         api-key-selection-expression: '$request.header.x-api-key'
@@ -75,7 +75,7 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
  *         }
  *     end
  */
-@Type("api")
+@Type("api-gateway")
 public class ApiResource extends AwsResource implements Copyable<Api> {
 
     private String apiKeySelectionExpression;

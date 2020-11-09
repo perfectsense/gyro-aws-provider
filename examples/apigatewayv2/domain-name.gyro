@@ -1,4 +1,4 @@
-aws::api example-api
+aws::api-gateway example-api
     name: "example-api"
     protocol-type: HTTP
     description: "example-desc-up"
@@ -25,13 +25,13 @@ aws::api example-api
     }
 end
 
-aws::route example-route
-    api: $(aws::api example-api)
+aws::api-gateway-route example-route
+    api: $(aws::api-gateway example-api)
     route-key: 'ANY /api/example/route'
 end
 
-aws::stage example-stage
-    api: $(aws::api example-api)
+aws::api-gateway-stage example-stage
+    api: $(aws::api-gateway example-api)
     name: example-stage
     description: "example-desc"
     auto-deploy: false
@@ -58,7 +58,7 @@ aws::stage example-stage
     }
 end
 
-aws::domain-name example-domain-name
+aws::api-gateway-domain-name example-domain-name
     name: "vpn.ops-test.psdops.com"
 
     domain-name-configurations
@@ -72,8 +72,8 @@ aws::domain-name example-domain-name
 end
 
 aws::api-mapping example-mapping
-    api: $(aws::api example-api)
-    domain-name: $(aws::domain-name example-domain-name)
-    stage: $(aws::stage example-stage)
+    api: $(aws::api-gateway example-api)
+    domain-name: $(aws::api-gateway-domain-name example-domain-name)
+    stage: $(aws::api-gateway-stage example-stage)
     api-mapping-key: "example-key"
 end

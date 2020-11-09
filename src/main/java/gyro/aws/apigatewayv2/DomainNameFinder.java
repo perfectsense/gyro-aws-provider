@@ -33,9 +33,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
  *
  * .. code-block:: gyro
  *
- *    domain-name: $(external-query aws::domain-name {name: "vpn.ops-test.psdops.com"})
+ *    domain-name: $(external-query aws::api-gateway-domain-name {name: "vpn.ops-test.psdops.com"})
  */
-@Type("domain-name")
+@Type("api-gateway-domain-name")
 public class DomainNameFinder extends AwsFinder<ApiGatewayV2Client, DomainName, DomainNameResource> {
 
     private String name;

@@ -48,8 +48,8 @@ import software.amazon.awssdk.services.apigatewayv2.model.PassthroughBehavior;
  *
  * .. code-block:: gyro
  *
- *     aws::integration example-integration
- *         api: $(aws::api example-api)
+ *     aws::api-gateway-integration example-integration
+ *         api: $(aws::api-gateway example-api)
  *         integration-type: HTTP_PROXY
  *         timeout-in-millis: 30000
  *         integration-uri: 'https://example-domain.com'
@@ -57,7 +57,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.PassthroughBehavior;
  *         payload-format-version: "1.0"
  *     end
  */
-@Type("integration")
+@Type("api-gateway-integration")
 public class IntegrationResource extends AwsResource implements Copyable<Integration> {
 
     private ApiResource api;

@@ -35,9 +35,9 @@ import software.amazon.awssdk.services.apigatewayv2.model.Route;
  *
  * .. code-block:: gyro
  *
- *    route: $(external-query aws::route {api-id: "tf2x92hetc"})
+ *    route: $(external-query aws::api-gateway-route {api-id: ""})
  */
-@Type("route")
+@Type("api-gateway-route")
 public class RouteFinder extends AwsFinder<ApiGatewayV2Client, Route, RouteResource> {
 
     private String id;

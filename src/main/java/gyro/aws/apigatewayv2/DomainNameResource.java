@@ -46,7 +46,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesResponse
  *
  * .. code-block:: gyro
  *
- *     aws::domain-name example-domain-name
+ *     aws::api-gateway-domain-name example-domain-name
  *         name: "vpn.ops-test.psdops.com"
  *
  *         domain-name-configurations
@@ -59,7 +59,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesResponse
  *         }
  *     end
  */
-@Type("domain-name")
+@Type("api-gateway-domain-name")
 public class DomainNameResource extends AwsResource implements Copyable<DomainName> {
 
     private String name;
