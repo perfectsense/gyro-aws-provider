@@ -31,6 +31,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.Authorizer;
 import software.amazon.awssdk.services.apigatewayv2.model.AuthorizerType;
@@ -133,6 +134,7 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
      */
     @Updatable
     @Required
+    @ValidStrings({ "REQUEST", "JWT" })
     public AuthorizerType getAuthorizerType() {
         return authorizerType;
     }

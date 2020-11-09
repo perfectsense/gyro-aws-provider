@@ -30,6 +30,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.ContentHandlingStrategy;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateIntegrationResponseResponse;
@@ -80,6 +81,7 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
      * The configuration to handle response payload content type conversions.
      */
     @Updatable
+    @ValidStrings({ "CONVERT_TO_BINARY", "CONVERT_TO_TEXT" })
     public ContentHandlingStrategy getContentHandlingStrategy() {
         return contentHandlingStrategy;
     }

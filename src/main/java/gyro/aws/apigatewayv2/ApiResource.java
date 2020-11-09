@@ -154,6 +154,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
     /**
      * The API protocol.
      */
+    @ValidStrings({ "HTTP", "WEBSOCKET" })
     @Required
     public ProtocolType getProtocolType() {
         return protocolType;

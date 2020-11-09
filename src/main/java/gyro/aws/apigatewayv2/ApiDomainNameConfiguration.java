@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.aws.acm.AcmCertificateResource;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.DescribeCertificateResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.DomainNameConfiguration;
@@ -47,6 +48,7 @@ public class ApiDomainNameConfiguration extends Diffable implements Copyable<Dom
     /**
      * The endpoint type.
      */
+    @ValidStrings({ "REGIONAL", "EDGE" })
     public EndpointType getEndpointType() {
         return endpointType;
     }
@@ -58,6 +60,7 @@ public class ApiDomainNameConfiguration extends Diffable implements Copyable<Dom
     /**
      * The Transport Layer Security (TLS) version of the security policy for this domain name.
      */
+    @ValidStrings({ "TLS_1_0", "TLS_1_2" })
     public SecurityPolicy getSecurityPolicy() {
         return securityPolicy;
     }

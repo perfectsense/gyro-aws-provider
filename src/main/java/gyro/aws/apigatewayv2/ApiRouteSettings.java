@@ -18,6 +18,7 @@ package gyro.aws.apigatewayv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.model.LoggingLevel;
 import software.amazon.awssdk.services.apigatewayv2.model.RouteSettings;
 
@@ -66,6 +67,7 @@ public class ApiRouteSettings extends Diffable implements Copyable<RouteSettings
     /**
      * The logging level for this route.
      */
+    @ValidStrings({ "ERROR", "INFO", "OFF" })
     public LoggingLevel getLoggingLevel() {
         return loggingLevel;
     }

@@ -33,6 +33,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.AuthorizationType;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateRouteResponse;
@@ -133,6 +134,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
      * The authorization type for the route.
      */
     @Updatable
+    @ValidStrings({ "NONE", "AWS_IAM", "CUSTOM", "JWT" })
     public AuthorizationType getAuthorizationType() {
         return authorizationType;
     }

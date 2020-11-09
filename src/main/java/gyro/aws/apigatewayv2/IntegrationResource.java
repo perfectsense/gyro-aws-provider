@@ -31,6 +31,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.ConnectionType;
 import software.amazon.awssdk.services.apigatewayv2.model.ContentHandlingStrategy;
@@ -109,6 +110,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
      * The type of the network connection to the integration endpoint.
      */
     @Updatable
+    @ValidStrings({ "INTERNET", "VPC_LINK" })
     public ConnectionType getConnectionType() {
         return connectionType;
     }
@@ -180,6 +182,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
      * The integration type of an integration.
      */
     @Required
+    @ValidStrings({ "AWS", "HTTP", "MOCK", "HTTP_PROXY", "AWS_PROXY" })
     public IntegrationType getIntegrationType() {
         return integrationType;
     }
@@ -204,6 +207,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
      * The pass-through behavior for incoming requests.
      */
     @Updatable
+    @ValidStrings({ "WHEN_NO_MATCH", "NEVER", "WHEN_NO_TEMPLATES" })
     public PassthroughBehavior getPassthroughBehavior() {
         return passthroughBehavior;
     }
