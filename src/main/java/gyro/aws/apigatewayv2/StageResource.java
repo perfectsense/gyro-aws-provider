@@ -29,6 +29,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -87,6 +88,9 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     private List<ApiRouteSettings> routeSettings;
     private Map<String, String> stageVariables;
     private Map<String, String> tags;
+
+    // Output
+    private String arn;
 
     /**
      * The name of the stage.
@@ -233,6 +237,18 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
         this.tags = tags;
     }
 
+    /**
+     * The ARN of the stage.
+     */
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(Stage model) {
         setName(model.stageName());
@@ -240,6 +256,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
         setClientCertificateId(model.clientCertificateId());
         setDeployment(findById(DeploymentResource.class, model.deploymentId()));
         setDescription(model.description());
+        setArn(getArnFormat());
 
         if (model.accessLogSettings() != null) {
             ApiAccessLogSettings logSettings = newSubresource(ApiAccessLogSettings.class);
@@ -306,6 +323,8 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
             .stageName(getName())
             .stageVariables(getStageVariables())
             .tags(getTags()));
+
+        setArn(getArnFormat());
     }
 
     @Override
@@ -329,18 +348,13 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
         if (changedFieldNames.contains("tags")) {
             StageResource currentResource = (StageResource) current;
 
-            String arn = String.format(
-                "arn:aws:apigateway:%s::/apis/%s/stages/%s",
-                credentials(AwsCredentials.class).getRegion(),
-                getApi().getId(), getName());
-
             if (!currentResource.getTags().isEmpty()) {
-                client.untagResource(r -> r.resourceArn(arn)
+                client.untagResource(r -> r.resourceArn(getArn())
                     .tagKeys(currentResource.getTags().keySet())
                     .build());
             }
 
-            client.tagResource(r -> r.resourceArn(arn).tags(getTags()));
+            client.tagResource(r -> r.resourceArn(getArn()).tags(getTags()));
         }
     }
 
@@ -365,5 +379,12 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
         }
 
         return stage;
+    }
+
+    private String getArnFormat() {
+        return String.format(
+            "arn:aws:apigateway:%s::/apis/%s/stages/%s",
+            credentials(AwsCredentials.class).getRegion(),
+            getApi().getId(), getName());
     }
 }

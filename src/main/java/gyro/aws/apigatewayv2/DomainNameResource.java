@@ -29,6 +29,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -66,6 +67,9 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
     private List<ApiDomainNameConfiguration> domainNameConfigurations;
     private ApiMutualTlsAuthentication mutualTlsAuthentication;
     private Map<String, String> tags;
+
+    // Output
+    private String arn;
 
     /**
      * The domain name.
@@ -124,10 +128,23 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
         this.tags = tags;
     }
 
+    /**
+     * The ARN of the domain name.
+     */
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(DomainName model) {
         setName(model.domainName());
         setTags(model.hasTags() ? model.tags() : null);
+        setArn(getArnFormat());
 
         if (model.mutualTlsAuthentication() != null) {
             ApiMutualTlsAuthentication input = newSubresource(ApiMutualTlsAuthentication.class);
@@ -175,6 +192,8 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
             .domainNameConfigurations(getDomainNameConfigurations().stream()
                 .map(d -> d.toDomainNameConfiguration(acmClient))
                 .collect(Collectors.toList())));
+
+        setArn(getArnFormat());
     }
 
     @Override
@@ -189,21 +208,16 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
                 .map(d -> d.toDomainNameConfiguration(acmClient))
                 .collect(Collectors.toList())));
 
-        String arn = String.format(
-            "arn:aws:apigateway:%s::/domainnames/%s",
-            credentials(AwsCredentials.class).getRegion(),
-            getName());
-
         if (changedFieldNames.contains("tags")) {
             DomainNameResource currentResource = (DomainNameResource) current;
 
             if (!currentResource.getTags().isEmpty()) {
-                client.untagResource(r -> r.resourceArn(arn)
+                client.untagResource(r -> r.resourceArn(getArn())
                     .tagKeys(currentResource.getTags().keySet())
                     .build());
             }
 
-            client.tagResource(r -> r.resourceArn(arn).tags(getTags()));
+            client.tagResource(r -> r.resourceArn(getArn()).tags(getTags()));
         }
     }
 
@@ -228,5 +242,10 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
         }
 
         return domainName;
+    }
+
+    private String getArnFormat() {
+        return String.format("arn:aws:apigateway:%s::/domainnames/%s", credentials(AwsCredentials.class).getRegion(),
+            getName());
     }
 }

@@ -75,6 +75,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
 
     // Output
     private String id;
+    private String arn;
 
     /**
      * The name of the VPC link.
@@ -144,10 +145,23 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
         this.id = id;
     }
 
+    /**
+     * The ARN of the Vpc Link.
+     */
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(VpcLink model) {
         setId(model.vpcLinkId());
         setName(model.name());
+        setArn(getArnFormat());
 
         if (model.hasSecurityGroupIds()) {
             setSecurityGroups(model.securityGroupIds()
@@ -191,6 +205,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
             .tags(getTags()));
 
         setId(vpcLink.vpcLinkId());
+        setArn(getArnFormat());
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.MINUTES)
@@ -208,18 +223,13 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
         if (changedFieldNames.contains("tags")) {
             DomainNameResource currentResource = (DomainNameResource) current;
 
-            String arn = String.format(
-                "arn:aws:apigateway:%s::/vpclinks/%s",
-                credentials(AwsCredentials.class).getRegion(),
-                getId());
-
             if (!currentResource.getTags().isEmpty()) {
-                client.untagResource(r -> r.resourceArn(arn)
+                client.untagResource(r -> r.resourceArn(getArn())
                     .tagKeys(currentResource.getTags().keySet())
                     .build());
             }
 
-            client.tagResource(r -> r.resourceArn(arn).tags(getTags()));
+            client.tagResource(r -> r.resourceArn(getArn()).tags(getTags()));
         }
 
         Wait.atMost(10, TimeUnit.MINUTES)
@@ -245,5 +255,10 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
         }
 
         return vpcLink;
+    }
+
+    private String getArnFormat() {
+        return String.format("arn:aws:apigateway:%s::/vpclinks/%s", credentials(AwsCredentials.class).getRegion(),
+            getId());
     }
 }

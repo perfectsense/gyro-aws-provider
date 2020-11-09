@@ -37,8 +37,6 @@ import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateApiResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.GetApisResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.ProtocolType;
-import software.amazon.awssdk.services.sts.StsClient;
-import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 /**
  * Create an api.
@@ -90,6 +88,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
 
     // Read-only
     private String id;
+    private String arn;
 
     /**
      * The API key selection expression.
@@ -218,6 +217,18 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
         this.id = id;
     }
 
+    /**
+     * The ARN of the Api.
+     */
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(Api model) {
         setApiKeySelectionExpression(model.apiKeySelectionExpression());
@@ -228,6 +239,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
         setRouteSelectionExpression(model.routeSelectionExpression());
         setVersion(model.version());
         setId(model.apiId());
+        setArn(getArnFormat());
 
         if (model.corsConfiguration() != null) {
             ApiCors config = newSubresource(ApiCors.class);
@@ -237,7 +249,6 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
 
         if (model.hasTags()) {
             setTags(model.tags());
-
         } else {
             setTags(null);
         }
@@ -273,6 +284,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
             .tags(getTags()));
 
         setId(response.apiId());
+        setArn(getArnFormat());
     }
 
     @Override
@@ -290,22 +302,13 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
         if (changedFieldNames.contains("tags")) {
             ApiResource currentResource = (ApiResource) current;
 
-            StsClient stsClient = createClient(StsClient.class);
-            GetCallerIdentityResponse response = stsClient.getCallerIdentity();
-            String account = response.account();
-
-            String arn = String.format(
-                "arn:aws:apigateway:%s::/apis/%s",
-                credentials(AwsCredentials.class).getRegion(),
-                getId());
-
             if (!currentResource.getTags().isEmpty()) {
-                client.untagResource(r -> r.resourceArn(arn)
+                client.untagResource(r -> r.resourceArn(getArn())
                     .tagKeys(currentResource.getTags().keySet())
                     .build());
             }
 
-            client.tagResource(r -> r.resourceArn(arn).tags(getTags()));
+            client.tagResource(r -> r.resourceArn(getArn()).tags(getTags()));
         }
     }
 
@@ -326,5 +329,9 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
         }
 
         return api;
+    }
+
+    private String getArnFormat() {
+        return String.format("arn:aws:apigateway:%s::/apis/%s", credentials(AwsCredentials.class).getRegion(), getId());
     }
 }
