@@ -65,11 +65,16 @@ public class KendraDataSourceToIndexFieldMapping extends Diffable
 
     @Override
     public String primaryKey() {
-        return String.format(
-            "Field name: %s, Field format: %s, Index Field name: %s",
-            getDataSourceFieldName(),
-            getDateFieldFormat(),
-            getIndexFieldName());
+        StringBuilder sb = new StringBuilder("DataSourceToIndexFieldMapping: ");
+
+        sb.append("Field name: ").append(getDataSourceFieldName()).append(" ")
+            .append("Index field name: ").append(getIndexFieldName()).append(" ");
+
+        if (getDateFieldFormat() != null) {
+            sb.append("Format: ").append(getDateFieldFormat());
+        }
+
+        return sb.toString();
     }
 
     @Override
