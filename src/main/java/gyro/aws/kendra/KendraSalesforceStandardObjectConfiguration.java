@@ -86,16 +86,7 @@ public class KendraSalesforceStandardObjectConfiguration extends Diffable
 
     @Override
     public String primaryKey() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Name: ").append(getName()).append(" ")
-            .append("Data: ").append(getDocumentDataFieldName()).append(" ")
-            .append("Title: ").append(getDocumentTitleFieldName() != null ? getDocumentTitleFieldName() : "-")
-            .append(" ")
-            .append("Field Mappings: ")
-            .append(getFieldMapping().stream().map(Diffable::toString).collect(Collectors.joining(", ")));
-
-        return sb.toString();
+        return "Name: " + getName();
     }
 
     @Override
@@ -110,7 +101,6 @@ public class KendraSalesforceStandardObjectConfiguration extends Diffable
                 mapping.copyFrom(f);
 
                 return mapping;
-
             }).collect(Collectors.toList()));
         }
     }
