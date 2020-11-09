@@ -85,6 +85,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
     // Output
     private String id;
+    private String arn;
 
     /**
      * The description for the index.
@@ -187,6 +188,18 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
         this.id = id;
     }
 
+    /**
+     * The ARN of the index.
+     */
+    @Output
+    private String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(DescribeIndexResponse model) {
         setName(model.name());
@@ -194,6 +207,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
         setEdition(model.edition());
         setRole(findById(RoleResource.class, model.roleArn()));
         setId(model.id());
+        setArn(getArnFormat());
 
         if (model.capacityUnits() != null) {
             KendraCapacityUnitsConfiguration capacityUnits = newSubresource(KendraCapacityUnitsConfiguration.class);
@@ -246,6 +260,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
         CreateIndexResponse index = client.createIndex(builder.build());
         setId(index.id());
+        setArn(getArnFormat());
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.MINUTES)
@@ -340,11 +355,8 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
         return index;
     }
 
-    private String getArn() {
-        return String.format(
-            "arn:aws:kendra:%s:%s:index/%s",
-            credentials(AwsCredentials.class).getRegion(),
-            getRole().getArn().split(":")[4],
-            getId());
+    private String getArnFormat() {
+        return String.format("arn:aws:kendra:%s:%s:index/%s", credentials(AwsCredentials.class).getRegion(),
+            getRole().getArn().split(":")[4], getId());
     }
 }

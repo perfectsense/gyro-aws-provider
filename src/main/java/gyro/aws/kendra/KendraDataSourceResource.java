@@ -97,6 +97,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
 
     // Output
     private String id;
+    private String arn;
 
     /**
      * The name of the data source. (Required)
@@ -215,6 +216,18 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
         this.id = id;
     }
 
+    /**
+     * The ARN of the data source.
+     */
+    @Output
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(DescribeDataSourceResponse model) {
         setId(model.id());
@@ -224,6 +237,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
         setDescription(model.description());
         setSchedule(model.schedule());
         setType(model.type());
+        setArn(getArnFormat());
 
         KendraDataSourceConfiguration config = newSubresource(KendraDataSourceConfiguration.class);
         config.copyFrom(model.configuration());
@@ -266,6 +280,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
         );
 
         setId(dataSource.id());
+        setArn(getArnFormat());
         state.save();
 
         Wait.atMost(10, TimeUnit.MINUTES)
@@ -356,12 +371,9 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
         return isSyncing;
     }
 
-    private String getArn() {
-        return String.format(
-            "arn:aws:kendra:%s:%s:index/%s/data-source/%s",
-            credentials(AwsCredentials.class).getRegion(),
-            getRole().getArn().split(":")[4],
-            getIndex().getId(),
+    private String getArnFormat() {
+        return String.format("arn:aws:kendra:%s:%s:index/%s/data-source/%s",
+            credentials(AwsCredentials.class).getRegion(), getRole().getArn().split(":")[4], getIndex().getId(),
             getId());
     }
 }

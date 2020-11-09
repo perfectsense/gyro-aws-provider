@@ -83,6 +83,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
 
     // Output
     private String id;
+    private String arn;
 
     /**
      * The description of the FAQ.
@@ -184,6 +185,18 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
         this.id = id;
     }
 
+    /**
+     * The ARN of the FAQ.
+     */
+    @Output
+    private String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     public void copyFrom(DescribeFaqResponse model) {
         setDescription(model.description());
@@ -192,6 +205,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
         setRole(findById(RoleResource.class, model.roleArn()));
         setFileFormat(model.fileFormat());
         setId(model.id());
+        setArn(getArnFormat());
 
         KendraS3Path path = newSubresource(KendraS3Path.class);
         path.copyFrom(model.s3Path());
@@ -231,6 +245,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
                 .value(e.getValue()).build()).collect(Collectors.toList())));
 
         setId(faq.id());
+        setArn(getArnFormat());
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
@@ -286,12 +301,8 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
         return faq;
     }
 
-    private String getArn() {
-        return String.format(
-            "arn:aws:kendra:%s:%s:index/%s/faq/%s",
-            credentials(AwsCredentials.class).getRegion(),
-            getRole().getArn().split(":")[4],
-            getIndex().getId(),
-            getId());
+    private String getArnFormat() {
+        return String.format("arn:aws:kendra:%s:%s:index/%s/faq/%s", credentials(AwsCredentials.class).getRegion(),
+            getRole().getArn().split(":")[4], getIndex().getId(), getId());
     }
 }
