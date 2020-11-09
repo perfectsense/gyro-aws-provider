@@ -1,0 +1,10 @@
+aws::wafv2-ip-set ip-set-example-ipv4
+    name: "ip-set-example-ipv4"
+    description: "ip-set-example-ipv4-desc"
+    scope: "REGIONAL"
+    ip-address-version: "IPV4"
+    addresses: [
+        "10.0.0.0/32",
+        "20.0.0.0/32"
+    ]
+end

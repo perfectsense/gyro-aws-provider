@@ -28,6 +28,10 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.dlm.DlmClient;
 import software.amazon.awssdk.services.dlm.model.CreateLifecyclePolicyResponse;
 import software.amazon.awssdk.services.dlm.model.CreateRule;
@@ -90,8 +94,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     private Map<String, String> tagsToAdd;
 
     /**
-     * The description of the snapshot policy. (Required)
+     * The description of the snapshot policy.
      */
+    @Required
     @Updatable
     public String getDescription() {
         return description;
@@ -102,8 +107,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The permission role for the snapshot policy. (Required)0
+     * The permission role for the snapshot policy.
      */
+    @Required
     @Updatable
     public RoleResource getExecutionRole() {
         return executionRole;
@@ -114,8 +120,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The resource type of the snapshot policy. Valid values are ``VOLUME`` or ``INSTANCE``. Defaults to ``VOLUME``.
+     * The resource type of the snapshot policy. Defaults to ``VOLUME``.
      */
+    @ValidStrings({"VOLUME", "INSTANCE"})
     public String getResourceType() {
         if (resourceType == null) {
             resourceType = "VOLUME";
@@ -129,8 +136,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The target tags for the snapshot policy. (Required)
+     * The target tags for the snapshot policy.
      */
+    @Required
     @Updatable
     public Map<String, String> getTargetTags() {
         if (targetTags == null) {
@@ -145,9 +153,10 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The state of the snapshot policy. Valid values are ``ENABLED`` or ``DISABLED``. Defaults to ``ENABLED``
+     * The state of the snapshot policy. Defaults to ``ENABLED``
      */
     @Updatable
+    @ValidStrings({"ENABLED", "DISABLED"})
     public String getState() {
         if (state == null) {
             state = "ENABLED";
@@ -177,8 +186,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The name of the schedule for the snapshot policy. (Required)
+     * The name of the schedule for the snapshot policy.
      */
+    @Required
     @Updatable
     public String getScheduleName() {
         return scheduleName;
@@ -189,9 +199,11 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``  (Required)
+     * The name of the schedule for the snapshot policy. Valid values are ``2`` or``3`` or``4`` or``6`` or``8`` or ``12`` or ``24``
      */
+    @Required
     @Updatable
+    @ValidNumbers({2,3,4,6,8,12,24})
     public Integer getRuleInterval() {
         return ruleInterval;
     }
@@ -201,9 +213,10 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The rule interval for the snapshot policy. Valid values are ``HOURS``. Defaults to ``HOURS``
+     * The rule interval for the snapshot policy. Defaults to ``HOURS``
      */
     @Updatable
+    @ValidStrings("HOURS")
     public String getRuleIntervalUnit() {
         if (ruleIntervalUnit == null) {
             ruleIntervalUnit = "HOURS";
@@ -217,9 +230,10 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The time format of the interval for the snapshot policy. Currenly only supported value is ``hh:mm``. Defaults to ``hh:mm``
+     * The time format of the interval for the snapshot policy. Defaults to ``hh:mm``
      */
     @Updatable
+    @ValidStrings("hh:mm")
     public String getRuleTime() {
         if (ruleTime == null) {
             ruleTime = "hh:mm";
@@ -233,9 +247,11 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The number of volumes to retain for the snapshot policy. Valid values are ``1`` to ``1000``. (Required)
+     * The number of volumes to retain for the snapshot policy.
      */
+    @Required
     @Updatable
+    @Range(min = 1, max = 1000)
     public Integer getRetainRuleCount() {
         return retainRuleCount;
     }
@@ -245,8 +261,9 @@ public class LifecyclePolicyResource extends AwsResource implements Copyable<Lif
     }
 
     /**
-     * The list of tags to add to the volumes for the snapshot policy. (Required)
+     * The list of tags to add to the volumes for the snapshot policy.
      */
+    @Required
     @Updatable
     public Map<String, String> getTagsToAdd() {
         if (tagsToAdd == null) {

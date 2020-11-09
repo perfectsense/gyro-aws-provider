@@ -34,7 +34,7 @@ public class CacheParameter extends Diffable {
     }
 
     /**
-     * The name of the cache parameter variable. (Required)
+     * The name of the cache parameter variable.
      */
     public String getName() {
         return name;
@@ -45,7 +45,7 @@ public class CacheParameter extends Diffable {
     }
 
     /**
-     * The value of the cache parameter variable. (Required)
+     * The value of the cache parameter variable.
      */
     @Updatable
     public String getValue() {

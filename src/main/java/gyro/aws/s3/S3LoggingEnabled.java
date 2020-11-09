@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.s3.model.LoggingEnabled;
 
 public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnabled> {
@@ -27,8 +28,9 @@ public class S3LoggingEnabled extends Diffable implements Copyable<LoggingEnable
     private String prefix;
 
     /**
-     * The target destination bucket for the logs. (Required)
+     * The target destination bucket for the logs.
      */
+    @Required
     @Updatable
     public BucketResource getBucket() {
         return bucket;

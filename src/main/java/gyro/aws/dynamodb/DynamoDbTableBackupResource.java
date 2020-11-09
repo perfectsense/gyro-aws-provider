@@ -59,7 +59,7 @@ public class DynamoDbTableBackupResource extends AwsResource implements Copyable
     private String backupArn;
 
     /**
-     * The name of the DynamoDb table. (Required)
+     * The name of the DynamoDb table.
      */
     @Required
     @Regex("[a-zA-Z0-9_.-]+")
@@ -72,7 +72,7 @@ public class DynamoDbTableBackupResource extends AwsResource implements Copyable
     }
 
     /**
-     * The name of the table backup. (Required)
+     * The name of the table backup.
      */
     @Required
     @Regex("[a-zA-Z0-9_.-]+")

@@ -26,6 +26,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
@@ -71,8 +72,9 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     private String ownerId;
 
     /**
-     * The VPC to create a Route Table for. (Required)
+     * The VPC to create a Route Table for.
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }

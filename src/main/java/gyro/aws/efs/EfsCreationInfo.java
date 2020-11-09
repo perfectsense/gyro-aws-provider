@@ -29,7 +29,7 @@ public class EfsCreationInfo extends Diffable implements Copyable<CreationInfo> 
     private String permissions;
 
     /**
-     * The POSIX group ID to apply to the root directory. Valid values range from ``0`` to ``4294967295``.
+     * The POSIX group ID to apply to the root directory.
      */
     @Range(min = 0, max = 4294967295L)
     public Long getOwnerGroupId() {
@@ -41,7 +41,7 @@ public class EfsCreationInfo extends Diffable implements Copyable<CreationInfo> 
     }
 
     /**
-     * The POSIX user ID to apply to the root directory. Valid values range from ``0`` to ``4294967295``.
+     * The POSIX user ID to apply to the root directory.
      */
     @Range(min = 0, max = 4294967295L)
     public Long getOwnerUserId() {
@@ -53,7 +53,7 @@ public class EfsCreationInfo extends Diffable implements Copyable<CreationInfo> 
     }
 
     /**
-     * The octal number representation of the POSIX permissions to apply to the root directory. Valid values are ``0000``, ``0700``, ``0770``, ``0777``, ``0111``, ``0222``, ``0333``, ``0444``, ``0555``, ``0666`` or ``0740``.
+     * The octal number representation of the POSIX permissions to apply to the root directory.
      */
     @ValidStrings({ "0000", "0700", "0770", "0777", "0111", "0222", "0333", "0444", "0555", "0666", "0740" })
     public String getPermissions() {

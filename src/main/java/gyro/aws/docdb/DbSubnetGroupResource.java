@@ -27,6 +27,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBSubnetGroup;
@@ -83,8 +84,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     /**
-     * Name of the db subnet group. (Required)
+     * Name of the db subnet group.
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -95,8 +97,9 @@ public class DbSubnetGroupResource extends DocDbTaggableResource implements Copy
     }
 
     /**
-     * A list of associated subnets. (Required)
+     * A list of associated subnets.
      */
+    @Required
     @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {

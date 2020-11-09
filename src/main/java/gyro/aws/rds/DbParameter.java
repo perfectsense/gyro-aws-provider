@@ -18,6 +18,8 @@ package gyro.aws.rds;
 
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 public class DbParameter extends Diffable {
 
@@ -26,8 +28,9 @@ public class DbParameter extends Diffable {
     private String applyMethod;
 
     /**
-     * The name of the DB parameter. (Required)
+     * The name of the DB parameter.
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -37,8 +40,9 @@ public class DbParameter extends Diffable {
     }
 
     /**
-     * The value of the DB parameter. (Required)
+     * The value of the DB parameter.
      */
+    @Required
     @Updatable
     public String getValue() {
         return value;
@@ -49,8 +53,9 @@ public class DbParameter extends Diffable {
     }
 
     /**
-     * The timing to apply parameter updates. Valid values are ``immediate`` (default) or ``pending-reboot``.
+     * The timing to apply parameter updates. Defaults to ``immediate``.
      */
+    @ValidStrings({"immediate", "pending-reboot"})
     public String getApplyMethod() {
         if (applyMethod == null) {
             applyMethod = "immediate";

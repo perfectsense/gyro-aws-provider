@@ -29,6 +29,11 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
@@ -187,6 +192,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The number of days to retain backups. Must be a value from ``0`` to ``35`` where ``0`` to disables automated backups. Not applicable for Aurora.
      */
     @Updatable
+    @Range(min = 0, max = 35)
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
     }
@@ -230,8 +236,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The DB instance type. See `DB Instance Class <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_. (Required)
+     * The DB instance type. See `DB Instance Class <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_.
      */
+    @Required
     @Updatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
@@ -242,8 +249,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The unique name of the DB instance. (Required)
+     * The unique name of the DB instance.
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;
@@ -348,7 +356,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The list of log types to export to CloudWatch Logs. Valid values depend on the DB engine being used. See `Publishing Database Logs to Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch>`_.
+     * The list of log types to export to CloudWatch Logs. See `Publishing Database Logs to Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch>`_.
      */
     @Updatable
     public List<String> getEnableCloudwatchLogsExports() {
@@ -384,8 +392,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The name of the database engine to use for this DB Instance. Valid values are ``aurora``, ``aurora-mysql``, ``aurora-postgresql``, ``mariadb``, ``mysql``, ``oracle-ee``, ``oracle-se2``, ``oracle-se1``, ``oracle-se``, ``postgres``, ``sqlserver-ee``, ``sqlserver-se``, ``sqlserver-ex``, ``sqlserver-we``.
+     * The name of the database engine to use for this DB Instance.
      */
+    @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql", "mariadb", "mysql", "oracle-ee", "oracle-se2", "oracle-se1", "oracle-se", "postgres", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-we"})
     public String getEngine() {
         return engine;
     }
@@ -418,9 +427,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The amount of Provisioned IOPS to be allocated. The value must be equal to or greater than 1000. Required if `storage-type` is ``io1``.
+     * The amount of Provisioned IOPS to be allocated. Required if `storage-type` is ``io1``.
      */
     @Updatable
+    @Min(1000)
     public Integer getIops() {
         return iops;
     }
@@ -441,9 +451,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * License model for this DB instance. Valid values: ``license-included``, ``bring-your-own-license``, ``general-public-license``.
+     * License model for this DB instance.
      */
     @Updatable
+    @ValidStrings({"license-included", "bring-your-own-license", "general-public-license"})
     public String getLicenseModel() {
         return licenseModel;
     }
@@ -476,9 +487,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection). Valid Values: ``0``, ``1``, ``5``, ``10``, ``15``, ``30``, ``60``.
+     * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection).
      */
     @Updatable
+    @ValidNumbers({0,1,5,10,15,30,60})
     public Integer getMonitoringInterval() {
         return monitoringInterval;
     }
@@ -536,9 +548,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * How many days to retain Performance Insights data. Valid values are ``7`` or ``731`` (2 years).
+     * How many days to retain Performance Insights data.
      */
     @Updatable
+    @ValidNumbers({7,731})
     public Integer getPerformanceInsightsRetentionPeriod() {
         return performanceInsightsRetentionPeriod;
     }
@@ -583,9 +596,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The order of the Aurora Replica is promoted to the primary instance after the existing primary instance fails. Valid Values: 0 - 15.
+     * The order of the Aurora Replica is promoted to the primary instance after the existing primary instance fails.
      */
     @Updatable
+    @Range(min = 0, max = 15)
     public Integer getPromotionTier() {
         return promotionTier;
     }
@@ -632,9 +646,10 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
-     * The storage type for the DB instance. Valid values are ``standard``, ``gp2``, ``io1``.
+     * The storage type for the DB instance.
      */
     @Updatable
+    @ValidStrings({"standard", "gp2", "io1"})
     public String getStorageType() {
         return storageType;
     }

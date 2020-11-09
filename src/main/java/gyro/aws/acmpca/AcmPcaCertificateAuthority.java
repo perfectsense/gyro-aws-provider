@@ -28,6 +28,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acmpca.AcmPcaClient;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthority;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthorityStatus;
@@ -105,8 +107,11 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     private CertificateAuthorityStatus status;
 
     /**
-     * The configuration setting for the Certificate Authority. (Required)
+     * The configuration setting for the Certificate Authority.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaCertificateAuthorityConfiguration
      */
+    @Required
     public AcmPcaCertificateAuthorityConfiguration getConfiguration() {
         return configuration;
     }
@@ -116,8 +121,10 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
     }
 
     /**
-     * The type of Certificate Authority. Valid values are ``ROOT`` or ``SUBORDINATE``. (Required)
+     * The type of Certificate Authority.
      */
+    @Required
+    @ValidStrings({"ROOT", "SUBORDINATE"})
     public CertificateAuthorityType getType() {
         return type;
     }
@@ -128,6 +135,8 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
 
     /**
      * The revocation configuration for the Certificate Authority.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaRevocationConfiguration
      */
     public AcmPcaRevocationConfiguration getRevocationConfiguration() {
         if (revocationConfiguration == null) {
@@ -159,6 +168,8 @@ public class AcmPcaCertificateAuthority extends AwsResource implements Copyable<
 
     /**
      * The permission setting for the Certificate Authority.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaPermission
      */
     @Updatable
     public AcmPcaPermission getPermission() {

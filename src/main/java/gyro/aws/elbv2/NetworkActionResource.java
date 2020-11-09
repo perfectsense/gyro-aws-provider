@@ -25,6 +25,7 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 
 import java.util.Set;
@@ -47,7 +48,7 @@ public class NetworkActionResource extends AwsResource {
     private String type;
 
     /**
-     *  The target group that this action is associated with  (Optional)
+     *  The target group that this action is associated with 
      */
     public TargetGroupResource getTargetGroup() {
         return targetGroup;
@@ -58,8 +59,9 @@ public class NetworkActionResource extends AwsResource {
     }
 
     /**
-     *  The type of action to perform  (Required)
+     *  The type of action to perform 
      */
+    @Required
     @Updatable
     public String getType() {
         return type;

@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeLoadBalancersResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -65,7 +66,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  Type of IP address used by the subnets of the alb. (Optional)
+     *  Type of IP address used by the subnets of the alb.
      */
     public String getIpAddressType() {
         return ipAddressType;
@@ -89,8 +90,9 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  The name of the load balancer. (Required)
+     *  The name of the load balancer.
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -100,7 +102,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  Type of nodes used by the alb. (Optional)
+     *  Type of nodes used by the alb.
      */
     public String getScheme() {
         return scheme;
@@ -111,7 +113,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     }
 
     /**
-     *  List of tags associated with the alb. (Optional)
+     *  List of tags associated with the alb.
      */
     @Updatable
     public Map<String, String> getTags() {

@@ -23,6 +23,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
@@ -60,8 +61,9 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
     private List<ActionResource> defaultAction;
 
     /**
-     *  The alb that the listener is attached to. (Required)
+     *  The alb that the listener is attached to.
      **/
+    @Required
     public ApplicationLoadBalancerResource getAlb() {
         return alb;
     }
@@ -71,10 +73,11 @@ public class ApplicationLoadBalancerListenerResource extends ListenerResource im
     }
 
     /**
-     *  List of default actions associated with the listener. (Required)
+     *  List of default actions associated with the listener.
      *
      *  @subresource gyro.aws.elbv2.ActionResource
      */
+    @Required
     @Updatable
     public List<ActionResource> getDefaultAction() {
         if (defaultAction == null) {

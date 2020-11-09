@@ -46,7 +46,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     private SecurityGroupResource securityGroup;
 
     /**
-     * Protocol for this Security Group Rule. ``-1`` is equivalent to "all". Other valid values are ``tcp`` or ``udp``or ``icmp``. Defaults to ``tcp``.
+     * Protocol for this Security Group Rule. ``-1`` is equivalent to "all". Defaults to ``tcp``.
      */
     public String getProtocol() {
         if (protocol != null) {

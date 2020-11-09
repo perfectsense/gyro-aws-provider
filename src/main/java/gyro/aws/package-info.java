@@ -45,8 +45,8 @@
  * .. code:: shell
  *
  *     [my-project]
- *     aws_secret_access_key = jIk7vCcAIm9zb0LPizhqjKrjGm7HF47VglVoFnjS
- *     aws_access_key_id = IPPL6D4B4JCBO8HBIMJG
+ *     aws_secret_access_key = <access_key>
+ *     aws_access_key_id = <access_key_id>
  *
  * Then define these credentials in ``.gyro/init.gyro`` in your Gyro project along with
  * the region you want to use these credentials in.

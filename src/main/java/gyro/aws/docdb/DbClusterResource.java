@@ -29,6 +29,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -103,9 +105,11 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     private String arn;
 
     /**
-     * Set backup retention period. Minimum 1. (Required)
+     * Set backup retention period.
      */
+    @Required
     @Updatable
+    @Min(1)
     public Integer getBackupRetentionPeriod() {
         return backupRetentionPeriod;
     }
@@ -115,8 +119,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Name of the cluster. (Required)
+     * Name of the cluster.
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;
@@ -127,8 +132,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated db subnet group. (Required)
+     * Associated db subnet group.
      */
+    @Required
     public DbSubnetGroupResource getDbSubnetGroup() {
         return dbSubnetGroup;
     }
@@ -138,8 +144,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Engine for the cluster. (Required)
+     * Engine for the cluster.
      */
+    @Required
     public String getEngine() {
         return engine;
     }
@@ -149,8 +156,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Engine version for the cluster. (Required)
+     * Engine version for the cluster.
      */
+    @Required
     @Updatable
     public String getEngineVersion() {
         return engineVersion;
@@ -161,8 +169,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated db cluster parameter group. (Required)
+     * Associated db cluster parameter group.
      */
+    @Required
     @Updatable
     public DbClusterParameterGroupResource getDbClusterParamGroup() {
         return dbClusterParamGroup;
@@ -173,7 +182,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated kms key. (Optional)
+     * Associated kms key.
      */
     public KmsKeyResource getKmsKey() {
         return kmsKey;
@@ -184,8 +193,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Master username. (Required)
+     * Master username.
      */
+    @Required
     public String getMasterUsername() {
         return masterUsername;
     }
@@ -195,8 +205,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Master user password. (Required)
+     * Master user password.
      */
+    @Required
     public String getMasterUserPassword() {
         return masterUserPassword;
     }
@@ -206,8 +217,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Set the access port. (Required)
+     * Set the access port.
      */
+    @Required
     @Updatable
     public Integer getPort() {
         return port;
@@ -218,8 +230,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Set preferred backup window. (Required)
+     * Set preferred backup window.
      */
+    @Required
     @Updatable
     public String getPreferredBackupWindow() {
         return preferredBackupWindow;
@@ -230,8 +243,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Set preferred maintenance window. (Required)
+     * Set preferred maintenance window.
      */
+    @Required
     @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
@@ -242,8 +256,9 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Associated vpc security groups. (Required)
+     * Associated vpc security groups.
      */
+    @Required
     @Updatable
     public Set<SecurityGroupResource> getVpcSecurityGroups() {
         if (vpcSecurityGroups == null) {
@@ -258,7 +273,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Encrypt storage. (Optional)
+     * Encrypt storage.
      */
     public Boolean getStorageEncrypted() {
         return storageEncrypted;
@@ -269,7 +284,7 @@ public class DbClusterResource extends DocDbTaggableResource implements Copyable
     }
 
     /**
-     * Enabled cloud watch log exports. (Optional)
+     * Enabled cloud watch log exports.
      */
     public List<String> getEnableCloudwatchLogsExports() {
         if (enableCloudwatchLogsExports == null) {

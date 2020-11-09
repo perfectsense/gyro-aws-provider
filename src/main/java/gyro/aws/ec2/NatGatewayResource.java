@@ -66,8 +66,9 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     private InternetGatewayResource internetGateway;
 
     /**
-     * Associated Elastic IP for the Nat Gateway. (Required)
+     * Associated Elastic IP for the Nat Gateway.
      */
+    @Required
     public ElasticIpResource getElasticIp() {
         return elasticIp;
     }
@@ -77,7 +78,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     /**
-     * Associated Subnet for the Nat Gateway. (Required)
+     * Associated Subnet for the Nat Gateway.
      */
     @Required
     public SubnetResource getSubnet() {

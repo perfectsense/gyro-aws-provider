@@ -46,7 +46,7 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
     private List<String> nonKeyAttributes;
 
     /**
-     * The name for the index. (Required)
+     * The name for the index.
      */
     @Required
     public String getName() {
@@ -58,7 +58,7 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
     }
 
     /**
-     * The name of the hash (partition) key for this index. (Required)
+     * The name of the hash (partition) key for this index.
      */
     @Required
     public String getHashKey() {
@@ -105,7 +105,7 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
     }
 
     /**
-     * The set of attributes that are projected into this index. Valid values are ``ALL``, ``INCLUDE`` or ``KEYS_ONLY``.
+     * The set of attributes that are projected into this index.
      */
     @Required
     @ValidStrings({ "ALL", "INCLUDE", "KEYS_ONLY" })

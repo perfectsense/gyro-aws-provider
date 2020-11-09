@@ -27,6 +27,7 @@ import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CreateUserPoolResponse;
@@ -56,7 +57,7 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     private String name;
 
     /**
-     *  List of tags associated with the user pool. (Optional)
+     *  List of tags associated with the user pool.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -101,8 +102,9 @@ public class UserPoolResource extends AwsResource implements Copyable<UserPoolTy
     }
 
     /**
-     *  The name of the user pool. (Required)
+     *  The name of the user pool.
      */
+    @Required
     public String getName() {
         return name;
     }

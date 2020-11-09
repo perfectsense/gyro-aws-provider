@@ -29,6 +29,8 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
@@ -197,8 +199,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The unique name of the DB Cluster. (Required)
+     * The unique name of the DB Cluster.
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;
@@ -279,8 +282,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The name of the database engine. Valid Values: ``aurora`` (for MySQL 5.6-compatible Aurora), ``aurora-mysql`` (for MySQL 5.7-compatible Aurora), and ``aurora-postgresql``. (Required)
+     * The name of the database engine.
      */
+    @Required
+    @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql"})
     public String getEngine() {
         return engine;
     }
@@ -290,8 +295,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The DB engine mode of the DB cluster. Valid values are ``provisioned``, ``serverless``, ``parallelquery``, or ``global``.
+     * The DB engine mode of the DB cluster.
      */
+    @ValidStrings({"provisioned", "serverless", "parallelquery", "global"})
     public String getEngineMode() {
         return engineMode;
     }
@@ -439,7 +445,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     *  The scaling properties of the DB cluster. Only applicable for DB clusters in `serverless` DB engine mode,
+     *  The scaling properties of the DB cluster. Only applicable for DB clusters in `serverless` DB engine mode.
+     *
+     * @subresource gyro.aws.rds.ScalingConfiguration
      */
     @Updatable
     public ScalingConfiguration getScalingConfiguration() {

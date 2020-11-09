@@ -28,6 +28,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -85,8 +86,9 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private String account;
 
     /**
-     * The IPv4 network range for the VPC, in CIDR notation. (Required)
+     * The IPv4 network range for the VPC, in CIDR notation.
      */
+    @Required
     public String getCidrBlock() {
         return cidrBlock;
     }

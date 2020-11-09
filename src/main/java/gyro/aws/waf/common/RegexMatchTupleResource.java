@@ -21,6 +21,8 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.RegexMatchSetUpdate;
 import software.amazon.awssdk.services.waf.model.RegexMatchTuple;
@@ -34,8 +36,11 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     private CommonRegexPatternSet regexPatternSet;
 
     /**
-     * The field setting to match the condition. (Required)
+     * The field setting to match the condition.
+     *
+     * @subresource gyro.aws.waf.common.FieldToMatch
      */
+    @Required
     public FieldToMatch getFieldToMatch() {
         return fieldToMatch;
     }
@@ -45,8 +50,10 @@ public abstract class RegexMatchTupleResource extends AbstractWafResource implem
     }
 
     /**
-     * Text transformation on the data provided before doing the check. Valid values are ``NONE`` or ``COMPRESS_WHITE_SPACE`` or ``HTML_ENTITY_DECODE`` or ``LOWERCASE`` or ``CMD_LINE`` or ``URL_DECODE``. (Required)
+     * Text transformation on the data provided before doing the check.
      */
+    @Required
+    @ValidStrings({"NONE", "COMPRESS_WHITE_SPACE", "HTML_ENTITY_DECODE", "LOWERCASE", "CMD_LINE", "URL_DECODE"})
     public String getTextTransformation() {
         return textTransformation != null ? textTransformation.toUpperCase() : null;
     }

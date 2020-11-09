@@ -34,7 +34,7 @@ public class S3AccessControlPolicy extends Diffable implements Copyable<GetBucke
     private List<S3Grant> grant;
 
     /**
-     * The list of grants for the bucket. (Required)
+     * The list of grants for the bucket.
      *
      * @subresource gyro.aws.s3.S3Grant
      */

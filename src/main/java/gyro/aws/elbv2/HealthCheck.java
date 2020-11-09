@@ -52,7 +52,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     private Integer unhealthyThreshold;
 
     /**
-     *  The approximate amount of time between health checks of a target. (Optional)
+     *  The approximate amount of time between health checks of a target.
      */
     @Updatable
     public Integer getInterval() {
@@ -64,7 +64,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  The ping path destination on targets for health checks. (Optional)
+     *  The ping path destination on targets for health checks.
      */
     @Updatable
     public String getPath() {
@@ -76,7 +76,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  The port used when an alb performs health checks on targets. Required when used with ``instance`` and ``ip`` target types. (Optional)
+     *  The port used when an alb performs health checks on targets. Required when used with ``instance`` and ``ip`` target types.
      */
     @Updatable
     public String getPort() {
@@ -88,7 +88,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  The port used when an alb performs health checks on targets. (Optional)
+     *  The port used when an alb performs health checks on targets.
      */
     @Updatable
     public String getProtocol() {
@@ -100,7 +100,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  The amount of time, in seconds, an unresponsive target means a failed health check. (Optional)
+     *  The amount of time, in seconds, an unresponsive target means a failed health check.
      */
     @Updatable
     public Integer getTimeout() {
@@ -112,7 +112,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  Health check successes required for an unhealthy target to be considered healthy. (Optional)
+     *  Health check successes required for an unhealthy target to be considered healthy.
      */
     @Updatable
     public Integer getHealthyThreshold() {
@@ -124,7 +124,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  HTTP code that signals a successful response from a target. (Optional)
+     *  HTTP code that signals a successful response from a target.
      */
     @Updatable
     public String getMatcher() {
@@ -136,7 +136,7 @@ public class HealthCheck extends Diffable implements Copyable<TargetGroup> {
     }
 
     /**
-     *  Health check failures required by an unhealthy target to be considered unhealthy. (Optional)
+     *  Health check failures required by an unhealthy target to be considered unhealthy.
      */
     @Updatable
     public Integer getUnhealthyThreshold() {

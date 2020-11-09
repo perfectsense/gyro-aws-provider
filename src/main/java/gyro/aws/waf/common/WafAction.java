@@ -19,13 +19,15 @@ package gyro.aws.waf.common;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 public class WafAction extends Diffable implements Copyable<software.amazon.awssdk.services.waf.model.WafAction> {
     private String type;
 
     /**
-     * The action for a rule under a waf. valid values are ``ALLOW`` or ``BLOCK``. (Required)
+     * The action for a rule under a waf.
      */
+    @Required
     @Updatable
     public String getType() {
         return type != null ? type.toUpperCase() : null;

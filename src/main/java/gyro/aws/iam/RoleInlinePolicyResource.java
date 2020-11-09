@@ -23,7 +23,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
     private String policyDocument;
 
     /**
-     * The name of the policy. (Required)
+     * The name of the policy.
      */
     @Required
     public String getName() {
@@ -35,7 +35,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
     }
 
     /**
-     * The policy document. A policy path or policy string is allowed. (Required)
+     * The policy document. A policy path or policy string is allowed.
      */
     @Required
     @Updatable

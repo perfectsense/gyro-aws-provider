@@ -28,6 +28,8 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingRequest;
 import software.amazon.awssdk.services.lambda.model.CreateEventSourceMappingResponse;
@@ -112,8 +114,9 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     /**
-     * The batch size for the event to invoke the Lambda Function. (Required)
+     * The batch size for the event to invoke the Lambda Function.
      */
+    @Required
     @Updatable
     public Integer getBatchSize() {
         return batchSize;
@@ -140,8 +143,9 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     /**
-     * The event source arn to be connected with the function. (Required)
+     * The event source arn to be connected with the function.
      */
+    @Required
     public String getEventSourceArn() {
         return eventSourceArn;
     }
@@ -151,8 +155,9 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
     }
 
     /**
-     * The starting position in terms of the connected resource for the Lambda Function to be invoked. Required if source event is DynamoDb or Kinesis. Valid values are ``TRIM_HORIZON`` or ``LATEST`` or ``AT_TIMESTAMP``
+     * The starting position in terms of the connected resource for the Lambda Function to be invoked. Required if source event is DynamoDb or Kinesis.
      */
+    @ValidStrings({"TRIM_HORIZON", "LATEST", "AT_TIMESTAMP"})
     public String getStartingPosition() {
         return startingPosition != null ? startingPosition.toUpperCase() : null;
     }

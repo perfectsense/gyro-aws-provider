@@ -37,7 +37,7 @@ public class NeptuneParameter extends Diffable implements Copyable<Parameter> {
     private Boolean isModifiable;
 
     /**
-     * The name of the Neptune parameter. (Required)
+     * The name of the Neptune parameter.
      */
     @Required
     public String getName() {
@@ -49,7 +49,7 @@ public class NeptuneParameter extends Diffable implements Copyable<Parameter> {
     }
 
     /**
-     * The value of the Neptune parameter. (Required)
+     * The value of the Neptune parameter.
      */
     @Required
     @Updatable

@@ -30,7 +30,7 @@ public class S3LifecycleRuleExpiration extends Diffable implements Copyable<Life
     private Boolean expiredObjectDeleteMarker;
 
     /**
-     * The lifetime, in days, of the objects that are subject to the rule. Valid values integers ``1`` and above.
+     * The lifetime, in days, of the objects that are subject to the rule.
      */
     @Updatable
     public Integer getDays() {
