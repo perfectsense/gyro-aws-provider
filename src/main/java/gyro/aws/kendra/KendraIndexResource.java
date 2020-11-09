@@ -48,7 +48,7 @@ import software.amazon.awssdk.services.kendra.model.UntagResourceRequest;
 import software.amazon.awssdk.services.kendra.model.UpdateIndexRequest;
 
 /**
- * Creates a VPC with the specified IPv4 CIDR block.
+ * Creates a Kendra Index.
  *
  * Example
  * -------

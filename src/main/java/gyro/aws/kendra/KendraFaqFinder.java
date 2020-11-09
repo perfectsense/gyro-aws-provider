@@ -29,14 +29,14 @@ import software.amazon.awssdk.services.kendra.model.DescribeFaqResponse;
 import software.amazon.awssdk.services.kendra.model.ListFaqsResponse;
 
 /**
- * Query faq.
+ * Query kendra faq.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    kendra-faq: $(external-query aws::kendra-faq { id: "3f90903e-8348-48a2-8844-3f40582ba7cb", index-id: "1b149509-a587-415b-9a29-7f6eb3863eb2" })
+ *    kendra-faq: $(external-query aws::kendra-faq { id: "", index-id: "" })
  */
 @Type("kendra-faq")
 public class KendraFaqFinder extends AwsFinder<KendraClient, DescribeFaqResponse, KendraFaqResource> {

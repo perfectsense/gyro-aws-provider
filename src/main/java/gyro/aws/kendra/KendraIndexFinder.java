@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.kendra.model.DescribeIndexResponse;
 import software.amazon.awssdk.services.kendra.model.ListIndicesRequest;
 
 /**
- * Query index.
+ * Query kendra index.
  *
  * Example
  * -------

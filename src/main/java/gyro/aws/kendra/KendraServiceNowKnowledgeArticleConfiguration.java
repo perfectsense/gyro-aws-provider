@@ -149,7 +149,6 @@ public class KendraServiceNowKnowledgeArticleConfiguration extends Diffable
                 mapping.copyFrom(f);
 
                 return mapping;
-
             }).collect(Collectors.toList()));
         }
     }

@@ -46,7 +46,7 @@ import software.amazon.awssdk.services.kendra.model.TagResourceRequest;
 import software.amazon.awssdk.services.kendra.model.UntagResourceRequest;
 
 /**
- * Creates a VPC with the specified IPv4 CIDR block.
+ * Creates an FAQ.
  *
  * Example
  * -------

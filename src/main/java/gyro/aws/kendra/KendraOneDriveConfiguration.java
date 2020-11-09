@@ -136,7 +136,6 @@ public class KendraOneDriveConfiguration extends Diffable implements Copyable<On
                 mapping.copyFrom(f);
 
                 return mapping;
-
             }).collect(Collectors.toList()));
         }
 

@@ -89,7 +89,7 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
     }
 
     /**
-     * The list of bjects that map database column names to the corresponding fields in an index.
+     * The list of objects that map database column names to the corresponding fields in an index.
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {
@@ -121,7 +121,6 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
                 mapping.copyFrom(f);
 
                 return mapping;
-
             }).collect(Collectors.toList()));
         }
     }

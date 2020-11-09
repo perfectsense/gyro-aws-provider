@@ -149,7 +149,6 @@ public class KendraServiceNowServiceCatalogConfiguration extends Diffable
                 mapping.copyFrom(f);
 
                 return mapping;
-
             }).collect(Collectors.toList()));
         }
     }

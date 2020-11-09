@@ -29,14 +29,14 @@ import software.amazon.awssdk.services.kendra.model.DescribeDataSourceResponse;
 import software.amazon.awssdk.services.kendra.model.ListDataSourcesResponse;
 
 /**
- * Query data source.
+ * Query kendra data source.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    kendra-data-source: $(external-query aws::kendra-data-source { id: "da1673d2-76dc-4d77-af80-1d9586350c0f", index-id: "1b149509-a587-415b-9a29-7f6eb3863eb2"})
+ *    kendra-data-source: $(external-query aws::kendra-data-source { id: "", index-id: ""})
  */
 @Type("kendra-data-source")
 public class KendraDataSourceFinder
