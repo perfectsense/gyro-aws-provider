@@ -33,7 +33,7 @@ public class KendraDataSourceVpcConfiguration extends Diffable implements Copyab
     private List<SecurityGroupResource> securityGroups;
 
     /**
-     * The list of identifiers of subnets within your Amazon VPC. (Required)
+     * The list of identifiers of subnets within your Amazon VPC.
      */
     @Updatable
     @Required
@@ -46,7 +46,7 @@ public class KendraDataSourceVpcConfiguration extends Diffable implements Copyab
     }
 
     /**
-     * The list of identifiers of security groups within your Amazon VPC. (Required)
+     * The list of identifiers of security groups within your Amazon VPC.
      */
     @Updatable
     @Required

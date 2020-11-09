@@ -28,7 +28,7 @@ public class KendraServerSideEncryptionConfiguration extends Diffable
     private KmsKeyResource kmsKey;
 
     /**
-     * The AWS KMS customer master key. (Required)
+     * The AWS KMS customer master key.
      */
     @Required
     public KmsKeyResource getKmsKey() {

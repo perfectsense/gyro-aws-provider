@@ -109,7 +109,7 @@ public class KendraSalesforceConfiguration extends Diffable implements Copyable<
     }
 
     /**
-     * The Amazon Resource Name (ARN) of an AWS Secrets Manager secret that contains the key/value pairs required to connect to the Salesforce instance. (Required)
+     * The Amazon Resource Name (ARN) of an AWS Secrets Manager secret that contains the key/value pairs required to connect to the Salesforce instance.
      */
     @Updatable
     @Required
@@ -122,7 +122,7 @@ public class KendraSalesforceConfiguration extends Diffable implements Copyable<
     }
 
     /**
-     * The instance URL for the Salesforce site that you want to index. (Required)
+     * The instance URL for the Salesforce site that you want to index.
      */
     @Updatable
     @Required
