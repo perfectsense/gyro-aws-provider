@@ -284,26 +284,28 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         KendraClient client = createClient(KendraClient.class);
 
-        UpdateIndexRequest.Builder builder = UpdateIndexRequest.builder().id(getId());
+        if (changedFieldNames.stream().anyMatch(r -> !r.equals("tags"))) {
+            UpdateIndexRequest.Builder builder = UpdateIndexRequest.builder().id(getId());
 
-        if (changedFieldNames.contains("name")) {
-            builder = builder.name(getName());
+            if (changedFieldNames.contains("name")) {
+                builder = builder.name(getName());
+            }
+
+            if (changedFieldNames.contains("role")) {
+                builder = builder.roleArn(getRole().getArn());
+            }
+
+            if (changedFieldNames.contains("description")) {
+                builder = builder.description(getDescription());
+            }
+
+            if (changedFieldNames.contains("capacity-units-configuration")) {
+                builder = builder.capacityUnits(getCapacityUnitsConfiguration() == null ? null
+                    : getCapacityUnitsConfiguration().toCapacityUnitsConfiguration());
+            }
+
+            client.updateIndex(builder.build());
         }
-
-        if (changedFieldNames.contains("role")) {
-            builder = builder.roleArn(getRole().getArn());
-        }
-
-        if (changedFieldNames.contains("description")) {
-            builder = builder.description(getDescription());
-        }
-
-        if (changedFieldNames.contains("capacity-units-configuration")) {
-            builder = builder.capacityUnits(getCapacityUnitsConfiguration() == null ? null
-                : getCapacityUnitsConfiguration().toCapacityUnitsConfiguration());
-        }
-
-        client.updateIndex(builder.build());
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.MINUTES)
