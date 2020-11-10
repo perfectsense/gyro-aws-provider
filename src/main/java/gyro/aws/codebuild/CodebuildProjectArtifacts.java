@@ -179,16 +179,15 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
-        String type = getType().toString();
 
-        if (!ObjectUtils.isBlank(getLocation()) && type.equals("S3")) {
+        if (ObjectUtils.isBlank(getLocation()) && getType().equals(ArtifactsType.S3)) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "'location' cannot be empty if 'type' is set to 'S3'."));
         }
 
-        if (!ObjectUtils.isBlank(getName()) && type.equals("S3")) {
+        if (ObjectUtils.isBlank(getName()) && getType().equals(ArtifactsType.S3)) {
             errors.add(new ValidationError(
                 this,
                 null,
@@ -196,7 +195,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
 
         }
 
-        if (getEncryptionDisabled() != null && !getEncryptionDisabled() && !type.equals("S3")) {
+        if (getEncryptionDisabled() != null && !getEncryptionDisabled() && !getType().equals(ArtifactsType.S3)) {
             errors.add(new ValidationError(
                 this,
                 null,
