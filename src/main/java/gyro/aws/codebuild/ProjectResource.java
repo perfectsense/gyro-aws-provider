@@ -72,12 +72,14 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *        artifacts
  *            type: "S3"
  *            location: "codebuild-us-east-2-242040583208-output-bucket"
+ *            name: "project-example-artifact-name"
  *            encryption-disabled: false
  *            path: "example-path/path"
  *            packaging: "NONE"
  *        end
  *
  *        environment
+ *            compute-type: "BUILD_GENERAL1_SMALL
  *            type: "ARM_CONTAINER"
  *            image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
  *        end
