@@ -48,9 +48,12 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  * .. code-block:: gyro
  *
  *    aws::webhook webhook
- *        project-name: "project-example-name"
  *        build-type: "BUILD"
  *        rotate-secret: true
+ *
+ *        project
+ *            name: "project-example-name"
+ *        end
  *
  *        filter-groups
  *            pattern: "PUSH"
@@ -61,7 +64,7 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
 @Type("webhook")
 public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
-    private String projectName;
+    private ProjectResource project;
     private String branchFilter;
     private String buildType;
     private List<CodebuildWebhookFilter> filterGroups;
@@ -73,19 +76,21 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     private String secret;
     private String url;
 
+
     /**
      * The name of the build project.
      */
     @Id
     @Required
     @Regex(value = "[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}", message = "2-255 letters, numbers , hypehs, or underscores. The first character must be a letter or number.")
-    public String getProjectName() {
-        return projectName;
+    public ProjectResource getProject() {
+        return project;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setProject(ProjectResource project) {
+        this.project = project;
     }
+
 
     /**
      * The regular expression used to determine which repository branches are built when a webhook is triggered.
@@ -224,7 +229,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         BatchGetProjectsResponse response = null;
 
         try {
-            response = client.batchGetProjects(r -> r.names(getProjectName()));
+            response = client.batchGetProjects(r -> r.names(getProject().getName()));
         } catch (ResourceNotFoundException ex) {
             // No Resource found
         }
@@ -242,7 +247,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
         client.createWebhook(r -> r
-            .projectName(getProjectName())
+            .projectName(getProject().getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
             .filterGroups(getFilterGroups().stream().map(CodebuildWebhookFilter::toWebhookFilter).collect(Collectors.toList()))
@@ -251,7 +256,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         refresh();
 
         if (getRotateSecret() != null) {
-            client.updateWebhook(r -> r.projectName(getProjectName()).rotateSecret(getRotateSecret()));
+            client.updateWebhook(r -> r.projectName(getProject().getName()).rotateSecret(getRotateSecret()));
         }
     }
 
@@ -260,7 +265,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        client.updateWebhook(r -> r.projectName(getProjectName())
+        client.updateWebhook(r -> r.projectName(getProject().getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
             .filterGroups(getFilterGroups().stream().map(CodebuildWebhookFilter::toWebhookFilter).collect(Collectors.toList()))
@@ -272,6 +277,6 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     public void delete(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        client.deleteWebhook(r -> r.projectName(getProjectName()));
+        client.deleteWebhook(r -> r.projectName(getProject().getName()));
     }
 }

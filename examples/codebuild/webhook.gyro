@@ -1,7 +1,10 @@
 aws::webhook webhook
-    project-name: "project-example-name"
     build-type: "BUILD"
     rotate-secret: true
+
+    project
+        name: "project-example-name"
+    end
 
     filter-groups
         pattern: "PUSH"
