@@ -16,12 +16,15 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Range;
 import gyro.core.validation.Regex;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscalingplans.model.TagFilter;
 
 public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter> {
@@ -32,7 +35,7 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
     /**
      * The tag key.
      */
-    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
+    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "alphanumeric characters and symbols excluding basic ASCII control characters.")
     public String getKey() {
         return key;
     }
@@ -45,7 +48,7 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
      * The tag values.
      */
     @Range(min = 0, max = 20)
-    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
+    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "alphanumeric characters and symbols excluding basic ASCII control characters.")
     public List<String> getValues() {
         return values;
     }
@@ -63,6 +66,21 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
     @Override
     public String primaryKey() {
         return getKey();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getKey() != null && getValues().isEmpty()) {
+            errors.add(new ValidationError(this, null, "'key' cannot be set if 'values' is empty."));
+        }
+
+        if (getKey() == null && !getValues().isEmpty()) {
+            errors.add(new ValidationError(this, null, "'values' cannot be set if 'key' is empty."));
+        }
+
+        return errors;
     }
 
     public TagFilter toTagFilter() {
