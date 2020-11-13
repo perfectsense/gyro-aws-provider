@@ -406,7 +406,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     /**
      * The webhook that connects repository events to a build project.
      */
-    @Updatable
+    @Output
     public WebhookResource getWebhook() {
         return webhook;
     }
@@ -607,8 +607,8 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
             .sourceVersion(getSourceVersion())
             .timeoutInMinutes(getTimeoutInMinutes())
-            .buildBatchConfig(getBuildBatchConfig().toProjectBuildBatchConfig())
-            .logsConfig(getLogsConfig().toLogsConfig())
+            .buildBatchConfig(getBuildBatchConfig() != null ? getBuildBatchConfig().toProjectBuildBatchConfig() : null)
+            .logsConfig(getLogsConfig() != null ? getLogsConfig().toLogsConfig() : null)
             .description(getDescription())
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(getEnvironment().toProjectEnvironment())
