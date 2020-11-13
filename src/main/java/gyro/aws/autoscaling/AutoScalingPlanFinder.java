@@ -32,21 +32,22 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlan;
  *
  * .. code-block:: gyro
  *
- *    project: $(external-query aws::autoscaling-plan { scaling-plan-names: ['scaling-plan-example']}
+ *    project: $(external-query aws::autoscaling-plan { name: 'scaling-plan-example'}
  */
 @Type("autoscaling-plan")
 public class AutoScalingPlanFinder extends AwsFinder<AutoScalingPlansClient, ScalingPlan, AutoScalingPlanResource> {
 
-    private String scalingPlanName;
+    private String name;
+
     /**
-     * The scaling plan name.
+     * The name of the scaling plan.
      */
-    public String getScalingPlanName() {
-        return scalingPlanName;
+    public String getName() {
+        return name;
     }
 
-    public void setScalingPlanName(String scalingPlanName) {
-        this.scalingPlanName = scalingPlanName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -57,6 +58,6 @@ public class AutoScalingPlanFinder extends AwsFinder<AutoScalingPlansClient, Sca
     @Override
     protected List<ScalingPlan> findAws(
         AutoScalingPlansClient client, Map<String, String> filters) {
-        return client.describeScalingPlans(r -> r.scalingPlanNames(filters.get("scaling-plan-names"))).scalingPlans();
+        return client.describeScalingPlans(r -> r.scalingPlanNames(filters.get("name"))).scalingPlans();
     }
 }

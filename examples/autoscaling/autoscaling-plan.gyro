@@ -1,5 +1,5 @@
 aws::autoscaling-plan autoscaling-plan-example
-    scaling-plan-name: "scaling-plan-example"
+    name: "scaling-plan-example"
     scaling-plan-version: 1.0
     status-code: "Active"
 

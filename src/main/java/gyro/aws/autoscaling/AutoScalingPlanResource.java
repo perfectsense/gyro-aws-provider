@@ -46,7 +46,7 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusC
  * .. code-block:: gyro
  *
  *    aws::autoscaling-plan autoscaling-plan-example
- *        scaling-plan-name: "scaling-plan-example"
+ *        name: "scaling-plan-example"
  *        scaling-plan-version: 1.0
  *        status-code: "Active"
  *
@@ -85,7 +85,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     private AutoScalingApplicationSource applicationSource;
     private String creationTime;
     private List<AutoScalingScalingInstruction> scalingInstructions;
-    private String scalingPlanName;
+    private String name;
     private Long scalingPlanVersion;
     private ScalingPlanStatusCode statusCode;
     private String statusMessage;
@@ -138,12 +138,12 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
      */
     @Id
     @Required
-    public String getScalingPlanName() {
-        return scalingPlanName;
+    public String getName() {
+        return name;
     }
 
-    public void setScalingPlanName(String scalingPlanName) {
-        this.scalingPlanName = scalingPlanName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -205,7 +205,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     @Override
     public void copyFrom(ScalingPlan model) {
         setCreationTime(model.creationTime().toString());
-        setScalingPlanName(model.scalingPlanName());
+        setName(model.scalingPlanName());
         setScalingPlanVersion(model.scalingPlanVersion());
         setStatusCode(model.statusCode());
         setStatusMessage(model.statusMessage());
@@ -236,7 +236,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
         DescribeScalingPlansResponse response;
 
-        response = client.describeScalingPlans(r -> r.scalingPlanNames(getScalingPlanName()));
+        response = client.describeScalingPlans(r -> r.scalingPlanNames(getName()));
 
         if (response == null || response.scalingPlans().isEmpty()) {
             return false;
@@ -251,13 +251,12 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
 
         CreateScalingPlanResponse response = client.createScalingPlan(r -> r
-            .scalingPlanName(getScalingPlanName())
+            .scalingPlanName(getName())
             .applicationSource(getApplicationSource() != null ? getApplicationSource().toApplicationSource() : null)
             .scalingInstructions(getScalingInstructions().stream()
                 .map(AutoScalingScalingInstruction::toScalingInstruction).collect(Collectors.toList()))
         );
 
-        setScalingPlanVersion(response.scalingPlanVersion());
         refresh();
     }
 
@@ -267,10 +266,11 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
 
         client.updateScalingPlan(r -> r
-            .scalingPlanName(getScalingPlanName())
+            .scalingPlanName(getName())
             .applicationSource(getApplicationSource() != null ? getApplicationSource().toApplicationSource() : null)
             .scalingInstructions(getScalingInstructions().stream()
                 .map(AutoScalingScalingInstruction::toScalingInstruction).collect(Collectors.toList()))
+            .scalingPlanVersion(getScalingPlanVersion())
         );
     }
 
@@ -279,7 +279,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
 
         client.deleteScalingPlan(r -> r
-            .scalingPlanName(getScalingPlanName())
+            .scalingPlanName(getName())
             .scalingPlanVersion(getScalingPlanVersion())
         );
     }
