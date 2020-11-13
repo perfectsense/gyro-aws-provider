@@ -1,13 +1,39 @@
 aws::webhook webhook
     build-type: "BUILD"
     rotate-secret: true
-
-    project
-        name: "project-example-name"
-    end
+    project: $(aws::project project)
 
     filter-groups
         pattern: "PUSH"
         type: "EVENT"
+    end
+end
+
+aws::project project
+    name: "project-example-name"
+    description: "project-description"
+    service-role: $(aws::iam-role iam-role-example)
+    tags: {
+        "tag1": "value1"
+        }
+
+    source
+        type: "GITHUB"
+        location: "codebuild-us-east-2-242040583208-input-bucket/MessageUtil.zip"
+    end
+
+    artifacts
+        type: "S3"
+        location: "codebuild-us-east-2-242040583208-output-bucket"
+        name: "project-example-artifact-name"
+        encryption-disabled: false
+        path: "example-path/path"
+        packaging: "NONE"
+    end
+
+    environment
+        compute-type: "BUILD_GENERAL1_SMALL
+        type: "ARM_CONTAINER"
+        image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
     end
 end
