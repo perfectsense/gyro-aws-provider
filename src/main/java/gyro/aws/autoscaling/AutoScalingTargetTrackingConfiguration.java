@@ -96,7 +96,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
     }
 
     /**
-     * The amount of time, in seconds, after a scale out activity completes before another can start.
+     * The amount of time in seconds, after a scale out activity completes before another can start.
      **/
     @Updatable
     public Integer getScaleOutCooldown() {
