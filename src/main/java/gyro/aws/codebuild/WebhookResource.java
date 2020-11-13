@@ -30,7 +30,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
@@ -78,11 +77,10 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
 
     /**
-     * The name of the build project.
+     * The build project.
      */
     @Id
     @Required
-    @Regex(value = "[A-Za-z0-9][A-Za-z0-9\\-_]{1,254}", message = "2-255 letters, numbers , hypehs, or underscores. The first character must be a letter or number.")
     public ProjectResource getProject() {
         return project;
     }
