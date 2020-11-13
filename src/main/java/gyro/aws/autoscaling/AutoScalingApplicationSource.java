@@ -25,7 +25,6 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.ConflictsWith;
-import gyro.core.validation.Regex;
 import software.amazon.awssdk.services.autoscalingplans.model.ApplicationSource;
 
 public class AutoScalingApplicationSource extends Diffable implements Copyable<ApplicationSource> {
@@ -38,7 +37,6 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
      */
     @Updatable
     @ConflictsWith("tag-filters")
-    @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "Alphanumeric characters and symbols excluding basic ASCII control characters.")
     public String getCloudFormationStackArn() {
         return cloudFormationStackArn;
     }
@@ -77,8 +75,6 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
                 tagFilter.copyFrom(filter);
                 getTagFilters().add(tagFilter);
             });
-        } else {
-            setTagFilters(null);
         }
     }
 
