@@ -149,6 +149,8 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     /**
      * The version of the scaling plan.
      */
+
+    @Updatable
     public Long getScalingPlanVersion() {
         return scalingPlanVersion;
     }
@@ -161,15 +163,6 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
      * The status of the scaling plan.
      */
     @Output
-    @ValidStrings({
-        "Active",
-        "ActiveWithProblems",
-        "CreationInProgress",
-        "CreationFailed",
-        "DeletionInProgress",
-        "DeletionFailed",
-        "UpdateInProgress",
-        "UpdateFailed" })
     public ScalingPlanStatusCode getStatusCode() {
         return statusCode;
     }
@@ -211,12 +204,11 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         setStatusMessage(model.statusMessage());
         setStatusStartTime(model.statusStartTime().toString());
 
+        setApplicationSource(null);
         if (model.applicationSource() != null) {
             AutoScalingApplicationSource applicationSource = newSubresource(AutoScalingApplicationSource.class);
             applicationSource.copyFrom(model.applicationSource());
             setApplicationSource(applicationSource);
-        } else {
-            setApplicationSource(null);
         }
 
         getScalingInstructions().clear();
