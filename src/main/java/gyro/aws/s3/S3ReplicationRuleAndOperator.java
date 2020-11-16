@@ -31,7 +31,7 @@ public class S3ReplicationRuleAndOperator extends Diffable implements Copyable<R
     private List<S3Tag> tag;
 
     /**
-     * Object prefix that this rule applies to. (Required)
+     * Object prefix that this rule applies to.
      */
     @Updatable
     public String getPrefix() {
@@ -43,7 +43,7 @@ public class S3ReplicationRuleAndOperator extends Diffable implements Copyable<R
     }
 
     /**
-     * List of tags to select the objects that will be replicated (Required)
+     * List of tags to select the objects that will be replicated
      *
      * @subresource aws.aws.s3.S3Tag
      */

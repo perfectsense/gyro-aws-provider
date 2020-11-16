@@ -28,6 +28,8 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointRequest;
@@ -119,8 +121,9 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The name of the service that is going to associated with this Endpoint. (Required)
+     * The name of the service that is going to associated with this Endpoint.
      */
+    @Required
     public String getServiceName() {
         return serviceName;
     }
@@ -130,8 +133,9 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_. (Required)
+     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_.
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }
@@ -141,8 +145,9 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The type of service being associated. Valid values ``INTERFACE`` or ``GATEWAY``. Defaults to ``GATEWAY``.
+     * The type of service being associated. Defaults to ``GATEWAY``.
      */
+    @ValidStrings({"INTERFACE", "GATEWAY"})
     public VpcEndpointType getType() {
         if (type == null) {
             type = VpcEndpointType.GATEWAY;

@@ -23,6 +23,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acmpca.AcmPcaClient;
 import software.amazon.awssdk.services.acmpca.model.Permission;
 import software.amazon.awssdk.services.sts.StsClient;
@@ -41,7 +42,7 @@ public class AcmPcaPermission extends AwsResource implements Copyable<Permission
     private Date createdAt;
 
     /**
-     * Actions associated with the permission. Valid values are ``IssueCertificate`` and ``GetCertificate`` and ``ListPermissions``. (Required)
+     * Actions associated with the permission.
      */
     @Updatable
     public Set<String> getActions() {
@@ -53,8 +54,9 @@ public class AcmPcaPermission extends AwsResource implements Copyable<Permission
     }
 
     /**
-     * The AWS service or entity that holds the permission. Currently only supported value ``acm.amazonaws.com``. Defaults to ``acm.amazonaws.com``.
+     * The AWS service or entity that holds the permission. Defaults to ``acm.amazonaws.com``.
      */
+    @ValidStrings("acm.amazonaws.com")
     public String getPrincipal() {
         if (principal == null) {
             principal = "acm.amazonaws.com";

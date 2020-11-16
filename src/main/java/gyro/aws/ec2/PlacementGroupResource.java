@@ -27,6 +27,7 @@ import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
@@ -60,7 +61,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     private String id;
 
     /**
-     * The name of the Placement Group. (Required)
+     * The name of the Placement Group.
      */
     @Required
     public String getName() {
@@ -72,10 +73,11 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     /**
-     * Approaches towards managing the placement of instances on the underlying hardware. Valid values are ``cluster``, ``spread`` or ``partition``.
-     * Defaults to the``cluster`` strategy. (Required)
+     * Approaches towards managing the placement of instances on the underlying hardware.
+     * Defaults to the``cluster`` strategy.
      */
     @Required
+    @ValidStrings({"cluster", "spread", "partition"})
     public PlacementStrategy getPlacementStrategy() {
         return placementStrategy;
     }
@@ -85,7 +87,7 @@ public class PlacementGroupResource extends Ec2TaggableResource<PlacementGroup> 
     }
 
     /**
-     * The number of partitions comprising the Placement Group. Valid values are within 1 to 7. Only required when strategy is set to ``partition``.
+     * The number of partitions comprising the Placement Group. Only required when strategy is set to ``partition``.
      */
     @Range(min= 1, max= 7)
     public Integer getPartitionCount() {

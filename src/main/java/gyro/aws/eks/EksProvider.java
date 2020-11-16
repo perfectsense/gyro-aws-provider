@@ -27,7 +27,7 @@ public class EksProvider extends Diffable implements Copyable<Provider> {
     private KmsKeyResource key;
 
     /**
-     * The Key Management Service (KMS) customer master key (CMK) for the cluster. (Required)
+     * The Key Management Service (KMS) customer master key (CMK) for the cluster.
      */
     @Required
     public KmsKeyResource getKey() {

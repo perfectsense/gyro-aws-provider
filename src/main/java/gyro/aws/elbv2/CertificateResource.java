@@ -24,6 +24,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 
@@ -46,8 +47,9 @@ public class CertificateResource extends AwsResource {
     private Boolean isDefault;
 
     /**
-     *  ARN of the certificate. (Required)
+     *  ARN of the certificate.
      */
+    @Required
     @Updatable
     public String getArn() {
         return arn;
@@ -58,7 +60,7 @@ public class CertificateResource extends AwsResource {
     }
 
     /**
-     *  Determines if the certificate is default. (Optional)
+     *  Determines if the certificate is default.
      */
     @Updatable
     public Boolean getIsDefault() {

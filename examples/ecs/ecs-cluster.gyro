@@ -1,0 +1,104 @@
+aws::vpc vpc-cluster-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+end
+
+aws::subnet subnet-cluster-example
+    vpc: $(aws::vpc vpc-cluster-example)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.0.0/16"
+    map-public-ip-on-launch: true
+end
+
+aws::security-group security-group-cluster-example
+    name: "security-group-cluster-example"
+    vpc: $(aws::vpc vpc-cluster-example)
+    description: "security group cluster example"
+end
+
+aws::instance instance-cluster-example
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key: "example"
+    subnet: $(aws::subnet subnet-cluster-example)
+    security-groups: $(aws::security-group security-group-cluster-example)
+    disable-api-termination: false
+    ebs-optimized: false
+    source-dest-check: true
+end
+
+aws::launch-configuration launch-configuration-cluster-example
+    name: "launch-configuration-gyro-\($(aws::instance instance-cluster-example).id)"
+    instance: $(aws::instance instance-cluster-example)
+end
+
+aws::autoscaling-group auto-scaling-group-cluster-example
+    name: "auto-scaling-group-cluster-example"
+    launch-configuration: $(aws::launch-configuration launch-configuration-cluster-example)
+    availability-zones: ["us-east-2a"]
+    new-instances-protected-from-scale-in: true
+end
+
+aws::autoscaling-group auto-scaling-group-cluster-example-2
+    name: "auto-scaling-group-cluster-example-2"
+    launch-configuration: $(aws::launch-configuration launch-configuration-cluster-example)
+    availability-zones: ["us-east-2b"]
+end
+
+# Capacity-provider cannot be deleted
+# If an error occurs that teh following capacity providers exist
+# Remove the capacity provider configs and use external query reference where ever these are used
+
+aws::ecs-capacity-provider ecs-capacity-provider-cluster-example
+    name: "capacity-provider-cluster-example"
+
+    auto-scaling-group-provider
+        auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-cluster-example)
+
+        managed-scaling
+            status: enabled
+            minimum-scaling-step-size: 1
+            maximum-scaling-step-size: 50
+            target-capacity: 75
+        end
+
+        managed-termination-protection: "ENABLED"
+    end
+end
+
+aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2
+    name: "capacity-provider-cluster-example-2"
+
+    auto-scaling-group-provider
+        auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-cluster-example-2)
+    end
+end
+
+aws::ecs-cluster ecs-cluster-example
+    cluster-name: "ecs-cluster-example"
+    capacity-providers: [
+        $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example),
+        $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2)
+    ]
+
+    default-capacity-provider-strategy
+        capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example)
+        base: 2
+        weight: 2
+    end
+
+    default-capacity-provider-strategy
+        capacity-provider: $(aws::ecs-capacity-provider ecs-capacity-provider-cluster-example-2)
+        weight: 1
+    end
+
+    settings: {
+        'containerInsights': 'disabled'
+    }
+
+    tags: {
+        'Name': 'ecs-cluster-example'
+    }
+
+end

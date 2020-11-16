@@ -24,6 +24,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
@@ -56,8 +57,9 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     private String identifier;
 
     /**
-     * The DB cluster to create a snapshot for. (Required)
+     * The DB cluster to create a snapshot for.
      */
+    @Required
     public DbClusterResource getDbCluster() {
         return dbCluster;
     }
@@ -67,8 +69,9 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
     }
 
     /**
-     * The unique identifier of the DB cluster snapshot. (Required)
+     * The unique identifier of the DB cluster snapshot.
      */
+    @Required
     @Id
     public String getIdentifier() {
         return identifier;

@@ -48,7 +48,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     private String statusCode;
 
     /**
-     *  The hostname. (Optional)
+     *  The hostname.
      */
     @Updatable
     public String getHost() {
@@ -60,7 +60,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The absolute path starting with "/". (Optional)
+     *  The absolute path starting with "/".
      */
     @Updatable
     public String getPath() {
@@ -72,7 +72,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The port. Valid values range from 1 - 65536. (Optional)
+     *  The port.
      */
     @Updatable
     public String getPort() {
@@ -84,7 +84,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The protocol. (Optional)
+     *  The protocol.
      */
     @Updatable
     public String getProtocol() {
@@ -96,7 +96,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The query parameters. (Optional)
+     *  The query parameters.
      */
     @Updatable
     public String getQuery() {
@@ -108,7 +108,7 @@ public class RedirectAction extends Diffable implements Copyable<RedirectActionC
     }
 
     /**
-     *  The HTTP redirect code. Valid values are ``HTTP_301`` and ``HTTP_302``. (Optional)
+     *  The HTTP redirect code.
      */
     @Updatable
     public String getStatusCode() {

@@ -47,7 +47,7 @@ public class TransitGatewayMulticastDomainAssociationResource extends AwsResourc
     private SubnetResource subnet;
 
     /**
-     * The Vpc attachment that needs to be associated to the multicast domain. (Required)
+     * The Vpc attachment that needs to be associated to the multicast domain.
      */
     @Required
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
@@ -59,7 +59,7 @@ public class TransitGatewayMulticastDomainAssociationResource extends AwsResourc
     }
 
     /**
-     * The subnet that needs to be included in the domain. (Required)
+     * The subnet that needs to be included in the domain.
      */
     @Required
     public SubnetResource getSubnet() {

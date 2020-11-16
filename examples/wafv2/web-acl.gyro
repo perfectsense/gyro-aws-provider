@@ -1,0 +1,258 @@
+aws::wafv2-web-acl web-acl-example
+    name: "web-acl-example"
+    description: "web-acl-example-desc"
+    scope: "REGIONAL"
+    default-action: "BLOCK"
+
+    visibility-config
+        metric-name: "web-acl-example"
+        cloud-watch-metrics-enabled: false
+        sampled-requests-enabled: false
+    end
+
+    rule
+        name: web-acl-example-rule-1
+        priority: 0
+        override-action: "COUNT"
+
+        visibility-config
+            metric-name: "web-acl-example-rule-1"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            rule-group-reference-statement
+                rule-group: $(aws::wafv2-rule-group rule-group-example)
+            end
+        end
+    end
+
+    rule
+        name: "web-acl-example-rule-2"
+        priority: 1
+        override-action: "COUNT"
+
+        visibility-config
+            metric-name: "web-acl-example-rule-2"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            managed-rule-group-statement
+                name: "AWSManagedRulesAnonymousIpList"
+                vendor-name: "AWS"
+            end
+        end
+    end
+end
+
+aws::wafv2-rule-group rule-group-example
+    name: "rule-group-example"
+    description: "rule-group-example-desc"
+    scope: "REGIONAL"
+
+    rule
+        name: "rule-group-example-rule-1"
+        priority: 0
+        action: "BLOCK"
+
+        visibility-config
+            metric-name: "rule-group-example-rule-1"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            xss-match-statement
+                field-to-match
+                    name: "header-field-1"
+                    match-type: "SINGLE_HEADER"
+                end
+
+                text-transformation
+                    priority: 0
+                    type: "NONE"
+                end
+            end
+        end
+    end
+
+    rule
+        name: "rule-group-example-rule-2"
+        priority: 1
+        action: "BLOCK"
+
+        visibility-config
+            metric-name: "rule-group-example-rule-2"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            byte-match-statement
+                field-to-match
+                    name: "header-field"
+                    match-type: "SINGLE_HEADER"
+                end
+
+                positional-constraint: "EXACTLY"
+
+                text-transformation
+                    priority: 0
+                    type: "NONE"
+                end
+
+                search-string: "something"
+            end
+        end
+    end
+
+    rule
+        name: "rule-group-example-rule-3"
+        priority: 2
+        action: "BLOCK"
+
+        visibility-config
+            metric-name: "rule-group-example-rule-3"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            size-constraint-statement
+                field-to-match
+                    match-type: "BODY"
+                end
+
+                comparison-operator: "EQ"
+
+                text-transformation
+                    priority: 0
+                    type: "COMPRESS_WHITE_SPACE"
+                end
+
+                text-transformation
+                    priority: 1
+                    type: "HTML_ENTITY_DECODE"
+                end
+
+                size: 3
+            end
+        end
+    end
+
+    rule
+        name: "rule-group-example-rule-4"
+        priority: 3
+        action: "BLOCK"
+
+        visibility-config
+            metric-name: "rule-group-example-rule-4"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            and-statement
+                statement
+                    ip-set-reference-statement
+                        ip-set: $(aws::wafv2-ip-set ip-set-example-ipv4)
+                    end
+                end
+
+                statement
+                    regex-pattern-set-reference-statement
+                        field-to-match
+                            match-type: "BODY"
+                        end
+
+                        text-transformation
+                            priority: 0
+                            type: "COMPRESS_WHITE_SPACE"
+                        end
+
+                        regex-pattern-set: $(aws::wafv2-regex-pattern-set regex-pattern-set-example)
+                    end
+                end
+
+                statement
+                    sqli-match-statement
+                        field-to-match
+                            match-type: "BODY"
+                        end
+
+                        text-transformation
+                            priority: 0
+                            type: "COMPRESS_WHITE_SPACE"
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    rule
+        name: "rule-group-example-rule-5"
+        priority: 4
+        action: "BLOCK"
+
+        visibility-config
+            metric-name: "rule-group-example-rule-5"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            or-statement
+                statement
+                    geo-match-statement
+                        country-codes: [
+                            "IN"
+                        ]
+                    end
+                end
+
+                statement
+                    sqli-match-statement
+                        field-to-match
+                            match-type: "BODY"
+                        end
+
+                        text-transformation
+                            priority: 0
+                            type: "COMPRESS_WHITE_SPACE"
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    visibility-config
+        metric-name: "rule-group-example-metric"
+        cloud-watch-metrics-enabled: false
+        sampled-requests-enabled: false
+    end
+end
+
+aws::wafv2-ip-set ip-set-example-ipv4
+    name: "ip-set-example-ipv4"
+    description: "ip-set-example-ipv4-desc"
+    scope: "REGIONAL"
+    ip-address-version: "IPV4"
+    addresses: [
+        "10.0.0.0/32",
+        "20.0.0.0/32"
+    ]
+end
+
+aws::wafv2-regex-pattern-set regex-pattern-set-example
+    name: "regex-pattern-set-example"
+    description: "regex-pattern-set-example-desc"
+    scope: "REGIONAL"
+    regular-expressions: [
+        "regular-expression"
+    ]
+end

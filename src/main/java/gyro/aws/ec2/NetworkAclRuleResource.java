@@ -21,6 +21,8 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
 
@@ -37,8 +39,9 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     private Integer icmpCode;
 
     /**
-     * A number that determines the rule's processing order. (Required)
+     * A number that determines the rule's processing order.
      */
+    @Required
     public Integer getRuleNumber() {
         return ruleNumber;
     }
@@ -48,9 +51,11 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     }
 
     /**
-     * The action of the rule. Valid values are: ``allow`` or ``deny``. (Required)
+     * The action of the rule.
      */
+    @Required
     @Updatable
+    @ValidStrings({"allow", "deny"})
     public String getRuleAction() {
         return ruleAction;
     }
@@ -60,8 +65,9 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
     }
 
     /**
-     * The protocol of the rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP). (Required)
+     * The protocol of the rule. ``-1`` means all protocols. Traffic on all ports is allowed if protocol is ``-1`` or a number other than ``6`` (TCP), ``17`` (UDP) and ``1`` (ICMP).
      */
+    @Required
     @Updatable
     public String getProtocol() {
         return protocol;
@@ -170,7 +176,7 @@ public abstract class NetworkAclRuleResource extends AwsResource implements Copy
 
     public void create(boolean egress) {
         Ec2Client client = createClient(Ec2Client.class);
-        
+
         if (getProtocol().equals("1") || getProtocol().equals("6") || getProtocol().equals("17")) {
             if ((getToPort() != null && getFromPort() != null) || (getIcmpType() != null && getIcmpCode() != null)) {
                 client.createNetworkAclEntry(r -> r.networkAclId(getNetworkAclId())

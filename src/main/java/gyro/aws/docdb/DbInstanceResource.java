@@ -26,6 +26,8 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.docdb.model.DBInstance;
@@ -87,8 +89,9 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Set availability zone for the instance. Must belong to one of the ones specified by the associated db cluster. (Required)
+     * Set availability zone for the instance. Must belong to one of the ones specified by the associated db cluster.
      */
+    @Required
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -98,8 +101,9 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Set the size of the data base instance. (Required)
+     * Set the size of the data base instance.
      */
+    @Required
     @Updatable
     public String getDbInstanceClass() {
         return dbInstanceClass;
@@ -110,8 +114,9 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Name of the database instance. (Required)
+     * Name of the database instance.
      */
+    @Required
     public String getIdentifier() {
         return identifier;
     }
@@ -121,8 +126,9 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Engine used by the instance. (Required)
+     * Engine used by the instance.
      */
+    @Required
     public String getEngine() {
         return engine;
     }
@@ -132,8 +138,9 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Set the preferred maintenance window. Valid format ``ddd:hh24:mi-ddd:hh24:mi``. (Required)
+     * Set the preferred maintenance window. Valid format ``ddd:hh24:mi-ddd:hh24:mi``.
      */
+    @Required
     @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
@@ -144,9 +151,11 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * Set the promotion tier. Valid values ``0-15``. (Required)
+     * Set the promotion tier.
      */
+    @Required
     @Updatable
+    @Range(min = 0, max = 15)
     public Integer getPromotionTier() {
         return promotionTier;
     }
@@ -156,8 +165,9 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
     }
 
     /**
-     * The parent db cluster. (Required)
+     * The parent db cluster.
      */
+    @Required
     public DbClusterResource getDbCluster() {
         return dbCluster;
     }

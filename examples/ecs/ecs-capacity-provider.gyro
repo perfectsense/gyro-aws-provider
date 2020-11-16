@@ -1,0 +1,63 @@
+aws::vpc vpc-capacity-provider-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+end
+
+aws::subnet subnet-capacity-provider-example
+    vpc: $(aws::vpc vpc-capacity-provider-example)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.0.0/16"
+    map-public-ip-on-launch: true
+end
+
+aws::security-group security-group-capacity-provider-example
+    name: "security-group-capacity-provider-example"
+    vpc: $(aws::vpc vpc-capacity-provider-example)
+    description: "security group capacity-provider example"
+end
+
+aws::instance instance-capacity-provider-example
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key: "example"
+    subnet: $(aws::subnet subnet-capacity-provider-example)
+    security-groups: $(aws::security-group security-group-capacity-provider-example)
+    disable-api-termination: false
+    ebs-optimized: false
+    source-dest-check: true
+end
+
+aws::launch-configuration launch-configuration-capacity-provider-example
+    name: "launch-configuration-gyro-\($(aws::instance instance-capacity-provider-example).id)"
+    instance: $(aws::instance instance-capacity-provider-example)
+end
+
+aws::autoscaling-group auto-scaling-group-capacity-provider-example
+    name: "auto-scaling-group-capacity-provider-example"
+    launch-configuration: $(aws::launch-configuration launch-configuration-capacity-provider-example)
+    availability-zones: ["us-east-2a"]
+    new-instances-protected-from-scale-in: true
+end
+
+aws::ecs-capacity-provider ecs-capacity-provider-example
+    name: "example-capacity-provider"
+
+    auto-scaling-group-provider
+        auto-scaling-group: $(aws::autoscaling-group auto-scaling-group-capacity-provider-example)
+
+        managed-scaling
+            status: enabled
+            minimum-scaling-step-size: 1
+            maximum-scaling-step-size: 50
+            target-capacity: 75
+        end
+
+        managed-termination-protection: "ENABLED"
+    end
+
+    tags: {
+        'Name': 'ecs-capacity-provider-example'
+    }
+
+end

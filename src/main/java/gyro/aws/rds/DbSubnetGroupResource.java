@@ -26,6 +26,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbSubnetGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBSubnetGroup;
@@ -65,8 +66,9 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     private Set<SubnetResource> subnets;
 
     /**
-     * The description for the DB subnet group. (Required)
+     * The description for the DB subnet group.
      */
+    @Required
     @Updatable
     public String getDescription() {
         return description;
@@ -77,8 +79,9 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     /**
-     * The name for the DB subnet group. (Required)
+     * The name for the DB subnet group.
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -89,8 +92,9 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     }
 
     /**
-     * The list of Subnets for the DB subnet group. (Required)
+     * The list of Subnets for the DB subnet group.
      */
+    @Required
     @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {

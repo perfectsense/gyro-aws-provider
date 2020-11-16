@@ -26,6 +26,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkAclResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
@@ -61,8 +62,9 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     private Set<NetworkAclEgressRuleResource> egressRule;
 
     /**
-     * The VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_. (Required)
+     * The VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html/>`_.
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }
@@ -129,6 +131,8 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     public void copyFrom(NetworkAcl networkAcl) {
         setId(networkAcl.networkAclId());
 
+        getEgressRule().clear();
+        getIngressRule().clear();
         for (NetworkAclEntry e: networkAcl.entries()) {
 
             if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")

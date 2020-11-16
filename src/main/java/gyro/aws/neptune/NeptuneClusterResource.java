@@ -113,7 +113,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     private Boolean applyImmediately;
 
     /**
-     * The name of the database engine. The only valid value is ``neptune``. (Required)
+     * The name of the database engine. The only
      */
     @ValidStrings("neptune")
     @Required
@@ -126,7 +126,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The version number of the database engine to use. Valid values are ``1.0.2.1``, ``1.0.2.0`` or ``1.0.1.0``.
+     * The version number of the database engine to use.
      * Defaults to ``1.0.2.1``.
      */
     @ValidStrings({ "1.0.2.1", "1.0.2.0", "1.0.1.0" })
@@ -139,7 +139,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The unique name of the Neptune cluster. (Required)
+     * The unique name of the Neptune cluster.
      */
     @Id
     @Required
@@ -207,7 +207,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The number of days to retain backups. Valid values are from ``1`` to ``35``.
+     * The number of days to retain backups.
      */
     @Range(min = 1, max = 35)
     @Updatable
@@ -327,7 +327,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
     }
 
     /**
-     * The list of log types to export to CloudWatch Logs. Currently, the only supported value is ``audit``.
+     * The list of log types to export to CloudWatch Logs.
      */
     @ValidStrings("audit")
     @Updatable
@@ -406,7 +406,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
      * Can only be set if ``skip-final-snapshot`` is set to ``false``.
      */
     @Updatable
-    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "1-255 letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
+    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "a string 1-255 characters long containing letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
     public String getFinalDbSnapshotIdentifier() {
         return finalDbSnapshotIdentifier;
     }

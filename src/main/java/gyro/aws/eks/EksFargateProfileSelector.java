@@ -30,7 +30,7 @@ public class EksFargateProfileSelector extends Diffable implements Copyable<Farg
     private Map<String, String> labels;
 
     /**
-     * The Kubernetes namespace that the selector should match. (Required)
+     * The Kubernetes namespace that the selector should match.
      */
     @Required
     public String getNamespace() {

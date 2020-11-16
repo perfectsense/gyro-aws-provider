@@ -29,6 +29,8 @@ import gyro.core.resource.Updatable;
 
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
@@ -97,7 +99,9 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     private VpcResource vpc;
 
     /**
-     *  The health check associated with the target group. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  The health check associated with the target group. Required for use with ``instance`` and ``ip`` target types.
+     *
+     *  @subresource gyro.aws.elbv2.HealthCheck
      */
     @Updatable
     public HealthCheck getHealthCheck() {
@@ -109,7 +113,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  Port on which traffic is received by targets. Required for use ``instance`` and ``ip`` target types. (Optional)
+     *  Port on which traffic is received by targets. Required for use ``instance`` and ``ip`` target types.
      */
     public Integer getPort() {
         return port;
@@ -120,7 +124,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  Protocol used to route traffic to targets. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  Protocol used to route traffic to targets. Required for use with ``instance`` and ``ip`` target types.
      */
     public String getProtocol() {
         return protocol;
@@ -131,7 +135,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  List of tags associated with the target group. (Optional)
+     *  List of tags associated with the target group.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -164,8 +168,9 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  The name of the target group. (Required)
+     *  The name of the target group.
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -175,9 +180,10 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  The type of the target. Valid values are ``instance``, ``ip``, and ``lambda``. Will default to ``instance``. (Optional)
+     *  The type of the target. Will default to ``instance``.
      */
     @Updatable
+    @ValidStrings({"instance", "ip", "lambda"})
     public String getTargetType() {
         if (targetType == null) {
             targetType = "instance";
@@ -191,7 +197,7 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
     }
 
     /**
-     *  The vpc where the target group resides. Required for use with ``instance`` and ``ip`` target types. (Optional)
+     *  The vpc where the target group resides. Required for use with ``instance`` and ``ip`` target types.
      */
     public VpcResource getVpc() {
         return vpc;

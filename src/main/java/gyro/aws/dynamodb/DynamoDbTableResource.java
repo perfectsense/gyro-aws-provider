@@ -148,7 +148,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     private String streamLabel;
 
     /**
-     * Set of attribute definitions that describe the key schema. (Required)
+     * Set of attribute definitions that describe the key schema.
      *
      * @subresource gyro.aws.dynamodb.DynamoDbAttributeDefinition
      */
@@ -166,7 +166,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     }
 
     /**
-     * The name of the hash (partition) key for this index. Must be defined as an ``attribute``. (Required)
+     * The name of the hash (partition) key for this index. Must be defined as an ``attribute``.
      */
     @Required
     public String getHashKey() {
@@ -189,7 +189,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     }
 
     /**
-     * The name of the DynamoDb table. (Required)
+     * The name of the DynamoDb table.
      */
     @Id
     @Required
@@ -203,7 +203,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     }
 
     /**
-     * Controls how you are charged for read and write throughput and how you manage capacity. Valid values are ``PROVISIONED`` or ``PAY_PER_REQUEST``. Defaults to ``PROVISIONED``.
+     * Controls how you are charged for read and write throughput and how you manage capacity. Defaults to ``PROVISIONED``.
      */
     @Updatable
     @ValidStrings({ "PROVISIONED", "PAY_PER_REQUEST" })
@@ -303,7 +303,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     }
 
     /**
-     * Determines what information is written to the stream when an item is modified. Valid values are ``NEW_IMAGE``, ``OLD_IMAGE``, ``NEW_AND_OLD_IMAGES``, or ``KEYS_ONLY``.
+     * Determines what information is written to the stream when an item is modified.
      */
     @Updatable
     @ValidStrings({ "NEW_IMAGE", "OLD_IMAGE", "NEW_AND_OLD_IMAGES", "KEYS_ONLY" })

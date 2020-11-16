@@ -33,7 +33,7 @@ public class ElasticsearchEncryptionAtRestOptions extends Diffable implements Co
     private KmsKeyResource kmsKeyResource;
 
     /**
-     * Enable encryption at rest to prevent unauthorized access to the data. (Required)
+     * Enable encryption at rest to prevent unauthorized access to the data.
      */
     @Required
     public Boolean getEnableEncryptionAtRest() {

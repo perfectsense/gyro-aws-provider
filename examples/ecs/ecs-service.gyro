@@ -1,0 +1,70 @@
+aws::ecs-cluster ecs-cluster-example
+    cluster-name: "ecs-cluster-example"
+end
+
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+    tags: {
+        Name: "vpc-example"
+    }
+end
+
+@for zone, cidr -in ['us-east-1a', '10.0.0.0/24', 'us-east-1b', '10.0.1.0/24']
+    aws::subnet "subnet-$(zone)"
+        vpc: $(aws::vpc vpc)
+        availability-zone: $(zone)
+        cidr-block: $(cidr)
+
+        tags: {
+            Name: "subnet-example $(zone) $(cidr)"
+        }
+    end
+@end
+
+aws::security-group security-group
+    name: "security-group"
+    vpc: $(aws::vpc vpc)
+    description: "example-ecs"
+end
+
+aws::ecs-service example-ecs-service
+    name: "example-ecs-service"
+    task-definition: $(external-query aws::ecs-task-definition { family: 'test-fargate-task-definition', revision: 1 })
+    cluster: $(aws::ecs-cluster ecs-cluster-example)
+    desired-count: 0
+    enable-ecs-managed-tags: false
+    launch-type: EC2
+    scheduling-strategy: REPLICA
+
+    deployment-configuration
+        maximum-percent: 200
+        minimum-healthy-percent: 100
+    end
+
+    deployment-controller
+        type: ECS
+    end
+
+    network-configuration
+        aws-vpc-configuration
+            assign-public-ip: DISABLED
+            security-groups: [
+                $(aws::security-group security-group)
+            ]
+            subnets: [
+                $(aws::subnet "subnet-us-east-1a"),
+                $(aws::subnet "subnet-us-east-1b")
+            ]
+        end
+    end
+
+    placement-constraint
+        expression: "agentVersion > 0"
+        type: "memberOf"
+    end
+
+    placement-strategy
+        type: binpack
+        field: "CPU"
+    end
+end

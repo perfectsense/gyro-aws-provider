@@ -20,6 +20,8 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
@@ -37,8 +39,9 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     private Boolean autoEnableIo;
 
     /**
-     * Name of the drive to attach this volume to. (Required)
+     * Name of the drive to attach this volume to.
      */
+    @Required
     public String getDeviceName() {
         return deviceName;
     }
@@ -137,9 +140,10 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
 
     /**
      * The type of volume being created. Defaults to 'gp2'.
-     * Valid values are ``gp2``, ``io1``, ``st1``, ``sc1`` or ``standard``.
+     *
      */
     @Updatable
+    @ValidStrings({"gp2", "io1", "st1", "sc1", "standard"})
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";

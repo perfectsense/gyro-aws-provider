@@ -77,7 +77,7 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:0.99.5' + (releaseBuild ? '' : '-SNAPSHOT')
+    api 'gyro:gyro-core:0.99.6' + (releaseBuild ? '' : '-SNAPSHOT')
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
@@ -93,6 +93,7 @@ dependencies {
     implementation 'software.amazon.awssdk:dlm'
     implementation 'software.amazon.awssdk:ec2'
     implementation 'software.amazon.awssdk:eks'
+    implementation 'software.amazon.awssdk:efs'
     implementation 'software.amazon.awssdk:elasticloadbalancing'
     implementation 'software.amazon.awssdk:elasticloadbalancingv2'
     implementation 'software.amazon.awssdk:elasticsearch'
@@ -110,11 +111,13 @@ dependencies {
     implementation 'software.amazon.awssdk:docdb'
     implementation 'software.amazon.awssdk:acm'
     implementation 'software.amazon.awssdk:acmpca'
+    implementation 'software.amazon.awssdk:ecs'
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:neptune'
+    implementation 'software.amazon.awssdk:wafv2'
     implementation 'org.json:json:20180813'
 
-    gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
+    gyroDoclet "gyro:gyro-doclet:0.99.1"
 }
 
 task referenceDocs(type: Javadoc) {

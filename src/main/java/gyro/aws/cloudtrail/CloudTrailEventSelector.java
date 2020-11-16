@@ -24,6 +24,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudtrail.model.EventSelector;
 import software.amazon.awssdk.services.cloudtrail.model.ReadWriteType;
 
@@ -35,7 +36,7 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
     private ReadWriteType readWriteType;
 
     /**
-     * The Amazon S3 buckets or AWS Lambda functions that you specify in your event selectors for your trail to log data events. (Required)
+     * The Amazon S3 buckets or AWS Lambda functions that you specify in your event selectors for your trail to log data events.
      */
     @Required
     @Updatable
@@ -80,9 +81,10 @@ public class CloudTrailEventSelector extends Diffable implements Copyable<EventS
     }
 
     /**
-     * The type of events to be logged by the trail. (Required)
+     * The type of events to be logged by the trail.
      */
     @Updatable
+    @ValidStrings({"ReadOnly", "WriteOnly", "All"})
     public ReadWriteType getReadWriteType() {
         return readWriteType;
     }

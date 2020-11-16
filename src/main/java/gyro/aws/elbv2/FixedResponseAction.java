@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedRespons
  * .. code-block:: gyro
  *
  *     action
- *         type: “fixed-response”
+ *         type: "fixed-response"
  *
  *         fixed-response-action
  *             content-type: "text/plain"
@@ -46,7 +46,7 @@ public class FixedResponseAction extends Diffable implements Copyable<FixedRespo
     private String statusCode;
 
     /**
-     *  The content type. Valid values are ``text/plain``, ``text/css``, ``text/html``, ``application/javascript`` and ``application/json``. (Required)
+     *  The content type.
      */
     @Updatable
     public String getContentType() {
@@ -58,7 +58,7 @@ public class FixedResponseAction extends Diffable implements Copyable<FixedRespo
     }
 
     /**
-     *  The message. (Required)
+     *  The message.
      */
     @Updatable
     public String getMessageBody() {
@@ -70,7 +70,7 @@ public class FixedResponseAction extends Diffable implements Copyable<FixedRespo
     }
 
     /**
-     *  The status code. Valid values are 2XX, 4XX, or 5XX. (Required)
+     *  The status code.
      */
     @Updatable
     public String getStatusCode() {

@@ -27,7 +27,7 @@ public class ElasticsearchNodeToNodeEncryptionOptions extends Diffable
     private Boolean enableNodeToNodeEncryption;
 
     /**
-     * Enable node to node encryption to prevent potential interception of traffic between Elasticsearch nodes. (Required)
+     * Enable node to node encryption to prevent potential interception of traffic between Elasticsearch nodes.
      */
     @Required
     public Boolean getEnableNodeToNodeEncryption() {

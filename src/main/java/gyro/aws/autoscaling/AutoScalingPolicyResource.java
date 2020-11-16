@@ -24,6 +24,9 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
@@ -53,8 +56,9 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     private Set<AutoScalingPolicyStepAdjustment> stepAdjustment;
 
     /**
-     * The name of the policy. (Required)
+     * The name of the policy.
      */
+    @Required
     public String getPolicyName() {
         return policyName;
     }
@@ -64,9 +68,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The adjustment type. Valid values are ``ChangeInCapacity`` or ``ExactCapacity`` or ``PercentChangeInCapacity``.
+     * The adjustment type.
      */
     @Updatable
+    @ValidStrings({"ChangeInCapacity", "ExactCapacity", "PercentChangeInCapacity"})
     public String getAdjustmentType() {
         return adjustmentType;
     }
@@ -76,9 +81,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The amount of time between two scaling events. Valid values is any integer greater than 0.
+     * The amount of time between two scaling events.
      */
     @Updatable
+    @Min(0)
     public Integer getCooldown() {
         return cooldown;
     }
@@ -88,9 +94,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics. Valid values are Integers greater than ``0``.
+     * The estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics.
      */
     @Updatable
+    @Min(0)
     public Integer getEstimatedInstanceWarmup() {
         return estimatedInstanceWarmup;
     }
@@ -100,9 +107,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * the aggregation type for cloud watch metrics. Valid values are ``Minimum`` or ``Maximum`` or ``Average``. Defaults to ``Average``.
+     * The aggregation type for cloud watch metrics. Defaults to ``Average``.
      */
     @Updatable
+    @ValidStrings({"Minimum", "Maximum", "Average"})
     public String getMetricAggregationType() {
         if (metricAggregationType == null) {
             metricAggregationType = "Average";
@@ -128,8 +136,9 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The type of policy. Valid values are ``SimpleScaling`` or ``StepScaling`` or ``TargetTrackingScaling``. Defaults to ``SimpleScaling``
+     * The type of policy. Defaults to ``SimpleScaling``.
      */
+    @ValidStrings({"SimpleScaling", "StepScaling", "TargetTrackingScaling"})
     public String getPolicyType() {
         if (policyType == null) {
             policyType = "SimpleScaling";
@@ -194,9 +203,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * Predefined defines metric resource label. Valid values are ``ASGAverageCPUUtilization`` or ``ASGAverageNetworkIn`` or ``ASGAverageNetworkOut`` or ``ALBRequestCountPerTarget``.
+     * Predefined defines metric resource label.
      */
     @Updatable
+    @ValidStrings({"ASGAverageCPUUtilization", "ASGAverageNetworkIn", "ASGAverageNetworkOut", "ALBRequestCountPerTarget"})
     public String getPredefinedMetricResourceLabel() {
         return predefinedMetricResourceLabel;
     }

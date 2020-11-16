@@ -18,6 +18,7 @@ package gyro.aws.acmpca;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.acmpca.model.CertificateAuthorityConfiguration;
 import software.amazon.awssdk.services.acmpca.model.KeyAlgorithm;
 import software.amazon.awssdk.services.acmpca.model.SigningAlgorithm;
@@ -28,8 +29,9 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
     private AcmPcaAsn1Subject subject;
 
     /**
-     * The type of the key algorithm. Valid values are ``RSA_2048`` or ``RSA_4096`` or ``EC_prime256v1`` or ``EC_secp384r1``. (Required)
+     * The type of the key algorithm.
      */
+    @ValidStrings({"RSA_2048", "RSA_4096", "EC_prime256v1", "EC_secp384r1"})
     public KeyAlgorithm getKeyAlgorithm() {
         return keyAlgorithm;
     }
@@ -39,8 +41,9 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
     }
 
     /**
-     * The type of signing algorithm. Valid values are ``SHA256WITHECDSA`` or ``SHA384WITHECDSA`` or ``SHA512WITHECDSA`` or ``SHA256WITHRSA`` or ``SHA384WITHRSA`` or ``SHA512WITHRSA``. (Required)
+     * The type of signing algorithm.
      */
+    @ValidStrings({"SHA256WITHECDSA", "SHA384WITHECDSA", "SHA512WITHECDSA", "SHA256WITHRSA", "SHA384WITHRSA", "SHA512WITHRSA"})
     public SigningAlgorithm getSigningAlgorithm() {
         return signingAlgorithm;
     }
@@ -50,7 +53,9 @@ public class AcmPcaCertificateAuthorityConfiguration extends Diffable implements
     }
 
     /**
-     * The subject configuration. (Required)
+     * The subject configuration.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaAsn1Subject
      */
     public AcmPcaAsn1Subject getSubject() {
         return subject;
