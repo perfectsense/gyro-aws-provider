@@ -194,8 +194,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getBuildStatusConfig() != null && !(getType().equals("GITHUB") || getType().equals("GITHUB_ENTERPRISE")
-            || getType().equals("BITBUCKET"))) {
+        if (getBuildStatusConfig() != null && !(getType().equals(SourceType.GITHUB)
+            || getType().equals(SourceType.GITHUB_ENTERPRISE)
+            || getType().equals(SourceType.BITBUCKET))) {
             errors.add(new ValidationError(
                 this,
                 null,
@@ -203,8 +204,9 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
             ));
         }
 
-        if (getReportBuildStatus() != null && !(getType().equals("GITHUB") || getType().equals("GITHUB_ENTERPRISE")
-            || getType().equals("BITBUCKET"))) {
+        if (getReportBuildStatus() == Boolean.TRUE && !(getType().equals(SourceType.GITHUB)
+            || getType().equals(SourceType.GITHUB_ENTERPRISE)
+            || getType().equals(SourceType.BITBUCKET))) {
             errors.add(new ValidationError(
                 this,
                 null,

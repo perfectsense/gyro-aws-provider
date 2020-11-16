@@ -198,7 +198,7 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
         List<ValidationError> errors = new ArrayList<>();
 
         if (getRegistryCredential() != null && getImagePullCredentialsType() != null
-            && !getImagePullCredentialsType().equals("SERVICE_ROLE")) {
+            && !getImagePullCredentialsType().equals(ImagePullCredentialsType.SERVICE_ROLE)) {
             errors.add(new ValidationError(
                 this,
                 "registry-credential",
