@@ -67,7 +67,8 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  *
  *        source
  *            type: "GITHUB"
- *            location: "codebuild-us-east-2-242040583208-input-bucket/MessageUtil.zip"
+ *            location: "https://github.com/harjain99/example-repo-for-travis-testing"
+ *        end
  *
  *        artifacts
  *            type: "S3"
@@ -79,7 +80,7 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  *        end
  *
  *        environment
- *            compute-type: "BUILD_GENERAL1_SMALL
+ *            compute-type: "BUILD_GENERAL1_LARGE"
  *            type: "ARM_CONTAINER"
  *            image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
  *        end
