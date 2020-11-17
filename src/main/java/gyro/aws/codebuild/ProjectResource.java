@@ -61,7 +61,7 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *        description: "project-description"
  *        service-role: $(aws::iam-role iam-role-example)
  *        tags: {
- *            "tag1": "value1"
+ *            "tag": "value"
  *        }
  *
  *        source
