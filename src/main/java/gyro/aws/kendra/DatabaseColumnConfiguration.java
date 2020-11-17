@@ -71,7 +71,7 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
     }
 
     /**
-     * The columns that indicate when a document in the database has changed. Max limit of ``5``.
+     * The columns that indicate when a document in the database has changed.
      */
     @Updatable
     @Required

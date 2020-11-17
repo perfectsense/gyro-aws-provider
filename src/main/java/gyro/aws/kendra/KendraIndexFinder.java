@@ -34,7 +34,7 @@ import software.amazon.awssdk.services.kendra.model.ListIndicesRequest;
  *
  * .. code-block:: gyro
  *
- *    kendra-index: $(external-query aws::kendra-index { name: "example-index-1" })
+ *    kendra-index: $(external-query aws::kendra-index { name: "example-index" })
  */
 @Type("kendra-index")
 public class KendraIndexFinder extends AwsFinder<KendraClient, DescribeIndexResponse, KendraIndexResource> {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@DocGroup("Aws Kendra")
+@DocGroup("Kendra")
 package gyro.aws.kendra;
 
 import gyro.core.resource.DocGroup;
