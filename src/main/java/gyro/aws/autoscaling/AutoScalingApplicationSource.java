@@ -57,6 +57,7 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
         if (tagFilters == null) {
             tagFilters = new ArrayList<>();
         }
+
         return tagFilters;
     }
 

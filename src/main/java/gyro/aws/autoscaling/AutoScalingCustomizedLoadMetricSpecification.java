@@ -46,6 +46,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
         if (dimensions == null) {
             dimensions = new ArrayList<>();
         }
+
         return dimensions;
     }
 
@@ -112,6 +113,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
         setStatistic(model.statisticAsString());
         setUnit(model.unit());
 
+        setDimensions(null);
         if (model.dimensions() != null) {
             List<AutoScalingMetricDimension> dimensions = new ArrayList<>();
             model.dimensions().forEach(metricDimension -> {
@@ -119,10 +121,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
                 autoScalingMetricDimension.copyFrom(metricDimension);
                 dimensions.add(autoScalingMetricDimension);
             });
-
             setDimensions(dimensions);
-        } else {
-            setDimensions(null);
         }
     }
 

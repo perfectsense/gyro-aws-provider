@@ -127,22 +127,20 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
         setScaleOutCooldown(model.scaleOutCooldown());
         setTargetValue(model.targetValue());
 
+        setCustomizedScalingMetricSpecification(null);
         if (model.customizedScalingMetricSpecification() != null) {
             AutoScalingCustomizedScalingMetricSpecification specification = newSubresource(
                 AutoScalingCustomizedScalingMetricSpecification.class);
             specification.copyFrom(model.customizedScalingMetricSpecification());
             setCustomizedScalingMetricSpecification(specification);
-        } else {
-            setCustomizedScalingMetricSpecification(null);
         }
 
+        setCustomizedScalingMetricSpecification(null);
         if (model.predefinedScalingMetricSpecification() != null) {
             AutoScalingPredefinedScalingMetricSpecification specification = newSubresource(
                 AutoScalingPredefinedScalingMetricSpecification.class);
             specification.copyFrom(model.predefinedScalingMetricSpecification());
             setPredefinedScalingMetricSpecification(specification);
-        } else {
-            setCustomizedScalingMetricSpecification(null);
         }
     }
 

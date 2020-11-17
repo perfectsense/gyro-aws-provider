@@ -30,9 +30,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.AutoScalingPlansClient;
-import software.amazon.awssdk.services.autoscalingplans.model.CreateScalingPlanResponse;
 import software.amazon.awssdk.services.autoscalingplans.model.DescribeScalingPlansResponse;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlan;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusCode;
@@ -242,7 +240,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     public void create(GyroUI ui, State state) throws Exception {
         AutoScalingPlansClient client = createClient(AutoScalingPlansClient.class);
 
-        CreateScalingPlanResponse response = client.createScalingPlan(r -> r
+        client.createScalingPlan(r -> r
             .scalingPlanName(getName())
             .applicationSource(getApplicationSource() != null ? getApplicationSource().toApplicationSource() : null)
             .scalingInstructions(getScalingInstructions().stream()

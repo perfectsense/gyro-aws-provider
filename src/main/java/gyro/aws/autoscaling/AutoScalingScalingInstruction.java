@@ -262,22 +262,20 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
         setScheduledActionBufferTime(model.scheduledActionBufferTime());
         setServiceNamespace(model.serviceNamespace());
 
+        setCustomizedLoadMetricSpecification(null);
         if (model.customizedLoadMetricSpecification() != null) {
             AutoScalingCustomizedLoadMetricSpecification specification = newSubresource(
                 AutoScalingCustomizedLoadMetricSpecification.class);
             specification.copyFrom(model.customizedLoadMetricSpecification());
             setCustomizedLoadMetricSpecification(specification);
-        } else {
-            setCustomizedLoadMetricSpecification(null);
         }
 
+        setPredefinedLoadMetricSpecification(null);
         if (model.predefinedLoadMetricSpecification() != null) {
             AutoScalingPredefinedLoadMetricSpecification specification = newSubresource(
                 AutoScalingPredefinedLoadMetricSpecification.class);
             specification.copyFrom(model.predefinedLoadMetricSpecification());
             setPredefinedLoadMetricSpecification(specification);
-        } else {
-            setPredefinedLoadMetricSpecification(null);
         }
 
         getTargetTrackingConfigurations().clear();
