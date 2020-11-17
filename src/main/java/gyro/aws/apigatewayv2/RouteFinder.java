@@ -67,12 +67,10 @@ public class RouteFinder extends AwsFinder<ApiGatewayV2Client, Route, RouteResou
 
     @Override
     protected List<Route> findAllAws(ApiGatewayV2Client client) {
-        List<Route> routes = new ArrayList<>();
-        List<String> apis = getApis(client);
-
-        apis.forEach(a -> routes.addAll(client.getRoutes(r -> r.apiId(a)).items()));
-
-        return routes;
+        return getApis(client).stream()
+            .map(api -> client.getRoutes(r -> r.apiId(api)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +78,7 @@ public class RouteFinder extends AwsFinder<ApiGatewayV2Client, Route, RouteResou
         List<Route> routes = new ArrayList<>();
 
         if (!filters.containsKey("api-id")) {
-            routes = new ArrayList<>(client.getRoutes(r -> r.apiId(filters.get("api-id"))).items());
+            routes = client.getRoutes(r -> r.apiId(filters.get("api-id"))).items();
 
         } else {
             for (String api : getApis(client)) {

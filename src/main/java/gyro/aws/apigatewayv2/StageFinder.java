@@ -67,12 +67,10 @@ public class StageFinder extends AwsFinder<ApiGatewayV2Client, Stage, StageResou
 
     @Override
     protected List<Stage> findAllAws(ApiGatewayV2Client client) {
-        List<Stage> stages = new ArrayList<>();
-        List<String> apis = getApis(client);
-
-        apis.forEach(a -> stages.addAll(client.getStages(r -> r.apiId(a)).items()));
-
-        return stages;
+        return getApis(client).stream()
+            .map(api -> client.getStages(r -> r.apiId(api)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +78,7 @@ public class StageFinder extends AwsFinder<ApiGatewayV2Client, Stage, StageResou
         List<Stage> stages = new ArrayList<>();
 
         if (filters.containsKey("api-id")) {
-            stages = new ArrayList<>(client.getStages(r -> r.apiId(filters.get("api-id"))).items());
+            stages = client.getStages(r -> r.apiId(filters.get("api-id"))).items();
 
         } else {
             for (String api : getApis(client)) {

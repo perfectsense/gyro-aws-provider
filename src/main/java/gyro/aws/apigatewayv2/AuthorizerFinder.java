@@ -67,12 +67,10 @@ public class AuthorizerFinder extends AwsFinder<ApiGatewayV2Client, Authorizer, 
 
     @Override
     protected List<Authorizer> findAllAws(ApiGatewayV2Client client) {
-        List<Authorizer> authorizers = new ArrayList<>();
-        List<String> apis = getApis(client);
-
-        apis.forEach(a -> authorizers.addAll(client.getAuthorizers(r -> r.apiId(a)).items()));
-
-        return authorizers;
+        return getApis(client).stream()
+            .map(api -> client.getAuthorizers(r -> r.apiId(api)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +78,7 @@ public class AuthorizerFinder extends AwsFinder<ApiGatewayV2Client, Authorizer, 
         List<Authorizer> authorizers = new ArrayList<>();
 
         if (filters.containsKey("api-id")) {
-            authorizers = new ArrayList<>(client.getAuthorizers(r -> r.apiId(filters.get("api-id"))).items());
+            authorizers = client.getAuthorizers(r -> r.apiId(filters.get("api-id"))).items();
 
         } else {
             for (String api : getApis(client)) {

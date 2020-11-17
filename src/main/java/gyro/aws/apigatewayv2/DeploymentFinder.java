@@ -67,12 +67,10 @@ public class DeploymentFinder extends AwsFinder<ApiGatewayV2Client, Deployment, 
 
     @Override
     protected List<Deployment> findAllAws(ApiGatewayV2Client client) {
-        List<Deployment> deployments = new ArrayList<>();
-        List<String> apis = getApis(client);
-
-        apis.forEach(a -> deployments.addAll(client.getDeployments(r -> r.apiId(a)).items()));
-
-        return deployments;
+        return getApis(client).stream()
+            .map(api -> client.getDeployments(r -> r.apiId(api)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +78,7 @@ public class DeploymentFinder extends AwsFinder<ApiGatewayV2Client, Deployment, 
         List<Deployment> deployments = new ArrayList<>();
 
         if (filters.containsKey("api-id")) {
-            deployments = new ArrayList<>(client.getDeployments(r -> r.apiId(filters.get("api-id"))).items());
+            deployments = client.getDeployments(r -> r.apiId(filters.get("api-id"))).items();
 
         } else {
             for (String api : getApis(client)) {

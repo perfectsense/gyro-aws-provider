@@ -67,12 +67,10 @@ public class ModelFinder extends AwsFinder<ApiGatewayV2Client, Model, ModelResou
 
     @Override
     protected List<Model> findAllAws(ApiGatewayV2Client client) {
-        List<Model> models = new ArrayList<>();
-        List<String> apis = getApis(client);
-
-        apis.forEach(a -> models.addAll(client.getModels(r -> r.apiId(a)).items()));
-
-        return models;
+        return getApis(client).stream()
+            .map(api -> client.getModels(r -> r.apiId(api)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +78,7 @@ public class ModelFinder extends AwsFinder<ApiGatewayV2Client, Model, ModelResou
         List<Model> models = new ArrayList<>();
 
         if (filters.containsKey("api-id")) {
-            models = new ArrayList<>(client.getModels(r -> r.apiId(filters.get("api-id"))).items());
+            models = client.getModels(r -> r.apiId(filters.get("api-id"))).items();
 
         } else {
             for (String api : getApis(client)) {

@@ -67,12 +67,10 @@ public class IntegrationFinder extends AwsFinder<ApiGatewayV2Client, Integration
 
     @Override
     protected List<Integration> findAllAws(ApiGatewayV2Client client) {
-        List<Integration> integrations = new ArrayList<>();
-        List<String> apis = getApis(client);
-
-        apis.forEach(a -> integrations.addAll(client.getIntegrations(r -> r.apiId(a)).items()));
-
-        return integrations;
+        return getApis(client).stream()
+            .map(api -> client.getIntegrations(r -> r.apiId(api)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +78,7 @@ public class IntegrationFinder extends AwsFinder<ApiGatewayV2Client, Integration
         List<Integration> integrations = new ArrayList<>();
 
         if (filters.containsKey("api-id")) {
-            integrations = new ArrayList<>(client.getIntegrations(r -> r.apiId(filters.get("api-id"))).items());
+            integrations = client.getIntegrations(r -> r.apiId(filters.get("api-id"))).items();
 
         } else {
             for (String api : getApis(client)) {

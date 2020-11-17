@@ -16,13 +16,16 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.ApiMapping;
+import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
 
 /**
  * Query Api.
@@ -64,21 +67,33 @@ public class ApiMappingFinder extends AwsFinder<ApiGatewayV2Client, ApiMapping, 
 
     @Override
     protected List<ApiMapping> findAllAws(ApiGatewayV2Client client) {
-        throw new IllegalArgumentException("Cannot query ApiMappings without 'domain-name'.");
+        return getDomainNames(client).stream()
+            .map(d -> client.getApiMappings(r -> r.domainName(d)).items())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
     protected List<ApiMapping> findAws(ApiGatewayV2Client client, Map<String, String> filters) {
-        if (!filters.containsKey("domain-name")) {
-            throw new IllegalArgumentException("Cannot query ApiMappings without 'domain-name'.");
-        }
+        List<ApiMapping> apiMappings = new ArrayList<>();
 
-        List<ApiMapping> apiMappings = client.getApiMappings(r -> r.domainName(filters.get("domain-name"))).items();
+        if (filters.containsKey("domain-name")) {
+            apiMappings = client.getApiMappings(r -> r.domainName(filters.get("domain-name"))).items();
+
+        } else {
+            for (String api : getDomainNames(client)) {
+                apiMappings.addAll(client.getApiMappings(r -> r.domainName(api)).items());
+            }
+        }
 
         if (filters.containsKey("id")) {
             apiMappings.removeIf(i -> !i.apiMappingId().equals(filters.get("id")));
         }
 
         return apiMappings;
+    }
+
+    private List<String> getDomainNames(ApiGatewayV2Client client) {
+        return client.getDomainNames().items().stream().map(DomainName::domainName).collect(Collectors.toList());
     }
 }
