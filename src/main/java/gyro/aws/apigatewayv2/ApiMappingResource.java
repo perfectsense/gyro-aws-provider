@@ -16,7 +16,9 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -31,6 +33,7 @@ import gyro.core.validation.Required;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.ApiMapping;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateApiMappingResponse;
+import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
 import software.amazon.awssdk.services.apigatewayv2.model.GetApiMappingsResponse;
 
 /**
@@ -126,6 +129,21 @@ public class ApiMappingResource extends AwsResource implements Copyable<ApiMappi
         setApiMappingKey(model.apiMappingKey());
         setStage(findById(StageResource.class, model.stage()));
         setId(model.apiMappingId());
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> domainNames = client.getDomainNames().items().stream().map(DomainName::domainName)
+            .collect(Collectors.toList());
+
+        domainNames.stream().filter(d -> {
+            GetApiMappingsResponse apiMappings = client.getApiMappings(r -> r.domainName(d));
+
+            return apiMappings.hasItems() &&
+                apiMappings.items()
+                    .stream()
+                    .filter(i -> i.apiMappingId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(domainName -> setDomainName(findById(DomainNameResource.class, domainName)));
     }
 
     @Override
