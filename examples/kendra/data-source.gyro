@@ -17,7 +17,7 @@ end
 aws::kendra-index index-example-enter
     description: "example-index-desc"
     edition: ENTERPRISE_EDITION
-    name: "example-index-1"
+    name: "example-index"
     role: $(aws::iam-role example-role-iam)
 
     capacity-units-configuration
@@ -26,8 +26,7 @@ aws::kendra-index index-example-enter
     end
 
     tags: {
-        "example-key-1": "example-value-1",
-        "example-key-2": "example-value-2"
+        "example-key": "example-value"
     }
 end
 
@@ -143,7 +142,7 @@ aws::kendra-data-source data-source-example-onedrive
     end
 
     tags: {
-        "example-key-1": "example-value-1"
+        "example-key": "example-value"
     }
 end
 
@@ -186,7 +185,7 @@ aws::kendra-data-source data-source-example-s3
     end
 
     tags: {
-        "example-key-1": "example-value-1"
+        "example-key": "example-value"
     }
 end
 
@@ -271,7 +270,7 @@ aws::kendra-data-source data-source-example-salesforce
     end
 
     tags: {
-        "example-key-1": "example-value-1"
+        "example-key": "example-value"
     }
 end
 
@@ -348,7 +347,7 @@ aws::kendra-data-source data-source-example-service-now
     end
 
     tags: {
-        "example-key-1": "example-value-1"
+        "example-key": "example-value"
     }
 end
 
@@ -404,6 +403,6 @@ aws::kendra-data-source data-source-example-share-point
     end
 
     tags: {
-        "example-key-1": "example-value-1"
+        "example-key": "example-value"
     }
 end
