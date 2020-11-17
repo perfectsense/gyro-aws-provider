@@ -67,7 +67,7 @@ import software.amazon.awssdk.services.kendra.model.UntagResourceRequest;
  *         end
  *
  *         tags: {
- *             "example-key-1": "example-value-1"
+ *             "example-key": "example-value"
  *         }
  *     end
  */
@@ -135,6 +135,8 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
 
     /**
      * The S3 location of the FAQ input data.
+     *
+     * @subresource gyro.aws.kendra.KendraS3Path
      */
     @Required
     public KendraS3Path getS3Path() {

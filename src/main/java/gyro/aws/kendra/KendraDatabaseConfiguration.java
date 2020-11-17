@@ -49,6 +49,8 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
 
     /**
      * The information about the database column that provides information for user context filtering.
+     *
+     * @subresource gyro.aws.kendra.DatabaseAclConfiguration
      */
     @Updatable
     public DatabaseAclConfiguration getAclConfiguration() {
@@ -61,6 +63,8 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
 
     /**
      * The information about where the index should get the document information from the database.
+     *
+     * @subresource gyro.aws.kendra.DatabaseColumnConfiguration
      */
     @Updatable
     @Required
@@ -74,6 +78,8 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
 
     /**
      * The information necessary to connect to a database.
+     *
+     * @subresource gyro.aws.kendra.DatabaseConnectionConfiguration
      */
     @Updatable
     @Required
@@ -87,6 +93,8 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
 
     /**
      * The information about how Amazon Kendra uses quote marks around SQL identifiers when querying a database data source.
+     *
+     * @subresource gyro.aws.kendra.DatabaseSqlConfiguration
      */
     @Updatable
     public DatabaseSqlConfiguration getSqlConfiguration() {
@@ -99,6 +107,8 @@ public class KendraDatabaseConfiguration extends Diffable implements Copyable<Da
 
     /**
      * The value of the VpcConfiguration property for this object.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceVpcConfiguration
      */
     @Updatable
     public KendraDataSourceVpcConfiguration getVpcConfiguration() {

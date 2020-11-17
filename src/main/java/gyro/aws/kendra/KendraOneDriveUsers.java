@@ -45,6 +45,8 @@ public class KendraOneDriveUsers extends Diffable implements Copyable<OneDriveUs
 
     /**
      * The S3 bucket location of a file containing a list of users whose documents should be indexed.
+     *
+     * @subresource gyro.aws.kendra.KendraS3Path
      */
     @ConflictsWith("user-list")
     public KendraS3Path getPath() {

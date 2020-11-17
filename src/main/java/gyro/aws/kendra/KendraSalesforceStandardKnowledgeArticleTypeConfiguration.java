@@ -57,6 +57,8 @@ public class KendraSalesforceStandardKnowledgeArticleTypeConfiguration extends D
 
     /**
      * The list of objects that map fields in the standard knowledge article to fields in the Amazon Kendra index.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {

@@ -86,6 +86,8 @@ public class KendraServiceNowServiceCatalogConfiguration extends Diffable
 
     /**
      * The list of objects mapping between ServiceNow fields and Amazon Kendra index fields.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     @Updatable
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
@@ -187,6 +189,16 @@ public class KendraServiceNowServiceCatalogConfiguration extends Diffable
                     + "'document-data-field-name' or 'document-title-field-name'"));
         }
 
+        if (getExcludeAttachmentFilePatterns() == null && getIncludeAttachmentFilePatterns() == null
+            && getCrawlAttachments() == null && getFieldMapping() == null && getDocumentDataFieldName() == null
+            && getDocumentTitleFieldName() == null) {
+            errors.add(new ValidationError(this, null,
+                "At least one of 'excludeAttachmentFilePatterns', 'includeAttachmentFilePatterns', "
+                    + "'crawlAttachments', 'fieldMapping', 'documentDataFieldName' "
+                    + "or 'documentTitleFieldName' is required."));
+        }
+
         return errors;
+
     }
 }

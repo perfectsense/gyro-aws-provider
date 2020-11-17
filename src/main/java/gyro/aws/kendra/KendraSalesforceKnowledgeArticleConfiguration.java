@@ -38,6 +38,8 @@ public class KendraSalesforceKnowledgeArticleConfiguration extends Diffable
 
     /**
      * The list of configurations for custom Salesforce knowledge articles.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceCustomKnowledgeArticleTypeConfiguration
      */
     @Updatable
     @ConflictsWith("standard-type-configuration")
@@ -55,6 +57,8 @@ public class KendraSalesforceKnowledgeArticleConfiguration extends Diffable
 
     /**
      * The configuration for standard Salesforce knowledge articles.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceStandardKnowledgeArticleTypeConfiguration
      */
     @Updatable
     @ConflictsWith("custom-type-configuration")

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.kendra.model.SalesforceStandardObjectAttachmentConfiguration;
 
 public class KendraSalesforceStandardObjectAttachmentConfiguration extends Diffable
@@ -34,6 +35,7 @@ public class KendraSalesforceStandardObjectAttachmentConfiguration extends Diffa
     /**
      * The name of the field in the custom knowledge article that contains the document title.
      */
+    @Required
     @Updatable
     public String getDocumentTitleFieldName() {
         return documentTitleFieldName;
@@ -45,6 +47,8 @@ public class KendraSalesforceStandardObjectAttachmentConfiguration extends Diffa
 
     /**
      * The list of objects that map fields in attachments to Amazon Kendra index fields.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     @Updatable
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {

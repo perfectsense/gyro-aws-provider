@@ -43,6 +43,8 @@ public class KendraSalesforceConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration information for Salesforce chatter feeds.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceChatterFeedConfiguration
      */
     @Updatable
     public KendraSalesforceChatterFeedConfiguration getChatterFeedConfiguration() {
@@ -98,6 +100,8 @@ public class KendraSalesforceConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration information for the knowlege article types that Amazon Kendra indexes.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceKnowledgeArticleConfiguration
      */
     @Updatable
     public KendraSalesforceKnowledgeArticleConfiguration getKnowledgeArticleConfiguration() {
@@ -136,6 +140,8 @@ public class KendraSalesforceConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration information for processing attachments to Salesforce standard objects.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceStandardObjectAttachmentConfiguration
      */
     @Updatable
     @DependsOn("crawl-attachments")
@@ -149,6 +155,8 @@ public class KendraSalesforceConfiguration extends Diffable implements Copyable<
 
     /**
      * The list of Salesforce standard objects that Amazon Kendra indexes.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceStandardObjectConfiguration
      */
     @Updatable
     public List<KendraSalesforceStandardObjectConfiguration> getObjectConfiguration() {

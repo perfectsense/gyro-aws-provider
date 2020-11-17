@@ -38,6 +38,8 @@ public class KendraDataSourceConfiguration extends Diffable implements Copyable<
 
     /**
      * The information necessary to create a data source connector for a database.
+     *
+     * @subresource gyro.aws.kendra.KendraDatabaseConfiguration
      */
     @Updatable
     @ConflictsWith({
@@ -53,6 +55,8 @@ public class KendraDataSourceConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration for data sources that connect to Microsoft OneDrive.
+     *
+     * @subresource gyro.aws.kendra.KendraOneDriveConfiguration
      */
     @Updatable
     @ConflictsWith({
@@ -68,6 +72,8 @@ public class KendraDataSourceConfiguration extends Diffable implements Copyable<
 
     /**
      * The information to create a data source connector for a document repository in an Amazon S3 bucket.
+     *
+     * @subresource gyro.aws.kendra.KendraS3DataSourceConfiguration
      */
     @Updatable
     @ConflictsWith({
@@ -83,6 +89,8 @@ public class KendraDataSourceConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration information for data sources that connect to a Salesforce site.
+     *
+     * @subresource gyro.aws.kendra.KendraSalesforceConfiguration
      */
     @Updatable
     @ConflictsWith({
@@ -98,6 +106,8 @@ public class KendraDataSourceConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration for data sources that connect to ServiceNow instances.
+     *
+     * @subresource gyro.aws.kendra.KendraServiceNowConfiguration
      */
     @Updatable
     @ConflictsWith({
@@ -113,6 +123,8 @@ public class KendraDataSourceConfiguration extends Diffable implements Copyable<
 
     /**
      * The information necessary to create a data source connector for a Microsoft SharePoint site.
+     *
+     * @subresource gyro.aws.kendra.KendraSharePointConfiguration
      */
     @Updatable
     @ConflictsWith({

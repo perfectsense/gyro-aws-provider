@@ -60,6 +60,8 @@ public class KendraSalesforceStandardObjectConfiguration extends Diffable
 
     /**
      * The list of objects that map fields in the standard object configuration to fields in the Amazon Kendra index.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {

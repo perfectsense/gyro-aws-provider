@@ -86,6 +86,8 @@ public class KendraServiceNowKnowledgeArticleConfiguration extends Diffable
 
     /**
      * The list of objects mapping between ServiceNow fields and Amazon Kendra index fields.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     @Updatable
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {

@@ -78,6 +78,8 @@ public class KendraServiceNowConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration for crawling knowledge articles in the ServiceNow site.
+     *
+     * @subresource gyro.aws.kendra.KendraServiceNowKnowledgeArticleConfiguration
      */
     @Updatable
     public KendraServiceNowKnowledgeArticleConfiguration getKnowledgeArticleConfiguration() {
@@ -90,6 +92,8 @@ public class KendraServiceNowConfiguration extends Diffable implements Copyable<
 
     /**
      * The configuration for crawling service catalogs in the ServiceNow site.
+     *
+     * @subresource gyro.aws.kendra.KendraServiceNowServiceCatalogConfiguration
      */
     @Updatable
     public KendraServiceNowServiceCatalogConfiguration getServiceCatalogConfiguration() {

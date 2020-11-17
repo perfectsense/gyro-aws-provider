@@ -61,6 +61,8 @@ public class KendraSalesforceChatterFeedConfiguration extends Diffable
 
     /**
      * The mapping from Salesforce chatter feed fields into Amazon Kendra index fields.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     @Updatable
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {

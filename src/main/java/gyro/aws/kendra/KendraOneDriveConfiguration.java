@@ -93,6 +93,8 @@ public class KendraOneDriveConfiguration extends Diffable implements Copyable<On
 
     /**
      * The list of objects that map Microsoft OneDrive fields to custom fields in the Amazon Kendra index.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {
@@ -108,6 +110,8 @@ public class KendraOneDriveConfiguration extends Diffable implements Copyable<On
 
     /**
      * The list of user accounts whose documents should be indexed.
+     *
+     * @subresource gyro.aws.kendra.KendraOneDriveUsers
      */
     @Required
     public KendraOneDriveUsers getUsers() {

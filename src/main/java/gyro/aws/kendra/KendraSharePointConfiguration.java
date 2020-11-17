@@ -25,6 +25,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.kendra.model.SharePointConfiguration;
@@ -58,6 +59,7 @@ public class KendraSharePointConfiguration extends Diffable implements Copyable<
     /**
      * The Microsoft SharePoint attribute field that contains the title of the document.
      */
+    @Required
     public String getDocumentTitleFieldName() {
         return documentTitleFieldName;
     }
@@ -100,6 +102,8 @@ public class KendraSharePointConfiguration extends Diffable implements Copyable<
 
     /**
      * A list of DataSourceToIndexFieldMapping objects that map Microsoft SharePoint attributes to custom fields in the Amazon Kendra index.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {
@@ -167,6 +171,8 @@ public class KendraSharePointConfiguration extends Diffable implements Copyable<
 
     /**
      * The value of the VpcConfiguration property for this object.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceVpcConfiguration
      */
     public KendraDataSourceVpcConfiguration getVpcConfiguration() {
         return vpcConfiguration;

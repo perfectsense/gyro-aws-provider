@@ -58,6 +58,8 @@ public class KendraSalesforceCustomKnowledgeArticleTypeConfiguration extends Dif
 
     /**
      * The list of objects that map fields in the custom knowledge article to fields in the Amazon Kendra index.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {

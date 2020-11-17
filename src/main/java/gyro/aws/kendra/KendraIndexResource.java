@@ -59,7 +59,7 @@ import software.amazon.awssdk.services.kendra.model.UpdateIndexRequest;
  *     aws::kendra-index index-example-enter
  *         description: "example-index-desc"
  *         edition: ENTERPRISE_EDITION
- *         name: "example-index-1-change"
+ *         name: "example-index"
  *         role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-us-east-1-example-role-har"
  *
  *         capacity-units-configuration
@@ -68,8 +68,7 @@ import software.amazon.awssdk.services.kendra.model.UpdateIndexRequest;
  *         end
  *
  *         tags: {
- *             "example-key-1": "example-value-1",
- *             "example-key-2": "example-value-2"
+ *             "example-key": "example-value"
  *         }
  *     end
  */
@@ -140,6 +139,8 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
     /**
      * The encryption configuration for the index.
+     *
+     * @subresource gyro.aws.kendra.KendraServerSideEncryptionConfiguration
      */
     public KendraServerSideEncryptionConfiguration getServerSideEncryptionConfig() {
         return serverSideEncryptionConfig;
@@ -151,6 +152,8 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
     /**
      * The number of addtional storage and query capacity units that should be used by the index.
+     *
+     * @subresource gyro.aws.kendra.KendraCapacityUnitsConfiguration
      */
     @Updatable
     public KendraCapacityUnitsConfiguration getCapacityUnitsConfiguration() {

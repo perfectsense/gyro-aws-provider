@@ -36,6 +36,8 @@ public class KendraS3DataSourceConfiguration extends Diffable implements Copyabl
 
     /**
      * The path to the S3 bucket that contains the user context filtering files for the data source.
+     *
+     * @subresource gyro.aws.kendra.S3AccessControlListConfiguration
      */
     @Updatable
     public S3AccessControlListConfiguration getAccessControlListConfiguration() {
@@ -61,6 +63,8 @@ public class KendraS3DataSourceConfiguration extends Diffable implements Copyabl
 
     /**
      * The value of the DocumentsMetadataConfiguration property for this object.
+     *
+     * @subresource gyro.aws.kendra.KendraDocumentsMetadataConfiguration
      */
     @Updatable
     public KendraDocumentsMetadataConfiguration getDocumentsMetadataConfiguration() {
