@@ -1,0 +1,48 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::example-bucket-gyro/*"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt"
+      ],
+      "Resource": [
+        "arn:aws:kms:us-east-1:242040583208:key/07670237-2e6f-428b-9f95-a7bd4c6c928d"
+      ],
+      "Condition": {
+        "StringLike": {
+          "kms:ViaService": [
+            "secretsmanager.*.amazonaws.com",
+            "s3.*.amazonaws.com"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kendra:BatchPutDocument",
+        "kendra:BatchDeleteDocument"
+      ],
+      "Resource": "arn:aws:kendra:us-east-1:242040583208:index/3c286725-1396-4f67-8d19-102a5372a462"
+    }
+  ]
+}

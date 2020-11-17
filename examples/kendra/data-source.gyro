@@ -1,8 +1,24 @@
+aws::iam-role example-role-iam
+    name: "role-for-kendra-index-us-east-1"
+    description: "example-role for Kendra index"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "policy-for-kendra-index-us-east-1"
+    description: "example policy for Kendra Index"
+    policy-document: "index-policy.json"
+end
+
 aws::kendra-index index-example-enter
     description: "example-index-desc"
     edition: ENTERPRISE_EDITION
     name: "example-index-1"
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-us-east-1-example-role-har"
+    role: $(aws::iam-role example-role-iam)
 
     capacity-units-configuration
         query-capacity-units: 5
@@ -15,11 +31,27 @@ aws::kendra-index index-example-enter
     }
 end
 
+aws::iam-role example-role-iam-rds
+    name: "role-for-kendra-rds-us-east-1"
+    description: "example-role for Kendra rds"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-rds)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-rds
+    name: "policy-for-kendra-rds-us-east-1"
+    description: "example policy for Kendra RDS"
+    policy-document: "rds-policy.json"
+end
+
 aws::kendra-data-source data-source-example-rds
     name: "rds"
     description: "rds-desc"
     index: $(aws::kendra-index index-example-enter)
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-rds-role"
+    role: $(aws::iam-role example-role-iam-rds)
     schedule: 'cron(0 11 * * ? *)'
     type: DATABASE
 
@@ -66,11 +98,27 @@ aws::kendra-data-source data-source-example-rds
     }
 end
 
+aws::iam-role example-role-iam-onedrive
+    name: "role-for-kendra-onedrive-us-east-1"
+    description: "example-role for Kendra onedrive"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-onedrive)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-onedrive
+    name: "policy-for-kendra-onedrive-us-east-1"
+    description: "example policy for Kendra onedrive"
+    policy-document: "onedrive-policy.json"
+end
+
 aws::kendra-data-source data-source-example-onedrive
     name: "onedrive-ex"
     description: "onedrive-desc"
     index: $(aws::kendra-index index-example-enter)
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-onedrive"
+    role: $(aws::iam-role example-role-iam-onedrive)
     schedule: 'cron(0 11 * * ? *)'
     type: ONEDRIVE
 
@@ -99,11 +147,27 @@ aws::kendra-data-source data-source-example-onedrive
     }
 end
 
+aws::iam-role example-role-iam-s3
+    name: "role-for-kendra-s3-us-east-1"
+    description: "example-role for Kendra s3"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-s3)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-s3
+    name: "policy-for-kendra-s3-us-east-1"
+    description: "example policy for Kendra s3"
+    policy-document: "s3-policy.json"
+end
+
 aws::kendra-data-source data-source-example-s3
     name: "s3-ex"
     description: "s3-desc"
     index: $(aws::kendra-index index-example-enter)
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-s3"
+    role: $(aws::iam-role example-role-iam-s3)
     schedule: 'cron(0 11 * * ? *)'
     type: S3
 
@@ -126,11 +190,27 @@ aws::kendra-data-source data-source-example-s3
     }
 end
 
+aws::iam-role example-role-iam-salesforce
+    name: "role-for-kendra-salesforce-us-east-1"
+    description: "example-role for Kendra salesforce"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-salesforce)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-salesforce
+    name: "policy-for-kendra-salesforce-us-east-1"
+    description: "example policy for Kendra salesforce"
+    policy-document: "salesforce-policy.json"
+end
+
 aws::kendra-data-source data-source-example-salesforce
     name: "salesforce-ex"
     description: "salesforce-desc"
     index: $(aws::kendra-index index-example-enter)
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-salesforce"
+    role: $(aws::iam-role example-role-iam-salesforce)
     schedule: 'cron(0 11 * * ? *)'
     type: SALESFORCE
 
@@ -195,11 +275,27 @@ aws::kendra-data-source data-source-example-salesforce
     }
 end
 
+aws::iam-role example-role-iam-service-now
+    name: "role-for-kendra-service-now-us-east-1"
+    description: "example-role for Kendra service now"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-service-now)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-service-now
+    name: "policy-for-kendra-service-now-us-east-1"
+    description: "example policy for Kendra service now"
+    policy-document: "service-now-policy.json"
+end
+
 aws::kendra-data-source data-source-example-service-now
     name: "service-now-ex"
     description: "service-now-desc"
     index: $(aws::kendra-index index-example-enter)
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-service-now"
+    role: $(aws::iam-role example-role-iam-service-now)
     schedule: 'cron(0 11 * * ? *)'
     type: SERVICENOW
 
@@ -256,11 +352,27 @@ aws::kendra-data-source data-source-example-service-now
     }
 end
 
+aws::iam-role example-role-iam-share-point
+    name: "role-for-kendra-share-point-us-east-1"
+    description: "example-role for Kendra share point"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-share-point)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-share-point
+    name: "policy-for-kendra-share-point-us-east-1"
+    description: "example policy for Kendra share point"
+    policy-document: "share-point-policy.json"
+end
+
 aws::kendra-data-source data-source-example-share-point
     name: "share-point-ex"
     description: "share-point-desc"
     index: $(aws::kendra-index index-example-enter)
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-sharepoint"
+    role: $(aws::iam-role example-role-iam-share-point)
     schedule: 'cron(0 11 * * ? *)'
     type: SHAREPOINT
 

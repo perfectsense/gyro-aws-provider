@@ -1,8 +1,24 @@
+aws::iam-role example-role-iam
+    name: "role-for-kendra-index-us-east-1"
+    description: "example-role for Kendra index"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "policy-for-kendra-index-us-east-1"
+    description: "example policy for Kendra Index"
+    policy-document: "index-policy.json"
+end
+
 aws::kendra-index index-example-enter
     description: "example-index-desc"
     edition: ENTERPRISE_EDITION
     name: "example-index-1"
-    role: "arn:aws:iam::242040583208:role/service-role/AmazonKendra-us-east-1-example-role-har"
+    role: $(aws::iam-role example-role-iam)
 
     capacity-units-configuration
         query-capacity-units: 5
