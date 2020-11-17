@@ -18,6 +18,7 @@ package gyro.aws.kendra;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.kendra.model.CapacityUnitsConfiguration;
 
 public class KendraCapacityUnitsConfiguration extends Diffable implements Copyable<CapacityUnitsConfiguration> {
@@ -28,6 +29,7 @@ public class KendraCapacityUnitsConfiguration extends Diffable implements Copyab
     /**
      * The amount of extra query capacity for an index.
      */
+    @Required
     public Integer getQueryCapacityUnits() {
         return queryCapacityUnits;
     }

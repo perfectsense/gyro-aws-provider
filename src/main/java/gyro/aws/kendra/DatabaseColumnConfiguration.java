@@ -90,6 +90,8 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
 
     /**
      * The list of objects that map database column names to the corresponding fields in an index.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceToIndexFieldMapping
      */
     public List<KendraDataSourceToIndexFieldMapping> getFieldMapping() {
         if (fieldMapping == null) {
@@ -115,6 +117,7 @@ public class DatabaseColumnConfiguration extends Diffable implements Copyable<Co
         setDocumentIdColumnName(model.documentIdColumnName());
         setDocumentTitleColumnName(model.documentTitleColumnName());
 
+        getFieldMapping().clear();
         if (model.hasFieldMappings()) {
             setFieldMapping(model.fieldMappings().stream().map(f -> {
                 KendraDataSourceToIndexFieldMapping mapping = newSubresource(KendraDataSourceToIndexFieldMapping.class);

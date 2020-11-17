@@ -178,6 +178,8 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
 
     /**
      * The data source connector configuration information required to access the repository.
+     *
+     * @subresource gyro.aws.kendra.KendraDataSourceConfiguration
      */
     @Updatable
     @Required
