@@ -5,6 +5,7 @@ import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.Tag;
 
 public class DaxTag extends Diffable implements Copyable<Tag> {
@@ -12,6 +13,7 @@ public class DaxTag extends Diffable implements Copyable<Tag> {
     private String key;
     private String value;
 
+    @Required
     public String getKey() {
         return key;
     }
@@ -30,7 +32,8 @@ public class DaxTag extends Diffable implements Copyable<Tag> {
 
     @Override
     public void copyFrom(Tag model) {
-
+        setKey(model.key());
+        setValue(model.value());
     }
 
     @Override
