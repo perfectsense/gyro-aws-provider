@@ -111,6 +111,9 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
         this.id = id;
     }
 
+    /**
+     * The status of the deployment.
+     */
     @Output
     public DeploymentStatus getStatus() {
         return status;
