@@ -80,8 +80,7 @@ public class KendraDataSourceFinder
             String indexId = filters.get("index-id");
 
             if (!filters.containsKey("id")) {
-                ListDataSourcesResponse listDataSourcesResponse = client.listDataSources(r -> r.indexId(filters.get(
-                    "index-id")));
+                ListDataSourcesResponse listDataSourcesResponse = client.listDataSources(r -> r.indexId(indexId));
 
                 if (listDataSourcesResponse.hasSummaryItems()) {
                     dataSources = listDataSourcesResponse.summaryItems()

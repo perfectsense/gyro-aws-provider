@@ -80,7 +80,7 @@ import software.amazon.awssdk.services.kendra.model.UntagResourceRequest;
  *         end
  *
  *         tags: {
- *             "example-key-1": "example-value-1"
+ *             "example-key": "example-value"
  *         }
  *     end
  */
@@ -344,11 +344,9 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
 
         try {
             index = client.describeDataSource(r -> r.id(getId()).indexId(getIndex().getId()));
-
         } catch (ResourceNotFoundException ignore) {
             // ignore
         }
-
         return index;
     }
 
@@ -371,7 +369,6 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
         } catch (ResourceNotFoundException ignore) {
             // ignore
         }
-
         return isSyncing;
     }
 
