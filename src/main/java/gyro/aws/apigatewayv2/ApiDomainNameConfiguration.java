@@ -73,9 +73,7 @@ public class ApiDomainNameConfiguration extends Diffable implements Copyable<Dom
     public String primaryKey() {
         StringBuilder sb = new StringBuilder("Api DomainName Configuration - ");
 
-        if (getCertificate() != null) {
-            sb.append("Certificate: ").append(getCertificate().getArn()).append(" ");
-        }
+        sb.append("Certificate: ").append(getCertificate().getArn()).append(" ");
 
         if (getEndpointType() != null) {
             sb.append("Endpoint: ").append(getEndpointType()).append(" ");
@@ -91,9 +89,7 @@ public class ApiDomainNameConfiguration extends Diffable implements Copyable<Dom
         setSecurityPolicy(model.securityPolicy());
     }
 
-    public DomainNameConfiguration toDomainNameConfiguration(AcmClient client) {
-        DescribeCertificateResponse response = client.describeCertificate(r -> r.certificateArn(getCertificate().getArn()));
-
+    public DomainNameConfiguration toDomainNameConfiguration() {
         return DomainNameConfiguration.builder()
             .apiGatewayDomainName(((DomainNameResource) parent()).getName())
             .certificateArn(getCertificate().getArn())

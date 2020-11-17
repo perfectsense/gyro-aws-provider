@@ -67,7 +67,7 @@ public class ApiJwtConfiguration extends Diffable implements Copyable<JWTConfigu
 
     @Override
     public void copyFrom(JWTConfiguration model) {
-        setAudiences(model.hasAudience() ? model.audience() : null);
+        setAudiences(model.audience());
         setIssuer(model.issuer());
     }
 

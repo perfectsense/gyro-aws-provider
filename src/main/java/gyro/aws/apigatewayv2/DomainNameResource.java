@@ -34,7 +34,6 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
 import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesResponse;
@@ -159,7 +158,6 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
 
                 return config;
             }).collect(Collectors.toList()));
-
         } else {
             setDomainNameConfigurations(null);
         }
@@ -183,14 +181,13 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
     @Override
     public void create(GyroUI ui, State state) throws Exception {
         ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
-        AcmClient acmClient = createClient(AcmClient.class);
 
         client.createDomainName(r -> r.domainName(getName())
             .mutualTlsAuthentication(getMutualTlsAuthentication() != null
                 ? getMutualTlsAuthentication().toMutualTlsAuthenticationInput() : null)
             .tags(getTags())
             .domainNameConfigurations(getDomainNameConfigurations().stream()
-                .map(d -> d.toDomainNameConfiguration(acmClient))
+                .map(ApiDomainNameConfiguration::toDomainNameConfiguration)
                 .collect(Collectors.toList())));
 
         setArn(getArnFormat());
@@ -199,13 +196,12 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
-        AcmClient acmClient = createClient(AcmClient.class);
 
         client.updateDomainName(r -> r.domainName(getName())
             .mutualTlsAuthentication(getMutualTlsAuthentication() != null
                 ? getMutualTlsAuthentication().toMutualTlsAuthenticationInput() : null)
             .domainNameConfigurations(getDomainNameConfigurations().stream()
-                .map(d -> d.toDomainNameConfiguration(acmClient))
+                .map(ApiDomainNameConfiguration::toDomainNameConfiguration)
                 .collect(Collectors.toList())));
 
         if (changedFieldNames.contains("tags")) {
