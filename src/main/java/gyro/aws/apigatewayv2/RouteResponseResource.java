@@ -17,6 +17,7 @@
 package gyro.aws.apigatewayv2;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,9 +33,11 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateRouteResponseResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.GetRouteResponsesResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.ParameterConstraints;
+import software.amazon.awssdk.services.apigatewayv2.model.Route;
 import software.amazon.awssdk.services.apigatewayv2.model.RouteResponse;
 
 /**
@@ -162,6 +165,32 @@ public class RouteResponseResource extends AwsResource implements Copyable<Route
             .collect(Collectors.toMap(Map.Entry::getKey, r -> r.getValue().required())));
         setRouteResponseKey(model.routeResponseKey());
         setId(model.routeResponseId());
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            List<String> routes = client.getRoutes(r -> r.apiId(a)).items().stream().map(Route::routeId)
+                .collect(Collectors.toList());
+
+            String route = routes.stream().filter(i -> {
+                GetRouteResponsesResponse response = client.getRouteResponses(r -> r.apiId(a)
+                    .routeId(i));
+
+                return response.hasItems() && response.items()
+                    .stream()
+                    .filter(r -> r.routeResponseId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+            }).findFirst().orElse(null);
+
+            if (route != null) {
+                setRoute(findById(RouteResource.class, route));
+                return true;
+            }
+
+            return false;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override

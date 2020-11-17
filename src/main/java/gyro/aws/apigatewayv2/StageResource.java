@@ -35,6 +35,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.GetStagesResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Stage;
 
@@ -289,6 +290,20 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
         if (model.hasTags()) {
             setTags(model.tags());
         }
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            GetStagesResponse response = client.getStages(r -> r.apiId(getApi().getId()));
+
+            return response.hasItems() &&
+                response.items()
+                    .stream()
+                    .filter(i -> i.stageName().equals(getName()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override

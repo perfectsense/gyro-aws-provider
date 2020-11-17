@@ -16,7 +16,9 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -29,6 +31,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateModelResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.GetModelsResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Model;
@@ -144,6 +147,20 @@ public class ModelResource extends AwsResource implements Copyable<Model> {
         setName(model.name());
         setSchema(model.schema());
         setId(model.modelId());
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            GetModelsResponse models = client.getModels(r -> r.apiId(a));
+
+            return models.hasItems() &&
+                models.items()
+                    .stream()
+                    .filter(i -> i.modelId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override
@@ -197,10 +214,10 @@ public class ModelResource extends AwsResource implements Copyable<Model> {
     private Model getModel(ApiGatewayV2Client client) {
         Model model = null;
 
-        GetModelsResponse response = client.getModels(r -> r.apiId(getApi().getId()));
+        GetModelsResponse models = client.getModels(r -> r.apiId(getApi().getId()));
 
-        if (response.hasItems()) {
-            model = response.items()
+        if (models.hasItems()) {
+            model = models.items()
                 .stream()
                 .filter(i -> i.modelId().equals(getId()))
                 .findFirst()

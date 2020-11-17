@@ -17,8 +17,10 @@
 package gyro.aws.apigatewayv2;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -32,9 +34,11 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.ContentHandlingStrategy;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateIntegrationResponseResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationResponsesResponse;
+import software.amazon.awssdk.services.apigatewayv2.model.Integration;
 import software.amazon.awssdk.services.apigatewayv2.model.IntegrationResponse;
 
 /**
@@ -181,6 +185,32 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
         setResponseTemplates(model.hasResponseTemplates() ? model.responseTemplates() : null);
         setTemplateSelectionExpression(model.templateSelectionExpression());
         setId(model.integrationResponseId());
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            List<String> integrations = client.getIntegrations(r -> r.apiId(a)).items().stream().map(
+                Integration::integrationId).collect(Collectors.toList());
+
+            String integration = integrations.stream().filter(i -> {
+                GetIntegrationResponsesResponse response = client.getIntegrationResponses(r -> r.apiId(a)
+                    .integrationId(i));
+
+                return response.hasItems() && response.items()
+                    .stream()
+                    .filter(r -> r.integrationResponseId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+            }).findFirst().orElse(null);
+
+            if (integration != null) {
+                setIntegration(findById(IntegrationResource.class, integration));
+                return true;
+            }
+
+            return false;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override

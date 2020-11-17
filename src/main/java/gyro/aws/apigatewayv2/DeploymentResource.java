@@ -16,7 +16,9 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -29,6 +31,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateDeploymentResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Deployment;
 import software.amazon.awssdk.services.apigatewayv2.model.DeploymentStatus;
@@ -122,6 +125,20 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
         setDescription(model.description());
         setId(model.deploymentId());
         setStatus(model.deploymentStatus());
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            GetDeploymentsResponse deployments = client.getDeployments(r -> r.apiId(a));
+
+            return deployments.hasItems() &&
+                deployments.items()
+                    .stream()
+                    .filter(i -> i.deploymentId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override

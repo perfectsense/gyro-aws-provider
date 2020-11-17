@@ -19,6 +19,7 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -33,6 +34,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.Authorizer;
 import software.amazon.awssdk.services.apigatewayv2.model.AuthorizerType;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateAuthorizerResponse;
@@ -239,6 +241,21 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
             config.copyFrom(model.jwtConfiguration());
             setJwtConfiguration(config);
         }
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            GetAuthorizersResponse authorizers = client.getAuthorizers(r -> r.apiId(a));
+
+            return authorizers.hasItems() &&
+                authorizers.items()
+                    .stream()
+                    .filter(i -> i.authorizerId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
+
     }
 
     @Override

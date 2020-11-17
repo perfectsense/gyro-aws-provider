@@ -35,6 +35,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.AuthorizationType;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateRouteResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.GetRoutesResponse;
@@ -263,6 +264,20 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         setRouteResponseSelectionExpression(model.routeResponseSelectionExpression());
         setTarget(model.target());
         setId(model.routeId());
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            GetRoutesResponse response = client.getRoutes(r -> r.apiId(a));
+
+            return response.hasItems() &&
+                response.items()
+                    .stream()
+                    .filter(i -> i.routeId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override

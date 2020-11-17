@@ -17,8 +17,10 @@
 package gyro.aws.apigatewayv2;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -33,6 +35,7 @@ import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
+import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.ConnectionType;
 import software.amazon.awssdk.services.apigatewayv2.model.ContentHandlingStrategy;
 import software.amazon.awssdk.services.apigatewayv2.model.CreateIntegrationResponse;
@@ -334,6 +337,20 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
             config.copyFrom(model.tlsConfig());
             setTlsConfig(config);
         }
+
+        ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
+        List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
+
+        apis.stream().filter(a -> {
+            GetIntegrationsResponse response = client.getIntegrations(r -> r.apiId(a));
+
+            return response.hasItems() &&
+                response.items()
+                    .stream()
+                    .filter(i -> i.integrationId().equals(getId()))
+                    .findFirst()
+                    .orElse(null) != null;
+        }).findFirst().ifPresent(apiId -> setApi(findById(ApiResource.class, apiId)));
     }
 
     @Override
