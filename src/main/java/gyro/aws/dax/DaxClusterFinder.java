@@ -1,5 +1,6 @@
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,10 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
      * The names of the DAX clusters.
      */
     public List<String> getClusterNames() {
+        if (clusterNames == null) {
+            clusterNames = new ArrayList<>();
+        }
+
         return clusterNames;
     }
 

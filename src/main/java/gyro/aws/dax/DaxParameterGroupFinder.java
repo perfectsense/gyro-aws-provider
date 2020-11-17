@@ -1,5 +1,6 @@
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,10 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
     private List<String> names;
 
     public List<String> getNames() {
+        if (names == null) {
+            names = new ArrayList<>();
+        }
+
         return names;
     }
 

@@ -1,5 +1,6 @@
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gyro.aws.Copyable;
@@ -13,6 +14,10 @@ public class DaxParameterGroupStatus extends Diffable implements Copyable<Parame
     private String parameterGroupName;
 
     public List<String> getNodeIdsToReboot() {
+        if (nodeIdsToReboot == null) {
+            nodeIdsToReboot = new ArrayList<>();
+        }
+
         return nodeIdsToReboot;
     }
 

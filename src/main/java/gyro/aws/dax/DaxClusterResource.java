@@ -1,5 +1,6 @@
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,6 +90,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     public List<String> getNodeIdsToRemove() {
+        if (nodeIdsToRemove == null) {
+            nodeIdsToRemove = new ArrayList<>();
+        }
+
         return nodeIdsToRemove;
     }
 
@@ -97,6 +102,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     public List<DaxNode> getNodes() {
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+
         return nodes;
     }
 
@@ -145,6 +154,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     public List<DaxSecurityGroupMembership> getSecurityGroups() {
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
+        }
+
         return securityGroups;
     }
 
@@ -185,6 +198,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     public List<DaxTag> getTags() {
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
+
         return tags;
     }
 
