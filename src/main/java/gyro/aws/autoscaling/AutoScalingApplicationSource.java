@@ -46,7 +46,7 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
     }
 
     /**
-     * The tags for the application source.
+     * The tag filters for the application source.
      *
      * @subresource gyro.aws.autoscaling.AutoScalingTagFilter
      */
