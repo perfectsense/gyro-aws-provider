@@ -16,9 +16,14 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.apigatewayv2.model.LoggingLevel;
 import software.amazon.awssdk.services.apigatewayv2.model.RouteSettings;
 
@@ -136,6 +141,21 @@ public class ApiRouteSettings extends Diffable implements Copyable<RouteSettings
         setLoggingLevel(model.loggingLevel());
         setThrottlingBurstLimit(model.throttlingBurstLimit());
         setThrottlingRateLimit(model.throttlingRateLimit());
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getKey() == null && getDataTraceEnabled() == null && getDetailedMetricsEnabled() == null
+            && getLoggingLevel() == null && getThrottlingBurstLimit() == null && getThrottlingRateLimit() == null) {
+            errors.add(new ValidationError(this, null,
+                "At least one of 'key', 'data-trace-enabled', 'detailed-metrics-enabled', 'logging-level', "
+                    + "'throttling-burst-limit' or 'throttling-rate-limit' has to be set."
+            ));
+        }
+
+        return errors;
     }
 
     public RouteSettings toRouteSettings() {

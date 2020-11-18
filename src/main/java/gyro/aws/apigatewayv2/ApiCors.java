@@ -18,10 +18,12 @@ package gyro.aws.apigatewayv2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.apigatewayv2.model.Cors;
 
 public class ApiCors extends Diffable implements Copyable<Cors> {
@@ -154,6 +156,20 @@ public class ApiCors extends Diffable implements Copyable<Cors> {
         } else {
             setExposeHeaders(null);
         }
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getAllowCredentials() == null && getAllowHeaders() == null && getAllowMethods() == null
+            && getAllowOrigins() == null && getExposeHeaders() == null && getMaxAge() == null) {
+            errors.add(new ValidationError(this, null,
+                "At least one of 'allow-credentials', 'allow-headers', 'allow-methods', 'allow-origins',"
+                    + " 'expose-headers' or 'max-age' has to be set."));
+        }
+
+        return errors;
     }
 
     public Cors toCors() {
