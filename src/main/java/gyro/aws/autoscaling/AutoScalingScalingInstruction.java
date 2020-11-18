@@ -291,7 +291,7 @@ public class AutoScalingScalingInstruction extends Diffable implements Copyable<
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getCustomizedLoadMetricSpecification().getName());
+        return String.format("%s", getResourceId());
     }
 
     public ScalingInstruction toScalingInstruction() {
