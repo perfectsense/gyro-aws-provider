@@ -30,5 +30,5 @@ end
 aws::iam-role iam-role-example
     name: "project-example-name-service-role"
     arn: "arn:aws:iam::242040583208:role/service-role/project-example-name-service-role"
-    assume-role-policy: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+    assume-role-policy: "assume-role-policy.json"
 end 
