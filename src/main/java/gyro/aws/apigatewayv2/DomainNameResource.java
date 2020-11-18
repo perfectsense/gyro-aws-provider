@@ -85,6 +85,8 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
 
     /**
      * The list of domain name configurations.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiDomainNameConfiguration
      */
     @Updatable
     public List<ApiDomainNameConfiguration> getDomainNameConfigurations() {
@@ -101,6 +103,8 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
 
     /**
      * The mutual TLS authentication configuration for the domain name.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiMutualTlsAuthentication
      */
     @Updatable
     public ApiMutualTlsAuthentication getMutualTlsAuthentication() {

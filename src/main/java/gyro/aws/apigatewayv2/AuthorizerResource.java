@@ -188,6 +188,8 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
 
     /**
      * The configuration of the JSON Web Token (JWT) authorizer.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiJwtConfiguration
      */
     @Updatable
     public ApiJwtConfiguration getJwtConfiguration() {

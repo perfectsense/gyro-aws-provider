@@ -104,6 +104,8 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
 
     /**
      * A CORS configuration for the Api.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiCors
      */
     @Updatable
     public ApiCors getCorsConfiguration() {

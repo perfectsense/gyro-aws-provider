@@ -290,6 +290,8 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
 
     /**
      * The TLS configuration for a private integration.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiTlsConfig
      */
     @Updatable
     public ApiTlsConfig getTlsConfig() {

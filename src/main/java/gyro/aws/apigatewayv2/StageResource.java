@@ -108,6 +108,8 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
 
     /**
      * Settings for logging access in this stage.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiAccessLogSettings
      */
     @Updatable
     public ApiAccessLogSettings getAccessLogSettings() {
@@ -156,6 +158,8 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
 
     /**
      * The default route settings for the stage.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiRouteSettings
      */
     @Updatable
     public ApiRouteSettings getDefaultRouteSettings() {
@@ -192,6 +196,8 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
 
     /**
      * Route settings for the stage, by routeKey.
+     *
+     * @subresource gyro.aws.apigatewayv2.ApiRouteSettings
      */
     @Updatable
     public List<ApiRouteSettings> getRouteSettings() {
