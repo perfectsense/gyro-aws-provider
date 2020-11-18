@@ -60,7 +60,7 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusC
  *            resource-id: "autoScalingGroup/test-autoscaling-group"
  *            scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
  *
- *            target-tracking-configuration
+ *            target-tracking-configurations
  *                target-value: 2.0
  *
  *                customized-scaling-metric-specification
