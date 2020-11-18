@@ -193,9 +193,9 @@ public class KendraServiceNowServiceCatalogConfiguration extends Diffable
             && getCrawlAttachments() == null && getFieldMapping() == null && getDocumentDataFieldName() == null
             && getDocumentTitleFieldName() == null) {
             errors.add(new ValidationError(this, null,
-                "At least one of 'excludeAttachmentFilePatterns', 'includeAttachmentFilePatterns', "
-                    + "'crawlAttachments', 'fieldMapping', 'documentDataFieldName' "
-                    + "or 'documentTitleFieldName' is required."));
+                "At least one of 'exclude-attachment-file-patterns', 'include-attachment-file-patterns', "
+                    + "'crawl-attachments', 'field-mapping', 'document-data-field-name' "
+                    + "or 'document-title-field-name' is required."));
         }
 
         return errors;
