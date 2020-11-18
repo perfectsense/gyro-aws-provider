@@ -16,6 +16,7 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -124,6 +125,10 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
     @Updatable
     @Required
     public List<AutoScalingScalingInstruction> getScalingInstructions() {
+        if (scalingInstructions == null) {
+            scalingInstructions = new ArrayList<>();
+        }
+
         return scalingInstructions;
     }
 

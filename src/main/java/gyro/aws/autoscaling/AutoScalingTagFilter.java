@@ -16,6 +16,7 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gyro.aws.Copyable;
@@ -49,6 +50,10 @@ public class AutoScalingTagFilter extends Diffable implements Copyable<TagFilter
     @Range(min = 0, max = 20)
     @Regex(value = "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]*", message = "alphanumeric characters and symbols excluding basic ASCII control characters.")
     public List<String> getValues() {
+        if (values == null) {
+            values = new ArrayList<>();
+        }
+
         return values;
     }
 
