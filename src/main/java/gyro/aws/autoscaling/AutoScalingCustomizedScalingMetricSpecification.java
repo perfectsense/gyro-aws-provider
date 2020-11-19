@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.autoscalingplans.model.MetricStatistic;
 public class AutoScalingCustomizedScalingMetricSpecification extends Diffable
     implements Copyable<CustomizedScalingMetricSpecification> {
 
-    List<AutoScalingMetricDimension> dimensions;
+    private List<AutoScalingMetricDimension> dimensions;
     private String name;
     private String namespace;
     private MetricStatistic statistic;
