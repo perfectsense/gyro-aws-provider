@@ -22,6 +22,7 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
     private String description;
     private String name;
+    private List<String> subnetIds;
     private List<DaxSubnet> subnets;
     private String vpcId;
 
@@ -48,6 +49,23 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * The list of subnet IDs of the subnet group.
+     */
+    @Required
+    @Updatable
+    public List<String> getSubnetIds() {
+        if (subnetIds == null) {
+            subnetIds = new ArrayList<>();
+        }
+
+        return subnetIds;
+    }
+
+    public void setSubnetIds(List<String> subnetIds) {
+        this.subnetIds = subnetIds;
     }
 
     /**
@@ -85,11 +103,13 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
         setVpcId(model.vpcId());
 
         getSubnets().clear();
+        getSubnetIds().clear();
         if (model.subnets() != null) {
             model.subnets().forEach(subnet -> {
                 DaxSubnet daxSubnet = newSubresource(DaxSubnet.class);
                 daxSubnet.copyFrom(subnet);
                 getSubnets().add(daxSubnet);
+                getSubnetIds().add(daxSubnet.getIdentifier());
             });
         }
     }
@@ -114,7 +134,7 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
         client.createSubnetGroup(r -> r
             .subnetGroupName(getName())
-            .subnetIds(getSubnets().stream().map(DaxSubnet::getIdentifier).collect(Collectors.toList()))
+            .subnetIds(getSubnetIds())
             .description(getDescription())
             .build()
         );
@@ -129,7 +149,7 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
         client.updateSubnetGroup(r -> r
             .subnetGroupName(getName())
-            .subnetIds(getSubnets().stream().map(DaxSubnet::getIdentifier).collect(Collectors.toList()))
+            .subnetIds(getSubnetIds())
             .description(getDescription())
         );
     }
