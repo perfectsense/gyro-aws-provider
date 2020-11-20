@@ -29,13 +29,16 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     private String nodeType;
     private DaxNotificationConfiguration notificationConfiguration;
     private String notificationTopicArn;
-    private DaxParameterGroupStatus parameterGroup;
+    private DaxParameterGroupResource parameterGroup;
+    private String parameterGroupName;
     private String preferredMaintenanceWindow;
     private List<DaxSecurityGroupMembership> securityGroups;
+    private List<String> securityGroupIds;
     private DaxSSEDescription sseDescription;
     private DaxSSESpecification sseSpecification;
     private String status;
-    private String subnetGroup;
+    private DaxSubnetGroupResource subnetGroup;
+    private String subnetGroupName;
     private List<DaxTag> tags;
     private Integer totalNodes;
 
@@ -137,12 +140,20 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.notificationTopicArn = notificationTopicArn;
     }
 
-    public DaxParameterGroupStatus getParameterGroup() {
+    public DaxParameterGroupResource getParameterGroup() {
         return parameterGroup;
     }
 
-    public void setParameterGroup(DaxParameterGroupStatus parameterGroup) {
+    public void setParameterGroup(DaxParameterGroupResource parameterGroup) {
         this.parameterGroup = parameterGroup;
+    }
+
+    public String getParameterGroupName() {
+        return parameterGroupName;
+    }
+
+    public void setParameterGroupName(String parameterGroupName) {
+        this.parameterGroupName = parameterGroupName;
     }
 
     public String getPreferredMaintenanceWindow() {
@@ -163,6 +174,14 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
 
     public void setSecurityGroups(List<DaxSecurityGroupMembership> securityGroups) {
         this.securityGroups = securityGroups;
+    }
+
+    public List<String> getSecurityGroupIds() {
+        return securityGroupIds;
+    }
+
+    public void setSecurityGroupIds(List<String> securityGroupIds) {
+        this.securityGroupIds = securityGroupIds;
     }
 
     public DaxSSEDescription getSseDescription() {
@@ -189,12 +208,20 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.status = status;
     }
 
-    public String getSubnetGroup() {
+    public DaxSubnetGroupResource getSubnetGroup() {
         return subnetGroup;
     }
 
-    public void setSubnetGroup(String subnetGroup) {
+    public void setSubnetGroup(DaxSubnetGroupResource subnetGroup) {
         this.subnetGroup = subnetGroup;
+    }
+
+    public String getSubnetGroupName() {
+        return subnetGroupName;
+    }
+
+    public void setSubnetGroupName(String subnetGroupName) {
+        this.subnetGroupName = subnetGroupName;
     }
 
     public List<DaxTag> getTags() {
@@ -226,9 +253,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         setIamRoleArn(model.iamRoleArn());
         setNodeIdsToRemove(model.nodeIdsToRemove());
         setNodeType(model.nodeType());
+        setParameterGroup(findById(DaxParameterGroupResource.class, model.parameterGroup()));
+        setParameterGroupName(model.parameterGroup() != null ? model.parameterGroup().parameterGroupName() : null);
         setPreferredMaintenanceWindow(model.preferredMaintenanceWindow());
         setStatus(model.status());
-        setSubnetGroup(model.subnetGroup());
+        setSubnetGroup(findById(DaxSubnetGroupResource.class, model.subnetGroup()));
+        setSubnetGroupName(model.subnetGroup());
         setTotalNodes(model.totalNodes());
 
         setClusterDiscoveryEndpoint(null);
@@ -254,19 +284,14 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             setNotificationConfiguration(notificationConfiguration);
         }
 
-        setParameterGroup(null);
-        if (model.parameterGroup() != null) {
-            DaxParameterGroupStatus parameterGroupStatus = newSubresource(DaxParameterGroupStatus.class);
-            parameterGroupStatus.copyFrom(model.parameterGroup());
-            setParameterGroup(parameterGroupStatus);
-        }
-
         getSecurityGroups().clear();
+        getSecurityGroupIds().clear();
         if (model.securityGroups() != null) {
             model.securityGroups().forEach(membership -> {
                 DaxSecurityGroupMembership securityGroupMembership = newSubresource(DaxSecurityGroupMembership.class);
                 securityGroupMembership.copyFrom(membership);
                 getSecurityGroups().add(securityGroupMembership);
+                getSecurityGroupIds().add(securityGroupMembership.getSecurityGroupIdentifier());
             });
         }
 
@@ -302,14 +327,11 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             .availabilityZones(getNodes().stream().map(DaxNode::getAvailabilityZone).collect(Collectors.toList()))
             .description(getDescription())
             .notificationTopicArn(getNotificationTopicArn())
-            .parameterGroupName(getParameterGroup() != null ? getParameterGroup().getParameterGroupName() : null)
+            .parameterGroupName(getParameterGroupName())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroups().stream()
-                .map(DaxSecurityGroupMembership::getSecurityGroupIdentifier)
-                .collect(
-                    Collectors.toList()))
+            .securityGroupIds(getSecurityGroupIds())
             .sseSpecification(getSseSpecification() != null ? getSseSpecification().toSseSpecification() : null)
-            .subnetGroupName(getSubnetGroup())
+            .subnetGroupName(getSubnetGroupName())
             .tags(DaxTag.toTags(getTags()))
             .build()
         );
@@ -328,11 +350,9 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             .notificationTopicArn(getNotificationTopicArn())
             .notificationTopicStatus(
                 getNotificationConfiguration() != null ? getNotificationConfiguration().getTopicStatus() : null)
-            .parameterGroupName(getParameterGroup() != null ? getParameterGroup().getParameterGroupName() : null)
+            .parameterGroupName(getParameterGroupName())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroups().stream()
-                .map(DaxSecurityGroupMembership::getSecurityGroupIdentifier)
-                .collect(Collectors.toList()))
+            .securityGroupIds(getSecurityGroupIds())
         );
 
     }

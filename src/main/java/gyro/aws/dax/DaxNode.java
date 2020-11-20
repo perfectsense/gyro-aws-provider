@@ -11,7 +11,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     private String createTime;
     private String id;
     private String status;
-    private String parameterGroupStatus;
+    private DaxParameterGroupResource parameterGroupStatus;
 
     public String getAvailabilityZone() {
         return availabilityZone;
@@ -53,11 +53,11 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         this.status = status;
     }
 
-    public String getParameterGroupStatus() {
+    public DaxParameterGroupResource getParameterGroupStatus() {
         return parameterGroupStatus;
     }
 
-    public void setParameterGroupStatus(String parameterGroupStatus) {
+    public void setParameterGroupStatus(DaxParameterGroupResource parameterGroupStatus) {
         this.parameterGroupStatus = parameterGroupStatus;
     }
 
@@ -67,7 +67,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         setCreateTime(model.nodeCreateTime().toString());
         setId(model.nodeId());
         setStatus(model.nodeStatus());
-        setParameterGroupStatus(model.parameterGroupStatus());
+        setParameterGroupStatus(findById(DaxParameterGroupResource.class, model.parameterGroupStatus()));
 
         if (model.endpoint() != null) {
             DaxEndpoint endpoint = newSubresource(DaxEndpoint.class);
