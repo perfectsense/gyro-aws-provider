@@ -9,6 +9,9 @@ public class DaxSecurityGroupMembership extends Diffable implements Copyable<Sec
     private String securityGroupIdentifier;
     private String status;
 
+    /**
+     * The ID of the security group.
+     */
     public String getSecurityGroupIdentifier() {
         return securityGroupIdentifier;
     }
@@ -17,6 +20,9 @@ public class DaxSecurityGroupMembership extends Diffable implements Copyable<Sec
         this.securityGroupIdentifier = securityGroupIdentifier;
     }
 
+    /**
+     * The status of the security group.
+     */
     public String getStatus() {
         return status;
     }

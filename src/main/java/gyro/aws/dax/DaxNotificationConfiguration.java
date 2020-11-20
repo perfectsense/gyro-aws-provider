@@ -9,6 +9,9 @@ public class DaxNotificationConfiguration extends Diffable implements Copyable<N
     private String topicArn;
     private String topicStatus;
 
+    /**
+     * The ARN of the topic.
+     */
     public String getTopicArn() {
         return topicArn;
     }
@@ -17,6 +20,9 @@ public class DaxNotificationConfiguration extends Diffable implements Copyable<N
         this.topicArn = topicArn;
     }
 
+    /**
+     * The status of the topic.
+     */
     public String getTopicStatus() {
         return topicStatus;
     }

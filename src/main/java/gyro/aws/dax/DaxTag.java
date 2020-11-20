@@ -13,6 +13,9 @@ public class DaxTag extends Diffable implements Copyable<Tag> {
     private String key;
     private String value;
 
+    /**
+     * The key of the tag.
+     */
     @Required
     public String getKey() {
         return key;
@@ -22,6 +25,9 @@ public class DaxTag extends Diffable implements Copyable<Tag> {
         this.key = key;
     }
 
+    /**
+     * The value of the tag.
+     */
     public String getValue() {
         return value;
     }

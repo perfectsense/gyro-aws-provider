@@ -10,6 +10,9 @@ public class DaxSSEDescription extends Diffable implements Copyable<SSEDescripti
 
     private SSEStatus status;
 
+    /**
+     * The status of the SSE.
+     */
     @ValidStrings({ "ENABLING", "ENABLED", "DISABLING", "DISABLED" })
     public SSEStatus getStatus() {
         return status;

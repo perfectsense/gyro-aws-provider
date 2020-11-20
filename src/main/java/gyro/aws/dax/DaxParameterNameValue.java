@@ -9,6 +9,9 @@ public class DaxParameterNameValue extends Diffable implements Copyable<Paramete
     private String name;
     private String value;
 
+    /**
+     * The name of the parameter.
+     */
     public String getName() {
         return name;
     }
@@ -17,6 +20,9 @@ public class DaxParameterNameValue extends Diffable implements Copyable<Paramete
         this.name = name;
     }
 
+    /**
+     * The value of the parameter.
+     */
     public String getValue() {
         return value;
     }

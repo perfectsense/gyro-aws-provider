@@ -12,6 +12,9 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
 
     private List<String> names;
 
+    /**
+     * The list of parameter group names.
+     */
     public List<String> getNames() {
         if (names == null) {
             names = new ArrayList<>();

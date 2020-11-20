@@ -9,8 +9,11 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.DaxClient;
 import software.amazon.awssdk.services.dax.model.Cluster;
@@ -42,6 +45,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     private List<DaxTag> tags;
     private Integer totalNodes;
 
+    /**
+     * The number of active nodes in the cluster.
+     */
+    @Output
     public Integer getActiveNodes() {
         return activeNodes;
     }
@@ -50,6 +57,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.activeNodes = activeNodes;
     }
 
+    /**
+     * The ARN of the cluster.
+     */
+    @Output
     public String getClusterArn() {
         return clusterArn;
     }
@@ -58,6 +69,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.clusterArn = clusterArn;
     }
 
+    /**
+     * The configuration endpoint for the cluster.
+     */
+    @Output
     public DaxEndpoint getClusterDiscoveryEndpoint() {
         return clusterDiscoveryEndpoint;
     }
@@ -66,8 +81,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.clusterDiscoveryEndpoint = clusterDiscoveryEndpoint;
     }
 
+    /**
+     * The name of the cluster.
+     */
     @Id
     @Required
+    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,18}[a-z0-9]$)?", message = "a string 1-20 characters long containing letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
     public String getName() {
         return name;
     }
@@ -76,6 +95,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.name = name;
     }
 
+    /**
+     * The description of the cluster.
+     */
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -84,6 +107,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.description = description;
     }
 
+    /**
+     * The ARN of the IAM role being used for the cluster.
+     */
+    @Required
     public String getIamRoleArn() {
         return iamRoleArn;
     }
@@ -92,6 +119,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.iamRoleArn = iamRoleArn;
     }
 
+    /**
+     * The list of nodes to be removed from the cluster.
+     */
+    @Output
     public List<String> getNodeIdsToRemove() {
         if (nodeIdsToRemove == null) {
             nodeIdsToRemove = new ArrayList<>();
@@ -104,6 +135,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.nodeIdsToRemove = nodeIdsToRemove;
     }
 
+    /**
+     * The list of nodes in the cluster.
+     */
+    @Output
     public List<DaxNode> getNodes() {
         if (nodes == null) {
             nodes = new ArrayList<>();
@@ -116,6 +151,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.nodes = nodes;
     }
 
+    /**
+     * The compute and memory capacity of the nodes in the cluster.
+     */
+    @Required
     public String getNodeType() {
         return nodeType;
     }
@@ -124,6 +163,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.nodeType = nodeType;
     }
 
+    /**
+     * The notification topic and status in a cluster.
+     *
+     * @subresource gyro.aws.dax.DaxNotificationConfiguration
+     */
+    @Output
     public DaxNotificationConfiguration getNotificationConfiguration() {
         return notificationConfiguration;
     }
@@ -132,6 +177,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.notificationConfiguration = notificationConfiguration;
     }
 
+    /**
+     * The ARN that identifies the notification topic in a cluster.
+     */
+    @Updatable
     public String getNotificationTopicArn() {
         return notificationTopicArn;
     }
@@ -140,6 +189,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.notificationTopicArn = notificationTopicArn;
     }
 
+    /**
+     * The parameter group used by the nodes in the cluster.
+     *
+     * @subresource gyro.aws.dax.DaxParameterGroupResource
+     */
+    @Output
     public DaxParameterGroupResource getParameterGroup() {
         return parameterGroup;
     }
@@ -148,6 +203,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.parameterGroup = parameterGroup;
     }
 
+    /**
+     * The parameter group name to be associated with the cluster.
+     */
+    @Updatable
     public String getParameterGroupName() {
         return parameterGroupName;
     }
@@ -156,6 +215,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.parameterGroupName = parameterGroupName;
     }
 
+    /**
+     * The range of time when maintenance of the cluster will be performed.
+     */
+    @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
     }
@@ -164,6 +227,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.preferredMaintenanceWindow = preferredMaintenanceWindow;
     }
 
+    /**
+     * The list of security groups for the nodes in the cluster.
+     *
+     * @subresource gyro.aws.dax.DaxSecurityGroupMembership
+     */
+    @Output
     public List<DaxSecurityGroupMembership> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new ArrayList<>();
@@ -176,6 +245,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.securityGroups = securityGroups;
     }
 
+    /**
+     * The list of security group IDs assigned to each node in the cluster.
+     */
+    @Updatable
     public List<String> getSecurityGroupIds() {
         return securityGroupIds;
     }
@@ -184,6 +257,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.securityGroupIds = securityGroupIds;
     }
 
+    /**
+     * The description of the server-side encryption status of the cluster.
+     */
+    @Output
     public DaxSSEDescription getSseDescription() {
         return sseDescription;
     }
@@ -192,6 +269,11 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.sseDescription = sseDescription;
     }
 
+    /**
+     * The settings used to enable server-side encryption of the cluster.
+     *
+     * @subresource gyro.aws.dax.DaxSSESpecification
+     */
     public DaxSSESpecification getSseSpecification() {
         return sseSpecification;
     }
@@ -200,6 +282,9 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.sseSpecification = sseSpecification;
     }
 
+    /**
+     * The current status of the cluster.
+     */
     public String getStatus() {
         return status;
     }
@@ -208,6 +293,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.status = status;
     }
 
+    /**
+     * The subnet group of the cluster.
+     *
+     * @subresource gyro.aws.dax.DaxSubnetGroupResource
+     */
+    @Output
     public DaxSubnetGroupResource getSubnetGroup() {
         return subnetGroup;
     }
@@ -216,6 +307,9 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.subnetGroup = subnetGroup;
     }
 
+    /**
+     * The name of the subnet group of the cluster.
+     */
     public String getSubnetGroupName() {
         return subnetGroupName;
     }
@@ -224,6 +318,11 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.subnetGroupName = subnetGroupName;
     }
 
+    /**
+     * The list of tags of the cluster.
+     *
+     * @subresource gyro.aws.dax.DaxTag
+     */
     public List<DaxTag> getTags() {
         if (tags == null) {
             tags = new ArrayList<>();
@@ -236,6 +335,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.tags = tags;
     }
 
+    /**
+     * The total number of nodes in the cluster.
+     */
+    @Output
     public Integer getTotalNodes() {
         return totalNodes;
     }

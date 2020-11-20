@@ -12,6 +12,9 @@ public class DaxSubnetGroupFinder extends AwsFinder<DaxClient, SubnetGroup, DaxS
 
     private List<String> names;
 
+    /**
+     * The list of subnet group names.
+     */
     public List<String> getNames() {
         if (names == null) {
             names = new ArrayList<>();

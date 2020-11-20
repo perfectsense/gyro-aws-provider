@@ -13,6 +13,9 @@ public class DaxParameterGroupStatus extends Diffable implements Copyable<Parame
     private String parameterApplyStatus;
     private String parameterGroupName;
 
+    /**
+     * The list of node IDs to be rebooted.
+     */
     public List<String> getNodeIdsToReboot() {
         if (nodeIdsToReboot == null) {
             nodeIdsToReboot = new ArrayList<>();
@@ -25,6 +28,9 @@ public class DaxParameterGroupStatus extends Diffable implements Copyable<Parame
         this.nodeIdsToReboot = nodeIdsToReboot;
     }
 
+    /**
+     * The status of the parameter group updates.
+     */
     public String getParameterApplyStatus() {
         return parameterApplyStatus;
     }
@@ -33,6 +39,9 @@ public class DaxParameterGroupStatus extends Diffable implements Copyable<Parame
         this.parameterApplyStatus = parameterApplyStatus;
     }
 
+    /**
+     * The name of the parameter group.
+     */
     public String getParameterGroupName() {
         return parameterGroupName;
     }

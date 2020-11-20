@@ -9,7 +9,9 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.DaxClient;
@@ -23,6 +25,10 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
     private List<DaxSubnet> subnets;
     private String vpcId;
 
+    /**
+     * The description of the subnet group.
+     */
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -31,6 +37,9 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
         this.description = description;
     }
 
+    /**
+     * The name of the subnet group.
+     */
     @Id
     @Required
     public String getName() {
@@ -41,6 +50,10 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
         this.name = name;
     }
 
+    /**
+     * The list of subnets of the subnet group.
+     */
+    @Output
     public List<DaxSubnet> getSubnets() {
         if (subnets == null) {
             subnets = new ArrayList<>();
@@ -54,6 +67,9 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
         this.subnets = subnets;
     }
 
+    /**
+     * The VPC ID of the subnet group.
+     */
     public String getVpcId() {
         return vpcId;
     }

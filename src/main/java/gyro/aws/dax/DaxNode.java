@@ -13,6 +13,9 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     private String status;
     private DaxParameterGroupResource parameterGroupStatus;
 
+    /**
+     * The availability zone of the node.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -21,6 +24,11 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The endpoint of the node.
+     *
+     * @subresource gyro.aws.dax.DaxEndpoint
+     */
     public DaxEndpoint getEndpoint() {
         return endpoint;
     }
@@ -29,6 +37,9 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         this.endpoint = endpoint;
     }
 
+    /**
+     * The timestamp of when the node was created.
+     */
     public String getCreateTime() {
         return createTime;
     }
@@ -37,6 +48,9 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         this.createTime = createTime;
     }
 
+    /**
+     * The ID of the node.
+     */
     public String getId() {
         return id;
     }
@@ -45,6 +59,9 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         this.id = id;
     }
 
+    /**
+     * The status of the node.
+     */
     public String getStatus() {
         return status;
     }
@@ -53,6 +70,11 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         this.status = status;
     }
 
+    /**
+     * The status of the parameter group of the node.
+     *
+     * @subresource gyro.aws.dax.DaxParameterGroupResource
+     */
     public DaxParameterGroupResource getParameterGroupStatus() {
         return parameterGroupStatus;
     }

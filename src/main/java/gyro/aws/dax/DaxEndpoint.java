@@ -9,6 +9,9 @@ public class DaxEndpoint extends Diffable implements Copyable<Endpoint> {
     private String address;
     private Integer port;
 
+    /**
+     * The DNS hostname of the endpoint.
+     */
     public String getAddress() {
         return address;
     }
@@ -17,6 +20,9 @@ public class DaxEndpoint extends Diffable implements Copyable<Endpoint> {
         this.address = address;
     }
 
+    /**
+     * The port number to connect to the endpoint.
+     */
     public Integer getPort() {
         return port;
     }

@@ -9,6 +9,9 @@ public class DaxSubnet extends Diffable implements Copyable<Subnet> {
     private String availabilityZone;
     private String identifier;
 
+    /**
+     * The availability zone of the subnet.
+     */
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -17,6 +20,9 @@ public class DaxSubnet extends Diffable implements Copyable<Subnet> {
         this.availabilityZone = availabilityZone;
     }
 
+    /**
+     * The ID of the subnet.
+     */
     public String getIdentifier() {
         return identifier;
     }

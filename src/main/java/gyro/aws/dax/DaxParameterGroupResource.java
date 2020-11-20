@@ -10,7 +10,9 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.DaxClient;
 import software.amazon.awssdk.services.dax.model.DescribeParameterGroupsResponse;
 import software.amazon.awssdk.services.dax.model.ParameterGroup;
@@ -21,6 +23,9 @@ public class DaxParameterGroupResource extends AwsResource implements Copyable<P
     private String name;
     private List<DaxParameterNameValue> parameterNameValues;
 
+    /**
+     * The description of the parameter group.
+     */
     public String getDescription() {
         return description;
     }
@@ -29,7 +34,11 @@ public class DaxParameterGroupResource extends AwsResource implements Copyable<P
         this.description = description;
     }
 
+    /**
+     * The name of the parameter group.
+     */
     @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -38,6 +47,11 @@ public class DaxParameterGroupResource extends AwsResource implements Copyable<P
         this.name = name;
     }
 
+    /**
+     * The list of name-value pairs for the parameters of the group.
+     */
+    @Required
+    @Updatable
     public List<DaxParameterNameValue> getParameterNameValues() {
         if (parameterNameValues == null) {
             parameterNameValues = new ArrayList<>();
@@ -80,7 +94,6 @@ public class DaxParameterGroupResource extends AwsResource implements Copyable<P
             .parameterGroupName(getName()));
 
         refresh();
-
     }
 
     @Override
