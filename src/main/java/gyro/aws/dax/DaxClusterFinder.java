@@ -10,21 +10,21 @@ import software.amazon.awssdk.services.dax.model.Cluster;
 
 public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterResource> {
 
-    private List<String> clusterNames;
+    private List<String> names;
 
     /**
      * The names of the DAX clusters.
      */
-    public List<String> getClusterNames() {
-        if (clusterNames == null) {
-            clusterNames = new ArrayList<>();
+    public List<String> getNames() {
+        if (names == null) {
+            names = new ArrayList<>();
         }
 
-        return clusterNames;
+        return names;
     }
 
-    public void setCluserNames(List<String> clusterNames) {
-        this.clusterNames = clusterNames;
+    public void setNames(List<String> names) {
+        this.names = names;
     }
 
     @Override
@@ -34,6 +34,6 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
 
     @Override
     protected List<Cluster> findAws(DaxClient client, Map<String, String> filters) {
-        return client.describeClusters(r -> r.clusterNames(filters.get("cluster-names"))).clusters();
+        return client.describeClusters(r -> r.clusterNames(filters.get("names"))).clusters();
     }
 }
