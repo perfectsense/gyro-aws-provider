@@ -64,6 +64,8 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     private List<String> nodeIdsToRemove;
     private List<DaxNode> nodes;
     private String nodeType;
+    private Integer replicationFactor;
+    private List<String> availabilityZones;
     private DaxNotificationConfiguration notificationConfiguration;
     private String notificationTopicArn;
     private DaxParameterGroupResource parameterGroup;
@@ -198,6 +200,32 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
+     * The number of nodes in the cluster.
+     */
+    @Required
+    public Integer getReplicationFactor() {
+        return replicationFactor;
+    }
+
+    public void setReplicationFactor(Integer replicationFactor) {
+        this.replicationFactor = replicationFactor;
+    }
+
+    /**
+     * The list of availability zones of the cluster.
+     */
+    public List<String> getAvailabilityZones() {
+        if (availabilityZones == null) {
+            availabilityZones = new ArrayList<>();
+        }
+        return availabilityZones;
+    }
+
+    public void setAvailabilityZones(List<String> availabilityZones) {
+        this.availabilityZones = availabilityZones;
+    }
+
+    /**
      * The notification topic and status in a cluster.
      *
      * @subresource gyro.aws.dax.DaxNotificationConfiguration
@@ -284,6 +312,9 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
      */
     @Updatable
     public List<String> getSecurityGroupIds() {
+        if (securityGroupIds == null) {
+            securityGroupIds = new ArrayList<>();
+        }
         return securityGroupIds;
     }
 
@@ -460,12 +491,15 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         DaxClient client = createClient(DaxClient.class);
 
         client.createCluster(r -> r
+            .availabilityZones(getAvailabilityZones())
             .clusterName(getName())
-            .availabilityZones(getNodes().stream().map(DaxNode::getAvailabilityZone).collect(Collectors.toList()))
             .description(getDescription())
+            .iamRoleArn(getIamRoleArn())
+            .nodeType(getNodeType())
             .notificationTopicArn(getNotificationTopicArn())
             .parameterGroupName(getParameterGroupName())
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
+            .replicationFactor(getReplicationFactor())
             .securityGroupIds(getSecurityGroupIds())
             .sseSpecification(getSseSpecification() != null ? getSseSpecification().toSseSpecification() : null)
             .subnetGroupName(getSubnetGroupName())
@@ -499,5 +533,22 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         DaxClient client = createClient(DaxClient.class);
 
         client.deleteCluster(r -> r.clusterName(getName()));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if ((configuredFields.contains("availability-zones") && configuredFields.contains("replication-factor"))
+            && getReplicationFactor() != getAvailabilityZones().size()) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "If 'availability-zones' and 'replication-factor' are present, the value of 'replication-factor' "
+                    + "must equal the size of 'availability-zones"
+            ));
+        }
+
+        return errors;
     }
 }
