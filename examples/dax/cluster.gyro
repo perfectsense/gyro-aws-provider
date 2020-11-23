@@ -1,0 +1,7 @@
+aws::dax-cluster cluster-example
+    name: "cluster-gyro-example"
+    iam-role-arn: "arn:aws:iam::242040583208:role/service-role/DAXtoDynamoDB"
+    node-type: "dax.r4.large"
+    replication-factor: 3
+    description: "test-description"
+end

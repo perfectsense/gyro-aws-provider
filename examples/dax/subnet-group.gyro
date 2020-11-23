@@ -1,0 +1,5 @@
+aws::dax-subnet-group subnet-group
+    name: "subnet-group-example"
+    description: "subnet-group-description"
+    subnet-ids: ["subnet-07473edcb6aa2fff2"]
+end
