@@ -1,3 +1,25 @@
+aws::iam-role example-role-iam
+    name: "example-role-iam"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"s3.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "example-policy-iam"
+    policy-document: "replication-policy.json"
+end
+
+aws::s3-bucket bucket-example-for-replication
+    name: "bucket-example-for-replication"
+    enable-object-lock: true
+    enable-accelerate-config: true
+    enable-versioning: true
+    policy: "policy.json"
+end
+
 aws::s3-bucket bucket-example
     name: "beam-sandbox-bucket-us-east-2"
     tags: {
@@ -8,11 +30,11 @@ aws::s3-bucket bucket-example
     enable-versioning: true
 
     replication-configuration
-        role: "arn:aws:iam::242040583208:role/service-role/s3crr_role_for_sandbox-bucket-example-logging_to_beam-sandbox-br"
+        role: $(aws::iam-role example-role-iam)
         rule
             id: "example_with_encryption"
             destination
-                bucket: "beam-sandbox-ops-us-east-1a"
+                bucket: "bucket-example-for-replication"
                 encryption-configuration
                     kms-key: "arn:aws:kms:us-east-1:242040583208:key/c5245825-8526-4032-a67c-21656f220312"
                 end
@@ -33,7 +55,7 @@ aws::s3-bucket bucket-example
         rule
             id: "example_with_complex_filter"
             destination
-                bucket: "beam-sandbox-ops-us-east-1a"
+                bucket: "bucket-example-for-replication"
             end
             filter
                 and-operator
@@ -52,7 +74,7 @@ aws::s3-bucket bucket-example
         rule
             id: "example_with_access_control"
             destination
-                bucket: "beam-sandbox-ops-us-east-1a"
+                bucket: "bucket-example-for-replication"
                 account: "242040583208"
                 access-control-translation
                     owner-override: destination
