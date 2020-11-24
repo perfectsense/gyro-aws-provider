@@ -16,17 +16,6 @@
 
 package gyro.aws.lambda;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -36,11 +25,11 @@ import gyro.aws.iam.RoleResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -56,9 +45,19 @@ import software.amazon.awssdk.services.lambda.model.GetFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
 import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
-import software.amazon.awssdk.services.lambda.model.Runtime;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeRequest;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a lambda function.
@@ -93,7 +92,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private String s3ObjectVersion;
     private String contentZipPath;
     private RoleResource role;
-    private Runtime runtime;
+    private String runtime;
     private String handler;
     private Integer timeout;
     private Integer memorySize;
@@ -218,33 +217,12 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      */
     @Required
     @Updatable
-    @ValidStrings({
-        "nodejs",
-        "nodejs4.3",
-        "nodejs6.10",
-        "nodejs8.10",
-        "nodejs10.x",
-        "nodejs12.x",
-        "java8",
-        "java11",
-        "python2.7",
-        "python3.6",
-        "python3.7",
-        "python3.8",
-        "dotnetcore1.0",
-        "dotnetcore2.0",
-        "dotnetcore2.1",
-        "dotnetcore3.1",
-        "nodejs4.3-edge",
-        "go1.x",
-        "ruby2.5",
-        "ruby2.7",
-        "provided" })
-    public Runtime getRuntime() {
+    @ValidStrings({"nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "java8", "python2.7", "python3.6", "python3.7", "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "nodejs4.3-edge", "go1.x", "ruby2.5", "provided"})
+    public String getRuntime() {
         return runtime;
     }
 
-    public void setRuntime(Runtime runtime) {
+    public void setRuntime(String runtime) {
         this.runtime = runtime;
     }
 
@@ -544,22 +522,16 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     @Override
     public void copyFrom(FunctionConfiguration configuration) {
         setName(configuration.functionName());
-        setDeadLetterConfigArn(
-            configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
+        setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
         setDescription(configuration.description());
-        setRuntime(configuration.runtime());
-        setRole(!ObjectUtils.isBlank(configuration.role()) ? findById(RoleResource.class, configuration.role()) : null);
+        setRuntime(configuration.runtimeAsString());
+        setRole(!ObjectUtils.isBlank(configuration.role()) ? findById(RoleResource.class, configuration.role()) : null );
         setHandler(configuration.handler());
         setTimeout(configuration.timeout());
         setMemorySize(configuration.memorySize());
         setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-        setKmsKey(!ObjectUtils.isBlank(configuration.kmsKeyArn()) ? findById(
-            KmsKeyResource.class,
-            configuration.kmsKeyArn()) : null);
-        setLambdaLayers(configuration.layers()
-            .stream()
-            .map(o -> findById(LayerResource.class, o.arn()))
-            .collect(Collectors.toSet()));
+        setKmsKey(!ObjectUtils.isBlank(configuration.kmsKeyArn()) ? findById(KmsKeyResource.class, configuration.kmsKeyArn()) : null);
+        setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
         setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
 
         setArn(configuration.functionArn());

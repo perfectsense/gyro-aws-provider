@@ -42,7 +42,7 @@ public class EcsDockerVolumeConfiguration extends Diffable {
      * Docker volumes that are scoped to a ``task`` are automatically provisioned when the task starts and destroyed when the task stops. Docker volumes that are scoped as ``shared`` persist after the task stops.
      */
     @Required
-    @ValidStrings({"task", "shared"})
+    @ValidStrings({"task", "scope"})
     public Scope getScope() {
         return scope;
     }

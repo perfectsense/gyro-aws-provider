@@ -12,7 +12,7 @@ end
 aws::lambda-function lambda-function-alias-example
     name: "lambda-function-alias-example"
     handler: "index.handler"
-    runtime: "nodejs12.x"
+    runtime: "nodejs8.10"
     role: $(aws::iam-role example-role-iam)
     content-zip-path: "example-function.zip"
 

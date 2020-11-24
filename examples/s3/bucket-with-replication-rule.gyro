@@ -12,14 +12,6 @@ aws::iam-policy example-policy-iam
     policy-document: "replication-policy.json"
 end
 
-aws::s3-bucket bucket-example-for-replication
-    name: "bucket-example-for-replication"
-    enable-object-lock: true
-    enable-accelerate-config: true
-    enable-versioning: true
-    policy: "policy.json"
-end
-
 aws::s3-bucket bucket-example
     name: "beam-sandbox-bucket-us-east-2"
     tags: {
@@ -34,7 +26,7 @@ aws::s3-bucket bucket-example
         rule
             id: "example_with_encryption"
             destination
-                bucket: "bucket-example-for-replication"
+                bucket: "beam-sandbox-ops-us-east-1a"
                 encryption-configuration
                     kms-key: "arn:aws:kms:us-east-1:242040583208:key/c5245825-8526-4032-a67c-21656f220312"
                 end
@@ -55,7 +47,7 @@ aws::s3-bucket bucket-example
         rule
             id: "example_with_complex_filter"
             destination
-                bucket: "bucket-example-for-replication"
+                bucket: "beam-sandbox-ops-us-east-1a"
             end
             filter
                 and-operator
@@ -74,7 +66,7 @@ aws::s3-bucket bucket-example
         rule
             id: "example_with_access_control"
             destination
-                bucket: "bucket-example-for-replication"
+                bucket: "beam-sandbox-ops-us-east-1a"
                 account: "242040583208"
                 access-control-translation
                     owner-override: destination

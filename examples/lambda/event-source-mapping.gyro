@@ -25,7 +25,7 @@ end
 aws::lambda-function lambda-function-event-source-mapping-example-1
     name: "testFunction-event-source-mapping-example-1"
     handler: "index.handler"
-    runtime: "nodejs12.x"
+    runtime: "nodejs8.10"
     role: $(aws::iam-role example-role-iam)
     content-zip-path: "example-function.zip"
 
@@ -37,7 +37,7 @@ end
 aws::lambda-function lambda-function-event-source-mapping-example-2
     name: "testFunction-event-source-mapping-example-2"
     handler: "index.handler"
-    runtime: "nodejs12.x"
+    runtime: "nodejs8.10"
     role: $(aws::iam-role example-role-iam)
     content-zip-path: "example-function.zip"
 
