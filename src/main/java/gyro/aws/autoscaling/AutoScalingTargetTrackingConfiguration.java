@@ -146,7 +146,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getCustomizedScalingMetricSpecification().getName());
+        return String.format("%s", getCustomizedScalingMetricSpecification() != null ? getCustomizedScalingMetricSpecification().getName() : "");
     }
 
     public TargetTrackingConfiguration toTargetTrackingConfiguration() {
