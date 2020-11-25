@@ -1,10 +1,66 @@
+aws::vpc vpc-auto-scaling-group-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "vpc-auto-scaling-group-example"
+    }
+end
+
+aws::subnet subnet-auto-scaling-group-example-1
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.1.0/26"
+
+    tags: {
+        Name: "subnet-auto-scaling-group-example-1"
+    }
+end
+
+aws::security-group security-group-auto-scaling-group-example-1
+    name: "security-group-auto-scaling-group-example-1"
+    vpc: $(aws::vpc vpc-auto-scaling-group-example)
+    description: "security group instance example 1"
+
+    tags: {
+        Name: "security-group-auto-scaling-group-example-1"
+    }
+end
+
+aws::instance instance-auto-scaling-group-example
+    ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
+    shutdown-behavior: "STOP"
+    instance-type: "t2.micro"
+    key: "example"
+    subnet: $(aws::subnet subnet-auto-scaling-group-example-1)
+    security-groups: $(aws::security-group security-group-auto-scaling-group-example-*)
+    disable-api-termination: false
+    ebs-optimized: false
+    source-dest-check: true
+
+    tags: {
+        Name: "instance-auto-scaling-group-example"
+    }
+end
+
+aws::launch-configuration launch-configuration-auto-scaling-group-example
+    name: "launch-configuration-gyro-\($(aws::instance instance-auto-scaling-group-example).id)"
+    instance: $(aws::instance instance-auto-scaling-group-example)
+end
+
+aws::autoscaling-group auto-scaling-group-example
+    name: "auto-scaling-group-gyro-1"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
+    availability-zones: $(aws::subnet subnet-auto-scaling-group-example-1).*.availability-zone
+end
+
 aws::autoscaling-plan autoscaling-plan-example
     name: "scaling-plan-example"
     scaling-plan-version: 1.0
     status-code: "Active"
 
     application-source
-        cloud-formation-stack-arn: "arn:aws:cloudformation:us-east-2:242040583208:stack/example-stack/e95a0400-192f-11eb-8eb9-0a36006b772c"
+        cloud-formation-stack-arn: $(aws::autoscaling-group auto-scaling-group-example).arn
     end
 
     scaling-instructions
