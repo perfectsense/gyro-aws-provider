@@ -18,6 +18,7 @@ package gyro.aws.autoscaling;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
@@ -25,6 +26,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscalingplans.model.ApplicationSource;
 
 public class AutoScalingApplicationSource extends Diffable implements Copyable<ApplicationSource> {
@@ -82,6 +84,21 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (!configuredFields.contains("tag-filters") && !configuredFields.contains("cloud-formation-stack-arn")) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Either 'tag-filters' or 'cloud-formation-stack-arn' is required."
+            ));
+        }
+
+        return errors;
     }
 
     public ApplicationSource toApplicationSource() {
