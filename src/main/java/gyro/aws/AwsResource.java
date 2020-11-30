@@ -55,11 +55,17 @@ public abstract class AwsResource extends Resource {
 
             AwsCredentialsProvider provider = credentials.provider();
 
+            ClientOverrideConfiguration.Builder retryPolicy = ClientOverrideConfiguration.builder()
+                .retryPolicy(RetryPolicy.builder()
+                    .numRetries(30)
+                    .build());
+
             Method method = clientClass.getMethod("builder");
             AwsDefaultClientBuilder builder = (AwsDefaultClientBuilder) method.invoke(null);
             builder.credentialsProvider(provider);
             builder.region(Region.of(region != null ? region : credentials.getRegion()));
             builder.httpClientBuilder(ApacheHttpClient.builder());
+            builder.overrideConfiguration(retryPolicy.build());
 
             if (endpoint != null) {
                 builder.endpointOverride(URI.create(endpoint));
