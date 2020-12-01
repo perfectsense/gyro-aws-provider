@@ -60,6 +60,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.VpcLinkStatus;
  *             $(aws::subnet subnet-example-2a),
  *             $(aws::subnet subnet-example-2b)
  *         ]
+ *
  *         tags: {
  *             "example-key" : "example-value"
  *         }
