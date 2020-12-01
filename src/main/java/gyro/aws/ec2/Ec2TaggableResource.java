@@ -96,12 +96,12 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
 
         Map<String, String> tags = new HashMap<>();
 
-        DescribeTagsIterable response = (DescribeTagsIterable) executeService(() -> client.describeTagsPaginator(
+        DescribeTagsIterable response = client.describeTagsPaginator(
             r -> r.filters(
                 f -> f.name("resource-id")
                     .values(getResourceId())
                     .build())
-                .build()));
+                .build());
 
         for (TagDescription tagDescription : response.tags()) {
             if (!tagDescription.key().startsWith("aws:")) {
@@ -169,7 +169,7 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
 
         // Remove tags
         if (!diff.entriesOnlyOnLeft().isEmpty()) {
-
+            
             List<Tag> tagObjects = new ArrayList<>();
             for (Map.Entry<String, String> entry : diff.entriesOnlyOnLeft().entrySet()) {
                 tagObjects.add(Tag.builder().key(entry.getKey()).value(entry.getValue()).build());
