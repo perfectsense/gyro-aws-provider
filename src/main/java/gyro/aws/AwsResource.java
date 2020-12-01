@@ -54,7 +54,8 @@ public abstract class AwsResource extends Resource {
 
     public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
         String key = String.format("Client Class: %s, Credentials: %s, Region: %s, Endpoint: %s",
-            clientClass.getName(), credentials == null ? "-" : credentials.getProfileName(), region, endpoint);
+            clientClass.getName(), credentials.getProfileName(),
+            region == null ? credentials.getRegion() : region, endpoint == null ? "" : endpoint);
 
         if (clients.containsKey(key)) {
             return (T) clients.get(key);
