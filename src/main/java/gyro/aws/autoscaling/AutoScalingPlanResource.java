@@ -60,7 +60,7 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusC
  *            max-capacity: 100
  *            min-capacity: 0
  *            service-namespace: "autoscaling"
- *            resource-id: "autoScalingGroup/test-autoscaling-group"
+ *            resource-id: "autoScalingGroup/auto-scaling-group-gyro-1"
  *            scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
  *
  *            target-tracking-configurations
