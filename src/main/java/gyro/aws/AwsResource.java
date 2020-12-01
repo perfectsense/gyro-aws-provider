@@ -23,6 +23,7 @@ import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.retry.RetryPolicy;
+import software.amazon.awssdk.core.retry.conditions.RetryOnThrottlingCondition;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 
@@ -59,7 +60,8 @@ public abstract class AwsResource extends Resource {
 
             ClientOverrideConfiguration.Builder retryPolicy = ClientOverrideConfiguration.builder()
                 .retryPolicy(RetryPolicy.builder()
-                    .numRetries(30)
+                    .numRetries(20)
+                    .retryCapacityCondition(RetryOnThrottlingCondition.create())
                     .build());
 
             Method method = clientClass.getMethod("builder");
