@@ -53,6 +53,12 @@ public abstract class AwsResource extends Resource {
     }
 
     public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
+        if (credentials == null) {
+            throw new GyroException(String.format(
+                "Unable to create %s, no credentials specified!",
+                clientClass));
+        }
+
         String key = String.format("Client Class: %s, Credentials: %s, Region: %s, Endpoint: %s",
             clientClass.getName(), credentials.getProfileName(),
             region == null ? credentials.getRegion() : region, endpoint == null ? "" : endpoint);
@@ -61,12 +67,6 @@ public abstract class AwsResource extends Resource {
             return (T) clients.get(key);
         } else {
             try {
-                if (credentials == null) {
-                    throw new GyroException(String.format(
-                        "Unable to create %s, no credentials specified!",
-                        clientClass));
-                }
-
                 AwsCredentialsProvider provider = credentials.provider();
 
                 ClientOverrideConfiguration.Builder retryPolicy = ClientOverrideConfiguration.builder()
