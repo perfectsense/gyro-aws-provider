@@ -133,28 +133,24 @@ public class ApiCors extends Diffable implements Copyable<Cors> {
         setAllowCredentials(model.allowCredentials());
         setMaxAge(model.maxAge());
 
+        getAllowHeaders().clear();
         if (model.hasAllowHeaders()) {
             setAllowHeaders(model.allowHeaders());
-        } else {
-            setAllowHeaders(null);
         }
 
+        getAllowMethods().clear();
         if (model.hasAllowMethods()) {
             setAllowMethods(model.allowMethods());
-        } else {
-            setAllowMethods(null);
         }
 
+        getAllowOrigins().clear();
         if (model.hasAllowOrigins()) {
             setAllowOrigins(model.allowOrigins());
-        } else {
-            setAllowOrigins(null);
         }
 
+        getExposeHeaders().clear();
         if (model.hasExposeHeaders()) {
             setExposeHeaders(model.exposeHeaders());
-        } else {
-            setExposeHeaders(null);
         }
     }
 

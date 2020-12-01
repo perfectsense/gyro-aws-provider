@@ -163,6 +163,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
         setName(model.name());
         setArn(getArnFormat());
 
+        getSecurityGroups().clear();
         if (model.hasSecurityGroupIds()) {
             setSecurityGroups(model.securityGroupIds()
                 .stream()
@@ -170,6 +171,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
                 .collect(Collectors.toList()));
         }
 
+        getSubnets().clear();
         if (model.hasSubnetIds()) {
             setSubnets(model.subnetIds()
                 .stream()

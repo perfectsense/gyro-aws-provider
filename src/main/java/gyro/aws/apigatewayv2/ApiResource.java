@@ -250,10 +250,9 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
             setCorsConfiguration(config);
         }
 
+        getTags().clear();
         if (model.hasTags()) {
             setTags(model.tags());
-        } else {
-            setTags(null);
         }
     }
 

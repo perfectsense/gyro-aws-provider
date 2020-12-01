@@ -155,6 +155,7 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
             setMutualTlsAuthentication(input);
         }
 
+        getDomainNameConfigurations().clear();
         if (model.hasDomainNameConfigurations()) {
             setDomainNameConfigurations(model.domainNameConfigurations().stream().map(c -> {
                 ApiDomainNameConfiguration config = newSubresource(ApiDomainNameConfiguration.class);
@@ -162,8 +163,6 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
 
                 return config;
             }).collect(Collectors.toList()));
-        } else {
-            setDomainNameConfigurations(null);
         }
     }
 
