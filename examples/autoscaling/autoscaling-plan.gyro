@@ -60,14 +60,17 @@ aws::autoscaling-plan autoscaling-plan-example
     status-code: "Active"
 
     application-source
-        cloud-formation-stack-arn: $(aws::autoscaling-group auto-scaling-group-example).arn
+        tag-filter
+            key: "auto-scaling-group-gyro-1-tag"
+            values: ["value"]
+        end
     end
 
     scaling-instructions
         max-capacity: 100
         min-capacity: 0
         service-namespace: "autoscaling"
-        resource-id: "autoScalingGroup/test-autoscaling-group"
+        resource-id: "autoScalingGroup/auto-scaling-group-gyro-1"
         scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
 
         target-tracking-configurations
