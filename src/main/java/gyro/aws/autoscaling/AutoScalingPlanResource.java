@@ -50,7 +50,10 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusC
  *        status-code: "Active"
  *
  *        application-source
- *            cloud-formation-stack-arn: "arn:aws:cloudformation:us-east-2:242040583208:stack/example-stack/e95a0400-192f-11eb-8eb9-0a36006b772c"
+ *            tag-filter
+ *                key: "auto-scaling-group-gyro-1-tag"
+ *                values: ["value"]
+ *            end
  *        end
  *
  *        scaling-instructions

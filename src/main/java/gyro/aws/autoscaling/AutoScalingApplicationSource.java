@@ -32,13 +32,13 @@ import software.amazon.awssdk.services.autoscalingplans.model.ApplicationSource;
 public class AutoScalingApplicationSource extends Diffable implements Copyable<ApplicationSource> {
 
     private String cloudFormationStackArn;
-    private List<AutoScalingTagFilter> tagFilters;
+    private List<AutoScalingTagFilter> tagFilter;
 
     /**
      * The Amazon Resource Name of a CloudFormation stack.
      */
     @Updatable
-    @ConflictsWith("tag-filters")
+    @ConflictsWith("tag-filter")
     public String getCloudFormationStackArn() {
         return cloudFormationStackArn;
     }
@@ -55,28 +55,28 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
     @Updatable
     @CollectionMax(50)
     @ConflictsWith("cloud-formation-stack-arn")
-    public List<AutoScalingTagFilter> getTagFilters() {
-        if (tagFilters == null) {
-            tagFilters = new ArrayList<>();
+    public List<AutoScalingTagFilter> getTagFilter() {
+        if (tagFilter == null) {
+            tagFilter = new ArrayList<>();
         }
 
-        return tagFilters;
+        return tagFilter;
     }
 
-    public void setTagFilters(List<AutoScalingTagFilter> tagFilters) {
-        this.tagFilters = tagFilters;
+    public void setTagFilter(List<AutoScalingTagFilter> tagFilter) {
+        this.tagFilter = tagFilter;
     }
 
     @Override
     public void copyFrom(ApplicationSource model) {
         setCloudFormationStackArn(model.cloudFormationStackARN());
 
-        getTagFilters().clear();
+        getTagFilter().clear();
         if (model.tagFilters() != null) {
             model.tagFilters().forEach(filter -> {
                 AutoScalingTagFilter tagFilter = newSubresource(AutoScalingTagFilter.class);
                 tagFilter.copyFrom(filter);
-                getTagFilters().add(tagFilter);
+                getTagFilter().add(tagFilter);
             });
         }
     }
@@ -90,11 +90,11 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (!configuredFields.contains("tag-filters") && !configuredFields.contains("cloud-formation-stack-arn")) {
+        if (!configuredFields.contains("tag-filter") && !configuredFields.contains("cloud-formation-stack-arn")) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "Either 'tag-filters' or 'cloud-formation-stack-arn' is required."
+                "Either 'tag-filter' or 'cloud-formation-stack-arn' is required."
             ));
         }
 
@@ -104,7 +104,7 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
     public ApplicationSource toApplicationSource() {
         return ApplicationSource.builder()
             .cloudFormationStackARN(getCloudFormationStackArn())
-            .tagFilters(getTagFilters().stream()
+            .tagFilters(getTagFilter().stream()
                 .map(AutoScalingTagFilter::toTagFilter)
                 .collect(Collectors.toList()))
             .build();
