@@ -16,28 +16,19 @@
 
 package gyro.aws.ec2;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
-import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
-import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -61,6 +52,15 @@ import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Creates an Instance with the specified AMI, Subnet and Security group.
@@ -385,7 +385,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * The state of the instance. Valid values are ``Running`` or ``Stopped``
      */
-    @ValidStrings({ "running", "stopped" })
+    @ValidStrings({"running", "stopped"})
     @Updatable
     public String getStatus() {
         return status;
@@ -516,10 +516,10 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     public String getGyroInstanceLocation() {
         if (getSubnet() != null) {
             return getSubnet().getAvailabilityZone() != null
-                ? getSubnet().getAvailabilityZone()
-                : getSubnet().getVpc() != null
-                    ? getSubnet().getVpc().getRegion()
-                    : "";
+                    ? getSubnet().getAvailabilityZone()
+                    : getSubnet().getVpc() != null
+                            ? getSubnet().getVpc().getRegion()
+                            : "";
         }
         return "";
     }
@@ -543,8 +543,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         Instance instance = getInstance(client);
 
-        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED
-            || instance.state().name() == InstanceStateName.SHUTTING_DOWN) {
+        if (instance == null || instance.state().name() == InstanceStateName.TERMINATED || instance.state().name() == InstanceStateName.SHUTTING_DOWN) {
             return false;
         }
 
@@ -562,17 +561,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .ebsOptimized(getEbsOptimized())
             .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-            .cpuOptions(getCoreCount() > 0
-                ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build()
-                : SdkBuilder::build)
+            .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
             .instanceType(getInstanceType())
             .keyName(getKey() != null ? getKey().getName() : null)
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
-                .map(SecurityGroupResource::getId)
-                .collect(Collectors.toList()) : null)
+            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()) : null)
             .subnetId(getSubnet() != null ? getSubnet().getId() : null)
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
@@ -603,9 +598,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             .until(() -> createInstance(client, request));
 
         if (!status) {
-            throw new GyroException(String.format(
-                "Value (%s) for parameter iamInstanceProfile.arn is invalid.",
-                getInstanceProfile().getArn()));
+            throw new GyroException(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid.", getInstanceProfile().getArn()));
         }
 
         state.save();
@@ -731,8 +724,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     @Override
     public void delete(GyroUI ui, State state) {
         if (getDisableApiTermination()) {
-            throw new GyroException(
-                "The instance (" + getId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
+            throw new GyroException("The instance (" + getId() + ") cannot be terminated when 'disableApiTermination' is set to True.");
         }
 
         Ec2Client client = createClient(Ec2Client.class);
@@ -754,19 +746,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         setInstanceType(instance.instanceType().toString());
         setKey(!ObjectUtils.isBlank(instance.keyName()) ? findById(KeyPairResource.class, instance.keyName()) : null);
         setEnableMonitoring(instance.monitoring().state().equals(MonitoringState.ENABLED));
-        setSecurityGroups(instance.securityGroups()
-            .stream()
-            .map(r -> findById(SecurityGroupResource.class, r.groupId()))
-            .collect(Collectors.toSet()));
+        setSecurityGroups(instance.securityGroups().stream().map(r -> findById(SecurityGroupResource.class, r.groupId())).collect(Collectors.toSet()));
         setSubnet(findById(SubnetResource.class, instance.subnetId()));
         setPublicDnsName(instance.publicDnsName());
         setPublicIpAddress(instance.publicIpAddress());
         setPrivateIpAddress(instance.privateIpAddress());
         setInstanceState(instance.state().nameAsString());
         setInstanceLaunchDate(Date.from(instance.launchTime()));
-        setInstanceProfile(instance.iamInstanceProfile() != null ? findById(
-            InstanceProfileResource.class,
-            instance.iamInstanceProfile().arn()) : null);
+        setInstanceProfile(instance.iamInstanceProfile() != null ? findById(InstanceProfileResource.class, instance.iamInstanceProfile().arn()) : null);
 
         if (instance.capacityReservationSpecification() != null) {
             setCapacityReservation(
@@ -775,29 +762,26 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                     : instance.capacityReservationSpecification().capacityReservationPreferenceAsString()
             );
         }
-        DescribeInstanceAttributeResponse attributeResponse = (DescribeInstanceAttributeResponse) executeService(() -> client
-            .describeInstanceAttribute(
-                r -> r.instanceId(getId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
-            ));
+
+        DescribeInstanceAttributeResponse attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getId()).attribute(InstanceAttributeName.INSTANCE_INITIATED_SHUTDOWN_BEHAVIOR)
+        );
         setShutdownBehavior(attributeResponse.instanceInitiatedShutdownBehavior().value());
 
-        attributeResponse = (DescribeInstanceAttributeResponse) executeService(() -> client
-            .describeInstanceAttribute(
-                r -> r.instanceId(getId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
-            ));
-        setDisableApiTermination(attributeResponse.disableApiTermination()
-            .equals(AttributeBooleanValue.builder().value(true).build()));
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getId()).attribute(InstanceAttributeName.DISABLE_API_TERMINATION)
+        );
+        setDisableApiTermination(attributeResponse.disableApiTermination().equals(AttributeBooleanValue.builder().value(true).build()));
 
-        DescribeNetworkInterfaceAttributeResponse response = (DescribeNetworkInterfaceAttributeResponse) executeService(() -> client.describeNetworkInterfaceAttribute(
+        DescribeNetworkInterfaceAttributeResponse response = client.describeNetworkInterfaceAttribute(
             r -> r.networkInterfaceId(instance.networkInterfaces().get(0).networkInterfaceId())
                 .attribute(NetworkInterfaceAttribute.SOURCE_DEST_CHECK)
-        ));
+        );
         setSourceDestCheck(response.sourceDestCheck().value());
 
-        attributeResponse = (DescribeInstanceAttributeResponse) executeService(() -> client
-            .describeInstanceAttribute(
-                r -> r.instanceId(getId()).attribute(InstanceAttributeName.USER_DATA)
-            ));
+        attributeResponse = client.describeInstanceAttribute(
+            r -> r.instanceId(getId()).attribute(InstanceAttributeName.USER_DATA)
+        );
         setUserData(attributeResponse.userData().value() == null
             ? "" : new String(Base64.decodeBase64(attributeResponse.userData().value())).trim());
 
@@ -811,31 +795,20 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         List<ValidationError> errors = new ArrayList<>();
 
         if ((getLaunchTemplate() != null && ObjectUtils.isBlank(getShutdownBehavior()))
-            || (!ObjectUtils.isBlank(getShutdownBehavior()) && ShutdownBehavior.fromValue(getShutdownBehavior())
-            .equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION))) {
-            errors.add(new ValidationError(
-                this,
-                "shutdown-behavior",
-                "The value - (" + getShutdownBehavior() + ") is invalid for parameter 'shutdown-behavior'."));
+            || (!ObjectUtils.isBlank(getShutdownBehavior()) && ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION))) {
+            errors.add(new ValidationError(this, "shutdown-behavior", "The value - (" + getShutdownBehavior() + ") is invalid for parameter 'shutdown-behavior'."));
         }
 
         if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))
-            || (!ObjectUtils.isBlank(getInstanceType()) && InstanceType.fromValue(getInstanceType())
-            .equals(InstanceType.UNKNOWN_TO_SDK_VERSION))) {
-            errors.add(new ValidationError(
-                this,
-                "instance-type",
-                "The value - (" + getInstanceType() + ") is invalid for parameter 'instance-type'"));
+            || (!ObjectUtils.isBlank(getInstanceType()) && InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION))) {
+            errors.add(new ValidationError(this, "instance-type", "The value - (" + getInstanceType() + ") is invalid for parameter 'instance-type'"));
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")
             && !getCapacityReservation().equalsIgnoreCase("open")
             && !getCapacityReservation().startsWith("cr-")) {
-            errors.add(new ValidationError(
-                this,
-                "capacity-reservation",
-                "The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
-                    + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]"));
+            errors.add(new ValidationError(this,"capacity-reservation", "The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
+                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]"));
         }
 
         if (getLaunchTemplate() == null) {
@@ -843,10 +816,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 errors.add(new ValidationError(this, "ami", "ami cannot be blank when launch-template is not used."));
             }
         } else if (!getLaunchTemplate().getLaunchTemplate().getSecurityGroups().isEmpty() && getSubnet() == null) {
-            errors.add(new ValidationError(
-                this,
-                "subnet",
-                "Subnet is required when using a launch-template with security group configured."));
+            errors.add(new ValidationError(this, "subnet", "Subnet is required when using a launch-template with security group configured."));
         }
 
         return errors;
@@ -931,22 +901,14 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
                 if (!getSourceDestCheck()) {
                     client.modifyNetworkInterfaceAttribute(
-                        r -> r.networkInterfaceId(response.instances()
-                            .get(0)
-                            .networkInterfaces()
-                            .get(0)
-                            .networkInterfaceId())
+                        r -> r.networkInterfaceId(response.instances().get(0).networkInterfaces().get(0).networkInterfaceId())
                             .sourceDestCheck(a -> a.value(getSourceDestCheck()))
                     );
                 }
             }
         } catch (Ec2Exception ex) {
             if (getInstanceProfile() != null
-                && ex.awsErrorDetails()
-                .errorMessage()
-                .startsWith(String.format(
-                    "Value (%s) for parameter iamInstanceProfile.arn is invalid",
-                    getInstanceProfile().getArn()))) {
+                && ex.awsErrorDetails().errorMessage().startsWith(String.format("Value (%s) for parameter iamInstanceProfile.arn is invalid", getInstanceProfile().getArn()))) {
                 return false;
             } else {
                 throw ex;
