@@ -51,8 +51,8 @@ import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlanStatusC
  *
  *        application-source
  *            tag-filter
- *                key: "auto-scaling-group-gyro-1-tag"
- *                values: ["value"]
+ *                key: "Name"
+ *                values: ["auto-scaling-group-gyro-1-tag"]
  *            end
  *        end
  *
