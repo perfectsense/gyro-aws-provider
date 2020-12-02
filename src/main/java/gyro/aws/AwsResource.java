@@ -60,9 +60,7 @@ public abstract class AwsResource extends Resource {
             clientClass.getName(), credentials.getProfileName(),
             region == null ? credentials.getRegion() : region, endpoint == null ? "" : endpoint);
 
-        if (clients.containsKey(key)) {
-            return (T) clients.get(key);
-        } else {
+        if (!clients.containsKey(key)) {
             try {
                 AwsCredentialsProvider provider = credentials.provider();
 
@@ -79,11 +77,12 @@ public abstract class AwsResource extends Resource {
                 T client = (T) builder.build();
                 clients.put(key, client);
 
-                return client;
             } catch (Exception ex) {
                 throw new GyroException(String.format("Unable to create %s !", clientClass), ex);
             }
         }
+
+        return (T) clients.get(key);
     }
 
     @FunctionalInterface
