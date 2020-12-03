@@ -114,9 +114,11 @@ dependencies {
     implementation 'software.amazon.awssdk:ecs'
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:neptune'
+    implementation 'software.amazon.awssdk:kendra'
+    implementation 'software.amazon.awssdk:wafv2'
     implementation 'org.json:json:20180813'
 
-    gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
+    gyroDoclet "gyro:gyro-doclet:0.99.1"
 }
 
 task referenceDocs(type: Javadoc) {

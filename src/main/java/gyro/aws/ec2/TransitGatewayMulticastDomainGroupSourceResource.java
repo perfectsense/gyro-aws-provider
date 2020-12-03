@@ -47,7 +47,7 @@ public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResourc
     private NetworkInterfaceResource networkInterface;
 
     /**
-     * The IP address to assign to the multicast domain group. The address should be in the ``224.0.0.0/4`` or ``ff00::/8`` CIDR range. (Required)
+     * The IP address to assign to the multicast domain group. The address should be in the ``224.0.0.0/4`` or ``ff00::/8`` CIDR range.
      */
     @Required
     public String getGroupIpAddress() {
@@ -59,7 +59,7 @@ public class TransitGatewayMulticastDomainGroupSourceResource extends AwsResourc
     }
 
     /**
-     * The network interface that sends the multicast traffic. (Required)
+     * The network interface that sends the multicast traffic.
      */
     @Required
     public NetworkInterfaceResource getNetworkInterface() {

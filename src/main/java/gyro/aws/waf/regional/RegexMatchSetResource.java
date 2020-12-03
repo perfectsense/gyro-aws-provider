@@ -22,6 +22,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.CreateRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetRegexMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.RegexMatchSet;
@@ -64,10 +65,11 @@ public class RegexMatchSetResource extends gyro.aws.waf.common.RegexMatchSetReso
     private Set<RegexMatchTupleResource> regexMatchTuple;
 
     /**
-     * List of regex match tuple data defining the condition. (Required)
+     * List of regex match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.regional.RegexMatchTupleResource
      */
+    @Required
     @Updatable
     public Set<RegexMatchTupleResource> getRegexMatchTuple() {
         if (regexMatchTuple == null) {

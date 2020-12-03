@@ -26,7 +26,7 @@ public class EcsHostEntry extends Diffable {
     private String ipAddress;
 
     /**
-     * The hostname to use in the /etc/hosts entry. (Required)
+     * The hostname to use in the /etc/hosts entry.
      */
     @Required
     public String getHostname() {
@@ -38,7 +38,7 @@ public class EcsHostEntry extends Diffable {
     }
 
     /**
-     * The IP address to use in the /etc/hosts entry. (Required)
+     * The IP address to use in the /etc/hosts entry.
      */
     @Required
     public String getIpAddress() {

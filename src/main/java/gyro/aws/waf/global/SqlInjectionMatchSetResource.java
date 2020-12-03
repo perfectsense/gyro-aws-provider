@@ -22,6 +22,7 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateSqlInjectionMatchSetResponse;
 import software.amazon.awssdk.services.waf.model.GetSqlInjectionMatchSetResponse;
@@ -55,10 +56,11 @@ public class SqlInjectionMatchSetResource extends gyro.aws.waf.common.SqlInjecti
     private Set<SqlInjectionMatchTupleResource> sqlInjectionMatchTuple;
 
     /**
-     * List of sql injection match tuple data defining the condition. (Required)
+     * List of sql injection match tuple data defining the condition.
      *
      * @subresource gyro.aws.waf.global.SqlInjectionMatchTupleResource
      */
+    @Required
     @Updatable
     public Set<SqlInjectionMatchTupleResource> getSqlInjectionMatchTuple() {
         if (sqlInjectionMatchTuple == null) {

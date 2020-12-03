@@ -22,6 +22,7 @@ import java.util.Set;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.model.NetworkMode;
 import software.amazon.awssdk.services.ecs.model.PortMapping;
@@ -34,7 +35,7 @@ public class EcsPortMapping extends Diffable {
     private TransportProtocol protocol;
 
     /**
-     * The port number on the container that is bound to the user-specified or automatically assigned ``host-port``. (Required)
+     * The port number on the container that is bound to the user-specified or automatically assigned ``host-port``.
      */
     @Required
     public Integer getContainerPort() {
@@ -59,9 +60,9 @@ public class EcsPortMapping extends Diffable {
     }
 
     /**
-     * The protocol used for the port mapping.
-     * Valid values are ``tcp`` and ``udp``. Defaults to ``tcp``.
+     * The protocol used for the port mapping. Defaults to ``tcp``.
      */
+    @ValidStrings({"tcp", "udp"})
     public TransportProtocol getProtocol() {
         return protocol;
     }

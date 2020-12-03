@@ -27,7 +27,7 @@ public class EcsMountPoint extends Diffable {
     private Boolean readOnly;
 
     /**
-     * The name of the volume to mount. (Required)
+     * The name of the volume to mount.
      * Must be the ``name`` of a task definition volume.
      */
     @Required
@@ -40,7 +40,7 @@ public class EcsMountPoint extends Diffable {
     }
 
     /**
-     * The path on the container at which to mount the host volume. (Required)
+     * The path on the container at which to mount the host volume.
      */
     @Required
     public String getContainerPath() {

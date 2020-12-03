@@ -21,6 +21,8 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
 import software.amazon.awssdk.services.s3.model.NoncurrentVersionTransition;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -45,8 +47,9 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     private List<S3LifecycleRuleTransition> transition;
 
     /**
-     * Name of the life cycle rule. (Required)
+     * Name of the life cycle rule.
      */
+    @Required
     public String getId() {
         return id;
     }
@@ -57,6 +60,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     /**
      * Expiration setting for the life cycle rule.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRuleExpiration
      */
     @Updatable
     public S3LifecycleRuleExpiration getExpiration() {
@@ -69,6 +74,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     /**
      * Incomplete multi part upload setting for the life cycle rule.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRuleAbortIncompleteMultipartUpload
      */
     @Updatable
     public S3LifecycleRuleAbortIncompleteMultipartUpload getAbortIncompleteMultipartUpload() {
@@ -81,6 +88,8 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
 
     /**
      * Non current version expiration settings for the life cycle rule.
+     *
+     * @subresource gyro.aws.s3.S3LifecycleRuleNoncurrentVersionExpiration
      */
     @Updatable
     public S3LifecycleRuleNoncurrentVersionExpiration getNoncurrentVersionExpiration() {
@@ -92,9 +101,11 @@ public class S3LifecycleRule extends Diffable implements Copyable<LifecycleRule>
     }
 
     /**
-     * State of the lifecycle policy. Valid values ``Enabled`` or ``Disabled``. (Required)
+     * State of the lifecycle policy.
      */
+    @Required
     @Updatable
+    @ValidStrings({"Enabled", "Disabled"})
     public String getStatus() {
         return status;
     }

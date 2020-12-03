@@ -24,6 +24,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
 import software.amazon.awssdk.services.cloudwatchevents.model.PutTargetsRequest;
 import software.amazon.awssdk.services.cloudwatchevents.model.Target;
@@ -47,8 +48,9 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     private String kinesisPartitionKeyPath;
 
     /**
-     * The identifier of the target resource. (Required)
+     * The identifier of the target resource.
      */
+    @Required
     public String getTargetId() {
         return targetId;
     }
@@ -58,8 +60,9 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The arn of the target resource. (Required)
+     * The arn of the target resource.
      */
+    @Required
     @Updatable
     public String getTargetArn() {
         return targetArn;
@@ -70,7 +73,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The IAM role arn that gives permission to invoke actions on the target resource. (Optional)
+     * The IAM role arn that gives permission to invoke actions on the target resource.
      */
     @Updatable
     public RoleResource getRole() {
@@ -82,7 +85,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The input json text that triggers an action on the target resource. If provided, doesn't consider the matched event conditions. (Optional)
+     * The input json text that triggers an action on the target resource. If provided, doesn't consider the matched event conditions.
      */
     @Updatable
     public String getInput() {
@@ -94,7 +97,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The input path that passes the part of the event to trigger the target resource. (Optional)
+     * The input path that passes the part of the event to trigger the target resource.
      */
     @Updatable
     public String getInputPath() {

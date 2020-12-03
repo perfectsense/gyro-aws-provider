@@ -31,6 +31,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -308,7 +309,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private S3AccessControlPolicy accessControlPolicy;
 
     /**
-     * The name of the bucket. (Required)
+     * The name of the bucket.
      */
     @Required
     @Id
@@ -384,9 +385,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. Valid values are ``BUCKET_OWNER`` or ``REQUESTER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
+     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
      */
     @Updatable
+    @ValidStrings({"BUCKET_OWNER", "REQUESTER"})
     public String getRequestPayer() {
         if (requestPayer == null) {
             requestPayer = "BUCKET_OWNER";
@@ -397,12 +399,6 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     public void setRequestPayer(String requestPayer) {
         this.requestPayer = requestPayer;
-
-        try {
-            Payer.valueOf(requestPayer.toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new GyroException("Invalid value for param 'request-payer'. Valid values are 'BUCKET_OWNER' or 'REQUESTER'.");
-        }
     }
 
     /**

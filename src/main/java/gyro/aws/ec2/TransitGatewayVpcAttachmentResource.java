@@ -33,6 +33,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayVpcAttachmentResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayVpcAttachmentsResponse;
@@ -78,7 +79,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     private String id;
 
     /**
-     * List of subnets for the availability zone that the transit gateway uses. Limited to one subnet per availability zone. (Required)
+     * List of subnets for the availability zone that the transit gateway uses. Limited to one subnet per availability zone.
      */
     @Required
     @Updatable
@@ -95,7 +96,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * The transit gateway for this attachment. (Required)
+     * The transit gateway for this attachment.
      */
     @Required
     public TransitGatewayResource getTransitGateway() {
@@ -107,7 +108,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * The VPC to attach to the transit gateway selected. This VPC should have at least one subnet associated with it. (Required)
+     * The VPC to attach to the transit gateway selected. This VPC should have at least one subnet associated with it.
      */
     @Required
     public VpcResource getVpc() {
@@ -119,8 +120,9 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * Enable DNS resolution for the attachment. Valid values are ``enable`` or ``disable``. Defaults to ``enable``.
+     * Enable DNS resolution for the attachment. Defaults to ``enable``.
      */
+    @ValidStrings({"enable", "disable"})
     @Updatable
     public DnsSupportValue getDnsSupport() {
         return dnsSupport;
@@ -131,8 +133,9 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * Enable support for ipv6 block support for the attachment. Valid values are ``enable`` or ``disable``. Defaults to ``disable``.
+     * Enable support for ipv6 block support for the attachment. Defaults to ``disable``.
      */
+    @ValidStrings({"enable", "disable"})
     public Ipv6SupportValue getIpv6Support() {
         return ipv6Support;
     }

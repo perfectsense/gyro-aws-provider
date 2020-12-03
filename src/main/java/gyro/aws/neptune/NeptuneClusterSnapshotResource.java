@@ -78,11 +78,11 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
     private String vpcId;
 
     /**
-     * The unique name of the Neptune cluster snapshot. (Required)
+     * The unique name of the Neptune cluster snapshot.
      */
     @Id
     @Required
-    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "1-255 letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
+    @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,253}[a-z0-9]$)?", message = "a string 1-255 characters long containing letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
     public String getDbClusterSnapshotIdentifier() {
         return dbClusterSnapshotIdentifier;
     }
@@ -92,7 +92,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
     }
 
     /**
-     * The Neptune cluster to create a snapshot for. (Required)
+     * The Neptune cluster to create a snapshot for.
      */
     @Required
     public NeptuneClusterResource getDbCluster() {
@@ -248,7 +248,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
     }
 
     /**
-     * The type of the Neptune cluster snapshot. Valid values are ``automated``, ``manual``, ``shared``, and ``public``.
+     * The type of the Neptune cluster snapshot.
      */
     @Output
     public String getSnapshotType() {

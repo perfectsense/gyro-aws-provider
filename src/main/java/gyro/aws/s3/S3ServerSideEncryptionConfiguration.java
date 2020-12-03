@@ -27,7 +27,7 @@ public class S3ServerSideEncryptionConfiguration extends Diffable implements Cop
     private S3ServerSideEncryptionRule encryptionRule;
 
     /**
-     * The server-side encryption configuration rule. (Required)
+     * The server-side encryption configuration rule.
      *
      * @subresource gyro.aws.s3.S3ServerSideEncryptionRule
      */

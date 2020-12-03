@@ -19,6 +19,7 @@ package gyro.aws.s3;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.s3.model.Grant;
 import software.amazon.awssdk.services.s3.model.Permission;
 
@@ -28,7 +29,7 @@ public class S3Grant extends Diffable implements Copyable<Grant> {
     private Permission permission;
 
     /**
-     * The object being granted the permission. (Required)
+     * The object being granted the permission.
      *
      * @subresource gyro.aws.s3.S3Grantee
      */
@@ -42,9 +43,10 @@ public class S3Grant extends Diffable implements Copyable<Grant> {
     }
 
     /**
-     * The permission to be granted. (Required)
+     * The permission to be granted.
      */
     @Required
+    @ValidStrings({"FULL_CONTROL", "WRITE", "WRITE_ACP", "READ", "READ_ACP"})
     public Permission getPermission() {
         return permission;
     }

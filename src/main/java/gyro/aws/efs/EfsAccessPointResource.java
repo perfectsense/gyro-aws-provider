@@ -76,7 +76,7 @@ public class EfsAccessPointResource extends AwsResource implements Copyable<Acce
     private String id;
 
     /**
-     * The file system that the access point provides access to. (Required)
+     * The file system that the access point provides access to.
      */
     @Required
     public FileSystemResource getFileSystem() {

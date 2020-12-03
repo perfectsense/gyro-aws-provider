@@ -28,7 +28,7 @@ public class EcsDeploymentConfiguration extends Diffable implements Copyable<Dep
     public Integer minimumHealthyPercent;
 
     /**
-     * The upper limit on the number of tasks in a service that are allowed in the ``RUNNING`` or ``PENDING`` state during a deployment. Valid values are ``0`` or any positive integer. Defaults to ``200``.
+     * The upper limit on the number of tasks in a service that are allowed in the ``RUNNING`` or ``PENDING`` state during a deployment. Defaults to ``200``.
      */
     @Min(0)
     @Updatable
@@ -41,7 +41,7 @@ public class EcsDeploymentConfiguration extends Diffable implements Copyable<Dep
     }
 
     /**
-     * The lower limit on the number of tasks in a service that are allowed in the ``RUNNING`` state during a deployment. Valid values are ``0`` or any positive integer. Defaults to ``100``.
+     * The lower limit on the number of tasks in a service that are allowed in the ``RUNNING`` state during a deployment. Defaults to ``100``.
      */
     @Min(0)
     @Updatable

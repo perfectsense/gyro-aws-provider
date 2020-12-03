@@ -22,6 +22,7 @@ import java.util.Set;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.model.ResourceRequirement;
 import software.amazon.awssdk.services.ecs.model.ResourceType;
@@ -32,10 +33,10 @@ public class EcsResourceRequirement extends Diffable {
     private String value;
 
     /**
-     * The type of resource to assign to a container. (Required)
-     * Valid values are ``GPU`` and ``InferenceAccelerator``.
+     * The type of resource to assign to a container.
      */
     @Required
+    @ValidStrings({"GPU", "InferenceAccelerator"})
     public ResourceType getType() {
         return type;
     }
@@ -45,7 +46,7 @@ public class EcsResourceRequirement extends Diffable {
     }
 
     /**
-     * The value for the specified resource ``type``. (Required)
+     * The value for the specified resource ``type``.
      * If the ``GPU`` ``type`` is used, the ``value`` is the number of physical GPUs the Amazon ECS container agent will reserve for the container. The total of all GPU resource requirements' values across a task definition may not exceed ``16``.
      * If the ``InferenceAccelerator`` ``type`` is used, the ``value`` should match the ``device-name`` for an ``inference-accelerator`` specified in a task definition.
      */

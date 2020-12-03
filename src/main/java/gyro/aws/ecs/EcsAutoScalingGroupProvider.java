@@ -23,6 +23,7 @@ import java.util.Set;
 import gyro.aws.autoscaling.AutoScalingGroupResource;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ecs.model.AutoScalingGroupProvider;
 import software.amazon.awssdk.services.ecs.model.ManagedScalingStatus;
@@ -35,7 +36,7 @@ public class EcsAutoScalingGroupProvider extends Diffable {
     private ManagedTerminationProtection managedTerminationProtection;
 
     /**
-     * The Auto Scaling group for the capacity provider. (Required)
+     * The Auto Scaling group for the capacity provider.
      */
     @Required
     public AutoScalingGroupResource getAutoScalingGroup() {
@@ -62,8 +63,8 @@ public class EcsAutoScalingGroupProvider extends Diffable {
     /**
      * The managed termination protection setting to use for the Auto Scaling group capacity provider.
      * To use ``managed-termination-protection``, ``managed-scaling`` must have its ``status`` set to ``ENABLED``, and the ``auto-scaling-group`` must have ``new-instances-protected-from-scale-in`` set to ``true``.
-     * Valid values are ``ENABLED`` and ``DISABLED``.
      */
+    @ValidStrings({"ENABLED", "DISABLED"})
     public ManagedTerminationProtection getManagedTerminationProtection() {
         return managedTerminationProtection;
     }

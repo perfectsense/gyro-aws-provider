@@ -25,6 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.NotificationConfiguration;
@@ -37,8 +38,9 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     private String notificationType;
 
     /**
-     * The SNS topic to notify. (Required)
+     * The SNS topic to notify.
      */
+    @Required
     public TopicResource getTopic() {
         return topic;
     }
@@ -48,7 +50,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     }
 
     /**
-     * The event on which to notify. Valid values are ``autoscaling:EC2_INSTANCE_LAUNCH`` or ``autoscaling:EC2_INSTANCE_LAUNCH_ERROR`` or ``autoscaling:EC2_INSTANCE_TERMINATE`` or ``autoscaling:EC2_INSTANCE_TERMINATE_ERROR``. (Required)
+     * The event on which to notify.
      */
     @Updatable
     @ValidStrings({
@@ -57,6 +59,7 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
         "autoscaling:EC2_INSTANCE_TERMINATE",
         "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
     })
+    @Required
     public String getNotificationType() {
         return notificationType;
     }

@@ -25,6 +25,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreateInstanceProfileResponse;
 import software.amazon.awssdk.services.iam.model.GetInstanceProfileResponse;
@@ -53,7 +54,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     private RoleResource role;
 
     /**
-     * The arn of the instance profile. (Required)
+     * The arn of the instance profile.
      */
     @Output
     @Id
@@ -66,8 +67,9 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     /**
-     * The name of the instance profile. (Required)
+     * The name of the instance profile.
      */
+    @Required
     public String getName() {
         return this.name;
     }
@@ -77,7 +79,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     /**
-     * The path to the instance profile. Defaults to ``/``. (Optional)
+     * The path to the instance profile. Defaults to ``/``.
      */
     public String getPath() {
         if (path == null) {
@@ -92,7 +94,7 @@ public class InstanceProfileResource extends AwsResource implements Copyable<Ins
     }
 
     /**
-     * The role associated with the instance profile. (Optional)
+     * The role associated with the instance profile.
      */
     @Updatable
     public RoleResource getRole() {

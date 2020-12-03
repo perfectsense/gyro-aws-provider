@@ -95,12 +95,11 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
     private String arn;
 
     /**
-     * The name identifying the cluster. (Required)
-     * Valid values consist of 1 to 255 letters, numbers, and hyphens, and begin with a letter.
+     * The name identifying the cluster.
      */
     @Required
     @Id
-    @Regex(value = "^[a-zA-Z]([-a-zA-Z0-9]{0,254})?", message = "1 to 255 letters, numbers, and hyphens. Must begin with a letter.")
+    @Regex(value = "^[a-zA-Z]([-a-zA-Z0-9]{0,254})?", message = "a string 1 to 255 characters long containing letters, numbers, and hyphens. Must begin with a letter")
     public String getClusterName() {
         return clusterName;
     }

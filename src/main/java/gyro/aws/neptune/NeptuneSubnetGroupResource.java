@@ -65,7 +65,7 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
     private Set<SubnetResource> subnets;
 
     /**
-     * The description for the Neptune subnet group. (Required)
+     * The description for the Neptune subnet group.
      */
     @Updatable
     @Required
@@ -78,7 +78,7 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
     }
 
     /**
-     * The name for the Neptune subnet group. (Required)
+     * The name for the Neptune subnet group.
      */
     @Id
     @Required
@@ -91,7 +91,7 @@ public class NeptuneSubnetGroupResource extends NeptuneTaggableResource implemen
     }
 
     /**
-     * The list of subnets for the Neptune subnet group. (Required)
+     * The list of subnets for the Neptune subnet group.
      */
     @Updatable
     @Required

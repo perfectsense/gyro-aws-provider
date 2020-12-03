@@ -39,7 +39,7 @@ public class EcsPlacementStrategy extends Diffable implements Copyable<Placement
     }
 
     /**
-     * The type of placement strategy. (Required)
+     * The type of placement strategy.
      */
     @Required
     public PlacementStrategyType getType() {

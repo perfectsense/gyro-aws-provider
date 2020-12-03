@@ -71,7 +71,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     private String id;
 
     /**
-     * The region of the peer transit gateway. (Required)
+     * The region of the peer transit gateway.
      */
     @Required
     public String getPeerRegion() {
@@ -83,7 +83,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     }
 
     /**
-     * The accepter transit gateway that has to be attached to your transit gateway. (Required)
+     * The accepter transit gateway that has to be attached to your transit gateway.
      */
     @Required
     public TransitGatewayResource getPeerTransitGateway() {
@@ -95,7 +95,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     }
 
     /**
-     * The requester transit gateway that needs the peering attachment. (Required)
+     * The requester transit gateway that needs the peering attachment.
      */
     @Required
     public TransitGatewayResource getTransitGateway() {

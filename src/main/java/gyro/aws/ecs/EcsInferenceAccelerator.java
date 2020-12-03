@@ -26,7 +26,7 @@ public class EcsInferenceAccelerator extends Diffable {
     private String deviceType;
 
     /**
-     * The Elastic Inference accelerator device name. (Required)
+     * The Elastic Inference accelerator device name.
      * The device name must also be referenced in a container definition as a resource requirement.
      */
     @Required
@@ -39,7 +39,7 @@ public class EcsInferenceAccelerator extends Diffable {
     }
 
     /**
-     * The Elastic Inference accelerator type to use. (Required)
+     * The Elastic Inference accelerator type to use.
      */
     @Required
     public String getDeviceType() {

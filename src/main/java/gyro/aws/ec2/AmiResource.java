@@ -94,7 +94,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     private static final String ATTRIBUTE_LAUNCH_PERMISSION = "launchPermission";
 
     /**
-     * The name of the AMI. (Required)
+     * The name of the AMI.
      */
     @Required
     public String getName() {
@@ -118,7 +118,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     }
 
     /**
-     * The Instance from which the AMI is going to be created. (Required)
+     * The Instance from which the AMI is going to be created.
      */
     @Required
     public InstanceResource getInstance() {

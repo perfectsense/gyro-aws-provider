@@ -31,7 +31,7 @@ public class EfsPosixUser extends Diffable implements Copyable<PosixUser> {
     private List<Long> secondaryGroupIds;
 
     /**
-     * The POSIX user ID used for all file system operations using the parent access point. Accepts values ranging from ``0`` to ``4294967295``.
+     * The POSIX user ID used for all file system operations using the parent access point.
      */
     @Range(min = 0, max = 4294967295L)
     public Long getUserId() {
@@ -43,7 +43,7 @@ public class EfsPosixUser extends Diffable implements Copyable<PosixUser> {
     }
 
     /**
-     * The POSIX user ID used for all file system operations using the parent access point. Accepts values ranging from ``0`` to ``4294967295``.
+     * The POSIX user ID used for all file system operations using the parent access point.
      */
     @Range(min = 0, max = 4294967295L)
     public Long getGroupId() {

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ecs.model.FirelensConfiguration;
 import software.amazon.awssdk.services.ecs.model.FirelensConfigurationType;
 
@@ -30,10 +31,10 @@ public class EcsFirelensConfiguration extends Diffable {
     private Map<String, String> options;
 
     /**
-     * The log router to use. (Required)
-     * Valid values are ``fluentd`` or ``fluentbit``.
+     * The log router to use.
      */
     @Required
+    @ValidStrings({"fluentd", "fluentbit"})
     public FirelensConfigurationType getType() {
         return type;
     }

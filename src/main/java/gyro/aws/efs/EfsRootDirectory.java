@@ -27,7 +27,7 @@ public class EfsRootDirectory extends Diffable implements Copyable<RootDirectory
     private EfsCreationInfo creationInfo;
 
     /**
-     * The path on the EFS file system to expose as the root directory to NFS clients using the access point. (Required)
+     * The path on the EFS file system to expose as the root directory to NFS clients using the access point.
      */
     @Required
     public String getPath() {

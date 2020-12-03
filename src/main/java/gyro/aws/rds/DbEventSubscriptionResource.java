@@ -26,6 +26,8 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateEventSubscriptionResponse;
 import software.amazon.awssdk.services.rds.model.DescribeEventSubscriptionsResponse;
@@ -98,8 +100,9 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The subscribed SNS topic. (Required)
+     * The subscribed SNS topic.
      */
+    @Required
     @Updatable
     public TopicResource getSnsTopic() {
         return snsTopic;
@@ -125,9 +128,10 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The type of source that is generating the events. If omitted, all events are returned. Valid values: ``db-instance``, ``db-cluster``, ``db-parameter-group``, ``db-security-group``, ``db-snapshot``, ``db-cluster-snapshot``.
+     * The type of source that is generating the events. If omitted, all events are returned.
      */
     @Updatable
+    @ValidStrings({"db-instance", "db-cluster", "db-parameter-group", "db-security-group", "db-snapshot", "db-cluster-snapshot"})
     public String getSourceType() {
         return sourceType;
     }
@@ -137,8 +141,9 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
     }
 
     /**
-     * The name of the subscription. (Required)
+     * The name of the subscription.
      */
+    @Required
     @Id
     public String getName() {
         return name;

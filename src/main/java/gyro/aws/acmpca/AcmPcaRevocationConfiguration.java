@@ -26,6 +26,8 @@ public class AcmPcaRevocationConfiguration extends Diffable implements Copyable<
 
     /**
      * The Crl configuration.
+     *
+     * @subresource gyro.aws.acmpca.AcmPcaCrlConfiguration
      */
     @Updatable
     public AcmPcaCrlConfiguration getCrlConfiguration() {

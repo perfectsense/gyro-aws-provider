@@ -26,6 +26,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
@@ -54,8 +55,9 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
     private VpcResource vpc;
 
     /**
-     * The VPC to create an internet gateway in. (Required)
+     * The VPC to create an internet gateway in.
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }

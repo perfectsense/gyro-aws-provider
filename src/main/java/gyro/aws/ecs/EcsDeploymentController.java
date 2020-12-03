@@ -27,7 +27,7 @@ public class EcsDeploymentController extends Diffable implements Copyable<Deploy
     private DeploymentControllerType type;
 
     /**
-     * The deployment controller to use for the service. (Required)
+     * The deployment controller to use for the service.
      */
     @Required
     public DeploymentControllerType getType() {

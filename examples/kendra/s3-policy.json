@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::example-bucket-gyro/*"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::example-bucket-gyro"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kendra:BatchPutDocument",
+        "kendra:BatchDeleteDocument"
+      ],
+      "Resource": "arn:aws:kendra:us-east-1:242040583208:index/3c286725-1396-4f67-8d19-102a5372a462"
+    }
+  ]
+}

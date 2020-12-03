@@ -29,6 +29,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateSecurityGroupResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
@@ -61,8 +62,9 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     private String ownerId;
 
     /**
-     * The name of the Security Group. (Required)
+     * The name of the Security Group.
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -72,8 +74,9 @@ public class SecurityGroupResource extends Ec2TaggableResource<SecurityGroup> im
     }
 
     /**
-     * The VPC to create the Security Group in. (Required)
+     * The VPC to create the Security Group in.
      */
+    @Required
     public VpcResource getVpc() {
         return vpc;
     }

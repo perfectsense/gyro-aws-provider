@@ -18,6 +18,7 @@ package gyro.aws.ecs;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Range;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ecs.model.ManagedScaling;
 import software.amazon.awssdk.services.ecs.model.ManagedScalingStatus;
 
@@ -30,8 +31,8 @@ public class EcsManagedScaling extends Diffable {
 
     /**
      * Whether or not to enable managed scaling for the capacity provider.
-     * Valid values are ``ENABLED`` and ``DISABLED``.
      */
+    @ValidStrings({"ENABLED", "DISABLED"})
     public ManagedScalingStatus getStatus() {
         return status;
     }
@@ -42,7 +43,6 @@ public class EcsManagedScaling extends Diffable {
 
     /**
      * The target capacity value for the capacity provider. A value of ``100`` will result in the Amazon EC2 instances in your Auto Scaling group being completely utilized.
-     * Valid values are integers greater than ``0`` and less than or equal to ``100``.
      */
     @Range(min = 1, max = 100)
     public Integer getTargetCapacity() {
