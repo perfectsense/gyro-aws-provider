@@ -1,4 +1,20 @@
-## 0.99.4 (Unreleased)
+## 0.99.4 (December 4th, 2020)
+
+ENHANCEMENTS: 
+
+* [247](https://github.com/perfectsense/gyro-aws-provider/issues/247): Add support for EFS.
+* [258](https://github.com/perfectsense/gyro-aws-provider/issues/258): Add support for WAF V2.
+* [285](https://github.com/perfectsense/gyro-aws-provider/issues/285): Add support for Kendra.
+* [318](https://github.com/perfectsense/gyro-aws-provider/issues/318): Update KMS references to resource references.
+* [329](https://github.com/perfectsense/gyro-aws-provider/issues/329): Update IAM role reference examples to be gyro managed examples.
+
+ISSUES FIXED:
+
+* [305](https://github.com/perfectsense/gyro-aws-provider/issues/305): Fix Network Acl refresh error.
+* [310](https://github.com/perfectsense/gyro-aws-provider/issues/310): Allow passing credentials to S3 FileBackend.
+* [313](https://github.com/perfectsense/gyro-aws-provider/issues/313): Fix SQS copyFrom for external references.
+* [323](https://github.com/perfectsense/gyro-aws-provider/issues/323): Fix compilation on Windows.
+* [335](https://github.com/perfectsense/gyro-aws-provider/issues/335): Gracefully handle `Request limit exceed` exception.
 
 ## 0.99.3 (August 25th, 2020)
 
