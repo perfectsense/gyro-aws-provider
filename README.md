@@ -39,7 +39,7 @@ Load the AWS provider in your project by consuming it as a `plugin` directive in
 
 ```shell
 @repository: 'https://artifactory.psdops.com/gyro-releases'
-@plugin: 'gyro:gyro-aws-provider:0.99.3'
+@plugin: 'gyro:gyro-aws-provider:0.99.4'
 ```
 
 #### Authentication ####
@@ -68,10 +68,12 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [Document Db](https://gyro.dev/providers/aws/document-db/index.html)
 * [Dynamo DB](https://gyro.dev/providers/aws/dynamodb/index.html)
 * [EC2](https://gyro.dev/providers/aws/ec2/index.html)
+* [EFS](https://gyro.dev/providers/aws/efs/index.html)
 * [EKS](https://gyro.dev/providers/aws/eks/index.html)
 * [ElastiCache](https://gyro.dev/providers/aws/elasticache/index.html)
 * [Elasticsearch](https://gyro.dev/providers/aws/elasticsearch/index.html)
 * [Identity Access Management](https://gyro.dev/providers/aws/identity-access-management/index.html)
+* [Kendra](https://gyro.dev/providers/aws/kendra/index.html)
 * [KMS](https://gyro.dev/providers/aws/kms/index.html)
 * [Lambda](https://gyro.dev/providers/aws/lambda/index.html)
 * [Load Balancer](https://gyro.dev/providers/aws/load-balancer/index.html)
@@ -84,6 +86,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [SQS](https://gyro.dev/providers/aws/sqs/index.html)
 * [WAF - Global](https://gyro.dev/providers/aws/waf---global/index.html)
 * [WAF - Regional](https://gyro.dev/providers/aws/waf---regional/index.html)
+* [WAF - V2](https://gyro.dev/providers/aws/waf-v2/index.html)
 
 ## Developing the AWS Provider
 
