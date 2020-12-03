@@ -1,0 +1,74 @@
+aws::iam-role example-role-iam
+    name: "role-for-kendra-index-us-east-1"
+    description: "example-role for Kendra index"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "policy-for-kendra-index-us-east-1"
+    description: "example policy for Kendra Index"
+    policy-document: "index-policy.json"
+end
+
+aws::kendra-index index-example-enter
+    description: "example-index-desc"
+    edition: ENTERPRISE_EDITION
+    name: "example-index"
+    role: $(aws::iam-role example-role-iam)
+
+    capacity-units-configuration
+        query-capacity-units: 5
+        storage-capacity-units: 1
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
+
+aws::iam-role example-role-iam-s3
+    name: "role-for-kendra-s3-us-east-1"
+    description: "example-role for Kendra s3"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-s3)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-s3
+    name: "policy-for-kendra-s3-us-east-1"
+    description: "example policy for Kendra s3"
+    policy-document: "s3-policy.json"
+end
+
+aws::kendra-data-source data-source-example-s3
+    name: "s3-ex"
+    description: "s3-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: $(aws::iam-role example-role-iam-s3)
+    schedule: 'cron(0 11 * * ? *)'
+    type: S3
+
+    configuration
+        s3-configuration
+            bucket: "example-kendra"
+
+            exclusion-patterns: [
+                "example_pattern"
+            ]
+
+            inclusion-prefixes: [
+                "example_pattern"
+            ]
+        end
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end

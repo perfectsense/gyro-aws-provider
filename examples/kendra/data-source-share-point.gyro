@@ -1,0 +1,87 @@
+aws::iam-role example-role-iam
+    name: "role-for-kendra-index-us-east-1"
+    description: "example-role for Kendra index"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "policy-for-kendra-index-us-east-1"
+    description: "example policy for Kendra Index"
+    policy-document: "index-policy.json"
+end
+
+aws::kendra-index index-example-enter
+    description: "example-index-desc"
+    edition: ENTERPRISE_EDITION
+    name: "example-index"
+    role: $(aws::iam-role example-role-iam)
+
+    capacity-units-configuration
+        query-capacity-units: 5
+        storage-capacity-units: 1
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
+
+aws::iam-role example-role-iam-share-point
+    name: "role-for-kendra-share-point-us-east-1"
+    description: "example-role for Kendra share point"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-share-point)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-share-point
+    name: "policy-for-kendra-share-point-us-east-1"
+    description: "example policy for Kendra share point"
+    policy-document: "share-point-policy.json"
+end
+
+aws::kendra-data-source data-source-example-share-point
+    name: "share-point-ex"
+    description: "share-point-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: $(aws::iam-role example-role-iam-share-point)
+    schedule: 'cron(0 11 * * ? *)'
+    type: SHAREPOINT
+
+    configuration
+        share-point-configuration
+            document-title-field-name: "example_title"
+            crawl-attachments: true
+            secret-arn: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+            share-point-version: SHAREPOINT_ONLINE
+            use-change-log: false
+
+            field-mapping
+                data-source-field-name: "createdDateTime"
+                index-field-name: "_created_at"
+            end
+
+            exclusion-patterns: [
+                "example_pattern"
+            ]
+
+            inclusion-patterns: [
+                "example_pattern"
+            ]
+
+            urls: [
+                'https://yourcompany.sharepoint.com/sites/mysite'
+            ]
+        end
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
