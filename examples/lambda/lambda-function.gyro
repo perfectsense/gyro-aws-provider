@@ -1,8 +1,22 @@
+aws::iam-role example-role-iam
+    name: "example-role-iam"
+    assume-role-policy: '{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "example-policy-iam"
+    policy-document: "lambda-function-policy.json"
+end
+
 aws::lambda-function lambda-function-example
     name: "testFunction1"
     handler: "index.handler"
     runtime: "nodejs8.10"
-    role: "arn:aws:iam::242040583208:role/service-role/testFunction-role-pa0mec3c"
+    role: $(aws::iam-role example-role-iam)
     content-zip-path: "example-function-1.zip"
 
     tags: {
