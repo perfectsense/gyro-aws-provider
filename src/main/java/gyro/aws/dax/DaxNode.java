@@ -18,6 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.Node;
 
 public class DaxNode extends Diffable implements Copyable<Node> {
@@ -41,7 +42,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     }
 
     /**
-     * The endpoint of the node.
+     * The endpoint configuration of the node.
      *
      * @subresource gyro.aws.dax.DaxEndpoint
      */
@@ -67,6 +68,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     /**
      * The ID of the node.
      */
+    @Required
     public String getId() {
         return id;
     }
@@ -107,17 +109,16 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         setStatus(model.nodeStatus());
         setParameterGroupStatus(findById(DaxParameterGroupResource.class, model.parameterGroupStatus()));
 
+        setEndpoint(null);
         if (model.endpoint() != null) {
             DaxEndpoint endpoint = newSubresource(DaxEndpoint.class);
             endpoint.copyFrom(model.endpoint());
             setEndpoint(endpoint);
-        } else {
-            setEndpoint(null);
         }
     }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getId());
+        return getId();
     }
 }

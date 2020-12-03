@@ -1,5 +1,37 @@
 aws::dax-subnet-group subnet-group
     name: "subnet-group-example"
     description: "subnet-group-description"
-    subnet-ids: ["subnet-07473edcb6aa2fff2"]
+    subnets: [
+        $(aws::subnet example-subnet-1),
+        $(aws::subnet example-subnet-2)
+    ]
+end
+
+aws::vpc vpc-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "dax-sg-example"
+    }
+end
+
+aws::subnet example-subnet-1
+    vpc: $(aws::vpc vpc-example)
+    availability-zone: us-east-2a
+    cidr-block: "10.0.0.0/24"
+
+    tags: {
+        Name: "dax-sg-example-1"
+    }
+end
+
+aws::subnet example-subnet-2
+    vpc: $(aws::vpc vpc-example)
+    availability-zone: us-east-2b
+    cidr-block: "10.0.1.0/24"
+
+    tags: {
+        Name: "dax-sg-example-2"
+    }
 end

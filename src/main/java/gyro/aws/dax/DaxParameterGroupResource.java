@@ -80,6 +80,8 @@ public class DaxParameterGroupResource extends AwsResource implements Copyable<P
 
     /**
      * The list of name-value pairs for the parameters of the group.
+     *
+     * @subresource gyro.aws.dax.DaxParameterNameValue
      */
     @Updatable
     public List<DaxParameterNameValue> getParameterNameValues() {
@@ -122,8 +124,6 @@ public class DaxParameterGroupResource extends AwsResource implements Copyable<P
         client.createParameterGroup(r -> r
             .description(getDescription())
             .parameterGroupName(getName()));
-
-        refresh();
     }
 
     @Override

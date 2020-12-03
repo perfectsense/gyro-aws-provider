@@ -18,6 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.ParameterNameValue;
 
 public class DaxParameterNameValue extends Diffable implements Copyable<ParameterNameValue> {
@@ -28,6 +29,7 @@ public class DaxParameterNameValue extends Diffable implements Copyable<Paramete
     /**
      * The name of the parameter.
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -55,7 +57,7 @@ public class DaxParameterNameValue extends Diffable implements Copyable<Paramete
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 
     public static ParameterNameValue toParameterNameValues(DaxParameterNameValue daxParameterNameValue) {

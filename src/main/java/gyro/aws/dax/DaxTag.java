@@ -60,7 +60,7 @@ public class DaxTag extends Diffable implements Copyable<Tag> {
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getKey());
+        return getKey();
     }
 
     public static List<Tag> toTags(List<DaxTag> daxTags) {

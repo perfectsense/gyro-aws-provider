@@ -1,7 +1,14 @@
 aws::dax-cluster cluster-example
     name: "cluster-gyro-example"
-    iam-role-arn: "arn:aws:iam::242040583208:role/service-role/DAXtoDynamoDB"
+    iam-role: $(aws::iam-role iam-role-example)
     node-type: "dax.r4.large"
     replication-factor: 3
     description: "test-description"
+end
+
+aws::iam-role iam-role-example
+    name: "dax-cluster-example-iam-role"
+    arn: "arn:aws:iam::242040583208:role/aws-service-role/dax.amazonaws.com/AWSServiceRoleForDAX"
+    assume-role-policy: "dax-role-policy.json"
+    policies: [$(external-query aws::iam-policy { arn: 'arn:aws:iam::aws:policy/AmazonECS_FullAccess' }).0]
 end

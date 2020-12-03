@@ -16,7 +16,6 @@
 
 package gyro.aws.dax;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,26 +32,22 @@ import software.amazon.awssdk.services.dax.model.Cluster;
  *
  * .. code-block:: gyro
  *
- *    dax-cluster: $(external-query aws::dax-cluster { names: "cluster-example"})
+ *    dax-cluster: $(external-query aws::dax-cluster { name: "cluster-example"})
  */
 @Type("dax-cluster")
 public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterResource> {
 
-    private List<String> names;
+    private String name;
 
     /**
-     * The names of the DAX clusters.
+     * The names of the DAX cluster.
      */
-    public List<String> getNames() {
-        if (names == null) {
-            names = new ArrayList<>();
-        }
-
-        return names;
+    public String getName() {
+        return name;
     }
 
-    public void setNames(List<String> names) {
-        this.names = names;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -62,6 +57,6 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
 
     @Override
     protected List<Cluster> findAws(DaxClient client, Map<String, String> filters) {
-        return client.describeClusters(r -> r.clusterNames(filters.get("names"))).clusters();
+        return client.describeClusters(r -> r.clusterNames(filters.get("name"))).clusters();
     }
 }

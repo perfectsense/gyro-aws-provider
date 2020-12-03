@@ -16,12 +16,14 @@
 
 package gyro.aws.dax;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.ec2.SubnetResource;
+import gyro.aws.ec2.VpcResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -35,7 +37,7 @@ import software.amazon.awssdk.services.dax.model.DescribeSubnetGroupsResponse;
 import software.amazon.awssdk.services.dax.model.SubnetGroup;
 
 /**
- * Creates a DAX subnet group with the specified Name, Description, and Subnet IDs.
+ * Creates a DAX subnet group with the specified Name, Description, and Subnets.
  *
  * Example
  * -------
@@ -45,7 +47,10 @@ import software.amazon.awssdk.services.dax.model.SubnetGroup;
  *    aws::dax-subnet-group subnet-group
  *        name: "subnet-group-example"
  *        description: "subnet-group-description"
- *        subnet-ids: ["subnet-07473edcb6aa2fff2"]
+ *        subnets: [
+ *            $(aws::subnet example-subnet-1),
+ *            $(aws::subnet example-subnet-2)
+ *        ]
  *    end
  */
 @Type("dax-subnet-group")
@@ -53,9 +58,8 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
     private String description;
     private String name;
-    private List<String> subnetIds;
-    private List<DaxSubnet> subnets;
-    private String vpcId;
+    private List<SubnetResource> subnets;
+    private VpcResource vpc;
 
     /**
      * The description of the subnet group.
@@ -83,64 +87,40 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
     }
 
     /**
-     * The list of subnet IDs of the subnet group.
+     * The list of subnets of the subnet group.
      */
     @Required
     @Updatable
-    public List<String> getSubnetIds() {
-        if (subnetIds == null) {
-            subnetIds = new ArrayList<>();
-        }
-
-        return subnetIds;
-    }
-
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
-    }
-
-    /**
-     * The list of subnets of the subnet group.
-     */
-    @Output
-    public List<DaxSubnet> getSubnets() {
-        if (subnets == null) {
-            subnets = new ArrayList<>();
-        }
-
+    public List<SubnetResource> getSubnets() {
         return subnets;
     }
 
-    @Required
-    public void setSubnets(List<DaxSubnet> subnets) {
+    public void setSubnets(List<SubnetResource> subnets) {
         this.subnets = subnets;
     }
 
     /**
-     * The VPC ID of the subnet group.
+     * The VPC of the subnet group.
      */
-    public String getVpcId() {
-        return vpcId;
+    @Output
+    public VpcResource getVpc() {
+        return vpc;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setVpc(VpcResource vpc) {
+        this.vpc = vpc;
     }
 
     @Override
     public void copyFrom(SubnetGroup model) {
         setDescription(model.description());
         setName(model.subnetGroupName());
-        setVpcId(model.vpcId());
+        setVpc(findById(VpcResource.class, model.vpcId()));
 
         getSubnets().clear();
-        getSubnetIds().clear();
         if (model.subnets() != null) {
             model.subnets().forEach(subnet -> {
-                DaxSubnet daxSubnet = newSubresource(DaxSubnet.class);
-                daxSubnet.copyFrom(subnet);
-                getSubnets().add(daxSubnet);
-                getSubnetIds().add(daxSubnet.getIdentifier());
+                getSubnets().add(findById(SubnetResource.class, subnet));
             });
         }
     }
@@ -165,7 +145,9 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
         client.createSubnetGroup(r -> r
             .subnetGroupName(getName())
-            .subnetIds(getSubnetIds())
+            .subnetIds(getSubnets() != null
+                ? getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())
+                : null)
             .description(getDescription())
             .build()
         );
@@ -180,7 +162,9 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
         client.updateSubnetGroup(r -> r
             .subnetGroupName(getName())
-            .subnetIds(getSubnetIds())
+            .subnetIds(getSubnets() != null
+                ? getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())
+                : null)
             .description(getDescription())
         );
     }

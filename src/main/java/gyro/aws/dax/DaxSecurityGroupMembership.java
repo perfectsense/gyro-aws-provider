@@ -18,6 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.SecurityGroupMembership;
 
 public class DaxSecurityGroupMembership extends Diffable implements Copyable<SecurityGroupMembership> {
@@ -28,6 +29,7 @@ public class DaxSecurityGroupMembership extends Diffable implements Copyable<Sec
     /**
      * The ID of the security group.
      */
+    @Required
     public String getSecurityGroupIdentifier() {
         return securityGroupIdentifier;
     }
@@ -55,6 +57,6 @@ public class DaxSecurityGroupMembership extends Diffable implements Copyable<Sec
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getSecurityGroupIdentifier());
+        return getSecurityGroupIdentifier();
     }
 }

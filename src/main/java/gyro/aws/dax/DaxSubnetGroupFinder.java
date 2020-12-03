@@ -16,7 +16,6 @@
 
 package gyro.aws.dax;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,26 +32,22 @@ import software.amazon.awssdk.services.dax.model.SubnetGroup;
  *
  * .. code-block:: gyro
  *
- *    dax-subnet-group: $(external-query aws::dax-subnet-group { names: "subnet-group-example"})
+ *    dax-subnet-group: $(external-query aws::dax-subnet-group { name: "subnet-group-example"})
  */
 @Type("dax-subnet-group")
 public class DaxSubnetGroupFinder extends AwsFinder<DaxClient, SubnetGroup, DaxSubnetGroupResource> {
 
-    private List<String> names;
+    private String name;
 
     /**
      * The list of subnet group names.
      */
-    public List<String> getNames() {
-        if (names == null) {
-            names = new ArrayList<>();
-        }
-
-        return names;
+    public String getName() {
+        return name;
     }
 
-    public void setNames(List<String> names) {
-        this.names = names;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -63,6 +58,6 @@ public class DaxSubnetGroupFinder extends AwsFinder<DaxClient, SubnetGroup, DaxS
     @Override
     protected List<SubnetGroup> findAws(
         DaxClient client, Map<String, String> filters) {
-        return client.describeSubnetGroups(r -> r.subnetGroupNames(filters.get("names"))).subnetGroups();
+        return client.describeSubnetGroups(r -> r.subnetGroupNames(filters.get("name"))).subnetGroups();
     }
 }

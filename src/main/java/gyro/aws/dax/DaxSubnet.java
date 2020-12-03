@@ -18,6 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.Subnet;
 
 public class DaxSubnet extends Diffable implements Copyable<Subnet> {
@@ -39,6 +40,7 @@ public class DaxSubnet extends Diffable implements Copyable<Subnet> {
     /**
      * The ID of the subnet.
      */
+    @Required
     public String getIdentifier() {
         return identifier;
     }
@@ -55,6 +57,6 @@ public class DaxSubnet extends Diffable implements Copyable<Subnet> {
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getIdentifier());
+        return getIdentifier();
     }
 }

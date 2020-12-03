@@ -16,7 +16,6 @@
 
 package gyro.aws.dax;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,26 +32,22 @@ import software.amazon.awssdk.services.dax.model.ParameterGroup;
  *
  * .. code-block:: gyro
  *
- *    dax-parameter-group: $(external-query aws::dax-parameter-group { names: "parameter-group-example"})
+ *    dax-parameter-group: $(external-query aws::dax-parameter-group { name: "parameter-group-example"})
  */
 @Type("dax-parameter-group")
 public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup, DaxParameterGroupResource> {
 
-    private List<String> names;
+    private String name;
 
     /**
      * The list of parameter group names.
      */
-    public List<String> getNames() {
-        if (names == null) {
-            names = new ArrayList<>();
-        }
-
-        return names;
+    public String getName() {
+        return name;
     }
 
-    public void setNames(List<String> names) {
-        this.names = names;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -63,6 +58,6 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
     @Override
     protected List<ParameterGroup> findAws(
         DaxClient client, Map<String, String> filters) {
-        return client.describeParameterGroups(r -> r.parameterGroupNames(filters.get("names"))).parameterGroups();
+        return client.describeParameterGroups(r -> r.parameterGroupNames(filters.get("name"))).parameterGroups();
     }
 }

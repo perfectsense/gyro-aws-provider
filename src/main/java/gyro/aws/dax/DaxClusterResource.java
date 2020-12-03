@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -45,8 +47,8 @@ import software.amazon.awssdk.services.dax.model.DescribeClustersResponse;
  * .. code-block:: gyro
  *
  *    aws::dax-cluster cluster-example
- *        name: "kenny-cluster-gyro"
- *        iam-role-arn: "arn:aws:iam::242040583208:role/service-role/DAXtoDynamoDB"
+ *        name: "cluster-gyro-example"
+ *        iam-role: $(aws::iam-role iam-role-example)
  *        node-type: "dax.r4.large"
  *        replication-factor: 3
  *        description: "test-description"
@@ -60,7 +62,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     private DaxEndpoint clusterDiscoveryEndpoint;
     private String name;
     private String description;
-    private String iamRoleArn;
+    private RoleResource iamRole;
     private List<String> nodeIdsToRemove;
     private List<DaxNode> nodes;
     private String nodeType;
@@ -144,15 +146,15 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The ARN of the IAM role being used for the cluster.
+     * The IAM role being used for the cluster.
      */
     @Required
-    public String getIamRoleArn() {
-        return iamRoleArn;
+    public RoleResource getIamRole() {
+        return iamRole;
     }
 
-    public void setIamRoleArn(String iamRoleArn) {
-        this.iamRoleArn = iamRoleArn;
+    public void setIamRole(RoleResource iamRole) {
+        this.iamRole = iamRole;
     }
 
     /**
@@ -218,6 +220,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         if (availabilityZones == null) {
             availabilityZones = new ArrayList<>();
         }
+
         return availabilityZones;
     }
 
@@ -315,6 +318,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         if (securityGroupIds == null) {
             securityGroupIds = new ArrayList<>();
         }
+
         return securityGroupIds;
     }
 
@@ -418,7 +422,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         setClusterArn(model.clusterArn());
         setName(model.clusterName());
         setDescription(model.description());
-        setIamRoleArn(model.iamRoleArn());
+        setIamRole(!ObjectUtils.isBlank(getIamRole()) ? getIamRole() : null);
         setNodeIdsToRemove(model.nodeIdsToRemove());
         setNodeType(model.nodeType());
         setParameterGroup(findById(DaxParameterGroupResource.class, model.parameterGroup()));
@@ -494,7 +498,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             .availabilityZones(getAvailabilityZones())
             .clusterName(getName())
             .description(getDescription())
-            .iamRoleArn(getIamRoleArn())
+            .iamRoleArn(getIamRole() != null ? getIamRole().getArn() : null)
             .nodeType(getNodeType())
             .notificationTopicArn(getNotificationTopicArn())
             .parameterGroupName(getParameterGroupName())
