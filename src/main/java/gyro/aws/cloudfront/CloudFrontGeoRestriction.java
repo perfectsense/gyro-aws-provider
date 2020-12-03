@@ -35,7 +35,7 @@ public class CloudFrontGeoRestriction extends Diffable implements Copyable<GeoRe
      * Type of restriction.
      */
     @Updatable
-    @ValidStrings({"Whitelist", "Blacklist"})
+    @ValidStrings({"whitelist", "blacklist"})
     public String getType() {
         if (type == null) {
             type = "none";
