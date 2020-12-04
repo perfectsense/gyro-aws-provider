@@ -39,6 +39,7 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
         if (computedTypesAllowed == null) {
             computedTypesAllowed = new ArrayList<>();
         }
+
         return computedTypesAllowed;
     }
 

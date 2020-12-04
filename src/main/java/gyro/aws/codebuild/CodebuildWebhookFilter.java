@@ -59,7 +59,7 @@ public class CodebuildWebhookFilter extends Diffable implements Copyable<Webhook
     }
 
     /**
-     * The field that specifies if the pattern determines which webhook events that do not trigger a build.
+     * If set to ``true`` excludes webhook events that are matched by the pattern specified.
      */
     @Updatable
     public Boolean getExcludeMatchedPattern() {

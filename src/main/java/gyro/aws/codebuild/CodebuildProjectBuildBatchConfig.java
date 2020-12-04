@@ -86,12 +86,11 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
         setServiceRole(!ObjectUtils.isBlank(getServiceRole()) ? getServiceRole() : null);
         setTimeoutInMins(model.timeoutInMins());
 
+        setRestrictions(null);
         if (model.restrictions() != null) {
             CodebuildProjectBatchRestrictions batchRestrictions = newSubresource(CodebuildProjectBatchRestrictions.class);
             batchRestrictions.copyFrom(model.restrictions());
             setRestrictions(batchRestrictions);
-        } else {
-            setRestrictions(null);
         }
     }
 

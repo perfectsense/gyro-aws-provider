@@ -33,7 +33,6 @@ public class CodebuildProjectEnvironmentVariable extends Diffable implements Cop
     /**
      * The name or key of the environment variable.
      */
-    @Updatable
     @Required
     public String getName() {
         return name;

@@ -35,7 +35,7 @@ import software.amazon.awssdk.services.codebuild.model.Project;
  *
  * .. code-block:: gyro
  *
- *    project: $(external-query aws::project { names: ['project-example-name']})
+ *    project: $(external-query aws::project { name: 'project-example-name'})
  */
 @Type("project")
 public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectResource> {
@@ -43,14 +43,14 @@ public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectRe
     /**
      * The names of build projects.
      */
-    private List<String> names;
+    private String name;
 
-    public List<String> getNames() {
-        return names;
+    public String getName() {
+        return name;
     }
 
-    public void setNames(List<String> names) {
-        this.names = names;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectRe
         List<Project> responseList = new ArrayList<>();
 
         try {
-            responseList = client.batchGetProjects(r -> r.names(filters.get("names"))).projects();
+            responseList = client.batchGetProjects(r -> r.names(filters.get("name"))).projects();
         } catch (InvalidInputException ex) {
             // Input project name list empty
         }

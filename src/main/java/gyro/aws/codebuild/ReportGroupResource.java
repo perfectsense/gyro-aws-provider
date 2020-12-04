@@ -40,7 +40,7 @@ import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException
 import software.amazon.awssdk.services.codebuild.model.Tag;
 
 /**
- * Creates a report group with the specified Name, Type, and Report Export Configuration.
+ * Creates a report group.
  *
  * Example
  * -------
@@ -59,7 +59,6 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
 @Type("report-group")
 public class ReportGroupResource extends AwsResource implements Copyable<ReportGroup> {
 
-    // Minimum required fields
     private Boolean deleteReports;
     private CodebuildReportExportConfig reportExportConfig;
     private String name;
@@ -125,8 +124,7 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
     }
 
     /**
-     * When set to ``true`` deleting the report group automatically deletes all the reports under it. If set to
-     * ``false`` deleting a non empty report group is halted.
+     * When set to ``true`` deleting the report group automatically deletes all the reports under it.
      */
     public Boolean getDeleteReports() {
         return deleteReports;
@@ -166,14 +164,14 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
         setName(reportGroup.name());
         setType(reportGroup.typeAsString());
 
+        setReportExportConfig(null);
         if (reportGroup.exportConfig() != null) {
             CodebuildReportExportConfig exportConfig = newSubresource(CodebuildReportExportConfig.class);
             exportConfig.copyFrom(reportGroup.exportConfig());
             setReportExportConfig(exportConfig);
-        } else {
-            setReportExportConfig(null);
         }
 
+        setTags(null);
         if (reportGroup.tags() != null) {
             Map<String, String> tags = new HashMap<>();
             CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
@@ -184,8 +182,6 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
             }
 
             setTags(tags);
-        } else {
-            setTags(null);
         }
     }
 

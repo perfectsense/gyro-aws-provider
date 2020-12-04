@@ -57,20 +57,18 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
     @Override
     public void copyFrom(LogsConfig model) {
 
+        setCloudWatchLogs(null);
         if (model.cloudWatchLogs() != null) {
             CodebuildCloudWatchLogsConfig cloudWatchLogsConfig = newSubresource(CodebuildCloudWatchLogsConfig.class);
             cloudWatchLogsConfig.copyFrom(model.cloudWatchLogs());
             setCloudWatchLogs(cloudWatchLogsConfig);
-        } else {
-            setCloudWatchLogs(null);
         }
 
+        setS3Logs(null);
         if (model.s3Logs() != null) {
             CodebuildS3LogsConfig s3LogsConfig = newSubresource(CodebuildS3LogsConfig.class);
             s3LogsConfig.copyFrom(model.s3Logs());
             setS3Logs(s3LogsConfig);
-        } else {
-            setS3Logs(null);
         }
     }
 

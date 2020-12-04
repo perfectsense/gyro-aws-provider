@@ -68,6 +68,7 @@ public class CodebuildProjectCache extends Diffable implements Copyable<ProjectC
         if (modes == null) {
             modes = new ArrayList<>();
         }
+        
         return modes;
     }
 

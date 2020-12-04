@@ -451,40 +451,37 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         setWebhook(findById(WebhookResource.class, project.webhook()));
         setArn(project.arn());
 
+        setArtifacts(null);
         if (project.artifacts() != null) {
             CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
             projectArtifacts.copyFrom(project.artifacts());
             setArtifacts(projectArtifacts);
-        } else {
-            setArtifacts(null);
         }
 
+        setSource(null);
         if (project.source() != null) {
             CodebuildProjectSource projectSource = newSubresource(CodebuildProjectSource.class);
             projectSource.copyFrom(project.source());
             setSource(projectSource);
-        } else {
-            setSource(null);
         }
 
+        setEnvironment(null);
         if (project.environment() != null) {
             CodebuildProjectEnvironment environment = newSubresource(CodebuildProjectEnvironment.class);
             environment.copyFrom(project.environment());
             setEnvironment(environment);
-        } else {
-            setEnvironment(null);
         }
 
+        setBadge(null);
+        setBadgeEnabled(null);
         if (project.badge() != null) {
             CodebuildProjectBadge badge = newSubresource(CodebuildProjectBadge.class);
             badge.copyFrom(project.badge());
             setBadge(badge);
             setBadgeEnabled(badge.getBadgeEnabled());
-        } else {
-            setBadge(null);
-            setBadgeEnabled(null);
         }
 
+        setTags(null);
         if (project.tags() != null) {
             Map<String, String> tags = new HashMap<>();
             CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
@@ -495,35 +492,31 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             }
 
             setTags(tags);
-        } else {
-            setTags(null);
         }
 
+        setBuildBatchConfig(null);
         if (project.buildBatchConfig() != null) {
             CodebuildProjectBuildBatchConfig buildBatchConfig = newSubresource(
                 CodebuildProjectBuildBatchConfig.class);
             buildBatchConfig.copyFrom(project.buildBatchConfig());
             setBuildBatchConfig(buildBatchConfig);
-        } else {
-            setBuildBatchConfig(null);
         }
 
+        setLogsConfig(null);
         if (project.logsConfig() != null) {
             CodebuildLogsConfig logsConfig = newSubresource(CodebuildLogsConfig.class);
             logsConfig.copyFrom(project.logsConfig());
             setLogsConfig(logsConfig);
-        } else {
-            setLogsConfig(null);
         }
 
+        setCache(null);
         if (project.cache() != null) {
             CodebuildProjectCache cache = newSubresource(CodebuildProjectCache.class);
             cache.copyFrom(project.cache());
             setCache(cache);
-        } else {
-            setCache(null);
         }
 
+        setFileSystemLocations(null);
         if (project.fileSystemLocations() != null) {
             List<CodebuildProjectFileSystemLocation> fileSystemLocations = new ArrayList<>();
             CodebuildProjectFileSystemLocation fileSystemLocation = newSubresource(
@@ -535,10 +528,9 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             }
 
             setFileSystemLocations(fileSystemLocations);
-        } else {
-            setFileSystemLocations(null);
         }
 
+        setSecondaryArtifacts(null);
         if (project.secondaryArtifacts() != null) {
             List<CodebuildProjectArtifacts> secondaryArtifacts = new ArrayList<>();
             CodebuildProjectArtifacts artifact = newSubresource(CodebuildProjectArtifacts.class);
@@ -549,10 +541,9 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             }
 
             setSecondaryArtifacts(secondaryArtifacts);
-        } else {
-            setSecondaryArtifacts(null);
         }
 
+        setSecondarySources(null);
         if (project.secondarySources() != null) {
             List<CodebuildProjectSource> secondarySources = new ArrayList<>();
             CodebuildProjectSource source = newSubresource(CodebuildProjectSource.class);
@@ -563,16 +554,13 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             }
 
             setSecondarySources(secondarySources);
-        } else {
-            setSecondarySources(null);
         }
 
+        setVpcConfig(null);
         if (project.vpcConfig() != null) {
             CodebuildVpcConfig vpcConfig = newSubresource(CodebuildVpcConfig.class);
             vpcConfig.copyFrom(project.vpcConfig());
             setVpcConfig(vpcConfig);
-        } else {
-            setVpcConfig(null);
         }
     }
 

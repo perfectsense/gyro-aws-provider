@@ -36,7 +36,7 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     private VpcResource vpc;
 
     /**
-     * The list of security groups in the Amazon VPC.
+     * One or more security groups part of the configured vpc to be used with the code build.
      */
     @CollectionMax(5)
     @Updatable
@@ -49,7 +49,7 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     }
 
     /**
-     * The list of subnets in the Amazon VPC.
+     * One or more subnets part of the configured vpc to be used with the code build.
      */
     @CollectionMax(16)
     @Updatable
@@ -62,7 +62,7 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     }
 
     /**
-     * The ID of the Amazon VPC.
+     * The vpc resource to be associated with the code build.
      */
     @Updatable
     public VpcResource getVpc() {
@@ -76,30 +76,27 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     @Override
     public void copyFrom(VpcConfig model) {
 
+        setSecurityGroups(null);
         if (model.securityGroupIds() != null && !model.securityGroupIds().isEmpty()) {
             List<SecurityGroupResource> securityGroups = new ArrayList<>();
             for (String id : model.securityGroupIds()) {
                 securityGroups.add(findById(SecurityGroupResource.class, id));
             }
             setSecurityGroups(securityGroups);
-        } else {
-            setSecurityGroups(null);
         }
 
+        setSubnets(null);
         if (model.subnets() != null && !model.subnets().isEmpty()) {
             List<SubnetResource> subnets = new ArrayList<>();
             for (String id : model.subnets()) {
                 subnets.add(findById(SubnetResource.class, id));
             }
             setSubnets(subnets);
-        } else {
-            setSubnets(null);
         }
 
+        setVpc(null);
         if (model.vpcId() != null) {
             setVpc(findById(VpcResource.class, model.vpcId()));
-        } else {
-            setVpc(null);
         }
     }
 

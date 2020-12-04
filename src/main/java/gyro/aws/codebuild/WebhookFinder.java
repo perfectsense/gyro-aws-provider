@@ -37,22 +37,22 @@ import software.amazon.awssdk.services.codebuild.model.Webhook;
  *
  * .. code-block:: gyro
  *
- *    webhook: $(external-query aws::webhook {names : ['project-example-name']})
+ *    webhook: $(external-query aws::webhook {name : 'project-example-name'})
  */
 @Type("webhook")
 public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookResource> {
 
     /**
-     * The names of build projects.
+     * The name of build projects.
      */
-    private List<String> names;
+    private String name;
 
-    public List<String> getNames() {
-        return names;
+    public String getNames() {
+        return name;
     }
 
-    public void setNames(List<String> names) {
-        this.names = names;
+    public void setNames(String name) {
+        this.name = name;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
         List<BatchGetProjectsResponse> responseList = new ArrayList<>();
 
         try {
-            responseList.add(client.batchGetProjects(r -> r.names(filters.get("names"))));
+            responseList.add(client.batchGetProjects(r -> r.names(filters.get("name"))));
 
             webhooks = responseList.stream()
                 .map(BatchGetProjectsResponse::projects)
@@ -87,12 +87,8 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
                         .map(Project::webhook))
                 .collect(Collectors.toList());
 
-            if (webhooks.isEmpty()) {
-                return webhooks;
-            }
-
         } catch (InvalidInputException ex) {
-            return webhooks;
+            // Invalid input
         }
 
         return webhooks;

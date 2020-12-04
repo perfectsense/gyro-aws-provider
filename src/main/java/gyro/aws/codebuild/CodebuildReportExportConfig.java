@@ -42,7 +42,7 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
     }
 
     /**
-     * The S3 bucket where the run of a export is exported.
+     * The information about the S3 bucket where the raw data of the report is exported.
      *
      * @subresource gyro.aws.codebuild.CodebuildS3ReportExportConfig
      */
@@ -59,12 +59,11 @@ public class CodebuildReportExportConfig extends Diffable implements Copyable<Re
     public void copyFrom(ReportExportConfig model) {
         setExportConfigType(model.exportConfigType());
 
+        setS3ReportExportConfig(null);
         if (model.s3Destination() != null) {
             CodebuildS3ReportExportConfig s3ReportExportConfig = newSubresource(CodebuildS3ReportExportConfig.class);
             s3ReportExportConfig.copyFrom(model.s3Destination());
             setS3ReportExportConfig(s3ReportExportConfig);
-        } else {
-            setS3ReportExportConfig(null);
         }
     }
 

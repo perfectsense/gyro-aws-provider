@@ -66,7 +66,7 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The date and time the report run occurred.
+     * The report creation time.
      */
     @Output
     public String getCreated() {
@@ -128,7 +128,7 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The ARN of the report group associated with the report.
+     * The ARN of the report group the report is part of.
      */
     @Output
     public String getReportGroupArn() {
@@ -179,7 +179,7 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
     }
 
     /**
-     * The type of the report that was run.
+     * The type of the report.
      */
     @Output
     @ValidStrings({ "TEST", "CODE_COVERAGE" })
@@ -204,28 +204,25 @@ public class CodebuildReport extends Diffable implements Copyable<Report> {
         setTruncated(model.truncated());
         setType(model.type());
 
+        setCodeCoverageReportSummary(null);
         if (model.codeCoverageSummary() != null) {
             CodebuildCodeCoverageReportSummary summary = newSubresource(CodebuildCodeCoverageReportSummary.class);
             summary.copyFrom(model.codeCoverageSummary());
             setCodeCoverageReportSummary(summary);
-        } else {
-            setCodeCoverageReportSummary(null);
         }
 
+        setExportConfig(null);
         if (model.exportConfig() != null) {
             CodebuildReportExportConfig exportConfig = newSubresource(CodebuildReportExportConfig.class);
             exportConfig.copyFrom(model.exportConfig());
             setExportConfig(exportConfig);
-        } else {
-            setExportConfig(null);
         }
 
+        setTestSummary(null);
         if (model.testSummary() != null) {
             CodebuildTestReportSummary summary = newSubresource(CodebuildTestReportSummary.class);
             summary.copyFrom(model.testSummary());
             setTestSummary(summary);
-        } else {
-            setTestSummary(null);
         }
     }
 

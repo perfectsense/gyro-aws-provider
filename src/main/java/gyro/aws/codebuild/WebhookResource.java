@@ -56,35 +56,6 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  *            type: "EVENT"
  *        end
  *    end
- *
- *    aws::project project
- *        name: "project-example-name"
- *        description: "project-description"
- *        service-role: $(aws::iam-role iam-role-example)
- *        tags: {
- *            "tag": "value"
- *            }
- *
- *        source
- *            type: "GITHUB"
- *            location: "https://github.com/harjain99/example-repo-for-travis-testing"
- *        end
- *
- *        artifacts
- *            type: "S3"
- *            location: "codebuild-us-east-2-242040583208-output-bucket"
- *            name: "project-example-artifact-name"
- *            encryption-disabled: false
- *            path: "example-path/path"
- *            packaging: "NONE"
- *        end
- *
- *        environment
- *            compute-type: "BUILD_GENERAL1_LARGE"
- *            type: "ARM_CONTAINER"
- *            image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
- *        end
- *    end
  */
 @Type("webhook")
 public class WebhookResource extends AwsResource implements Copyable<Webhook> {
@@ -101,7 +72,6 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     private String secret;
     private String url;
 
-
     /**
      * The build project.
      */
@@ -114,7 +84,6 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     public void setProject(ProjectResource project) {
         this.project = project;
     }
-
 
     /**
      * The regular expression used to determine which repository branches are built when a webhook is triggered.
@@ -219,31 +188,29 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
     @Override
     public void copyFrom(Webhook webhook) {
-        if (webhook != null) {
-            setBranchFilter(webhook.branchFilter());
-            setBuildType(webhook.buildTypeAsString());
-            setBranchFilter(webhook.branchFilter() != null ? webhook.branchFilter() : null);
-            setLastModifiedSecret(
-                webhook.lastModifiedSecret() != null ? webhook.lastModifiedSecret().toString() : null);
-            setPayloadUrl(webhook.payloadUrl());
-            setSecret(webhook.secret());
-            setUrl(webhook.url());
+        setBranchFilter(webhook.branchFilter());
+        setBuildType(webhook.buildTypeAsString());
+        setBranchFilter(webhook.branchFilter() != null ? webhook.branchFilter() : null);
+        setLastModifiedSecret(
+            webhook.lastModifiedSecret() != null ? webhook.lastModifiedSecret().toString() : null);
+        setPayloadUrl(webhook.payloadUrl());
+        setSecret(webhook.secret());
+        setUrl(webhook.url());
 
-            if (webhook.filterGroups() != null) {
-                CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
-                List<CodebuildWebhookFilter> filterList = new ArrayList<>();
+        if (webhook.filterGroups() != null) {
+            CodebuildWebhookFilter webhookFilter = newSubresource(CodebuildWebhookFilter.class);
+            List<CodebuildWebhookFilter> filterList = new ArrayList<>();
 
-                for (List<WebhookFilter> filters : webhook.filterGroups()) {
-                    for (WebhookFilter filter : filters) {
-                        webhookFilter.copyFrom(filter);
-                        filterList.add(webhookFilter);
-                    }
+            for (List<WebhookFilter> filters : webhook.filterGroups()) {
+                for (WebhookFilter filter : filters) {
+                    webhookFilter.copyFrom(filter);
+                    filterList.add(webhookFilter);
                 }
-
-                setFilterGroups(filterList);
-            } else {
-                setFilterGroups(null);
             }
+
+            setFilterGroups(filterList);
+        } else {
+            setFilterGroups(null);
         }
     }
 
@@ -274,7 +241,9 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
             .projectName(getProject().getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
-            .filterGroups(getFilterGroups().stream().map(CodebuildWebhookFilter::toWebhookFilter).collect(Collectors.toList()))
+            .filterGroups(getFilterGroups().stream()
+                .map(CodebuildWebhookFilter::toWebhookFilter)
+                .collect(Collectors.toList()))
         );
 
         refresh();
@@ -292,7 +261,9 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         client.updateWebhook(r -> r.projectName(getProject().getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
-            .filterGroups(getFilterGroups().stream().map(CodebuildWebhookFilter::toWebhookFilter).collect(Collectors.toList()))
+            .filterGroups(getFilterGroups().stream()
+                .map(CodebuildWebhookFilter::toWebhookFilter)
+                .collect(Collectors.toList()))
             .rotateSecret(getRotateSecret())
         );
     }

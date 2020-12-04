@@ -31,7 +31,7 @@ public class CodebuildTestReportSummary extends Diffable implements Copyable<Tes
     private Integer total;
 
     /**
-     * The number of nanoseconds to run all of the test cases in the report.
+     * The time taken (in nanoseconds) to run all of the test cases in the report.
      */
     @Output
     public Long getDurationInNanoSeconds() {

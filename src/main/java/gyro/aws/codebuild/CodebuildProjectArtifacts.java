@@ -88,7 +88,7 @@ public class CodebuildProjectArtifacts extends Diffable implements Copyable<Proj
     /**
      * The pattern that is used to name and store the output artifact.
      */
-    @Updatable
+    @Required
     public String getName() {
         return name;
     }

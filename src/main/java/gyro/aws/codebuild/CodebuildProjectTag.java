@@ -33,7 +33,7 @@ public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
     /**
      * The tag's key.
      */
-    @Regex(value = "^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$", message = "1-127 letters, numbers, and specific symbols such as -, _, @, and /. ")
+    @Regex(value = "^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$", message = "a string containing 1-127 letters, numbers, and specific symbols such as -, _, @, and /. ")
     public String getKey() {
         return key;
     }
@@ -45,7 +45,7 @@ public class CodebuildProjectTag extends Diffable implements Copyable<Tag> {
     /**
      * The tag's value.
      */
-    @Regex(value = "^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$", message = "0-255 letters, numbers, and specific symbols such as -, _, @, and /. ")
+    @Regex(value = "^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$", message = "a string containing 0-255 letters, numbers, and specific symbols such as -, _, @, and /. ")
     public String getValue() {
         return value;
     }

@@ -32,7 +32,7 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     private String path;
 
     /**
-     * The name of the S3 bucket where the raw data of a report are exported.
+     * The name of the S3 bucket where the raw data of a report are exported to.
      */
     @Updatable
     public String getBucket() {

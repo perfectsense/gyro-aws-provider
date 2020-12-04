@@ -96,7 +96,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     }
 
     /**
-     * The Git clone depth for the build project.
+     * The git clone depth for the build project.
      */
     @Updatable
     @Min(0)
@@ -109,7 +109,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     }
 
     /**
-     * The Git submodules configuration for the build project.
+     * The git submodules configuration for the build project.
      *
      * @subresource gyro.aws.codebuild.CodebuildGitSubmodulesConfig
      */
@@ -168,26 +168,24 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         setReportBuildStatus(model.reportBuildStatus());
         setSourceIdentifier(model.sourceIdentifier());
 
+        setBuildStatusConfig(null);
         if (model.buildStatusConfig() != null) {
             CodebuildBuildStatusConfig buildStatusConfig = newSubresource(CodebuildBuildStatusConfig.class);
             buildStatusConfig.copyFrom(model.buildStatusConfig());
             setBuildStatusConfig(buildStatusConfig);
-        } else {
-            setBuildStatusConfig(null);
         }
 
+        setGitSubmodulesConfig(null);
         if (model.gitSubmodulesConfig() != null) {
             CodebuildGitSubmodulesConfig gitSubmodulesConfig = newSubresource(CodebuildGitSubmodulesConfig.class);
             gitSubmodulesConfig.copyFrom(model.gitSubmodulesConfig());
             setGitSubmodulesConfig(gitSubmodulesConfig);
-        } else {
-            setGitSubmodulesConfig(null);
         }
     }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getSourceIdentifier());
+        return getSourceIdentifier();
     }
 
     @Override

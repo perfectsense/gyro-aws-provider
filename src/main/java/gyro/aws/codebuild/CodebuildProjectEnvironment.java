@@ -179,12 +179,11 @@ public class CodebuildProjectEnvironment extends Diffable implements Copyable<Pr
             });
         }
 
+        setRegistryCredential(null);
         if (model.registryCredential() != null) {
             CodebuildRegistryCredential registryCredential = newSubresource(CodebuildRegistryCredential.class);
             registryCredential.copyFrom(model.registryCredential());
             setRegistryCredential(registryCredential);
-        } else {
-            setRegistryCredential(null);
         }
     }
 

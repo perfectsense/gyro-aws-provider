@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.model.ProjectSourceVersion;
 
 public class CodebuildProjectSourceVersion extends Diffable implements Copyable<ProjectSourceVersion> {
@@ -30,6 +31,7 @@ public class CodebuildProjectSourceVersion extends Diffable implements Copyable<
      * The identifier for the source in the build project.
      */
     @Updatable
+    @Required
     public String getSourceIdentifier() {
         return sourceIdentifier;
     }
@@ -58,6 +60,6 @@ public class CodebuildProjectSourceVersion extends Diffable implements Copyable<
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getSourceIdentifier());
+        return getSourceIdentifier();
     }
 }
