@@ -19,6 +19,8 @@ package gyro.aws;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -124,7 +126,25 @@ public class S3FileBackend extends FileBackend {
     }
 
     private S3Client client() {
-        Credentials credentials = getCredentials("aws");
+        Credentials credentials;
+
+        try {
+            Method getCredentials = FileBackend.class.getDeclaredMethod("getCredentials", String.class);
+            credentials = (Credentials) getCredentials.invoke(this, "aws");
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+            // Older gyro being used
+
+            CredentialsSettings settings = getRootScope().getSettings(CredentialsSettings.class);
+            String credentialName = settings.getUseCredentials();
+
+            if (ObjectUtils.isBlank(credentialName)) {
+                credentialName = "default";
+            }
+
+            credentials = settings
+                .getCredentialsByName()
+                .get(String.format("%s::%s", "aws", credentialName));
+        }
 
         return AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
     }
