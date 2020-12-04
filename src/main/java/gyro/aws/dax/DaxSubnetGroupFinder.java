@@ -16,12 +16,14 @@
 
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dax.DaxClient;
+import software.amazon.awssdk.services.dax.model.DescribeSubnetGroupsResponse;
 import software.amazon.awssdk.services.dax.model.SubnetGroup;
 
 /**
@@ -52,7 +54,21 @@ public class DaxSubnetGroupFinder extends AwsFinder<DaxClient, SubnetGroup, DaxS
 
     @Override
     protected List<SubnetGroup> findAllAws(DaxClient client) {
-        return client.describeSubnetGroups().subnetGroups();
+        List<SubnetGroup> subnetGroups = new ArrayList<>();
+        DescribeSubnetGroupsResponse response;
+        String token;
+
+        do {
+            response = client.describeSubnetGroups();
+
+            if (response.hasSubnetGroups()) {
+                subnetGroups.addAll(response.subnetGroups());
+            }
+
+            token = response.nextToken();
+        } while(token != null);
+
+        return subnetGroups;
     }
 
     @Override

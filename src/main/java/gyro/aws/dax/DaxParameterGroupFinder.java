@@ -16,12 +16,14 @@
 
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dax.DaxClient;
+import software.amazon.awssdk.services.dax.model.DescribeParameterGroupsResponse;
 import software.amazon.awssdk.services.dax.model.ParameterGroup;
 
 /**
@@ -52,7 +54,21 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
 
     @Override
     protected List<ParameterGroup> findAllAws(DaxClient client) {
-        return client.describeParameterGroups().parameterGroups();
+        List<ParameterGroup> parameterGroups = new ArrayList<>();
+        DescribeParameterGroupsResponse response;
+        String token;
+
+        do {
+            response = client.describeParameterGroups();
+
+            if (response.hasParameterGroups()) {
+                parameterGroups.addAll(response.parameterGroups());
+            }
+
+            token = response.nextToken();
+        } while(token != null);
+
+        return parameterGroups;
     }
 
     @Override

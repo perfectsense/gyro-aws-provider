@@ -16,6 +16,7 @@
 
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dax.DaxClient;
 import software.amazon.awssdk.services.dax.model.Cluster;
+import software.amazon.awssdk.services.dax.model.DescribeClustersResponse;
 
 /**
  * Query DAX cluster.
@@ -52,7 +54,21 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
 
     @Override
     protected List<Cluster> findAllAws(DaxClient client) {
-        return client.describeClusters().clusters();
+        List<Cluster> clusters = new ArrayList<>();
+        DescribeClustersResponse response;
+        String token;
+
+        do {
+            response = client.describeClusters();
+
+            if (response.hasClusters()) {
+                clusters.addAll(response.clusters());
+            }
+
+            token = response.nextToken();
+        } while (token != null);
+
+        return clusters;
     }
 
     @Override
