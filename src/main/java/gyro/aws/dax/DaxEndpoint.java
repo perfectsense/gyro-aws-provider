@@ -18,6 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.dax.model.Endpoint;
 
 public class DaxEndpoint extends Diffable implements Copyable<Endpoint> {
@@ -28,6 +29,7 @@ public class DaxEndpoint extends Diffable implements Copyable<Endpoint> {
     /**
      * The DNS hostname of the endpoint.
      */
+    @Output
     public String getAddress() {
         return address;
     }
@@ -39,6 +41,7 @@ public class DaxEndpoint extends Diffable implements Copyable<Endpoint> {
     /**
      * The port number to connect to the endpoint.
      */
+    @Output
     public Integer getPort() {
         return port;
     }

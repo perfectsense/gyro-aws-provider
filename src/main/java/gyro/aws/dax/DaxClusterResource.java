@@ -19,6 +19,7 @@ package gyro.aws.dax;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
@@ -39,7 +40,7 @@ import software.amazon.awssdk.services.dax.model.Cluster;
 import software.amazon.awssdk.services.dax.model.DescribeClustersResponse;
 
 /**
- * Creates a DAX cluster with the specified Name, Description, IAM Role, Node Type, and Replication Factor.
+ * Creates a DAX cluster.
  *
  * Example
  * -------
@@ -47,12 +48,18 @@ import software.amazon.awssdk.services.dax.model.DescribeClustersResponse;
  * .. code-block:: gyro
  *
  *    aws::dax-cluster cluster-example
- *        name: "cluster-gyro-example"
- *        iam-role: $(aws::iam-role iam-role-example)
- *        node-type: "dax.r4.large"
- *        replication-factor: 3
- *        description: "test-description"
- *    end
+ *         name: "cluster-gyro-example"
+ *         iam-role: $(aws::iam-role iam-role-dax-cluster-example)
+ *         node-type: "dax.r4.large"
+ *         replication-factor: 1
+ *         description: "dax-cluster-example-description"
+ *         parameter-group: $(aws::dax-parameter-group parameter-group)
+ *         subnet-group: $(aws::dax-subnet-group dax-cluster-subnet-group)
+ *
+ *         security-group
+ *             security-group: $(aws::security-group security-group-dax-cluster-example-1)
+ *         end
+ *     end
  */
 @Type("dax-cluster")
 public class DaxClusterResource extends AwsResource implements Copyable<Cluster> {
@@ -69,17 +76,13 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     private Integer replicationFactor;
     private List<String> availabilityZones;
     private DaxNotificationConfiguration notificationConfiguration;
-    private String notificationTopicArn;
     private DaxParameterGroupResource parameterGroup;
-    private String parameterGroupName;
     private String preferredMaintenanceWindow;
-    private List<DaxSecurityGroupMembership> securityGroups;
-    private List<String> securityGroupIds;
+    private List<DaxSecurityGroupMembership> securityGroup;
     private DaxSSEDescription sseDescription;
     private DaxSSESpecification sseSpecification;
     private String status;
     private DaxSubnetGroupResource subnetGroup;
-    private String subnetGroupName;
     private List<DaxTag> tags;
     private Integer totalNodes;
 
@@ -98,6 +101,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     /**
      * The ARN of the cluster.
      */
+    @Id
     @Output
     public String getClusterArn() {
         return clusterArn;
@@ -122,7 +126,6 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     /**
      * The name of the cluster.
      */
-    @Id
     @Required
     @Regex(value = "^[a-zA-Z]((?!.*--)[-a-zA-Z0-9]{0,18}[a-z0-9]$)?", message = "a string 1-20 characters long containing letters, numbers, or hyphens. May not contain two consecutive hyphens. The first character must be a letter, and the last may not be a hyphen.")
     public String getName() {
@@ -229,11 +232,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The notification topic and status in a cluster.
+     * The notification topic and status of a cluster.
      *
      * @subresource gyro.aws.dax.DaxNotificationConfiguration
      */
-    @Output
     public DaxNotificationConfiguration getNotificationConfiguration() {
         return notificationConfiguration;
     }
@@ -243,41 +245,15 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The ARN that identifies the notification topic in a cluster.
+     * The parameter group used by the nodes in the cluster.
      */
     @Updatable
-    public String getNotificationTopicArn() {
-        return notificationTopicArn;
-    }
-
-    public void setNotificationTopicArn(String notificationTopicArn) {
-        this.notificationTopicArn = notificationTopicArn;
-    }
-
-    /**
-     * The parameter group used by the nodes in the cluster.
-     *
-     * @subresource gyro.aws.dax.DaxParameterGroupResource
-     */
-    @Output
     public DaxParameterGroupResource getParameterGroup() {
         return parameterGroup;
     }
 
     public void setParameterGroup(DaxParameterGroupResource parameterGroup) {
         this.parameterGroup = parameterGroup;
-    }
-
-    /**
-     * The parameter group name to be associated with the cluster.
-     */
-    @Updatable
-    public String getParameterGroupName() {
-        return parameterGroupName;
-    }
-
-    public void setParameterGroupName(String parameterGroupName) {
-        this.parameterGroupName = parameterGroupName;
     }
 
     /**
@@ -297,33 +273,17 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
      *
      * @subresource gyro.aws.dax.DaxSecurityGroupMembership
      */
-    @Output
-    public List<DaxSecurityGroupMembership> getSecurityGroups() {
-        if (securityGroups == null) {
-            securityGroups = new ArrayList<>();
-        }
-
-        return securityGroups;
-    }
-
-    public void setSecurityGroups(List<DaxSecurityGroupMembership> securityGroups) {
-        this.securityGroups = securityGroups;
-    }
-
-    /**
-     * The list of security group IDs assigned to each node in the cluster.
-     */
     @Updatable
-    public List<String> getSecurityGroupIds() {
-        if (securityGroupIds == null) {
-            securityGroupIds = new ArrayList<>();
+    public List<DaxSecurityGroupMembership> getSecurityGroup() {
+        if (securityGroup == null) {
+            securityGroup = new ArrayList<>();
         }
 
-        return securityGroupIds;
+        return securityGroup;
     }
 
-    public void setSecurityGroupIds(List<String> securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setSecurityGroup(List<DaxSecurityGroupMembership> securityGroups) {
+        this.securityGroup = securityGroups;
     }
 
     /**
@@ -364,27 +324,13 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The subnet group of the cluster.
-     *
-     * @subresource gyro.aws.dax.DaxSubnetGroupResource
      */
-    @Output
     public DaxSubnetGroupResource getSubnetGroup() {
         return subnetGroup;
     }
 
     public void setSubnetGroup(DaxSubnetGroupResource subnetGroup) {
         this.subnetGroup = subnetGroup;
-    }
-
-    /**
-     * The name of the subnet group of the cluster.
-     */
-    public String getSubnetGroupName() {
-        return subnetGroupName;
-    }
-
-    public void setSubnetGroupName(String subnetGroupName) {
-        this.subnetGroupName = subnetGroupName;
     }
 
     /**
@@ -425,12 +371,10 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         setIamRole(!ObjectUtils.isBlank(getIamRole()) ? getIamRole() : null);
         setNodeIdsToRemove(model.nodeIdsToRemove());
         setNodeType(model.nodeType());
-        setParameterGroup(findById(DaxParameterGroupResource.class, model.parameterGroup()));
-        setParameterGroupName(model.parameterGroup() != null ? model.parameterGroup().parameterGroupName() : null);
+        setParameterGroup(findById(DaxParameterGroupResource.class, model.parameterGroup().parameterGroupName()));
         setPreferredMaintenanceWindow(model.preferredMaintenanceWindow());
         setStatus(model.status());
         setSubnetGroup(findById(DaxSubnetGroupResource.class, model.subnetGroup()));
-        setSubnetGroupName(model.subnetGroup());
         setTotalNodes(model.totalNodes());
 
         setClusterDiscoveryEndpoint(null);
@@ -456,14 +400,12 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             setNotificationConfiguration(notificationConfiguration);
         }
 
-        getSecurityGroups().clear();
-        getSecurityGroupIds().clear();
+        getSecurityGroup().clear();
         if (model.securityGroups() != null) {
             model.securityGroups().forEach(membership -> {
                 DaxSecurityGroupMembership securityGroupMembership = newSubresource(DaxSecurityGroupMembership.class);
                 securityGroupMembership.copyFrom(membership);
-                getSecurityGroups().add(securityGroupMembership);
-                getSecurityGroupIds().add(securityGroupMembership.getSecurityGroupIdentifier());
+                getSecurityGroup().add(securityGroupMembership);
             });
         }
 
@@ -478,6 +420,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     @Override
     public boolean refresh() {
         DaxClient client = createClient(DaxClient.class);
+
         DescribeClustersResponse response;
 
         response = client.describeClusters(r -> r.clusterNames(getName()));
@@ -487,6 +430,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         }
 
         copyFrom(response.clusters().get(0));
+
         return true;
     }
 
@@ -498,15 +442,15 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             .availabilityZones(getAvailabilityZones())
             .clusterName(getName())
             .description(getDescription())
-            .iamRoleArn(getIamRole() != null ? getIamRole().getArn() : null)
+            .iamRoleArn(getIamRole().getArn())
             .nodeType(getNodeType())
-            .notificationTopicArn(getNotificationTopicArn())
-            .parameterGroupName(getParameterGroupName())
+            .notificationTopicArn(getNotificationConfiguration() != null ? getNotificationConfiguration().getTopic().getArn() : null)
+            .parameterGroupName(getParameterGroup() != null ? getParameterGroup().getName() : null)
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
             .replicationFactor(getReplicationFactor())
-            .securityGroupIds(getSecurityGroupIds())
+            .securityGroupIds(getSecurityGroup().stream().map(o -> o.getSecurityGroup().getId()).collect(Collectors.toList()))
             .sseSpecification(getSseSpecification() != null ? getSseSpecification().toSseSpecification() : null)
-            .subnetGroupName(getSubnetGroupName())
+            .subnetGroupName(getSubnetGroup() != null ? getSubnetGroup().getName() : null)
             .tags(DaxTag.toTags(getTags()))
             .build()
         );
@@ -522,14 +466,13 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         client.updateCluster(r -> r
             .clusterName(getName())
             .description(getDescription())
-            .notificationTopicArn(getNotificationTopicArn())
+            .notificationTopicArn(getNotificationConfiguration() != null ? getNotificationConfiguration().getTopic().getArn() : null)
             .notificationTopicStatus(
                 getNotificationConfiguration() != null ? getNotificationConfiguration().getTopicStatus() : null)
-            .parameterGroupName(getParameterGroupName())
+            .parameterGroupName(getParameterGroup() != null ? getParameterGroup().getName() : null)
             .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-            .securityGroupIds(getSecurityGroupIds())
+            .securityGroupIds(getSecurityGroup().stream().map(o -> o.getSecurityGroup().getId()).collect(Collectors.toList()))
         );
-
     }
 
     @Override

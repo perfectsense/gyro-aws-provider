@@ -17,23 +17,26 @@
 package gyro.aws.dax;
 
 import gyro.aws.Copyable;
+import gyro.aws.sns.TopicResource;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.NotificationConfiguration;
 
 public class DaxNotificationConfiguration extends Diffable implements Copyable<NotificationConfiguration> {
 
-    private String topicArn;
+    private TopicResource topic;
     private String topicStatus;
 
     /**
-     * The ARN of the topic.
+     * The notification the topic.
      */
-    public String getTopicArn() {
-        return topicArn;
+    @Required
+    public TopicResource getTopic() {
+        return topic;
     }
 
-    public void setTopicArn(String topicArn) {
-        this.topicArn = topicArn;
+    public void setTopic(TopicResource topic) {
+        this.topic = topic;
     }
 
     /**
@@ -49,7 +52,7 @@ public class DaxNotificationConfiguration extends Diffable implements Copyable<N
 
     @Override
     public void copyFrom(NotificationConfiguration model) {
-        setTopicArn(model.topicArn());
+        setTopic(findById(TopicResource.class, model.topicArn()));
         setTopicStatus(model.topicStatus());
     }
 

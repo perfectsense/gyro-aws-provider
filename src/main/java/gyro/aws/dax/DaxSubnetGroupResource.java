@@ -37,7 +37,7 @@ import software.amazon.awssdk.services.dax.model.DescribeSubnetGroupsResponse;
 import software.amazon.awssdk.services.dax.model.SubnetGroup;
 
 /**
- * Creates a DAX subnet group with the specified Name, Description, and Subnets.
+ * Creates a DAX subnet group.
  *
  * Example
  * -------
@@ -120,7 +120,7 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
         getSubnets().clear();
         if (model.subnets() != null) {
             model.subnets().forEach(subnet -> {
-                getSubnets().add(findById(SubnetResource.class, subnet));
+                getSubnets().add(findById(SubnetResource.class, subnet.subnetIdentifier()));
             });
         }
     }

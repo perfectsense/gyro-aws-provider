@@ -35,16 +35,16 @@ import software.amazon.awssdk.services.dax.model.DescribeParameterGroupsResponse
 import software.amazon.awssdk.services.dax.model.ParameterGroup;
 
 /**
- * Creates a DAX parameter group with the specified Name and Description.
+ * Creates a DAX parameter group.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::dax-parameter-group parameter-group
- *         name: "kenny-parameter-group"
- *         description: "parameter-group-test-description"
+ *     aws::dax-parameter-group parameter-group-example
+ *         name: "parameter-group-example"
+ *         description: "parameter-group-description"
  *     end
  */
 @Type("dax-parameter-group")

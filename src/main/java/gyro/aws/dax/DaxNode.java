@@ -18,6 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.Node;
 
@@ -28,11 +29,12 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     private String createTime;
     private String id;
     private String status;
-    private DaxParameterGroupResource parameterGroupStatus;
+    private String parameterGroupStatus;
 
     /**
      * The availability zone of the node.
      */
+    @Output
     public String getAvailabilityZone() {
         return availabilityZone;
     }
@@ -46,6 +48,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
      *
      * @subresource gyro.aws.dax.DaxEndpoint
      */
+    @Output
     public DaxEndpoint getEndpoint() {
         return endpoint;
     }
@@ -57,6 +60,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     /**
      * The timestamp of when the node was created.
      */
+    @Output
     public String getCreateTime() {
         return createTime;
     }
@@ -68,7 +72,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     /**
      * The ID of the node.
      */
-    @Required
+    @Output
     public String getId() {
         return id;
     }
@@ -80,6 +84,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
     /**
      * The status of the node.
      */
+    @Output
     public String getStatus() {
         return status;
     }
@@ -90,14 +95,13 @@ public class DaxNode extends Diffable implements Copyable<Node> {
 
     /**
      * The status of the parameter group of the node.
-     *
-     * @subresource gyro.aws.dax.DaxParameterGroupResource
      */
-    public DaxParameterGroupResource getParameterGroupStatus() {
+    @Output
+    public String getParameterGroupStatus() {
         return parameterGroupStatus;
     }
 
-    public void setParameterGroupStatus(DaxParameterGroupResource parameterGroupStatus) {
+    public void setParameterGroupStatus(String parameterGroupStatus) {
         this.parameterGroupStatus = parameterGroupStatus;
     }
 
@@ -107,7 +111,7 @@ public class DaxNode extends Diffable implements Copyable<Node> {
         setCreateTime(model.nodeCreateTime().toString());
         setId(model.nodeId());
         setStatus(model.nodeStatus());
-        setParameterGroupStatus(findById(DaxParameterGroupResource.class, model.parameterGroupStatus()));
+        setParameterGroupStatus(model.parameterGroupStatus());
 
         setEndpoint(null);
         if (model.endpoint() != null) {
