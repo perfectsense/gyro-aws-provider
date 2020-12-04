@@ -193,7 +193,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ/>`_.
      */
-    @Required
     @Updatable
     public Set<String> getAvailabilityZones() {
         if (availabilityZones == null) {
