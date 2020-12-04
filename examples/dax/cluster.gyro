@@ -65,20 +65,20 @@ aws::dax-subnet-group dax-cluster-subnet-group
     ]
 end
 
-    aws::dax-cluster cluster-example
-        name: "cluster-gyro-example"
-        iam-role: $(aws::iam-role iam-role-dax-cluster-example)
-        node-type: "dax.r4.large"
-        replication-factor: 1
-        description: "dax-cluster-example-description"
-        parameter-group: $(aws::dax-parameter-group parameter-group)
-        subnet-group: $(aws::dax-subnet-group dax-cluster-subnet-group)
+aws::dax-cluster cluster-example
+    name: "cluster-gyro-example"
+    iam-role: $(aws::iam-role iam-role-dax-cluster-example)
+    node-type: "dax.r4.large"
+    replication-factor: 1
+    description: "dax-cluster-example-description"
+    parameter-group: $(aws::dax-parameter-group parameter-group)
+    subnet-group: $(aws::dax-subnet-group dax-cluster-subnet-group)
 
-        security-group
-            security-group: $(aws::security-group security-group-dax-cluster-example-1)
-        end
-
-        security-group
-            security-group: $(aws::security-group security-group-dax-cluster-example-2)
-        end
+    security-group
+        security-group: $(aws::security-group security-group-dax-cluster-example-1)
     end
+
+    security-group
+        security-group: $(aws::security-group security-group-dax-cluster-example-2)
+    end
+end
