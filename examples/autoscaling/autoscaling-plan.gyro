@@ -1,71 +1,118 @@
-aws::vpc vpc-auto-scaling-group-example
+aws::vpc vpc-auto-scaling-plan-example
     cidr-block: "10.0.0.0/16"
     provide-ipv6-cidr-block: true
 
     tags: {
-        Name: "vpc-auto-scaling-group-example"
+        Name: "vpc-auto-scaling-plan-example"
     }
 end
 
-aws::subnet subnet-auto-scaling-group-example-1
-    vpc: $(aws::vpc vpc-auto-scaling-group-example)
+aws::subnet subnet-auto-scaling-plan-example
+    vpc: $(aws::vpc vpc-auto-scaling-plan-example)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.1.0/26"
 
     tags: {
-        Name: "subnet-auto-scaling-group-example-1"
+        Name: "subnet-auto-scaling-plan-example"
     }
 end
 
-aws::security-group security-group-auto-scaling-group-example-1
-    name: "security-group-auto-scaling-group-example-1"
-    vpc: $(aws::vpc vpc-auto-scaling-group-example)
-    description: "security group instance example 1"
+aws::security-group security-group-auto-scaling-plan-example
+    name: "security-group-auto-scaling-plan-example"
+    vpc: $(aws::vpc vpc-auto-scaling-plan-example)
+    description: "security group instance example"
 
     tags: {
-        Name: "security-group-auto-scaling-group-example-1"
+        Name: "security-group-auto-scaling-plan-example"
     }
 end
 
-aws::instance instance-auto-scaling-group-example
+aws::instance instance-auto-scaling-plan-example
     ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"
-    subnet: $(aws::subnet subnet-auto-scaling-group-example-1)
-    security-groups: $(aws::security-group security-group-auto-scaling-group-example-*)
+    subnet: $(aws::subnet subnet-auto-scaling-plan-example)
+    security-groups: [$(aws::security-group security-group-auto-scaling-plan-example)]
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true
 
     tags: {
-        Name: "instance-auto-scaling-group-example"
+        Name: "instance-auto-scaling-plan-example"
     }
 end
 
-aws::launch-configuration launch-configuration-auto-scaling-group-example
-    name: "launch-configuration-gyro-\($(aws::instance instance-auto-scaling-group-example).id)"
-    instance: $(aws::instance instance-auto-scaling-group-example)
+aws::launch-configuration launch-configuration-auto-scaling-plan-example
+    name: "launch-configuration-gyro-\($(aws::instance instance-auto-scaling-plan-example).id)"
+    instance: $(aws::instance instance-auto-scaling-plan-example)
+    key: "example"
+    security-groups: [$(aws::security-group security-group-auto-scaling-plan-example)]
+    instance-type: "t2.micro"
 end
 
-aws::autoscaling-group auto-scaling-group-example
-    name: "auto-scaling-group-gyro-1"
-    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-group-example)
-    availability-zones: $(aws::subnet subnet-auto-scaling-group-example-1).*.availability-zone
+aws::autoscaling-group auto-scaling-group-auto-scaling-plan-example
+    name: "auto-scaling-group-auto-scaling-plan-gyro"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-plan-example)
+    availability-zones: $(aws::subnet subnet-auto-scaling-plan-example).*.availability-zone
     tags: {
-        Name: "auto-scaling-group-gyro-1-tag"
+        Name: "auto-scale-plan-asg-example"
     }
+    desired-capacity: 1
+    min-size: 1
+    max-size: 1
+end
+
+aws::autoscaling-group auto-scaling-group-auto-scaling-plan-example-1
+    name: "auto-scaling-group-auto-scaling-plan-gyro-1"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-plan-example)
+    availability-zones: $(aws::subnet subnet-auto-scaling-plan-example).*.availability-zone
+    tags: {
+        Name: "auto-scale-plan-asg-example-common-tag"
+    }
+    desired-capacity: 1
+    min-size: 1
+    max-size: 1
+end
+
+aws::autoscaling-group auto-scaling-group-auto-scaling-plan-example-2
+    name: "auto-scaling-group-auto-scaling-plan-gyro-2"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-plan-example)
+    availability-zones: $(aws::subnet subnet-auto-scaling-plan-example).*.availability-zone
+    tags: {
+        Name: "auto-scale-plan-asg-example-common-tag"
+    }
+    desired-capacity: 1
+    min-size: 1
+    max-size: 1
+end
+
+aws::autoscaling-group auto-scaling-group-auto-scaling-plan-example-3
+    name: "auto-scaling-group-auto-scaling-plan-gyro-3"
+    launch-configuration: $(aws::launch-configuration launch-configuration-auto-scaling-plan-example)
+    availability-zones: $(aws::subnet subnet-auto-scaling-plan-example).*.availability-zone
+    tags: {
+        Name: "auto-scale-plan-asg-example-different-tag"
+    }
+    desired-capacity: 3
+    min-size: 3
+    max-size: 3
 end
 
 aws::autoscaling-plan autoscaling-plan-example
-    name: "scaling-plan-example"
+    name: "scaling-plan-example-dj"
     scaling-plan-version: 1.0
     status-code: "Active"
 
     application-source
         tag-filter
             key: "Name"
-            values: ["auto-scaling-group-gyro-1-tag"]
+            values: ["auto-scale-plan-asg-example-common-tag"]
+        end
+
+        tag-filter
+            key: "Names"
+            values: ["auto-scale-plan-asg-example-different-tag"]
         end
     end
 
@@ -73,7 +120,7 @@ aws::autoscaling-plan autoscaling-plan-example
         max-capacity: 100
         min-capacity: 0
         service-namespace: "autoscaling"
-        resource-id: "autoScalingGroup/auto-scaling-group-gyro-1"
+        resource-id: "autoScalingGroup/auto-scaling-group-auto-scaling-plan-gyro"
         scalable-dimension: "autoscaling:autoScalingGroup:DesiredCapacity"
 
         target-tracking-configurations
