@@ -42,7 +42,7 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
     private String name;
 
     /**
-     * The list of parameter group names.
+     * The name of the parameter group.
      */
     public String getName() {
         return name;

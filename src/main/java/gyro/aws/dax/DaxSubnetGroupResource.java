@@ -16,6 +16,7 @@
 
 package gyro.aws.dax;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,6 +93,10 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
     @Required
     @Updatable
     public List<SubnetResource> getSubnets() {
+        if (subnets != null) {
+            subnets = new ArrayList<>();
+        }
+
         return subnets;
     }
 

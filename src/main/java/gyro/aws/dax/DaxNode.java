@@ -19,7 +19,6 @@ package gyro.aws.dax;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
-import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.Node;
 
 public class DaxNode extends Diffable implements Copyable<Node> {

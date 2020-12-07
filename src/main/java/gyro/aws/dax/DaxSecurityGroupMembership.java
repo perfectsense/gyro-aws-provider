@@ -19,6 +19,7 @@ package gyro.aws.dax;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.dax.model.SecurityGroupMembership;
 
@@ -30,6 +31,7 @@ public class DaxSecurityGroupMembership extends Diffable implements Copyable<Sec
     /**
      * The security group to be attached with the cluster.
      */
+    @Required
     public SecurityGroupResource getSecurityGroup() {
         return securityGroup;
     }
@@ -41,6 +43,7 @@ public class DaxSecurityGroupMembership extends Diffable implements Copyable<Sec
     /**
      * The status of the security group.
      */
+    @Output
     public String getStatus() {
         return status;
     }

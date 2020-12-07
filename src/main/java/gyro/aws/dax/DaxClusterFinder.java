@@ -42,7 +42,7 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
     private String name;
 
     /**
-     * The names of the DAX cluster.
+     * The name of the cluster.
      */
     public String getName() {
         return name;

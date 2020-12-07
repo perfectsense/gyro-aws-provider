@@ -99,7 +99,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The ARN of the cluster.
+     * The arn of the cluster.
      */
     @Id
     @Output
@@ -112,7 +112,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The configuration endpoint for the cluster.
+     * The endpoint configuration for the cluster.
      */
     @Output
     public DaxEndpoint getClusterDiscoveryEndpoint() {
@@ -149,7 +149,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The IAM role being used for the cluster.
+     * The IAM role being associated with the cluster.
      */
     @Required
     public RoleResource getIamRole() {
@@ -161,7 +161,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The list of nodes to be removed from the cluster.
+     * The list of node id's to be removed from the cluster.
      */
     @Output
     public List<String> getNodeIdsToRemove() {
@@ -193,7 +193,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
-     * The compute and memory capacity of the nodes in the cluster.
+     * The node type for the cluster.
      */
     @Required
     public String getNodeType() {
@@ -314,6 +314,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     /**
      * The current status of the cluster.
      */
+    @Output
     public String getStatus() {
         return status;
     }

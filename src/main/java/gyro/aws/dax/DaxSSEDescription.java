@@ -18,7 +18,7 @@ package gyro.aws.dax;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.validation.ValidStrings;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.dax.model.SSEDescription;
 import software.amazon.awssdk.services.dax.model.SSEStatus;
 
@@ -29,7 +29,7 @@ public class DaxSSEDescription extends Diffable implements Copyable<SSEDescripti
     /**
      * The status of the SSE.
      */
-    @ValidStrings({ "ENABLING", "ENABLED", "DISABLING", "DISABLED" })
+    @Output
     public SSEStatus getStatus() {
         return status;
     }
