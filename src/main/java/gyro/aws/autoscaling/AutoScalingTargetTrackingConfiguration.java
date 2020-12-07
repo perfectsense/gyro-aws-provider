@@ -135,7 +135,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
             setCustomizedScalingMetricSpecification(specification);
         }
 
-        setCustomizedScalingMetricSpecification(null);
+        setPredefinedScalingMetricSpecification(null);
         if (model.predefinedScalingMetricSpecification() != null) {
             AutoScalingPredefinedScalingMetricSpecification specification = newSubresource(
                 AutoScalingPredefinedScalingMetricSpecification.class);
