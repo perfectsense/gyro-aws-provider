@@ -74,7 +74,7 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
             }
 
             token = response.nextToken();
-        } while (token != null);
+        } while (!ObjectUtils.isBlank(token));
 
         return parameterGroups;
     }

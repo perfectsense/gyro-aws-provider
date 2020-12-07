@@ -74,7 +74,7 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
             }
 
             token = response.nextToken();
-        } while (token != null);
+        } while (!ObjectUtils.isBlank(token));
 
         return clusters;
     }

@@ -74,7 +74,7 @@ public class DaxSubnetGroupFinder extends AwsFinder<DaxClient, SubnetGroup, DaxS
             }
 
             token = response.nextToken();
-        } while (token != null);
+        } while (!ObjectUtils.isBlank(token));
 
         return subnetGroups;
     }
