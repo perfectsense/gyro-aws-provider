@@ -81,4 +81,6 @@ aws::dax-cluster cluster-example
     security-group
         security-group: $(aws::security-group security-group-dax-cluster-example-2)
     end
+
+    wait-for-create: true
 end

@@ -19,6 +19,7 @@ package gyro.aws.dax;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
@@ -27,6 +28,7 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -37,6 +39,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.dax.DaxClient;
 import software.amazon.awssdk.services.dax.model.Cluster;
+import software.amazon.awssdk.services.dax.model.ClusterNotFoundException;
 import software.amazon.awssdk.services.dax.model.DescribeClustersResponse;
 
 /**
@@ -85,6 +88,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     private DaxSubnetGroupResource subnetGroup;
     private List<DaxTag> tags;
     private Integer totalNodes;
+    private Boolean waitForCreate;
 
     /**
      * The number of active nodes in the cluster.
@@ -363,6 +367,21 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         this.totalNodes = totalNodes;
     }
 
+    /**
+     * If set to ``true`` the creation waits for the cluster to be available.
+     */
+    public Boolean getWaitForCreate() {
+        if (waitForCreate == null) {
+            waitForCreate = false;
+        }
+
+        return waitForCreate;
+    }
+
+    public void setWaitForCreate(Boolean waitForCreate) {
+        this.waitForCreate = waitForCreate;
+    }
+
     @Override
     public void copyFrom(Cluster model) {
         setActiveNodes(model.activeNodes());
@@ -422,15 +441,13 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
     public boolean refresh() {
         DaxClient client = createClient(DaxClient.class);
 
-        DescribeClustersResponse response;
+        Cluster cluster = getCluster(client);
 
-        response = client.describeClusters(r -> r.clusterNames(getName()));
-
-        if (response == null || response.clusters().isEmpty()) {
+        if (cluster == null) {
             return false;
         }
 
-        copyFrom(response.clusters().get(0));
+        copyFrom(cluster);
 
         return true;
     }
@@ -455,6 +472,15 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             .tags(DaxTag.toTags(getTags()))
             .build()
         );
+
+        if (getWaitForCreate()) {
+            state.save();
+
+            Wait.atMost(5, TimeUnit.MINUTES)
+                .prompt(false)
+                .checkEvery(1, TimeUnit.MINUTES)
+                .until(() -> getCluster(client).status().equals("available"));
+        }
 
         refresh();
     }
@@ -481,6 +507,11 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         DaxClient client = createClient(DaxClient.class);
 
         client.deleteCluster(r -> r.clusterName(getName()));
+
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .until(() -> getCluster(client) == null);
     }
 
     @Override
@@ -498,5 +529,18 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         }
 
         return errors;
+    }
+
+    private Cluster getCluster(DaxClient client) {
+        Cluster cluster = null;
+
+        try {
+            DescribeClustersResponse response = client.describeClusters(r -> r.clusterNames(getName()));
+            cluster = response.clusters().get(0);
+        } catch (ClusterNotFoundException ignore) {
+            // cluster not found
+        }
+
+        return cluster;
     }
 }
