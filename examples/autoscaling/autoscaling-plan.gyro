@@ -100,7 +100,7 @@ aws::autoscaling-group auto-scaling-group-auto-scaling-plan-example-3
 end
 
 aws::autoscaling-plan autoscaling-plan-example
-    name: "scaling-plan-example-dj"
+    name: "scaling-plan-example"
     scaling-plan-version: 1.0
     status-code: "Active"
 
