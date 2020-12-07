@@ -93,7 +93,7 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
     @Required
     @Updatable
     public List<SubnetResource> getSubnets() {
-        if (subnets != null) {
+        if (subnets == null) {
             subnets = new ArrayList<>();
         }
 
@@ -124,9 +124,8 @@ public class DaxSubnetGroupResource extends AwsResource implements Copyable<Subn
 
         getSubnets().clear();
         if (model.subnets() != null) {
-            model.subnets().forEach(subnet -> {
-                getSubnets().add(findById(SubnetResource.class, subnet.subnetIdentifier()));
-            });
+            model.subnets()
+                .forEach(subnet -> getSubnets().add(findById(SubnetResource.class, subnet.subnetIdentifier())));
         }
     }
 
