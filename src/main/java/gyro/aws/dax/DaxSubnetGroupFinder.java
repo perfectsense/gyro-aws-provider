@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dax.DaxClient;
+import software.amazon.awssdk.services.dax.model.DescribeSubnetGroupsRequest;
 import software.amazon.awssdk.services.dax.model.DescribeSubnetGroupsResponse;
 import software.amazon.awssdk.services.dax.model.SubnetGroup;
 
@@ -56,17 +58,23 @@ public class DaxSubnetGroupFinder extends AwsFinder<DaxClient, SubnetGroup, DaxS
     protected List<SubnetGroup> findAllAws(DaxClient client) {
         List<SubnetGroup> subnetGroups = new ArrayList<>();
         DescribeSubnetGroupsResponse response;
-        String token;
+        String token = null;
 
         do {
-            response = client.describeSubnetGroups();
+            if (ObjectUtils.isBlank(token)) {
+                response = client.describeSubnetGroups();
+            } else {
+                response = client.describeSubnetGroups(DescribeSubnetGroupsRequest.builder()
+                    .nextToken(token)
+                    .build());
+            }
 
             if (response.hasSubnetGroups()) {
                 subnetGroups.addAll(response.subnetGroups());
             }
 
             token = response.nextToken();
-        } while(token != null);
+        } while (token != null);
 
         return subnetGroups;
     }

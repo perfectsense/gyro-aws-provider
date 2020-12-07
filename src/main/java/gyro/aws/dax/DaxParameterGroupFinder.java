@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dax.DaxClient;
+import software.amazon.awssdk.services.dax.model.DescribeParameterGroupsRequest;
 import software.amazon.awssdk.services.dax.model.DescribeParameterGroupsResponse;
 import software.amazon.awssdk.services.dax.model.ParameterGroup;
 
@@ -56,17 +58,23 @@ public class DaxParameterGroupFinder extends AwsFinder<DaxClient, ParameterGroup
     protected List<ParameterGroup> findAllAws(DaxClient client) {
         List<ParameterGroup> parameterGroups = new ArrayList<>();
         DescribeParameterGroupsResponse response;
-        String token;
+        String token = null;
 
         do {
-            response = client.describeParameterGroups();
+            if (ObjectUtils.isBlank(token)) {
+                response = client.describeParameterGroups();
+            } else {
+                response = client.describeParameterGroups(DescribeParameterGroupsRequest.builder()
+                    .nextToken(token)
+                    .build());
+            }
 
             if (response.hasParameterGroups()) {
                 parameterGroups.addAll(response.parameterGroups());
             }
 
             token = response.nextToken();
-        } while(token != null);
+        } while (token != null);
 
         return parameterGroups;
     }

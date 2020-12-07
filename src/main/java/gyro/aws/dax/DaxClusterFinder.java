@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.dax.DaxClient;
 import software.amazon.awssdk.services.dax.model.Cluster;
+import software.amazon.awssdk.services.dax.model.DescribeClustersRequest;
 import software.amazon.awssdk.services.dax.model.DescribeClustersResponse;
 
 /**
@@ -56,10 +58,16 @@ public class DaxClusterFinder extends AwsFinder<DaxClient, Cluster, DaxClusterRe
     protected List<Cluster> findAllAws(DaxClient client) {
         List<Cluster> clusters = new ArrayList<>();
         DescribeClustersResponse response;
-        String token;
+        String token = null;
 
         do {
-            response = client.describeClusters();
+            if (ObjectUtils.isBlank(token)) {
+                response = client.describeClusters();
+            } else {
+                response = client.describeClusters(DescribeClustersRequest.builder()
+                    .nextToken(token)
+                    .build());
+            }
 
             if (response.hasClusters()) {
                 clusters.addAll(response.clusters());
