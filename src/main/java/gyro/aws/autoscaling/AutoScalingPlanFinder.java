@@ -16,12 +16,16 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.autoscalingplans.AutoScalingPlansClient;
+import software.amazon.awssdk.services.autoscalingplans.model.DescribeScalingPlansRequest;
+import software.amazon.awssdk.services.autoscalingplans.model.DescribeScalingPlansResponse;
 import software.amazon.awssdk.services.autoscalingplans.model.ScalingPlan;
 
 /**
@@ -52,7 +56,27 @@ public class AutoScalingPlanFinder extends AwsFinder<AutoScalingPlansClient, Sca
 
     @Override
     protected List<ScalingPlan> findAllAws(AutoScalingPlansClient client) {
-        return client.describeScalingPlans().scalingPlans();
+        List<ScalingPlan> scalingPlans = new ArrayList<>();
+        DescribeScalingPlansResponse response;
+        String token = null;
+
+        do {
+            if (ObjectUtils.isBlank(token)) {
+                response = client.describeScalingPlans();
+            } else {
+                response = client.describeScalingPlans(DescribeScalingPlansRequest.builder()
+                    .nextToken(token)
+                    .build());
+            }
+
+            if (response.hasScalingPlans()) {
+                scalingPlans.addAll(response.scalingPlans());
+            }
+
+            token = response.nextToken();
+        } while (!ObjectUtils.isBlank(token));
+
+        return scalingPlans;
     }
 
     @Override
