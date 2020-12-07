@@ -1,4 +1,0 @@
-aws::dax-parameter-group parameter-group
-    name: "parameter-group-example"
-    description: "parameter-group-example-description"
-end
