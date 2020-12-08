@@ -25,10 +25,8 @@ import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
-import gyro.core.validation.DependsOn;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.EcsException;
-import software.amazon.awssdk.services.ecs.model.ListTaskDefinitionsResponse;
 import software.amazon.awssdk.services.ecs.model.TaskDefinition;
 
 /**
@@ -83,13 +81,12 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
 
     @Override
     protected List<TaskDefinition> findAllAws(EcsClient client) {
-        ListTaskDefinitionsResponse listTaskDefinitionsResponse = client.listTaskDefinitions();
+        List<String> taskDefinitionArns = client.listTaskDefinitionsPaginator()
+            .taskDefinitionArns().stream().collect(Collectors.toList());
 
-        if (listTaskDefinitionsResponse.hasTaskDefinitionArns()) {
-            return listTaskDefinitionsResponse.taskDefinitionArns().stream()
-                .map(o -> getTaskDefinitionByIdentifier(client, o))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        if (!taskDefinitionArns.isEmpty()) {
+            return taskDefinitionArns.stream().map(o -> getTaskDefinitionByIdentifier(client, o))
+                .filter(Objects::nonNull).collect(Collectors.toList());
 
         } else {
             return Collections.emptyList();
