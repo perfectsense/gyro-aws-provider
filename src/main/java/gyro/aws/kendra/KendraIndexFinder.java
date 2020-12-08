@@ -54,18 +54,18 @@ public class KendraIndexFinder extends AwsFinder<KendraClient, DescribeIndexResp
 
     @Override
     protected List<DescribeIndexResponse> findAllAws(KendraClient client) {
-        return client.listIndices(ListIndicesRequest.builder().build())
-            .indexConfigurationSummaryItems()
+        return client.listIndicesPaginator(ListIndicesRequest.builder().build())
             .stream()
+            .flatMap(r -> r.indexConfigurationSummaryItems().stream())
             .map(r -> client.describeIndex(i -> i.id(r.id())))
             .collect(Collectors.toList());
     }
 
     @Override
     protected List<DescribeIndexResponse> findAws(KendraClient client, Map<String, String> filters) {
-        return client.listIndices(ListIndicesRequest.builder().build())
-            .indexConfigurationSummaryItems()
+        return client.listIndicesPaginator(ListIndicesRequest.builder().build())
             .stream()
+            .flatMap(r -> r.indexConfigurationSummaryItems().stream())
             .filter(r -> r.name().equals(filters.get("name")))
             .map(r -> client.describeIndex(i -> i.id(r.id())))
             .collect(Collectors.toList());

@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.kendra.KendraClient;
+import software.amazon.awssdk.services.kendra.model.DataSourceSummary;
 import software.amazon.awssdk.services.kendra.model.DescribeDataSourceResponse;
-import software.amazon.awssdk.services.kendra.model.ListDataSourcesResponse;
 
 /**
  * Query kendra data source.
@@ -80,10 +80,11 @@ public class KendraDataSourceFinder
             String indexId = filters.get("index-id");
 
             if (!filters.containsKey("id")) {
-                ListDataSourcesResponse listDataSourcesResponse = client.listDataSources(r -> r.indexId(indexId));
+                List<DataSourceSummary> dataSourceSummaries = client.listDataSourcesPaginator(r -> r.indexId(
+                    indexId)).stream().flatMap(r -> r.summaryItems().stream()).collect(Collectors.toList());
 
-                if (listDataSourcesResponse.hasSummaryItems()) {
-                    dataSources = listDataSourcesResponse.summaryItems()
+                if (!dataSourceSummaries.isEmpty()) {
+                    dataSources = dataSourceSummaries
                         .stream()
                         .map(r -> client.describeDataSource(d -> d.id(r.id()).indexId(indexId)))
                         .collect(Collectors.toList());
