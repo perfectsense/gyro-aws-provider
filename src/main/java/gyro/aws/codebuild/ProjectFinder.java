@@ -41,7 +41,7 @@ import software.amazon.awssdk.services.codebuild.model.Project;
 public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectResource> {
 
     /**
-     * The names of build projects.
+     * The name of build project.
      */
     private String name;
 
@@ -55,17 +55,9 @@ public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectRe
 
     @Override
     protected List<Project> findAllAws(CodeBuildClient client) {
-        List<Project> responseList = new ArrayList<>();
+        List<String> projectNames = client.listProjectsPaginator().projects().stream().collect(Collectors.toList());
 
-        try {
-            List<String> projectNames = client.listProjectsPaginator().projects().stream().collect(Collectors.toList());
-            responseList = client.batchGetProjects(r -> r.names(projectNames)).projects();
-
-        } catch (InvalidInputException ex) {
-            // Input project name list empty
-        }
-
-        return responseList;
+        return client.batchGetProjects(r -> r.names(projectNames)).projects();
     }
 
     @Override
@@ -75,8 +67,8 @@ public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectRe
 
         try {
             responseList = client.batchGetProjects(r -> r.names(filters.get("name"))).projects();
-        } catch (InvalidInputException ex) {
-            // Input project name list empty
+        } catch (InvalidInputException ignore) {
+            // Project name not valid
         }
 
         return responseList;

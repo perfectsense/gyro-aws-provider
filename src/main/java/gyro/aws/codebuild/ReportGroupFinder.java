@@ -17,8 +17,10 @@
 package gyro.aws.codebuild;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
@@ -26,6 +28,7 @@ import software.amazon.awssdk.services.codebuild.CodeBuildClient;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.ListReportGroupsResponse;
 import software.amazon.awssdk.services.codebuild.model.ReportGroup;
+import software.amazon.awssdk.services.codebuild.model.ReportGroupSortByType;
 
 /**
  * Query report group.
@@ -43,7 +46,7 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, R
     private String arn;
 
     /**
-     * The ARN of the report group.
+     * The arn of the report group.
      */
     public String getArn() {
         return arn;
@@ -55,21 +58,12 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, R
 
     @Override
     protected List<ReportGroup> findAllAws(CodeBuildClient client) {
-        List<ReportGroup> reportGroups = new ArrayList<>();
+        List<String> reportGroupArns = client.listReportGroupsPaginator(r -> r.sortBy(ReportGroupSortByType.NAME))
+            .stream().map(ListReportGroupsResponse::reportGroups)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
 
-        String reportGroupToken;
-
-        do {
-            ListReportGroupsResponse listReportGroupsResponse = client.listReportGroups(r -> r.maxResults(100));
-
-            for (String group : listReportGroupsResponse.reportGroups()) {
-                reportGroups.addAll(client.batchGetReportGroups(r -> r.reportGroupArns(group)).reportGroups());
-            }
-
-            reportGroupToken = listReportGroupsResponse.nextToken();
-        } while (reportGroupToken != null);
-
-        return reportGroups;
+        return client.batchGetReportGroups(r -> r.reportGroupArns(reportGroupArns)).reportGroups();
     }
 
     @Override
@@ -81,8 +75,8 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, R
             reportGroups.addAll(client.batchGetReportGroups(request -> request
                 .reportGroupArns(filters.get("arn"))).reportGroups());
 
-        } catch (InvalidInputException ex) {
-            // Input report group ARN empty
+        } catch (InvalidInputException ignore) {
+            // Report group arn not valid
         }
 
         return reportGroups;

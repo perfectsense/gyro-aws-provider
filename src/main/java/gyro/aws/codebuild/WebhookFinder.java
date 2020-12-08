@@ -19,12 +19,12 @@ package gyro.aws.codebuild;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
-import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.Project;
 import software.amazon.awssdk.services.codebuild.model.Webhook;
@@ -57,16 +57,10 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
 
     @Override
     protected List<Webhook> findAllAws(CodeBuildClient client) {
-        List<BatchGetProjectsResponse> projectsResponseList = client.listProjectsPaginator().stream()
-            .map(projects ->
-                client.batchGetProjects(r -> r.names(projects.projects())))
-            .collect(Collectors.toList());
-
-        return projectsResponseList.stream()
-            .map(BatchGetProjectsResponse::projects)
-            .flatMap(projects ->
-                projects.stream()
-                    .map(Project::webhook))
+        return client.listProjectsPaginator().stream()
+            .map(projects -> client.batchGetProjects(r -> r.names(projects.projects())))
+            .flatMap(o -> o.projects().stream())
+            .map(Project::webhook)
             .collect(Collectors.toList());
     }
 
@@ -75,18 +69,14 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
         CodeBuildClient client, Map<String, String> filters) {
 
         List<Webhook> webhooks = new ArrayList<>();
-        List<BatchGetProjectsResponse> responseList = new ArrayList<>();
 
         try {
-            responseList.add(client.batchGetProjects(r -> r.names(filters.get("name"))));
-
-            webhooks = responseList.stream()
-                .map(BatchGetProjectsResponse::projects)
-                .flatMap(projects ->
-                    projects.stream()
-                        .map(Project::webhook))
-                .collect(Collectors.toList());
-
+            webhooks.addAll(client.batchGetProjects(r -> r.names(filters.get("name")))
+                .projects()
+                .stream()
+                .map(Project::webhook)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
         } catch (InvalidInputException ex) {
             // Invalid input
         }
