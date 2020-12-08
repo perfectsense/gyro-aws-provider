@@ -62,7 +62,11 @@ public class FileSystemFinder extends AwsFinder<EfsClient, FileSystemDescription
         List<FileSystemDescription> fileSystems = new ArrayList<>();
 
         try {
-            fileSystems = client.describeFileSystems(r -> r.fileSystemId(filters.get("id"))).fileSystems();
+            client.describeFileSystemsPaginator(r -> r.fileSystemId(filters.get("id"))).forEach(f -> {
+                if (f.hasFileSystems()) {
+                    fileSystems.addAll(f.fileSystems());
+                }
+            });
 
         } catch (FileSystemNotFoundException ex) {
             // ignore
