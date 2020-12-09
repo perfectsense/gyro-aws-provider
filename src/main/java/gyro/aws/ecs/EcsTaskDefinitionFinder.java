@@ -117,7 +117,7 @@ public class EcsTaskDefinitionFinder extends AwsFinder<EcsClient, TaskDefinition
                     }
 
                 } else {
-                    taskDefinitions = client.listTaskDefinitions(r -> r.familyPrefix(filters.get("family")))
+                    taskDefinitions = client.listTaskDefinitionsPaginator(r -> r.familyPrefix(filters.get("family")))
                         .taskDefinitionArns().stream()
                         .map(o -> getTaskDefinitionByIdentifier(client, o))
                         .filter(Objects::nonNull)
