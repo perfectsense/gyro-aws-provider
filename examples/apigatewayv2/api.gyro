@@ -49,7 +49,6 @@ aws::api-gateway-route example-route
     authorizer: $(aws::api-gateway-authorizer example-authorizer)
     authorization-type: JWT
     authorization-scopes: [ "example-scope" ]
-    target: 'integrations/bicxh4j'
 end
 
 aws::api-gateway-stage example-stage
@@ -89,24 +88,40 @@ end
 aws::vpc vpc-example
     cidr-block: "10.0.0.0/16"
     provide-ipv6-cidr-block: true
+
+    tags: {
+        "Name": "Api Gateway Vpc Link"
+    }
 end
 
 aws::security-group security-group-example
     name: "security-group-example"
     vpc: $(aws::vpc vpc-example)
     description: "security group example description"
+
+    tags: {
+        "Name": "Api Gateway Vpc Link"
+    }
 end
 
 aws::subnet subnet-example-2a
     vpc: $(aws::vpc vpc-example)
     availability-zone: us-east-2a
     cidr-block: "10.0.0.0/24"
+
+    tags: {
+        "Name": "Api Gateway Vpc Link"
+    }
 end
 
 aws::subnet subnet-example-2b
     vpc: $(aws::vpc vpc-example)
     availability-zone: us-east-2b
     cidr-block: "10.0.1.0/24"
+
+    tags: {
+        "Name": "Api Gateway Vpc Link"
+    }
 end
 
 aws::api-gateway-vpc-link example-vpc-link

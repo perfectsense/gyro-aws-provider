@@ -56,7 +56,6 @@ import software.amazon.awssdk.services.apigatewayv2.model.Route;
  *         authorizer: $(aws::api-gateway-authorizer example-authorizer)
  *         authorization-type: JWT
  *         authorization-scopes: [ "example-scope" ]
- *         target: 'integrations/bicxh4j'
  *     end
  */
 @Type("api-gateway-route")
