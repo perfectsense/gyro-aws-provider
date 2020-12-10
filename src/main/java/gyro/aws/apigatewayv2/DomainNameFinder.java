@@ -16,14 +16,17 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
+import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesResponse;
 
 /**
  * Query Domain Name.
@@ -36,7 +39,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
  *    domain-name: $(external-query aws::api-gateway-domain-name {name: "vpn.ops-test.psdops.com"})
  */
 @Type("api-gateway-domain-name")
-public class DomainNameFinder extends AwsFinder<ApiGatewayV2Client, DomainName, DomainNameResource> {
+public class DomainNameFinder extends ApiGatewayFinder<ApiGatewayV2Client, DomainName, DomainNameResource> {
 
     private String name;
 
@@ -53,15 +56,42 @@ public class DomainNameFinder extends AwsFinder<ApiGatewayV2Client, DomainName, 
 
     @Override
     protected List<DomainName> findAllAws(ApiGatewayV2Client client) {
-        return client.getDomainNames().items();
+        List<DomainName> domainNames = new ArrayList<>();
+        String marker = null;
+        GetDomainNamesResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getDomainNames();
+            } else {
+                response = client.getDomainNames(GetDomainNamesRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            domainNames.addAll(response.items());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return domainNames;
     }
 
     @Override
     protected List<DomainName> findAws(ApiGatewayV2Client client, Map<String, String> filters) {
-        return client.getDomainNames()
-            .items()
-            .stream()
-            .filter(i -> i.domainName().equals(filters.get("name")))
-            .collect(Collectors.toList());
+        List<DomainName> domainNames = new ArrayList<>();
+        String marker = null;
+        GetDomainNamesResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getDomainNames();
+            } else {
+                response = client.getDomainNames(GetDomainNamesRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            domainNames.addAll(response.items().stream().filter(i -> i.domainName().equals(filters.get("name")))
+                .collect(Collectors.toList()));
+        } while (!ObjectUtils.isBlank(marker));
+
+        return domainNames;
     }
 }

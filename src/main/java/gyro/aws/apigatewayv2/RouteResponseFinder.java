@@ -22,12 +22,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationsRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationsResponse;
+import software.amazon.awssdk.services.apigatewayv2.model.GetRouteResponsesRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetRouteResponsesResponse;
+import software.amazon.awssdk.services.apigatewayv2.model.Integration;
 import software.amazon.awssdk.services.apigatewayv2.model.NotFoundException;
-import software.amazon.awssdk.services.apigatewayv2.model.Route;
 import software.amazon.awssdk.services.apigatewayv2.model.RouteResponse;
 
 /**
@@ -41,7 +44,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.RouteResponse;
  *    route-response: $(external-query aws::api-gateway-route-response {api-id: "", route-id: "", id: ""})
  */
 @Type("api-gateway-route-response")
-public class RouteResponseFinder extends AwsFinder<ApiGatewayV2Client, RouteResponse, RouteResponseResource> {
+public class RouteResponseFinder extends ApiGatewayFinder<ApiGatewayV2Client, RouteResponse, RouteResponseResource> {
 
     private String id;
     private String apiId;
@@ -83,14 +86,24 @@ public class RouteResponseFinder extends AwsFinder<ApiGatewayV2Client, RouteResp
     @Override
     protected List<RouteResponse> findAllAws(ApiGatewayV2Client client) {
         List<RouteResponse> routeResponses = new ArrayList<>();
-        List<String> apis = getApis(client);
+        String marker = null;
+        GetRouteResponsesResponse response;
 
-        apis.forEach(a -> {
-            List<String> routes = getRoutes(client, a);
-            routes.forEach(i -> routeResponses.addAll(client.getRouteResponses(r -> r.routeId(i)
-                .apiId(a))
-                .items()));
-        });
+        for (String api : getApis(client)) {
+            for (String route : getRoutes(client, api)) {
+                do {
+                    if (marker == null) {
+                        response = client.getRouteResponses(r -> r.routeId(route).apiId(api));
+                    } else {
+                        response = client.getRouteResponses(GetRouteResponsesRequest.builder()
+                            .nextToken(marker).apiId(api).routeId(route).build());
+                    }
+
+                    marker = response.nextToken();
+                    routeResponses.addAll(response.items());
+                } while (!ObjectUtils.isBlank(marker));
+            }
+        }
 
         return routeResponses;
     }
@@ -125,15 +138,25 @@ public class RouteResponseFinder extends AwsFinder<ApiGatewayV2Client, RouteResp
         return routeResponses;
     }
 
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
-    }
-
     private List<String> getRoutes(ApiGatewayV2Client client, String apiId) {
-        return client.getRoutes(r -> r.apiId(apiId))
-            .items()
-            .stream()
-            .map(Route::routeId)
-            .collect(Collectors.toList());
+        List<Integration> integrations = new ArrayList<>();
+        String marker = null;
+        GetIntegrationsResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getIntegrations(r -> r.apiId(api));
+                } else {
+                    response = client.getIntegrations(GetIntegrationsRequest.builder()
+                        .apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                integrations.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return integrations.stream().map(Integration::integrationId).collect(Collectors.toList());
     }
 }

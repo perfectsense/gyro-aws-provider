@@ -16,14 +16,17 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetApisRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetApisResponse;
 
 /**
  * Query Api.
@@ -36,7 +39,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Api;
  *    api-gateway: $(external-query aws::api-gateway {name: "example-api"})
  */
 @Type("api-gateway")
-public class ApiFinder extends AwsFinder<ApiGatewayV2Client, Api, ApiResource> {
+public class ApiFinder extends ApiGatewayFinder<ApiGatewayV2Client, Api, ApiResource> {
 
     private String name;
 
@@ -53,15 +56,42 @@ public class ApiFinder extends AwsFinder<ApiGatewayV2Client, Api, ApiResource> {
 
     @Override
     protected List<Api> findAllAws(ApiGatewayV2Client client) {
-        return client.getApis().items();
+        List<Api> apis = new ArrayList<>();
+        String marker = null;
+        GetApisResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getApis();
+            } else {
+                response = client.getApis(GetApisRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            apis.addAll(response.items());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return apis;
     }
 
     @Override
     protected List<Api> findAws(ApiGatewayV2Client client, Map<String, String> filters) {
-        return client.getApis()
-            .items()
-            .stream()
-            .filter(i -> i.name().equals(filters.get("name")))
-            .collect(Collectors.toList());
+        List<Api> apis = new ArrayList<>();
+        String marker = null;
+        GetApisResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getApis();
+            } else {
+                response = client.getApis(GetApisRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            apis.addAll(response.items().stream().filter(i -> i.name().equals(filters.get("name")))
+                .collect(Collectors.toList()));
+        } while (!ObjectUtils.isBlank(marker));
+
+        return apis;
     }
 }

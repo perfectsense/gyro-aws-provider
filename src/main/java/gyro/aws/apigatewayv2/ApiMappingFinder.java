@@ -21,11 +21,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.ApiMapping;
 import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
+import software.amazon.awssdk.services.apigatewayv2.model.GetApiMappingsRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetApiMappingsResponse;
+import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetDomainNamesResponse;
 
 /**
  * Query Api.
@@ -38,7 +42,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.DomainName;
  *    api-mapping: $(external-query aws::api-mapping {domain-name: "vpn.ops-test.psdops.com", mapping-id: ""})
  */
 @Type("api-mapping")
-public class ApiMappingFinder extends AwsFinder<ApiGatewayV2Client, ApiMapping, ApiMappingResource> {
+public class ApiMappingFinder extends ApiGatewayFinder<ApiGatewayV2Client, ApiMapping, ApiMappingResource> {
 
     private String domainName;
     private String mappingId;
@@ -67,10 +71,25 @@ public class ApiMappingFinder extends AwsFinder<ApiGatewayV2Client, ApiMapping, 
 
     @Override
     protected List<ApiMapping> findAllAws(ApiGatewayV2Client client) {
-        return getDomainNames(client).stream()
-            .map(d -> client.getApiMappings(r -> r.domainName(d)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<ApiMapping> apiMappings = new ArrayList<>();
+        String marker = null;
+        GetApiMappingsResponse response;
+
+        for (String domainName : getDomainNames(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getApiMappings(r -> r.domainName(domainName));
+                } else {
+                    response = client.getApiMappings(GetApiMappingsRequest.builder()
+                        .domainName(domainName).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                apiMappings.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return apiMappings;
     }
 
     @Override
@@ -94,6 +113,21 @@ public class ApiMappingFinder extends AwsFinder<ApiGatewayV2Client, ApiMapping, 
     }
 
     private List<String> getDomainNames(ApiGatewayV2Client client) {
-        return client.getDomainNames().items().stream().map(DomainName::domainName).collect(Collectors.toList());
+        List<DomainName> domainNames = new ArrayList<>();
+        String marker = null;
+        GetDomainNamesResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getDomainNames();
+            } else {
+                response = client.getDomainNames(GetDomainNamesRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            domainNames.addAll(response.items());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return domainNames.stream().map(DomainName::domainName).collect(Collectors.toList());
     }
 }

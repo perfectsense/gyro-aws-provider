@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationResponsesRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationResponsesResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Integration;
 import software.amazon.awssdk.services.apigatewayv2.model.IntegrationResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.NotFoundException;
@@ -42,7 +43,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.NotFoundException;
  */
 @Type("api-gateway-integration-response")
 public class IntegrationResponseFinder
-    extends AwsFinder<ApiGatewayV2Client, IntegrationResponse, IntegrationResponseResource> {
+    extends ApiGatewayFinder<ApiGatewayV2Client, IntegrationResponse, IntegrationResponseResource> {
 
     private String id;
     private String apiId;
@@ -84,14 +85,25 @@ public class IntegrationResponseFinder
     @Override
     protected List<IntegrationResponse> findAllAws(ApiGatewayV2Client client) {
         List<IntegrationResponse> integrationResponses = new ArrayList<>();
-        List<String> apis = getApis(client);
+        String marker = null;
+        GetIntegrationResponsesResponse response;
 
-        apis.forEach(a -> {
-            List<String> integrations = getIntegrations(client, a);
-            integrations.forEach(i -> integrationResponses.addAll(client.getIntegrationResponses(r -> r.integrationId(i)
-                .apiId(a))
-                .items()));
-        });
+        for (String api : getApis(client)) {
+            for (String integration : getIntegrations(client, api)) {
+                do {
+                    if (marker == null) {
+                        response = client.getIntegrationResponses(GetIntegrationResponsesRequest.builder()
+                            .apiId(api).integrationId(integration).build());
+                    } else {
+                        response = client.getIntegrationResponses(GetIntegrationResponsesRequest.builder()
+                            .nextToken(marker).apiId(api).integrationId(integration).build());
+                    }
+
+                    marker = response.nextToken();
+                    integrationResponses.addAll(response.items());
+                } while (!ObjectUtils.isBlank(marker));
+            }
+        }
 
         return integrationResponses;
     }
@@ -124,10 +136,6 @@ public class IntegrationResponseFinder
         }
 
         return integrationResponses;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 
     private List<String> getIntegrations(ApiGatewayV2Client client, String apiId) {

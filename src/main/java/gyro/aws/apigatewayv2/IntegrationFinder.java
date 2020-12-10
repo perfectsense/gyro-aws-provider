@@ -19,12 +19,12 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationsRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetIntegrationsResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Integration;
 
 /**
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Integration;
  *    integration: $(external-query aws::api-gateway-integration {api-id: "", id: ""})
  */
 @Type("api-gateway-integration")
-public class IntegrationFinder extends AwsFinder<ApiGatewayV2Client, Integration, IntegrationResource> {
+public class IntegrationFinder extends ApiGatewayFinder<ApiGatewayV2Client, Integration, IntegrationResource> {
 
     private String id;
     private String apiId;
@@ -67,10 +67,25 @@ public class IntegrationFinder extends AwsFinder<ApiGatewayV2Client, Integration
 
     @Override
     protected List<Integration> findAllAws(ApiGatewayV2Client client) {
-        return getApis(client).stream()
-            .map(api -> client.getIntegrations(r -> r.apiId(api)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<Integration> integrations = new ArrayList<>();
+        String marker = null;
+        GetIntegrationsResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getIntegrations(r -> r.apiId(api));
+                } else {
+                    response = client.getIntegrations(GetIntegrationsRequest.builder()
+                        .apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                integrations.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return integrations;
     }
 
     @Override
@@ -91,9 +106,5 @@ public class IntegrationFinder extends AwsFinder<ApiGatewayV2Client, Integration
         }
 
         return integrations;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 }

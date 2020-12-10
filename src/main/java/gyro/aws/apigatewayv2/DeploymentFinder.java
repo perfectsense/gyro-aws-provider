@@ -19,13 +19,13 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.Deployment;
+import software.amazon.awssdk.services.apigatewayv2.model.GetDeploymentsRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetDeploymentsResponse;
 
 /**
  * Query Deployment.
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Deployment;
  *    deployment: $(external-query aws::api-gateway-deployment {api-id: ""})
  */
 @Type("api-gateway-deployment")
-public class DeploymentFinder extends AwsFinder<ApiGatewayV2Client, Deployment, DeploymentResource> {
+public class DeploymentFinder extends ApiGatewayFinder<ApiGatewayV2Client, Deployment, DeploymentResource> {
 
     private String id;
     private String apiId;
@@ -67,10 +67,25 @@ public class DeploymentFinder extends AwsFinder<ApiGatewayV2Client, Deployment, 
 
     @Override
     protected List<Deployment> findAllAws(ApiGatewayV2Client client) {
-        return getApis(client).stream()
-            .map(api -> client.getDeployments(r -> r.apiId(api)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<Deployment> deployments = new ArrayList<>();
+        String marker = null;
+        GetDeploymentsResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getDeployments(r -> r.apiId(api));
+                } else {
+                    response = client.getDeployments(GetDeploymentsRequest.builder()
+                        .apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                deployments.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return deployments;
     }
 
     @Override
@@ -91,9 +106,5 @@ public class DeploymentFinder extends AwsFinder<ApiGatewayV2Client, Deployment, 
         }
 
         return deployments;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 }

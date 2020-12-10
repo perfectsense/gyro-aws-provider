@@ -19,12 +19,12 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetModelsRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetModelsResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Model;
 
 /**
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Model;
  *    model: $(external-query aws::api-gateway-model {api-id: "", name: "example"})
  */
 @Type("api-gateway-model")
-public class ModelFinder extends AwsFinder<ApiGatewayV2Client, Model, ModelResource> {
+public class ModelFinder extends ApiGatewayFinder<ApiGatewayV2Client, Model, ModelResource> {
 
     private String name;
     private String apiId;
@@ -67,10 +67,25 @@ public class ModelFinder extends AwsFinder<ApiGatewayV2Client, Model, ModelResou
 
     @Override
     protected List<Model> findAllAws(ApiGatewayV2Client client) {
-        return getApis(client).stream()
-            .map(api -> client.getModels(r -> r.apiId(api)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<Model> models = new ArrayList<>();
+        String marker = null;
+        GetModelsResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getModels(r -> r.apiId(api));
+                } else {
+                    response = client.getModels(GetModelsRequest.builder()
+                        .apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                models.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return models;
     }
 
     @Override
@@ -91,9 +106,5 @@ public class ModelFinder extends AwsFinder<ApiGatewayV2Client, Model, ModelResou
         }
 
         return models;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 }

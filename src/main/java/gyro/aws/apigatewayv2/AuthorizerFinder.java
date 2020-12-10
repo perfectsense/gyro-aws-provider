@@ -19,13 +19,13 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
 import software.amazon.awssdk.services.apigatewayv2.model.Authorizer;
+import software.amazon.awssdk.services.apigatewayv2.model.GetAuthorizersRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetAuthorizersResponse;
 
 /**
  * Query Authorizer.
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Authorizer;
  *    authorizer: $(external-query aws::api-gateway-authorizer {api-id: ""})
  */
 @Type("api-gateway-authorizer")
-public class AuthorizerFinder extends AwsFinder<ApiGatewayV2Client, Authorizer, AuthorizerResource> {
+public class AuthorizerFinder extends ApiGatewayFinder<ApiGatewayV2Client, Authorizer, AuthorizerResource> {
 
     private String name;
     private String apiId;
@@ -67,10 +67,25 @@ public class AuthorizerFinder extends AwsFinder<ApiGatewayV2Client, Authorizer, 
 
     @Override
     protected List<Authorizer> findAllAws(ApiGatewayV2Client client) {
-        return getApis(client).stream()
-            .map(api -> client.getAuthorizers(r -> r.apiId(api)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<Authorizer> authorizers = new ArrayList<>();
+        String marker = null;
+        GetAuthorizersResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getAuthorizers(r -> r.apiId(api));
+                } else {
+                    response = client.getAuthorizers(GetAuthorizersRequest.builder()
+                        .apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                authorizers.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return authorizers;
     }
 
     @Override
@@ -91,9 +106,5 @@ public class AuthorizerFinder extends AwsFinder<ApiGatewayV2Client, Authorizer, 
         }
 
         return authorizers;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 }

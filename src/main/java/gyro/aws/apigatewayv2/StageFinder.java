@@ -19,12 +19,12 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetStagesRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetStagesResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Stage;
 
 /**
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Stage;
  *    stage: $(external-query aws::api-gateway-stage {api-id: ""})
  */
 @Type("api-gateway-stage")
-public class StageFinder extends AwsFinder<ApiGatewayV2Client, Stage, StageResource> {
+public class StageFinder extends ApiGatewayFinder<ApiGatewayV2Client, Stage, StageResource> {
 
     private String name;
     private String apiId;
@@ -67,10 +67,24 @@ public class StageFinder extends AwsFinder<ApiGatewayV2Client, Stage, StageResou
 
     @Override
     protected List<Stage> findAllAws(ApiGatewayV2Client client) {
-        return getApis(client).stream()
-            .map(api -> client.getStages(r -> r.apiId(api)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<Stage> stages = new ArrayList<>();
+        String marker = null;
+        GetStagesResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getStages(r -> r.apiId(api));
+                } else {
+                    response = client.getStages(GetStagesRequest.builder().apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                stages.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return stages;
     }
 
     @Override
@@ -91,9 +105,5 @@ public class StageFinder extends AwsFinder<ApiGatewayV2Client, Stage, StageResou
         }
 
         return stages;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 }

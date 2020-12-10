@@ -19,12 +19,12 @@ package gyro.aws.apigatewayv2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
-import software.amazon.awssdk.services.apigatewayv2.model.Api;
+import software.amazon.awssdk.services.apigatewayv2.model.GetRoutesRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetRoutesResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.Route;
 
 /**
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.Route;
  *    route: $(external-query aws::api-gateway-route {api-id: ""})
  */
 @Type("api-gateway-route")
-public class RouteFinder extends AwsFinder<ApiGatewayV2Client, Route, RouteResource> {
+public class RouteFinder extends ApiGatewayFinder<ApiGatewayV2Client, Route, RouteResource> {
 
     private String id;
     private String apiId;
@@ -67,10 +67,24 @@ public class RouteFinder extends AwsFinder<ApiGatewayV2Client, Route, RouteResou
 
     @Override
     protected List<Route> findAllAws(ApiGatewayV2Client client) {
-        return getApis(client).stream()
-            .map(api -> client.getRoutes(r -> r.apiId(api)).items())
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+        List<Route> routes = new ArrayList<>();
+        String marker = null;
+        GetRoutesResponse response;
+
+        for (String api : getApis(client)) {
+            do {
+                if (ObjectUtils.isBlank(marker)) {
+                    response = client.getRoutes(r -> r.apiId(api));
+                } else {
+                    response = client.getRoutes(GetRoutesRequest.builder().apiId(api).nextToken(marker).build());
+                }
+
+                marker = response.nextToken();
+                routes.addAll(response.items());
+            } while (!ObjectUtils.isBlank(marker));
+        }
+
+        return routes;
     }
 
     @Override
@@ -91,9 +105,5 @@ public class RouteFinder extends AwsFinder<ApiGatewayV2Client, Route, RouteResou
         }
 
         return routes;
-    }
-
-    private List<String> getApis(ApiGatewayV2Client client) {
-        return client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
     }
 }

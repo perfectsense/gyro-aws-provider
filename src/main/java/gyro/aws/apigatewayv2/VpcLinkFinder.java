@@ -16,14 +16,16 @@
 
 package gyro.aws.apigatewayv2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsFinder;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.core.Type;
 import software.amazon.awssdk.services.apigatewayv2.ApiGatewayV2Client;
 import software.amazon.awssdk.services.apigatewayv2.model.GetVpcLinksRequest;
+import software.amazon.awssdk.services.apigatewayv2.model.GetVpcLinksResponse;
 import software.amazon.awssdk.services.apigatewayv2.model.VpcLink;
 
 /**
@@ -37,7 +39,7 @@ import software.amazon.awssdk.services.apigatewayv2.model.VpcLink;
  *    vpc-link: $(external-query aws::api-gateway-vpc-link {name: "example-vpc-link"})
  */
 @Type("api-gateway-vpc-link")
-public class VpcLinkFinder extends AwsFinder<ApiGatewayV2Client, VpcLink, VpcLinkResource> {
+public class VpcLinkFinder extends ApiGatewayFinder<ApiGatewayV2Client, VpcLink, VpcLinkResource> {
 
     private String name;
 
@@ -54,15 +56,42 @@ public class VpcLinkFinder extends AwsFinder<ApiGatewayV2Client, VpcLink, VpcLin
 
     @Override
     protected List<VpcLink> findAllAws(ApiGatewayV2Client client) {
-        return client.getVpcLinks(GetVpcLinksRequest.builder().build()).items();
+        List<VpcLink> vpcLinks = new ArrayList<>();
+        String marker = null;
+        GetVpcLinksResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getVpcLinks(GetVpcLinksRequest.builder().build());
+            } else {
+                response = client.getVpcLinks(GetVpcLinksRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            vpcLinks.addAll(response.items());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return vpcLinks;
     }
 
     @Override
     protected List<VpcLink> findAws(ApiGatewayV2Client client, Map<String, String> filters) {
-        return client.getVpcLinks(GetVpcLinksRequest.builder().build())
-            .items()
-            .stream()
-            .filter(i -> i.name().equals(filters.get("name")))
-            .collect(Collectors.toList());
+        List<VpcLink> vpcLinks = new ArrayList<>();
+        String marker = null;
+        GetVpcLinksResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.getVpcLinks(GetVpcLinksRequest.builder().build());
+            } else {
+                response = client.getVpcLinks(GetVpcLinksRequest.builder().nextToken(marker).build());
+            }
+
+            marker = response.nextToken();
+            vpcLinks.addAll(response.items().stream().filter(i -> i.name().equals(filters.get("name")))
+                .collect(Collectors.toList()));
+        } while (!ObjectUtils.isBlank(marker));
+
+        return vpcLinks;
     }
 }
