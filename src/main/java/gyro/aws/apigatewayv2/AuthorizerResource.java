@@ -201,7 +201,7 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
     }
 
     /**
-     * The name of the authorizer. (Required)
+     * The name of the authorizer.
      */
     @Updatable
     @Required
