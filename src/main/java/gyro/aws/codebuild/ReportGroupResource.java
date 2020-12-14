@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -71,6 +72,8 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
 
     /**
      * The report export config about where the report group test results are exported.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildReportExportConfig
      */
     @Required
     @Updatable
@@ -149,6 +152,8 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
 
     /**
      * The results from running a series of test cases during a run of a build project.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildReport
      */
     @Output
     public CodebuildReport getReport() {
@@ -174,10 +179,8 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
         setTags(null);
         if (reportGroup.tags() != null) {
             Map<String, String> tags = new HashMap<>();
-            CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
 
             for (Tag t : reportGroup.tags()) {
-                tag.copyFrom(t);
                 tags.put(t.key(), t.value());
             }
 
@@ -212,7 +215,11 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
             .exportConfig(getReportExportConfig().toReportExportConfig())
             .name(getName())
             .type(getType())
-            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+            .tags(getTags().entrySet()
+                .stream()
+                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                .collect(
+                    Collectors.toList()))
         );
 
         setArn(response.reportGroup().arn());
@@ -227,7 +234,11 @@ public class ReportGroupResource extends AwsResource implements Copyable<ReportG
         client.updateReportGroup(r -> r
             .arn(getArn())
             .exportConfig(getReportExportConfig().toReportExportConfig())
-            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+            .tags(getTags().entrySet()
+                .stream()
+                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                .collect(
+                    Collectors.toList()))
         );
     }
 

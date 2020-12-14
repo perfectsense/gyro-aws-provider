@@ -495,10 +495,8 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         setTags(null);
         if (project.tags() != null) {
             Map<String, String> tags = new HashMap<>();
-            CodebuildProjectTag tag = newSubresource(CodebuildProjectTag.class);
 
             for (Tag t : project.tags()) {
-                tag.copyFrom(t);
                 tags.put(t.key(), t.value());
             }
 
@@ -613,7 +611,11 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .environment(getEnvironment().toProjectEnvironment())
             .source(getSource().toProjectSource())
             .artifacts(getArtifact().toProjectArtifacts())
-            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+            .tags(getTags().entrySet()
+                .stream()
+                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                .collect(
+                    Collectors.toList()))
             .cache(getCache() != null ? getCache().toProjectCache() : null)
             .fileSystemLocations(getFileSystemLocations().stream()
                 .map(CodebuildProjectFileSystemLocation::toProjectFileSystemLocation)
@@ -647,7 +649,11 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .environment(getEnvironment().toProjectEnvironment())
             .source(getSource().toProjectSource())
             .artifacts(getArtifact().toProjectArtifacts())
-            .tags(CodebuildProjectTag.toProjectTags(getTags()))
+            .tags(getTags().entrySet()
+                .stream()
+                .map(o -> Tag.builder().key(o.getKey()).value(o.getValue()).build())
+                .collect(
+                    Collectors.toList()))
             .cache(getCache() != null ? getCache().toProjectCache() : null)
             .encryptionKey(getEncryptionKey() != null ? getEncryptionKey().getArn() : null)
             .fileSystemLocations(getFileSystemLocations().stream()
