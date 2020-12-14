@@ -1,4 +1,4 @@
-aws::webhook webhook
+aws::codebuild-webhook webhook
     build-type: "BUILD"
     rotate-secret: true
     project: $(aws::project project)
@@ -9,7 +9,7 @@ aws::webhook webhook
     end
 end
 
-aws::project project
+aws::codebuild-project project
     name: "project-example-name"
     description: "project-description"
     service-role: $(aws::iam-role iam-role-example)

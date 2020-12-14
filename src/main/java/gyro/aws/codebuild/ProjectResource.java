@@ -56,7 +56,7 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *
  * .. code-block:: gyro
  *
- *    aws::project project
+ *    aws::codebuild-project project
  *        name: "project-example-name"
  *        description: "project-description"
  *        service-role: $(aws::iam-role iam-role-example)
@@ -85,7 +85,7 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *        end
  *    end
  */
-@Type("project")
+@Type("codebuild-project")
 public class ProjectResource extends AwsResource implements Copyable<Project> {
 
     private CodebuildProjectArtifacts artifacts;

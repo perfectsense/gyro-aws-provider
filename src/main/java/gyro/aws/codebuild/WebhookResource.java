@@ -46,7 +46,7 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  *
  * .. code-block:: gyro
  *
- *    aws::webhook webhook
+ *    aws::codebuild-webhook webhook
  *        build-type: "BUILD"
  *        rotate-secret: true
  *        project: $(aws::project project)
@@ -57,7 +57,7 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  *        end
  *    end
  */
-@Type("webhook")
+@Type("codebuild-webhook")
 public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
     private ProjectResource project;

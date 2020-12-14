@@ -35,9 +35,9 @@ import software.amazon.awssdk.services.codebuild.model.Project;
  *
  * .. code-block:: gyro
  *
- *    project: $(external-query aws::project { name: 'project-example-name'})
+ *    project: $(external-query aws::codebuild-project { name: 'project-example-name'})
  */
-@Type("project")
+@Type("codebuild-project")
 public class ProjectFinder extends AwsFinder<CodeBuildClient, Project, ProjectResource> {
 
     /**

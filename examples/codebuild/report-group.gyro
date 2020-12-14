@@ -1,4 +1,4 @@
-aws::report-group report-group
+aws::codebuild-report-group report-group
     report-export-config
         export-config-type: "NO_EXPORT"
     end

@@ -38,9 +38,9 @@ import software.amazon.awssdk.services.codebuild.model.ReportGroupSortByType;
  *
  * .. code-block:: gyro
  *
- *    report-group: $(external-query aws::report-group { arn: ""})
+ *    report-group: $(external-query aws::codebuild-report-group { arn: ""})
  */
-@Type("report-group")
+@Type("codebuild-report-group")
 public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, ReportGroupResource> {
 
     private String arn;

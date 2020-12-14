@@ -1,4 +1,4 @@
-aws::project project
+aws::codebuild-project project
     name: "project-example-name"
     description: "project-description"
     service-role: $(aws::iam-role iam-role-example)
@@ -31,4 +31,4 @@ aws::iam-role iam-role-example
     name: "project-example-name-service-role"
     arn: "arn:aws:iam::242040583208:role/service-role/project-example-name-service-role"
     assume-role-policy: "assume-role-policy.json"
-end 
+end

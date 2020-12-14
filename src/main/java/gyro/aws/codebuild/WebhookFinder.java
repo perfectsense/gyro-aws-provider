@@ -37,9 +37,9 @@ import software.amazon.awssdk.services.codebuild.model.Webhook;
  *
  * .. code-block:: gyro
  *
- *    webhook: $(external-query aws::webhook {name : 'project-example-name'})
+ *    webhook: $(external-query aws::codebuild-webhook {name : 'project-example-name'})
  */
-@Type("webhook")
+@Type("codebuild-webhook")
 public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookResource> {
 
     /**

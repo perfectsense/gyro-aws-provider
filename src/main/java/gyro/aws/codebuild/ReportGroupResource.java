@@ -47,7 +47,7 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *
  * .. code-block:: gyro
  *
- *    aws::report-group report-group
+ *    aws::codebuild-report-group report-group
  *        report-export-config
  *            export-config-type: "NO_EXPORT"
  *        end
@@ -56,7 +56,7 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *        type: "TEST"
  *    end
  */
-@Type("report-group")
+@Type("codebuild-report-group")
 public class ReportGroupResource extends AwsResource implements Copyable<ReportGroup> {
 
     private Boolean deleteReports;
