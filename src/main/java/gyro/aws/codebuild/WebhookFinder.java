@@ -61,6 +61,7 @@ public class WebhookFinder extends AwsFinder<CodeBuildClient, Webhook, WebhookRe
             .map(projects -> client.batchGetProjects(r -> r.names(projects.projects())))
             .flatMap(o -> o.projects().stream())
             .map(Project::webhook)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
