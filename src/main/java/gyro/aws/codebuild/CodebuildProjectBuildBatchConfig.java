@@ -21,6 +21,7 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.model.ProjectBuildBatchConfig;
 
 public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyable<ProjectBuildBatchConfig> {
@@ -33,6 +34,7 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     /**
      * When set to ``true`` the build artifacts for the batch build are combined into a single artifact.
      */
+    @Required
     @Updatable
     public Boolean getCombineArtifacts() {
         return combineArtifacts;
@@ -71,6 +73,7 @@ public class CodebuildProjectBuildBatchConfig extends Diffable implements Copyab
     /**
      * The maximum amount of time that the batch build must be completed in.
      */
+    @Required
     @Updatable
     public Integer getTimeoutInMins() {
         return timeoutInMins;

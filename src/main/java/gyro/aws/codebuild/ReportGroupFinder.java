@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
+import software.amazon.awssdk.services.codebuild.model.BatchGetReportGroupsResponse;
 import software.amazon.awssdk.services.codebuild.model.InvalidInputException;
 import software.amazon.awssdk.services.codebuild.model.ListReportGroupsResponse;
 import software.amazon.awssdk.services.codebuild.model.ReportGroup;
@@ -72,8 +73,12 @@ public class ReportGroupFinder extends AwsFinder<CodeBuildClient, ReportGroup, R
         List<ReportGroup> reportGroups = new ArrayList<>();
 
         try {
-            reportGroups.addAll(client.batchGetReportGroups(request -> request
-                .reportGroupArns(filters.get("arn"))).reportGroups());
+            BatchGetReportGroupsResponse response = client.batchGetReportGroups(request -> request
+                .reportGroupArns(filters.get("arn")));
+
+            if (response.hasReportGroups()) {
+                reportGroups = response.reportGroups();
+            }
 
         } catch (InvalidInputException ignore) {
             // Report group arn not valid

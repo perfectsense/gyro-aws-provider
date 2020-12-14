@@ -16,9 +16,14 @@
 
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.BuildStatusConfig;
 
 public class CodebuildBuildStatusConfig extends Diffable implements Copyable<BuildStatusConfig> {
@@ -68,5 +73,16 @@ public class CodebuildBuildStatusConfig extends Diffable implements Copyable<Bui
             .context(getContext())
             .targetUrl(getTargetUrl())
             .build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getTargetUrl() == null && getContext() == null) {
+            errors.add(new ValidationError(this, null, "At least one of 'target-url' or 'context' is required."));
+        }
+
+        return errors;
     }
 }

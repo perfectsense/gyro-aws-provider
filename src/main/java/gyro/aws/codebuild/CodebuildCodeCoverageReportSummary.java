@@ -19,8 +19,6 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
-import gyro.core.validation.Min;
-import gyro.core.validation.Range;
 import software.amazon.awssdk.services.codebuild.model.CodeCoverageReportSummary;
 
 public class CodebuildCodeCoverageReportSummary extends Diffable implements Copyable<CodeCoverageReportSummary> {
@@ -35,7 +33,6 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The percentage of branches that are covered by the tests.
      */
-    @Range(min = 0, max = 100)
     @Output
     public Double getBranchCoveragePercentage() {
         return branchCoveragePercentage;
@@ -48,7 +45,6 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The number of conditional branches that are covered by the tests.
      */
-    @Min(0)
     @Output
     public Integer getBranchesCovered() {
         return branchesCovered;
@@ -61,7 +57,6 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The number of conditional branches that are not covered by the tests.
      */
-    @Min(0)
     @Output
     public Integer getBranchesMissed() {
         return branchesMissed;
@@ -74,7 +69,6 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The percentage of lines that are covered by the tests.
      */
-    @Range(min = 0, max = 100)
     @Output
     public Double getLineCoveragePercentage() {
         return lineCoveragePercentage;
@@ -87,7 +81,6 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The number of lines that are covered by the tests.
      */
-    @Min(0)
     @Output
     public Integer getLinesCovered() {
         return linesCovered;
@@ -100,7 +93,6 @@ public class CodebuildCodeCoverageReportSummary extends Diffable implements Copy
     /**
      * The number of lines that are not covered by the tests.
      */
-    @Min(0)
     @Output
     public Integer getLinesMissed() {
         return linesMissed;

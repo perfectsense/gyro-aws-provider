@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.model.ProjectBadge;
 
 public class CodebuildProjectBadge extends Diffable implements Copyable<ProjectBadge> {
@@ -30,6 +31,7 @@ public class CodebuildProjectBadge extends Diffable implements Copyable<ProjectB
     /**
      * When set to ``true`` generates a publicly accessible URL for the project's build badge.
      */
+    @Required
     @Updatable
     public Boolean getBadgeEnabled() {
         return badgeEnabled;

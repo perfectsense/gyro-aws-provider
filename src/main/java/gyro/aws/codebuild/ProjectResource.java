@@ -100,7 +100,6 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
 public class ProjectResource extends AwsResource implements Copyable<Project> {
 
     private CodebuildProjectArtifacts artifact;
-    private Boolean badgeEnabled;
     private CodebuildProjectBuildBatchConfig buildBatchConfig;
     private CodebuildProjectCache cache;
     private String description;
@@ -119,11 +118,11 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     private Map<String, String> tags;
     private Integer timeoutInMinutes;
     private CodebuildVpcConfig vpcConfig;
+    private CodebuildProjectBadge badge;
+    private WebhookResource webhook;
 
     // Read-only
     private String arn;
-    private WebhookResource webhook;
-    private CodebuildProjectBadge badge;
 
     /**
      * The build output artifacts for the build project.
@@ -138,18 +137,6 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
 
     public void setArtifact(CodebuildProjectArtifacts artifacts) {
         this.artifact = artifacts;
-    }
-
-    /**
-     * When set to ``true`` a publicly accessible URL will be generated for the project's build badge.
-     */
-    @Updatable
-    public Boolean getBadgeEnabled() {
-        return badgeEnabled;
-    }
-
-    public void setBadgeEnabled(Boolean badgeEnabled) {
-        this.badgeEnabled = badgeEnabled;
     }
 
     /**
@@ -417,7 +404,6 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     /**
      * The webhook that connects repository events to a build project.
      */
-    @Output
     public WebhookResource getWebhook() {
         return webhook;
     }
@@ -441,7 +427,6 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     /**
      * The build badge for the build project
      */
-    @Output
     public CodebuildProjectBadge getBadge() {
         return badge;
     }
@@ -459,7 +444,6 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         setQueuedTimeoutInMinutes(project.queuedTimeoutInMinutes());
         setSourceVersion(project.sourceVersion());
         setTimeoutInMinutes(project.timeoutInMinutes());
-        setWebhook(findById(WebhookResource.class, project.webhook()));
         setArn(project.arn());
 
         setArtifact(null);
@@ -484,12 +468,10 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         }
 
         setBadge(null);
-        setBadgeEnabled(null);
         if (project.badge() != null) {
             CodebuildProjectBadge badge = newSubresource(CodebuildProjectBadge.class);
             badge.copyFrom(project.badge());
             setBadge(badge);
-            setBadgeEnabled(badge.getBadgeEnabled());
         }
 
         setTags(null);
@@ -571,6 +553,13 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             vpcConfig.copyFrom(project.vpcConfig());
             setVpcConfig(vpcConfig);
         }
+
+        setWebhook(null);
+        if (project.webhook() != null) {
+            WebhookResource webhook = newSubresource(WebhookResource.class);
+            webhook.copyFrom(project.webhook());
+            setWebhook(webhook);
+        }
     }
 
     @Override
@@ -599,7 +588,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
 
         CreateProjectResponse response = client.createProject(r -> r
             .name(getName())
-            .badgeEnabled(getBadgeEnabled())
+            .badgeEnabled(getBadge() != null ? getBadge().getBadgeEnabled() : null)
             .encryptionKey(getEncryptionKey() != null ? getEncryptionKey().getArn() : null)
             .queuedTimeoutInMinutes(getQueuedTimeoutInMinutes())
             .sourceVersion(getSourceVersion())
@@ -641,7 +630,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
         client.updateProject(r -> r.name(getName())
-            .badgeEnabled(getBadgeEnabled())
+            .badgeEnabled(getBadge() != null ? getBadge().getBadgeEnabled() : null)
             .buildBatchConfig(getBuildBatchConfig() != null ? getBuildBatchConfig().toProjectBuildBatchConfig() : null)
             .logsConfig(getLogsConfig() != null ? getLogsConfig().toLogsConfig() : null)
             .description(getDescription())

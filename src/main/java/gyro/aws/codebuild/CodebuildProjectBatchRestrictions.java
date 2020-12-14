@@ -22,6 +22,7 @@ import java.util.List;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.BatchRestrictions;
 
@@ -33,6 +34,7 @@ public class CodebuildProjectBatchRestrictions extends Diffable implements Copya
     /**
      * The list that specifies the compute types that are allowed for the batch build.
      */
+    @Required
     @Updatable
     @ValidStrings({ "BUILD_GENERAL1_SMALL", "BUILD_GENERAL1_MEDIUM", "BUILD_GENERAL1_LARGE", "BUILD_GENERAL1_2XLARGE" })
     public List<String> getComputedTypesAllowed() {

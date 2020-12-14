@@ -27,6 +27,7 @@ import gyro.aws.ec2.VpcResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.codebuild.model.VpcConfig;
 
 public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> {
@@ -38,6 +39,7 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     /**
      * One or more security groups part of the configured vpc to be used with the code build.
      */
+    @Required
     @CollectionMax(5)
     @Updatable
     public List<SecurityGroupResource> getSecurityGroups() {
@@ -51,6 +53,7 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     /**
      * One or more subnets part of the configured vpc to be used with the code build.
      */
+    @Required
     @CollectionMax(16)
     @Updatable
     public List<SubnetResource> getSubnets() {
@@ -64,6 +67,7 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     /**
      * The vpc resource to be associated with the code build.
      */
+    @Required
     @Updatable
     public VpcResource getVpc() {
         return vpc;
@@ -108,8 +112,8 @@ public class CodebuildVpcConfig extends Diffable implements Copyable<VpcConfig> 
     public VpcConfig toProjectVpcConfig() {
         return VpcConfig.builder()
             .vpcId(getVpc().getId())
-            .securityGroupIds(getSecurityGroups().stream().map(group -> group.getId()).collect(Collectors.toList()))
-            .subnets(getSubnets().stream().map(subnet -> subnet.getId()).collect(Collectors.toList()))
+            .securityGroupIds(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+            .subnets(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
             .build();
     }
 }

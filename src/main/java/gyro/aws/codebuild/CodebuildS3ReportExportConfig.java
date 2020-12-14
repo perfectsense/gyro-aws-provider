@@ -19,6 +19,7 @@ package gyro.aws.codebuild;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.model.ReportPackagingType;
 import software.amazon.awssdk.services.codebuild.model.S3ReportExportConfig;
@@ -34,6 +35,7 @@ public class CodebuildS3ReportExportConfig extends Diffable implements Copyable<
     /**
      * The name of the S3 bucket where the raw data of a report are exported to.
      */
+    @Required
     @Updatable
     public String getBucket() {
         return bucket;
