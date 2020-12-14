@@ -39,7 +39,7 @@ import software.amazon.awssdk.services.codebuild.model.Webhook;
 import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
 
 /**
- * Creates a webhook with the specified Name, Build Type, Rotate Secret, and Filter Groups.
+ * Creates a webhook.
  *
  * Example
  * -------
@@ -51,7 +51,7 @@ import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
  *        rotate-secret: true
  *        project: $(aws::project project)
  *
- *        filter-groups
+ *        filter-group
  *            pattern: "PUSH"
  *            type: "EVENT"
  *        end
@@ -63,7 +63,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     private ProjectResource project;
     private String branchFilter;
     private String buildType;
-    private List<CodebuildWebhookFilter> filterGroups;
+    private List<CodebuildWebhookFilter> filterGroup;
     private Boolean rotateSecret;
 
     // Read-only
@@ -75,7 +75,6 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     /**
      * The build project.
      */
-    @Id
     @Required
     public ProjectResource getProject() {
         return project;
@@ -111,18 +110,21 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     }
 
     /**
-     * The list of filter groups to determine which webhooks are triggered.
+     * The list of filter group configuration to determine which webhooks are triggered.
+     *
+     * @subresource gyro.aws.codebuild.CodebuildWebhookFilter
      */
     @Updatable
-    public List<CodebuildWebhookFilter> getFilterGroups() {
-        if (filterGroups == null) {
-            filterGroups = new ArrayList<>();
+    public List<CodebuildWebhookFilter> getFilterGroup() {
+        if (filterGroup == null) {
+            filterGroup = new ArrayList<>();
         }
-        return filterGroups;
+
+        return filterGroup;
     }
 
-    public void setFilterGroups(List<CodebuildWebhookFilter> filterGroups) {
-        this.filterGroups = filterGroups;
+    public void setFilterGroup(List<CodebuildWebhookFilter> filterGroup) {
+        this.filterGroup = filterGroup;
     }
 
     /**
@@ -177,6 +179,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     /**
      * The URL to the webhook.
      */
+    @Id
     @Output
     public String getUrl() {
         return url;
@@ -208,9 +211,9 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
                 }
             }
 
-            setFilterGroups(filterList);
+            setFilterGroup(filterList);
         } else {
-            setFilterGroups(null);
+            setFilterGroup(null);
         }
     }
 
@@ -241,7 +244,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
             .projectName(getProject().getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
-            .filterGroups(getFilterGroups().stream()
+            .filterGroups(getFilterGroup().stream()
                 .map(CodebuildWebhookFilter::toWebhookFilter)
                 .collect(Collectors.toList()))
         );
@@ -261,7 +264,7 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         client.updateWebhook(r -> r.projectName(getProject().getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
-            .filterGroups(getFilterGroups().stream()
+            .filterGroups(getFilterGroup().stream()
                 .map(CodebuildWebhookFilter::toWebhookFilter)
                 .collect(Collectors.toList()))
             .rotateSecret(getRotateSecret())
