@@ -1,0 +1,97 @@
+aws::iam-role example-role-iam
+    name: "role-for-kendra-index-us-east-1"
+    description: "example-role for Kendra index"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "policy-for-kendra-index-us-east-1"
+    description: "example policy for Kendra Index"
+    policy-document: "index-policy.json"
+end
+
+aws::kendra-index index-example-enter
+    description: "example-index-desc"
+    edition: ENTERPRISE_EDITION
+    name: "example-index"
+    role: $(aws::iam-role example-role-iam)
+
+    capacity-units-configuration
+        query-capacity-units: 5
+        storage-capacity-units: 1
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
+
+aws::iam-role example-role-iam-rds
+    name: "role-for-kendra-rds-us-east-1"
+    description: "example-role for Kendra rds"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-rds)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-rds
+    name: "policy-for-kendra-rds-us-east-1"
+    description: "example policy for Kendra RDS"
+    policy-document: "rds-policy.json"
+end
+
+aws::kendra-data-source data-source-example-rds
+    name: "rds"
+    description: "rds-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: $(aws::iam-role example-role-iam-rds)
+    schedule: 'cron(0 11 * * ? *)'
+    type: DATABASE
+
+    configuration
+        database-configuration
+            engine-type: RDS_AURORA_POSTGRESQL
+
+            acl-configuration
+                allowed-groups-column-name: "example_change"
+            end
+
+            column-configuration
+                document-data-column-name: "example_data"
+                document-id-column-name: "example_id"
+                document-title-column-name: "example_title"
+
+                change-detecting-columns: [
+                    "example_change_detecting_column"
+                ]
+
+                field-mapping
+                    data-source-field-name: "field_name"
+                    index-field-name: "_authors"
+                end
+            end
+
+            connection-configuration
+                database-host: "129.144.50.56"
+                database-name: "example_name"
+                database-port: 90
+                secret: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+                table-name: "example_table_change"
+            end
+
+            sql-configuration
+                query-identifiers-enclosing-option: DOUBLE_QUOTES
+            end
+        end
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end

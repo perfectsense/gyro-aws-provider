@@ -16,19 +16,25 @@
 
 package gyro.aws;
 
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.retry.RetryPolicy;
+import software.amazon.awssdk.core.retry.conditions.RetryOnThrottlingCondition;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 
-import java.lang.reflect.Method;
-import java.net.URI;
-
 public abstract class AwsResource extends Resource {
 
+    private static final Map<String, SdkClient> clients = new HashMap<>();
     private transient SdkClient client;
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass) {
@@ -47,28 +53,46 @@ public abstract class AwsResource extends Resource {
     }
 
     public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
-
-        try {
-            if (credentials == null) {
-                throw new GyroException(String.format("Unable to create %s, no credentials specified!", clientClass));
-            }
-
-            AwsCredentialsProvider provider = credentials.provider();
-
-            Method method = clientClass.getMethod("builder");
-            AwsDefaultClientBuilder builder = (AwsDefaultClientBuilder) method.invoke(null);
-            builder.credentialsProvider(provider);
-            builder.region(Region.of(region != null ? region : credentials.getRegion()));
-            builder.httpClientBuilder(ApacheHttpClient.builder());
-
-            if (endpoint != null) {
-                builder.endpointOverride(URI.create(endpoint));
-            }
-
-            return (T) builder.build();
-        } catch (Exception ex) {
-            throw new GyroException(String.format("Unable to create %s !", clientClass), ex);
+        if (credentials == null) {
+            throw new GyroException(String.format(
+                "Unable to create %s, no credentials specified!",
+                clientClass));
         }
+
+        String key = String.format("Client Class: %s, Credentials: %s, Region: %s, Endpoint: %s",
+            clientClass.getName(), credentials.getProfileName(),
+            region == null ? credentials.getRegion() : region, endpoint == null ? "" : endpoint);
+
+        if (!clients.containsKey(key)) {
+            try {
+                AwsCredentialsProvider provider = credentials.provider();
+
+                ClientOverrideConfiguration.Builder retryPolicy = ClientOverrideConfiguration.builder()
+                    .retryPolicy(RetryPolicy.builder()
+                        .numRetries(20)
+                        .retryCapacityCondition(RetryOnThrottlingCondition.create())
+                        .build());
+
+                Method method = clientClass.getMethod("builder");
+                AwsDefaultClientBuilder builder = (AwsDefaultClientBuilder) method.invoke(null);
+                builder.credentialsProvider(provider);
+                builder.region(Region.of(region != null ? region : credentials.getRegion()));
+                builder.httpClientBuilder(ApacheHttpClient.builder());
+                builder.overrideConfiguration(retryPolicy.build());
+
+                if (endpoint != null) {
+                    builder.endpointOverride(URI.create(endpoint));
+                }
+
+                T client = (T) builder.build();
+                clients.put(key, client);
+
+            } catch (Exception ex) {
+                throw new GyroException(String.format("Unable to create %s !", clientClass), ex);
+            }
+        }
+
+        return (T) clients.get(key);
     }
 
     @FunctionalInterface

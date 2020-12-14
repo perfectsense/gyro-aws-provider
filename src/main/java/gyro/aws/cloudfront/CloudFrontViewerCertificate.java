@@ -74,7 +74,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
      * Minimum SSL protocol.
      */
     @Updatable
-    @ValidStrings({"SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018"})
+    @ValidStrings({"SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018", "TLSv1.2_2019"})
     public String getMinimumProtocolVersion() {
         if (minimumProtocolVersion == null) {
             minimumProtocolVersion = "TLSv1";
