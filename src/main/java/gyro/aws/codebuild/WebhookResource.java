@@ -24,43 +24,18 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
-import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.codebuild.CodeBuildClient;
-import software.amazon.awssdk.services.codebuild.model.BatchGetProjectsResponse;
-import software.amazon.awssdk.services.codebuild.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.codebuild.model.Webhook;
 import software.amazon.awssdk.services.codebuild.model.WebhookFilter;
 
-/**
- * Creates a webhook.
- *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *    aws::codebuild-webhook webhook
- *        build-type: "BUILD"
- *        rotate-secret: true
- *        project: $(aws::project project)
- *
- *        filter-group
- *            pattern: "PUSH"
- *            type: "EVENT"
- *        end
- *    end
- */
-@Type("codebuild-webhook")
 public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
-    private ProjectResource project;
     private String branchFilter;
     private String buildType;
     private List<CodebuildWebhookFilter> filterGroup;
@@ -71,18 +46,6 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     private String payloadUrl;
     private String secret;
     private String url;
-
-    /**
-     * The build project.
-     */
-    @Required
-    public ProjectResource getProject() {
-        return project;
-    }
-
-    public void setProject(ProjectResource project) {
-        this.project = project;
-    }
 
     /**
      * The regular expression used to determine which repository branches are built when a webhook is triggered.
@@ -219,20 +182,6 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
 
     @Override
     public boolean refresh() {
-        CodeBuildClient client = createClient(CodeBuildClient.class);
-        BatchGetProjectsResponse response = null;
-
-        try {
-            response = client.batchGetProjects(r -> r.names(getProject().getName()));
-        } catch (ResourceNotFoundException ex) {
-            // No Resource found
-        }
-
-        if (response == null || response.projects().isEmpty()) {
-            return false;
-        }
-
-        copyFrom(response.projects().get(0).webhook());
         return true;
     }
 
@@ -240,8 +189,9 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     public void create(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        client.createWebhook(r -> r
-            .projectName(getProject().getName())
+        ProjectResource project = (ProjectResource) parent();
+
+        client.createWebhook(r -> r.projectName(project.getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
             .filterGroups(getFilterGroup().stream()
@@ -249,10 +199,8 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
                 .collect(Collectors.toList()))
         );
 
-        refresh();
-
         if (getRotateSecret() != null) {
-            client.updateWebhook(r -> r.projectName(getProject().getName()).rotateSecret(getRotateSecret()));
+            client.updateWebhook(r -> r.projectName(project.getName()).rotateSecret(getRotateSecret()));
         }
     }
 
@@ -261,7 +209,9 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        client.updateWebhook(r -> r.projectName(getProject().getName())
+        ProjectResource project = (ProjectResource) parent();
+
+        client.updateWebhook(r -> r.projectName(project.getName())
             .branchFilter(getBranchFilter())
             .buildType(getBuildType())
             .filterGroups(getFilterGroup().stream()
@@ -275,6 +225,8 @@ public class WebhookResource extends AwsResource implements Copyable<Webhook> {
     public void delete(GyroUI ui, State state) throws Exception {
         CodeBuildClient client = createClient(CodeBuildClient.class);
 
-        client.deleteWebhook(r -> r.projectName(getProject().getName()));
+        ProjectResource project = (ProjectResource) parent();
+
+        client.deleteWebhook(r -> r.projectName(project.getName()));
     }
 }
