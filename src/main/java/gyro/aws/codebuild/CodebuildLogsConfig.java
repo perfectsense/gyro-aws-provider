@@ -16,15 +16,20 @@
 
 package gyro.aws.codebuild;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.codebuild.model.LogsConfig;
 
 public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig> {
 
-    private CodebuildCloudWatchLogsConfig cloudWatchLogs;
-    private CodebuildS3LogsConfig s3Logs;
+    private CodebuildCloudWatchLogsConfig cloudWatchLog;
+    private CodebuildS3LogsConfig s3Log;
 
     /**
      * The configuration for cloud watch logs.
@@ -32,12 +37,12 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
      * @subresource gyro.aws.codebuild.CodebuildCloudWatchLogsConfig
      */
     @Updatable
-    public CodebuildCloudWatchLogsConfig getCloudWatchLogs() {
-        return cloudWatchLogs;
+    public CodebuildCloudWatchLogsConfig getCloudWatchLog() {
+        return cloudWatchLog;
     }
 
-    public void setCloudWatchLogs(CodebuildCloudWatchLogsConfig cloudWatchLogs) {
-        this.cloudWatchLogs = cloudWatchLogs;
+    public void setCloudWatchLog(CodebuildCloudWatchLogsConfig cloudWatchLog) {
+        this.cloudWatchLog = cloudWatchLog;
     }
 
     /**
@@ -46,29 +51,29 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
      * @subresource gyro.aws.codebuild.CodebuildS3LogsConfig
      */
     @Updatable
-    public CodebuildS3LogsConfig getS3Logs() {
-        return s3Logs;
+    public CodebuildS3LogsConfig getS3Log() {
+        return s3Log;
     }
 
-    public void setS3Logs(CodebuildS3LogsConfig s3Logs) {
-        this.s3Logs = s3Logs;
+    public void setS3Log(CodebuildS3LogsConfig s3Log) {
+        this.s3Log = s3Log;
     }
 
     @Override
     public void copyFrom(LogsConfig model) {
 
-        setCloudWatchLogs(null);
+        setCloudWatchLog(null);
         if (model.cloudWatchLogs() != null) {
             CodebuildCloudWatchLogsConfig cloudWatchLogsConfig = newSubresource(CodebuildCloudWatchLogsConfig.class);
             cloudWatchLogsConfig.copyFrom(model.cloudWatchLogs());
-            setCloudWatchLogs(cloudWatchLogsConfig);
+            setCloudWatchLog(cloudWatchLogsConfig);
         }
 
-        setS3Logs(null);
+        setS3Log(null);
         if (model.s3Logs() != null) {
             CodebuildS3LogsConfig s3LogsConfig = newSubresource(CodebuildS3LogsConfig.class);
             s3LogsConfig.copyFrom(model.s3Logs());
-            setS3Logs(s3LogsConfig);
+            setS3Log(s3LogsConfig);
         }
     }
 
@@ -79,8 +84,19 @@ public class CodebuildLogsConfig extends Diffable implements Copyable<LogsConfig
 
     public LogsConfig toLogsConfig() {
         return LogsConfig.builder()
-            .cloudWatchLogs(getCloudWatchLogs() != null ? getCloudWatchLogs().toCloudWatchLogsConfig() : null)
-            .s3Logs(getS3Logs() != null ? getS3Logs().toS3LogsConfig() : null)
+            .cloudWatchLogs(getCloudWatchLog() != null ? getCloudWatchLog().toCloudWatchLogsConfig() : null)
+            .s3Logs(getS3Log() != null ? getS3Log().toS3LogsConfig() : null)
             .build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getCloudWatchLog() == null && getS3Log() == null) {
+            errors.add(new ValidationError(this, null, "At least one of 'cloud-watch-log' or 's3-log' is required."));
+        }
+
+        return errors;
     }
 }

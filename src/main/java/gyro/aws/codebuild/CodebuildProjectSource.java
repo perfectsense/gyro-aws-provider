@@ -33,7 +33,7 @@ import software.amazon.awssdk.services.codebuild.model.SourceType;
 
 public class CodebuildProjectSource extends Diffable implements Copyable<ProjectSource> {
 
-    private String buildspec;
+    private String buildSpec;
     private CodebuildBuildStatusConfig buildStatusConfig;
     private Integer gitCloneDepth;
     private CodebuildGitSubmodulesConfig gitSubmodulesConfig;
@@ -73,12 +73,12 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
      * The buildspec file declaration to use for the builds in the build project.
      */
     @Updatable
-    public String getBuildspec() {
-        return buildspec;
+    public String getBuildSpec() {
+        return buildSpec;
     }
 
-    public void setBuildspec(String buildspec) {
-        this.buildspec = buildspec;
+    public void setBuildSpec(String buildspec) {
+        this.buildSpec = buildspec;
     }
 
     /**
@@ -162,7 +162,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
     public void copyFrom(ProjectSource model) {
         setType(model.type());
         setLocation(model.location());
-        setBuildspec(model.buildspec());
+        setBuildSpec(model.buildspec());
         setGitCloneDepth(model.gitCloneDepth());
         setInsecureSsl(model.insecureSsl());
         setReportBuildStatus(model.reportBuildStatus());
@@ -185,7 +185,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
 
     @Override
     public String primaryKey() {
-        return getSourceIdentifier();
+        return "";
     }
 
     @Override
@@ -219,7 +219,7 @@ public class CodebuildProjectSource extends Diffable implements Copyable<Project
         return ProjectSource.builder()
             .type(getType())
             .location(getLocation())
-            .buildspec(getBuildspec())
+            .buildspec(getBuildSpec())
             .buildStatusConfig(getBuildStatusConfig() != null ? getBuildStatusConfig().toBuildStatusConfig() : null)
             .gitCloneDepth(getGitCloneDepth())
             .gitSubmodulesConfig(

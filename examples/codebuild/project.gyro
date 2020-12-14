@@ -1,34 +1,51 @@
 aws::codebuild-project project
-    name: "project-example-name"
-    description: "project-description"
+    name: "project-example-gyro-ssh-plugin"
+    description: "Builds the project gyro-ssh-plugin"
     service-role: $(aws::iam-role iam-role-example)
     tags: {
-        "tag": "value"
+        "Name": "project-example-gyro-ssh-plugin",
+        "Project": "gyro-ssh-plugin",
+        "Source": "github"
     }
 
     source
-        type: "S3"
-        location: "codebuild-us-east-2-242040583208-input-bucket/MessageUtil.zip"
+        type: "GITHUB"
+        location: "https://github.com/perfectsense/gyro-ssh-plugin"
+        build-spec: ".travis.yml"
+        git-clone-depth: 1
     end
 
-    artifacts
+    source-version: "codebuild-test"
+
+    artifact
         type: "S3"
         location: "codebuild-us-east-2-242040583208-output-bucket"
-        name: "project-example-artifact-name"
+        name: "project-example-gyro-ssh-plugin"
         encryption-disabled: false
-        path: "example-path/path"
-        packaging: "NONE"
+        path: ""
+        packaging: "ZIP"
     end
 
     environment
-        compute-type: "BUILD_GENERAL1_LARGE"
-        type: "ARM_CONTAINER"
-        image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+        compute-type: "BUILD_GENERAL1_SMALL"
+        type: "LINUX_CONTAINER"
+        image: "aws/codebuild/standard:4.0"
+        image-pull-credentials-type: "CODEBUILD"
+    end
+
+    logs-config
+        cloud-watch-log
+            status: "DISABLED"
+        end
     end
 end
 
 aws::iam-role iam-role-example
-    name: "project-example-name-service-role"
-    arn: "arn:aws:iam::242040583208:role/service-role/project-example-name-service-role"
+    name: "codebuild-project-example-name-service-role"
     assume-role-policy: "assume-role-policy.json"
+    policies: $(external-query aws::iam-policy {arn: "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"})
+
+    tags: {
+        Name: "codebuild-project-example-name-service-role"
+    }
 end

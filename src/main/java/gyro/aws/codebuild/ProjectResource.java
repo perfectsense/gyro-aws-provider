@@ -61,34 +61,45 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  *        description: "project-description"
  *        service-role: $(aws::iam-role iam-role-example)
  *        tags: {
- *            "tag": "value"
+ *            "Name": "project-example-gyro-ssh-plugin"
  *        }
  *
  *        source
- *            type: "S3"
- *            location: "codebuild-us-east-2-242040583208-input-bucket/MessageUtil.zip"
+ *            type: "GITHUB"
+ *            location: "https://github.com/perfectsense/gyro-ssh-plugin"
+ *            build-spec: ".travis.yml"
+ *            git-clone-depth: 1
  *        end
  *
- *        artifacts
- *            type: "S3"
- *            location: "codebuild-us-east-2-242040583208-output-bucket"
- *            name: "project-example-artifact-name"
- *            encryption-disabled: false
- *            path: "example-path/path"
- *            packaging: "NONE"
+ *        source-version: "codebuild-test"
+ *
+ *        artifact
+ *             type: "S3"
+ *             location: "codebuild-us-east-2-242040583208-output-bucket"
+ *             name: "project-example-gyro-ssh-plugin"
+ *             encryption-disabled: false
+ *             path: ""
+ *             packaging: "ZIP"
  *        end
  *
  *        environment
- *            compute-type: "BUILD_GENERAL1_LARGE"
- *            type: "ARM_CONTAINER"
- *            image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+ *            compute-type: "BUILD_GENERAL1_SMALL"
+ *            type: "LINUX_CONTAINER"
+ *            image: "aws/codebuild/standard:4.0"
+ *            image-pull-credentials-type: "CODEBUILD"
+ *        end
+ *
+ *        logs-config
+ *            cloud-watch-log
+ *                status: "DISABLED"
+ *            end
  *        end
  *    end
  */
 @Type("codebuild-project")
 public class ProjectResource extends AwsResource implements Copyable<Project> {
 
-    private CodebuildProjectArtifacts artifacts;
+    private CodebuildProjectArtifacts artifact;
     private Boolean badgeEnabled;
     private CodebuildProjectBuildBatchConfig buildBatchConfig;
     private CodebuildProjectCache cache;
@@ -108,10 +119,10 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
     private Map<String, String> tags;
     private Integer timeoutInMinutes;
     private CodebuildVpcConfig vpcConfig;
-    private WebhookResource webhook;
 
     // Read-only
     private String arn;
+    private WebhookResource webhook;
     private CodebuildProjectBadge badge;
 
     /**
@@ -121,12 +132,12 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
      */
     @Updatable
     @Required
-    public CodebuildProjectArtifacts getArtifacts() {
-        return artifacts;
+    public CodebuildProjectArtifacts getArtifact() {
+        return artifact;
     }
 
-    public void setArtifacts(CodebuildProjectArtifacts artifacts) {
-        this.artifacts = artifacts;
+    public void setArtifact(CodebuildProjectArtifacts artifacts) {
+        this.artifact = artifacts;
     }
 
     /**
@@ -451,11 +462,11 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
         setWebhook(findById(WebhookResource.class, project.webhook()));
         setArn(project.arn());
 
-        setArtifacts(null);
+        setArtifact(null);
         if (project.artifacts() != null) {
             CodebuildProjectArtifacts projectArtifacts = newSubresource(CodebuildProjectArtifacts.class);
             projectArtifacts.copyFrom(project.artifacts());
-            setArtifacts(projectArtifacts);
+            setArtifact(projectArtifacts);
         }
 
         setSource(null);
@@ -601,7 +612,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(getEnvironment().toProjectEnvironment())
             .source(getSource().toProjectSource())
-            .artifacts(getArtifacts().toProjectArtifacts())
+            .artifacts(getArtifact().toProjectArtifacts())
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
             .cache(getCache() != null ? getCache().toProjectCache() : null)
             .fileSystemLocations(getFileSystemLocations().stream()
@@ -635,7 +646,7 @@ public class ProjectResource extends AwsResource implements Copyable<Project> {
             .serviceRole(getServiceRole() != null ? getServiceRole().getArn() : null)
             .environment(getEnvironment().toProjectEnvironment())
             .source(getSource().toProjectSource())
-            .artifacts(getArtifacts().toProjectArtifacts())
+            .artifacts(getArtifact().toProjectArtifacts())
             .tags(CodebuildProjectTag.toProjectTags(getTags()))
             .cache(getCache() != null ? getCache().toProjectCache() : null)
             .encryptionKey(getEncryptionKey() != null ? getEncryptionKey().getArn() : null)
