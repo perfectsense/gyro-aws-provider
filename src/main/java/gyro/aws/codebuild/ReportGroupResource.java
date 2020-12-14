@@ -49,12 +49,16 @@ import software.amazon.awssdk.services.codebuild.model.Tag;
  * .. code-block:: gyro
  *
  *    aws::codebuild-report-group report-group
+ *        name: "report-group-example"
+ *        type: "TEST"
+ *
  *        report-export-config
  *            export-config-type: "NO_EXPORT"
  *        end
  *
- *        name: "gyro-test-report-group"
- *        type: "TEST"
+ *        tags: {
+ *            Name: "report-group-example"
+ *        }
  *    end
  */
 @Type("codebuild-report-group")
