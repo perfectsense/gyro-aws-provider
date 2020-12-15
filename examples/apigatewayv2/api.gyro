@@ -25,6 +25,17 @@ aws::api-gateway example-api
     }
 end
 
+aws::api-gateway-integration example-integration
+    api: $(aws::api-gateway example-api)
+    integration-type: HTTP_PROXY
+    timeout-in-millis: 10000
+    integration-uri: 'https://www.domain.com/api/example/route'
+    integration-method: ANY
+    payload-format-version: "1.0"
+end
+
+integration-id : $(aws::api-gateway-integration example-integration).id
+
 aws::api-gateway-authorizer example-authorizer
     api: $(aws::api-gateway example-api)
     name: "example-authorizer-changed"
@@ -49,6 +60,7 @@ aws::api-gateway-route example-route
     authorizer: $(aws::api-gateway-authorizer example-authorizer)
     authorization-type: JWT
     authorization-scopes: [ "example-scope" ]
+    target: "integrations/$(integration-id)"
 end
 
 aws::api-gateway-stage example-stage
