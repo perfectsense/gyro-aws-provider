@@ -1,7 +1,7 @@
 <img src="https://github.com/perfectsense/gyro/blob/master/etc/gyro.png" height="200"/>
 
 [![Gitter](https://img.shields.io/gitter/room/perfectsense/gyro)](https://gitter.im/perfectsense/gyro)
-[![TravisCI](https://api.travis-ci.org/perfectsense/gyro-aws-provider.svg?branch=master)](https://travis-ci.org/perfectsense/gyro-aws-provider)
+[![TravisCI](https://api.travis-ci.com/perfectsense/gyro-aws-provider.svg?branch=master)](https://travis-ci.org/perfectsense/gyro-aws-provider)
 [![Apache License 2.0](https://img.shields.io/github/license/perfectsense/gyro-aws-provider)](https://github.com/perfectsense/gyro-aws-provider/blob/master/LICENSE)
 
 
