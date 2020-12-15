@@ -1,0 +1,51 @@
+aws::codebuild-project project
+    name: "project-example-gyro-ssh-plugin"
+    description: "Builds the project gyro-ssh-plugin"
+    service-role: $(aws::iam-role iam-role-example)
+    tags: {
+        "Name": "project-example-gyro-ssh-plugin",
+        "Project": "gyro-ssh-plugin",
+        "Source": "github"
+    }
+
+    source
+        type: "GITHUB"
+        location: "https://github.com/perfectsense/gyro-ssh-plugin"
+        build-spec: ".travis.yml"
+        git-clone-depth: 1
+    end
+
+    source-version: "codebuild-test"
+
+    artifact
+        type: "S3"
+        location: "codebuild-us-east-2-242040583208-output-bucket"
+        name: "project-example-gyro-ssh-plugin"
+        encryption-disabled: false
+        path: ""
+        packaging: "ZIP"
+    end
+
+    environment
+        compute-type: "BUILD_GENERAL1_SMALL"
+        type: "LINUX_CONTAINER"
+        image: "aws/codebuild/standard:4.0"
+        image-pull-credentials-type: "CODEBUILD"
+    end
+
+    logs-config
+        cloud-watch-log
+            status: "DISABLED"
+        end
+    end
+end
+
+aws::iam-role iam-role-example
+    name: "codebuild-project-example-name-service-role"
+    assume-role-policy: "assume-role-policy.json"
+    policies: $(external-query aws::iam-policy {arn: "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"})
+
+    tags: {
+        Name: "codebuild-project-example-name-service-role"
+    }
+end

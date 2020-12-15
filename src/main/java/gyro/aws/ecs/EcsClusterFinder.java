@@ -16,6 +16,7 @@
 
 package gyro.aws.ecs;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.Cluster;
 import software.amazon.awssdk.services.ecs.model.ClusterField;
 import software.amazon.awssdk.services.ecs.model.ClusterNotFoundException;
-import software.amazon.awssdk.services.ecs.model.ListClustersResponse;
 
 /**
  * Query ECS cluster.
@@ -57,13 +57,11 @@ public class EcsClusterFinder extends AwsFinder<EcsClient, Cluster, EcsClusterRe
 
     @Override
     protected List<Cluster> findAllAws(EcsClient client) {
-        ListClustersResponse response = client.listClusters();
+        List<String> clusterArns = client.listClustersPaginator().clusterArns().stream().collect(Collectors.toList());
 
-        if (response.hasClusterArns()) {
-            return client.describeClusters(
-                r -> r.clusters(response.clusterArns())
-                    .includeWithStrings("TAGS", "SETTINGS")
-            ).clusters().stream().collect(Collectors.toList());
+        if (!clusterArns.isEmpty()) {
+            return new ArrayList<>(client.describeClusters(r -> r.clusters(clusterArns)
+                .includeWithStrings("TAGS", "SETTINGS")).clusters());
 
         } else {
             return Collections.emptyList();
@@ -77,10 +75,8 @@ public class EcsClusterFinder extends AwsFinder<EcsClient, Cluster, EcsClusterRe
         }
 
         try {
-            return client.describeClusters(
-                r -> r.clusters(filters.get("name"))
-                    .include(ClusterField.TAGS, ClusterField.SETTINGS)
-            ).clusters().stream().collect(Collectors.toList());
+            return new ArrayList<>(client.describeClusters(r -> r.clusters(filters.get("name"))
+                .include(ClusterField.TAGS, ClusterField.SETTINGS)).clusters());
 
         } catch (ClusterNotFoundException ex) {
             return Collections.emptyList();

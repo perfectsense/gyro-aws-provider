@@ -19,6 +19,7 @@ package gyro.aws.efs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
@@ -54,7 +55,8 @@ public class FileSystemFinder extends AwsFinder<EfsClient, FileSystemDescription
 
     @Override
     protected List<FileSystemDescription> findAllAws(EfsClient client) {
-        return client.describeFileSystems().fileSystems();
+        return client.describeFileSystemsPaginator().stream()
+            .flatMap(r -> r.fileSystems().stream()).collect(Collectors.toList());
     }
 
     @Override
@@ -62,7 +64,11 @@ public class FileSystemFinder extends AwsFinder<EfsClient, FileSystemDescription
         List<FileSystemDescription> fileSystems = new ArrayList<>();
 
         try {
-            fileSystems = client.describeFileSystems(r -> r.fileSystemId(filters.get("id"))).fileSystems();
+            client.describeFileSystemsPaginator(r -> r.fileSystemId(filters.get("id"))).forEach(f -> {
+                if (f.hasFileSystems()) {
+                    fileSystems.addAll(f.fileSystems());
+                }
+            });
 
         } catch (FileSystemNotFoundException ex) {
             // ignore

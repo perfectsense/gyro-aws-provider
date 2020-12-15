@@ -16,15 +16,19 @@
 
 package gyro.aws.ecs;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.CapacityProvider;
+import software.amazon.awssdk.services.ecs.model.DescribeCapacityProvidersRequest;
+import software.amazon.awssdk.services.ecs.model.DescribeCapacityProvidersResponse;
 import software.amazon.awssdk.services.ecs.model.EcsException;
 
 /**
@@ -55,8 +59,25 @@ public class EcsCapacityProviderFinder extends AwsFinder<EcsClient, CapacityProv
 
     @Override
     protected List<CapacityProvider> findAllAws(EcsClient client) {
-        return client.describeCapacityProviders(r -> r.includeWithStrings("TAGS"))
-            .capacityProviders().stream().collect(Collectors.toList());
+        List<CapacityProvider> capacityProviders = new ArrayList<>();
+        String marker = null;
+        DescribeCapacityProvidersResponse response;
+
+        do {
+            if (ObjectUtils.isBlank(marker)) {
+                response = client.describeCapacityProviders(r -> r.includeWithStrings("TAGS"));
+            } else {
+                response = client.describeCapacityProviders(DescribeCapacityProvidersRequest.builder()
+                    .nextToken(marker)
+                    .includeWithStrings("TAGS")
+                    .build());
+            }
+
+            marker = response.nextToken();
+            capacityProviders.addAll(response.capacityProviders());
+        } while (!ObjectUtils.isBlank(marker));
+
+        return capacityProviders;
     }
 
     @Override
