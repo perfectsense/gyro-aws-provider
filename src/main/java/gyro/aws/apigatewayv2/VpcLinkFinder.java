@@ -44,7 +44,7 @@ public class VpcLinkFinder extends ApiGatewayFinder<ApiGatewayV2Client, VpcLink,
     private String name;
 
     /**
-     * The name of the vpc link.
+     * The name of the VPC link.
      */
     public String getName() {
         return name;

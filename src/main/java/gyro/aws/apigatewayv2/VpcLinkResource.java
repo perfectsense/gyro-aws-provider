@@ -92,7 +92,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
     }
 
     /**
-     * The list of security group IDs for the VPC link.
+     * The list of security groups for the VPC link.
      */
     public List<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
@@ -107,7 +107,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
     }
 
     /**
-     * The list of subnet IDs to include in the VPC link.
+     * The list of subnets for the VPC link.
      */
     @Required
     public List<SubnetResource> getSubnets() {
@@ -123,7 +123,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
     }
 
     /**
-     * The list of tags.
+     * The list of tags for the VPC link.
      */
     public Map<String, String> getTags() {
         return tags;
@@ -134,7 +134,7 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
     }
 
     /**
-     * The id of the Vpc Link.
+     * The ID of the VPC Link.
      */
     @Id
     @Output

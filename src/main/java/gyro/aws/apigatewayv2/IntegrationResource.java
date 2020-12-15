@@ -159,7 +159,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
     }
 
     /**
-     * The integration's HTTP method type.
+     * The HTTP method type of the integration.
      */
     @Updatable
     public String getIntegrationMethod() {
@@ -182,7 +182,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
     }
 
     /**
-     * The integration type of an integration.
+     * The type of the integration.
      */
     @Required
     @ValidStrings({ "AWS", "HTTP", "MOCK", "HTTP_PROXY", "AWS_PROXY" })
@@ -248,7 +248,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
     }
 
     /**
-     * The map of Velocity templates that are applied on the request payload based on the value of the Content-Type header sent by the client.
+     * The map of velocity templates that are applied on the request payload based on the value of the Content-Type header sent by the client.
      */
     @Updatable
     public Map<String, String> getRequestTemplates() {
@@ -276,7 +276,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
     }
 
     /**
-     * Custom timeout in milliseconds for the apis. Valid values are between ``50`` and ``30000``.
+     * The custom timeout in milliseconds for the apis.
      */
     @Range(min = 50, max = 30000)
     @Updatable
@@ -303,7 +303,7 @@ public class IntegrationResource extends AwsResource implements Copyable<Integra
     }
 
     /**
-     * The Id of the integration.
+     * The ID of the integration.
      */
     @Id
     @Output

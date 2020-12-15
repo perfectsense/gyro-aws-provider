@@ -50,7 +50,7 @@ public class IntegrationResponseFinder
     private String integrationId;
 
     /**
-     * The id of the integration response.
+     * The ID of the integration response.
      */
     public String getId() {
         return id;
@@ -61,7 +61,7 @@ public class IntegrationResponseFinder
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;
@@ -72,7 +72,7 @@ public class IntegrationResponseFinder
     }
 
     /**
-     * The id of the integration
+     * The ID of the integration
      */
     public String getIntegrationId() {
         return integrationId;

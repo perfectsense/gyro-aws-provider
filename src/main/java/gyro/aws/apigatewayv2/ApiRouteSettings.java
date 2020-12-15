@@ -82,7 +82,7 @@ public class ApiRouteSettings extends Diffable implements Copyable<RouteSettings
     }
 
     /**
-     * The throttling burst limit.
+     * The throttling burst limit of the route.
      */
     public Integer getThrottlingBurstLimit() {
         return throttlingBurstLimit;
@@ -93,7 +93,7 @@ public class ApiRouteSettings extends Diffable implements Copyable<RouteSettings
     }
 
     /**
-     * The throttling rate limit.
+     * The throttling rate limit of the route.
      */
     public Double getThrottlingRateLimit() {
         return throttlingRateLimit;

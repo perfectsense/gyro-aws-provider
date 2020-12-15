@@ -120,7 +120,7 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
     }
 
     /**
-     * The time to live (TTL) for cached authorizer results, in seconds.
+     * The time to live (TTL) in seconds for cached authorizer results.
      */
     @Updatable
     public Integer getAuthorizerResultTtlInSeconds() {
@@ -132,7 +132,7 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
     }
 
     /**
-     * The authorizer type.
+     * The type of the authorizer.
      */
     @Updatable
     @Required
@@ -146,7 +146,7 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
     }
 
     /**
-     * The authorizer's Uniform Resource Identifier (URI).
+     * The Uniform Resource Identifier (URI) of the authorizer.
      */
     @Updatable
     public String getAuthorizerUri() {
@@ -214,7 +214,7 @@ public class AuthorizerResource extends AwsResource implements Copyable<Authoriz
     }
 
     /**
-     * The id of the authorizer.
+     * The ID of the authorizer.
      */
     @Output
     @Id

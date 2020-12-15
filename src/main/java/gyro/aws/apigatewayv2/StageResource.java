@@ -107,7 +107,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * Settings for logging access in this stage.
+     * The settings for logging access in this stage.
      *
      * @subresource gyro.aws.apigatewayv2.ApiAccessLogSettings
      */
@@ -121,7 +121,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * The API associated with the resource.
+     * The API associated with the stage.
      */
     @Required
     public ApiResource getApi() {
@@ -133,7 +133,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * If set to ``true``, updates to an API automatically trigger a new deployment.
+     * When set to ``true``, updates to an API automatically trigger a new deployment.
      */
     @Updatable
     public Boolean getAutoDeploy() {
@@ -145,7 +145,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * The identifier of a client certificate for a Stage.
+     * The ID of a client certificate for a Stage.
      */
     @Updatable
     public String getClientCertificateId() {
@@ -171,7 +171,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * The deployment of the API stage.
+     * The deployment of the stage.
      */
     @Updatable
     public DeploymentResource getDeployment() {
@@ -183,7 +183,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * The description for the API stage.
+     * The description for the stage.
      */
     @Updatable
     public String getDescription() {
@@ -195,7 +195,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * Route settings for the stage, by routeKey.
+     * The route settings (by routeKey) for the stage.
      *
      * @subresource gyro.aws.apigatewayv2.ApiRouteSettings
      */
@@ -213,7 +213,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * A map that defines the stage variables for a Stage.
+     * The stage variables for a Stage.
      */
     @Updatable
     public Map<String, String> getStageVariables() {
@@ -229,7 +229,7 @@ public class StageResource extends AwsResource implements Copyable<Stage> {
     }
 
     /**
-     * The collection of tags.
+     * The list of tags for the stage.
      */
     @Updatable
     public Map<String, String> getTags() {

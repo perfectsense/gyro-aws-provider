@@ -70,7 +70,7 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
     private String id;
 
     /**
-     * The API resource for which to create an integration response.
+     * The API for which to create an integration response.
      */
     @Required
     public ApiResource getApi() {
@@ -95,7 +95,7 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
     }
 
     /**
-     * The integration ID.
+     * The ID of the integration.
      */
     @Required
     public IntegrationResource getIntegration() {
@@ -107,7 +107,7 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
     }
 
     /**
-     * The integration response key.
+     * The response key of the integration.
      */
     @Required
     @Updatable
@@ -137,7 +137,7 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
     }
 
     /**
-     * The map of Velocity templates that are applied on the response payload based on the value of the Content-Type header sent by the client.
+     * The map of velocity templates that are applied on the response payload based on the value of the Content-Type header sent by the client.
      */
     @Updatable
     public Map<String, String> getResponseTemplates() {
@@ -165,7 +165,7 @@ public class IntegrationResponseResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Id of the integration response.
+     * The ID of the integration response.
      */
     @Id
     @Output

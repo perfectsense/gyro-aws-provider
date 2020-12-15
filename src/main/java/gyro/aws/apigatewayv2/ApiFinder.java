@@ -44,7 +44,7 @@ public class ApiFinder extends ApiGatewayFinder<ApiGatewayV2Client, Api, ApiReso
     private String name;
 
     /**
-     * The name of the api.
+     * The name of the API.
      */
     public String getName() {
         return name;

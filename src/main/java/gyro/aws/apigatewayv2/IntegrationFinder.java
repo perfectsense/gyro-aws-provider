@@ -44,7 +44,7 @@ public class IntegrationFinder extends ApiGatewayFinder<ApiGatewayV2Client, Inte
     private String apiId;
 
     /**
-     * The id of the integration.
+     * The ID of the integration.
      */
     public String getId() {
         return id;
@@ -55,7 +55,7 @@ public class IntegrationFinder extends ApiGatewayFinder<ApiGatewayV2Client, Inte
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;

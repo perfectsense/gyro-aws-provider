@@ -44,7 +44,7 @@ public class DeploymentFinder extends ApiGatewayFinder<ApiGatewayV2Client, Deplo
     private String apiId;
 
     /**
-     * The id of the deployment.
+     * The ID of the deployment.
      */
     public String getId() {
         return id;
@@ -55,7 +55,7 @@ public class DeploymentFinder extends ApiGatewayFinder<ApiGatewayV2Client, Deplo
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;

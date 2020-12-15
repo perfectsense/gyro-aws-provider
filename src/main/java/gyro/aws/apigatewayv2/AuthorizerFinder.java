@@ -55,7 +55,7 @@ public class AuthorizerFinder extends ApiGatewayFinder<ApiGatewayV2Client, Autho
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;

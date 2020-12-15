@@ -71,7 +71,7 @@ public class DomainNameResource extends AwsResource implements Copyable<DomainNa
     private String arn;
 
     /**
-     * The domain name.
+     * The name of the domain.
      */
     @Required
     @Id

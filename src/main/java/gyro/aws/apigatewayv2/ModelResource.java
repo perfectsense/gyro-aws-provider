@@ -65,7 +65,7 @@ public class ModelResource extends AwsResource implements Copyable<Model> {
     private String id;
 
     /**
-     * The API identifier.
+     * The API for which to create the model.
      */
     @Required
     public ApiResource getApi() {
@@ -128,7 +128,7 @@ public class ModelResource extends AwsResource implements Copyable<Model> {
     }
 
     /**
-     * The id of the model.
+     * The ID of the model.
      */
     @Id
     @Output

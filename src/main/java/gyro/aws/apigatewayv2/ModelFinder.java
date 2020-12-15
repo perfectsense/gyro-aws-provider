@@ -55,7 +55,7 @@ public class ModelFinder extends ApiGatewayFinder<ApiGatewayV2Client, Model, Mod
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;

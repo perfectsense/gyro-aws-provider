@@ -68,7 +68,7 @@ public class RouteResponseResource extends AwsResource implements Copyable<Route
     private String id;
 
     /**
-     * The API resource for which to create the route.
+     * The API for which to create the route.
      */
     @Required
     public ApiResource getApi() {
@@ -145,7 +145,7 @@ public class RouteResponseResource extends AwsResource implements Copyable<Route
     }
 
     /**
-     * The id for the route response.
+     * The ID of the route response.
      */
     @Id
     @Output

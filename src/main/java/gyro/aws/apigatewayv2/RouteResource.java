@@ -78,7 +78,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     private String id;
 
     /**
-     * The API resource for which to create the route.
+     * The API for which to create the route.
      */
     @Required
     public ApiResource getApi() {
@@ -115,7 +115,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * The authorization scopes supported by this route.
+     * The authorization scopes supported by the route.
      */
     @Updatable
     public List<String> getAuthorizationScopes() {
@@ -144,7 +144,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * The Authorizer resource to be associated with this route.
+     * The Authorizer to be associated with this route.
      */
     @Updatable
     public AuthorizerResource getAuthorizer() {
@@ -224,7 +224,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * The target for the route.
+     * The target of the route.
      */
     @Updatable
     public String getTarget() {
@@ -236,7 +236,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * The id for the route.
+     * The ID for the route.
      */
     @Id
     @Output

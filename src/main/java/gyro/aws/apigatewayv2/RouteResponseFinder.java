@@ -51,7 +51,7 @@ public class RouteResponseFinder extends ApiGatewayFinder<ApiGatewayV2Client, Ro
     private String routeId;
 
     /**
-     * The id of the route response.
+     * The ID of the route response.
      */
     public String getId() {
         return id;
@@ -62,7 +62,7 @@ public class RouteResponseFinder extends ApiGatewayFinder<ApiGatewayV2Client, Ro
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;
@@ -73,7 +73,7 @@ public class RouteResponseFinder extends ApiGatewayFinder<ApiGatewayV2Client, Ro
     }
 
     /**
-     * The id of the route
+     * The ID of the route.
      */
     public String getRouteId() {
         return routeId;

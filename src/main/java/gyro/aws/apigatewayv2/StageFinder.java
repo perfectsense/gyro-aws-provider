@@ -55,7 +55,7 @@ public class StageFinder extends ApiGatewayFinder<ApiGatewayV2Client, Stage, Sta
     }
 
     /**
-     * The id of the api.
+     * The ID of the api.
      */
     public String getApiId() {
         return apiId;

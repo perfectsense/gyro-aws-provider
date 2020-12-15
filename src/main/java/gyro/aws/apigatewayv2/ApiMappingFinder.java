@@ -48,7 +48,7 @@ public class ApiMappingFinder extends ApiGatewayFinder<ApiGatewayV2Client, ApiMa
     private String mappingId;
 
     /**
-     * The domain name which has the api.
+     * The domain name which has the API.
      */
     public String getDomainName() {
         return domainName;
@@ -59,7 +59,7 @@ public class ApiMappingFinder extends ApiGatewayFinder<ApiGatewayV2Client, ApiMa
     }
 
     /**
-     * The id of the mapping.
+     * The ID of the mapping.
      */
     public String getMappingId() {
         return mappingId;

@@ -63,7 +63,7 @@ public class ApiMappingResource extends AwsResource implements Copyable<ApiMappi
     private String id;
 
     /**
-     * The API identifier.
+     * The API which should be mapped.
      */
     @Required
     public ApiResource getApi() {
@@ -75,7 +75,7 @@ public class ApiMappingResource extends AwsResource implements Copyable<ApiMappi
     }
 
     /**
-     * The API mapping key.
+     * The key of the mapping.
      */
     @Updatable
     public String getApiMappingKey() {
@@ -87,7 +87,7 @@ public class ApiMappingResource extends AwsResource implements Copyable<ApiMappi
     }
 
     /**
-     * The domain name.
+     * The domain name to which the API should be mapped.
      */
     @Updatable
     public DomainNameResource getDomainName() {
@@ -99,7 +99,7 @@ public class ApiMappingResource extends AwsResource implements Copyable<ApiMappi
     }
 
     /**
-     * The API stage.
+     * The stage of the API.
      */
     @Updatable
     public StageResource getStage() {
@@ -111,7 +111,7 @@ public class ApiMappingResource extends AwsResource implements Copyable<ApiMappi
     }
 
     /**
-     * The id of the api mapping.
+     * The ID of the api mapping.
      */
     @Output
     @Id

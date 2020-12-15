@@ -63,7 +63,7 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
     private DeploymentStatus status;
 
     /**
-     * The API identifier.
+     * The API for which to create a deployment.
      */
     @Required
     public ApiResource getApi() {
@@ -75,7 +75,7 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
     }
 
     /**
-     * The description for the deployment resource.
+     * The description of the deployment resource.
      */
     @Updatable
     public String getDescription() {
@@ -87,7 +87,7 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
     }
 
     /**
-     * The Stage resource for the Deployment resource to create.
+     * The stage that should be deployed.
      */
     @Required
     public StageResource getStage() {
@@ -99,7 +99,7 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
     }
 
     /**
-     * The Id of the deployment.
+     * The ID of the deployment.
      */
     @Id
     @Output

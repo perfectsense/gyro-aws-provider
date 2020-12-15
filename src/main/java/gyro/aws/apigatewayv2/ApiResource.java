@@ -103,7 +103,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
     }
 
     /**
-     * A CORS configuration for the Api.
+     * A CORS configuration for the API.
      *
      * @subresource gyro.aws.apigatewayv2.ApiCors
      */
@@ -154,7 +154,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
     }
 
     /**
-     * The API protocol.
+     * The protocol of the API.
      */
     @ValidStrings({ "HTTP", "WEBSOCKET" })
     @Required
@@ -208,7 +208,7 @@ public class ApiResource extends AwsResource implements Copyable<Api> {
     }
 
     /**
-     * The Id of the Api.
+     * The ID of the Api.
      */
     @Id
     @Output
