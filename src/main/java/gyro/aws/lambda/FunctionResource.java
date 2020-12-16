@@ -31,6 +31,9 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -116,9 +119,10 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private String codeHash;
 
     /**
-     * The name of the Lambda Function. (Required)
+     * The name of the Lambda Function.
      */
     @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -196,8 +200,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The IAM Role to be associated with this Lambda Function. (Required)
+     * The IAM Role to be associated with this Lambda Function.
      */
+    @Required
     @Updatable
     public RoleResource getRole() {
         return role;
@@ -208,9 +213,11 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The runtime language for this Lambda Function. Valid values are ``nodejs`` or ``nodejs4.3`` or ``nodejs6.10`` or ``nodejs8.10`` or ``java8`` or ``python2.7`` or ``python3.6`` or ``python3.7`` or ``dotnetcore1.0`` or ``dotnetcore2.0`` or ``dotnetcore2.1`` or ``nodejs4.3-edge`` or ``go1.x`` or ``ruby2.5`` or ``provided``. (Required)
+     * The runtime language for this Lambda Function.
      */
+    @Required
     @Updatable
+    @ValidStrings({"nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "java8", "python2.7", "python3.6", "python3.7", "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "nodejs4.3-edge", "go1.x", "ruby2.5", "provided"})
     public String getRuntime() {
         return runtime;
     }
@@ -220,8 +227,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The name of the method within your code that Lambda calls to execute the Lambda Function. (Required)
+     * The name of the method within your code that Lambda calls to execute the Lambda Function.
      */
+    @Required
     @Updatable
     public String getHandler() {
         return handler;
@@ -232,9 +240,10 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``. Valid values between ``3`` and ``900``.
+     * The amount of time that Lambda allows a Lambda Function to run before stopping it. Defaults to ``3``.
      */
     @Updatable
+    @Range(min = 3, max = 900)
     public Integer getTimeout() {
         if (timeout == null) {
             timeout = 3;
@@ -248,7 +257,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The amount of memory that the Lambda Function has access to. Defaults to ``128``. valid values are multiple of ``64``.
+     * The amount of memory that the Lambda Function has access to. Defaults to ``128``.
      */
     @Updatable
     public Integer getMemorySize() {
@@ -267,6 +276,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      * The tracking mode of the Lambda Function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
      */
     @Updatable
+    @ValidStrings({"PassThrough", "Active"})
     public String getTrackingConfig() {
         if (trackingConfig == null) {
             trackingConfig = "PassThrough";

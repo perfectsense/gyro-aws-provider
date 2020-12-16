@@ -22,6 +22,7 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
 import software.amazon.awssdk.services.waf.WafClient;
 import software.amazon.awssdk.services.waf.model.CreateRateBasedRuleResponse;
 import software.amazon.awssdk.services.waf.model.Predicate;
@@ -61,6 +62,7 @@ public class RateRuleResource extends gyro.aws.waf.common.RateRuleResource {
      * @subresource gyro.aws.waf.global.PredicateResource
      */
     @Updatable
+    @CollectionMax(10)
     public Set<PredicateResource> getPredicate() {
         if (predicate == null) {
             predicate = new HashSet<>();

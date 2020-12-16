@@ -19,6 +19,7 @@ package gyro.aws.cloudfront;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.GeoRestriction;
 import software.amazon.awssdk.services.cloudfront.model.Restrictions;
 
@@ -31,9 +32,10 @@ public class CloudFrontGeoRestriction extends Diffable implements Copyable<GeoRe
     private Set<String> restrictions;
 
     /**
-     * Type of restriction. Valid values are ``Whitelist`` or ``Blacklist``.
+     * Type of restriction.
      */
     @Updatable
+    @ValidStrings({"whitelist", "blacklist"})
     public String getType() {
         if (type == null) {
             type = "none";

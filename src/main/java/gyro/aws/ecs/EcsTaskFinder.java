@@ -67,10 +67,11 @@ public class EcsTaskFinder extends AwsFinder<EcsClient, Task, EcsTaskResource> {
     @Override
     protected List<Task> findAllAws(EcsClient client) {
         List<Task> tasks = new ArrayList<>();
-        client.listClusters()
+        client.listClustersPaginator()
             .clusterArns()
             .forEach(c -> {
-                List<String> taskArns = client.listTasks(r -> r.cluster(c)).taskArns();
+                List<String> taskArns = client.listTasksPaginator(r -> r.cluster(c))
+                    .taskArns().stream().collect(Collectors.toList());
                 if (!taskArns.isEmpty()) {
                     tasks.addAll(client.describeTasks(r -> r.cluster(c).tasks(taskArns)).tasks());
                 }
@@ -82,13 +83,14 @@ public class EcsTaskFinder extends AwsFinder<EcsClient, Task, EcsTaskResource> {
     @Override
     protected List<Task> findAws(EcsClient client, Map<String, String> filters) {
         List<Task> tasks = new ArrayList<>();
-        client.listClusters()
+        client.listClustersPaginator()
             .clusterArns()
             .stream()
             .filter(c -> !(filters.containsKey("cluster") && !c.split("/")[c.split("/").length - 1]
                 .equals(filters.get("cluster"))))
             .forEach(c -> {
-                List<String> taskArns = client.listTasks(r -> r.cluster(c)).taskArns();
+                List<String> taskArns = client.listTasksPaginator(r -> r.cluster(c))
+                    .taskArns().stream().collect(Collectors.toList());
                 if (!taskArns.isEmpty()) {
                     tasks.addAll(client.describeTasks(r -> r
                         .cluster(c)

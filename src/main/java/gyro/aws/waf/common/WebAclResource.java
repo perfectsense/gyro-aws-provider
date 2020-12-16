@@ -24,6 +24,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.waf.model.ActivatedRule;
 import software.amazon.awssdk.services.waf.model.CreateWebAclRequest;
 import software.amazon.awssdk.services.waf.model.CreateWebAclResponse;
@@ -41,8 +42,9 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     private String arn;
 
     /**
-     * The name of the waf acl. (Required)
+     * The name of the waf acl.
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -52,8 +54,9 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     /**
-     * The metric name of the waf acl. Can only contain letters and numbers. (Required)
+     * The metric name of the waf acl. Can only contain letters and numbers.
      */
+    @Required
     public String getMetricName() {
         return metricName;
     }
@@ -63,8 +66,11 @@ public abstract class WebAclResource extends AbstractWafResource implements Copy
     }
 
     /**
-     * The default action for the waf acl. (Required)
+     * The default action for the waf acl.
+     *
+     * @subresource gyro.aws.waf.common.WafAction
      */
+    @Required
     @Updatable
     public WafAction getDefaultAction() {
         return defaultAction;

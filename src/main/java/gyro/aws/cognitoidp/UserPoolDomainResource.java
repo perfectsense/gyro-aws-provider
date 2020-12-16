@@ -25,6 +25,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.DescribeUserPoolDomainResponse;
@@ -52,7 +53,7 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     private UserPoolResource userPool;
 
     /**
-     *  The certificate arn for the subdomain of the custom domain. (Optional)
+     *  The certificate arn for the subdomain of the custom domain.
      */
     @Updatable
     public String getCertificateArn() {
@@ -64,8 +65,9 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     /**
-     *  The domain. (Required)
+     *  The domain.
      */
+    @Required
     @Updatable
     @Id
     public String getDomain() {
@@ -77,8 +79,9 @@ public class UserPoolDomainResource extends AwsResource implements Copyable<Doma
     }
 
     /**
-     *  The id of the user pool. (Required)
+     *  The id of the user pool.
      */
+    @Required
     public UserPoolResource getUserPool() {
         return userPool;
     }

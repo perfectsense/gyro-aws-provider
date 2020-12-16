@@ -1,0 +1,108 @@
+aws::iam-role example-role-iam
+    name: "role-for-kendra-index-us-east-1"
+    description: "example-role for Kendra index"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam
+    name: "policy-for-kendra-index-us-east-1"
+    description: "example policy for Kendra Index"
+    policy-document: "index-policy.json"
+end
+
+aws::kendra-index index-example-enter
+    description: "example-index-desc"
+    edition: ENTERPRISE_EDITION
+    name: "example-index"
+    role: $(aws::iam-role example-role-iam)
+
+    capacity-units-configuration
+        query-capacity-units: 5
+        storage-capacity-units: 1
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end
+
+aws::iam-role example-role-iam-service-now
+    name: "role-for-kendra-service-now-us-east-1"
+    description: "example-role for Kendra service now"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"kendra.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+    policies: [$(aws::iam-policy example-policy-iam-service-now)]
+    tags: {
+        Name: "role-example"
+    }
+end
+
+aws::iam-policy example-policy-iam-service-now
+    name: "policy-for-kendra-service-now-us-east-1"
+    description: "example policy for Kendra service now"
+    policy-document: "service-now-policy.json"
+end
+
+aws::kendra-data-source data-source-example-service-now
+    name: "service-now-ex"
+    description: "service-now-desc"
+    index: $(aws::kendra-index index-example-enter)
+    role: $(aws::iam-role example-role-iam-service-now)
+    schedule: 'cron(0 11 * * ? *)'
+    type: SERVICENOW
+
+    configuration
+        service-now-configuration
+            host-url: "example.service-now.com"
+            secret-arn: "arn:aws:secretsmanager:us-east-1:242040583208:secret:AmazonKendra-AmazonRDS-secret-example-wVR2nk"
+            version-type: LONDON
+
+            knowledge-article-configuration
+                document-data-field-name: "example_data"
+                document-title-field-name: "example_title"
+
+                field-mapping
+                    data-source-field-name: "createdDateTime"
+                    index-field-name: "_created_at"
+                end
+
+                crawl-attachments: true
+
+                exclude-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+
+                include-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+            end
+
+            service-catalog-configuration
+                document-data-field-name: "example_data"
+                document-title-field-name: "example_title"
+
+                field-mapping
+                    data-source-field-name: "createdDateTime"
+                    index-field-name: "_created_at"
+                end
+
+                crawl-attachments: true
+
+                exclude-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+
+                include-attachment-file-patterns: [
+                    "example_pattern"
+                ]
+            end
+        end
+    end
+
+    tags: {
+        "example-key": "example-value"
+    }
+end

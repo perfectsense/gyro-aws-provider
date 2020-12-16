@@ -26,7 +26,7 @@ public class EcsSystemControl extends Diffable {
     private String value;
 
     /**
-     * The namespaced kernel parameter for which to set a ``value``. (Required)
+     * The namespaced kernel parameter for which to set a ``value``.
      */
     @Required
     public String getNamespace() {

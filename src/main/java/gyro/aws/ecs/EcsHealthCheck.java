@@ -35,7 +35,7 @@ public class EcsHealthCheck extends Diffable {
     private Integer startPeriod;
 
     /**
-     * A list of strings representing the command that the container runs to determine if it is healthy. (Required)
+     * A list of strings representing the command that the container runs to determine if it is healthy.
      * The list must start with ``CMD`` to execute the command arguments directly, or ``CMD-SHELL`` to run the command with the container's default shell.
      */
     @Required
@@ -52,8 +52,7 @@ public class EcsHealthCheck extends Diffable {
     }
 
     /**
-     * The time period in seconds between each health check execution.
-     * Valid values range from ``5`` to ``300``. Defaults to ``30``.
+     * The time period in seconds between each health check execution. Defaults to ``30``.
      */
     @Range(min = 5, max = 300)
     public Integer getInterval() {
@@ -65,8 +64,7 @@ public class EcsHealthCheck extends Diffable {
     }
 
     /**
-     * The time period in seconds to wait for a health check to succeed before it is considered a failure.
-     * Valid values range from ``2`` to ``60``. Defaults to ``5``.
+     * The time period in seconds to wait for a health check to succeed before it is considered a failure. Defaults to ``5``.
      */
     @Range(min = 2, max = 60)
     public Integer getTimeout() {
@@ -78,8 +76,7 @@ public class EcsHealthCheck extends Diffable {
     }
 
     /**
-     * The number of times to retry a failed health check before the container is considered unhealthy.
-     * Valid values range from ``1`` to ``10``. Defaults to ``3``.
+     * The number of times to retry a failed health check before the container is considered unhealthy. Defaults to ``3``.
      */
     @Range(min = 1, max = 10)
     public Integer getRetries() {
@@ -92,8 +89,7 @@ public class EcsHealthCheck extends Diffable {
 
     /**
      * The optional grace period within which to provide containers time to bootstrap before failed health checks count towards the maximum number of ``retries``.
-     * If a health check succeeds within the ``start-period``, then the container is considered healthy and any subsequent failures count toward the maximum number of ``retries``.
-     * Valid values range from ``0`` to ``300``. This parameter is disabled by default.
+     * If a health check succeeds within the ``start-period``, then the container is considered healthy and any subsequent failures count toward the maximum number of ``retries``. This parameter is disabled by default.
      */
     @Range(min = 0, max = 300)
     public Integer getStartPeriod() {

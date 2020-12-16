@@ -151,7 +151,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     }
 
     /**
-     * The name of the Elasticsearch Domain. The name can be a combination of lowercase letters, numbers, or hyphens (``-``) and it must start with a lowercase letter. It can be between ``3`` to ``28`` characters in length. (Required)
+     * The name of the Elasticsearch Domain. The name can be a combination of lowercase letters, numbers, or hyphens (``-``) and it must start with a lowercase letter. It can be between ``3`` to ``28`` characters in length.
      */
     @Required
     @Regex("^[a-z]([a-z]|[0-9]|-){2,27}$")

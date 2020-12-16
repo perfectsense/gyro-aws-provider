@@ -23,6 +23,8 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
@@ -37,8 +39,9 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     private String type;
 
     /**
-     * The condition to be attached with the rule. (Required)
+     * The condition to be attached with the rule.
      */
+    @Required
     public ConditionResource getCondition() {
         return condition;
     }
@@ -64,8 +67,10 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     }
 
     /**
-     * The type of condition being attached. Valid values are ``XssMatch`` or ``GeoMatch`` or ``SqlInjectionMatch`` or ``ByteMatch`` or ``RegexMatch`` or ``SizeConstraint`` or ``IPMatch``. (Required)
+     * The type of condition being attached.
      */
+    @Required
+    @ValidStrings({"XssMatch", "GeoMatch", "SqlInjectionMatch", "ByteMatch", "RegexMatch", "SizeConstraint", "IPMatch"})
     public String getType() {
         return type;
     }

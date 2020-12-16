@@ -24,6 +24,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Certificate;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenersResponse;
@@ -43,7 +44,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     private String sslPolicy;
 
     /**
-     *  List of certificates associated with the listener. (Optional)
+     *  List of certificates associated with the listener.
      *
      *  @subresource gyro.aws.elbv2.CertificateResource
      */
@@ -61,7 +62,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  The default certificate ARN associated with the listener. Required with ``HTTPS`` protocol. (Optional)
+     *  The default certificate ARN associated with the listener. Required with ``HTTPS`` protocol.
      */
     @Updatable
     public String getDefaultCertificate() {
@@ -86,8 +87,9 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  Connection port between client and the load balancer. (Required)
+     *  Connection port between client and the load balancer.
      */
+    @Required
     @Updatable
     public Integer getPort() {
         return port;
@@ -98,8 +100,11 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  Connection protocol between client and the load balancer. Valid values are ``HTTP`` and ``HTTPS`` for ALBs and ``TCP`` and ``TLS`` for NLBs. (Required)
+     * Connection protocol between client and the load balancer.
+     *
+     * @no-doc ValidStrings
      */
+    @Required
     @Updatable
     public String getProtocol() {
         return protocol;
@@ -110,7 +115,7 @@ public abstract class ListenerResource extends AwsResource implements Copyable<L
     }
 
     /**
-     *  Security policy that defines supported protocols and ciphers. (Optional)
+     *  Security policy that defines supported protocols and ciphers.
      */
     @Updatable
     public String getSslPolicy() {

@@ -90,7 +90,11 @@ public class EfsAccessPointFinder extends AwsFinder<EfsClient, AccessPointDescri
         }
 
         try {
-            accessPoints = client.describeAccessPoints(builder.build()).accessPoints();
+            client.describeAccessPointsPaginator(builder.build()).forEach(r -> {
+                if (r.hasAccessPoints()) {
+                    accessPoints.addAll(r.accessPoints());
+                }
+            });
 
         } catch (AccessPointNotFoundException | FileSystemNotFoundException ex) {
             // ignore

@@ -22,6 +22,7 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
@@ -61,8 +62,9 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
     private InstanceResource instance;
 
     /**
-     * Device name to attach the volume to. (Required)
+     * Device name to attach the volume to.
      */
+    @Required
     public String getDeviceName() {
         return deviceName;
     }
@@ -72,8 +74,9 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
     }
 
     /**
-     * The volume to be attached. (Required)
+     * The volume to be attached.
      */
+    @Required
     public EbsVolumeResource getVolume() {
         return volume;
     }
@@ -83,8 +86,9 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
     }
 
     /**
-     * The Instance the volume should attach to. (Required)
+     * The Instance the volume should attach to.
      */
+    @Required
     public InstanceResource getInstance() {
         return instance;
     }

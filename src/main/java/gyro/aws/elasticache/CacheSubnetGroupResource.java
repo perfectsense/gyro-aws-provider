@@ -27,6 +27,7 @@ import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroup;
 import software.amazon.awssdk.services.elasticache.model.CacheSubnetGroupNotFoundException;
@@ -61,8 +62,9 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     private Set<SubnetResource> subnets;
 
     /**
-     * The name of the cache subnet group. (Required)
+     * The name of the cache subnet group.
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -85,8 +87,9 @@ public class CacheSubnetGroupResource extends AwsResource implements Copyable<Ca
     }
 
     /**
-     * A list of subnets. (Required)
+     * A list of subnets.
      */
+    @Required
     @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {

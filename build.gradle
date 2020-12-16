@@ -81,15 +81,18 @@ dependencies {
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.14.20')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.15.7')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:apigatewayv2'
     implementation 'software.amazon.awssdk:autoscaling'
+    implementation 'software.amazon.awssdk:autoscalingplans'
     implementation 'software.amazon.awssdk:cloudfront'
     implementation 'software.amazon.awssdk:cloudtrail'
     implementation 'software.amazon.awssdk:cloudwatch'
+    implementation 'software.amazon.awssdk:codebuild'
     implementation 'software.amazon.awssdk:cloudwatchevents'
     implementation 'software.amazon.awssdk:cognitoidentityprovider'
+    implementation 'software.amazon.awssdk:dax'
     implementation 'software.amazon.awssdk:dlm'
     implementation 'software.amazon.awssdk:ec2'
     implementation 'software.amazon.awssdk:eks'
@@ -114,9 +117,11 @@ dependencies {
     implementation 'software.amazon.awssdk:ecs'
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:neptune'
+    implementation 'software.amazon.awssdk:kendra'
+    implementation 'software.amazon.awssdk:wafv2'
     implementation 'org.json:json:20180813'
 
-    gyroDoclet "gyro:gyro-doclet:0.99.0-SNAPSHOT"
+    gyroDoclet "gyro:gyro-doclet:0.99.1"
 }
 
 task referenceDocs(type: Javadoc) {

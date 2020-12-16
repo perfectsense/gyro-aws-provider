@@ -1,0 +1,86 @@
+aws::vpc vpc-dax-cluster-example
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "dax-cluster-example"
+    }
+end
+
+aws::subnet subnet-1-dax-cluster-example
+    vpc: $(aws::vpc vpc-dax-cluster-example)
+    availability-zone: us-east-2a
+    cidr-block: "10.0.0.0/24"
+
+    tags: {
+        Name: "dax-cluster-example-subnet-1"
+    }
+end
+
+aws::subnet subnet-2-dax-cluster-example
+    vpc: $(aws::vpc vpc-dax-cluster-example)
+    availability-zone: us-east-2b
+    cidr-block: "10.0.1.0/24"
+
+    tags: {
+        Name: "dax-cluster-example-subnet-2"
+    }
+end
+
+aws::security-group security-group-dax-cluster-example-1
+    name: "security-group-dax-cluster-example-1"
+    vpc: $(aws::vpc vpc-dax-cluster-example)
+    description: "sg-dax-cluster-example-1"
+end
+
+aws::security-group security-group-dax-cluster-example-2
+    name: "security-group-dax-cluster-example-2"
+    vpc: $(aws::vpc vpc-dax-cluster-example)
+    description: "sg-dax-cluster-example-2"
+end
+
+aws::iam-policy iam-policy-dax-cluster-example
+    name: "iam-policy-dax-cluster-example-iam-policy"
+    description: "iam policy dax cluster example"
+    policy-document: "dax-role-policy.json"
+end
+
+aws::iam-role iam-role-dax-cluster-example
+    name: "dax-cluster-example-iam-role"
+    assume-role-policy: "dax-assume-role-policy.json"
+    policies: [$(aws::iam-policy iam-policy-dax-cluster-example)]
+end
+
+aws::dax-parameter-group parameter-group
+   name: "parameter-group-example"
+   description: "parameter-group-example-description"
+end
+
+aws::dax-subnet-group dax-cluster-subnet-group
+    name: "dax-cluster-subnet-group-example"
+    description: "subnet-group-description"
+    subnets: [
+        $(aws::subnet subnet-2-dax-cluster-example),
+        $(aws::subnet subnet-1-dax-cluster-example)
+    ]
+end
+
+aws::dax-cluster cluster-example
+    name: "cluster-gyro-example"
+    iam-role: $(aws::iam-role iam-role-dax-cluster-example)
+    node-type: "dax.r4.large"
+    replication-factor: 1
+    description: "dax-cluster-example-description"
+    parameter-group: $(aws::dax-parameter-group parameter-group)
+    subnet-group: $(aws::dax-subnet-group dax-cluster-subnet-group)
+
+    security-group
+        security-group: $(aws::security-group security-group-dax-cluster-example-1)
+    end
+
+    security-group
+        security-group: $(aws::security-group security-group-dax-cluster-example-2)
+    end
+
+    wait-for-create: true
+end

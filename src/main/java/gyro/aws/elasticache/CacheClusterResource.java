@@ -33,6 +33,8 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticache.ElastiCacheClient;
 import software.amazon.awssdk.services.elasticache.model.CacheCluster;
 import software.amazon.awssdk.services.elasticache.model.CacheClusterNotFoundException;
@@ -118,9 +120,11 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     private String preferredAvailabilityZone;
 
     /**
-     * The Az mode of the cluster. Valid value is ``single-az`` or ``cross-az`` (Required)
+     * The Az mode of the cluster. Valid value is ``single-az`` or ``cross-az``
      */
+    @Required
     @Updatable
+    @ValidStrings({"single-az", "cross-az"})
     public String getAzMode() {
         return azMode;
     }
@@ -130,8 +134,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The name of the cache cluster. (Required)
+     * The name of the cache cluster.
      */
+    @Required
     @Id
     public String getId() {
         return id;
@@ -142,8 +147,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The type of the cache cluster nodes. (Required)
+     * The type of the cache cluster nodes.
      */
+    @Required
     @Updatable
     public String getCacheNodeType() {
         return cacheNodeType;
@@ -154,8 +160,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The cache parameter group to be associated. (Required)
+     * The cache parameter group to be associated.
      */
+    @Required
     @Updatable
     public CacheParameterGroupResource getCacheParamGroup() {
         return cacheParamGroup;
@@ -182,8 +189,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The cache subnet group to be associated. (Required)
+     * The cache subnet group to be associated.
      */
+    @Required
     public CacheSubnetGroupResource getCacheSubnetGroup() {
         return cacheSubnetGroup;
     }
@@ -193,8 +201,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The name of the engine used to create the cluster. (Required)
+     * The name of the engine used to create the cluster.
      */
+    @Required
     public String getEngine() {
         return engine;
     }
@@ -204,8 +213,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The version of the engine used to create the cluster. (Required)
+     * The version of the engine used to create the cluster.
      */
+    @Required
     @Updatable
     public String getEngineVersion() {
         return engineVersion;
@@ -228,8 +238,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The number of nodes to be created. (Required)
+     * The number of nodes to be created.
      */
+    @Required
     @Updatable
     public Integer getNumCacheNodes() {
         return numCacheNodes;
@@ -240,8 +251,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The port to be used by the cache cluster. (Required)
+     * The port to be used by the cache cluster.
      */
+    @Required
     public Integer getPort() {
         return port;
     }
@@ -251,8 +263,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The preferred maintenance window to be used by the cache cluster. (Required)
+     * The preferred maintenance window to be used by the cache cluster.
      */
+    @Required
     @Updatable
     public String getPreferredMaintenanceWindow() {
         return preferredMaintenanceWindow;
@@ -329,7 +342,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The tags for the cache cluster. (Required)
+     * The tags for the cache cluster.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -345,8 +358,9 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
     }
 
     /**
-     * The preferred availability zone for the cluster. (Required)
+     * The preferred availability zone for the cluster.
      */
+    @Required
     @Updatable
     public List<String> getPreferredAvailabilityZones() {
         if (preferredAvailabilityZones == null) {
@@ -378,8 +392,6 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     /**
      * Arn of the cluster.
-     *
-     * @Output
      */
     @Output
     public String getArn() {
@@ -392,8 +404,6 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     /**
      * Status of the cluster.
-     *
-     * @Output
      */
     @Output
     public String getStatus() {
@@ -406,8 +416,6 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     /**
      * List of nodes under this cluster.
-     *
-     * @Output
      */
     @Output
     public List<CacheClusterNode> getNodes() {
@@ -420,8 +428,6 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
     /**
      * The preferred availability zone of the cluster.
-     *
-     * @Output
      */
     @Output
     public String getPreferredAvailabilityZone() {

@@ -27,7 +27,7 @@ public class EcsTaskDefinitionPlacementConstraint extends Diffable {
     private String expression;
 
     /**
-     * The type of constraint. (Required)
+     * The type of constraint.
      * The only valid value is ``memberOf``. This constraint restricts selection to be from a group of valid candidates.
      */
     @Required
@@ -40,7 +40,7 @@ public class EcsTaskDefinitionPlacementConstraint extends Diffable {
     }
 
     /**
-     * A cluster query language expression to apply to the constraint. (Required)
+     * A cluster query language expression to apply to the constraint.
      */
     @Required
     public String getExpression() {

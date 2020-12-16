@@ -56,7 +56,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     private TransitGatewayVpcAttachmentResource vpcAttachment;
 
     /**
-     * The Cidr block for which the route needs to be created. (Required)
+     * The Cidr block for which the route needs to be created.
      */
     @Required
     public String getDestinationCidrBlock() {

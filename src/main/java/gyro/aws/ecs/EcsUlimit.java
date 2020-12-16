@@ -18,6 +18,7 @@ package gyro.aws.ecs;
 
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ecs.model.Ulimit;
 import software.amazon.awssdk.services.ecs.model.UlimitName;
 
@@ -28,10 +29,10 @@ public class EcsUlimit extends Diffable {
     private Integer hardLimit;
 
     /**
-     * The type of the ulimit. (Required)
-     * Valid values are ``core``, ``cpu``, ``data``, ``fsize``, ``locks``, ``memlock``, ``msgqueue``, ``nice``, ``nofile``, ``nproc``, ``rss``, ``rtprio``, ``rttime``, ``sigpending``, and ``stack``.
+     * The type of the ulimit.
      */
     @Required
+    @ValidStrings({"core", "cpu", "data", "fsize", "locks", "memlock", "msgqueue", "nice", "nofile", "nproc", "rss", "rtprio", "rttime", "sigpending", "stack"})
     public UlimitName getName() {
         return name;
     }
@@ -41,7 +42,7 @@ public class EcsUlimit extends Diffable {
     }
 
     /**
-     * The soft limit for the ulimit type. (Required)
+     * The soft limit for the ulimit type.
      */
     @Required
     public Integer getSoftLimit() {
@@ -53,7 +54,7 @@ public class EcsUlimit extends Diffable {
     }
 
     /**
-     * The hard limit for the ulimit type. (Required)
+     * The hard limit for the ulimit type.
      */
     @Required
     public Integer getHardLimit() {

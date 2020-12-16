@@ -30,6 +30,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -96,8 +97,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private Map<String, String> tags;
 
     /**
-     * The set of aliases associated with the key. (Required)
+     * The set of aliases associated with the key.
      */
+    @Required
     @Updatable
     public Set<String> getAliases() {
         if (aliases == null) {
@@ -112,7 +114,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * Determines whether to bypass the key policy lockout safety check. Defaults to false. (Optional)
+     * Determines whether to bypass the key policy lockout safety check. Defaults to false.
      */
     public Boolean getBypassPolicyLockoutSafetyCheck() {
         if (bypassPolicyLockoutSafetyCheck == null) {
@@ -127,7 +129,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The description of the key. (Optional)
+     * The description of the key.
      */
     @Updatable
     public String getDescription() {
@@ -139,7 +141,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * Determines whether the key is enabled. Defaults to ``enabled``. (Optional)
+     * Determines whether the key is enabled. Defaults to ``enabled``.
      */
     @Updatable
     public Boolean getEnabled() {
@@ -155,7 +157,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * Determines whether the backing key is rotated each year. Defaults to ``false``. (Optional)
+     * Determines whether the backing key is rotated each year. Defaults to ``false``.
      */
     @Updatable
     public Boolean getKeyRotation() {
@@ -220,8 +222,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The usage of the key. The only valid value is ``ENCRYPT_DECRYPT``. Defaults to ``ENCRYPT_DECRYPT``. (Required)
+     * The usage of the key. The only Defaults to ``ENCRYPT_DECRYPT``.
      */
+    @Required
     public String getKeyUsage() {
         if (keyUsage == null) {
             keyUsage = "ENCRYPT_DECRYPT";
@@ -235,7 +238,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The source of the key material. Defaults to ``AWS_KMS``. (Optional)
+     * The source of the key material. Defaults to ``AWS_KMS``.
      */
     public String getOrigin() {
         if (origin == null) {
@@ -250,7 +253,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The number of days until the key will be deleted. Defaults to 30. (Optional)
+     * The number of days until the key will be deleted. Defaults to 30.
      */
     public String getPendingWindow() {
         if (pendingWindow == null) {
@@ -265,7 +268,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The path to the policy associated with the key. (Optional)
+     * The path to the policy associated with the key.
      */
     @Updatable
     public String getPolicy() {
@@ -278,7 +281,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The tags associated with the key. (Optional)
+     * The tags associated with the key.
      */
     @Updatable
     public Map<String, String> getTags() {

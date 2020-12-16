@@ -28,6 +28,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttachNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceRequest;
@@ -107,8 +108,9 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The Subnet to create the Network Interface in. (Required)
+     * The Subnet to create the Network Interface in.
      */
+    @Required
     @Updatable
     public SubnetResource getSubnet() {
         return subnet;
@@ -135,7 +137,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The Instance to which the Network Interface will be attached.(Optional)
+     * The Instance to which the Network Interface will be attached.
      */
     @Updatable
     public InstanceResource getInstance() {
@@ -187,7 +189,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
-     * The Primary IPV4 address which gets assigned to the Network Interface. (Optional)
+     * The Primary IPV4 address which gets assigned to the Network Interface.
      */
     public String getPrimaryIpv4Address() {
         return primaryIpv4Address;

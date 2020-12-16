@@ -42,6 +42,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Min;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.efs.EfsClient;
 import software.amazon.awssdk.services.efs.model.CreateFileSystemRequest;
@@ -123,8 +124,9 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
     }
 
     /**
-     * The performance mode of the file system. Valid values are ``GENERAL_PURPOSE`` or `MAX_IO``.
+     * The performance mode of the file system.
      */
+    @ValidStrings({"GENERAL_PURPOSE", "MAX_IO"})
     public PerformanceMode getPerformanceMode() {
         return performanceMode;
     }
@@ -134,7 +136,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
     }
 
     /**
-     * The throughput in MiB/s, that you want to provision for a file system that you're creating. Minimum value of ``0``.
+     * The throughput in MiB/s, that you want to provision for a file system that you're creating.
      */
     @Min(0)
     @Updatable
@@ -147,9 +149,10 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
     }
 
     /**
-     * The throughput mode for the file system to be created. Valid values are ``BURSTING`` or ``PROVISIONED``.
+     * The throughput mode for the file system to be created.
      */
     @Updatable
+    @ValidStrings({"BURSTING", "PROVISIONED"})
     public ThroughputMode getThroughputMode() {
         return throughputMode;
     }

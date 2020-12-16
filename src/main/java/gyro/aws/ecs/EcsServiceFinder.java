@@ -71,7 +71,8 @@ public class EcsServiceFinder extends AwsFinder<EcsClient, Service, EcsServiceRe
         client.listClusters()
             .clusterArns()
             .forEach(c -> {
-                List<String> serviceArns = client.listServices(r -> r.cluster(c)).serviceArns();
+                List<String> serviceArns = client.listServicesPaginator(r -> r.cluster(c))
+                    .serviceArns().stream().collect(Collectors.toList());
                 if (!serviceArns.isEmpty()) {
                     services.addAll(client.describeServices(DescribeServicesRequest.builder()
                         .cluster(c)
@@ -86,13 +87,14 @@ public class EcsServiceFinder extends AwsFinder<EcsClient, Service, EcsServiceRe
     @Override
     protected List<Service> findAws(EcsClient client, Map<String, String> filters) {
         List<Service> services = new ArrayList<>();
-        client.listClusters()
+        client.listClustersPaginator()
             .clusterArns()
             .stream()
             .filter(c -> !(filters.containsKey("cluster") && !c.split("/")[c.split("/").length - 1]
                 .equals(filters.get("cluster"))))
             .forEach(c -> {
-                List<String> serviceArns = client.listServices(r -> r.cluster(c)).serviceArns();
+                List<String> serviceArns = client.listServicesPaginator(r -> r.cluster(c))
+                    .serviceArns().stream().collect(Collectors.toList());
                 if (!serviceArns.isEmpty()) {
                     services.addAll(client.describeServices(DescribeServicesRequest.builder()
                         .cluster(c)

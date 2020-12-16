@@ -84,12 +84,11 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     private String arn;
 
     /**
-     * The name of the capacity provider. Up to 255 characters are allowed, including letters, numbers, underscores, and hyphens.
-     * The name cannot be prefixed with ``aws``, ``ecs``, or ``fargate``, regardless of character case.
+     * The name of the capacity provider. The name cannot be prefixed with ``aws``, ``ecs``, or ``fargate``, regardless of character case.
      */
     @Required
     @Id
-    @Regex(value = "[-_a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, underscores, and hyphens.")
+    @Regex(value = "[-_a-zA-Z0-9]{1,255}", message = "a string 1 to 255 characters long containing letters, numbers, underscores and hyphens")
     public String getName() {
         return name;
     }
@@ -99,7 +98,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
     }
 
     /**
-     * The details of the Auto Scaling group for the capacity provider. (Required)
+     * The details of the Auto Scaling group for the capacity provider.
      *
      * @subresource gyro.aws.ecs.EcsAutoScalingGroupProvider
      */

@@ -37,6 +37,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
@@ -115,6 +116,8 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     /**
      * The HealthCheck subresource for this load balancer.
+     *
+     * @subresource gyro.aws.elb.HealthCheckResource
      */
     public HealthCheckResource getHealthCheck() {
         return healthCheck;
@@ -141,8 +144,11 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The listeners to associate with this load balancer. (Required)
+     * The listeners to associate with this load balancer.
+     *
+     * @subresource gyro.aws.elb.ListenerResource
      */
+    @Required
     public Set<ListenerResource> getListener() {
         if (listener == null) {
             listener = new LinkedHashSet<>();
@@ -156,8 +162,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The load balancer name. (Required)
+     * The load balancer name.
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -168,8 +175,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The scheme - either internal or internet-facing. (Required)
+     * The scheme - either internal or internet-facing.
      */
+    @Required
     public String getScheme() {
         return scheme;
     }
@@ -179,8 +187,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The security groups to associate with this load balancer. (Required)
+     * The security groups to associate with this load balancer.
      */
+    @Required
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
@@ -195,8 +204,9 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * Subnet IDs to associate with this load balancer. (Required)
+     * Subnet IDs to associate with this load balancer.
      */
+    @Required
     @Updatable
     public Set<SubnetResource> getSubnets() {
         if (subnets == null) {
@@ -211,7 +221,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     *  List of tags associated with the load balancer. (Optional)
+     *  List of tags associated with the load balancer.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -228,6 +238,8 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
     /**
      * The attributes for the Load Balancer.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerAttributes
      */
     @Updatable
     public LoadBalancerAttributes getAttribute() {

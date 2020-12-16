@@ -42,7 +42,7 @@ public class S3Destination extends Diffable implements Copyable<Destination> {
     }
 
     /**
-     * ARN of the destination bucket. (Required)
+     * ARN of the destination bucket.
      */
     @Updatable
     public BucketResource getBucket() {

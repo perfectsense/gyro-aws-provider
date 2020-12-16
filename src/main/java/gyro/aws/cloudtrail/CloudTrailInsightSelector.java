@@ -27,7 +27,7 @@ public class CloudTrailInsightSelector extends Diffable implements Copyable<Insi
     private InsightType insightType;
 
     /**
-     * The type of insights to log on a trail. (Required)
+     * The type of insights to log on a trail.
      */
     @Required
     public InsightType getInsightType() {

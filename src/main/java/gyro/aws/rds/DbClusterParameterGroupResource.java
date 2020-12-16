@@ -25,6 +25,7 @@ import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterParameterGroup;
@@ -74,8 +75,9 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     private List<DbParameter> parameter;
 
     /**
-     * The description of the cluster parameter group. (Required)
+     * The description of the cluster parameter group.
      */
+    @Required
     public String getDescription() {
         return description;
     }
@@ -85,8 +87,9 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     /**
-     * The name of the cluster parameter group family. (Required)
+     * The name of the cluster parameter group family.
      */
+    @Required
     public String getFamily() {
         return family;
     }
@@ -96,8 +99,9 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     }
 
     /**
-     * The name of the cluster parameter group. (Required)
+     * The name of the cluster parameter group.
      */
+    @Required
     @Id
     public String getName() {
         return name;

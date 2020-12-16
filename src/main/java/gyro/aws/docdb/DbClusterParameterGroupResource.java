@@ -27,6 +27,7 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.docdb.DocDbClient;
 import software.amazon.awssdk.services.docdb.model.CreateDbClusterParameterGroupResponse;
 import software.amazon.awssdk.services.docdb.model.DBCluster;
@@ -75,8 +76,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     private String arn;
 
     /**
-     * Name of the db cluster parameter group. (Required)
+     * Name of the db cluster parameter group.
      */
+    @Required
     @Id
     public String getName() {
         return name;
@@ -87,8 +89,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     /**
-     * Name of the db cluster parameter family. (Required)
+     * Name of the db cluster parameter family.
      */
+    @Required
     public String getDbParamGroupFamily() {
         return dbParamGroupFamily;
     }
@@ -98,8 +101,9 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
     }
 
     /**
-     * Description for the db cluster parameter family. (Required)
+     * Description for the db cluster parameter family.
      */
+    @Required
     public String getDescription() {
         return description;
     }

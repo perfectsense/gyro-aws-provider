@@ -77,7 +77,7 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
     private String id;
 
     /**
-     * The transit gateway of the route table. (Required)
+     * The transit gateway of the route table.
      */
     @Required
     public TransitGatewayResource getTransitGateway() {

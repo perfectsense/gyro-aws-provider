@@ -277,10 +277,10 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
     private String arn;
 
     /**
-     * The name shared among all revisions of a task definition. (Required)
+     * The name shared among all revisions of a task definition.
      */
     @Required
-    @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "1 to 255 letters, numbers, and hyphens.")
+    @Regex(value = "[-a-zA-Z0-9]{1,255}", message = "a string 1 to 255 characters long containing letters, numbers, and hyphens")
     public String getFamily() {
         return family;
     }
@@ -313,7 +313,6 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
 
     /**
      * The launch type required by the task.
-     * Valid values are ``EC2`` and ``FARGATE``. Defaults to ``EC2``.
      */
     @ValidStrings({ "EC2", "FARGATE" })
     public Set<String> getRequiresCompatibilities() {
@@ -368,6 +367,7 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * A maximum of 10 constraints are allowed per task (this limit includes constraints in the task definition and those specified at runtime).
      *
      * @subresource gyro.aws.ecs.EcsTaskDefinitionPlacementConstraint
+     * @no-doc CollectionMax
      */
     @CollectionMax(10)
     public List<EcsTaskDefinitionPlacementConstraint> getPlacementConstraint() {
@@ -386,8 +386,8 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * The Docker networking mode to use for the containers in the task.
      * The ``host`` and ``awsvpc`` modes offer the highest networking performance for containers because they use the EC2 network stack instead of the virtualized network stack provided by the ``bridge`` mode.
      * If ``requires-compatibilities`` contains ``FARGATE``, the ``awsvpc`` mode is required.
-     * Valid values are ``none``, ``bridge``, ``awsvpc``, and ``host``. Defaults to ``bridge``.
      */
+    @ValidStrings({"none", "bridge", "awsvpc", "host"})
     public NetworkMode getNetworkMode() {
         return networkMode;
     }
@@ -400,6 +400,8 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * The number of CPU units used by the task.
      * Valid values range from ``128`` (0.125 vCPUs) to ``10240`` (10 vCPUs).
      * If ``requires-compatibilities`` contains ``FARGATE``, this field is required and the valid values are ``256``, ``512``, ``1024``, ``2048``, and ``4096``.
+     *
+     * @no-doc Range
      */
     @Range(min = 128, max = 10240)
     public Integer getCpu() {
@@ -433,8 +435,9 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * If ``host`` is specified, then all containers within the tasks that specified the ``host`` ``pid-mode`` on the same container instance share the same process namespace with the host Amazon EC2 instance.
      * If ``task`` is specified, all containers within the specified task share the same process namespace.
      * If ``requires-compatibilities`` contains ``FARGATE``, this parameter is not supported.
-     * Valid values are ``host`` and ``task``. If no value is specified, the default is a private namespace.
+     * If no value is specified, the default is a private namespace.
      */
+    @ValidStrings({"host", "task"})
     public PidMode getPidMode() {
         return pidMode;
     }
@@ -449,8 +452,9 @@ public class EcsTaskDefinitionResource extends AwsResource implements Copyable<T
      * If ``task`` is specified, all containers within the specified task share the same IPC resources.
      * If ``none`` is specified, then IPC resources within the containers of a task are private and not shared with other containers in a task or on the container instance.
      * If ``requires-compatibilities`` contains ``FARGATE``, this parameter is not supported.
-     * Valid values are ``host``, ``task``, and ``none``. If no value is specified, then the IPC resource namespace sharing depends on the Docker daemon setting on the container instance.
+     * If no value is specified, then the IPC resource namespace sharing depends on the Docker daemon setting on the container instance.
      */
+    @ValidStrings({"host", "task", "none"})
     public IpcMode getIpcMode() {
         return ipcMode;
     }

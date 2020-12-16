@@ -95,7 +95,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
     }
 
     /**
-     * The subnets for the Amazon EKS worker nodes. (Required)
+     * The subnets for the Amazon EKS worker nodes.
      */
     @Required
     public List<SubnetResource> getSubnets() {

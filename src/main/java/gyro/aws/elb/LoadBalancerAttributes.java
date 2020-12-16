@@ -57,6 +57,8 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     /**
      * The Access Log setting for the Load Balancer.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerAccessLog
      */
     @Updatable
     public LoadBalancerAccessLog getAccessLog() {
@@ -73,6 +75,8 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     /**
      * Connection Draining setting for Load Balancer.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerConnectionDraining
      */
     @Updatable
     public LoadBalancerConnectionDraining getConnectionDraining() {
@@ -89,6 +93,8 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     /**
      * Cross Zone Load Balancing setting for the Load Balancer.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerCrossZoneLoadBalancing
      */
     @Updatable
     public LoadBalancerCrossZoneLoadBalancing getCrossZoneLoadBalancing() {
@@ -105,6 +111,8 @@ public class LoadBalancerAttributes extends Diffable implements Copyable<softwar
 
     /**
      * The connection setting for the Load balancer.
+     *
+     * @subresource gyro.aws.elb.LoadBalancerConnectionSettings
      */
     @Updatable
     public LoadBalancerConnectionSettings getConnectionSettings() {

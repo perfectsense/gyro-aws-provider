@@ -74,10 +74,10 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     private String arn;
 
     /**
-     * The name of the topic. May contain alphanumeric characters, hyphens and underscores and it maybe up to 256 characters long. (Required)
+     * The name of the topic.
      */
     @Required
-    @Regex(value = "[a-zA-Z0-9_.-]{1,256}", message = "1-256 alphanumeric characters, hyphens and underscores.")
+    @Regex(value = "[a-zA-Z0-9_.-]{1,256}", message = "a string 1-256 characters long containing alphanumeric characters, hyphens or underscores")
     public String getName() {
         return name;
     }
@@ -115,10 +115,10 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
-     * The sns topic display name. May contain alphanumeric characters, hyphens and underscores and it maybe up to 100 characters long.
+     * The sns topic display name.
      */
     @Updatable
-    @Regex(value = "[a-zA-Z0-9_.-]{1,100}", message = "1-100 alphanumeric characters, hyphens and underscores.")
+    @Regex(value = "[a-zA-Z0-9_.-]{1,100}", message = "a string containing 1-100 alphanumeric characters, hyphens or underscores")
     public String getDisplayName() {
         return displayName;
     }
@@ -154,7 +154,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     public void setArn(String arn) {
         this.arn = arn;
     }
-    
+
     @Override
     public void copyFrom(Topic topic) {
         SnsClient client = createClient(SnsClient.class);

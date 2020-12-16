@@ -25,8 +25,8 @@ Define your credentials in $HOME/.aws/credentials under a profile name of your c
 
 ```
 [my-project]
-aws_secret_access_key = jIk7vCcAIm9zb0LPizhqjKrjGm7HF47VglVoFnjS
-aws_access_key_id = IPPL6D4B4JCBO8HBIMJG
+aws_secret_access_key = <access_key>
+aws_access_key_id = <access_key_id>
 ```
 
 See [Setting up AWS credentials for Gyro](https://gyro.dev/providers/aws/index.html#authentication).

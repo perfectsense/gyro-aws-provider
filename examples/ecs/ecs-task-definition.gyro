@@ -1,20 +1,30 @@
 aws::iam-role ecs-task-execution-role-example
     name: "ecsTaskExecutionRole"
     assume-role-policy: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
-    policies: [$(external-query aws::iam-policy { arn: 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy' }).0]
+    policies: [$(aws::iam-policy example-policy-iam-task-definition)]
 end
 
-aws::iam-role ecs-task-role-example
-    name: "ecs-task-role-example"
+aws::iam-policy example-policy-iam-task-definition
+    name: "example-policy-iam-task-definition"
+    policy-document: "task-definition-policy.json"
+end
+
+aws::iam-role ecs-task-full-access
+    name: "ecs-task-role-example-full-access"
     assume-role-policy: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
-    policies: [$(external-query aws::iam-policy { arn: 'arn:aws:iam::aws:policy/AmazonECS_FullAccess' }).0]
+    policies: [$(aws::iam-policy example-policy-iam-full-access)]
+end
+
+aws::iam-policy example-policy-iam-full-access
+    name: "example-policy-iam-full-access"
+    policy-document: "ecs-task-full-access-policy.json"
 end
 
 aws::ecs-task-definition ecs-task-definition-ec2-example
     family: "ecs-task-definition-ec2-example"
     requires-compatibilities: ["EC2"]
     network-mode: "bridge"
-    task-role: $(aws::iam-role ecs-task-role-example)
+    task-role: $(aws::iam-role ecs-task-full-access)
     execution-role: $(aws::iam-role ecs-task-execution-role-example)
     cpu: 512
     memory: 2048
@@ -202,7 +212,7 @@ aws::ecs-task-definition ecs-task-definition-fargate-example
     family: "ecs-task-definition-fargate-example"
     requires-compatibilities: ["FARGATE"]
     network-mode: "awsvpc"
-    task-role: $(aws::iam-role ecs-task-role-example)
+    task-role: $(aws::iam-role ecs-task-full-access)
     execution-role: $(aws::iam-role ecs-task-execution-role-example)
     cpu: 512
     memory: 2048
