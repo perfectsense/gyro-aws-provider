@@ -48,7 +48,6 @@ import software.amazon.awssdk.services.apigatewayv2.model.GetDeploymentsResponse
  *     aws::api-gateway-deployment example-deployment
  *         api: $(aws::api-gateway example-api)
  *         description: "example-desc-changed"
- *         stage: $(aws::api-gateway-stage example-stage)
  *     end
  */
 @Type("api-gateway-deployment")
@@ -56,7 +55,6 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
 
     private ApiResource api;
     private String description;
-    private StageResource stage;
 
     // Output
     private String id;
@@ -84,18 +82,6 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    /**
-     * The stage that should be deployed.
-     */
-    @Required
-    public StageResource getStage() {
-        return stage;
-    }
-
-    public void setStage(StageResource stage) {
-        this.stage = stage;
     }
 
     /**
@@ -164,8 +150,7 @@ public class DeploymentResource extends AwsResource implements Copyable<Deployme
         ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
 
         CreateDeploymentResponse deployment = client.createDeployment(r -> r.apiId(getApi().getId())
-            .description(getDescription())
-            .stageName(getStage().getName()));
+            .description(getDescription()));
 
         setId(deployment.deploymentId());
     }

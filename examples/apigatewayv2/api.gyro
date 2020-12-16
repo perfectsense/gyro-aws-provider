@@ -68,6 +68,7 @@ aws::api-gateway-stage example-stage
     name: example-stage
     description: "example-desc"
     auto-deploy: false
+    deployment: $(aws::api-gateway-deployment example-deployment)
 
     default-route-settings
         detailed-metrics-enabled: true
@@ -94,6 +95,4 @@ end
 aws::api-gateway-deployment example-deployment
     api: $(aws::api-gateway example-api)
     description: "example-desc-changed"
-    stage: $(aws::api-gateway-stage example-stage)
-end
 end
