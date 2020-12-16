@@ -246,6 +246,11 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
         ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
 
         client.deleteVpcLink(r -> r.vpcLinkId(getId()));
+
+        Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(2, TimeUnit.MINUTES)
+            .prompt(false)
+            .until(() -> getVpcLink(client) == null);
     }
 
     private VpcLink getVpcLink(ApiGatewayV2Client client) {
