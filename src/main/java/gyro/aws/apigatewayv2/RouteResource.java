@@ -72,7 +72,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     private Map<String, String> requestModels;
     private Map<String, Boolean> requestParameters;
     private String routeResponseSelectionExpression;
-    private String target;
+    private IntegrationResource target;
 
     // Output
     private String id;
@@ -227,11 +227,11 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
      * The target of the route.
      */
     @Updatable
-    public String getTarget() {
+    public IntegrationResource getTarget() {
         return target;
     }
 
-    public void setTarget(String target) {
+    public void setTarget(IntegrationResource target) {
         this.target = target;
     }
 
@@ -261,8 +261,12 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         setRequestParameters(model.requestParameters().entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, r -> r.getValue().required())));
         setRouteResponseSelectionExpression(model.routeResponseSelectionExpression());
-        setTarget(model.target());
         setId(model.routeId());
+
+        setTarget(null);
+        if (model.target() != null) {
+            setTarget(findById(IntegrationResource.class, model.target().split("/")[1]));
+        }
 
         ApiGatewayV2Client client = createClient(ApiGatewayV2Client.class);
         List<String> apis = client.getApis().items().stream().map(Api::apiId).collect(Collectors.toList());
@@ -308,7 +312,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .requestModels(getRequestModels())
             .routeKey(getRouteKey())
             .routeResponseSelectionExpression(getRouteResponseSelectionExpression())
-            .target(getTarget())
+            .target(target == null ? null : String.format("integrations/%s", getTarget().getId()))
             .requestParameters(getRequestParameters().entrySet()
                 .stream()
                 .collect(Collectors.toMap(
@@ -333,7 +337,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .requestModels(getRequestModels())
             .routeKey(getRouteKey())
             .routeResponseSelectionExpression(getRouteResponseSelectionExpression())
-            .target(getTarget())
+            .target(target == null ? null : String.format("integrations/%s", getTarget().getId()))
             .requestParameters(getRequestParameters().entrySet()
                 .stream()
                 .collect(Collectors.toMap(

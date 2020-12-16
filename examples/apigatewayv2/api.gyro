@@ -60,7 +60,7 @@ aws::api-gateway-route example-route
     authorizer: $(aws::api-gateway-authorizer example-authorizer)
     authorization-type: JWT
     authorization-scopes: [ "example-scope" ]
-    target: "integrations/$(integration-id)"
+    target: $(aws::api-gateway-integration example-integration)
 end
 
 aws::api-gateway-stage example-stage
