@@ -1,0 +1,31 @@
+aws::api-gateway example-api-websock
+    name: "example-api-websocket"
+    protocol-type: WEBSOCKET
+    route-selection-expression: "${request.method} ${request.path}"
+end
+
+aws::api-gateway-integration example-integration-websock
+    api: $(aws::api-gateway example-api-websock)
+    integration-type: HTTP_PROXY
+    timeout-in-millis: 10000
+    integration-uri: 'https://example-domain.com'
+    integration-method: ANY
+    payload-format-version: "1.0"
+end
+
+aws::api-gateway-integration-response example-int-response
+    api: $(aws::api-gateway example-api-websock)
+    integration: $(aws::api-gateway-integration example-integration-websock)
+    integration-response-key: '$default'
+end
+
+aws::api-gateway-route example-route-websocket
+    api: $(aws::api-gateway example-api-websock)
+    route-key: 'ANY /api/example/route'
+end
+
+aws::api-gateway-route-response example-route-websocket
+    api: $(aws::api-gateway example-api-websock)
+    route: $(aws::api-gateway-route example-route-websocket)
+    route-response-key: '$default'
+end
