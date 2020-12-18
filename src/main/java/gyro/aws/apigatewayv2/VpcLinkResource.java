@@ -247,8 +247,8 @@ public class VpcLinkResource extends AwsResource implements Copyable<VpcLink> {
 
         client.deleteVpcLink(r -> r.vpcLinkId(getId()));
 
-        Wait.atMost(10, TimeUnit.MINUTES)
-            .checkEvery(2, TimeUnit.MINUTES)
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> getVpcLink(client) == null);
     }
