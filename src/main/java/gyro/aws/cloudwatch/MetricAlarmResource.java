@@ -275,7 +275,7 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
     }
 
     /**
-     * The name of the metric associated with the Metric Alarm. Required if 'metric' not set. See `AWS Services That Publish CloudWatch Metrics <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/aws-services-cloudwatch-metrics.html/>`_.
+     * The name of the metric associated with the Metric Alarm. Required if 'metric' not set. See `AWS Services That Publish CloudWatch Metrics <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/aws-services-cloudwatch-metrics.html>`_.
      */
     @Updatable
     public String getMetricName() {
