@@ -136,7 +136,7 @@ public class EventRuleResource extends AwsResource implements Copyable<Rule> {
     }
 
     /**
-     * The schedule expression that triggers an automated rule action. See `AWS Services Schedule Expressions <https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html/>`_.
+     * The schedule expression that triggers an automated rule action. See `AWS Services Schedule Expressions <https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html>`_.
      */
     @Updatable
     public String getScheduleExpression() {

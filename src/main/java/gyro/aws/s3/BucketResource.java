@@ -322,7 +322,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Enable object lock property for the bucket which prevents objects from being deleted. Can only be set during creation. See `S3 Object Lock <https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html/>`_.
+     * Enable object lock property for the bucket which prevents objects from being deleted. Can only be set during creation. See `S3 Object Lock <https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html>`_.
      */
     public Boolean getEnableObjectLock() {
         if (enableObjectLock == null) {
@@ -353,7 +353,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Enable fast easy and secure transfers of files to and from the bucket. See `S3 Transfer Acceleration <https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html/>`_.
+     * Enable fast easy and secure transfers of files to and from the bucket. See `S3 Transfer Acceleration <https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html>`_.
      */
     @Updatable
     public Boolean getEnableAccelerateConfig() {
@@ -369,7 +369,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html/>`_. Updatable only when object lock is disabled.
+     * Enable keeping multiple versions of an object in the same bucket. See `S3 Versioning <https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html>`_. Updatable only when object lock is disabled.
      */
     @Updatable
     public Boolean getEnableVersioning() {
@@ -385,7 +385,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     /**
-     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html/>`_.
+     * Does the requester pay for requests to the bucket or the owner. Defaults to ``BUCKET_OWNER``. See `S3 Requester Pays Bucket <https://docs.aws.amazon.com/AmazonS3/latest/dev/RequesterPaysBuckets.html>`_.
      */
     @Updatable
     @ValidStrings({"BUCKET_OWNER", "REQUESTER"})

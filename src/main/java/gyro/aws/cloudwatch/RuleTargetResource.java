@@ -145,7 +145,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The map of customized inputs that can be used to configure cloudwatch event targets. See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
+     * The map of customized inputs that can be used to configure cloudwatch event targets. See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html>`_.
      */
     @Updatable
     public Map<String, String> getInputTransformerPathMap() {
@@ -160,7 +160,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The input template which contains the values of the keys of the input path maps. See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html/>`_.
+     * The input template which contains the values of the keys of the input path maps. See `AWS Services CloudWatch InputTransformer property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-inputtransformer.html>`_.
      */
     @Updatable
     public String getInputTransformerTemplate() {
@@ -172,7 +172,7 @@ public class RuleTargetResource extends AwsResource implements Copyable<Target> 
     }
 
     /**
-     * The path of the kinesis data stream target. See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html/>`_.
+     * The path of the kinesis data stream target. See `AWS Services CloudWatch Kinesis parameter property <https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-events-rule-kinesisparameters.html>`_.
      *
      */
     @Updatable
