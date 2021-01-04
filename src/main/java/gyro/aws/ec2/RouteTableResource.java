@@ -57,9 +57,9 @@ import java.util.stream.Collectors;
  *             gateway: $(aws::internet-gateway ig-example)
  *         end
  *
- *         tags:
+ *         tags: {
  *             Name: route-table-example
- *         end
+ *         }
  *     end
  */
 @Type("route-table")
