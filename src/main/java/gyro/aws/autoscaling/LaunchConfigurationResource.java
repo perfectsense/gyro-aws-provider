@@ -93,11 +93,17 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private String name;
     private InstanceResource instance;
     private AmiResource ami;
+    private String classicLinkVpcId;
+    private List<String> classicLinkVpcSecurityGroups;
     private Boolean ebsOptimized;
     private String instanceType;
+    private String kernelId;
     private KeyPairResource key;
     private Boolean enableMonitoring;
+    private String placementTenacy;
+    private String ramdiskId;
     private Set<SecurityGroupResource> securityGroups;
+    private String spotPrice;
     private String userData;
     private Boolean associatePublicIp;
     private Set<BlockDeviceMappingResource> blockDeviceMapping;
@@ -128,7 +134,8 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * The AMI that would be used to launch the instance. Required if Instance not provided. See `Finding an AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The AMI that would be used to launch the instance. Required if Instance not provided. See `Finding an AMI
+     * <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
      */
     public AmiResource getAmi() {
         return ami;
@@ -136,6 +143,28 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     public void setAmi(AmiResource ami) {
         this.ami = ami;
+    }
+
+    /**
+     * The ID of the ClassicLink-enabled VPC.
+     */
+    public String getClassicLinkVpcId() {
+        return classicLinkVpcId;
+    }
+
+    public void setClassicLinkVpcId(String classicLinkVpcId) {
+        this.classicLinkVpcId = classicLinkVpcId;
+    }
+
+    /**
+     * The IDs of the security groups for the specified ClassicLink-enabled VPC.
+     */
+    public List<String> getClassicLinkVpcSecurityGroups() {
+        return classicLinkVpcSecurityGroups;
+    }
+
+    public void setClassicLinkVpcSecurityGroups(List<String> classicLinkVpcSecurityGroups) {
+        this.classicLinkVpcSecurityGroups = classicLinkVpcSecurityGroups;
     }
 
     /**
@@ -166,6 +195,17 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
+     * The ID of the kernel associated with the AMI.
+     */
+    public String getKernelId() {
+        return kernelId;
+    }
+
+    public void setKernelId(String kernelId) {
+        this.kernelId = kernelId;
+    }
+
+    /**
      * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
      */
     @Required
@@ -192,6 +232,29 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
+     * The tenancy of the instance of the launch configuration.
+     */
+    @ValidStrings({ "default", "dedicated" })
+    public String getPlacementTenacy() {
+        return placementTenacy;
+    }
+
+    public void setPlacementTenacy(String placementTenacy) {
+        this.placementTenacy = placementTenacy;
+    }
+
+    /**
+     * The ID of the RAM disk to select for the launch configuration.
+     */
+    public String getRamdiskId() {
+        return ramdiskId;
+    }
+
+    public void setRamdiskId(String ramdiskId) {
+        this.ramdiskId = ramdiskId;
+    }
+
+    /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_.
      */
     @Required
@@ -205,6 +268,17 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     public void setSecurityGroups(Set<SecurityGroupResource> securityGroups) {
         this.securityGroups = securityGroups;
+    }
+
+    /**
+     * The maximum hourly price for any Spot instance launched.
+     */
+    public String getSpotPrice() {
+        return spotPrice;
+    }
+
+    public void setSpotPrice(String spotPrice) {
+        this.spotPrice = spotPrice;
     }
 
     /**
@@ -266,14 +340,21 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     @Override
     public void copyFrom(LaunchConfiguration launchConfiguration) {
+
+        setClassicLinkVpcId(launchConfiguration.classicLinkVPCId());
+        setClassicLinkVpcSecurityGroups(launchConfiguration.classicLinkVPCSecurityGroups());
         setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
         setInstanceType(launchConfiguration.instanceType());
+        setKernelId(launchConfiguration.kernelId());
         setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(KeyPairResource.class, launchConfiguration.keyName()) : null);
         setUserData(new String(Base64.decodeBase64(launchConfiguration.userData())));
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
+        setPlacementTenacy(launchConfiguration.placementTenancy());
+        setRamdiskId(launchConfiguration.ramdiskId());
         setEbsOptimized(launchConfiguration.ebsOptimized());
         setName(launchConfiguration.launchConfigurationName());
         setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
+        setSpotPrice(launchConfiguration.spotPrice());
         setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
 
@@ -300,10 +381,16 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
         CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
             .launchConfigurationName(getName())
+            .classicLinkVPCId(getClassicLinkVpcId())
+            .classicLinkVPCSecurityGroups(getClassicLinkVpcSecurityGroups())
             .ebsOptimized(getEbsOptimized())
             .imageId(getInstance() == null ? getAmi().getId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
+            .kernelId(getKernelId())
+            .placementTenancy(getPlacementTenacy())
+            .ramdiskId(getRamdiskId())
             .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+            .spotPrice(getSpotPrice())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .keyName(getKey() != null ? getKey().getName() : null)
             .instanceType(getInstance() == null ? getInstanceType() : null)
