@@ -130,7 +130,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * A custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
+     * A custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html>`_.
      */
     @Updatable
     public DhcpOptionSetResource getDhcpOptions() {
@@ -142,7 +142,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). Can only be modified to ``default``.  See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html/>`_.
+     * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). Can only be modified to ``default``.  See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html>`_.
      */
     @Updatable
     public String getInstanceTenancy() {
@@ -154,7 +154,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Enable ClassLink to allow communication with EC2-Classic instances. Defaults to false. See `ClassicLink Basics <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-classiclink.html/>`_.
+     * Enable ClassLink to allow communication with EC2-Classic instances. Defaults to false. See `ClassicLink Basics <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-classiclink.html>`_.
      */
     @Updatable
     public Boolean getEnableClassicLink() {
@@ -170,7 +170,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Enable linked EC2-Classic instance hostnames to resolve to private IP address. Defaults to false. See `Enabling ClassicLink DNS Support <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html?#classiclink-enable-dns-support/>`_.
+     * Enable linked EC2-Classic instance hostnames to resolve to private IP address. Defaults to false. See `Enabling ClassicLink DNS Support <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html?#classiclink-enable-dns-support>`_.
      */
     @Updatable
     public Boolean getEnableClassicLinkDnsSupport() {

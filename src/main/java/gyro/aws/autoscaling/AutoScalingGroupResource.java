@@ -194,7 +194,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ/>`_.
+     *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ>`_.
      */
     @Updatable
     public Set<String> getAvailabilityZones() {
@@ -283,7 +283,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The default cool down period in sec for the Auto Scaling group. Defaults to ``300`` sec. See `Default Cool downs <https://docs.aws.amazon.com/autoscaling/ec2/userguide/Cooldown.html#cooldown-default/>`_.
+     * The default cool down period in sec for the Auto Scaling group. Defaults to ``300`` sec. See `Default Cool downs <https://docs.aws.amazon.com/autoscaling/ec2/userguide/Cooldown.html#cooldown-default>`_.
      */
     @Min(0)
     @Updatable
@@ -300,7 +300,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The type of health check to be performed on the Auto Scaling group. Defaults to ``EC2``. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
+     * The type of health check to be performed on the Auto Scaling group. Defaults to ``EC2``. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html>`_.
      */
     @Updatable
     @ValidStrings({ "ELB", "EC2" })
@@ -317,7 +317,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The grace period after which health check is started, to give time for the Instances in the Auto scaling group to start up. Defaults to ``0`` sec. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html/>`_.
+     * The grace period after which health check is started, to give time for the Instances in the Auto scaling group to start up. Defaults to ``0`` sec. See `Health Checks for Auto Scaling Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/healthcheck.html>`_.
      */
     @Min(0)
     @Updatable
@@ -376,7 +376,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A list of subnet's. If Availability Zone is provided, subnet's need to be part of that. See `Launching Auto Scaling Instances in a VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html/>`_.
+     * A list of subnet's. If Availability Zone is provided, subnet's need to be part of that. See `Launching Auto Scaling Instances in a VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html>`_.
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {
@@ -392,7 +392,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Enable/Disable cloud watch metrics for your Auto Scaling Group. Defaults to false. See `Monitoring your Auto Scaling Groups <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html/>`_.
+     * Enable/Disable cloud watch metrics for your Auto Scaling Group. Defaults to false. See `Monitoring your Auto Scaling Groups <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html>`_.
      */
     @Updatable
     public Boolean getEnableMetricsCollection() {
@@ -408,7 +408,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * One or more names of cloud watch metrics you want to disable for the Auto Scaling Group. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics/>`_.
+     * One or more names of cloud watch metrics you want to disable for the Auto Scaling Group. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics>`_.
      */
     @Updatable
     public Set<String> getDisabledMetrics() {
@@ -424,7 +424,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Tags for Auto Scaling Groups. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`_.
+     * Tags for Auto Scaling Groups. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html>`_.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -439,7 +439,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Tags in Auto Scaling Groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html/>`_.
+     * Tags in Auto Scaling Groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html>`_.
      */
     @Updatable
     public Set<String> getPropagateAtLaunchTags() {

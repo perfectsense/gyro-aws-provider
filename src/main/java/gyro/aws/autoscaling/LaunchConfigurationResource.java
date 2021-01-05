@@ -134,8 +134,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * The AMI that would be used to launch the instance. Required if Instance not provided. See `Finding an AMI
-     * <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html/>`_.
+     * The AMI that would be used to launch the instance. Required if Instance not provided. See `Finding an AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html>`_.
      */
     public AmiResource getAmi() {
         return ami;
@@ -168,7 +167,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable EBS optimization for an instance. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html/>`_.
+     * Enable EBS optimization for an instance. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html>`_.
      */
     public Boolean getEbsOptimized() {
         if (ebsOptimized == null) {
@@ -183,7 +182,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_.
+     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
     @Required
     public String getInstanceType() {
@@ -206,7 +205,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
+     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`_.
      */
     @Required
     public KeyPairResource getKey() {
@@ -218,7 +217,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable or Disable monitoring for your instance. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html/>`_.
+     * Enable or Disable monitoring for your instance. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html>`_.
      */
     public Boolean getEnableMonitoring() {
         if (enableMonitoring == null) {
@@ -255,7 +254,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_.
+     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
      */
     @Required
     public Set<SecurityGroupResource> getSecurityGroups() {
@@ -282,7 +281,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Set user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html/>`_.
+     * Set user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html>`_.
      */
     public String getUserData() {
         if (userData == null) {
@@ -299,7 +298,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable public Ip to instances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html/>`_.
+     * Enable public Ip to instances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html>`_.
      */
     public Boolean getAssociatePublicIp() {
         if (associatePublicIp == null) {

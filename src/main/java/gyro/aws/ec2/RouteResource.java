@@ -29,7 +29,7 @@ import software.amazon.awssdk.services.ec2.model.Route;
 import java.util.Set;
 
 /**
- * Add a route to a route table. `See Route Tables <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html/>`_.
+ * Add a route to a route table. `See Route Tables <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html>`_.
  *
  * Example
  * -------
