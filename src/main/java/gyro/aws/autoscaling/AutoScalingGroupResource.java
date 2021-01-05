@@ -124,8 +124,10 @@ import java.util.stream.Collectors;
 public class AutoScalingGroupResource extends AwsResource implements GyroInstances, Copyable<AutoScalingGroup> {
 
     private String name;
+    private Boolean capacityRebalance;
     private LaunchTemplateResource launchTemplate;
     private Set<String> availabilityZones;
+    private Integer maxInstanceLifetime;
     private Integer maxSize;
     private Integer minSize;
     private Integer desiredCapacity;
@@ -133,6 +135,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     private String healthCheckType;
     private Integer healthCheckGracePeriod;
     private LaunchConfigurationResource launchConfiguration;
+    private AutoScalingGroupMixedInstancesPolicy mixedInstancesPolicy;
     private Boolean newInstancesProtectedFromScaleIn;
     private Set<SubnetResource> subnets;
     private String arn;
@@ -204,6 +207,30 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     public void setAvailabilityZones(Set<String> availabilityZones) {
         this.availabilityZones = availabilityZones;
+    }
+
+    /**
+     * When set to ``true`` capacity rebalancing is enabled for the Auto Scaling group.
+     */
+    @Updatable
+    public Boolean getCapacityRebalance() {
+        return capacityRebalance;
+    }
+
+    public void setCapacityRebalance(Boolean capacityRebalance) {
+        this.capacityRebalance = capacityRebalance;
+    }
+
+    /**
+     * The maximum amount of time that an instance can stay in service for the Auto Scaling group.
+     */
+    @Updatable
+    public Integer getMaxInstanceLifetime() {
+        return maxInstanceLifetime;
+    }
+
+    public void setMaxInstanceLifetime(Integer maxInstanceLifetime) {
+        this.maxInstanceLifetime = maxInstanceLifetime;
     }
 
     /**
@@ -316,6 +343,20 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     public void setLaunchConfiguration(LaunchConfigurationResource launchConfiguration) {
         this.launchConfiguration = launchConfiguration;
+    }
+
+    /**
+     * The mixed instances policy of the Auto Scaling group.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingGroupMixedInstancesPolicy
+     */
+    @Updatable
+    public AutoScalingGroupMixedInstancesPolicy getMixedInstancesPolicy() {
+        return mixedInstancesPolicy;
+    }
+
+    public void setMixedInstancesPolicy(AutoScalingGroupMixedInstancesPolicy mixedInstancesPolicy) {
+        this.mixedInstancesPolicy = mixedInstancesPolicy;
     }
 
     /**
@@ -601,6 +642,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     @Override
     public void copyFrom(AutoScalingGroup autoScalingGroup) {
         setArn(autoScalingGroup.autoScalingGroupARN());
+        setCapacityRebalance(autoScalingGroup.capacityRebalance());
+        setMaxInstanceLifetime(autoScalingGroup.maxInstanceLifetime());
         setMaxSize(autoScalingGroup.maxSize());
         setMinSize(autoScalingGroup.minSize());
         setAvailabilityZones(new HashSet<>(autoScalingGroup.availabilityZones()));
@@ -644,6 +687,14 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .map(o -> findById(TargetGroupResource.class, o))
                 .collect(Collectors.toSet())
                 : null);
+
+        setMixedInstancesPolicy(null);
+        if (autoScalingGroup.mixedInstancesPolicy() != null) {
+            AutoScalingGroupMixedInstancesPolicy policy = newSubresource(
+                AutoScalingGroupMixedInstancesPolicy.class);
+            policy.copyFrom(autoScalingGroup.mixedInstancesPolicy());
+            setMixedInstancesPolicy(policy);
+        }
 
         loadMetrics(autoScalingGroup.enabledMetrics());
 
@@ -694,6 +745,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         client.createAutoScalingGroup(
             r -> r.autoScalingGroupName(getName())
+                .capacityRebalance(getCapacityRebalance())
+                .maxInstanceLifetime(getMaxInstanceLifetime())
                 .maxSize(getMaxSize())
                 .minSize(getMinSize())
                 .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
@@ -702,6 +755,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .healthCheckType(getHealthCheckType())
                 .healthCheckGracePeriod(getHealthCheckGracePeriod())
                 .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
+                .mixedInstancesPolicy(getMixedInstancesPolicy() != null ? getMixedInstancesPolicy().toMixedInstancesPolicy() : null)
                 .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
                 .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
                 .launchTemplate(
@@ -737,6 +791,8 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         client.updateAutoScalingGroup(
             r -> r.autoScalingGroupName(getName())
+                .capacityRebalance(getCapacityRebalance())
+                .maxInstanceLifetime(getMaxInstanceLifetime())
                 .launchTemplate(
                     LaunchTemplateSpecification.builder()
                         .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
@@ -750,6 +806,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 .healthCheckType(getHealthCheckType())
                 .healthCheckGracePeriod(getHealthCheckGracePeriod())
                 .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
+                .mixedInstancesPolicy(getMixedInstancesPolicy() != null ? getMixedInstancesPolicy().toMixedInstancesPolicy() : null)
                 .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
                 .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
                 .terminationPolicies(getTerminationPolicies())
