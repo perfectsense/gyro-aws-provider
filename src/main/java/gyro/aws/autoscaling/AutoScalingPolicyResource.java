@@ -16,13 +16,19 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
@@ -33,16 +39,11 @@ import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyRespons
 import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class AutoScalingPolicyResource extends AwsResource implements Copyable<ScalingPolicy> {
     private String policyName;
     private String adjustmentType;
     private Integer cooldown;
+    private Boolean enabled;
     private Integer estimatedInstanceWarmup;
     private String metricAggregationType;
     private Integer minAdjustmentMagnitude;
@@ -54,6 +55,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     private String predefinedMetricResourceLabel;
     private String policyArn;
     private Set<AutoScalingPolicyStepAdjustment> stepAdjustment;
+    private AutoScalingTargetTrackingConfiguration targetTrackingConfiguration;
 
     /**
      * The name of the policy.
@@ -91,6 +93,18 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
 
     public void setCooldown(Integer cooldown) {
         this.cooldown = cooldown;
+    }
+
+    /**
+     * When ``true`` the scaling policy is enabled.
+     */
+    @Updatable
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     /**
@@ -228,6 +242,20 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
 
     public void setStepAdjustment(Set<AutoScalingPolicyStepAdjustment> stepAdjustment) {
         this.stepAdjustment = stepAdjustment;
+    }
+
+    /**
+     * The target tracking configurations for the scaling policy.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingTargetTrackingConfiguration
+     */
+    @Updatable
+    public AutoScalingTargetTrackingConfiguration getTargetTrackingConfiguration() {
+        return targetTrackingConfiguration;
+    }
+
+    public void setTargetTrackingConfiguration(AutoScalingTargetTrackingConfiguration targetTrackingConfiguration) {
+        this.targetTrackingConfiguration = targetTrackingConfiguration;
     }
 
     /**
