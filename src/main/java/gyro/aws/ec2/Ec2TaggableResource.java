@@ -62,16 +62,10 @@ public abstract class Ec2TaggableResource<T> extends AwsResource {
 
     @Updatable
     public String getName() {
-        return getTags().get(NAME_KEY);
+        return null;
     }
 
     public void setName(String name) {
-        if (name != null) {
-            getTags().put(NAME_KEY, name);
-
-        } else {
-            getTags().remove(NAME_KEY);
-        }
     }
 
     protected abstract String getResourceId();
