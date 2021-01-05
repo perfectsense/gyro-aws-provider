@@ -16,6 +16,14 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.AmiResource;
@@ -30,9 +38,9 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -41,13 +49,6 @@ import software.amazon.awssdk.services.autoscaling.model.CreateLaunchConfigurati
 import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsResponse;
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates a Launch Configuration from config or an existing Instance Id.

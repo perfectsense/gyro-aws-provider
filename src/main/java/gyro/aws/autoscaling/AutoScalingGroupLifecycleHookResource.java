@@ -16,23 +16,23 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
-
-import java.util.Set;
 
 public class AutoScalingGroupLifecycleHookResource extends AwsResource implements Copyable<LifecycleHook> {
 
