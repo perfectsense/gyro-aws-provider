@@ -16,6 +16,11 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -34,11 +39,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
 import software.amazon.awssdk.services.ec2.model.NatGatewayState;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a Nat Gateway with the specified elastic ip allocation id and subnet id.
@@ -134,7 +134,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         NatGateway natGateway = getNatGateway(client);
 
-        if (natGateway == null) {
+        if (natGateway == null || natGateway.state().equals(NatGatewayState.DELETED) || natGateway.state()
+            .equals(NatGatewayState.DELETING)) {
             return false;
         }
 
