@@ -1,14 +1,17 @@
 CHANGELOG
 =========
 
-## 1.0.0 (December 17th, 2020)
+## 1.0.0 (January 7th, 2021)
 
 ENHANCEMENTS: 
 
 * [247](https://github.com/perfectsense/gyro-aws-provider/issues/247): Add support for EFS.
+* [247](https://github.com/perfectsense/gyro-aws-provider/issues/250): Add support for DynamoDb Accelerator.
 * [258](https://github.com/perfectsense/gyro-aws-provider/issues/258): Add support for WAF V2.
 * [284](https://github.com/perfectsense/gyro-aws-provider/issues/284): Add support for CodeBuild.
 * [285](https://github.com/perfectsense/gyro-aws-provider/issues/285): Add support for Kendra.
+* [286](https://github.com/perfectsense/gyro-aws-provider/issues/286): Add support for Api Gateway V2.
+* [287](https://github.com/perfectsense/gyro-aws-provider/issues/287): Add support for Autoscale Plan.
 * [318](https://github.com/perfectsense/gyro-aws-provider/issues/318): Update KMS references to resource references.
 * [329](https://github.com/perfectsense/gyro-aws-provider/issues/329): Update IAM role reference examples to be gyro managed examples.
 
