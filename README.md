@@ -59,6 +59,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 
 * [ACM](https://gyro.dev/providers/aws/acm/index.html)
 * [ACM PCA](https://gyro.dev/providers/aws/acm-pca/index.html)
+* [API Gateway](https://gyro.dev/providers/aws/api-gateway-v2/index.html)
 * [Autoscaling Groups](https://gyro.dev/providers/aws/autoscaling-groups/index.html)
 * [Cloudfront](https://gyro.dev/providers/aws/cloudfront/index.html)
 * [Cloudtrail](https://gyro.dev/providers/aws/cloudtrail/index.html)
@@ -68,6 +69,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [Data Lifecycle Manager](https://gyro.dev/providers/aws/data-lifecycle-manager/index.html)
 * [Document Db](https://gyro.dev/providers/aws/document-db/index.html)
 * [Dynamo DB](https://gyro.dev/providers/aws/dynamodb/index.html)
+* [Dax](https://gyro.dev/providers/aws/dax/index.html)
 * [EC2](https://gyro.dev/providers/aws/ec2/index.html)
 * [EFS](https://gyro.dev/providers/aws/efs/index.html)
 * [EKS](https://gyro.dev/providers/aws/eks/index.html)
