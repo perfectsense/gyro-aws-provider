@@ -35,6 +35,7 @@ import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateFlowLogsRequest;
+import software.amazon.awssdk.services.ec2.model.CreateFlowLogsResponse;
 import software.amazon.awssdk.services.ec2.model.DeleteFlowLogsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeFlowLogsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeFlowLogsResponse;
@@ -249,23 +250,22 @@ public class FlowLogResource extends Ec2TaggableResource implements Copyable<Flo
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateFlowLogsRequest.Builder builder = CreateFlowLogsRequest.builder()
-                .maxAggregationInterval(getMaxAggregationInterval())
-                .logDestinationType(getDestinationType())
-                .logDestination(getLogDestination())
-                .trafficType(getTrafficType())
-                .resourceType(getVpc() != null ? FlowLogsResourceType.VPC :
-                        (getSubnet() != null ? FlowLogsResourceType.SUBNET :
-                                FlowLogsResourceType.NETWORK_INTERFACE))
-                .logFormat(getLogFormat())
-                .resourceIds(getVpc() != null ? getVpc().getResourceId() :
-                        (getSubnet() != null ? getSubnet().getResourceId() :
-                                getNetworkInterface().getResourceId()));
+            .maxAggregationInterval(getMaxAggregationInterval())
+            .logDestinationType(getDestinationType())
+            .logDestination(getLogDestination())
+            .trafficType(getTrafficType())
+            .resourceType(getVpc() != null ? FlowLogsResourceType.VPC : (getSubnet() != null
+                ? FlowLogsResourceType.SUBNET : FlowLogsResourceType.NETWORK_INTERFACE))
+            .logFormat(getLogFormat())
+            .resourceIds(getVpc() != null ? getVpc().getResourceId() : (getSubnet() != null
+                ? getSubnet().getResourceId() : getNetworkInterface().getResourceId()));
 
         if (getDestinationType().equals(LogDestinationType.CLOUD_WATCH_LOGS)) {
             builder = builder.deliverLogsPermissionArn(getRole().getArn());
         }
 
-        setId(client.createFlowLogs(builder.build()).flowLogIds().get(0));
+        CreateFlowLogsResponse flowLogs = client.createFlowLogs(builder.build());
+        setId(flowLogs.flowLogIds().get(0));
     }
 
     @Override
