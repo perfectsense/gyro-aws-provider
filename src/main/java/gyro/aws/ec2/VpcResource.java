@@ -130,7 +130,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * A custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
+     * A custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html>`_.
      */
     @Updatable
     public DhcpOptionSetResource getDhcpOptions() {
@@ -142,7 +142,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). Can only be modified to ``default``.  See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html/>`_.
+     * Set whether instances are launched on shared hardware (``default``) or dedicated hardware (``dedicated``). Can only be modified to ``default``.  See `Dedicated Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance.html>`_.
      */
     @Updatable
     public String getInstanceTenancy() {

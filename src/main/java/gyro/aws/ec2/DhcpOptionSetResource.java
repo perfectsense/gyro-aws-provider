@@ -145,7 +145,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     /**
-     * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html/>`_.
+     * The ID of a custom DHCP option set. See `DHCP Options Sets <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html>`_.
      */
     @Id
     @Output

@@ -57,9 +57,9 @@ import software.amazon.awssdk.services.ec2.model.RouteTableAssociation;
  *             gateway: $(aws::internet-gateway ig-example)
  *         end
  *
- *         tags:
+ *         tags: {
  *             Name: route-table-example
- *         end
+ *         }
  *     end
  */
 @Type("route-table")
