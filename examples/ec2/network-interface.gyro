@@ -59,10 +59,12 @@ aws::network-interface nic-example-with-secondary-ips
      description: "test-nic-with-secondary-ips"
      subnet: $(aws::subnet subnet-example-nic)
      primary-ipv4-address: "10.0.0.22"
+
      ipv4-addresses: [
          "10.0.0.18",
          "10.0.0.10"
      ]
+
      tags: {
         Name: "nic-example-with-secondary-ip"
      }
