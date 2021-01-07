@@ -45,8 +45,8 @@ aws::network-load-balancer nlb-example
     end
 
     tags: {
-            Name: "nlb-example"
-        }
+        Name: "nlb-example"
+    }
 end
 
 aws::vpc-endpoint-service endpoint-service-connection-notification-example

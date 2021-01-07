@@ -36,6 +36,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -68,7 +69,9 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     private EndpointServiceResource endpointService;
     private EndpointResource endpoint;
     private TopicResource topic;
-    private Set<String> connectionEvents;
+    private List<String> connectionEvents;
+
+    // Read-only
     private String id;
     private String state;
     private String type;
@@ -81,8 +84,9 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     ));
 
     /**
-     * Endpoint Service. Either Endpoint or Endpoint Service is required.
+     * The Endpoint Service. Either Endpoint or Endpoint Service is required.
      */
+    @ConflictsWith("endpoint")
     public EndpointServiceResource getEndpointService() {
         return endpointService;
     }
@@ -92,8 +96,9 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * Endpoint. Either Endpoint or Endpoint Service is required.
+     * The Endpoint. Either Endpoint or Endpoint Service is required.
      */
+    @ConflictsWith("endpoint-service")
     public EndpointResource getEndpoint() {
         return endpoint;
     }
@@ -103,7 +108,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     }
 
     /**
-     * The SNS topic. (Required)
+     * The SNS topic.
      */
     @Required
     @Updatable
@@ -119,16 +124,16 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      * The events this notification is subscribing to. Defaults to all values.
      */
     @Updatable
-    @ValidStrings({"Accept", "Connect", "Delete"})
-    public Set<String> getConnectionEvents() {
+    @ValidStrings({ "Accept", "Connect", "Delete" })
+    public List<String> getConnectionEvents() {
         if (connectionEvents == null) {
-            connectionEvents = new HashSet<>(masterEventSet);
+            connectionEvents = new ArrayList<>(masterEventSet);
         }
 
         return connectionEvents;
     }
 
-    public void setConnectionEvents(Set<String> connectionEvents) {
+    public void setConnectionEvents(List<String> connectionEvents) {
         this.connectionEvents = connectionEvents;
     }
 
@@ -173,18 +178,15 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     public void copyFrom(ConnectionNotification connectionNotification) {
         setId(connectionNotification.connectionNotificationId());
         setConnectionEvents(connectionNotification.connectionEvents() != null
-            ? new HashSet<>(connectionNotification.connectionEvents())
-            : null);
+            ? new ArrayList<>(connectionNotification.connectionEvents()) : null);
         setTopic(findById(TopicResource.class, connectionNotification.connectionNotificationId()));
         setId(connectionNotification.connectionNotificationId());
         setState(connectionNotification.connectionNotificationStateAsString());
         setType(connectionNotification.connectionNotificationTypeAsString());
         setEndpoint(!ObjectUtils.isBlank(connectionNotification.vpcEndpointId()) ? findById(
-            EndpointResource.class,
-            connectionNotification.vpcEndpointId()) : null);
+            EndpointResource.class, connectionNotification.vpcEndpointId()) : null);
         setEndpointService(!ObjectUtils.isBlank(connectionNotification.serviceId())
-            ? findById(EndpointServiceResource.class, connectionNotification.serviceId())
-            : null);
+            ? findById(EndpointServiceResource.class, connectionNotification.serviceId()) : null);
     }
 
     @Override
@@ -261,9 +263,8 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
         }
 
         try {
-            DescribeVpcEndpointConnectionNotificationsResponse response = client.describeVpcEndpointConnectionNotifications(
-                r -> r.connectionNotificationId(getId())
-            );
+            DescribeVpcEndpointConnectionNotificationsResponse response = client
+                .describeVpcEndpointConnectionNotifications(r -> r.connectionNotificationId(getId()));
 
             if (!response.connectionNotificationSet().isEmpty()) {
                 connectionNotification = response.connectionNotificationSet().get(0);
@@ -284,12 +285,16 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
 
         if ((getEndpoint() == null && getEndpointService() == null)
             || (getEndpoint() != null && getEndpointService() != null)) {
-            errors.add(new ValidationError(this, null, "Either 'endpoint' or 'endpoint-service' needs to be set. Not both at a time."));
+            errors.add(new ValidationError(this, null,
+                "Either 'endpoint' or 'endpoint-service' needs to be set. Not both at a time."));
         }
 
         if (getConnectionEvents().stream().anyMatch(o -> !masterEventSet.contains(o))) {
-            errors.add(new ValidationError(this, null, "The values - (" + getConnectionEvents().stream().filter(o -> !masterEventSet.contains(o)).collect(Collectors.joining(" , "))
-                + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join("', '", masterEventSet) + "' ]."));
+            errors.add(new ValidationError(this, null,
+                "The values - (" + getConnectionEvents().stream().filter(o -> !masterEventSet.contains(o))
+                    .collect(Collectors.joining(" , "))
+                    + ") is invalid for parameter 'connection-events'. Valid values [ '" + String.join(
+                    "', '", masterEventSet) + "' ]."));
         }
 
         return errors;

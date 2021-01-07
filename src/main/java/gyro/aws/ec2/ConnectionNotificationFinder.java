@@ -16,14 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.ConnectionNotification;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Query vpc connection notification.
@@ -113,11 +113,17 @@ public class ConnectionNotificationFinder extends AwsFinder<Ec2Client, Connectio
 
     @Override
     protected List<ConnectionNotification> findAllAws(Ec2Client client) {
-        return client.describeVpcEndpointConnectionNotificationsPaginator().connectionNotificationSet().stream().collect(Collectors.toList());
+        return client.describeVpcEndpointConnectionNotificationsPaginator()
+            .connectionNotificationSet()
+            .stream()
+            .collect(Collectors.toList());
     }
 
     @Override
     protected List<ConnectionNotification> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcEndpointConnectionNotificationsPaginator(r -> r.filters(createFilters(filters))).connectionNotificationSet().stream().collect(Collectors.toList());
+        return client.describeVpcEndpointConnectionNotificationsPaginator(r -> r.filters(createFilters(filters)))
+            .connectionNotificationSet()
+            .stream()
+            .collect(Collectors.toList());
     }
 }
