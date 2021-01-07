@@ -16,16 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.NetworkAcl;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 
 /**
  * Query network acl.
@@ -192,7 +191,7 @@ public class NetworkAclFinder extends Ec2TaggableAwsFinder<Ec2Client, NetworkAcl
     }
 
     /**
-     * Allows or denies the matching traffic . Valid values are ``allow`` or ``deny``.
+     * Indicates whether to allow or deny the matching traffic . Valid values are ``allow`` or ``deny``.
      */
     @Filter("entry.rule-action")
     public String getEntryRuleAction() {
@@ -281,6 +280,7 @@ public class NetworkAclFinder extends Ec2TaggableAwsFinder<Ec2Client, NetworkAcl
 
     @Override
     protected List<NetworkAcl> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeNetworkAclsPaginator(r -> r.filters(createFilters(filters))).networkAcls().stream().collect(Collectors.toList());
+        return client.describeNetworkAclsPaginator(r ->
+            r.filters(createFilters(filters))).networkAcls().stream().collect(Collectors.toList());
     }
 }

@@ -1,47 +1,47 @@
 aws::vpc vpc-example-for-network-acl
-       cidr-block: "10.0.0.0/16"
+    cidr-block: "10.0.0.0/16"
 
-       tags: {
-           Name: "vpc-example-for-network-acl"
-       }
+    tags: {
+        Name: "vpc-example-for-network-acl"
+    }
 end
 
 aws::network-acl network-acl-example
     vpc: $(aws::vpc vpc-example-for-network-acl)
 
     ingress-rule
-            cidr-block: "0.0.0.0/0"
-            protocol : "6"
-            rule-action : "allow"
-            rule-number : 103
-            from-port: 80
-            to-port: 80
+        cidr-block: "0.0.0.0/0"
+        protocol : "6"
+        rule-action : "allow"
+        rule-number : 103
+        from-port: 80
+        to-port: 80
     end
 
     ingress-rule
-            cidr-block: "0.0.0.0/0"
-            protocol : "23"
-            rule-action : "deny"
-            rule-number : 105
+        cidr-block: "0.0.0.0/0"
+        protocol : "23"
+        rule-action : "deny"
+        rule-number : 105
     end
 
     egress-rule
-            cidr-block: "0.0.0.0/32"
-            protocol : "1"
-            icmp-type : 1
-            icmp-code : 0
-            rule-action : "allow"
-            rule-number : 107
+        cidr-block: "0.0.0.0/32"
+        protocol : "1"
+        icmp-type : 1
+        icmp-code : 0
+        rule-action : "allow"
+        rule-number : 107
     end
 
     egress-rule
-             cidr-block: "0.0.0.0/0"
-             protocol : "123"
-             rule-action : "deny"
-             rule-number : 109
+        cidr-block: "0.0.0.0/0"
+        protocol : "123"
+        rule-action : "deny"
+        rule-number : 109
     end
 
     tags: {
-            Name: "network-acl-example"
+        Name: "network-acl-example"
     }
 end
