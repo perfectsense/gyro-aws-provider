@@ -66,8 +66,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
     private TransitGatewayResource peerTransitGateway;
     private TransitGatewayResource transitGateway;
 
-    // Output
-
+    // Read-only
     private String id;
 
     /**
