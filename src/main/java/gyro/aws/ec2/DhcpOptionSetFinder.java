@@ -15,15 +15,15 @@
  */
 
 package gyro.aws.ec2;
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DhcpOptions;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.DhcpOptions;
 
 /**
  * Query dhcp options.
@@ -122,6 +122,7 @@ public class DhcpOptionSetFinder extends Ec2TaggableAwsFinder<Ec2Client, DhcpOpt
 
     @Override
     protected List<DhcpOptions> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeDhcpOptionsPaginator(r -> r.filters(createFilters(filters))).dhcpOptions().stream().collect(Collectors.toList());
+        return client.describeDhcpOptionsPaginator(r -> r.filters(createFilters(filters)))
+            .dhcpOptions().stream().collect(Collectors.toList());
     }
 }

@@ -16,6 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -33,14 +41,6 @@ import software.amazon.awssdk.services.ec2.model.DhcpConfiguration;
 import software.amazon.awssdk.services.ec2.model.DhcpOptions;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NewDhcpConfiguration;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a DHCP option set with the specified options.
@@ -62,12 +62,14 @@ import java.util.stream.Collectors;
 @Type("dhcp-option")
 public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> implements Copyable<DhcpOptions> {
 
-    private String id;
     private String domainName;
     private Set<String> domainNameServers;
     private Set<String> ntpServers;
     private Set<String> netbiosNameServers;
     private String netbiosNodeType;
+
+    // Read-only
+    private String id;
 
     private static final String CONFIG_DOMAIN_NAME = "domain-name";
     private static final String CONFIG_DOMAIN_NAME_SERVERS = "domain-name-servers";
@@ -132,7 +134,7 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
     }
 
     /**
-     * The ntp bios node type for the DHCP option set.
+     * The net bios node type for the DHCP option set.
      */
     public String getNetbiosNodeType() {
         return netbiosNodeType;
@@ -232,10 +234,8 @@ public class DhcpOptionSetResource extends Ec2TaggableResource<DhcpOptions> impl
 
     private void addDhcpConfiguration(Collection<NewDhcpConfiguration> dhcpConfigurations, String configName, List<String> newConfiguration) {
         if (!newConfiguration.isEmpty()) {
-            NewDhcpConfiguration dhcpConfiguration = NewDhcpConfiguration.builder()
-                .key(configName)
-                .values(newConfiguration)
-                .build();
+            NewDhcpConfiguration dhcpConfiguration = NewDhcpConfiguration.builder().key(configName)
+                .values(newConfiguration).build();
             dhcpConfigurations.add(dhcpConfiguration);
         }
     }
