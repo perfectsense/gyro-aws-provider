@@ -23,6 +23,7 @@ import java.util.Set;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -32,6 +33,7 @@ import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayRouteRequest;
 import software.amazon.awssdk.services.ec2.model.ReplaceTransitGatewayRouteRequest;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentResourceType;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRoute;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteAttachment;
 
@@ -54,11 +56,13 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     private Boolean blackhole;
     private TransitGatewayPeeringAttachmentResource peeringAttachment;
     private TransitGatewayVpcAttachmentResource vpcAttachment;
+    private VpnConnectionResource vpnAttachment;
 
     /**
      * The Cidr block for which the route needs to be created.
      */
     @Required
+    @Id
     public String getDestinationCidrBlock() {
         return destinationCidrBlock;
     }
@@ -68,7 +72,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable blackhole to drop all the traffic that matches this route.
+     * When set to ``true``, blackhole is enabled to drop all the traffic that matches this route.
      */
     @Updatable
     public Boolean getBlackhole() {
@@ -80,7 +84,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Peering attachment for the route.
+     * The peering attachment for the route.
      */
     @Updatable
     @ConflictsWith("vpc-attachment")
@@ -93,7 +97,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Vpc attachment for the route.
+     * The VPC attachment for the route.
      */
     @Updatable
     @ConflictsWith("peering-attachment")
@@ -105,27 +109,35 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
         this.vpcAttachment = vpcAttachment;
     }
 
+    /**
+     * The VPN attachment for the route.
+     */
+    public VpnConnectionResource getVpnAttachment() {
+        return vpnAttachment;
+    }
+
+    public void setVpnAttachment(VpnConnectionResource vpnAttachment) {
+        this.vpnAttachment = vpnAttachment;
+    }
+
     @Override
     public void copyFrom(TransitGatewayRoute model) {
         setDestinationCidrBlock(model.destinationCidrBlock());
         setBlackhole(model.hasTransitGatewayAttachments());
         if (model.hasTransitGatewayAttachments()) {
             TransitGatewayRouteAttachment attachment = model.transitGatewayAttachments().get(0);
-            if (attachment.resourceTypeAsString().equals("peering")) {
+            if (attachment.resourceType().equals(TransitGatewayAttachmentResourceType.PEERING)) {
                 setPeeringAttachment(findById(
                     TransitGatewayPeeringAttachmentResource.class,
                     attachment.transitGatewayAttachmentId()));
-            } else if (attachment.resourceTypeAsString().equals("vpc")) {
+            } else if (attachment.resourceType().equals(TransitGatewayAttachmentResourceType.VPC)) {
                 setVpcAttachment(findById(
                     TransitGatewayVpcAttachmentResource.class,
                     attachment.transitGatewayAttachmentId()));
+            } else if (attachment.resourceType().equals(TransitGatewayAttachmentResourceType.VPN)) {
+                setVpnAttachment(findById(VpnConnectionResource.class, attachment.transitGatewayAttachmentId()));
             }
         }
-    }
-
-    @Override
-    public String primaryKey() {
-        return getDestinationCidrBlock();
     }
 
     @Override
@@ -204,6 +216,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     public String getAttachmentId() {
-        return getPeeringAttachment() != null ? getPeeringAttachment().getId() : getVpcAttachment().getId();
+        return getPeeringAttachment() != null ? getPeeringAttachment().getId()
+            : (getVpcAttachment() != null ? getVpcAttachment().getId() : getVpnAttachment().getId());
     }
 }

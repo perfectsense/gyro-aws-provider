@@ -23,8 +23,9 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
-import gyro.core.validation.Required;
+import gyro.core.validation.ConflictsWith;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentResourceType;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTablePropagation;
 
 /**
@@ -43,11 +44,12 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
     implements Copyable<TransitGatewayRouteTablePropagation> {
 
     private TransitGatewayVpcAttachmentResource vpcAttachment;
+    private VpnConnectionResource vpnAttachment;
 
     /**
      * The attachment to propagate to the route table.
      */
-    @Required
+    @ConflictsWith("vpn-attachment")
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
         return vpcAttachment;
     }
@@ -56,9 +58,25 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
         this.vpcAttachment = vpcAttachment;
     }
 
+    /**
+     * The VPN connection to associate with the route table.
+     */
+    @ConflictsWith("vpc-attachment")
+    public VpnConnectionResource getVpnAttachment() {
+        return vpnAttachment;
+    }
+
+    public void setVpnAttachment(VpnConnectionResource vpnAttachment) {
+        this.vpnAttachment = vpnAttachment;
+    }
+
     @Override
     public void copyFrom(TransitGatewayRouteTablePropagation model) {
-        setVpcAttachment(findById(TransitGatewayVpcAttachmentResource.class, model.transitGatewayAttachmentId()));
+        if (model.resourceType().equals(TransitGatewayAttachmentResourceType.VPC)) {
+            setVpcAttachment(findById(TransitGatewayVpcAttachmentResource.class, model.transitGatewayAttachmentId()));
+        } else if (model.resourceType().equals(TransitGatewayAttachmentResourceType.VPN)) {
+            setVpnAttachment(findById(VpnConnectionResource.class, model.transitGatewayAttachmentId()));
+        }
     }
 
     @Override
@@ -76,7 +94,7 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
         Ec2Client client = createClient(Ec2Client.class);
 
         client.enableTransitGatewayRouteTablePropagation(r -> r.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
-            .getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
+            .getId()).transitGatewayAttachmentId(getAttachmentId()));
     }
 
     @Override
@@ -89,6 +107,10 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
         Ec2Client client = createClient(Ec2Client.class);
 
         client.disableTransitGatewayRouteTablePropagation(r -> r.transitGatewayRouteTableId(((TransitGatewayRouteTableResource) parent())
-            .getId()).transitGatewayAttachmentId(getVpcAttachment().getId()));
+            .getId()).transitGatewayAttachmentId(getAttachmentId()));
+    }
+
+    private String getAttachmentId() {
+        return getVpcAttachment() != null ? getVpcAttachment().getId() : getVpnAttachment().getId();
     }
 }
