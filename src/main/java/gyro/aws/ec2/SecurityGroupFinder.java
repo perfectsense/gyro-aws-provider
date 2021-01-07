@@ -16,15 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.SecurityGroup;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.SecurityGroup;
 
 /**
  * Query security group.
@@ -89,7 +89,7 @@ public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Securit
     }
 
     /**
-     * For an outbound rule, the start of port range for the TCP and UDP protocols, or an ICMP type number.
+     * The start of port range for the TCP and UDP protocols for an outbound rule, or an ICMP type number.
      */
     @Filter("egress.ip-permission.from-port")
     public String getEgressFromPort() {
@@ -161,7 +161,7 @@ public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Securit
     }
 
     /**
-     * For an outbound rule, the end of port range for the TCP and UDP protocols, or an ICMP code.
+     * The end of port range for the TCP and UDP protocols for an outbound rule, or an ICMP code.
      */
     @Filter("egress.ip-permission.to-port")
     public String getEgressToPort() {
@@ -219,7 +219,7 @@ public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Securit
     }
 
     /**
-     * For an inbound rule, the start of port range for the TCP and UDP protocols, or an ICMP type number.
+     * The start of port range for the TCP and UDP protocols for an outbound rule, or an ICMP type number.
      */
     @Filter("ip-permission.from-port")
     public String getIngressFromPort() {
@@ -291,7 +291,7 @@ public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Securit
     }
 
     /**
-     * For an inbound rule, the end of port range for the TCP and UDP protocols, or an ICMP code.
+     * The end of port range for the TCP and UDP protocols for an outbound rule, or an ICMP code.
      */
     @Filter("ip-permission.to-port")
     public String getIngressToPort() {
@@ -364,7 +364,8 @@ public class SecurityGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Securit
 
     @Override
     protected List<SecurityGroup> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSecurityGroupsPaginator(r -> r.filters(createFilters(filters))).securityGroups().stream().collect(Collectors.toList());
+        return client.describeSecurityGroupsPaginator(r ->
+            r.filters(createFilters(filters))).securityGroups().stream().collect(Collectors.toList());
     }
 
     @Override

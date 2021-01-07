@@ -21,10 +21,12 @@ end
 
 aws::security-group-rules backend
     security-group: $(aws::security-group backend)
+
     ingress
         protocol: -1
         security-group: $SELF.security-group
     end
+
     ingress
         protocol: -1
         security-group: $(aws::security-group master)

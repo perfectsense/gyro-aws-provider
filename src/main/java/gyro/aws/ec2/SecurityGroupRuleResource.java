@@ -16,9 +16,12 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.DiffableInternals;
@@ -31,10 +34,6 @@ import software.amazon.awssdk.services.ec2.model.IpRange;
 import software.amazon.awssdk.services.ec2.model.Ipv6Range;
 import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 public abstract class SecurityGroupRuleResource extends AwsResource {
 
     private String cidrBlock;
@@ -46,7 +45,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     private SecurityGroupResource securityGroup;
 
     /**
-     * Protocol for this Security Group Rule. ``-1`` is equivalent to "all". Defaults to ``tcp``.
+     * The protocol for this Security Group Rule. ``-1`` is equivalent to "all". Defaults to ``tcp``.
      */
     public String getProtocol() {
         if (protocol != null) {
@@ -61,7 +60,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Description for this Security Group Rule.
+     * The description for this Security Group Rule.
      */
     @Updatable
     public String getDescription() {
@@ -73,7 +72,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Starting port for this Security Group Rule. Required if ``protocol`` is not set as ``-1``.
+     * The starting port for this Security Group Rule. Required if ``protocol`` is not set as ``-1``.
      */
     public Integer getFromPort() {
         return fromPort;
@@ -84,7 +83,7 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
     }
 
     /**
-     * Ending port for this Security Group Rule. Required if ``protocol`` is not set as ``-1``.
+     * The ending port for this Security Group Rule. Required if ``protocol`` is not set as ``-1``.
      */
     public Integer getToPort() {
         return toPort;
