@@ -16,15 +16,14 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.VpnGateway;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Query vpn gateway.
