@@ -1,0 +1,25 @@
+aws::customer-gateway customer-gateway-example
+    public-ip: "38.140.23.146"
+
+    tags: {
+        Name: "customer-gateway-example"
+    }
+end
+
+aws::transit-gateway example-transit-gateway
+    description: "example transit gateway"
+
+    transit-gateway-options
+        amazon-side-asn: 64512
+        dns-support: enable
+        vpn-ecmp-support: enable
+        default-route-table-association: disable
+        default-route-table-propagation: enable
+        auto-accept-shared-attachments: disable
+        multicast-support: enable
+    end
+
+   tags: {
+       Name: "transit-gateway-example"
+   }
+end
