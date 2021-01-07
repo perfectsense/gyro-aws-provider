@@ -16,16 +16,19 @@
 
 package gyro.aws.ec2;
 
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
-
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Address;
@@ -35,10 +38,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeAddressesResponse;
 import software.amazon.awssdk.services.ec2.model.DomainType;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.MoveAddressToVpcResponse;
-
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * Creates an Elastic IP with the specified Public IP.
@@ -65,8 +64,6 @@ import java.util.Set;
 @Type("elastic-ip")
 public class ElasticIpResource extends Ec2TaggableResource<Address> implements Copyable<Address> {
 
-    private String id;
-    private String publicIp;
     private Boolean isStandardDomain;
     private InstanceResource instance;
     private NetworkInterfaceResource networkInterface;
@@ -74,8 +71,12 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     private Boolean allowReAssociation;
     private String networkInterfaceAssociationPrivateIp;
 
+    // Read-only
+    private String id;
+    private String publicIp;
+
     /**
-     * Requested public ip for acquirement. See `Elastic IP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html/>`_.
+     * The requested public ip for acquirement. See `Elastic IP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html/>`_.
      */
     @Output
     public String getPublicIp() {
@@ -87,7 +88,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Network Interface required when the requested public ip is associated with a Network Interface.
+     * The network interface required when the requested public ip is associated with a Network Interface.
      */
     @Updatable
     public NetworkInterfaceResource getNetworkInterface() {
@@ -99,7 +100,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Instance required when the requested public ip is associated with an Instance.
+     * The instance required when the requested public ip is associated with an Instance.
      */
     @Updatable
     public InstanceResource getInstance() {
@@ -111,7 +112,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Association id assigned when the requested public ip is associated to an instance or a network interface.
+     * The association id assigned when the requested public ip is associated to an instance or a network interface.
      */
     public String getAssociationId() {
         return associationId;
@@ -122,7 +123,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Allows reassociation of elastic Ip with another resource.
+     * When set to ``true``, reassociation of elastic IP with another resource is allowed.
      */
     @Updatable
     public Boolean getAllowReAssociation() {
@@ -138,7 +139,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Set standard domain. Defaults to false.
+     * The standard domain. Defaults to false.
      */
     @Updatable
     public Boolean getIsStandardDomain() {
@@ -154,7 +155,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * The private ip of the Network Interface being attached to.
+     * The private IP of the Network Interface being attached to.
      */
     public String getNetworkInterfaceAssociationPrivateIp() {
         return networkInterfaceAssociationPrivateIp;
@@ -165,7 +166,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
     }
 
     /**
-     * Allocation ID when the requested public ip is acquired.
+     * The allocation ID when the requested public ip is acquired.
      */
     @Id
     @Output
@@ -187,8 +188,10 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
         setId(address.allocationId());
         setIsStandardDomain(address.domain().equals(DomainType.STANDARD));
         setPublicIp(address.publicIp());
-        setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
-        setInstance(!ObjectUtils.isBlank(address.instanceId()) ? findById(InstanceResource.class, address.instanceId()) : null);
+        setNetworkInterface(!ObjectUtils.isBlank(address.networkInterfaceId())
+            ? findById(NetworkInterfaceResource.class, address.networkInterfaceId()) : null);
+        setInstance(!ObjectUtils.isBlank(address.instanceId())
+            ? findById(InstanceResource.class, address.instanceId()) : null);
         setAssociationId(address.associationId());
 
         refreshTags();
@@ -227,14 +230,12 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
 
             if (getNetworkInterface() != null) {
                 AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                    .networkInterfaceId(getNetworkInterface().getId())
-                    .allowReassociation(getAllowReAssociation())
+                    .networkInterfaceId(getNetworkInterface().getId()).allowReassociation(getAllowReAssociation())
                     .privateIpAddress(getNetworkInterfaceAssociationPrivateIp()));
                 setAssociationId(resp.associationId());
             } else if (getInstance() != null) {
                 AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                    .instanceId(getInstance().getId())
-                    .allowReassociation(getAllowReAssociation()));
+                    .instanceId(getInstance().getId()).allowReassociation(getAllowReAssociation()));
                 setAssociationId(resp.associationId());
             }
         } catch (Ec2Exception eex) {
@@ -270,8 +271,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             if (changedProperties.contains("instance")) {
                 if (getInstance() != null) {
                     AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                        .instanceId(getInstance().getId())
-                        .allowReassociation(getAllowReAssociation()));
+                        .instanceId(getInstance().getId()).allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
                     if (!changedProperties.contains("network-interface")) {
@@ -283,8 +283,7 @@ public class ElasticIpResource extends Ec2TaggableResource<Address> implements C
             if (changedProperties.contains("network-interface")) {
                 if (getNetworkInterface() != null) {
                     AssociateAddressResponse resp = client.associateAddress(r -> r.allocationId(getId())
-                        .networkInterfaceId(getNetworkInterface().getId())
-                        .allowReassociation(getAllowReAssociation()));
+                        .networkInterfaceId(getNetworkInterface().getId()).allowReassociation(getAllowReAssociation()));
                     setAssociationId(resp.associationId());
                 } else {
                     if (!changedProperties.contains("instance")) {
