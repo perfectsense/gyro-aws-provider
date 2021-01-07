@@ -16,19 +16,28 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -53,15 +62,6 @@ import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates an Instance with the specified AMI, Subnet and Security group.
