@@ -16,6 +16,9 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -32,9 +35,6 @@ import software.amazon.awssdk.services.ec2.model.CreateInternetGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeInternetGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InternetGateway;
-
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Create an internet gateway.

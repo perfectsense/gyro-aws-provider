@@ -16,16 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.InternetGateway;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.InternetGateway;
 
 /**
  * Query internet gateway.
@@ -126,6 +125,7 @@ public class InternetGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, Inter
 
     @Override
     protected List<InternetGateway> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeInternetGatewaysPaginator(r -> r.filters(createFilters(filters))).internetGateways().stream().collect(Collectors.toList());
+        return client.describeInternetGatewaysPaginator(r ->
+            r.filters(createFilters(filters))).internetGateways().stream().collect(Collectors.toList());
     }
 }
