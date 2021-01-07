@@ -16,14 +16,14 @@
 
 package gyro.aws.ec2;
 
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.NatGateway;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.NatGateway;
 
 /**
  * Query nat gateway.
@@ -122,6 +122,7 @@ public class NatGatewayFinder extends Ec2TaggableAwsFinder<Ec2Client, NatGateway
 
     @Override
     protected List<NatGateway> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeNatGatewaysPaginator(r -> r.filter(createFilters(filters))).natGateways().stream().collect(Collectors.toList());
+        return client.describeNatGatewaysPaginator(r ->
+            r.filter(createFilters(filters))).natGateways().stream().collect(Collectors.toList());
     }
 }

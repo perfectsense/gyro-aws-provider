@@ -16,6 +16,11 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -34,11 +39,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NatGateway;
 import software.amazon.awssdk.services.ec2.model.NatGatewayState;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a Nat Gateway with the specified elastic ip allocation id and subnet id.
@@ -60,13 +60,15 @@ import java.util.concurrent.TimeUnit;
 @Type("nat-gateway")
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implements Copyable<NatGateway> {
 
-    private String id;
     private ElasticIpResource elasticIp;
     private SubnetResource subnet;
     private InternetGatewayResource internetGateway;
 
+    // Read-only
+    private String id;
+
     /**
-     * Associated Elastic IP for the Nat Gateway.
+     * The associated elastic IP for the Nat Gateway.
      */
     @Required
     public ElasticIpResource getElasticIp() {
@@ -78,7 +80,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     /**
-     * Associated Subnet for the Nat Gateway.
+     * The associated subnet for the Nat Gateway.
      */
     @Required
     public SubnetResource getSubnet() {
@@ -90,7 +92,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     /**
-     * The Internet Gateway required for the Nat Gateway to be created.
+     * The internet gateway required for the Nat Gateway to be created.
      */
     @Required
     public InternetGatewayResource getInternetGateway() {
