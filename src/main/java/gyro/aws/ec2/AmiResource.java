@@ -16,6 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -46,14 +54,6 @@ import software.amazon.awssdk.services.ec2.model.ProductCode;
 import software.amazon.awssdk.services.ec2.model.Snapshot;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 /**
  * Creates an AMI with the specified instance.
  *
@@ -82,11 +82,12 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     private String description;
     private InstanceResource instance;
     private Boolean noReboot;
-    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private Set<AmiBlockDeviceMapping> blockDeviceMapping;
     private Set<AmiLaunchPermission> launchPermission;
     private Set<String> productCodes;
     private Boolean publicLaunchPermission;
 
+    // Read-only
     private String id;
 
     private static final String ATTRIBUTE_DESCRIPTION = "description";
@@ -147,7 +148,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     /**
      * A set of Block Device Mappings to be associated with the instances created by this AMI.
      */
-    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public Set<AmiBlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new HashSet<>();
         }
@@ -155,7 +156,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<AmiBlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -192,7 +193,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     }
 
     /**
-     * Make the the AMI publicly available for launch. Defaults to ``false``.
+     * When set to ``true``, the AMI is publicly available for launch. Defaults to ``false``.
      */
     @Updatable
     public Boolean getPublicLaunchPermission() {
@@ -232,10 +233,20 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         setId(image.imageId());
         setPublicLaunchPermission(image.publicLaunchPermissions());
 
+        getBlockDeviceMapping().clear();
+        if (image.hasBlockDeviceMappings()) {
+            setBlockDeviceMapping(image.blockDeviceMappings().stream().map(m -> {
+                AmiBlockDeviceMapping mapping = newSubresource(AmiBlockDeviceMapping.class);
+                mapping.copyFrom(m);
+                return mapping;
+            }).collect(Collectors.toSet()));
+        }
+
         Ec2Client client = createClient(Ec2Client.class);
 
         try {
-            DescribeImageAttributeResponse response = client.describeImageAttribute(r -> r.imageId(getId()).attribute(ImageAttributeName.LAUNCH_PERMISSION));
+            DescribeImageAttributeResponse response = client.describeImageAttribute(r -> r.imageId(getId())
+                .attribute(ImageAttributeName.LAUNCH_PERMISSION));
 
             setLaunchPermission(response.launchPermissions().stream().filter(o -> o.userId() != null).map(o -> {
                 AmiLaunchPermission launchPermission = newSubresource(AmiLaunchPermission.class);
@@ -243,9 +254,13 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
                 return launchPermission;
             }).collect(Collectors.toSet()));
 
-            response = client.describeImageAttribute(r -> r.imageId(getId()).attribute(ImageAttributeName.PRODUCT_CODES));
+            response = client.describeImageAttribute(r -> r.imageId(getId())
+                .attribute(ImageAttributeName.PRODUCT_CODES));
 
-            setProductCodes(response.productCodes().stream().map(ProductCode::productCodeId).collect(Collectors.toSet()));
+            setProductCodes(response.productCodes()
+                .stream()
+                .map(ProductCode::productCodeId)
+                .collect(Collectors.toSet()));
         } catch (Ec2Exception ex) {
             if (!ex.awsErrorDetails().errorCode().equals("AuthFailure")) {
                 throw ex;
@@ -284,7 +299,8 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         if (getBlockDeviceMapping().isEmpty()) {
             builder = builder.blockDeviceMappings(SdkBuilder::build);
         } else {
-            builder = builder.blockDeviceMappings(getBlockDeviceMapping().stream().map(BlockDeviceMappingResource::getBlockDeviceMapping).collect(Collectors.toSet()));
+            builder = builder.blockDeviceMappings(getBlockDeviceMapping().stream()
+                .map(AmiBlockDeviceMapping::getBlockDeviceMapping).collect(Collectors.toSet()));
         }
 
         CreateImageResponse response = client.createImage(builder.build());
@@ -423,7 +439,8 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         List<ValidationError> errors = new ArrayList<>();
 
         if (getPublicLaunchPermission() && !getLaunchPermission().isEmpty()) {
-            errors.add(new ValidationError(this, "launch-permission", "When 'public-launch-permission' is set to 'true', 'launch-permission' cannot be set."));
+            errors.add(new ValidationError(this, "launch-permission",
+                "When 'public-launch-permission' is set to 'true', 'launch-permission' cannot be set."));
         }
 
         return errors;
