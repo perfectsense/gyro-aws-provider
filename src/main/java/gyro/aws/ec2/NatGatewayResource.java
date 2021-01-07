@@ -134,8 +134,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         NatGateway natGateway = getNatGateway(client);
 
-        if (natGateway == null || natGateway.state().equals(NatGatewayState.DELETED) || natGateway.state()
-            .equals(NatGatewayState.DELETING)) {
+        if (natGateway == null || natGateway.state().equals(NatGatewayState.DELETED)) {
             return false;
         }
 
