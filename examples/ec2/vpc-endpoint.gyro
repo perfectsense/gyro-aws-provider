@@ -111,6 +111,7 @@ end
 
 aws::route-table route-table-example-for-endpoint-2
     vpc: $(aws::vpc vpc-example-for-endpoint)
+
     subnets: [
         $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-2),
         $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-2),
@@ -124,6 +125,7 @@ end
 
 aws::route-table route-table-example-for-endpoint-3
     vpc: $(aws::vpc vpc-example-for-endpoint)
+
     subnets: [
         $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-3),
         $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-3),
@@ -226,7 +228,8 @@ aws::vpc-endpoint endpoint-example-gateway
     vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.s3'
     policy: 'endpoint-policy-1.json'
-    type: 'Gateway'
+    type: 'GATEWAY'
+
     route-tables: [
         $(aws::route-table route-table-example-for-endpoint-1),
         $(aws::route-table route-table-example-for-endpoint-2),
@@ -242,7 +245,8 @@ aws::vpc-endpoint endpoint-example-interface
     vpc: $(aws::vpc vpc-example-for-endpoint)
     service-name: 'com.amazonaws.us-east-2.ec2'
     policy: 'endpoint-policy-2.json'
-    type: 'Interface'
+    type: 'INTERFACE'
+
     subnets: [
         $(aws::subnet subnet-public-us-east-2a-example-for-endpoint-1),
         $(aws::subnet subnet-public-us-east-2b-example-for-endpoint-1),
