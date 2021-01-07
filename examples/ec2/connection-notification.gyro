@@ -55,10 +55,15 @@ aws::vpc-endpoint-service endpoint-service-connection-notification-example
     ]
 end
 
+aws::sns-topic sns-topic-example
+    name: "sns-topic"
+    display-name: "sns-topic-example-ex"
+    policy: "sns-policy.json"
+end
+
 aws::vpc-connection-notification connection-notification-example
     endpoint-service: $(aws::vpc-endpoint-service endpoint-service-connection-notification-example)
-
-    topic: "arn:aws:sns:us-east-2:242040583208:beam-instance-state"
+    topic: $(aws::sns-topic sns-topic-example)
 
     connection-events: [
         "Accept"
