@@ -16,16 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.RouteTable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.RouteTable;
 
 /**
  * Query route table.
@@ -229,7 +228,7 @@ public class RouteTableFinder extends Ec2TaggableAwsFinder<Ec2Client, RouteTable
     }
 
     /**
-     * Describes how the route was created. CreateRouteTable indicates that the route was automatically created when the route table was created; CreateRoute indicates that the route was manually added to the route table; EnableVgwRoutePropagation indicates that the route was propagated by route propagation.
+     * The origin of the route. CreateRouteTable indicates that the route was automatically created when the route table was created; CreateRoute indicates that the route was manually added to the route table; EnableVgwRoutePropagation indicates that the route was propagated by route propagation.
      */
     @Filter("route.origin")
     public String getOrigin() {
@@ -319,6 +318,7 @@ public class RouteTableFinder extends Ec2TaggableAwsFinder<Ec2Client, RouteTable
 
     @Override
     protected List<RouteTable> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeRouteTablesPaginator(r -> r.filters(createFilters(filters))).routeTables().stream().collect(Collectors.toList());
+        return client.describeRouteTablesPaginator(r ->
+            r.filters(createFilters(filters))).routeTables().stream().collect(Collectors.toList());
     }
 }
