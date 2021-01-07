@@ -16,17 +16,22 @@
 
 package gyro.aws.ec2;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -38,11 +43,6 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.services.ec2.model.VolumeAttributeName;
 import software.amazon.awssdk.services.ec2.model.VolumeState;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a EBS Volume.
@@ -65,16 +65,18 @@ import java.util.concurrent.TimeUnit;
 public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Copyable<Volume> {
 
     private String availabilityZone;
-    private Date createTime;
     private Boolean encrypted;
     private Integer iops;
     private KmsKeyResource kms;
     private Integer size;
     private EbsSnapshotResource snapshot;
-    private String state;
-    private String id;
     private String volumeType;
     private Boolean autoEnableIo;
+
+    // Read-only
+    private Date createTime;
+    private String id;
+    private String state;
 
     /**
      * The availability zone for the volume being created.
@@ -174,7 +176,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * The id of the volume.
+     * The ID of the volume.
      */
     @Id
     @Output
@@ -204,7 +206,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
     }
 
     /**
-     * Auto Enable IO. Defaults to false.
+     * When set to ``true``, IO is auto enabled. Defaults to false.
      */
     @Updatable
     public Boolean getAutoEnableIo() {
@@ -228,7 +230,8 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         setIops(volume.iops());
         setKms(!ObjectUtils.isBlank(volume.kmsKeyId()) ? findById(KmsKeyResource.class, volume.kmsKeyId()) : null);
         setSize(volume.size());
-        setSnapshot(!ObjectUtils.isBlank(volume.snapshotId()) ? findById(EbsSnapshotResource.class, volume.snapshotId()) : null);
+        setSnapshot(!ObjectUtils.isBlank(volume.snapshotId())
+            ? findById(EbsSnapshotResource.class, volume.snapshotId()) : null);
         setState(volume.stateAsString());
         setVolumeType(volume.volumeTypeAsString());
 
@@ -271,12 +274,10 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         validate(true);
 
         CreateVolumeResponse response = client.createVolume(
-            r -> r.availabilityZone(getAvailabilityZone())
-                .encrypted(getEncrypted())
+            r -> r.availabilityZone(getAvailabilityZone()).encrypted(getEncrypted())
                 .iops(getVolumeType().equals("io1") ? getIops() : null)
                 .kmsKeyId(getKms() != null ? getKms().getId() : null)
-                .size(getSize())
-                .snapshotId(getSnapshot() != null ? getSnapshot().getId() : null)
+                .size(getSize()).snapshotId(getSnapshot() != null ? getSnapshot().getId() : null)
                 .volumeType(getVolumeType())
         );
 
@@ -288,10 +289,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
         if (getAutoEnableIo()) {
             try {
-                client.modifyVolumeAttribute(
-                    r -> r.volumeId(getId())
-                        .autoEnableIO(a -> a.value(getAutoEnableIo()))
-                );
+                client.modifyVolumeAttribute(r -> r.volumeId(getId()).autoEnableIO(a -> a.value(getAutoEnableIo())));
             } catch (Exception ex) {
                 ui.write("\n@|bold,blue EBS Volume resource - error enabling "
                     + "'auto enable io' to volume with Id - %s. |@", getId());
@@ -300,10 +298,8 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
             }
         }
 
-        boolean waitResult = Wait.atMost(40, TimeUnit.SECONDS)
-            .checkEvery(5, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isAvailable(client));
+        boolean waitResult = Wait.atMost(40, TimeUnit.SECONDS).checkEvery(5, TimeUnit.SECONDS)
+            .prompt(false).until(() -> isAvailable(client));
 
         if (!waitResult) {
             throw new GyroException("Unable to reach 'available' state for ebs volume - " + getId());
@@ -316,21 +312,15 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
         validate(false);
 
-        if (changedProperties.contains("iops") || changedProperties.contains("size") || changedProperties.contains("volume-type")) {
-
-            client.modifyVolume(
-                r -> r.volumeId(getId())
-                    .iops(getVolumeType().equals("io1") ? getIops() : null)
-                    .size(getSize())
-                    .volumeType(getVolumeType())
+        if (changedProperties.contains("iops") || changedProperties.contains("size")
+            || changedProperties.contains("volume-type")) {
+            client.modifyVolume(r -> r.volumeId(getId()).iops(getVolumeType().equals("io1") ? getIops() : null)
+                .size(getSize()).volumeType(getVolumeType())
             );
         }
 
         if (changedProperties.contains("auto-enable-io")) {
-            client.modifyVolumeAttribute(
-                r -> r.volumeId(getId())
-                    .autoEnableIO(a -> a.value(getAutoEnableIo()))
-            );
+            client.modifyVolumeAttribute(r -> r.volumeId(getId()).autoEnableIO(a -> a.value(getAutoEnableIo())));
         }
 
         Wait.atMost(1, TimeUnit.MINUTES)

@@ -16,20 +16,15 @@
 
 package gyro.aws.ec2;
 
-import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeVolumesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeVolumesResponse;
-import software.amazon.awssdk.services.ec2.model.Volume;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Volume;
 
 /**
  * Query volume.
@@ -73,7 +68,7 @@ public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, Ebs
     }
 
     /**
-     * Whether the volume is deleted on instance termination.
+     * Indicates whether the volume is deleted on instance termination.
      */
     @Filter("attachment.delete-on-termination")
     public String getAttachmentDeleteOnTermination() {
@@ -121,7 +116,7 @@ public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, Ebs
     }
 
     /**
-     * The Availability Zone in which the volume was created.
+     * The availability zone in which the volume was created.
      */
     public String getAvailabilityZone() {
         return availabilityZone;
@@ -224,7 +219,7 @@ public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, Ebs
     }
 
     /**
-     * The Amazon EBS volume type. Valid values are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
+     * The amazon EBS volume type. Valid values are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
      */
     public String getVolumeType() {
         return volumeType;
@@ -241,6 +236,7 @@ public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, Ebs
 
     @Override
     protected List<Volume> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVolumesPaginator(r -> r.filters(createFilters(filters))).volumes().stream().collect(Collectors.toList());
+        return client.describeVolumesPaginator(r -> r.filters(createFilters(filters)))
+            .volumes().stream().collect(Collectors.toList());
     }
 }
