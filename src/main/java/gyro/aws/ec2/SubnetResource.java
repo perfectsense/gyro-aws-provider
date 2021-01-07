@@ -16,16 +16,17 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -41,8 +42,6 @@ import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import software.amazon.awssdk.services.ec2.model.NetworkAclAssociation;
 import software.amazon.awssdk.services.ec2.model.ReplaceNetworkAclAssociationResponse;
 import software.amazon.awssdk.services.ec2.model.Subnet;
-
-import java.util.Set;
 
 /**
  * Create a subnet in a VPC.
@@ -66,10 +65,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private String cidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
-    private String id;
     private NetworkAclResource networkAcl;
     private String aclAssociationId;
     private String defaultAclId;
+
+    // Read-only
+    private String id;
 
     /**
      * The VPC to create the Subnet in.
