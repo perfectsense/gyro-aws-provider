@@ -16,15 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
 
 /**
  * Query peering connection.
@@ -147,7 +147,7 @@ public class PeeringConnectionFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc
     }
 
     /**
-     * A message that provides more information about the status of the VPC peering connection, if applicable.
+     * The message that provides more information about the status of the VPC peering connection, if applicable.
      */
     public String getStatusMessage() {
         return statusMessage;
@@ -196,11 +196,13 @@ public class PeeringConnectionFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc
 
     @Override
     protected List<VpcPeeringConnection> findAllAws(Ec2Client client) {
-        return client.describeVpcPeeringConnectionsPaginator().vpcPeeringConnections().stream().collect(Collectors.toList());
+        return client.describeVpcPeeringConnectionsPaginator()
+            .vpcPeeringConnections().stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<VpcPeeringConnection> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcPeeringConnectionsPaginator(r -> r.filters(createFilters(filters))).vpcPeeringConnections().stream().collect(Collectors.toList());
+        return client.describeVpcPeeringConnectionsPaginator(r ->
+            r.filters(createFilters(filters))).vpcPeeringConnections().stream().collect(Collectors.toList());
     }
 }
