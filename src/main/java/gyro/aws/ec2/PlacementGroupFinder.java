@@ -16,14 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.PlacementGroup;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Query placement groups.
@@ -78,11 +78,12 @@ public class PlacementGroupFinder extends Ec2TaggableAwsFinder<Ec2Client, Placem
 
     @Override
     protected List<PlacementGroup> findAllAws(Ec2Client client) {
-        return client.describePlacementGroups().placementGroups().stream().collect(Collectors.toList());
+        return new ArrayList<>(client.describePlacementGroups().placementGroups());
     }
 
     @Override
     protected List<PlacementGroup> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describePlacementGroups(r -> r.filters(createFilters(filters))).placementGroups().stream().collect(Collectors.toList());
+        return new ArrayList<>(client.describePlacementGroups(r ->
+            r.filters(createFilters(filters))).placementGroups());
     }
 }
