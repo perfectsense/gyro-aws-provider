@@ -16,6 +16,8 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -33,8 +35,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeEgressOnlyInternetGatew
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
 
-import java.util.Set;
-
 /**
  * Create an egress only internet gateway.
  *
@@ -51,6 +51,8 @@ import java.util.Set;
 public class EgressOnlyInternetGatewayResource extends AwsResource implements Copyable<EgressOnlyInternetGateway> {
 
     private VpcResource vpc;
+
+    // Read=only
     private String id;
 
     /**

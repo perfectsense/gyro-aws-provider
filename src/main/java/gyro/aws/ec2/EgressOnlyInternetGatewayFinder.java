@@ -16,15 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.aws.AwsFinder;
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
 
 /**
  * Query egress only internet gateway.
@@ -53,13 +53,16 @@ public class EgressOnlyInternetGatewayFinder extends AwsFinder<Ec2Client, Egress
 
     @Override
     protected List<EgressOnlyInternetGateway> findAllAws(Ec2Client client) {
-        return client.describeEgressOnlyInternetGatewaysPaginator().egressOnlyInternetGateways().stream().collect(Collectors.toList());
+        return client.describeEgressOnlyInternetGatewaysPaginator().egressOnlyInternetGateways()
+            .stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<EgressOnlyInternetGateway> findAws(Ec2Client client, Map<String, String> filters) {
         if (filters.containsKey("egress-only-internet-gateway-id")) {
-            return client.describeEgressOnlyInternetGatewaysPaginator(r -> r.egressOnlyInternetGatewayIds(filters.get("egress-only-internet-gateway-id"))).egressOnlyInternetGateways().stream().collect(Collectors.toList());
+            return client.describeEgressOnlyInternetGatewaysPaginator(r ->
+                r.egressOnlyInternetGatewayIds(filters.get("egress-only-internet-gateway-id")))
+                .egressOnlyInternetGateways().stream().collect(Collectors.toList());
 
         } else {
             return Collections.emptyList();
