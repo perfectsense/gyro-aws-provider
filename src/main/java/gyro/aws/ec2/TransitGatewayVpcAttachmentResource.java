@@ -37,9 +37,7 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayVpcAttachmentResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayVpcAttachmentsResponse;
-import software.amazon.awssdk.services.ec2.model.DnsSupportValue;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.Ipv6SupportValue;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentState;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayVpcAttachment;
 
@@ -71,12 +69,11 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     private List<SubnetResource> subnets;
     private TransitGatewayResource transitGateway;
     private VpcResource vpc;
-    private DnsSupportValue dnsSupport;
-    private Ipv6SupportValue ipv6Support;
+    private TransitGatewayVpcAttachmentOptions options;
 
-    // Output
-
+    // Read-only
     private String id;
+    private TransitGatewayAttachmentState state;
 
     /**
      * List of subnets for the availability zone that the transit gateway uses. Limited to one subnet per availability zone.
@@ -120,28 +117,17 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     }
 
     /**
-     * Enable DNS resolution for the attachment. Defaults to ``enable``.
+     * The VPC attachment options.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayVpcAttachmentOptions
      */
-    @ValidStrings({"enable", "disable"})
     @Updatable
-    public DnsSupportValue getDnsSupport() {
-        return dnsSupport;
+    public TransitGatewayVpcAttachmentOptions getOptions() {
+        return options;
     }
 
-    public void setDnsSupport(DnsSupportValue dnsSupport) {
-        this.dnsSupport = dnsSupport;
-    }
-
-    /**
-     * Enable support for ipv6 block support for the attachment. Defaults to ``disable``.
-     */
-    @ValidStrings({"enable", "disable"})
-    public Ipv6SupportValue getIpv6Support() {
-        return ipv6Support;
-    }
-
-    public void setIpv6Support(Ipv6SupportValue ipv6Support) {
-        this.ipv6Support = ipv6Support;
+    public void setOptions(TransitGatewayVpcAttachmentOptions options) {
+        this.options = options;
     }
 
     /**
@@ -155,6 +141,21 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * The state of the attachment.
+     */
+    @Output
+    @ValidStrings({
+        "INITIATING", "INITIATING_REQUEST", "PENDING_ACCEPTANCE", "ROLLING_BACK", "PENDING", "AVAILABLE",
+        "MODIFYING", "DELETING", "DELETED", "FAILED", "REJECTED", "REJECTING", "FAILING" })
+    public TransitGatewayAttachmentState getState() {
+        return state;
+    }
+
+    public void setState(TransitGatewayAttachmentState state) {
+        this.state = state;
     }
 
     @Override
@@ -190,7 +191,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
             .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
             .transitGatewayId(getTransitGateway().getId())
             .vpcId(getVpc().getId())
-            .options(s -> s.dnsSupport(getDnsSupport()).ipv6Support(getIpv6Support())));
+            .options(getOptions() != null ? getOptions().toCreateTransitGatewayVpcAttachmentOptions() : null));
 
         copyFrom(response.transitGatewayVpcAttachment(), false);
 
@@ -201,9 +202,9 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        if (changedProperties.contains("dns-support")) {
+        if (changedProperties.contains("options")) {
             client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
-                .options(s -> s.dnsSupport(getDnsSupport())));
+                .options(getOptions().toModifyTransitGatewayVpcAttachmentRequestOptions()));
             waitForAvailability(TimeUnit.SECONDS, client);
         }
 
@@ -281,8 +282,15 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         setSubnets(model.subnetIds().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toList()));
         setVpc(findById(VpcResource.class, model.vpcId()));
         setTransitGateway(findById(TransitGatewayResource.class, model.transitGatewayId()));
-        setDnsSupport(model.options().dnsSupport());
-        setIpv6Support(model.options().ipv6Support());
+        setState(model.state());
+
+        setOptions(null);
+        if (model.options() != null) {
+            TransitGatewayVpcAttachmentOptions transitGatewayVpcAttachmentOptions = newSubresource(
+                TransitGatewayVpcAttachmentOptions.class);
+            transitGatewayVpcAttachmentOptions.copyFrom(model.options());
+            setOptions(transitGatewayVpcAttachmentOptions);
+        }
 
         if (refreshTags) {
             refreshTags();
