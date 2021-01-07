@@ -16,6 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -24,9 +32,9 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeKeyPairsResponse;
@@ -34,11 +42,6 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.ImportKeyPairResponse;
 import software.amazon.awssdk.services.ec2.model.KeyPairInfo;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * Creates a key pair using the public key provided.
@@ -66,6 +69,8 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     private String name;
     private String publicKeyPath;
     private String publicKey;
+
+    // Read-only
     private String keyFingerPrint;
 
     /**
@@ -84,7 +89,6 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     /**
      * The file path that contains the public key needed to generate the key pair. See `Importing Your Own Public Key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws/>`_.
      */
-    @Required
     public String getPublicKeyPath() {
         return publicKeyPath;
     }
@@ -96,7 +100,6 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
     /**
      * The public key needed to generate the key pair. See `Importing Your Own Public Key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws/>`_.
      */
-    @Required
     public String getPublicKey() {
         return publicKey;
     }
@@ -147,8 +150,7 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
         Ec2Client client = createClient(Ec2Client.class);
 
         ImportKeyPairResponse response = client.importKeyPair(
-            r -> r.keyName(getName())
-                .publicKeyMaterial(SdkBytes.fromByteArray(getPublicKey().getBytes()))
+            r -> r.keyName(getName()).publicKeyMaterial(SdkBytes.fromByteArray(getPublicKey().getBytes()))
         );
 
         setKeyFingerPrint(response.keyFingerprint());
@@ -164,6 +166,18 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
         Ec2Client client = createClient(Ec2Client.class);
 
         client.deleteKeyPair(r -> r.keyName(getName()));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        ArrayList<ValidationError> errors = new ArrayList<>();
+
+        if (!configuredFields.contains("public-key-path") && !configuredFields.contains("public-key")) {
+            errors.add(new ValidationError(this, null,
+                "At least one of 'public-key-path' or 'public-key' is required"));
+        }
+
+        return errors;
     }
 
     private String getPublicKeyFromPath() {
