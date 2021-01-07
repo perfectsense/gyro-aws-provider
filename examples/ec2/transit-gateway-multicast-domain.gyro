@@ -9,7 +9,7 @@ end
 
 aws::subnet example-subnet-1
     vpc: $(aws::vpc vpc-example)
-    availability-zone: us-east-1a
+    availability-zone: us-east-2a
     cidr-block: "10.0.0.0/24"
 
     tags: {
@@ -19,6 +19,7 @@ end
 
 aws::transit-gateway example-transit-gateway
     description: "example transit gateway for vpc attachment"
+
     transit-gateway-options
         amazon-side-asn: 64512
         dns-support: enable
@@ -35,11 +36,12 @@ aws::transit-gateway example-transit-gateway
 end
 
 aws::transit-gateway-vpc-attachment transit-gateway-vpc-attachment-example
+    transit-gateway: $(aws::transit-gateway example-transit-gateway)
+    vpc: $(aws::vpc vpc-example)
+
     subnets: [
         $(aws::subnet example-subnet-1)
     ]
-    transit-gateway: $(aws::transit-gateway example-transit-gateway)
-    vpc: $(aws::vpc vpc-example)
 
     tags: {
         example-tag: "Transit-gateway-vpc-attachment-example"
