@@ -109,7 +109,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private List<SecurityGroupResource> securityGroups;
     private Boolean disableApiTermination;
     private String userData;
-    private List<BlockDeviceMappingResource> blockDeviceMapping;
+    private List<AmiBlockDeviceMapping> blockDeviceMapping;
     private String capacityReservation;
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
@@ -297,9 +297,11 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * Set Block device Mapping for the instances being launched using this template.
+     * The block device Mapping for the instances being launched using this template.
+     *
+     * @subresource gyro.aws.ec2.AmiBlockDeviceMapping
      */
-    public List<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public List<AmiBlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();
         }
@@ -307,7 +309,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(List<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(List<AmiBlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -429,8 +431,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
                         .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                             getBlockDeviceMapping()
-                                .stream()
-                                .map(BlockDeviceMappingResource::getLaunchTemplateBlockDeviceMapping)
+                                .stream().map(AmiBlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
                                 .collect(Collectors.toList()) : null
                         )
                         .capacityReservationSpecification(getCapacityReservationSpecification())
