@@ -16,14 +16,13 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.CustomerGateway;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.CustomerGateway;
 
 /**
  * Query customer gateway.
