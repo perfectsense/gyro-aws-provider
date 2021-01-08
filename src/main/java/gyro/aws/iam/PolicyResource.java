@@ -160,7 +160,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
         }
 
         GetPolicyVersionResponse versionResponse = client.getPolicyVersion(
-            r -> r.versionId(getPastVersionId())
+            r -> r.versionId(policy.defaultVersionId())
                 .policyArn(getArn())
         );
 
