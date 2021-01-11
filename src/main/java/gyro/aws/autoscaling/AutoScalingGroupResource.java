@@ -16,6 +16,19 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.InstanceResource;
@@ -27,13 +40,11 @@ import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroInstances;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
@@ -59,17 +70,6 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.Reservation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates an Auto scaling Group from a Launch Configuration or from a Launch Template.
@@ -194,7 +194,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     *  A set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ>`_.
+     *  The set of availability zones for the Auto Scaling group to be active in. See `Distributing Instances Across Availability Zones <https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ>`_.
      */
     @Updatable
     public Set<String> getAvailabilityZones() {
@@ -360,7 +360,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Enable protection of instances from Auto Scale Group scale in. Defaults to false. see `Controlling Which Auto Scaling Instances Terminate During Scale In <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html/>`_.
+     * When set to ``true``, protection of instances from Auto Scale Group scale in is enabled. Defaults to ``false``. see `Controlling Which Auto Scaling Instances Terminate During Scale In <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html>`_.
      */
     @Updatable
     public Boolean getNewInstancesProtectedFromScaleIn() {
@@ -376,7 +376,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A list of subnet's. If Availability Zone is provided, subnet's need to be part of that. See `Launching Auto Scaling Instances in a VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html>`_.
+     * The list of subnet's. If Availability Zone is provided, subnet's need to be part of that. See `Launching Auto Scaling Instances in a VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html>`_.
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {
@@ -392,7 +392,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Enable/Disable cloud watch metrics for your Auto Scaling Group. Defaults to false. See `Monitoring your Auto Scaling Groups <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html>`_.
+     * When set to ``true``, cloud watch metrics for your Auto Scaling Group are enabled. Defaults to ``false``. See `Monitoring your Auto Scaling Groups <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html>`_.
      */
     @Updatable
     public Boolean getEnableMetricsCollection() {
@@ -408,7 +408,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * One or more names of cloud watch metrics you want to disable for the Auto Scaling Group. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics>`_.
+     * The list of cloud watch metrics to be disabled for the Auto Scaling Group. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics>`_.
      */
     @Updatable
     public Set<String> getDisabledMetrics() {
@@ -424,7 +424,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Tags for Auto Scaling Groups. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html>`_.
+     * The tags for Auto Scaling Groups. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html>`_.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -439,7 +439,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * Tags in Auto Scaling Groups that you want instances to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html>`_.
+     * The tags in Auto Scaling Groups that the instances need to have as well. See `Tagging Auto Scaling Groups and Instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-tagging.html>`_.
      */
     @Updatable
     public Set<String> getPropagateAtLaunchTags() {
@@ -487,7 +487,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A set of classic load balancer's to be attached to the Auto Scaling Group.
+     * The set of classic load balancers to be attached to the Auto Scaling Group.
      */
     @Updatable
     public Set<LoadBalancerResource> getClassicLoadBalancers() {
@@ -503,7 +503,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A set of target groups for the Auto Scaling Group.
+     * The set of target groups for the Auto Scaling Group.
      */
     @Updatable
     public Set<TargetGroupResource> getTargetGroups() {
@@ -519,7 +519,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A set of termination policies for the Auto Scaling Group.
+     * The set of termination policies for the Auto Scaling Group.
      */
     @Updatable
     public Set<String> getTerminationPolicies() {
@@ -536,7 +536,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A set of policies to trigger for the Auto Scaling Group.
+     * The set of policies to trigger for the Auto Scaling Group.
      *
      * @subresource gyro.aws.autoscaling.AutoScalingPolicyResource
      */
@@ -570,7 +570,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A set of scheduled actions for the Auto Scaling Group.
+     * The set of scheduled actions for the Auto Scaling Group.
      *
      * @subresource gyro.aws.autoscaling.AutoScalingGroupScheduledActionResource
      */
@@ -587,7 +587,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * A set of notifications for the Auto Scaling Group.
+     * The set of notifications for the Auto Scaling Group.
      *
      * @subresource gyro.aws.autoscaling.AutoScalingGroupNotificationResource
      */
@@ -661,32 +661,23 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setName(autoScalingGroup.autoScalingGroupName());
 
         setLaunchTemplate(autoScalingGroup.launchTemplate() == null
-            ? null
-            : findById(LaunchTemplateResource.class, autoScalingGroup.launchTemplate().launchTemplateId()));
+            ? null : findById(LaunchTemplateResource.class, autoScalingGroup.launchTemplate().launchTemplateId()));
 
         setLaunchConfiguration(ObjectUtils.isBlank(autoScalingGroup.launchConfigurationName())
-            ? null
-            : findById(LaunchConfigurationResource.class, autoScalingGroup.launchConfigurationName()));
+            ? null : findById(LaunchConfigurationResource.class, autoScalingGroup.launchConfigurationName()));
 
         setSubnets(autoScalingGroup.vpcZoneIdentifier().equals("")
-            ? new HashSet<>()
-            : new HashSet<>(Arrays.stream(autoScalingGroup.vpcZoneIdentifier()
-            .split(","))
-            .map(o -> findById(SubnetResource.class, o))
-            .collect(Collectors.toSet())));
+            ? new HashSet<>() : new HashSet<>(Arrays.stream(autoScalingGroup.vpcZoneIdentifier().split(","))
+            .map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet())));
 
         setClassicLoadBalancers(
             (autoScalingGroup.loadBalancerNames() != null && !autoScalingGroup.loadBalancerNames().isEmpty())
-                ? autoScalingGroup.loadBalancerNames().stream()
-                .map(o -> findById(LoadBalancerResource.class, o))
-                .collect(Collectors.toSet())
-                : null);
+                ? autoScalingGroup.loadBalancerNames().stream().map(o -> findById(LoadBalancerResource.class, o))
+                .collect(Collectors.toSet()) : null);
         setTargetGroups(
             (autoScalingGroup.targetGroupARNs() != null && !autoScalingGroup.targetGroupARNs().isEmpty())
-                ? autoScalingGroup.targetGroupARNs().stream()
-                .map(o -> findById(TargetGroupResource.class, o))
-                .collect(Collectors.toSet())
-                : null);
+                ? autoScalingGroup.targetGroupARNs().stream().map(o -> findById(TargetGroupResource.class, o))
+                .collect(Collectors.toSet()) : null);
 
         setMixedInstancesPolicy(null);
         if (autoScalingGroup.mixedInstancesPolicy() != null) {
@@ -696,18 +687,13 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             setMixedInstancesPolicy(policy);
         }
 
-        loadMetrics(autoScalingGroup.enabledMetrics());
-
-        loadTags(autoScalingGroup.tags());
-
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
+        loadMetrics(autoScalingGroup.enabledMetrics());
+        loadTags(autoScalingGroup.tags());
         loadScalingPolicy(client);
-
         loadLifecycleHook(client);
-
         loadScheduledAction(client);
-
         loadNotification(client);
     }
 
@@ -743,33 +729,34 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         validate();
 
-        client.createAutoScalingGroup(
-            r -> r.autoScalingGroupName(getName())
-                .capacityRebalance(getCapacityRebalance())
-                .maxInstanceLifetime(getMaxInstanceLifetime())
-                .maxSize(getMaxSize())
-                .minSize(getMinSize())
-                .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
-                .desiredCapacity(getDesiredCapacity())
-                .defaultCooldown(getDefaultCooldown())
-                .healthCheckType(getHealthCheckType())
-                .healthCheckGracePeriod(getHealthCheckGracePeriod())
-                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
-                .mixedInstancesPolicy(getMixedInstancesPolicy() != null ? getMixedInstancesPolicy().toMixedInstancesPolicy() : null)
-                .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
-                .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
-                .launchTemplate(
-                    LaunchTemplateSpecification.builder()
-                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
-                        .build()
-                )
-                .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
-                .serviceLinkedRoleARN(getServiceLinkedRoleArn())
-                .placementGroup(getPlacementGroup())
-                .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getName).collect(Collectors.toList()))
-                .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toList()))
-                .instanceId(getInstance() != null ? getInstance().getId() : null)
-                .terminationPolicies(getTerminationPolicies())
+        client.createAutoScalingGroup(r -> r.autoScalingGroupName(getName())
+            .capacityRebalance(getCapacityRebalance())
+            .maxInstanceLifetime(getMaxInstanceLifetime())
+            .maxSize(getMaxSize())
+            .minSize(getMinSize())
+            .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
+            .desiredCapacity(getDesiredCapacity())
+            .defaultCooldown(getDefaultCooldown())
+            .healthCheckType(getHealthCheckType())
+            .healthCheckGracePeriod(getHealthCheckGracePeriod())
+            .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
+            .mixedInstancesPolicy(
+                getMixedInstancesPolicy() != null ? getMixedInstancesPolicy().toMixedInstancesPolicy() : null)
+            .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
+            .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(
+                getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
+            .launchTemplate(LaunchTemplateSpecification.builder()
+                .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null).build()
+            )
+            .tags(getAutoScaleGroupTags(getTags(), getPropagateAtLaunchTags()))
+            .serviceLinkedRoleARN(getServiceLinkedRoleArn())
+            .placementGroup(getPlacementGroup())
+            .loadBalancerNames(getClassicLoadBalancers().stream().map(LoadBalancerResource::getName)
+                .collect(Collectors.toList()))
+            .targetGroupARNs(getTargetGroups().stream().map(TargetGroupResource::getArn)
+                .collect(Collectors.toList()))
+            .instanceId(getInstance() != null ? getInstance().getId() : null)
+            .terminationPolicies(getTerminationPolicies())
         );
 
         AutoScalingGroup autoScalingGroup = getAutoScalingGroup(client);
@@ -789,27 +776,29 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
         validate();
 
-        client.updateAutoScalingGroup(
-            r -> r.autoScalingGroupName(getName())
-                .capacityRebalance(getCapacityRebalance())
-                .maxInstanceLifetime(getMaxInstanceLifetime())
-                .launchTemplate(
-                    LaunchTemplateSpecification.builder()
-                        .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
-                        .build()
-                )
-                .maxSize(getMaxSize())
-                .minSize(getMinSize())
-                .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
-                .desiredCapacity(getDesiredCapacity() != null ? getDesiredCapacity() : getCalculatedDesiredCapacity(((AutoScalingGroupResource) current).actualDesiredCapacity))
-                .defaultCooldown(getDefaultCooldown())
-                .healthCheckType(getHealthCheckType())
-                .healthCheckGracePeriod(getHealthCheckGracePeriod())
-                .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
-                .mixedInstancesPolicy(getMixedInstancesPolicy() != null ? getMixedInstancesPolicy().toMixedInstancesPolicy() : null)
-                .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
-                .vpcZoneIdentifier(getSubnets().isEmpty() ? " " : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
-                .terminationPolicies(getTerminationPolicies())
+        client.updateAutoScalingGroup(r -> r.autoScalingGroupName(getName())
+            .capacityRebalance(getCapacityRebalance())
+            .maxInstanceLifetime(getMaxInstanceLifetime())
+            .launchTemplate(
+                LaunchTemplateSpecification.builder()
+                    .launchTemplateId(getLaunchTemplate() != null ? getLaunchTemplate().getId() : null)
+                    .build()
+            )
+            .maxSize(getMaxSize())
+            .minSize(getMinSize())
+            .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
+            .desiredCapacity(getDesiredCapacity() != null ? getDesiredCapacity()
+                : getCalculatedDesiredCapacity(((AutoScalingGroupResource) current).actualDesiredCapacity))
+            .defaultCooldown(getDefaultCooldown())
+            .healthCheckType(getHealthCheckType())
+            .healthCheckGracePeriod(getHealthCheckGracePeriod())
+            .launchConfigurationName(getLaunchConfiguration() != null ? getLaunchConfiguration().getName() : null)
+            .mixedInstancesPolicy(
+                getMixedInstancesPolicy() != null ? getMixedInstancesPolicy().toMixedInstancesPolicy() : null)
+            .newInstancesProtectedFromScaleIn(getNewInstancesProtectedFromScaleIn())
+            .vpcZoneIdentifier(getSubnets().isEmpty() ? " "
+                : StringUtils.join(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()), ","))
+            .terminationPolicies(getTerminationPolicies())
         );
 
         if (changedFieldNames.contains("enable-metrics-collection") || changedFieldNames.contains("disabled-metrics")) {
@@ -829,6 +818,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 saveTags(client, getTags(), getPropagateAtLaunchTags(), false);
 
                 removeStaleTags(client, oldResource);
+
             } else {
                 saveTags(client, oldResource.getTags(), oldResource.getPropagateAtLaunchTags(), true);
             }
@@ -855,16 +845,15 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     public List<GyroInstance> getInstances() {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        DescribeAutoScalingGroupsResponse response = client.describeAutoScalingGroups(r -> r.autoScalingGroupNames(getName()));
+        DescribeAutoScalingGroupsResponse response = client.describeAutoScalingGroups(r ->
+            r.autoScalingGroupNames(getName()));
         AutoScalingGroup group = response.autoScalingGroups().size() == 1 ? response.autoScalingGroups().get(0) : null;
         if (group == null) {
             return Collections.emptyList();
         }
 
-        List<String> instanceIds = group.instances()
-            .stream()
-            .map(software.amazon.awssdk.services.autoscaling.model.Instance::instanceId)
-            .collect(Collectors.toList());
+        List<String> instanceIds = group.instances().stream()
+            .map(software.amazon.awssdk.services.autoscaling.model.Instance::instanceId).collect(Collectors.toList());
 
         if (!instanceIds.isEmpty()) {
             Ec2Client ec2Client = createClient(Ec2Client.class);
@@ -872,9 +861,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
             List<GyroInstance> instances = new ArrayList<>();
             for (Reservation reservation : instancesResponse.reservations()) {
-                instances.addAll(reservation.instances()
-                    .stream()
-                    .map(this::getGyroInstance)
+                instances.addAll(reservation.instances().stream().map(this::getGyroInstance)
                     .collect(Collectors.toList()));
             }
 
@@ -894,14 +881,13 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         List<Tag> tags = new ArrayList<>();
 
         for (String key : localTags.keySet()) {
-            tags.add(
-                Tag.builder()
-                    .key(key)
-                    .value(localTags.get(key))
-                    .propagateAtLaunch(passToInstanceTags.contains(key))
-                    .resourceId(getName())
-                    .resourceType("auto-scaling-group")
-                    .build()
+            tags.add(Tag.builder()
+                .key(key)
+                .value(localTags.get(key))
+                .propagateAtLaunch(passToInstanceTags.contains(key))
+                .resourceId(getName())
+                .resourceType("auto-scaling-group")
+                .build()
             );
         }
 
@@ -925,15 +911,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         List<Tag> tags = getAutoScaleGroupTags(localTags, passToInstanceTags);
 
         if (!tags.isEmpty()) {
-
             if (!isDelete) {
-                client.createOrUpdateTags(
-                    r -> r.tags(tags)
-                );
+                client.createOrUpdateTags(r -> r.tags(tags));
+
             } else {
-                client.deleteTags(
-                    r -> r.tags(tags)
-                );
+                client.deleteTags(r -> r.tags(tags));
             }
         }
     }
@@ -964,8 +946,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
 
     private void removeStaleTags(AutoScalingClient client, AutoScalingGroupResource oldResource) {
         Map<String, String> staleTags = new HashMap<>();
-        List<String> staleKeys = oldResource.getTags().keySet().stream()
-            .filter(o -> !getTags().keySet().contains(o))
+        List<String> staleKeys = oldResource.getTags().keySet().stream().filter(o -> !getTags().keySet().contains(o))
             .collect(Collectors.toList());
         for (String key : staleKeys) {
             staleTags.put(key, oldResource.getTags().get(key));
@@ -985,15 +966,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         metrics.removeAll(getDisabledMetrics());
 
         client.enableMetricsCollection(
-            r -> r.autoScalingGroupName(getName())
-                .granularity("1Minute")
-                .metrics(metrics)
+            r -> r.autoScalingGroupName(getName()).granularity("1Minute").metrics(metrics)
         );
 
         if (!getDisabledMetrics().isEmpty()) {
-            client.disableMetricsCollection(
-                r -> r.autoScalingGroupName(getName())
-                    .metrics(getDisabledMetrics()));
+            client.disableMetricsCollection(r -> r.autoScalingGroupName(getName()).metrics(getDisabledMetrics()));
         }
     }
 
@@ -1065,24 +1042,22 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         }
 
         Set<String> addLoadbalancerNames = getClassicLoadBalancers().stream()
-            .map(LoadBalancerResource::getName)
-            .collect(Collectors.toSet());
+            .map(LoadBalancerResource::getName).collect(Collectors.toSet());
 
         addLoadbalancerNames.removeAll(oldLoadBalancers.stream()
-            .map(LoadBalancerResource::getName)
-            .collect(Collectors.toSet()));
+            .map(LoadBalancerResource::getName).collect(Collectors.toSet()));
 
         if (!addLoadbalancerNames.isEmpty()) {
-            client.attachLoadBalancers(
-                r -> r.autoScalingGroupName(getName()).loadBalancerNames(addLoadbalancerNames)
-            );
+            client.attachLoadBalancers(r -> r.autoScalingGroupName(getName()).loadBalancerNames(addLoadbalancerNames));
         }
     }
 
     private void saveTargetGroupArns(AutoScalingClient client, Set<TargetGroupResource> oldTargetGroups) {
-        Set<String> removeTargetGroupArns = oldTargetGroups.stream().map(TargetGroupResource::getArn).collect(Collectors.toSet());
+        Set<String> removeTargetGroupArns = oldTargetGroups.stream()
+            .map(TargetGroupResource::getArn).collect(Collectors.toSet());
 
-        removeTargetGroupArns.removeAll(getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toSet()));
+        removeTargetGroupArns.removeAll(getTargetGroups().stream()
+            .map(TargetGroupResource::getArn).collect(Collectors.toSet()));
 
         if (!removeTargetGroupArns.isEmpty()) {
             client.detachLoadBalancerTargetGroups(
@@ -1090,9 +1065,11 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             );
         }
 
-        Set<String> addTargetGroupArns = getTargetGroups().stream().map(TargetGroupResource::getArn).collect(Collectors.toSet());
+        Set<String> addTargetGroupArns = getTargetGroups().stream()
+            .map(TargetGroupResource::getArn).collect(Collectors.toSet());
 
-        addTargetGroupArns.removeAll(oldTargetGroups.stream().map(TargetGroupResource::getArn).collect(Collectors.toSet()));
+        addTargetGroupArns.removeAll(oldTargetGroups.stream()
+            .map(TargetGroupResource::getArn).collect(Collectors.toSet()));
 
         if (!addTargetGroupArns.isEmpty()) {
             client.attachLoadBalancerTargetGroups(
@@ -1102,12 +1079,14 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     private Integer getCalculatedDesiredCapacity(int actualDesiredCapacity) {
-        Integer calculatedDesiredCapacity;
+        int calculatedDesiredCapacity;
 
         if (getMaxSize() != null && actualDesiredCapacity > getMaxSize()) { // if actual more than the pending max
             calculatedDesiredCapacity = getMaxSize();
+
         } else if (getMinSize() != null && actualDesiredCapacity < getMinSize()) { // if actual less than the pending min
             calculatedDesiredCapacity = getMinSize();
+
         } else {
             calculatedDesiredCapacity = actualDesiredCapacity;
         }
