@@ -26,6 +26,9 @@ public class AutoScalingMetricDimension extends Diffable implements Copyable<Met
     private String name;
     private String value;
 
+    /**
+     * The name of the dimension.
+     */
     @Required
     public String getName() {
         return name;
@@ -35,6 +38,9 @@ public class AutoScalingMetricDimension extends Diffable implements Copyable<Met
         this.name = name;
     }
 
+    /**
+     * The value of the dimension.
+     */
     @Required
     public String getValue() {
         return value;
