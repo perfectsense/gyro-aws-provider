@@ -70,7 +70,7 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
     }
 
     /**
-     * The predefined metric sepcification.
+     * The predefined metric specification.
      *
      * @subresource gyro.aws.autoscaling.AutoScalingPredefinedScalingMetricSpecification
      */
@@ -152,13 +152,11 @@ public class AutoScalingTargetTrackingConfiguration extends Diffable implements 
     public TargetTrackingConfiguration toTargetTrackingConfiguration() {
         return TargetTrackingConfiguration.builder()
             .customizedScalingMetricSpecification(getCustomizedScalingMetricSpecification() != null
-                ? getCustomizedScalingMetricSpecification().toCustomizedScalingMetricSpecification()
-                : null)
+                ? getCustomizedScalingMetricSpecification().toCustomizedScalingMetricSpecification() : null)
             .disableScaleIn(getDisableScaleIn())
             .estimatedInstanceWarmup(getEstimatedInstanceWarmup())
             .predefinedScalingMetricSpecification(getPredefinedScalingMetricSpecification() != null
-                ? getPredefinedScalingMetricSpecification().toPredefinedScalingMetricSpecification()
-                : null)
+                ? getPredefinedScalingMetricSpecification().toPredefinedScalingMetricSpecification() : null)
             .scaleInCooldown(getScaleInCooldown())
             .scaleOutCooldown(getScaleOutCooldown())
             .targetValue(getTargetValue())
