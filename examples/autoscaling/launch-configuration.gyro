@@ -85,13 +85,14 @@ aws::launch-configuration launch-configuration-1
     ami: "ami-04328208f4f0cf1fe"
     instance-type: "t2.micro"
     key: "example"
+    ebs-optimized: false
+    enable-monitoring: true
+    associate-public-ip: true
+
     security-groups: [
         $(aws::security-group security-group-launch-configuration-example-1),
         $(aws::security-group security-group-launch-configuration-example-2)
     ]
-    ebs-optimized: false
-    enable-monitoring: true
-    associate-public-ip: true
 end
 
 aws::instance instance-example
@@ -100,13 +101,14 @@ aws::instance instance-example
     instance-type: "t2.micro"
     key: "example"
     subnet: $(aws::subnet subnet)
+    disable-api-termination: false
+    ebs-optimized: false
+    source-dest-check: true
+
     security-groups: [
         $(aws::security-group security-group-launch-configuration-example-1),
         $(aws::security-group security-group-launch-configuration-example-2)
     ]
-    disable-api-termination: false
-    ebs-optimized: false
-    source-dest-check: true
 
     tags: {
         Name: "instance-example"
@@ -119,13 +121,14 @@ aws::launch-configuration launch-configuration-2
     name: "launch-configuration-gyro-2"
     instance: $(aws::instance instance-example)
     key: "example"
-    security-groups: [
-     $(aws::security-group security-group-launch-configuration-example-1),
-     $(aws::security-group security-group-launch-configuration-example-2)
-    ]
     ebs-optimized: false
     enable-monitoring: true
     associate-public-ip: true
+
+    security-groups: [
+        $(aws::security-group security-group-launch-configuration-example-1),
+        $(aws::security-group security-group-launch-configuration-example-2)
+    ]
 
     block-device-mapping
         device-name: "/dev/sdb"
