@@ -35,11 +35,13 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
+import software.amazon.awssdk.services.autoscaling.model.MetricType;
 import software.amazon.awssdk.services.autoscaling.model.PutScalingPolicyResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScalingPolicy;
 import software.amazon.awssdk.services.autoscaling.model.StepAdjustment;
 
 public class AutoScalingPolicyResource extends AwsResource implements Copyable<ScalingPolicy> {
+
     private String policyName;
     private String adjustmentType;
     private Integer cooldown;
@@ -51,7 +53,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     private Integer scalingAdjustment;
     private Boolean disableScaleIn;
     private Double targetValue;
-    private String predefinedMetricType;
+    private MetricType predefinedMetricType;
     private String predefinedMetricResourceLabel;
     private String policyArn;
     private Set<AutoScalingPolicyStepAdjustment> stepAdjustment;
@@ -177,7 +179,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * Scaling in by the target tracking policy is enabled/disabled. Defaulted to ``false``.
+     * When set to ``true``, scaling in by the target tracking policy is enabled. Defaulted to ``false``.
      */
     @Updatable
     public Boolean getDisableScaleIn() {
@@ -205,19 +207,19 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * Predefined metric type.
+     * The predefined metric type.
      */
     @Updatable
-    public String getPredefinedMetricType() {
+    public MetricType getPredefinedMetricType() {
         return predefinedMetricType;
     }
 
-    public void setPredefinedMetricType(String predefinedMetricType) {
+    public void setPredefinedMetricType(MetricType predefinedMetricType) {
         this.predefinedMetricType = predefinedMetricType;
     }
 
     /**
-     * Predefined defines metric resource label.
+     * The predefined defines metric resource label.
      */
     @Updatable
     @ValidStrings({"ASGAverageCPUUtilization", "ASGAverageNetworkIn", "ASGAverageNetworkOut", "ALBRequestCountPerTarget"})
@@ -230,7 +232,9 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * A set of adjustments that enable you to scale based on the size of the alarm breach.
+     * The set of adjustments that enable you to scale based on the size of the alarm breach.
+     *
+     * @subresource gyro.aws.autoscaling.AutoScalingPolicyStepAdjustment
      */
     @Updatable
     public Set<AutoScalingPolicyStepAdjustment> getStepAdjustment() {
@@ -259,7 +263,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The arn of the policy.
+     * The ARN of the policy.
      */
     @Output
     public String getPolicyArn() {
@@ -296,8 +300,10 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
             setTargetValue(scalingPolicy.targetTrackingConfiguration().targetValue());
 
             if (scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification() != null) {
-                setPredefinedMetricType(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().predefinedMetricTypeAsString());
-                setPredefinedMetricResourceLabel(scalingPolicy.targetTrackingConfiguration().predefinedMetricSpecification().resourceLabel());
+                setPredefinedMetricType(scalingPolicy.targetTrackingConfiguration()
+                    .predefinedMetricSpecification().predefinedMetricType());
+                setPredefinedMetricResourceLabel(scalingPolicy.targetTrackingConfiguration()
+                    .predefinedMetricSpecification().resourceLabel());
             }
         }
     }
@@ -396,11 +402,11 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
         List<ValidationError> errors = new ArrayList<>();
 
         // policy type validation
-        if (!getPolicyType().equals("SimpleScaling")
-            && !getPolicyType().equals("StepScaling")
+        if (!getPolicyType().equals("SimpleScaling") && !getPolicyType().equals("StepScaling")
             && !getPolicyType().equals("TargetTrackingScaling")) {
-            errors.add(new ValidationError(this, null, "Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
-                + " Valid options ['SimpleScaling', 'StepScaling', 'TargetTrackingScaling']."));
+            errors.add(new ValidationError(this, null,
+                "Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
+                    + " Valid options ['SimpleScaling', 'StepScaling', 'TargetTrackingScaling']."));
         }
 
         // Attribute validation when not SimpleScaling
@@ -452,14 +458,17 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
             }
 
             // when simple or step
-            if (getAdjustmentType() == null
-                || (getAdjustmentType().equals("ChangeInCapacity")
+            if (getAdjustmentType() == null || (getAdjustmentType().equals("ChangeInCapacity")
                 && getAdjustmentType().equals("ExactCapacity")
                 && getAdjustmentType().equals("PercentChangeInCapacity"))) {
-                errors.add(new ValidationError(this, null, "Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
-                    + " Valid options ['ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity']."));
+                errors.add(new ValidationError(this, null,
+                    "Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
+                        + " Valid options ['ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity']."));
             } else if (!getAdjustmentType().equals("PercentChangeInCapacity") && getMinAdjustmentMagnitude() != null) {
-                errors.add(new ValidationError(this, null, "The param 'min-adjustment-magnitude' is only allowed when 'adjustment-type' is 'PercentChangeInCapacity'."));
+                errors.add(new ValidationError(
+                    this,
+                    null,
+                    "The param 'min-adjustment-magnitude' is only allowed when 'adjustment-type' is 'PercentChangeInCapacity'."));
             }
         }
 
@@ -481,11 +490,11 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
                 errors.add(new ValidationError(this, null, "the param 'step-adjustment' needs to have at least one step."));
             }
 
-            if (!getMetricAggregationType().equals("Minimum")
-                && !getMetricAggregationType().equals("Maximum")
+            if (!getMetricAggregationType().equals("Minimum") && !getMetricAggregationType().equals("Maximum")
                 && !getMetricAggregationType().equals("Average")) {
-                errors.add(new ValidationError(this, null, "Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
-                    + " Valid options ['Minimum', 'Maximum', 'Average']."));
+                errors.add(new ValidationError(this, null,
+                    "Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
+                        + " Valid options ['Minimum', 'Maximum', 'Average']."));
             }
         }
 
