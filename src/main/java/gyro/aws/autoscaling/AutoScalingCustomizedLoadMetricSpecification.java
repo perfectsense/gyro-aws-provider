@@ -26,6 +26,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscalingplans.model.CustomizedLoadMetricSpecification;
+import software.amazon.awssdk.services.autoscalingplans.model.MetricStatistic;
 
 public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
     implements Copyable<CustomizedLoadMetricSpecification> {
@@ -33,7 +34,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
     List<AutoScalingMetricDimension> dimensions;
     private String name;
     private String namespace;
-    private String statistic;
+    private MetricStatistic statistic;
     private String unit;
 
     /**
@@ -86,11 +87,11 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
     @Updatable
     @Required
     @ValidStrings("Sum")
-    public String getStatistic() {
+    public MetricStatistic getStatistic() {
         return statistic;
     }
 
-    public void setStatistic(String statistic) {
+    public void setStatistic(MetricStatistic statistic) {
         this.statistic = statistic;
     }
 
@@ -110,7 +111,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
     public void copyFrom(CustomizedLoadMetricSpecification model) {
         setName(model.metricName());
         setNamespace(model.namespace());
-        setStatistic(model.statisticAsString());
+        setStatistic(model.statistic());
         setUnit(model.unit());
 
         setDimensions(null);
@@ -132,8 +133,7 @@ public class AutoScalingCustomizedLoadMetricSpecification extends Diffable
 
     public CustomizedLoadMetricSpecification toCustomizedLoadMetricSpecification() {
         return CustomizedLoadMetricSpecification.builder()
-            .dimensions(getDimensions().stream()
-                .map(AutoScalingMetricDimension::toMetricDimension)
+            .dimensions(getDimensions().stream().map(AutoScalingMetricDimension::toMetricDimension)
                 .collect(Collectors.toList()))
             .metricName(getName())
             .namespace(getNamespace())
