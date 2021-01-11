@@ -57,7 +57,8 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
 
     @Override
     protected List<LaunchConfiguration> findAllAws(AutoScalingClient client) {
-        return client.describeLaunchConfigurationsPaginator().launchConfigurations().stream().collect(Collectors.toList());
+        return client.describeLaunchConfigurationsPaginator().launchConfigurations()
+            .stream().collect(Collectors.toList());
     }
 
     @Override
@@ -67,9 +68,8 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
         if (filters.containsKey("name") && !ObjectUtils.isBlank(filters.get("name"))) {
             try {
                 launchConfigurations.addAll(client.describeLaunchConfigurations(
-                    DescribeLaunchConfigurationsRequest.builder()
-                        .launchConfigurationNames(Collections.singleton(filters.get("name")))
-                        .build()).launchConfigurations());
+                    DescribeLaunchConfigurationsRequest.builder().launchConfigurationNames(
+                        Collections.singleton(filters.get("name"))).build()).launchConfigurations());
             } catch (AutoScalingException ex) {
                 if (!ex.getLocalizedMessage().contains("does not exist")) {
                     throw ex;

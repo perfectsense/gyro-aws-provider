@@ -123,7 +123,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * A launched instance that would be used as a skeleton to create the launch configuration. Required if AMI Name/ AMI ID not provided.
+     * The launched instance that would be used as a skeleton to create the launch configuration. Required if AMI Name/ AMI ID not provided.
      */
     public InstanceResource getInstance() {
         return instance;
@@ -167,7 +167,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable EBS optimization for an instance. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html>`_.
+     * When set to ``true``, EBS optimization for an instance is enabled. Defaults to ``false``. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html>`_.
      */
     public Boolean getEbsOptimized() {
         if (ebsOptimized == null) {
@@ -182,7 +182,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
+     * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
     @Required
     public String getInstanceType() {
@@ -205,7 +205,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`_.
+     * The launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`_.
      */
     @Required
     public KeyPairResource getKey() {
@@ -217,7 +217,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable or Disable monitoring for your instance. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html>`_.
+     * When set to ``true``, monitoring for your instance is enabled. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html>`_.
      */
     public Boolean getEnableMonitoring() {
         if (enableMonitoring == null) {
@@ -254,7 +254,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
+     * The launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
      */
     @Required
     public Set<SecurityGroupResource> getSecurityGroups() {
@@ -281,7 +281,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Set user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html>`_.
+     * The user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html>`_.
      */
     public String getUserData() {
         if (userData == null) {
@@ -298,7 +298,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable public Ip to instances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html>`_.
+     * When set to ``true``, set public IP for launched instances. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html>`_.
      */
     public Boolean getAssociatePublicIp() {
         if (associatePublicIp == null) {
@@ -327,7 +327,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Iam instance profile to be linked with the instances being launched using this.
+     * The IAM instance profile to be linked with the instances being launched using this.
      */
     public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
@@ -339,22 +339,24 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     @Override
     public void copyFrom(LaunchConfiguration launchConfiguration) {
-
         setClassicLinkVpcId(launchConfiguration.classicLinkVPCId());
         setClassicLinkVpcSecurityGroups(launchConfiguration.classicLinkVPCSecurityGroups());
         setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
         setInstanceType(launchConfiguration.instanceType());
         setKernelId(launchConfiguration.kernelId());
-        setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(KeyPairResource.class, launchConfiguration.keyName()) : null);
+        setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(
+            KeyPairResource.class, launchConfiguration.keyName()) : null);
         setUserData(new String(Base64.decodeBase64(launchConfiguration.userData())));
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
         setPlacementTenacy(launchConfiguration.placementTenancy());
         setRamdiskId(launchConfiguration.ramdiskId());
         setEbsOptimized(launchConfiguration.ebsOptimized());
         setName(launchConfiguration.launchConfigurationName());
-        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
         setSpotPrice(launchConfiguration.spotPrice());
-        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
+        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o ->
+            findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
+        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile())
+            ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
 
     @Override
@@ -396,9 +398,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .instanceId(getInstance() != null ? getInstance().getId() : null)
             .associatePublicIpAddress(getAssociatePublicIp())
             .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                getBlockDeviceMapping()
-                    .stream()
-                    .map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
+                getBlockDeviceMapping().stream().map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
                     .collect(Collectors.toList()) : null)
             .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
             .build();
@@ -418,8 +418,8 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         try {
             client.createLaunchConfiguration(request);
         } catch (AutoScalingException ex) {
-            if (getInstanceProfile() != null
-                && ex.awsErrorDetails().errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())) {
+            if (getInstanceProfile() != null && ex.awsErrorDetails()
+                .errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())) {
                 return false;
             } else {
                 throw ex;
@@ -471,8 +471,10 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
         if (getInstance() == null) {
 
-            if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                errors.add(new ValidationError(this, null, "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
+            if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType())
+                .equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
+                errors.add(new ValidationError(this, null,
+                    "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
             }
 
             if (getSecurityGroups().isEmpty()) {
