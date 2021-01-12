@@ -133,7 +133,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html/>`_.
+     * The VPC to create the endpoint in. See `VPC Endpoints <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-endpoints.html>`_.
      */
     @Required
     public VpcResource getVpc() {

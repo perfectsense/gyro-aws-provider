@@ -52,9 +52,9 @@ import java.util.concurrent.TimeUnit;
  *         elastic-ip: $(aws::elastic-ip elastic-ip-example-for-nat-gateway)
  *         subnet: $(aws::subnet subnet-example-for-nat-gateway)
  *
- *         tags:
+ *         tags: {
  *             Name: elastic-ip-example-for-nat-gateway
- *         end
+ *         }
  *     end
  */
 @Type("nat-gateway")
