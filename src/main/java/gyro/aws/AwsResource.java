@@ -48,11 +48,11 @@ public abstract class AwsResource extends Resource {
         return (T) client;
     }
 
-    public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials) {
+    public static synchronized <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials) {
         return createClient(clientClass, credentials, null, null);
     }
 
-    public static <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
+    public static synchronized <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
         if (credentials == null) {
             throw new GyroException(String.format(
                 "Unable to create %s, no credentials specified!",
@@ -60,10 +60,10 @@ public abstract class AwsResource extends Resource {
         }
 
         String key = String.format("Client Class: %s, Credentials: %s, Region: %s, Endpoint: %s",
-            clientClass.getName(), credentials.getProfileName(),
+            clientClass.getName(), credentials.getProfileName() == null ? "" : credentials.getProfileName(),
             region == null ? credentials.getRegion() : region, endpoint == null ? "" : endpoint);
 
-        if (!clients.containsKey(key)) {
+        if (clients.get(key) == null) {
             try {
                 AwsCredentialsProvider provider = credentials.provider();
 
