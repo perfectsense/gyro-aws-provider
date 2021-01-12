@@ -20,7 +20,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-def releaseVersion = '0.99.4'
+def releaseVersion = '1.0.0'
 def releaseBuild = false;
 
 if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
@@ -77,11 +77,11 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:0.99.6' + (releaseBuild ? '' : '-SNAPSHOT')
+    api 'gyro:gyro-core:1.0.0' + (releaseBuild ? '' : '-SNAPSHOT')
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.14.25')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.15.61')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:cloudfront'
@@ -118,7 +118,7 @@ dependencies {
     implementation 'software.amazon.awssdk:wafv2'
     implementation 'org.json:json:20180813'
 
-    gyroDoclet "gyro:gyro-doclet:0.99.1"
+    gyroDoclet "gyro:gyro-doclet:1.0.0"
 }
 
 task referenceDocs(type: Javadoc) {
