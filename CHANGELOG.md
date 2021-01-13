@@ -28,7 +28,7 @@ ISSUES FIXED:
 RELEASE NOTES:
 
 Version `1.0.0` of Gyro AWS provider is not compatible with Gyro prior to version `1.0.0`.
-If you are using an older gyro version and encounter errors of the following nature, please update to gyro `1.0.0`.
+If you are using an older Gyro version and encounter errors of the following nature, please update to version `1.0.0` or higher.
 
 ```
 aws::acm-certificate prod-frontend-load-balancer → options certificate options → preference: Must be one of ENABLED, DISABLED
