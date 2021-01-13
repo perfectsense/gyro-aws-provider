@@ -29,7 +29,7 @@
  * .. code:: shell
  *
  *     {@literal @}repository: 'https://artifactory.psdops.com/gyro-releases'
- *     {@literal @}plugin: 'gyro:gyro-aws-provider:0.99.3'
+ *     {@literal @}plugin: 'gyro:gyro-aws-provider:1.0.0'
  *
  * This lets Gyro load the AWS provider plugin and lets you start managing AWS resources using Gyro.
  *
@@ -40,7 +40,7 @@
  * the AWS CLI uses.
  *
  * First, define your credentials in ``$HOME/.aws/credentials`` under a profile name
- * of your chosing:
+ * of your choosing:
  *
  * .. code:: shell
  *
