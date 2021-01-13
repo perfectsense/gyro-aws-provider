@@ -235,6 +235,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     /**
      * The list of ipv6 addresses.
      */
+    @Updatable
     public Set<String> getIpv6Addresses() {
         if (ipv6Addresses == null) {
             ipv6Addresses = new HashSet<>();

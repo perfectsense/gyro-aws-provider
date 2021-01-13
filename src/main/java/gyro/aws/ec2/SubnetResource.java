@@ -194,7 +194,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
         setVpc(findById(VpcResource.class, subnet.vpcId()));
 
-        if (subnet.hasIpv6CidrBlockAssociationSet()) {
+        if (subnet.hasIpv6CidrBlockAssociationSet() && !subnet.ipv6CidrBlockAssociationSet().isEmpty()) {
             setIpv6CidrBlock(subnet.ipv6CidrBlockAssociationSet().get(0).ipv6CidrBlock());
         }
 
