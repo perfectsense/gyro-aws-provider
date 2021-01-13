@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-## 1.0.0 (January 7th, 2021)
+## 1.0.0 (January 13th, 2021)
 
 ENHANCEMENTS: 
 
@@ -23,6 +23,21 @@ ISSUES FIXED:
 * [323](https://github.com/perfectsense/gyro-aws-provider/issues/323): Fix compilation on Windows.
 * [335](https://github.com/perfectsense/gyro-aws-provider/issues/335): Gracefully handle `Request limit exceed` exception.
 * [362](https://github.com/perfectsense/gyro-aws-provider/issues/362): Fix IAM policy refreshing older version.
+* [365](https://github.com/perfectsense/gyro-aws-provider/issues/365): Fix NPE when refreshing multiple resources.
+
+RELEASE NOTES:
+
+Version `1.0.0` of Gyro AWS provider is not compatible with Gyro prior to version `1.0.0`.
+If you are using an older gyro version and encounter errors of the following nature, please update to gyro `1.0.0`.
+
+```
+aws::acm-certificate prod-frontend-load-balancer → options certificate options → preference: Must be one of ENABLED, DISABLED
+In prod/frontend.gyro on line 59 from column 9 to 27
+58:     options
+59:         preference: ENABLED
+60:     end
+```
+
 
 ## 0.99.3 (August 25th, 2020)
 
