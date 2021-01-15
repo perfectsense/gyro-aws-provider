@@ -317,7 +317,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         Nodegroup nodegroup = getNodegroup(client);
 
-        if (nodegroup == null) {
+        if (nodegroup == null || nodegroup.status().equals(NodegroupStatus.DELETING)) {
             return false;
         }
 
