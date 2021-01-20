@@ -1,0 +1,15 @@
+aws::ecr-repository example-repo
+    repository-name: "example-repo"
+
+    lifecycle-policy
+        lifecycle-policy: 'lifecycle-policy.json'
+    end
+
+    policy
+        policy: 'repository-policy.json'
+    end
+
+    image-scanning-configuration
+        scan-on-push: false
+    end
+end
