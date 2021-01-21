@@ -163,7 +163,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
         Addon addon = getAddon(client);
 
-        if (addon == null) {
+        if (addon == null || addon.status().equals(AddonStatus.DELETING)) {
             return false;
         }
 
