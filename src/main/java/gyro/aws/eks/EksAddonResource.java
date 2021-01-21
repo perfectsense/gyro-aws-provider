@@ -211,12 +211,14 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
             client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
         }
 
-        client.updateAddon(r -> r.addonName(getAddonName())
-            .addonVersion(getAddonVersion())
-            .clusterName(getCluster().getName())
-            .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn()));
+        if (changedFieldNames.contains("addon-version") || changedFieldNames.contains("service-account-role")) {
+            client.updateAddon(r -> r.addonName(getAddonName())
+                .addonVersion(getAddonVersion())
+                .clusterName(getCluster().getName())
+                .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn()));
 
-        waitForActiveStatus(client);
+            waitForActiveStatus(client);
+        }
     }
 
     @Override
