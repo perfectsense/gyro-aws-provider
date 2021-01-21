@@ -68,7 +68,6 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     private Map<String, String> tags;
 
     // Read-only
-
     private String arn;
 
     /**
@@ -155,11 +154,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
         setCluster(findById(EksClusterResource.class, model.clusterName()));
         setServiceAccountRole(findById(RoleResource.class, model.serviceAccountRoleArn()));
         setArn(model.addonArn());
-
-        getTags().clear();
-        if (model.hasTags()) {
-            setTags(model.tags());
-        }
+        setTags(model.tags());
     }
 
     @Override
