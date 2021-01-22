@@ -2,7 +2,7 @@ aws::ecr-repository example-repo
     repository-name: "example-repo"
     lifecycle-policy: 'lifecycle-policy.json'
 
-    policy
+    repository-policy
         policy: 'repository-policy.json'
     end
 

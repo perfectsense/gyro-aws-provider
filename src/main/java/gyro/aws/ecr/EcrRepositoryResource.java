@@ -81,8 +81,8 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     private EcrImageScanningConfiguration imageScanningConfiguration;
     private ImageTagMutability imageTagMutability;
     private String repositoryName;
-    private EcrRepositoryPolicyResource policy;
     private String lifecyclePolicy;
+    private EcrRepositoryPolicyResource repositoryPolicy;
     private Map<String, String> tags;
 
     // Read-only
@@ -166,12 +166,12 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
      *
      * @subresource gyro.aws.ecr.EcrRepositoryPolicyResource
      */
-    public EcrRepositoryPolicyResource getPolicy() {
-        return policy;
+    public EcrRepositoryPolicyResource getRepositoryPolicy() {
+        return repositoryPolicy;
     }
 
-    public void setPolicy(EcrRepositoryPolicyResource policy) {
-        this.policy = policy;
+    public void setRepositoryPolicy(EcrRepositoryPolicyResource repositoryPolicy) {
+        this.repositoryPolicy = repositoryPolicy;
     }
 
     /**
@@ -194,6 +194,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
      * The ARN of the repository.
      */
     @Output
+    @Id
     public String getArn() {
         return arn;
     }
@@ -249,7 +250,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
             if (policyResponse != null) {
                 EcrRepositoryPolicyResource policy = newSubresource(EcrRepositoryPolicyResource.class);
                 policy.copyFrom(policyResponse);
-                setPolicy(policy);
+                setRepositoryPolicy(policy);
             }
         } catch (RepositoryPolicyNotFoundException ex) {
             // ignore
