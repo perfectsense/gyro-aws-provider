@@ -83,6 +83,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
 
     // Read-only
     private String arn;
+    private String uri;
 
     /**
      * The encryption configuration for the repository.
@@ -189,11 +190,24 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
         this.arn = arn;
     }
 
+    /**
+     * The URI of the repository.
+     */
+    @Output
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
     @Override
     public void copyFrom(Repository model) {
         setArn(model.repositoryArn());
         setRepositoryName(model.repositoryName());
         setImageTagMutability(model.imageTagMutability());
+        setUri(model.repositoryUri());
 
         setEncryptionConfiguration(null);
         if (model.encryptionConfiguration() != null) {
