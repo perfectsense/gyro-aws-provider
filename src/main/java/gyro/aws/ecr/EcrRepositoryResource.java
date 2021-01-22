@@ -65,7 +65,7 @@ import software.amazon.awssdk.utils.IoUtils;
  *             lifecycle-policy: 'lifecycle-policy.json'
  *         end
  *
- *         policy
+ *         repository-policy
  *             policy: 'repository-policy.json'
  *         end
  *
