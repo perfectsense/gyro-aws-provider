@@ -346,7 +346,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         Wait.atMost(20, TimeUnit.MINUTES)
             .prompt(false)
-            .checkEvery(4, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
             .until(() -> getCluster(client) == null);
     }
 
@@ -367,7 +367,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     private void waitForActiveStatus(EksClient client) {
         Wait.atMost(20, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
                 .prompt(false)
                 .until(() -> {
                     Cluster cluster = getCluster(client);
