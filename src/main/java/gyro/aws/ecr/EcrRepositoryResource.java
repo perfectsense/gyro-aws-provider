@@ -47,7 +47,7 @@ import software.amazon.awssdk.services.ecr.model.TagResourceRequest;
 import software.amazon.awssdk.services.ecr.model.UntagResourceRequest;
 
 /**
- * Create VPN Gateway.
+ * Create ECR repository.
  *
  * Example
  * -------

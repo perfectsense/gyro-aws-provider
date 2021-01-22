@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.ecr.EcrClient;
 import software.amazon.awssdk.services.ecr.model.Repository;
 
 /**
- * Query repository.
+ * Query ECR repository.
  *
  * Example
  * -------
