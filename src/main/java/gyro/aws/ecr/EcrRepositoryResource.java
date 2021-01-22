@@ -131,7 +131,6 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
      * The name of the repository.
      */
     @Required
-    @Id
     public String getRepositoryName() {
         return repositoryName;
     }
