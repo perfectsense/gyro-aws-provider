@@ -16,6 +16,8 @@
 
 package gyro.aws.ecr;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -45,6 +48,7 @@ import software.amazon.awssdk.services.ecr.model.RepositoryPolicyNotFoundExcepti
 import software.amazon.awssdk.services.ecr.model.Tag;
 import software.amazon.awssdk.services.ecr.model.TagResourceRequest;
 import software.amazon.awssdk.services.ecr.model.UntagResourceRequest;
+import software.amazon.awssdk.utils.IoUtils;
 
 /**
  * Create ECR repository.
@@ -77,8 +81,8 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     private EcrImageScanningConfiguration imageScanningConfiguration;
     private ImageTagMutability imageTagMutability;
     private String repositoryName;
-    private EcrLifecyclePolicyResource lifecyclePolicy;
     private EcrRepositoryPolicyResource policy;
+    private String lifecyclePolicy;
     private Map<String, String> tags;
 
     // Read-only
@@ -138,14 +142,22 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
 
     /**
      * The lifecycle policy for the repository.
-     *
-     * @subresource gyro.aws.ecr.EcrLifecyclePolicyResource
      */
-    public EcrLifecyclePolicyResource getLifecyclePolicy() {
-        return lifecyclePolicy;
+    @Updatable
+    public String getLifecyclePolicy() {
+        if (this.lifecyclePolicy != null && this.lifecyclePolicy.contains(".json")) {
+            try (InputStream input = openInput(this.lifecyclePolicy)) {
+                this.lifecyclePolicy = formatPolicy(IoUtils.toUtf8String(input));
+                return this.lifecyclePolicy;
+            } catch (IOException err) {
+                throw new GyroException(err.getMessage());
+            }
+        } else {
+            return this.lifecyclePolicy;
+        }
     }
 
-    public void setLifecyclePolicy(EcrLifecyclePolicyResource lifecyclePolicy) {
+    public void setLifecyclePolicy(String lifecyclePolicy) {
         this.lifecyclePolicy = lifecyclePolicy;
     }
 
@@ -247,9 +259,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
             GetLifecyclePolicyResponse lifecyclePolicyResponse = client.getLifecyclePolicy(r -> r.repositoryName(
                 getRepositoryName()));
             if (lifecyclePolicyResponse != null) {
-                EcrLifecyclePolicyResource lifecyclePolicy = newSubresource(EcrLifecyclePolicyResource.class);
-                lifecyclePolicy.copyFrom(lifecyclePolicyResponse);
-                setLifecyclePolicy(lifecyclePolicy);
+                setLifecyclePolicy(lifecyclePolicyResponse.lifecyclePolicyText());
             }
         } catch (LifecyclePolicyNotFoundException ex) {
             // ignore
@@ -287,6 +297,12 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
                 .collect(Collectors.toList())));
 
         setArn(response.repository().repositoryArn());
+
+        state.save();
+
+        if (getLifecyclePolicy() != null) {
+            putLifecyclePolicy(client);
+        }
     }
 
     @Override
@@ -307,6 +323,15 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
                 .stream().map(t -> Tag.builder().key(t.getKey()).value(t.getValue()).build())
                 .collect(Collectors.toList())).build());
         }
+
+        if (changedFieldNames.contains("lifecycle-policy")) {
+            if (getLifecyclePolicy() == null) {
+                client.deleteLifecyclePolicy(r -> r.repositoryName((getRepositoryName())));
+
+            } else {
+                putLifecyclePolicy(client);
+            }
+        }
     }
 
     @Override
@@ -320,5 +345,15 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
         DescribeRepositoriesResponse response = client.describeRepositories(r -> r.repositoryNames(getRepositoryName()));
 
         return response.repositories().isEmpty() ? null : response.repositories().get(0);
+    }
+
+    private void putLifecyclePolicy(EcrClient client) {
+        client.putLifecyclePolicy(r -> r.lifecyclePolicyText(
+            getLifecyclePolicy()).repositoryName(getRepositoryName()));
+    }
+
+    private String formatPolicy(String policy) {
+        return policy != null ? policy.replaceAll(System.lineSeparator(), " ")
+            .replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }
