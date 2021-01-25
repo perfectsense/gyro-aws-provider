@@ -81,6 +81,11 @@ public class EcrRepositoryPolicyResource extends AwsResource implements Copyable
     }
 
     @Override
+    public String primaryKey() {
+        return "repository policy";
+    }
+
+    @Override
     public void create(GyroUI ui, State state) throws Exception {
         setPolicy();
     }
