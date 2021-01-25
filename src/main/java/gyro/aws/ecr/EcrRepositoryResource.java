@@ -44,6 +44,7 @@ import software.amazon.awssdk.services.ecr.model.ImageTagMutability;
 import software.amazon.awssdk.services.ecr.model.LifecyclePolicyNotFoundException;
 import software.amazon.awssdk.services.ecr.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.ecr.model.Repository;
+import software.amazon.awssdk.services.ecr.model.RepositoryNotFoundException;
 import software.amazon.awssdk.services.ecr.model.RepositoryPolicyNotFoundException;
 import software.amazon.awssdk.services.ecr.model.Tag;
 import software.amazon.awssdk.services.ecr.model.TagResourceRequest;
@@ -339,9 +340,17 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     }
 
     private Repository getRepository(EcrClient client) {
-        DescribeRepositoriesResponse response = client.describeRepositories(r -> r.repositoryNames(getRepositoryName()));
+        Repository repository = null;
 
-        return response.repositories().isEmpty() ? null : response.repositories().get(0);
+        try {
+            DescribeRepositoriesResponse response = client.describeRepositories(r -> r.repositoryNames(getRepositoryName()));
+            repository = response.repositories().isEmpty() ? null : response.repositories().get(0);
+
+        } catch (RepositoryNotFoundException ex) {
+            // ignore
+        }
+
+        return repository;
     }
 
     private void putLifecyclePolicy(EcrClient client) {
