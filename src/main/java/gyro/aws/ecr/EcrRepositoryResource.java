@@ -60,10 +60,7 @@ import software.amazon.awssdk.utils.IoUtils;
  *
  *     aws::ecr-repository example-repo
  *         repository-name: "example-repo"
- *
- *         lifecycle-policy
- *             lifecycle-policy: 'lifecycle-policy.json'
- *         end
+ *         lifecycle-policy: 'lifecycle-policy.json'
  *
  *         repository-policy
  *             policy: 'repository-policy.json'
