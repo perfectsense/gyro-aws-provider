@@ -82,7 +82,7 @@ public class EcrRepositoryPolicyResource extends AwsResource implements Copyable
 
     @Override
     public String primaryKey() {
-        return "repository policy";
+        return "";
     }
 
     @Override
