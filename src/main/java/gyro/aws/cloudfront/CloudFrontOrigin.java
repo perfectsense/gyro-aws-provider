@@ -36,6 +36,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
     private Map<String, String> customHeaders;
     private CloudFrontS3Origin s3Origin;
     private CloudFrontCustomOrigin customOrigin;
+    private CloudFrontOriginShield originShield;
 
     /**
      * A unique ID for this origin.
@@ -124,6 +125,20 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
         this.customOrigin = customOrigin;
     }
 
+    /**
+     * Origin shield for this origin.
+     *
+     * @subresource gyro.aws.cloudfront.CloudFrontOriginShield
+     */
+    @Updatable
+    public CloudFrontOriginShield getOriginShield() {
+        return originShield;
+    }
+
+    public void setOriginShield(CloudFrontOriginShield originShield) {
+        this.originShield = originShield;
+    }
+
     @Override
     public void copyFrom(Origin origin) {
         setId(origin.id());
@@ -147,6 +162,12 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
             CloudFrontS3Origin cloudFrontS3Origin = newSubresource(CloudFrontS3Origin.class);
             cloudFrontS3Origin.copyFrom(origin.s3OriginConfig());
             setS3Origin(cloudFrontS3Origin);
+        }
+
+        if (origin.originShield() != null) {
+            CloudFrontOriginShield cloudFrontOriginShield = newSubresource(CloudFrontOriginShield.class);
+            cloudFrontOriginShield.copyFrom(origin.originShield());
+            setOriginShield(cloudFrontOriginShield);
         }
     }
 
