@@ -198,6 +198,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
             .customHeaders(customHeaders)
             .s3OriginConfig(getS3Origin() != null ? getS3Origin().toS3OriginConfig() : null)
             .customOriginConfig(getCustomOrigin() != null ? getCustomOrigin().toCustomOriginConfig() : null)
+            .originShield(getOriginShield() != null ? getOriginShield().toOriginShield() : null)
             .build();
     }
 }
