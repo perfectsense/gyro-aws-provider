@@ -16,8 +16,8 @@
 
 package gyro.aws.elbv2;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
@@ -25,25 +25,26 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.QueryStringConditionConfig;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.QueryStringKeyValuePair;
 
 public class QueryStringConditionConfiguration extends Diffable implements Copyable<QueryStringConditionConfig> {
 
-    private List<ConditionQueryStringKeyValuePair> keyValuePairs;
+    private Map<String, String> keyValuePairs;
 
     /**
      * The key/value pairs or values to find in the query string.
      */
     @Required
     @Updatable
-    public List<ConditionQueryStringKeyValuePair> getKeyValuePairs() {
+    public Map<String, String> getKeyValuePairs() {
         if (keyValuePairs == null) {
-            keyValuePairs = new ArrayList<>();
+            keyValuePairs = new HashMap<>();
         }
 
         return keyValuePairs;
     }
 
-    public void setKeyValuePairs(List<ConditionQueryStringKeyValuePair> keyValuePairs) {
+    public void setKeyValuePairs(Map<String, String> keyValuePairs) {
         this.keyValuePairs = keyValuePairs;
     }
 
@@ -51,11 +52,9 @@ public class QueryStringConditionConfiguration extends Diffable implements Copya
     public void copyFrom(QueryStringConditionConfig model) {
         getKeyValuePairs().clear();
         if (model.hasValues()) {
-            setKeyValuePairs(model.values().stream().map(r -> {
-                ConditionQueryStringKeyValuePair pair = newSubresource(ConditionQueryStringKeyValuePair.class);
-                pair.copyFrom(r);
-                return pair;
-            }).collect(Collectors.toList()));
+            for (QueryStringKeyValuePair pair : model.values()) {
+                getKeyValuePairs().put(pair.key(), pair.value());
+            }
         }
     }
 
@@ -65,7 +64,8 @@ public class QueryStringConditionConfiguration extends Diffable implements Copya
     }
 
     QueryStringConditionConfig toQueryStringConditionConfig() {
-        return QueryStringConditionConfig.builder().values(getKeyValuePairs().stream()
-            .map(ConditionQueryStringKeyValuePair::toQueryStringKeyValuePair).collect(Collectors.toList())).build();
+        return QueryStringConditionConfig.builder().values(getKeyValuePairs().entrySet().stream()
+            .map(r -> QueryStringKeyValuePair.builder().key(r.getKey()).value(r.getValue()).build())
+            .collect(Collectors.toList())).build();
     }
 }
