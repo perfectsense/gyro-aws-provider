@@ -32,6 +32,9 @@ public class CloudFrontOriginShield extends Diffable implements Copyable<OriginS
     private Boolean enabled;
     private String region;
 
+    /**
+     * When set to ``true`, CloudFront routes all requests through Origin Shield.
+     */
     @Required
     @Updatable
     public Boolean getEnabled() {
@@ -46,6 +49,9 @@ public class CloudFrontOriginShield extends Diffable implements Copyable<OriginS
         this.enabled = enabled;
     }
 
+    /**
+     * The region to check the latency with.
+     */
     @Updatable
     public String getRegion() {
         return region;
