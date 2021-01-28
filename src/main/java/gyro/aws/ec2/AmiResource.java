@@ -82,7 +82,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     private String description;
     private InstanceResource instance;
     private Boolean noReboot;
-    private Set<AmiBlockDeviceMapping> blockDeviceMapping;
+    private Set<BlockDeviceMapping> blockDeviceMapping;
     private Set<AmiLaunchPermission> launchPermission;
     private Set<String> productCodes;
     private Boolean publicLaunchPermission;
@@ -148,7 +148,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
     /**
      * A set of Block Device Mappings to be associated with the instances created by this AMI.
      */
-    public Set<AmiBlockDeviceMapping> getBlockDeviceMapping() {
+    public Set<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new HashSet<>();
         }
@@ -156,7 +156,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(Set<AmiBlockDeviceMapping> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -236,7 +236,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
         getBlockDeviceMapping().clear();
         if (image.hasBlockDeviceMappings()) {
             setBlockDeviceMapping(image.blockDeviceMappings().stream().map(m -> {
-                AmiBlockDeviceMapping mapping = newSubresource(AmiBlockDeviceMapping.class);
+                BlockDeviceMapping mapping = newSubresource(BlockDeviceMapping.class);
                 mapping.copyFrom(m);
                 return mapping;
             }).collect(Collectors.toSet()));
@@ -300,7 +300,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
             builder = builder.blockDeviceMappings(SdkBuilder::build);
         } else {
             builder = builder.blockDeviceMappings(getBlockDeviceMapping().stream()
-                .map(AmiBlockDeviceMapping::getBlockDeviceMapping).collect(Collectors.toSet()));
+                .map(BlockDeviceMapping::getBlockDeviceMapping).collect(Collectors.toSet()));
         }
 
         CreateImageResponse response = client.createImage(builder.build());

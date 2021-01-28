@@ -22,10 +22,10 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
 
-public class AmiBlockDeviceMapping extends Diffable implements Copyable<BlockDeviceMapping> {
+public class BlockDeviceMapping extends Diffable
+    implements Copyable<software.amazon.awssdk.services.ec2.model.BlockDeviceMapping> {
 
     private String deviceName;
     private Boolean deleteOnTermination;
@@ -180,7 +180,7 @@ public class AmiBlockDeviceMapping extends Diffable implements Copyable<BlockDev
     }
 
     @Override
-    public void copyFrom(BlockDeviceMapping blockDeviceMapping) {
+    public void copyFrom(software.amazon.awssdk.services.ec2.model.BlockDeviceMapping blockDeviceMapping) {
         setDeviceName(blockDeviceMapping.deviceName());
         setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
         setEncrypted(blockDeviceMapping.ebs().encrypted());
@@ -191,8 +191,8 @@ public class AmiBlockDeviceMapping extends Diffable implements Copyable<BlockDev
         setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
     }
 
-    BlockDeviceMapping getBlockDeviceMapping() {
-        return BlockDeviceMapping.builder()
+    software.amazon.awssdk.services.ec2.model.BlockDeviceMapping getBlockDeviceMapping() {
+        return software.amazon.awssdk.services.ec2.model.BlockDeviceMapping.builder()
             .deviceName(getDeviceName())
             .ebs(
                 e -> e.encrypted(getEncrypted())

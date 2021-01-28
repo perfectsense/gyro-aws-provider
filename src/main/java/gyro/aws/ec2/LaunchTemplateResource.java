@@ -103,7 +103,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private List<SecurityGroupResource> securityGroups;
     private Boolean disableApiTermination;
     private String userData;
-    private List<AmiBlockDeviceMapping> blockDeviceMapping;
+    private List<BlockDeviceMapping> blockDeviceMapping;
     private String capacityReservation;
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
@@ -297,7 +297,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      *
      * @subresource gyro.aws.ec2.AmiBlockDeviceMapping
      */
-    public List<AmiBlockDeviceMapping> getBlockDeviceMapping() {
+    public List<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();
         }
@@ -305,7 +305,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(List<AmiBlockDeviceMapping> blockDeviceMapping) {
+    public void setBlockDeviceMapping(List<BlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -430,7 +430,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
                         .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                             getBlockDeviceMapping()
-                                .stream().map(AmiBlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
+                                .stream().map(BlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
                                 .collect(Collectors.toList()) : null
                         )
                         .capacityReservationSpecification(getCapacityReservationSpecification())

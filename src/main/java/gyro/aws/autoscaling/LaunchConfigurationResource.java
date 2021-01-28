@@ -19,7 +19,7 @@ package gyro.aws.autoscaling;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.AmiResource;
-import gyro.aws.ec2.AmiBlockDeviceMapping;
+import gyro.aws.ec2.BlockDeviceMapping;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.KeyPairResource;
 import gyro.aws.ec2.SecurityGroupResource;
@@ -99,7 +99,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private Set<SecurityGroupResource> securityGroups;
     private String userData;
     private Boolean associatePublicIp;
-    private Set<AmiBlockDeviceMapping> blockDeviceMapping;
+    private Set<BlockDeviceMapping> blockDeviceMapping;
     private InstanceProfileResource instanceProfile;
 
     /**
@@ -240,7 +240,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The block device mapping to initialize the instances with.
      */
-    public Set<AmiBlockDeviceMapping> getBlockDeviceMapping() {
+    public Set<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new HashSet<>();
         }
@@ -248,7 +248,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(Set<AmiBlockDeviceMapping> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -311,7 +311,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
                 getBlockDeviceMapping()
                     .stream()
-                    .map(AmiBlockDeviceMapping::getAutoscalingBlockDeviceMapping)
+                    .map(BlockDeviceMapping::getAutoscalingBlockDeviceMapping)
                     .collect(Collectors.toList()) : null)
             .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
             .build();

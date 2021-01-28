@@ -115,7 +115,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
-    private Set<AmiBlockDeviceMapping> blockDeviceMapping;
+    private Set<BlockDeviceMapping> blockDeviceMapping;
     private InstanceProfileResource instanceProfile;
     private LaunchTemplateSpecificationResource launchTemplate;
     private String privateIpAddress;
@@ -350,7 +350,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      *
      * @subresource gyro.aws.ec2.BlockDeviceMappingResource
      */
-    public Set<AmiBlockDeviceMapping> getBlockDeviceMapping() {
+    public Set<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new HashSet<>();
         }
@@ -358,7 +358,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(Set<AmiBlockDeviceMapping> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -585,7 +585,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (!getBlockDeviceMapping().isEmpty()) {
             builder = builder.blockDeviceMappings(
                 getBlockDeviceMapping().stream()
-                    .map(AmiBlockDeviceMapping::getBlockDeviceMapping)
+                    .map(BlockDeviceMapping::getBlockDeviceMapping)
                     .collect(Collectors.toList())
             );
         }
