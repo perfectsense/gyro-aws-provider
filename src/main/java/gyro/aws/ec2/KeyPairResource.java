@@ -168,18 +168,6 @@ public class KeyPairResource extends AwsResource implements Copyable<KeyPairInfo
         client.deleteKeyPair(r -> r.keyName(getName()));
     }
 
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        ArrayList<ValidationError> errors = new ArrayList<>();
-
-        if (!configuredFields.contains("public-key-path") && !configuredFields.contains("public-key")) {
-            errors.add(new ValidationError(this, null,
-                "At least one of 'public-key-path' or 'public-key' is required"));
-        }
-
-        return errors;
-    }
-
     private String getPublicKeyFromPath() {
         try (InputStream input = openInput(getPublicKeyPath())) {
             return IoUtils.toUtf8String(input);
