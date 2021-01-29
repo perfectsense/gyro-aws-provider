@@ -61,7 +61,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
     // Read-only
     private String id;
-    private KmsKeyResource dataEncryptionKey;
+    private String dataEncryptionKey;
     private Boolean encrypted;
     private KmsKeyResource kmsKey;
     private String ownerAlias;
@@ -112,11 +112,11 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
      * The data encryption key of the snapshot.
      */
     @Output
-    public KmsKeyResource getDataEncryptionKey() {
+    public String getDataEncryptionKey() {
         return dataEncryptionKey;
     }
 
-    public void setDataEncryptionKey(KmsKeyResource dataEncryptionKey) {
+    public void setDataEncryptionKey(String dataEncryptionKey) {
         this.dataEncryptionKey = dataEncryptionKey;
     }
 
@@ -231,7 +231,7 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     @Override
     public void copyFrom(Snapshot snapshot) {
         setId(snapshot.snapshotId());
-        setDataEncryptionKey(findById(KmsKeyResource.class, snapshot.dataEncryptionKeyId()));
+        setDataEncryptionKey(snapshot.dataEncryptionKeyId());
         setDescription(snapshot.description());
         setEncrypted(snapshot.encrypted());
         setKmsKey(findById(KmsKeyResource.class, snapshot.kmsKeyId()));
