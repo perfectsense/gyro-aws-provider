@@ -33,7 +33,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateTransitGatewayVpcAttachmentResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeTransitGatewayVpcAttachmentsResponse;
@@ -147,9 +146,6 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
      * The state of the attachment.
      */
     @Output
-    @ValidStrings({
-        "INITIATING", "INITIATING_REQUEST", "PENDING_ACCEPTANCE", "ROLLING_BACK", "PENDING", "AVAILABLE",
-        "MODIFYING", "DELETING", "DELETED", "FAILED", "REJECTED", "REJECTING", "FAILING" })
     public TransitGatewayAttachmentState getState() {
         return state;
     }
