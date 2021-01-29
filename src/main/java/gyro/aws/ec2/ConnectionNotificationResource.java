@@ -69,7 +69,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     private EndpointServiceResource endpointService;
     private EndpointResource endpoint;
     private TopicResource topic;
-    private List<String> connectionEvents;
+    private Set<String> connectionEvents;
 
     // Read-only
     private String id;
@@ -125,15 +125,15 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
      */
     @Updatable
     @ValidStrings({ "Accept", "Connect", "Delete" })
-    public List<String> getConnectionEvents() {
+    public Set<String> getConnectionEvents() {
         if (connectionEvents == null) {
-            connectionEvents = new ArrayList<>(masterEventSet);
+            connectionEvents = new HashSet<>(masterEventSet);
         }
 
         return connectionEvents;
     }
 
-    public void setConnectionEvents(List<String> connectionEvents) {
+    public void setConnectionEvents(Set<String> connectionEvents) {
         this.connectionEvents = connectionEvents;
     }
 
@@ -177,8 +177,8 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     @Override
     public void copyFrom(ConnectionNotification connectionNotification) {
         setId(connectionNotification.connectionNotificationId());
-        setConnectionEvents(connectionNotification.connectionEvents());
-        setTopic(findById(TopicResource.class, connectionNotification.connectionNotificationId()));
+        setConnectionEvents(new HashSet<>(connectionNotification.connectionEvents()));
+        setTopic(findById(TopicResource.class, connectionNotification.connectionNotificationArn()));
         setId(connectionNotification.connectionNotificationId());
         setState(connectionNotification.connectionNotificationStateAsString());
         setType(connectionNotification.connectionNotificationTypeAsString());
