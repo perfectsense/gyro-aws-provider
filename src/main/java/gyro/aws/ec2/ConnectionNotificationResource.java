@@ -177,8 +177,7 @@ public class ConnectionNotificationResource extends AwsResource implements Copya
     @Override
     public void copyFrom(ConnectionNotification connectionNotification) {
         setId(connectionNotification.connectionNotificationId());
-        setConnectionEvents(connectionNotification.connectionEvents() != null
-            ? new ArrayList<>(connectionNotification.connectionEvents()) : null);
+        setConnectionEvents(connectionNotification.connectionEvents());
         setTopic(findById(TopicResource.class, connectionNotification.connectionNotificationId()));
         setId(connectionNotification.connectionNotificationId());
         setState(connectionNotification.connectionNotificationStateAsString());
