@@ -272,7 +272,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     /**
      * The desired number of instances for the Auto Scaling group.
      */
-    @Required
     @Updatable
     public Integer getDesiredCapacity() {
         return desiredCapacity;

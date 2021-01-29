@@ -234,7 +234,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
 
         Wait.atMost(15, TimeUnit.MINUTES)
             .prompt(false)
-            .checkEvery(5, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
             .until(() -> {
                 FargateProfile fargateProfile = getFargateProfile(client);
                 return fargateProfile != null && fargateProfile.status().equals(FargateProfileStatus.ACTIVE);
@@ -271,7 +271,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
 
         Wait.atMost(15, TimeUnit.MINUTES)
             .prompt(false)
-            .checkEvery(5, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
             .until(() -> getFargateProfile(client) == null);
     }
 
