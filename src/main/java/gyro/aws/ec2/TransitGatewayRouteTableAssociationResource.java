@@ -51,7 +51,6 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
     private TransitGatewayPeeringAttachmentResource peeringAttachment;
     private TransitGatewayVpcAttachmentResource vpcAttachment;
-    private VpnConnectionResource vpnAttachment;
 
     /**
      * The Peering attachment to associate with the route table.
@@ -77,18 +76,6 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
         this.vpcAttachment = vpcAttachment;
     }
 
-    /**
-     * The VPN connection to associate with the route table.
-     */
-    @ConflictsWith({ "peering-attachment", "vpc-attachment" })
-    public VpnConnectionResource getVpnAttachment() {
-        return vpnAttachment;
-    }
-
-    public void setVpnAttachment(VpnConnectionResource vpnAttachment) {
-        this.vpnAttachment = vpnAttachment;
-    }
-
     @Override
     public void copyFrom(TransitGatewayRouteTableAssociation model) {
         if (model.resourceType().equals(TransitGatewayAttachmentResourceType.PEERING)) {
@@ -96,8 +83,6 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
                 TransitGatewayPeeringAttachmentResource.class, model.transitGatewayAttachmentId()));
         } else if (model.resourceType().equals(TransitGatewayAttachmentResourceType.VPC)) {
             setVpcAttachment(findById(TransitGatewayVpcAttachmentResource.class, model.transitGatewayAttachmentId()));
-        } else if (model.resourceType().equals(TransitGatewayAttachmentResourceType.VPN)) {
-            setVpnAttachment(findById(VpnConnectionResource.class, model.transitGatewayAttachmentId()));
         }
     }
 
@@ -169,8 +154,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     }
 
     private String getAttachmentId() {
-        return getPeeringAttachment() != null ? getPeeringAttachment().getId()
-            : (getVpcAttachment() != null ? getVpcAttachment().getId() : getVpnAttachment().getId());
+        return getPeeringAttachment() != null ? getPeeringAttachment().getId() : getVpcAttachment().getId();
     }
 
     private List<TransitGatewayRouteTableAssociation> getTransitGatewayRouteTableAssociations(Ec2Client client) {

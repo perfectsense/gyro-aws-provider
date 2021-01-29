@@ -56,7 +56,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     private Boolean blackhole;
     private TransitGatewayPeeringAttachmentResource peeringAttachment;
     private TransitGatewayVpcAttachmentResource vpcAttachment;
-    private VpnConnectionResource vpnAttachment;
 
     /**
      * The Cidr block for which the route needs to be created.
@@ -109,17 +108,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
         this.vpcAttachment = vpcAttachment;
     }
 
-    /**
-     * The VPN attachment for the route.
-     */
-    public VpnConnectionResource getVpnAttachment() {
-        return vpnAttachment;
-    }
-
-    public void setVpnAttachment(VpnConnectionResource vpnAttachment) {
-        this.vpnAttachment = vpnAttachment;
-    }
-
     @Override
     public void copyFrom(TransitGatewayRoute model) {
         setDestinationCidrBlock(model.destinationCidrBlock());
@@ -134,8 +122,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
                 setVpcAttachment(findById(
                     TransitGatewayVpcAttachmentResource.class,
                     attachment.transitGatewayAttachmentId()));
-            } else if (attachment.resourceType().equals(TransitGatewayAttachmentResourceType.VPN)) {
-                setVpnAttachment(findById(VpnConnectionResource.class, attachment.transitGatewayAttachmentId()));
             }
         }
     }
@@ -216,7 +202,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     public String getAttachmentId() {
-        return getPeeringAttachment() != null ? getPeeringAttachment().getId()
-            : (getVpcAttachment() != null ? getVpcAttachment().getId() : getVpnAttachment().getId());
+        return getPeeringAttachment() != null ? getPeeringAttachment().getId() : getVpcAttachment().getId();
     }
 }
