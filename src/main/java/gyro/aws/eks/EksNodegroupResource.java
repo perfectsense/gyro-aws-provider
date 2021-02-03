@@ -382,21 +382,23 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         if (changedFieldNames.contains("labels")) {
             if (!currentResource.getLabels().isEmpty()) {
                 client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                        .clusterName(getCluster().getName())
-                        .labels(UpdateLabelsPayload.builder()
-                                .removeLabels(currentResource.getLabels().keySet())
-                                .build())
-                        .nodegroupName(getName())
-                        .build());
-            }
-
-            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
                     .clusterName(getCluster().getName())
                     .labels(UpdateLabelsPayload.builder()
-                            .addOrUpdateLabels(currentResource.getLabels())
-                            .build())
+                        .removeLabels(currentResource.getLabels().keySet())
+                        .build())
                     .nodegroupName(getName())
                     .build());
+            }
+
+            waitForActiveState(client);
+
+            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                .clusterName(getCluster().getName())
+                .labels(UpdateLabelsPayload.builder()
+                    .addOrUpdateLabels(getLabels())
+                    .build())
+                .nodegroupName(getName())
+                .build());
 
             waitForActiveState(client);
         }
