@@ -1,0 +1,95 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-eks-example"
+    }
+end
+
+@for zone, cidr -in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
+    aws::subnet "subnet-example-$(zone)"
+        vpc: $(aws::vpc vpc)
+        availability-zone: $(zone)
+        cidr-block: $(cidr)
+
+        tags: {
+            Name: "subnet-eks-example $(zone) $(cidr)",
+            "kubernetes.io/cluster/example-eks-gyro": 'shared'
+        }
+    end
+@end
+
+aws::security-group security-group-example
+    name: "example-sg-eks"
+    vpc: $(aws::vpc vpc)
+    description: "example-sg-eks"
+end
+
+aws::security-group security-group-example-source
+    name: "example-sg-eks-source"
+    vpc: $(aws::vpc vpc)
+    description: "example-sg-eks-source"
+end
+
+aws::security-group-rules security-group-rules
+    security-group: $(aws::security-group security-group-example-source)
+    keep-default-egress-rules: true
+
+    ingress
+        description: "ex-eks-sgr"
+        security-group: $(aws::security-group security-group-example-source)
+        protocol: "-1"
+    end
+end
+
+aws::iam-role example-role-iam-eks
+    name: "example-role-iam"
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"eks.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+
+    policies: [
+        "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
+        $(aws::iam-policy example-policy-iam-service)
+    ]
+end
+
+aws::iam-policy example-policy-iam-service
+    name: "example-policy-iam-service"
+    policy-document: "eks-service-policy.json"
+end
+
+aws::eks-cluster ex
+    name: "example-eks-gyro"
+    role: $(aws::iam-role example-role-iam-eks)
+    version: 1.18
+
+    vpc-config
+        enable-endpoint-private-access: true
+        enable-endpoint-public-access: true
+
+        subnets: [
+            $(aws::subnet "subnet-example-us-east-2a"),
+            $(aws::subnet "subnet-example-us-east-2b")
+        ]
+
+        security-groups: [
+            $(aws::security-group security-group-example)
+        ]
+
+        public-access-cidrs: [
+            "0.0.0.0/0"
+        ]
+    end
+
+    tags: {
+        "example-tag-key": "example-tag-value"
+    }
+end
+
+aws::eks-addon example-addon
+    addon-name: vpc-cni
+    cluster: $(aws::eks-cluster ex)
+
+    tags : {
+        "example-tag-key": "example-key-value"
+    }
+end
