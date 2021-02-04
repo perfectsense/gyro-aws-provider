@@ -337,8 +337,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         builder.subnetId(getSubnet().getId());
         builder.description(getDescription());
-        builder.ipv6Addresses(getIpv6Addresses().stream()
-            .map(r -> InstanceIpv6Address.builder().ipv6Address(r).build()).collect(Collectors.toSet()));
+
+        if (!getIpv6Addresses().isEmpty()) {
+            builder.ipv6Addresses(getIpv6Addresses().stream()
+                .map(r -> InstanceIpv6Address.builder().ipv6Address(r).build()).collect(Collectors.toSet()));
+        }
 
         if (!getSecurityGroups().isEmpty()) {
             builder.groups(getSecurityGroups()
