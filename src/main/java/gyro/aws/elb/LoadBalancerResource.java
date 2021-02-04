@@ -38,6 +38,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.elasticloadbalancing.ElasticLoadBalancingClient;
 import software.amazon.awssdk.services.elasticloadbalancing.model.CreateLoadBalancerResponse;
 import software.amazon.awssdk.services.elasticloadbalancing.model.DescribeLoadBalancerAttributesResponse;
@@ -177,7 +178,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     /**
      * The scheme - either internal or internet-facing.
      */
-    @Required
+    @ValidStrings({ "internet-facing", "internal" })
     public String getScheme() {
         return scheme;
     }
