@@ -1,0 +1,42 @@
+aws::vpc example-vpc
+    cidr-block: '10.0.0.0/16'
+    provide-ipv6-cidr-block: true
+end
+
+@for zone, cidr, ipv6-cidr -in ['us-east-2a', '10.0.0.0/24', '2600:1f16:90f:2601::/64', 'us-east-2b', '10.0.1.0/24', '2600:1f16:90f:2602::/64']
+    aws::subnet "subnet-$(zone)"
+        vpc: $(aws::vpc example-vpc)
+        availability-zone: $(zone)
+        cidr-block: $(cidr)
+        ipv6-cidr-block: $(ipv6-cidr)
+
+        tags: {
+            Name: "subnet-example $(zone) $(cidr)"
+        }
+    end
+@end
+
+aws::internet-gateway ig-example
+    vpc: $(aws::vpc example-vpc)
+
+    tags: {
+        Name: "ig-example"
+    }
+end
+
+aws::route-table route-table-example
+    vpc: $(aws::vpc example-vpc)
+    subnets: [
+        $(aws::subnet subnet-us-east-2a),
+        $(aws::subnet subnet-us-east-2b)
+    ]
+
+    route
+        destination-ipv6-cidr-block: '2600:1f16:90f:2655::/52'
+        gateway: $(aws::internet-gateway ig-example)
+    end
+
+    tags: {
+        Name: "route-table-example"
+    }
+end
