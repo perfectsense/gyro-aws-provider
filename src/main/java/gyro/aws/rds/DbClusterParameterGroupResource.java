@@ -187,6 +187,12 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
         );
 
         setArn(response.dbClusterParameterGroup().dbClusterParameterGroupArn());
+
+        List<DbParameter> dbParameters = new ArrayList<>(getParameter());
+        getParameter().clear();
+        state.save();
+        setParameter(dbParameters);
+
         modifyClusterParameterGroup();
     }
 
