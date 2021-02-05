@@ -69,7 +69,6 @@ public abstract class PredicateResource extends AbstractWafResource implements C
     /**
      * The type of condition being attached.
      */
-    @Required
     @ValidStrings({"XssMatch", "GeoMatch", "SqlInjectionMatch", "ByteMatch", "RegexMatch", "SizeConstraint", "IPMatch"})
     public String getType() {
         return type;
