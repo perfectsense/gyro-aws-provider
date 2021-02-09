@@ -113,6 +113,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     // Read-only
     private String arn;
+    private String endpoint;
 
     /**
      * The name of the EKS cluster.
@@ -223,12 +224,25 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.arn = arn;
     }
 
+    /**
+     * The Kubernetes API endpoint for this cluster.
+     */
+    @Output
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
     @Override
     public void copyFrom(Cluster model) {
         setName(model.name());
         setRole(findById(RoleResource.class, model.roleArn()));
         setVersion(model.version());
         setArn(model.arn());
+        setEndpoint(model.endpoint());
 
         EksVpcConfig eksVpcConfig = newSubresource(EksVpcConfig.class);
         eksVpcConfig.copyFrom(model.resourcesVpcConfig());
@@ -237,7 +251,6 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         EksLogging eksLogging = newSubresource(EksLogging.class);
         eksLogging.copyFrom(model.logging());
         setLogging(eksLogging);
-
     }
 
     @Override
