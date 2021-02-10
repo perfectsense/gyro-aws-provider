@@ -16,6 +16,10 @@
 
 package gyro.aws.waf.common;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -25,13 +29,12 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.waf.model.ChangeAction;
 import software.amazon.awssdk.services.waf.model.Predicate;
 import software.amazon.awssdk.services.waf.model.RuleUpdate;
 import software.amazon.awssdk.services.waf.model.UpdateRateBasedRuleRequest;
 import software.amazon.awssdk.services.waf.model.UpdateRuleRequest;
-
-import java.util.Set;
 
 public abstract class PredicateResource extends AbstractWafResource implements Copyable<Predicate> {
     private ConditionResource condition;
@@ -120,7 +123,7 @@ public abstract class PredicateResource extends AbstractWafResource implements C
         return Predicate.builder()
             .dataId(getCondition().getId())
             .negated(getNegated())
-            .type(!ObjectUtils.isBlank(getType()) ? getType() : (getCondition() != null ? getCondition().getType() : null))
+            .type(!ObjectUtils.isBlank(getType()) ? getType() : getCondition().getType())
             .build();
     }
 
@@ -146,5 +149,17 @@ public abstract class PredicateResource extends AbstractWafResource implements C
             .ruleId(parent.getRuleId())
             .rateLimit(parent.getRateLimit())
             .updates(toRuleUpdate(predicate, isDelete));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        ArrayList<ValidationError> errors = new ArrayList<>();
+
+        if (getType() == null && getCondition().getType() == null) {
+            errors.add(new ValidationError(this, "type",
+                "The 'type' needs to be set if the 'condition' does not have a type."));
+        }
+
+        return errors;
     }
 }
