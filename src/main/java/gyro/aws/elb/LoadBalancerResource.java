@@ -176,7 +176,7 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
     }
 
     /**
-     * The scheme - either internal or internet-facing. Defaults to ``internet-facing``.
+     * The scheme of the load balancer. Defaults to ``internet-facing``.
      */
     @ValidStrings({ "internet-facing", "internal" })
     public String getScheme() {
