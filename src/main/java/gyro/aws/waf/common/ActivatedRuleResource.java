@@ -75,7 +75,8 @@ public abstract class ActivatedRuleResource extends AbstractWafResource implemen
     /**
      * The type of rule being attached.
      */
-    @ValidStrings({"REGULAR", "RATE_BASED"})
+    @Required
+    @ValidStrings({"REGULAR", "RATE_BASED", "GROUP"})
     public String getType() {
         return type != null ? type.toUpperCase() : null;
     }
