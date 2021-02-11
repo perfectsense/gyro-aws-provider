@@ -163,6 +163,7 @@ aws::waf-web-acl waf-web-acl-example
         action
             type: "ALLOW"
         end
+        type: REGULAR
         priority: 1
         rule: $(aws::waf-rule rule-example-waf)
     end
@@ -171,6 +172,7 @@ aws::waf-web-acl waf-web-acl-example
         action
             type: "ALLOW"
         end
+        type: RATE_BASED
         priority: 2
         rule: $(aws::waf-rate-rule rate-rule-example-waf)
     end
