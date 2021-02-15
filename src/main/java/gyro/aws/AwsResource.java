@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import gyro.core.GyroException;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Resource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
@@ -38,11 +39,21 @@ public abstract class AwsResource extends Resource {
     private transient SdkClient client;
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass) {
+        Diffable parent = parent();
+        if (parent instanceof AwsResource) {
+            return ((AwsResource) parent).createClient(clientClass);
+        }
+
         return createClient(clientClass, null, null);
     }
 
     @SuppressWarnings("unchecked")
     protected <T extends SdkClient> T createClient(Class<T> clientClass, String region, String endpoint) {
+        Diffable parent = parent();
+        if (parent instanceof AwsResource) {
+            return ((AwsResource) parent).createClient(clientClass, region, endpoint);
+        }
+
         AwsCredentials credentials = credentials(AwsCredentials.class);
         client = createClient(clientClass, credentials, region, endpoint);
         return (T) client;
