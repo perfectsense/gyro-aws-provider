@@ -178,26 +178,31 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
             config.copyFrom(ruleCondition.hostHeaderConfig());
             setHostHeaderConfig(config);
         }
+
         if (ruleCondition.httpHeaderConfig() != null) {
             HttpHeaderConditionConfiguration config = newSubresource(HttpHeaderConditionConfiguration.class);
             config.copyFrom(ruleCondition.httpHeaderConfig());
             setHttpHeaderConfig(config);
         }
+
         if (ruleCondition.httpRequestMethodConfig() != null) {
             HttpRequestMethodConditionConfiguration config = newSubresource(HttpRequestMethodConditionConfiguration.class);
             config.copyFrom(ruleCondition.httpRequestMethodConfig());
             setHttpRequestMethodConfig(config);
         }
+
         if (ruleCondition.pathPatternConfig() != null) {
             PathPatternConditionConfiguration config = newSubresource(PathPatternConditionConfiguration.class);
             config.copyFrom(ruleCondition.pathPatternConfig());
             setPathPatternConfig(config);
         }
+
         if (ruleCondition.queryStringConfig() != null) {
             QueryStringConditionConfiguration config = newSubresource(QueryStringConditionConfiguration.class);
             config.copyFrom(ruleCondition.queryStringConfig());
             setQueryStringConfig(config);
         }
+
         if (ruleCondition.sourceIpConfig() != null) {
             SourceIpConditionConfiguration config = newSubresource(SourceIpConditionConfiguration.class);
             config.copyFrom(ruleCondition.sourceIpConfig());
