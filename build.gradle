@@ -97,6 +97,7 @@ dependencies {
     implementation 'software.amazon.awssdk:ec2'
     implementation 'software.amazon.awssdk:eks'
     implementation 'software.amazon.awssdk:efs'
+    implementation 'software.amazon.awssdk:ecr'
     implementation 'software.amazon.awssdk:elasticloadbalancing'
     implementation 'software.amazon.awssdk:elasticloadbalancingv2'
     implementation 'software.amazon.awssdk:elasticsearch'

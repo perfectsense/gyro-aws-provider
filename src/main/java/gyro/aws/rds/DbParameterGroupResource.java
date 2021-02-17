@@ -190,7 +190,15 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
         );
 
         setArn(response.dbParameterGroup().dbParameterGroupArn());
-        modifyParameterGroup();
+
+        if (!getParameter().isEmpty()) {
+            List<DbParameter> dbParameters = new ArrayList<>(getParameter());
+            getParameter().clear();
+            state.save();
+            setParameter(dbParameters);
+
+            modifyParameterGroup();
+        }
     }
 
     @Override

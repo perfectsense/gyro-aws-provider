@@ -31,6 +31,7 @@ import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayAssociationState;
+import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentResourceType;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTableAssociation;
 
 /**
@@ -50,6 +51,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
     private TransitGatewayPeeringAttachmentResource peeringAttachment;
     private TransitGatewayVpcAttachmentResource vpcAttachment;
+    private VpnConnectionResource vpnAttachment;
 
     /**
      * The Peering attachment to associate with the route table.
@@ -75,14 +77,27 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
         this.vpcAttachment = vpcAttachment;
     }
 
+    /**
+     * The VPN connection to associate with the route table.
+     */
+    @ConflictsWith({ "peering-attachment", "vpc-attachment" })
+    public VpnConnectionResource getVpnAttachment() {
+        return vpnAttachment;
+    }
+
+    public void setVpnAttachment(VpnConnectionResource vpnAttachment) {
+        this.vpnAttachment = vpnAttachment;
+    }
+
     @Override
     public void copyFrom(TransitGatewayRouteTableAssociation model) {
-        if (model.resourceTypeAsString().equals("peering")) {
+        if (model.resourceType().equals(TransitGatewayAttachmentResourceType.PEERING)) {
             setPeeringAttachment(findById(
-                TransitGatewayPeeringAttachmentResource.class,
-                model.transitGatewayAttachmentId()));
-        } else {
+                TransitGatewayPeeringAttachmentResource.class, model.transitGatewayAttachmentId()));
+        } else if (model.resourceType().equals(TransitGatewayAttachmentResourceType.VPC)) {
             setVpcAttachment(findById(TransitGatewayVpcAttachmentResource.class, model.transitGatewayAttachmentId()));
+        } else if (model.resourceType().equals(TransitGatewayAttachmentResourceType.VPN)) {
+            setVpnAttachment(findById(VpnConnectionResource.class, model.transitGatewayAttachmentId()));
         }
     }
 
@@ -154,7 +169,8 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     }
 
     private String getAttachmentId() {
-        return getPeeringAttachment() != null ? getPeeringAttachment().getId() : getVpcAttachment().getId();
+        return getPeeringAttachment() != null ? getPeeringAttachment().getId()
+            : (getVpcAttachment() != null ? getVpcAttachment().getId() : getVpnAttachment().getId());
     }
 
     private List<TransitGatewayRouteTableAssociation> getTransitGatewayRouteTableAssociations(Ec2Client client) {

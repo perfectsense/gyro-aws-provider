@@ -16,17 +16,23 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
-
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -36,18 +42,13 @@ import software.amazon.awssdk.services.ec2.model.CreateNetworkInterfaceResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkInterfacesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.services.ec2.model.InstanceIpv6Address;
 import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachment;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttachmentChanges;
+import software.amazon.awssdk.services.ec2.model.NetworkInterfaceIpv6Address;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfacePrivateIpAddress;
 import software.amazon.awssdk.services.ec2.model.PrivateIpAddressSpecification;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Create a network interface in a VPC.
@@ -94,6 +95,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     private String primaryIpv4Address;
     private Set<String> ipv4Addresses;
     private Boolean sourceDestCheck;
+    private Set<String> ipv6Addresses;
 
     /**
      * The description of the Network Interface that is being created.
@@ -231,6 +233,22 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     }
 
     /**
+     * The list of ipv6 addresses.
+     */
+    @Updatable
+    public Set<String> getIpv6Addresses() {
+        if (ipv6Addresses == null) {
+            ipv6Addresses = new HashSet<>();
+        }
+
+        return ipv6Addresses;
+    }
+
+    public void setIpv6Addresses(Set<String> ipv6Addresses) {
+        this.ipv6Addresses = ipv6Addresses;
+    }
+
+    /**
      * The ID of the Network Interface which is generated with the resource.
      */
     @Id
@@ -253,12 +271,22 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         setId(networkInterface.networkInterfaceId());
         setDescription(networkInterface.description());
         setSourceDestCheck(networkInterface.sourceDestCheck());
-        setSubnet(!ObjectUtils.isBlank(networkInterface.subnetId()) ? findById(SubnetResource.class, networkInterface.subnetId()) : null);
+        setSubnet(!ObjectUtils.isBlank(networkInterface.subnetId()) ? findById(
+            SubnetResource.class,
+            networkInterface.subnetId()) : null);
 
         if (networkInterface.groups() != null) {
             setSecurityGroups(networkInterface.groups()
                 .stream()
                 .map(o -> findById(SecurityGroupResource.class, o.groupId()))
+                .collect(Collectors.toSet()));
+        }
+
+        getIpv6Addresses().clear();
+        if (networkInterface.hasIpv6Addresses()) {
+            setIpv6Addresses(networkInterface.ipv6Addresses()
+                .stream()
+                .map(NetworkInterfaceIpv6Address::ipv6Address)
                 .collect(Collectors.toSet()));
         }
 
@@ -309,6 +337,11 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
 
         builder.subnetId(getSubnet().getId());
         builder.description(getDescription());
+
+        if (!getIpv6Addresses().isEmpty()) {
+            builder.ipv6Addresses(getIpv6Addresses().stream()
+                .map(r -> InstanceIpv6Address.builder().ipv6Address(r).build()).collect(Collectors.toSet()));
+        }
 
         if (!getSecurityGroups().isEmpty()) {
             builder.groups(getSecurityGroups()
@@ -415,30 +448,55 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             HashSet<String> current = new HashSet<>(currentNetworkInterfaceResource.getIpv4Addresses());
             HashSet<String> pending = new HashSet<>(getIpv4Addresses());
 
-            List<String> deleteIpv4Addresses = current.stream().filter(o -> !pending.contains(o)).collect(Collectors.toList());
+            List<String> deleteIpv4Addresses = current.stream()
+                .filter(o -> !pending.contains(o))
+                .collect(Collectors.toList());
             if (!deleteIpv4Addresses.isEmpty()) {
                 client.unassignPrivateIpAddresses(
-                        r -> r.networkInterfaceId(getId())
-                                .privateIpAddresses(deleteIpv4Addresses)
+                    r -> r.networkInterfaceId(getId())
+                        .privateIpAddresses(deleteIpv4Addresses)
                 );
             }
 
-            List<String> addIpv4Addresses = pending.stream().filter(o -> !current.contains(o)).collect(Collectors.toList());
+            List<String> addIpv4Addresses = pending.stream()
+                .filter(o -> !current.contains(o))
+                .collect(Collectors.toList());
             if (!addIpv4Addresses.isEmpty()) {
                 client.assignPrivateIpAddresses(r -> r.allowReassignment(true)
-                        .networkInterfaceId(getId())
-                        .privateIpAddresses(addIpv4Addresses)
+                    .networkInterfaceId(getId())
+                    .privateIpAddresses(addIpv4Addresses)
                 );
+            }
+        }
+
+        if (changedProperties.contains("ipv6-addresses")) {
+
+            NetworkInterfaceResource currentNetworkInterfaceResource = (NetworkInterfaceResource) config;
+
+            HashSet<String> current = new HashSet<>(currentNetworkInterfaceResource.getIpv6Addresses());
+            HashSet<String> pending = new HashSet<>(getIpv6Addresses());
+
+            List<String> deleteIpv6Addresses = current.stream()
+                .filter(o -> !pending.contains(o)).collect(Collectors.toList());
+            if (!deleteIpv6Addresses.isEmpty()) {
+                client.unassignIpv6Addresses(
+                    r -> r.networkInterfaceId(getId()).ipv6Addresses(deleteIpv6Addresses));
+            }
+
+            List<String> addIpv6Addresses = pending.stream()
+                .filter(o -> !current.contains(o)).collect(Collectors.toList());
+            if (!addIpv6Addresses.isEmpty()) {
+                client.assignIpv6Addresses(r -> r.networkInterfaceId(getId()).ipv6Addresses(addIpv6Addresses));
             }
         }
 
         if (changedProperties.contains("security-groups")) {
             client.modifyNetworkInterfaceAttribute(
-                    r -> r.networkInterfaceId(getId())
-                            .groups(getSecurityGroups()
-                                .stream()
-                                .map(SecurityGroupResource::getId)
-                                .collect(Collectors.toList()))
+                r -> r.networkInterfaceId(getId())
+                    .groups(getSecurityGroups()
+                        .stream()
+                        .map(SecurityGroupResource::getId)
+                        .collect(Collectors.toList()))
             );
         }
 

@@ -16,16 +16,17 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -41,8 +42,6 @@ import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import software.amazon.awssdk.services.ec2.model.NetworkAclAssociation;
 import software.amazon.awssdk.services.ec2.model.ReplaceNetworkAclAssociationResponse;
 import software.amazon.awssdk.services.ec2.model.Subnet;
-
-import java.util.Set;
 
 /**
  * Create a subnet in a VPC.
@@ -64,6 +63,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     private VpcResource vpc;
     private String cidrBlock;
+    private String ipv6CidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private String id;
@@ -93,6 +93,18 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     public void setCidrBlock(String cidrBlock) {
         this.cidrBlock = cidrBlock;
+    }
+
+    /**
+     * The IPv6 network range for the subnet, in CIDR notation.
+     */
+    @Updatable
+    public String getIpv6CidrBlock() {
+        return ipv6CidrBlock;
+    }
+
+    public void setIpv6CidrBlock(String ipv6CidrBlock) {
+        this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
     /**
@@ -182,6 +194,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
         setVpc(findById(VpcResource.class, subnet.vpcId()));
 
+        if (subnet.hasIpv6CidrBlockAssociationSet() && !subnet.ipv6CidrBlockAssociationSet().isEmpty()) {
+            setIpv6CidrBlock(subnet.ipv6CidrBlockAssociationSet().get(0).ipv6CidrBlock());
+        }
+
         refreshTags();
     }
 
@@ -244,6 +260,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSubnetRequest request = CreateSubnetRequest.builder()
+            .ipv6CidrBlock(getIpv6CidrBlock())
             .availabilityZone(getAvailabilityZone())
             .cidrBlock(getCidrBlock())
             .vpcId(getVpc().getId())
@@ -293,6 +310,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
+        }
+
+        if (changedProperties.contains("ipv6-cidr-block")) {
+            client.associateSubnetCidrBlock(r -> r.ipv6CidrBlock(getIpv6CidrBlock()).subnetId(getId()));
         }
 
         modifyAttribute(client);

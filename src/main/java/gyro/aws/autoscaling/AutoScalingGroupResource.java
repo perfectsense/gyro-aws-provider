@@ -155,7 +155,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     private Set<AutoScalingGroupLifecycleHookResource> lifecycleHook;
     private Set<AutoScalingGroupScheduledActionResource> scheduledAction;
     private Set<AutoScalingGroupNotificationResource> autoScalingNotification;
-    private int actualDesiredCapacity;
 
     private final Set<String> MASTER_METRIC_SET = new HashSet<>(Arrays.asList(
         "GroupMinSize",
@@ -650,7 +649,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
         setMinSize(autoScalingGroup.minSize());
         setAvailabilityZones(new HashSet<>(autoScalingGroup.availabilityZones()));
         setDesiredCapacity(autoScalingGroup.desiredCapacity());
-        actualDesiredCapacity = autoScalingGroup.desiredCapacity();
         setDefaultCooldown(autoScalingGroup.defaultCooldown());
         setHealthCheckType(autoScalingGroup.healthCheckType());
         setHealthCheckGracePeriod(autoScalingGroup.healthCheckGracePeriod());
@@ -785,8 +783,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
             .maxSize(getMaxSize())
             .minSize(getMinSize())
             .availabilityZones(getAvailabilityZones().isEmpty() ? null : getAvailabilityZones())
-            .desiredCapacity(getDesiredCapacity() != null ? getDesiredCapacity()
-                : getCalculatedDesiredCapacity(((AutoScalingGroupResource) current).actualDesiredCapacity))
+            .desiredCapacity(getDesiredCapacity())
             .defaultCooldown(getDefaultCooldown())
             .healthCheckType(getHealthCheckType())
             .healthCheckGracePeriod(getHealthCheckGracePeriod())
@@ -1074,22 +1071,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 r -> r.autoScalingGroupName(getName()).targetGroupARNs(addTargetGroupArns)
             );
         }
-    }
-
-    private Integer getCalculatedDesiredCapacity(int actualDesiredCapacity) {
-        int calculatedDesiredCapacity;
-
-        if (getMaxSize() != null && actualDesiredCapacity > getMaxSize()) { // if actual more than the pending max
-            calculatedDesiredCapacity = getMaxSize();
-
-        } else if (getMinSize() != null && actualDesiredCapacity < getMinSize()) { // if actual less than the pending min
-            calculatedDesiredCapacity = getMinSize();
-
-        } else {
-            calculatedDesiredCapacity = actualDesiredCapacity;
-        }
-
-        return calculatedDesiredCapacity;
     }
 
     @Override
