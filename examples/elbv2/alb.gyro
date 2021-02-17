@@ -178,16 +178,12 @@ aws::application-load-balancer-listener-rule listener-rule-example
     end
 
     condition
-        field: "path-pattern"
-
         path-pattern-config
             values: ["/pathpath"]
         end
     end
 
     condition
-        field: "host-header"
-
         host-header-config
             values: ["www.example.net"]
         end

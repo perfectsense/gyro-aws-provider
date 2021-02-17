@@ -25,7 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.HttpHeaderConditionConfig;
 
-public class HttpHeaderConditionConfiguration extends Diffable implements Copyable<HttpHeaderConditionConfig> {
+public class HttpHeaderConditionConfiguration extends Diffable implements Copyable<HttpHeaderConditionConfig>, ConditionValue {
 
     private String headerName;
     private List<String> values;
@@ -73,5 +73,10 @@ public class HttpHeaderConditionConfiguration extends Diffable implements Copyab
 
     HttpHeaderConditionConfig toHttpHeaderConditionConfig() {
         return HttpHeaderConditionConfig.builder().values(getValues()).build();
+    }
+
+    @Override
+    public String getField() {
+        return "http-header";
     }
 }

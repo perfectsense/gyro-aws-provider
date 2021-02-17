@@ -25,7 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.SourceIpConditionConfig;
 
-public class SourceIpConditionConfiguration extends Diffable implements Copyable<SourceIpConditionConfig> {
+public class SourceIpConditionConfiguration extends Diffable implements Copyable<SourceIpConditionConfig>, ConditionValue {
 
     private List<String> values;
 
@@ -58,6 +58,11 @@ public class SourceIpConditionConfiguration extends Diffable implements Copyable
 
     SourceIpConditionConfig toSourceIpConditionConfig() {
         return SourceIpConditionConfig.builder().values(getValues()).build();
+    }
+
+    @Override
+    public String getField() {
+        return "source-ip";
     }
 }
 

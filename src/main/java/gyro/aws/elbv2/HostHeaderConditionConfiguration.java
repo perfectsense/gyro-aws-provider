@@ -25,7 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.HostHeaderConditionConfig;
 
-public class HostHeaderConditionConfiguration extends Diffable implements Copyable<HostHeaderConditionConfig> {
+public class HostHeaderConditionConfiguration extends Diffable implements Copyable<HostHeaderConditionConfig>, ConditionValue {
 
     private List<String> values;
 
@@ -58,5 +58,10 @@ public class HostHeaderConditionConfiguration extends Diffable implements Copyab
 
     HostHeaderConditionConfig toHostHeaderConditionConfig() {
         return HostHeaderConditionConfig.builder().values(getValues()).build();
+    }
+
+    @Override
+    public String getField() {
+        return "host-header";
     }
 }

@@ -31,8 +31,6 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
@@ -53,27 +51,12 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleConditio
  */
 public class ConditionResource extends AwsResource implements Copyable<RuleCondition> {
 
-    private String field;
     private HostHeaderConditionConfiguration hostHeaderConfig;
     private HttpHeaderConditionConfiguration httpHeaderConfig;
     private HttpRequestMethodConditionConfiguration httpRequestMethodConfig;
     private PathPatternConditionConfiguration pathPatternConfig;
     private QueryStringConditionConfiguration queryStringConfig;
     private SourceIpConditionConfiguration sourceIpConfig;
-
-    /**
-     *  Condition field name.
-     */
-    @Required
-    @Updatable
-    @ValidStrings({ "http-header", "http-request-method", "host-header", "path-pattern", "query-string", "source-ip" })
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
 
     /**
      * The information for a host header condition.
@@ -191,18 +174,11 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public String primaryKey() {
-        return String.format("%s/%s", getField(), getHostHeaderConfig() == null ? (
-            getHttpHeaderConfig() == null ? (getHttpRequestMethodConfig() == null
-                ? (getPathPatternConfig() == null ? (
-                getQueryStringConfig() == null ? (getSourceIpConfig() == null ? "" : getSourceIpConfig().getValues())
-                    : getQueryStringConfig().getKeyValuePairs()) : getPathPatternConfig().getValues())
-                : getHttpRequestMethodConfig().getValues())
-                : getHttpHeaderConfig().getValues()) : getHostHeaderConfig().getValues());
+        return getConditionValue().getField();
     }
 
     @Override
     public void copyFrom(RuleCondition ruleCondition) {
-        setField(ruleCondition.field());
 
         if (ruleCondition.hostHeaderConfig() != null) {
             HostHeaderConditionConfiguration config = newSubresource(HostHeaderConditionConfiguration.class);
@@ -278,7 +254,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     public RuleCondition toCondition() {
         return RuleCondition.builder()
-            .field(getField())
+            .field(getConditionValue().getField())
             .hostHeaderConfig(getHostHeaderConfig() == null ?
                 null : getHostHeaderConfig().toHostHeaderConditionConfig())
             .httpHeaderConfig(getHttpHeaderConfig() == null ?
@@ -293,6 +269,13 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
             .build();
     }
 
+    private ConditionValue getConditionValue() {
+        return getHostHeaderConfig() == null ? (getHttpHeaderConfig() == null ? (getHttpRequestMethodConfig() == null
+            ? (getPathPatternConfig() == null ? (getQueryStringConfig() == null ? (getSourceIpConfig())
+            : getQueryStringConfig()) : getPathPatternConfig()) : getHttpRequestMethodConfig())
+            : getHttpHeaderConfig()) : getHostHeaderConfig();
+    }
+
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         ArrayList<ValidationError> errors = new ArrayList<>();
@@ -304,48 +287,6 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
                 this,
                 null,
                 "At least one of 'host-header-config' or 'http-header-config' or 'http-request-method-config' or 'path-pattern-config' or 'query-string-config' or 'source-ip-config' is required."));
-        }
-
-        if (getHttpHeaderConfig() != null && !getField().equals("http-header")) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'http-header-config' can only be set if 'field' is set to 'http-header'"));
-        }
-
-        if (getHttpRequestMethodConfig() != null && !getField().equals("http-request-method")) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'http-request-method-config' can only be set if 'field' is set to 'http-header'"));
-        }
-
-        if (getHostHeaderConfig() != null && !getField().equals("host-header")) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'host-header-config' can only be set if 'field' is set to 'host-header'"));
-        }
-
-        if (getPathPatternConfig() != null && !getField().equals("path-pattern")) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'path-pattern-config' can only be set if 'field' is set to 'path-pattern'"));
-        }
-
-        if (getQueryStringConfig() != null && !getField().equals("query-string")) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'query-string-config' can only be set if 'field' is set to 'query-string'"));
-        }
-
-        if (getSourceIpConfig() != null && !getField().equals("source-ip")) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "'source-ip-config' can only be set if 'field' is set to 'source-ip'"));
         }
 
         return errors;

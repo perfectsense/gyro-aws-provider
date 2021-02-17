@@ -27,7 +27,7 @@ import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.QueryStringConditionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.QueryStringKeyValuePair;
 
-public class QueryStringConditionConfiguration extends Diffable implements Copyable<QueryStringConditionConfig> {
+public class QueryStringConditionConfiguration extends Diffable implements Copyable<QueryStringConditionConfig>, ConditionValue {
 
     private Map<String, String> keyValuePairs;
 
@@ -67,5 +67,10 @@ public class QueryStringConditionConfiguration extends Diffable implements Copya
         return QueryStringConditionConfig.builder().values(getKeyValuePairs().entrySet().stream()
             .map(r -> QueryStringKeyValuePair.builder().key(r.getKey()).value(r.getValue()).build())
             .collect(Collectors.toList())).build();
+    }
+
+    @Override
+    public String getField() {
+        return "query-string";
     }
 }

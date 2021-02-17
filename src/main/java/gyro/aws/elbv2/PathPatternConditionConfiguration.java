@@ -25,7 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.PathPatternConditionConfig;
 
-public class PathPatternConditionConfiguration extends Diffable implements Copyable<PathPatternConditionConfig> {
+public class PathPatternConditionConfiguration extends Diffable implements Copyable<PathPatternConditionConfig>, ConditionValue {
 
     private List<String> values;
 
@@ -58,5 +58,10 @@ public class PathPatternConditionConfiguration extends Diffable implements Copya
 
     PathPatternConditionConfig toPathPatternConditionConfig() {
         return PathPatternConditionConfig.builder().values(getValues()).build();
+    }
+
+    @Override
+    public String getField() {
+        return "path-pattern";
     }
 }

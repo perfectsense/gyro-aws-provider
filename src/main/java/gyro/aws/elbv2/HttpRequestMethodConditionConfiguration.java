@@ -25,7 +25,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.HttpRequestMethodConditionConfig;
 
-public class HttpRequestMethodConditionConfiguration extends Diffable implements Copyable<HttpRequestMethodConditionConfig> {
+public class HttpRequestMethodConditionConfiguration extends Diffable implements Copyable<HttpRequestMethodConditionConfig>, ConditionValue {
 
     private List<String> values;
 
@@ -58,6 +58,11 @@ public class HttpRequestMethodConditionConfiguration extends Diffable implements
 
     HttpRequestMethodConditionConfig toHttpRequestMethodConditionConfig() {
         return HttpRequestMethodConditionConfig.builder().values(getValues()).build();
+    }
+
+    @Override
+    public String getField() {
+        return "http-request-method";
     }
 }
 
