@@ -98,7 +98,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * When ``true`` the scaling policy is enabled.
+     * When set to ``true`` the scaling policy is enabled.
      */
     @Updatable
     public Boolean getEnabled() {
@@ -263,7 +263,7 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     /**
-     * The ARN of the policy.
+     * The arn of the policy.
      */
     @Output
     public String getPolicyArn() {

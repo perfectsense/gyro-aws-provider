@@ -453,7 +453,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The Amazon Resource Name (ARN) of the service-linked role that the Auto Scaling Group uses to call other AWS services.
+     * The arn of the service-linked role that the Auto Scaling Group uses to call other AWS services.
      */
     public String getServiceLinkedRoleArn() {
         return serviceLinkedRoleArn;
@@ -603,7 +603,7 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     /**
-     * The ARN of the Auto Scaling Group.
+     * The arn of the Auto Scaling Group.
      */
     @Output
     public String getArn() {

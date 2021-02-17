@@ -121,7 +121,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The ARN of the notification target. Can be SQS or SNS.
+     * The arn of the notification target. Can be SQS or SNS.
      */
     @Updatable
     public String getNotificationTargetArn() {

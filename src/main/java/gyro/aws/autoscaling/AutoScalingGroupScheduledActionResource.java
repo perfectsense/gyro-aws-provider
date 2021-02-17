@@ -136,7 +136,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     /**
-     * The ARN of the scheduled action resource.
+     * The arn of the scheduled action resource.
      */
     @Output
     public String getArn() {
