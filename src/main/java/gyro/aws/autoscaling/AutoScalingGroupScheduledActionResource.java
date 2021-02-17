@@ -168,7 +168,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveScheduledAction(client);
 
         //set arn
@@ -186,7 +185,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveScheduledAction(client);
     }
 
@@ -227,7 +225,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (getMaxSize() == null && getMinSize() == null && getDesiredCapacity() == null) {

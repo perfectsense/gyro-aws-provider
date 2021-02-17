@@ -317,7 +317,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         savePolicy(client);
     }
 
@@ -325,7 +324,6 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         savePolicy(client);
     }
 
@@ -398,16 +396,8 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
-
-        // policy type validation
-        if (!getPolicyType().equals("SimpleScaling") && !getPolicyType().equals("StepScaling")
-            && !getPolicyType().equals("TargetTrackingScaling")) {
-            errors.add(new ValidationError(this, null,
-                "Invalid value '" + getPolicyType() + "' for the param 'policy-type'."
-                    + " Valid options ['SimpleScaling', 'StepScaling', 'TargetTrackingScaling']."));
-        }
 
         // Attribute validation when not SimpleScaling
         if (!getPolicyType().equals("SimpleScaling")) {
@@ -448,8 +438,11 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
             }
 
             if (getPredefinedMetricResourceLabel() != null) {
-                errors.add(new ValidationError(this, null, "The param 'predefined-metric-resource-label' is only allowed when"
-                    + " 'policy-type' is 'TargetTrackingScaling'."));
+                errors.add(new ValidationError(
+                    this,
+                    null,
+                    "The param 'predefined-metric-resource-label' is only allowed when"
+                        + " 'policy-type' is 'TargetTrackingScaling'."));
             }
 
             if (getDisableScaleIn()) {
@@ -457,14 +450,8 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
                     + " 'policy-type' is 'TargetTrackingScaling'."));
             }
 
-            // when simple or step
-            if (getAdjustmentType() == null || (getAdjustmentType().equals("ChangeInCapacity")
-                && getAdjustmentType().equals("ExactCapacity")
-                && getAdjustmentType().equals("PercentChangeInCapacity"))) {
-                errors.add(new ValidationError(this, null,
-                    "Invalid value '" + getAdjustmentType() + "' for the param 'adjustment-type'."
-                        + " Valid options ['ChangeInCapacity', 'ExactCapacity', 'PercentChangeInCapacity']."));
-            } else if (!getAdjustmentType().equals("PercentChangeInCapacity") && getMinAdjustmentMagnitude() != null) {
+            if (getAdjustmentType() != null && !getAdjustmentType().equals("PercentChangeInCapacity")
+                && getMinAdjustmentMagnitude() != null) {
                 errors.add(new ValidationError(
                     this,
                     null,
@@ -478,24 +465,11 @@ public class AutoScalingPolicyResource extends AwsResource implements Copyable<S
                 errors.add(new ValidationError(this, null, "The param 'estimated-instance-warmup' is only allowed when"
                     + " 'policy-type' is either 'StepScaling' or 'TargetTrackingScaling'."));
             }
-
-            if (getCooldown() < 0) {
-                errors.add(new ValidationError(this, null, "Invalid value '" + getCooldown() + "' for the param 'cooldown'. Needs to be a positive integer."));
-            }
         }
 
         // Attribute validation when StepScaling
-        if (getPolicyType().equals("StepScaling")) {
-            if (getStepAdjustment().isEmpty()) {
-                errors.add(new ValidationError(this, null, "the param 'step-adjustment' needs to have at least one step."));
-            }
-
-            if (!getMetricAggregationType().equals("Minimum") && !getMetricAggregationType().equals("Maximum")
-                && !getMetricAggregationType().equals("Average")) {
-                errors.add(new ValidationError(this, null,
-                    "Invalid value '" + getMetricAggregationType() + "' for the param 'metric-aggregation-type'."
-                        + " Valid options ['Minimum', 'Maximum', 'Average']."));
-            }
+        if (getPolicyType().equals("StepScaling") && getStepAdjustment().isEmpty()) {
+            errors.add(new ValidationError(this, null, "the param 'step-adjustment' needs to have at least one step."));
         }
 
         // Attribute validation when TargetTrackingScaling

@@ -410,6 +410,9 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
      * The list of cloud watch metrics to be disabled for the Auto Scaling Group. See `Cloud watch metrics <https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html#as-view-group-metrics>`_.
      */
     @Updatable
+    @ValidStrings({
+        "GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances",
+        "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances" })
     public Set<String> getDisabledMetrics() {
         if (disabledMetrics == null || disabledMetrics.isEmpty()) {
             disabledMetrics = new HashSet<>();
@@ -726,8 +729,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
-
         client.createAutoScalingGroup(r -> r.autoScalingGroupName(getName())
             .capacityRebalance(getCapacityRebalance())
             .maxInstanceLifetime(getMaxInstanceLifetime())
@@ -772,8 +773,6 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
-
-        validate();
 
         client.updateAutoScalingGroup(r -> r.autoScalingGroupName(getName())
             .capacityRebalance(getCapacityRebalance())
@@ -1094,11 +1093,14 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (getLaunchTemplate() == null && getLaunchConfiguration() == null && getInstance() == null) {
-            errors.add(new ValidationError(this, null, "Either 'launch-template' or 'launch-configuration' or 'instance' is required."));
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Either 'launch-template' or 'launch-configuration' or 'instance' is required."));
         }
 
         if (getMinSize() > getMaxSize()) {
@@ -1106,21 +1108,24 @@ public class AutoScalingGroupResource extends AwsResource implements GyroInstanc
                 + ") is invalid for parameter 'min-size'. Integer value less or equal to 'max-size'."));
         }
 
-        if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize() || getDesiredCapacity() > getMaxSize())) {
+        if (getDesiredCapacity() != null && (getDesiredCapacity() < getMinSize()
+            || getDesiredCapacity() > getMaxSize())) {
             errors.add(new ValidationError(this, null, "The value - (" + getDesiredCapacity()
                 + ") is invalid for parameter 'desired-capacity'. Integer value between the 'min-size' and 'max-size'."));
         }
 
-        if (!getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
-            errors.add(new ValidationError(this, null, "When 'enabled-metrics-collection' is set to false, 'disabled-metrics' can't have items in it."));
-        }
-
-        if (!MASTER_METRIC_SET.containsAll(getDisabledMetrics())) {
-            errors.add(new ValidationError(this, null, "Invalid values for parameter 'disabled-metrics'."));
+        if (getEnableMetricsCollection() != null && !getEnableMetricsCollection() && !getDisabledMetrics().isEmpty()) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "When 'enabled-metrics-collection' is set to false, 'disabled-metrics' can't have items in it."));
         }
 
         if (!new HashSet<>(getTags().keySet()).containsAll(getPropagateAtLaunchTags())) {
-            errors.add(new ValidationError(this, null, "'propagate-at-launch-tags' cannot contain keys not mentioned under 'tags'."));
+            errors.add(new ValidationError(
+                this,
+                null,
+                "'propagate-at-launch-tags' cannot contain keys not mentioned under 'tags'."));
         }
 
         return errors;

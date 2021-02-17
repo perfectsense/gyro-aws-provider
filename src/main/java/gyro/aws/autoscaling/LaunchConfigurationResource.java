@@ -184,6 +184,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
+    @Required
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -254,6 +255,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
      */
+    @Required
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new HashSet<>();
@@ -375,8 +377,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
-
         CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
             .launchConfigurationName(getName())
             .classicLinkVPCId(getClassicLinkVpcId())
@@ -463,7 +463,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (getInstance() == null) {
@@ -472,10 +472,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
                 .equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
                 errors.add(new ValidationError(this, null,
                     "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
-            }
-
-            if (getSecurityGroups().isEmpty()) {
-                errors.add(new ValidationError(this, null, "At least one security group is required."));
             }
         }
 
