@@ -71,4 +71,3 @@ public class NetworkAclEgressRuleResource extends NetworkAclRuleResource {
         return String.format("%s, egress", getRuleNumber());
     }
 }
-

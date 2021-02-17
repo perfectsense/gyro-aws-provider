@@ -227,4 +227,3 @@ public abstract class SecurityGroupRuleResource extends AwsResource {
         setFromPort(permission.fromPort());
     }
 }
-
