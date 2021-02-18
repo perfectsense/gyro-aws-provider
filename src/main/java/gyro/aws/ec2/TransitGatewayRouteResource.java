@@ -23,7 +23,6 @@ import java.util.Set;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -61,7 +60,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
      * The Cidr block for which the route needs to be created.
      */
     @Required
-    @Id
     public String getDestinationCidrBlock() {
         return destinationCidrBlock;
     }
@@ -106,6 +104,11 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
 
     public void setVpcAttachment(TransitGatewayVpcAttachmentResource vpcAttachment) {
         this.vpcAttachment = vpcAttachment;
+    }
+
+    @Override
+    public String primaryKey() {
+        return getDestinationCidrBlock();
     }
 
     @Override
