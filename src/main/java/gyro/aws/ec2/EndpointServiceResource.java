@@ -76,7 +76,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     private Set<EndpointServiceTypeDetail> serviceType;
 
     /**
-     * When set to ``true``, require acceptance. Defaults to true.
+     * When set to ``true``, require acceptance. Defaults to ``true``.
      */
     @Updatable
     public Boolean getAcceptanceRequired() {
