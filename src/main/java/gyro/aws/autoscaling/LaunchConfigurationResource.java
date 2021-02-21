@@ -184,7 +184,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
-    @Required
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -255,7 +254,6 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
      */
-    @Required
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new HashSet<>();
@@ -472,6 +470,10 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
                 .equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
                 errors.add(new ValidationError(this, null,
                     "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
+            }
+
+            if (getSecurityGroups().isEmpty()) {
+                errors.add(new ValidationError(this, null, "At least one security group is required."));
             }
         }
 
