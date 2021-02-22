@@ -16,21 +16,21 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.NotificationConfiguration;
-
-import java.util.Set;
 
 public class AutoScalingGroupNotificationResource extends AwsResource implements Copyable<NotificationConfiguration> {
 
@@ -70,7 +70,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     @Override
     public void copyFrom(NotificationConfiguration notificationConfiguration) {
-        setTopic(!ObjectUtils.isBlank(notificationConfiguration.topicARN()) ? findById(TopicResource.class, notificationConfiguration.topicARN()) : null);
+        setTopic(!ObjectUtils.isBlank(notificationConfiguration.topicARN())
+            ? findById(TopicResource.class, notificationConfiguration.topicARN()) : null);
         setNotificationType(notificationConfiguration.notificationType());
     }
 
@@ -83,7 +84,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveNotification(client);
     }
 
@@ -91,7 +91,6 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveNotification(client);
     }
 
@@ -99,10 +98,8 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
     public void delete(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        client.deleteNotificationConfiguration(
-            r -> r.autoScalingGroupName(getParentId())
-            .topicARN(getTopic().getArn())
-        );
+        client.deleteNotificationConfiguration(r -> r.autoScalingGroupName(getParentId())
+            .topicARN(getTopic().getArn()));
     }
 
     @Override
@@ -112,9 +109,11 @@ public class AutoScalingGroupNotificationResource extends AwsResource implements
 
     private String getParentId() {
         AutoScalingGroupResource parent = (AutoScalingGroupResource) parentResource();
+
         if (parent == null) {
             throw new GyroException("Parent Auto Scale Group resource not found.");
         }
+
         return parent.getName();
     }
 

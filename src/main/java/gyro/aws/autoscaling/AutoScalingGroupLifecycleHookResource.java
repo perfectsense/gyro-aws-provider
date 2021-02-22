@@ -16,23 +16,23 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.LifecycleHook;
-
-import java.util.Set;
 
 public class AutoScalingGroupLifecycleHookResource extends AwsResource implements Copyable<LifecycleHook> {
 
@@ -58,7 +58,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ABANDON.
+     * The action the Auto Scaling group should take when the lifecycle hook timeout elapses. Defaults to ``ABANDON``.
      */
     @Updatable
     @ValidStrings({ "CONTINUE", "ABANDON" })
@@ -75,7 +75,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The max time in seconds after which the lifecycle hook times out. Defaults to 3600.
+     * The max time in seconds after which the lifecycle hook times out. Defaults to ``3600``.
      */
     @Range(min = 30, max = 7200)
     @Updatable
@@ -92,7 +92,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The instance state to which this lifecycle hook is being attached. Defaults to 'autoscaling:EC2_INSTANCE_LAUNCHING'.
+     * The instance state to which this lifecycle hook is being attached. Defaults to ``autoscaling:EC2_INSTANCE_LAUNCHING``.
      */
     @Updatable
     @ValidStrings({ "autoscaling:EC2_INSTANCE_LAUNCHING", "autoscaling:EC2_INSTANCE_TERMINATING" })
@@ -109,7 +109,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * Additional information to be included in the notification to the notification target.
+     * The additional information to be included in the notification to the notification target.
      */
     @Updatable
     public String getNotificationMetadata() {
@@ -121,7 +121,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * The ARN of the notification target. Can be SQS or SNS.
+     * The arn of the notification target. Can be SQS or SNS.
      */
     @Updatable
     public String getNotificationTargetArn() {
@@ -133,7 +133,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     /**
-     * An IAM role that allows publication to the specified notification target.
+     * The IAM role that allows publication to the specified notification target.
      */
     @Updatable
     public RoleResource getRole() {
@@ -164,7 +164,8 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
         setLifecycleTransition(lifecycleHook.lifecycleTransition());
         setNotificationMetadata(lifecycleHook.notificationMetadata());
         setNotificationTargetArn(lifecycleHook.notificationTargetARN());
-        setRole(!ObjectUtils.isBlank(lifecycleHook.roleARN()) ? findById(RoleResource.class, lifecycleHook.roleARN()) : null);
+        setRole(!ObjectUtils.isBlank(lifecycleHook.roleARN())
+            ? findById(RoleResource.class, lifecycleHook.roleARN()) : null);
         setGlobalTimeout(lifecycleHook.globalTimeout());
     }
 
@@ -177,7 +178,6 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveLifecycleHook(client);
     }
 
@@ -185,7 +185,6 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveLifecycleHook(client);
     }
 
@@ -194,8 +193,7 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
         client.deleteLifecycleHook(
-            r -> r.autoScalingGroupName(getParentId())
-            .lifecycleHookName(getLifecycleHookName())
+            r -> r.autoScalingGroupName(getParentId()).lifecycleHookName(getLifecycleHookName())
         );
     }
 
@@ -213,15 +211,14 @@ public class AutoScalingGroupLifecycleHookResource extends AwsResource implement
     }
 
     private void saveLifecycleHook(AutoScalingClient client) {
-        client.putLifecycleHook(
-            r -> r.lifecycleHookName(getLifecycleHookName())
-                .autoScalingGroupName(getParentId())
-                .defaultResult(getDefaultResult())
-                .heartbeatTimeout(getHeartbeatTimeout())
-                .lifecycleTransition(getLifecycleTransition())
-                .notificationMetadata(getNotificationMetadata())
-                .notificationTargetARN(getNotificationTargetArn())
-                .roleARN(getRole() != null ? getRole().getArn() : null)
+        client.putLifecycleHook(r -> r.lifecycleHookName(getLifecycleHookName())
+            .autoScalingGroupName(getParentId())
+            .defaultResult(getDefaultResult())
+            .heartbeatTimeout(getHeartbeatTimeout())
+            .lifecycleTransition(getLifecycleTransition())
+            .notificationMetadata(getNotificationMetadata())
+            .notificationTargetARN(getNotificationTargetArn())
+            .roleARN(getRole() != null ? getRole().getArn() : null)
         );
     }
 

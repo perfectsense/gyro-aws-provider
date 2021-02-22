@@ -135,12 +135,13 @@ aws::autoscaling-group auto-scaling-group-example
     availability-zones: $(aws::subnet subnet-auto-scaling-group-example-1).*.availability-zone
     subnets: $(aws::subnet subnet-auto-scaling-group-example-*)
     enable-metrics-collection: false
-    tags: {
-        Name: "auto-scaling-group-example",
-        AutoTag: "propagated from auto-scaling-group-gyro-1"
-    }
+
     propagate-at-launch-tags: [
         "AutoTag"
+    ]
+
+    termination-policies: [
+        "Default"
     ]
 
     scaling-policy
@@ -172,9 +173,10 @@ aws::autoscaling-group auto-scaling-group-example
         notification-type: "autoscaling:EC2_INSTANCE_LAUNCH_ERROR"
     end
 
-    termination-policies: [
-        "Default"
-    ]
+    tags: {
+        Name: "auto-scaling-group-example",
+        AutoTag: "propagated from auto-scaling-group-gyro-1"
+    }
 end
 
 @workflow::define aws::instance deploy

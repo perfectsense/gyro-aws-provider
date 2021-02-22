@@ -35,7 +35,7 @@ public class AutoScalingApplicationSource extends Diffable implements Copyable<A
     private List<AutoScalingTagFilter> tagFilter;
 
     /**
-     * The Amazon Resource Name of a CloudFormation stack.
+     * The arn of a CloudFormation stack.
      */
     @Updatable
     @ConflictsWith("tag-filter")

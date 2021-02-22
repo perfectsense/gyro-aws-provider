@@ -16,6 +16,12 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
@@ -23,12 +29,6 @@ import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingException;
 import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsRequest;
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Query launch configuration.
@@ -57,7 +57,8 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
 
     @Override
     protected List<LaunchConfiguration> findAllAws(AutoScalingClient client) {
-        return client.describeLaunchConfigurationsPaginator().launchConfigurations().stream().collect(Collectors.toList());
+        return client.describeLaunchConfigurationsPaginator().launchConfigurations()
+            .stream().collect(Collectors.toList());
     }
 
     @Override
@@ -67,9 +68,8 @@ public class LaunchConfigurationFinder extends AwsFinder<AutoScalingClient, Laun
         if (filters.containsKey("name") && !ObjectUtils.isBlank(filters.get("name"))) {
             try {
                 launchConfigurations.addAll(client.describeLaunchConfigurations(
-                    DescribeLaunchConfigurationsRequest.builder()
-                        .launchConfigurationNames(Collections.singleton(filters.get("name")))
-                        .build()).launchConfigurations());
+                    DescribeLaunchConfigurationsRequest.builder().launchConfigurationNames(
+                        Collections.singleton(filters.get("name"))).build()).launchConfigurations());
             } catch (AutoScalingException ex) {
                 if (!ex.getLocalizedMessage().contains("does not exist")) {
                     throw ex;

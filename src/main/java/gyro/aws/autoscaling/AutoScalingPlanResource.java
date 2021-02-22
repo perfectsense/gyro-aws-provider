@@ -220,8 +220,7 @@ public class AutoScalingPlanResource extends AwsResource implements Copyable<Sca
         getScalingInstructions().clear();
         if (model.scalingInstructions() != null) {
             model.scalingInstructions().forEach(instruction -> {
-                AutoScalingScalingInstruction scalingInstruction = newSubresource(
-                    AutoScalingScalingInstruction.class);
+                AutoScalingScalingInstruction scalingInstruction = newSubresource(AutoScalingScalingInstruction.class);
                 scalingInstruction.copyFrom(instruction);
                 getScalingInstructions().add(scalingInstruction);
             });

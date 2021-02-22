@@ -16,6 +16,14 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.AmiResource;
@@ -30,9 +38,9 @@ import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
@@ -41,13 +49,6 @@ import software.amazon.awssdk.services.autoscaling.model.CreateLaunchConfigurati
 import software.amazon.awssdk.services.autoscaling.model.DescribeLaunchConfigurationsResponse;
 import software.amazon.awssdk.services.autoscaling.model.LaunchConfiguration;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates a Launch Configuration from config or an existing Instance Id.
@@ -92,11 +93,17 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private String name;
     private InstanceResource instance;
     private AmiResource ami;
+    private String classicLinkVpcId;
+    private List<String> classicLinkVpcSecurityGroups;
     private Boolean ebsOptimized;
     private String instanceType;
+    private String kernelId;
     private KeyPairResource key;
     private Boolean enableMonitoring;
+    private String placementTenacy;
+    private String ramdiskId;
     private Set<SecurityGroupResource> securityGroups;
+    private String spotPrice;
     private String userData;
     private Boolean associatePublicIp;
     private Set<BlockDeviceMapping> blockDeviceMapping;
@@ -116,7 +123,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * A launched instance that would be used as a skeleton to create the launch configuration. Required if AMI Name/ AMI ID not provided.
+     * The launched instance that would be used as a skeleton to create the launch configuration. Required if AMI Name/ AMI ID not provided.
      */
     public InstanceResource getInstance() {
         return instance;
@@ -138,7 +145,29 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable EBS optimization for an instance. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html>`_.
+     * The ID of the ClassicLink-enabled VPC.
+     */
+    public String getClassicLinkVpcId() {
+        return classicLinkVpcId;
+    }
+
+    public void setClassicLinkVpcId(String classicLinkVpcId) {
+        this.classicLinkVpcId = classicLinkVpcId;
+    }
+
+    /**
+     * The IDs of the security groups for the specified ClassicLink-enabled VPC.
+     */
+    public List<String> getClassicLinkVpcSecurityGroups() {
+        return classicLinkVpcSecurityGroups;
+    }
+
+    public void setClassicLinkVpcSecurityGroups(List<String> classicLinkVpcSecurityGroups) {
+        this.classicLinkVpcSecurityGroups = classicLinkVpcSecurityGroups;
+    }
+
+    /**
+     * When set to ``true``, EBS optimization for an instance is enabled. Defaults to ``false``. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html>`_.
      */
     public Boolean getEbsOptimized() {
         if (ebsOptimized == null) {
@@ -153,9 +182,8 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
+     * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
-    @Required
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -165,9 +193,19 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`_.
+     * The ID of the kernel associated with the AMI.
      */
-    @Required
+    public String getKernelId() {
+        return kernelId;
+    }
+
+    public void setKernelId(String kernelId) {
+        this.kernelId = kernelId;
+    }
+
+    /**
+     * The launch instance with an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`_.
+     */
     public KeyPairResource getKey() {
         return key;
     }
@@ -177,7 +215,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable or Disable monitoring for your instance. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html>`_.
+     * When set to ``true``, monitoring for your instance is enabled. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html>`_.
      */
     public Boolean getEnableMonitoring() {
         if (enableMonitoring == null) {
@@ -191,9 +229,31 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
+     * The tenancy of the instance of the launch configuration.
      */
-    @Required
+    @ValidStrings({ "default", "dedicated" })
+    public String getPlacementTenacy() {
+        return placementTenacy;
+    }
+
+    public void setPlacementTenacy(String placementTenacy) {
+        this.placementTenacy = placementTenacy;
+    }
+
+    /**
+     * The ID of the RAM disk to select for the launch configuration.
+     */
+    public String getRamdiskId() {
+        return ramdiskId;
+    }
+
+    public void setRamdiskId(String ramdiskId) {
+        this.ramdiskId = ramdiskId;
+    }
+
+    /**
+     * The launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
+     */
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new HashSet<>();
@@ -207,7 +267,18 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Set user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html>`_.
+     * The maximum hourly price for any Spot instance launched.
+     */
+    public String getSpotPrice() {
+        return spotPrice;
+    }
+
+    public void setSpotPrice(String spotPrice) {
+        this.spotPrice = spotPrice;
+    }
+
+    /**
+     * The user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html>`_.
      */
     public String getUserData() {
         if (userData == null) {
@@ -224,7 +295,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable public Ip to instances launched. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html>`_.
+     * When set to ``true``, set public IP for launched instances. See `Creating Launch Configuration <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-config.html>`_.
      */
     public Boolean getAssociatePublicIp() {
         if (associatePublicIp == null) {
@@ -253,7 +324,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     /**
-     * Iam instance profile to be linked with the instances being launched using this.
+     * The IAM instance profile to be linked with the instances being launched using this.
      */
     public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
@@ -265,15 +336,24 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
 
     @Override
     public void copyFrom(LaunchConfiguration launchConfiguration) {
+        setClassicLinkVpcId(launchConfiguration.classicLinkVPCId());
+        setClassicLinkVpcSecurityGroups(launchConfiguration.classicLinkVPCSecurityGroups());
         setAssociatePublicIp(launchConfiguration.associatePublicIpAddress());
         setInstanceType(launchConfiguration.instanceType());
-        setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(KeyPairResource.class, launchConfiguration.keyName()) : null);
+        setKernelId(launchConfiguration.kernelId());
+        setKey(!ObjectUtils.isBlank(launchConfiguration.keyName()) ? findById(
+            KeyPairResource.class, launchConfiguration.keyName()) : null);
         setUserData(new String(Base64.decodeBase64(launchConfiguration.userData())));
         setEnableMonitoring(launchConfiguration.instanceMonitoring().enabled());
+        setPlacementTenacy(launchConfiguration.placementTenancy());
+        setRamdiskId(launchConfiguration.ramdiskId());
         setEbsOptimized(launchConfiguration.ebsOptimized());
         setName(launchConfiguration.launchConfigurationName());
-        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o -> findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
-        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile()) ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
+        setSpotPrice(launchConfiguration.spotPrice());
+        setSecurityGroups(launchConfiguration.securityGroups().stream().map(o ->
+            findById(SecurityGroupResource.class, o)).collect(Collectors.toSet()));
+        setInstanceProfile(!ObjectUtils.isBlank(launchConfiguration.iamInstanceProfile())
+            ? findById(InstanceProfileResource.class, launchConfiguration.iamInstanceProfile()) : null);
     }
 
     @Override
@@ -295,23 +375,25 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
-
         CreateLaunchConfigurationRequest request = CreateLaunchConfigurationRequest.builder()
             .launchConfigurationName(getName())
+            .classicLinkVPCId(getClassicLinkVpcId())
+            .classicLinkVPCSecurityGroups(getClassicLinkVpcSecurityGroups())
             .ebsOptimized(getEbsOptimized())
             .imageId(getInstance() == null ? getAmi().getId() : null)
             .instanceMonitoring(o -> o.enabled(getEnableMonitoring()))
+            .kernelId(getKernelId())
+            .placementTenancy(getPlacementTenacy())
+            .ramdiskId(getRamdiskId())
             .securityGroups(getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+            .spotPrice(getSpotPrice())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
             .keyName(getKey() != null ? getKey().getName() : null)
             .instanceType(getInstance() == null ? getInstanceType() : null)
             .instanceId(getInstance() != null ? getInstance().getId() : null)
             .associatePublicIpAddress(getAssociatePublicIp())
             .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                getBlockDeviceMapping()
-                    .stream()
-                    .map(BlockDeviceMapping::getAutoscalingBlockDeviceMapping)
+                getBlockDeviceMapping().stream().map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
                     .collect(Collectors.toList()) : null)
             .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
             .build();
@@ -331,8 +413,8 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         try {
             client.createLaunchConfiguration(request);
         } catch (AutoScalingException ex) {
-            if (getInstanceProfile() != null
-                && ex.awsErrorDetails().errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())) {
+            if (getInstanceProfile() != null && ex.awsErrorDetails()
+                .errorMessage().equals("Invalid IamInstanceProfile: " + getInstanceProfile().getArn())) {
                 return false;
             } else {
                 throw ex;
@@ -379,13 +461,15 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (getInstance() == null) {
 
-            if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-                errors.add(new ValidationError(this, null, "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
+            if (ObjectUtils.isBlank(getInstanceType()) || InstanceType.fromValue(getInstanceType())
+                .equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
+                errors.add(new ValidationError(this, null,
+                    "The value - (" + getInstanceType() + ") is invalid for parameter Instance Type."));
             }
 
             if (getSecurityGroups().isEmpty()) {

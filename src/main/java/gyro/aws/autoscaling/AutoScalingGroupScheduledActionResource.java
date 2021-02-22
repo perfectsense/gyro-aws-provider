@@ -16,13 +16,19 @@
 
 package gyro.aws.autoscaling;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
@@ -30,12 +36,6 @@ import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.DescribeScheduledActionsResponse;
 import software.amazon.awssdk.services.autoscaling.model.ScheduledUpdateGroupAction;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 public class AutoScalingGroupScheduledActionResource extends AwsResource implements Copyable<ScheduledUpdateGroupAction> {
 
@@ -168,7 +168,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     public void create(GyroUI ui, State state) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveScheduledAction(client);
 
         //set arn
@@ -186,7 +185,6 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         AutoScalingClient client = createClient(AutoScalingClient.class);
 
-        validate();
         saveScheduledAction(client);
     }
 
@@ -227,7 +225,7 @@ public class AutoScalingGroupScheduledActionResource extends AwsResource impleme
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (getMaxSize() == null && getMinSize() == null && getDesiredCapacity() == null) {
