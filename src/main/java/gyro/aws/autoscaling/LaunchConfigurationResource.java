@@ -393,7 +393,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
             .instanceId(getInstance() != null ? getInstance().getId() : null)
             .associatePublicIpAddress(getAssociatePublicIp())
             .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                getBlockDeviceMapping().stream().map(BlockDeviceMappingResource::getAutoscalingBlockDeviceMapping)
+                getBlockDeviceMapping().stream().map(BlockDeviceMapping::getAutoscalingBlockDeviceMapping)
                     .collect(Collectors.toList()) : null)
             .iamInstanceProfile(getInstanceProfile() != null ? getInstanceProfile().getArn() : null)
             .build();
