@@ -186,7 +186,7 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
 
             for (ConditionResource c : getCondition()) {
                 if (conditionFieldIsSet.get(c.getFieldString())) {
-                    c.setHostHeaderConfig(null);
+                    c.resetConfigs();
                 } else {
                     c.setField(null);
                     c.setValue(null);
